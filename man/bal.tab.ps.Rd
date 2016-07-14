@@ -1,0 +1,109 @@
+\name{bal.tab.ps}
+\alias{bal.tab.ps}
+\title{
+Balance Statistics for twang Objects
+}
+\description{
+Generates balance statistics for \code{ps} objects from twang.
+}
+\usage{
+\method{bal.tab}{ps}(x, full.stop.method, int = FALSE, addl = NULL, 
+         continuous = c("std", "raw"), binary = c("raw", "std"), 
+         s.d.denom, m.threshold = NULL, v.threshold = NULL, 
+         un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, ...)
+}
+
+\arguments{
+  \item{x}{
+a \code{ps} object; the output of a call to \code{ps()} from the twang package.
+}
+  \item{full.stop.method}{
+a string containing the name of a stopping method used in the original call to \code{ps()}. Examples include "es.max.att" or "ks.mean.ate". \code{bal.tab()} will assess balance for the weights created by that stopping method. If no stopping method is provided, \code{bal.tab()} will default to displaying balance for the first available stopping method. 
+  }
+  \item{int}{
+\code{logical}; whether or not to include 2-way interactions of covariates included in the call to \code{ps()} and in \code{addl}.
+}
+  \item{addl}{
+a data frame of additional covariates for which to present balance. These may be covariates included in the original dataset but not included in the call to \code{ps()}. See note in Details.
+}
+  \item{continuous}{
+whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed.
+}
+  \item{binary}{
+whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed.
+}
+  \item{s.d.denom}{
+whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), or the pooled standard deviation ("pooled"), computed as the square root of the mean of the group variances. Abbreviations allowed. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{ps()} is the ATT and "pooled" if the estimand is the ATE.
+}
+  \item{m.threshold}{
+a numeric value for the threshold for mean differences. .1 is recommended. 
+}
+  \item{v.threshold}{
+a numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.
+}
+  \item{un}{
+\code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
+}
+  \item{disp.means}{
+\code{logical}; whether to print the group means in balance output.
+}
+  \item{disp.v.ratio}{
+\code{logical}; whether to display variance ratios in balance output.
+}
+  \item{...}{
+further arguments passed to or from other methods. They are ignored in this function.
+}
+}
+\details{
+\code{bal.tab.ps()} generates a list of balance summaries for the \code{ps} object given, and functions similarly to \code{bal.table()} in twang.
+
+The last four arguments of \code{bal.tab()} affect display only; they are passed directly to \code{print.bal.tab}, and do not affect any calculations or the contents of the \code{bal.tab} object. All balance statistics are calculated whether they are displayed by \code{print} or not. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+
+The input to \code{addl} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used, R will coerce it to a vector, thus making it unfit for input here. To avoid this, simply wrap the input to \code{addl} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
+}
+\value{
+An object of class \code{"bal.tab"} containing balance summaries for the \code{ps} object. The following are the elements of \code{bal.tab}:
+
+\item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
+\itemize{
+\item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
+\item{\code{M.C.Unadjusted}: The mean of the control group prior to adjusting.}
+\item{\code{M.T.Unadjusted}: The mean of the treated group prior to adjusting.}
+\item{\code{Diff.Unadjusted}: The (standardized) difference in means between the two groups prior to adjusting.}
+\item{\code{V.Ratio.Unadjusted}: The ratio of the variances of the two groups prior to adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
+\item{\code{M.C.Adjusted}: The mean of the control group after adjusting.}
+\item{\code{M.T.Adjusted}: The mean of the treated group prior to adjusting.}
+\item{\code{Diff.Adjusted}: The (standardized) difference in means between the two groups after adjusting.}
+\item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{m.threshold}.  If \code{m.threshold} is \code{NULL}, this column will be \code{NA}.}
+\item{\code{V.Ratio.Adjusted}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
+\item{\code{V.Threshold}: Whether or not the calculated variance ratio after adjusting exceeds or is within the threshold given by \code{v.threshold} for continuous variables.  If \code{v.threshold} is \code{NULL}, this column will be \code{NA}.}
+}}
+\item{Balanced.Means}{If \code{m.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for mean differences.}
+\item{Max.Imbalance.Means}{If \code{m.threshold} is specified, a table displaying the variable with the greatest absolute mean difference.}
+\item{Balanced.Variances}{If \code{v.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for variance ratios.}
+\item{Max.Imbalance.Variance}{If \code{v.threshold} is specified, a table displaying the variable with the greatest variance ratio.}
+\item{Observations}{A table displaying the sample sizes before and after adjusting.}
+\item{call}{The original \code{ps()} call.}
+\item{print.options}{A list of print options passed to \code{print.bal.tab}.}
+}
+
+\author{
+Noah Greifer \email{noah@unc.edu}
+}
+
+\seealso{
+\code{\link{bal.tab}} for details of calculations.
+}
+\examples{
+library(twang); data("lalonde", package = "cobalt")
+
+## Using ps() for generalized boosted modeling
+ps.out <- ps(treat ~ age + educ + black + hispan + married + 
+             nodegree + re74 + re75, data = lalonde, 
+             stop.method = c("es.mean", "es.max"), 
+             estimand = "ATT", verbose = FALSE)
+bal.tab(ps.out, full.stop.method = "es.max.att", un = TRUE, 
+        m.threshold = .1, v.threshold = 2)
+
+}
+\keyword{design}
