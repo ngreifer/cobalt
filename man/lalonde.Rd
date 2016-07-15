@@ -3,9 +3,7 @@
 \docType{data}
 \title{Lalonde's National Supported Work Demonstration data}
 \description{
-One of the datasets used by Dehejia and Wahba in their paper "Causal Effects 
-in Non-Experimental Studies: Reevaluating the Evaluation of Training Programs."
-Version of this data set have been used as an example dataset in MatchIt, twang, Matching, and CBPS.
+One of the datasets used by Dehejia and Wahba in their paper "Causal Effects in Non-Experimental Studies: Reevaluating the Evaluation of Training Programs." Versions of this data set have been used as an example dataset in \pkg{MatchIt}, \pkg{twang}, \pkg{Matching}, and \pkg{CBPS}.
 }
 \usage{data("lalonde")}
 \format{
@@ -25,7 +23,7 @@ Version of this data set have been used as an example dataset in MatchIt, twang,
   }
 }
 \source{
-  \url{http://www.columbia.edu/~rd247/nswdata.html}
+  \url{http://users.nber.org/~rdehejia/data/nswdata2.html}
 }
 \references{
 Lalonde, R. (1986). Evaluating the econometric evaluations of training programs

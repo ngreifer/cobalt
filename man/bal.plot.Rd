@@ -5,7 +5,7 @@
 Generate Univariate Balance Plots
 }
 \description{
-Generates density plots (for continuous variables) and histograms (for binary variables) displaying distributional balance between the treated and control groups using ggplot2.
+Generates density plots (for continuous variables) and histograms (for binary variables) displaying distributional balance between the treated and control groups using \pkg{ggplot2}.
 }
 \usage{
 bal.plot(obj, var.name, ...)
@@ -38,7 +38,7 @@ For data frames: \code{treat}, \code{data} (optional), \code{weights}, \code{dis
 
 }
 \details{
-\code{bal.plot()} uses \code{ggplot()} from the ggplot2 package, and (invisibly) returns a \code{"ggplot"} object. This mean that users can edit aspects of the plot using ggplot2 syntax. For continuous variables, density plots are created using ggplot2's \code{geom_density()} method; for binary variables, bar graphs are created using ggplot2's \code{geom_bar()} method.
+\code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. This mean that users can edit aspects of the plot using \pkg{ggplot2} syntax. For continuous variables, density plots are created using \pkg{ggplot2}'s \code{geom_density()} method; for binary variables, bar graphs are created using \pkg{ggplot2}'s \code{geom_bar()} method.
 }
 \value{
 A \code{"ggplot"} object, returned invisbly.

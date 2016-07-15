@@ -4,7 +4,7 @@
 Balance Statistics for Matching Objects
 }
 \description{
-Generates balance statistics for \code{Match} objects from Matching.
+Generates balance statistics for \code{Match} objects from \pkg{Matching}.
 }
 \usage{
 \method{bal.tab}{Match}(x, formula = NULL, data = NULL, treat = NULL, 
@@ -17,7 +17,7 @@ Generates balance statistics for \code{Match} objects from Matching.
 
 \arguments{
   \item{x}{
-a \code{Match} object; the output of a call to \code{Match()} from the Matching package.
+a \code{Match} object; the output of a call to \code{Match()} from the \pkg{Matching} package.
 }
   \item{formula}{
 a \code{formula} with the treatment variable as the response and the covariates for which balanace is to be assessed as the predictors. All named variables must be in \code{data}. See Details.
@@ -66,9 +66,9 @@ further arguments passed to or from other methods. They are ignored in this func
 }
 }
 \details{
-\code{bal.tab.Match()} generates a list of balance summaries for the Match object given, and functions similarly to \code{MatchBalance()} in Matching.
+\code{bal.tab.Match()} generates a list of balance summaries for the Match object given, and functions similarly to \code{MatchBalance()} in \pkg{Matching}.
 
-The input to \code{bal.tab.Match()} must include either both \code{formula} and \code{data} or both \code{treat} and \code{covs}. Using the \code{formula} + \code{data} inputs mirrors how \code{MatchBalance()} is used in Matching. 
+The input to \code{bal.tab.Match()} must include either both \code{formula} and \code{data} or both \code{treat} and \code{covs}. Using the \code{formula} + \code{data} inputs mirrors how \code{MatchBalance()} is used in \pkg{Matching}. 
 
 The last four arguments of \code{bal.tab()} affect display only; they are passed directly to \code{print.bal.tab} or \code{print.bal.tab.subclass}, and do not affect any calculations or the contents of the \code{bal.tab} object. All balance statistics are calculated whether they are displayed by print or not. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 

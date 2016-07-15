@@ -4,7 +4,7 @@
 Balance Statistics for twang Objects
 }
 \description{
-Generates balance statistics for \code{ps} objects from twang.
+Generates balance statistics for \code{ps} objects from \pkg{twang}.
 }
 \usage{
 \method{bal.tab}{ps}(x, full.stop.method, int = FALSE, addl = NULL, 
@@ -15,7 +15,7 @@ Generates balance statistics for \code{ps} objects from twang.
 
 \arguments{
   \item{x}{
-a \code{ps} object; the output of a call to \code{ps()} from the twang package.
+a \code{ps} object; the output of a call to \code{ps()} from the \pkg{twang} package.
 }
   \item{full.stop.method}{
 a string containing the name of a stopping method used in the original call to \code{ps()}. Examples include "es.max.att" or "ks.mean.ate". \code{bal.tab()} will assess balance for the weights created by that stopping method. If no stopping method is provided, \code{bal.tab()} will default to displaying balance for the first available stopping method. 
@@ -55,7 +55,7 @@ further arguments passed to or from other methods. They are ignored in this func
 }
 }
 \details{
-\code{bal.tab.ps()} generates a list of balance summaries for the \code{ps} object given, and functions similarly to \code{bal.table()} in twang.
+\code{bal.tab.ps()} generates a list of balance summaries for the \code{ps} object given, and functions similarly to \code{bal.table()} in \pkg{twang}.
 
 The last four arguments of \code{bal.tab()} affect display only; they are passed directly to \code{print.bal.tab}, and do not affect any calculations or the contents of the \code{bal.tab} object. All balance statistics are calculated whether they are displayed by \code{print} or not. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
@@ -97,6 +97,7 @@ Noah Greifer \email{noah@unc.edu}
 \examples{
 library(twang); data("lalonde", package = "cobalt")
 
+\dontrun{
 ## Using ps() for generalized boosted modeling
 ps.out <- ps(treat ~ age + educ + black + hispan + married + 
              nodegree + re74 + re75, data = lalonde, 
@@ -104,6 +105,6 @@ ps.out <- ps(treat ~ age + educ + black + hispan + married +
              estimand = "ATT", verbose = FALSE)
 bal.tab(ps.out, full.stop.method = "es.max.att", un = TRUE, 
         m.threshold = .1, v.threshold = 2)
-
+}
 }
 \keyword{design}

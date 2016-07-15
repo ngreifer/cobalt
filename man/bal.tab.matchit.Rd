@@ -4,7 +4,7 @@
 Balance Statistics for Matchit Objects
 }
 \description{
-Generates balance statistics for \code{matchit} objects from MatchIt.
+Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 }
 \usage{
 \method{bal.tab}{matchit}(x, int = FALSE, addl = NULL, continuous = c("std", 
@@ -17,7 +17,7 @@ Generates balance statistics for \code{matchit} objects from MatchIt.
 
 \arguments{
   \item{x}{
-a \code{matchit} object; the output of a call to \code{matchit()} from the MatchIt package.
+a \code{matchit} object; the output of a call to \code{matchit()} from the \pkg{MatchIt} package.
 }
   \item{int}{
 \code{logical}; whether or not to include 2-way interactions of covariates included in the call to \code{matchit()} and in \code{addl}.
@@ -57,7 +57,7 @@ further arguments passed to or from other methods. They are ignored in this func
 }
 }
 \details{
-\code{bal.tab.matchit()} generates a list of balance summaries for the matchit object given, and functions similarly to \code{summary.matchit()} in MatchIt. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate. 
+\code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \code{summary.matchit()} in \pkg{MatchIt}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate. 
 
 The last four arguments of \code{bal.tab()} affect display only; they are passed directly to \code{print.bal.tab} or \code{print.bal.tab.subclass}, and do not affect any calculations or the contents of the \code{bal.tab} object. All balance statistics are calculated whether they are displayed by print or not. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 

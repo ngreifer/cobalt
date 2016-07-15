@@ -1,6 +1,6 @@
 bal.tab <- function(x, ...) UseMethod("bal.tab")
 
-base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, un, disp.means, disp.v.ratio, disp.subclass = FALSE, method) {
+base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, un, disp.means, disp.v.ratio, disp.subclass = FALSE, method, ...) {
   #object: A matchit or ps object or a data.frame of treatment and weights; for computing sample sizes
   #weights: A vector of weights
   #treat: A vector of treatment status

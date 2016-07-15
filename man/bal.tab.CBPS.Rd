@@ -5,7 +5,7 @@
 Balance statistics for CBPS Objects
 }
 \description{
-Generates balance statistics for \code{CBPS} objects from the CBPS package.
+Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package.
 }
 \usage{
 \method{bal.tab}{CBPS}(x, estimand = NULL, int = FALSE, 
@@ -18,7 +18,7 @@ Generates balance statistics for \code{CBPS} objects from the CBPS package.
 
 \arguments{
   \item{x}{
-a \code{CBPS} object; the output of a call to \code{CBPS} from the CBPS package.
+a \code{CBPS} object; the output of a call to \code{CBPS()} from the \pkg{CBPS} package.
 }
   \item{estimand}{
 whether the desired estimand is the "ATT" or "ATE". Used for determining \code{s.d.denom} if not specified. \code{bal.tab()} will determine this automatically if unstandardized weights were requested in the original call to \code{CBPS()}. This argument is only required if standardized weights were requested and if \code{s.d.denom} is left blank.
@@ -58,7 +58,7 @@ further arguments passed to or from other methods. They are ignored in this func
 }
 }
 \details{
-\code{bal.tab.CBPS} generates a list of balance summaries for the \code{CBPS} object given, and functions similarly to \code{balance()} in CBPS.
+\code{bal.tab.CBPS} generates a list of balance summaries for the \code{CBPS} object given, and functions similarly to \code{balance()} in \pkg{CBPS}.
 
 The last four arguments of \code{bal.tab()} affect display only; they are passed directly to \code{print.bal.tab}, and do not affect any calculations or the contents of the \code{bal.tab} object. All balance statistics are calculated whether they are displayed by \code{print} or not. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
