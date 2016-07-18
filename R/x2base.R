@@ -35,15 +35,20 @@ ps2base <- function(ps, full.stop.method, s.d.denom) {
               s.d.denom=NA, 
               call=NA, 
               obj=NA)
-    rule1 <- ifelse(!exists("full.stop.method", mode=c("character")), NA, match.arg(tolower(full.stop.method), apply(expand.grid(c("es", "ks"), c("mean", "max"), c("att", "ate")), 1, paste, collapse='.')))
-    
-    #Initializing variables
-    if (is.na(rule1)) s <- names(ps$w)[1]
-    else if (rule1 %in% tolower(names(ps$w))) s <- names(ps$w)[match(rule1, tolower(names(ps$w)))]
-    else {
-        warning(paste0("'", full.stop.method, "' is not the name of a stop.method in ", deparse(substitute(ps, parent.frame(1))), ". Will use first available stop.method instead."), call. = FALSE)
-        s <- names(ps$w)[1]
+
+        if (exists("full.stop.method", mode=c("character"))) {
+        rule1 <- tryCatch(match.arg(tolower(full.stop.method), tolower(names(ps$w))),
+                                    #error = function() {message(paste0("Warning: '", full.stop.method, "' is not the name of a stop.method in ", deparse(substitute(ps, parent.frame(1))), ". Will use '", names(ps$w)[1], "' instead."));
+                                    error = function(cond) {message(paste0("Warning: full.stop.method should be one of ", paste(shQuote(names(ps$w)), collapse = ", "), ".\nUsing  '", names(ps$w)[1], "' instead.")); 
+                                                                return(names(ps$w)[1])})
     }
+    else {
+        rule1 <- names(ps$w)[1]
+    }
+
+    #Initializing variables
+    s <- names(ps$w)[match(tolower(rule1), tolower(names(ps$w)))]
+
     attr(ps, "which") <- s
     X$s.d.denom <- ifelse(!exists("s.d.denom", mode=c("character")), switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled"), match.arg(s.d.denom, c("treated", "control", "pooled")))
     X$weights <- as.matrix(ps$w[s])

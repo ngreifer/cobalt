@@ -1,0 +1,234 @@
+---
+title: "Covariate Balance Tables and Plots: A Guide to the cobalt Package"
+author: "Noah Greifer"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{"Covariate Balance Tables and Plots: A Guide to the cobalt Package"}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+# Introduction
+
+Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho at al, 2007). Propensity score and other related methods (e.g., coarsed exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. An excellent introduction to propensity score and other preprocessing methods is Stuart (2010) which describes them simply and clearly and points to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader knowledge of the causal assumption of strong ignorability is assumed.
+
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are MatchIt (Ho et al, 2011), twang (Ridgeway et al, 2016), and Matching (Sekhon, 2011); these are the most used propensity score analysis packages in R, and together provide a near complete set of preprocessing tools to date. 
+
+The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
+
+1. Decide on covariates for which balance must be achieved
+2. Estimate the distance measure (e.g., propensity score)
+3. Condition on the distance measure (e.g., using matching, weighting, or subclassification)
+4. Assess balance on the covariates of interest; if poor, repeat steps 2-4
+5. Estimate the treatment effect in the conditioned sample
+
+Steps 2, 3, and 4 are accomplished by all of the packages mentioned above. However, Step 4, assessing balance, is often overlooked in propensity score applications, with researchers failing to report the degree of covariate balance achieved by their conditioning (Thoemmes & Kim, 2011). Achieivng balance is the very purpose of preprocessing because covariate balance is what justifies ignorability on the observed covariates, allowing for the potential for a valid causal inference after effect estimation. 
+
+In addition to simply achieving balance, researcher must report balance to convince readers that their analysis was performed adequantely and that their causal conclusions are valid. Covariate balance is typically assessed and reported by using staistical measures, including standardized mean differences, variance ratios, and including t-test or KS-test p-values. Balance can be reported in a journal article by means of balance tables or plots displaying the balance measures before and after conditioning. If a defensible measure of balance is used an presented, readers are empowered to judge for themselves whether the causal claim made is valid or not based on the methods used and covariates chosen.
+
+**cobalt** is meant to supplement or replace the balance assessment tools in the above packages and allow researchers to simply, clearly, and flexibly assess and report balance on covariates before and after conditioning. It integrates seamlessly with the above packages so that users can employ both the conditioning package of their choice and **cobalt** in conjuction to assess and report balance. It is important to note that **cobalt** does not replace the highly sophisticated *conditioning* tools of these packages, as it does no conditioning or estimation of its own.
+
+The rest of this guide explains how to use **cobalt** with the above packages and others, as well as the choices instituted by the functions and customizable by the user.
+
+### Citing cobalt
+When using **cobalt**, please cite your use of it along with the conditioning package used. The full APA reference for **cobalt** is the following:
+
+[APA CITE]
+
+For example, if you use Matching for propensity score estimation and matching and **cobalt** for balance assessment and/or reporting, a possible citation might go as follows: "Matching was performed using Matching (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2016), both in R 3.3.0 (R Core Team, 2016)."
+
+# Why cobalt?
+
+If the major conditioning packages contain functions to assess balance, why use **cobalt** at all? cobalt arose out of several desires when using these packages: to have standardized measures that were consistent acorss all three packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. However, users of these packages may be completely satisfied with their capabilities and comfortable with their output; for them, cobalt still has value in its unique plotting capabilities that make use of ggplot2 in R.
+
+The following are some reasosn why **cobalt** may be attractive to users of MatchIt, twang, and Matching:
+
+### Visual clarity
+
+**cobalt** presents one table in its balance output, and it contains all the information required to assess balance. MatchIt presents 3 tables, twang presnts 2 tables, and Matching presents as many tables as there are covariates. Although each of these tables contain valuabel information, the `bal.tab()` function in **cobalt** allows for a quick and easy search for the information required, which is often a single column containing a balance statistic (such as the standardized difference) for the adjusted sample.
+
+### Useful summaries
+
+Although a thorough balance assessment requires examining the balance of each covariate individually, **cobalt**'s `bal.tab()` function can also produce quick balance summaries that can aid in model selection when there are many covariates or higher order terms to examine. These summaries include the proportion of covariates that have met a user-specified threshold for balance and the covariate with the highest degree of imbalance, two values that have been shown to be effective in diagnosing imbalance and potential bias (Stuart et al, 2013).
+
+### One tool to rule them all
+
+Because there is no *a priori* way to know which conditioning method will work best for a given sample, users should try several methods, and these methods are spread across various packages; for example, full matching is available only in MatchIt, generalized boosted modeling only in twang, covariate balancing propensity score weighting only in CBPS, and genetic matching is only available in MatchIt and Matching. If a user wants to compare methods on the packages' ability to generate balance in the sample, they cannot do so on the same metrics and with the same output. Each package computes balance statistics differently, and the relevant balance measures are in different places in each package, or not available at all. By using **cobalt** to assess balance across packages, users can be sure they are using a single, equivalent balance metric across methods, and the relevant balance statistcis will be in the same place and computed the same way regardless of the conditioning method used.
+
+### Flexibility
+
+**cobalt** gives users choice for what staitsics are presented and how they are calculated, but intelligently uses defaults that are in line with the goals of common balance assessment and with the data available. Rather than displaying all values calculated, `bal.tab()` only displays what the user wants; at a bare minimum, the standardized difference for each covariate is displayed, which is traditionally considered sufficient for model selection and justification in preprocessing analysis. Even if the user doesn't want other values displayed, they are all still calculated, and thus available for use in programming.
+
+### Pretty plots
+
+The main conditioning packages produce plots that can be useful in assessing balance, summairizing balance, and understanding the intricacies of the conditioning method for which simple text would be insifiicnet. Many of these plots are unique to the package, and **cobalt** has not attempted to replace or replicate them. For other plots, though, **cobalt** uses ggplot2 to present clean, clear, customizable, and high-quality plots for balance assessment and presentation. The two included plotting functions are `bal.plot()`, which generates plots of the distributions of covairates in the groups so that more complete distributional balance can be assessed beyond numerical summaries, and `love.plot()`, which generates a plot summarizing covariate balance before and after conditioning, popularized by Dr. Thomas E. Love. Because these plots use ggplot2 as their base, users familiar with ggplot2 can customize various elements of the plots for use in publications or presentations.
+
+# How To Use cobalt
+
+There are four functions for use in **cobalt**: `f.build()`, `bal.tab()`, `bal.plot()`, and `love.plot()`. The next sections describe how to use each, complete with example code and output. To start, install and load **cobalt** with the following code:
+
+```{r}
+#install.packages("cobalt")
+require("cobalt")
+```
+
+## f.build()
+
+`f.build()` is a small tool that can be helpful in quickly specifying formula inputs to functions. An example is provided below:
+
+```{r}
+data(lalonde, package = "cobalt")
+covs <- subset(lalonde, select = -c(treat, re78))
+f.build(treat, covs)
+```
+
+The function creates a `formula` object from two inputs: the left hand side (response) variable of the formula is simply the first argument to `f.build()`, unquoted; the right hand side (predictor) variables of the formula are those in the data frame given to the second argument. The utility of `f.build()` is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the variables defined above:
+```{r, message = FALSE}
+# generating propensity scores using logistic regression
+ps.model <- glm(f.build(treat, covs), data = lalonde, family = "binomial")
+
+# using matchit() from the MatchIt packages
+library("MatchIt")
+m.out <- matchit(f.build(treat, covs), data = lalonde, method = "nearest")
+```
+`f.build()` can also be used in the Matching and formula interfaces in `bal.tab()`.
+
+Note: `f.build()` uses the first argument exactly as it is given, with no evaluation or checking; therefore, the named variable does not have to exist in any data set (but, of course, it will be useful if it does). The `names` of the second argument are used to create the right hand side; therefore, the data frame does not actually have to contain the observations of the variables, just columns with names correspondign to the desired variable. In this way, users can add variables to be included in f.build by expanding the data frame with a new variable without having to fill in the variable with its true values.
+
+## bal.tab()
+
+`bal.tab()` is the primary function of **cobalt**. It produces balance tables for the objects given as inputs. The balance tables can be customized with a variety of inputs, which affect both calculation and presentation of values. It performs the same functions as `summary()` in MatchIt; `bal.table()`, `summary()`, and `dx.wts()` in twang; `MatchBalance()` and `summary()` in Matching; and `balance()` in CBPS. It can be seen as a replacememnt or a supplement to these functions. 
+
+For help using `bal.tab()`, see `?bal.tab` in R, which contains information on how certain values are calculated and links to the help files for the `bal.tab()` methods that integrate with the above packages.
+
+For simplicity, the description of the use of `bal.tab()` will be most complete in its use with MatchIt. The demonstration will display `bal.tab()`'s many options, most of which are not unique to its use with MatchIt. The other demonstrations will be minimal, highlighting how to use `bal.tab()` effectively with the other packages, but not detailing all its possible options with those packages, as doing so would be redundant.
+
+### Using bal.tab() with MatchIt
+
+`bal.tab()` is used very similarly to `summary()` in MatchIt: it takes in a `matchit` object as its input, and prints a balance table with the requested information. Below is a simple example of its use:
+
+```{r, message = FALSE}
+data(lalonde, package = "cobalt")
+covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+
+#Nearest neighbor 1:1 matching with replacement
+#library("MatchIt") #if not yet loaded
+m.out <- matchit(f.build(treat, covs0), data = lalonde, method = "nearest", replace = TRUE)
+bal.tab(m.out)
+```
+
+The ouput looks very similar to matchIt's `summary()` function: at the top is the original `matchit()` call; next is the balance table, and finally is a summary of the sample size before and after adjustment. By dafault, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab`. Setting `binary = "std"` in `bal.tab()` will produce identical calculation to those in MatchIt's `summary(m.out, standardize = TRUE)`, which produces standardized differences for binary variables as well ans continuous variables. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` or `continuous` to `"raw"` or `"std"`. 
+
+```{r}
+bal.tab(m.out, binary = "std", continuous = "std") #Same as MatchIt's summary() with std.diffs
+```
+
+
+Like with MatchIt, users can specify additional variables for which to display balance using the argument to `addl`. Users can also add all squared terms and two-way interactions between covariates, including those in `addl` by specifying `int = TRUE`. Note: unlike MatchIt's `summary()`, interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables.
+
+```{r}
+#Balance on all covariates in data set, including interactions and squares
+bal.tab(m.out, addl = lalonde[,c("nodegree", "married")], int = TRUE)
+```
+
+Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denomintor is the standard deviation of the treated group (`"treated"`), the standard deviation of the control group (`"control`"), or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087). Typically, this value does not need to be changed, as the default is often most appropriate. Because the ATT is typically saught in MatchIt applications, the default here is `"treated"`, but this can be changed. For complete details, see `?bal.tab` and below in Details.
+
+The next options only affect display, not the calculation of any statistics. First is `disp.means`, which controls whether the group means for each covariate are displayed in addition to the mean differences. This can be useful in reporting balance for publication, but in balance assessment mean differences are typically more useful.
+
+Next is `disp.v.ratio`, which controls whether variance ratios are displayed, in addition to mean differences. Variance ratios are another important tool for assessing balance beyond mean differences because they pertain the shape of the covariates distributions beyond their centers. Variance ratios close to 1 (i.e., equal variances in both groups) are indicative of group balance (Austin, 2009).
+
+Next is `un`, which controls whether the statistics to be displayed shopuld be displayed for the unadjusted group as well. This can be useful the first time balance is assessed to see the initial group imbalance. All of the packages named above display unadjusted group statistics in their balance assessment functions. Setting `un = FALSE`, which is the default, can declutter the output to maintain the spotlight on the group balance after adjustment.
+
+```{r}
+#Balance tables with variance ratios and statistics for the unadjusted sample
+bal.tab(m.out, disp.v.ratio = TRUE, un = TRUE)
+```
+
+Finally the user can specify a threshold for balance for both mean differences and variance ratios through the arguments to `m.threshold` and `v.threshold`. Thresholds can be useful in determining whether satisfactory balance has been achieved. For standardized mean differences, thresholds of .1 and .25 have been proposed, but Stuart et al. (2013) found that a threshold of .1 was more effective at assessing imbalance that would lead to biased outcome estimation. In general, standardize mean differences sould be as close to 0 as possible, but a concervative upper limit such as .1 can be a valuable heuristic in selecting models and defending the conditioning choice.
+
+When `m.threhsold` is specified, a few components are added to the balance output: there will be an extra column in the balance table stating whether each covariate is or is not balanced according to the threshold; there will be an extra table below the balance table with a tally of how many covariates are or are not balanced according to the threshold; and there will be a notice of which covariate has the greatest imbalance after conditionign and whether it met the threshold. Using a threshold for the mean difference implies that the differences are standardized (at least for continuous variables), because the threshold is meant to be scale invariant, which stanrdized mean differences are.
+
+The argument to `v.threshold` determines the threshold for variance ratios that are acceptible for balance. Variance ratios are calculated in **cobalt** such that the greater variance is in the numerator, so they will always be greater than or equal to 1. Variance ratios close to 1 are an indicator of good balance, but ratios as large as 2 may be acceptible (Rubin, 2001). When `v.threshold` is specified,  the same additional output is created as above, except in evaluation of variance ratios. Because varaicne ratios are not displayed in the balance table by default, specifying `v.threshold` will also display variance ratios in the table.
+
+```{r}
+# Balance tables with thresholds for mean differences and variance ratios
+bal.tab(m.out, m.threshold = .1, v.threshold = 2)
+```
+
+When subclassification is used in `matchit()` either by specifying `method = subclass` or by specifying `subclass`, `bal.tab()` treats the input differently and produces a different type of outout, though it has all of the same features as when just matching is used. The default output is a balance table displaying balance aggregated across subclasses. This conatins the average statistic across the subclasses, but does not contain information on variance ratios. Using the arguments discussed above (except `disp.v.ratio` and `v.threshold`) will change the output as it does when only matching is used.
+
+To examine balance within each subclass, the user can specify `disp.subclass = TRUE`, which will produce output for the subclasses in aggregate as well as for each subclass. Within subclasses, all the information above, including variance ratios, will be presented, except for statistics for the unadjusted groups (since the adjustment occurs by creating the subclasses), as specified by the user.
+
+```{r}
+# Subclassification with 6 subclasses (the default in MatchIt)
+m.out.sub <- matchit(f.build(treat, covs0), data = lalonde, method = "subclass")
+
+bal.tab(m.out.subclass, disp.subclass = TRUE)
+```
+
+The next several sections describe the use of `bal.tab()` with other packages and data structures. As stated above, the arguments controlling calculations and display are largely the same across inputs types, so they will not be described again except when they differ from use with MatchIt.
+
+### Using bal.tab() with twang
+
+Generlaized boosted regression (GBM), as used in twang, can be an effective way to generate propensity scores and weights for use in propensity score weighting. `bal.tab()` functions similarly to the functions `bal.table()` and `summary()` when used with GBM in twang. Below is a simple example of its use:
+
+```{r}
+library("twang")
+#data(lalonde, package = "cobalt") ##If not yet loaded
+#covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+
+ps.out <- ps(f.build(treat, covs0), data = lalonde, stop.method = c("es.mean",
+             "es.max"), estimand = "ATT", n.trees = 1000, verbose = FALSE)
+bal.tab(ps.out, full.stop.method = "es.mean.att")
+```
+
+The output looks a bit different from twang's `bal.table()` output. First is the original call to `ps()`. Next is the balance table containing mean differences for the covariates included in the input to `ps()`. Finally is a table displaying sample size information, similar to what would be generated using twang's `summary()` function.
+---
+
+Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+
+- Never uses retina figures
+- Has a smaller default figure size
+- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+
+## Vignette Info
+
+Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
