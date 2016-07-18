@@ -163,7 +163,7 @@ To examine balance within each subclass, the user can specify `disp.subclass = T
 # Subclassification with 6 subclasses (the default in MatchIt)
 m.out.sub <- matchit(f.build(treat, covs0), data = lalonde, method = "subclass")
 
-bal.tab(m.out.subclass, disp.subclass = TRUE)
+bal.tab(m.out.sub, disp.subclass = TRUE)
 ```
 
 The next several sections describe the use of `bal.tab()` with other packages and data structures. As stated above, the arguments controlling calculations and display are largely the same across inputs types, so they will not be described again except when they differ from use with MatchIt.
@@ -172,7 +172,7 @@ The next several sections describe the use of `bal.tab()` with other packages an
 
 Generlaized boosted regression (GBM), as used in twang, can be an effective way to generate propensity scores and weights for use in propensity score weighting. `bal.tab()` functions similarly to the functions `bal.table()` and `summary()` when used with GBM in twang. Below is a simple example of its use:
 
-```{r}
+```{r, message = FALSE}
 library("twang")
 #data(lalonde, package = "cobalt") ##If not yet loaded
 #covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
@@ -182,7 +182,12 @@ ps.out <- ps(f.build(treat, covs0), data = lalonde, stop.method = c("es.mean",
 bal.tab(ps.out, full.stop.method = "es.mean.att")
 ```
 
-The output looks a bit different from twang's `bal.table()` output. First is the original call to `ps()`. Next is the balance table containing mean differences for the covariates included in the input to `ps()`. Finally is a table displaying sample size information, similar to what would be generated using twang's `summary()` function.
+The output looks a bit different from twang's `bal.table()` output. First is the original call to `ps()`. Next is the balance table containing mean differences for the covariates included in the input to `ps()`. Finally is a table displaying sample size information, similar to what would be generated using twang's `summary()` function. The "effective" sample size is displayed when weighting (rather than matching or subclassification) is used; it is calculated as is done in twang. See the twang documentation or `?bal.tab` for details on this calculation.
+
+When using `bal.tab()` with twang, the user must specify the `ps` object, the output of a call to `ps()`, as the first argument. The second argument, `full.stop.method`, is the name of the stop method for which balance is to be assessed, since a `ps` object may contain more than if so specified. The argument to `full.stop.method` must include a stop method given in the argument to `stop.method` in the call to `ps()` and the estimand given in the argument to `estimand` in `ps()`. `bal.tab()` can only display the balance of one stop method at a time. If this argument is left empty or if the argument to `full.stop.method` does not correspond to one of the stop methods in the `ps` object, `bal.tab()` will default to displaying balance for the first stop method available. Abbreviations are allowed for the stop method, which is not case sensitive, but if more than one stop method has the same abbreviated name (e.g., "es" for "es.mean.att" and "es.max.att"), `bal.tab()` will again default to using the first stop method available.
+
+The other arguments to `bal.tab()` when using it with twang have the same form and function as those given when using it with MatchIt, except for `s.d.denom`. If the estimand of the stop method used is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`, mimicking the behavior of twang. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable.
+
 ---
 
 Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
