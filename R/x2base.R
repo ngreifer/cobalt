@@ -77,7 +77,7 @@ Match2base <- function(Match, formula=NULL, data=NULL, treat=NULL, covs=NULL, s.
         if (!is.null(formula) & class(formula)=="formula") good[1] <- 1
         if (!is.null(data) & is.data.frame(data)) good[2] <- 1
         if (!is.null(covs) & is.data.frame(covs)) good[3] <- 1
-        if (!is.null(treat) & is.numeric(treat)) good[4] <- 1
+        if (!is.null(treat) & length(unique(treat))==2) good[4] <- 1
         
         if (sum(good) %in% c(0, 1)) {
             stop("Either formula and data or treat and covs must be specified correctly.", call. = FALSE)}
@@ -180,7 +180,7 @@ Match2base <- function(Match, formula=NULL, data=NULL, treat=NULL, covs=NULL, s.
     X$treat <- o.data2$treat
     X$weights <- o.data2$weights
     X$distance <- NULL #NAs in distance bcause of incomplete list in Match object
-    X$covs <- o.data[, !names(o.data) %in% c("treat", "weights", "index")]
+    X$covs <- o.data2[, !names(o.data2) %in% c("treat", "weights", "index")]
     X$call <- NULL
     X$method <- "matching"
     X$obj <- list(treat=X$treat, weights=X$weights)
