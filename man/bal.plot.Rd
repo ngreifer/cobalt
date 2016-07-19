@@ -8,17 +8,23 @@ Generate Univariate Balance Plots
 Generates density plots (for continuous variables) and histograms (for binary variables) displaying distributional balance between the treated and control groups using \pkg{ggplot2}.
 }
 \usage{
-bal.plot(obj, var.name, ...)
+bal.plot(obj, var.name, ..., un = FALSE, which.sub = NULL)
 }
 \arguments{
   \item{obj}{
 the object for which balance is to be assessed; can be a \code{matchit} object from MatchIt, a \code{ps} object from twang, a \code{Match} object from Matching, or a \code{formula} or data frame containing covariate information.
 }
   \item{var.name}{
-\code{character}; the name of the variable whose values are to be plotted.
+\code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{\dQuote{.distance}} as the argument.
 }
   \item{\dots}{
 other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments.
+}
+  \item{un}{
+  \code{logical}; whether to display distributional balance for the unadjusted sample or not. The default is to display balance for the adjusted sample.
+ }
+  \item{which.sub}{
+If subclassification is used, a single number corresponding to the subclass for which the distributions are to be displayed.
 }
 }
 \section{Additional Arguments}{
@@ -35,7 +41,6 @@ For \code{CBPS} objects: None
 For \code{formula}s: \code{data}, \code{weights}, \code{distance} (optional), \code{method} (optional; see defaults)
 
 For data frames: \code{treat}, \code{data} (optional), \code{weights}, \code{distance} (optional), \code{method} (optional; see defaults)
-
 }
 \details{
 \code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. This mean that users can edit aspects of the plot using \pkg{ggplot2} syntax. For continuous variables, density plots are created using \pkg{ggplot2}'s \code{geom_density()} method; for binary variables, bar graphs are created using \pkg{ggplot2}'s \code{geom_bar()} method.
