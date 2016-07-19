@@ -307,7 +307,7 @@ bp + theme_bw() + scale_fill_manual( values = c("black","white")) +
     labs(title = "Distributional Balance for Age", x = "Age")
 ```
 
-Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like MatchIt's `plot(..., type = "jitter")` or twangs `plot(..., plots = "boxplot")`. To examine the distance measure, the input to `var.name` must be `".distance"` (noting the "`.`" at the beginning). 
+Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like MatchIt's `plot(..., type = "hist")` or twangs `plot(..., plots = "boxplot")`. To examine the distance measure, the input to `var.name` must be `".distance"` (noting the "`.`" at the beginning). 
 
 ## love.plot
 
