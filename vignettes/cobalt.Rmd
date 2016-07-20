@@ -297,27 +297,139 @@ The first argument (or set of arguments) is the sufficient set of arguments for 
 
 The user can also specify whether distributional balance is to be shown before or after adjusting by using the argument to `un`, as with `bal.tab()`. If `un = TRUE`, balance will be displayed for the unadjusted sample only. The default is to display balance for the adjusted sample.
 
-The output of `bal.plot()` is a density plot for the two groups on the given covariate. For categorical or binary variables, a bar graph is displayed instead. The x-axis is the value of the variable, and the y-axis is the proportion density or proportion of the variable in the given group. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, where the variable is split into several binary variables.
+The output of `bal.plot()` is a density plot for the two groups on the given covariate. For categorical or binary variables, a bar graph is displayed instead. The x-axis is the value of the variable, and the y-axis is the proportion density or proportion of the variable in the given group. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, where the variable is split into several binary variables. The degree to which the density plots for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. String distributional similarity is especially important for variables strongly related to the outcome of interest.
 
 The output plot is made using ggplot2, which means that users familiar with ggplot2 can adjust the plot with ggplot2 commands. For example, to change the colors and theme to black and white, and to change the axis and title names, the following code can be used:
 
-```{r}
+```{r, message = FALSE}
+library("ggplot2")
 bp <- bal.plot(m.out, "age")
 bp + theme_bw() + scale_fill_manual( values = c("black","white")) + 
     labs(title = "Distributional Balance for Age", x = "Age")
 ```
 
-Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like MatchIt's `plot(..., type = "hist")` or twangs `plot(..., plots = "boxplot")`. To examine the distance measure, the input to `var.name` must be `".distance"` (noting the "`.`" at the beginning). 
+Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like MatchIt's `plot(..., type = "hist")` or twang's `plot(..., plots = "boxplot")`. To examine the distributions of the distance measure, the input to `var.name` must be `".distance"` (noting the "`.`" at the beginning). If the data input object doesn't already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to `bal.plot()` through `distance`, in addition to being called through `var.name`. Below is an example using the formula input to `bal.plot()` with to display the distributions of propensity scores prior to adjustment:
+
+```{r}
+data(lalonde, package = "cobalt") #If not yet loaded
+covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+
+fit <- glm(f.build(treat, covs0), data = lalonde, family = "binomial")
+lalonde$p.score <- fit$fitted.values
+lalonde$att.weights <- with(lalonde, treat + (1-treat)*p.score/(1-p.score))
+
+bal.plot(f.build(treat, covs0), data = lalonde, var.name = ".distance",
+         weights = "att.weights", distance = "p.score", 
+         method = "weighting", un = TRUE)
+```
+
+The same plot could have been generated omiting the argument to `weights` and setting `un = FALSE` (or omitting it). It is generally not a useful assessment of balance to examine the overlap of the distance measure distributions after adjustment, as most conditioning methods will yield good distributional overlap on the distance measure whether or not balance is achieved on the covariates (Stuart et al, 2013).
 
 ## love.plot
 
-# Details on Calculations
+The Love plot is a summary plot of covariate balance before and after conditioning popularized by Thomas Love (Love, 2004). In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielson, 2016). Although Love plots are used with some frequency and there are tools to generate them, none of the packages used form conditioning include a function for quickly and easily generating them. `love.plot()` does just this, prividing the user with sveeral options to customize their plot for publication. Below is an example of its use:
+
+```{r}
+data(lalonde, package = "cobalt")
+covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+
+# Nearest neighbor 1:1 matching with replacement
+library("MatchIt") #if not yet loaded
+m.out <- matchit(f.build(treat, covs0), data = lalonde, method = "nearest", replace = TRUE)
+
+love.plot(bal.tab(m.out), threshold = .1)
+```
+
+`love.plot()` takes as its first argument the output of a call to `bal.tab()`; this can be accompished simply by insderting the call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument. There are several other arguments, all of which control display, and are described below.
+
+The output is a plot with the distance measure on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved. Like the output of `bal.plot()`, the output of `love.plot()` is a ggplot2 object, which means ggplot2 users can modify the plot to their liking for presentation or publication. This might involve changing the colors, shapes, or labels used in the plot.
+
+The default is to present mean differences as they are calculated in the call to `bal.tab()`; by specifying `stat = "variance.ratios"` (abbreviations allowed), the user can request variance ratios instead. Because some variables don't have variance ratios calculated (e.g., binary variables), there will be empty rows if variance ratios are requested, but these rows can be deleted by setting `no.missing = TRUE`.
+
+The threshold works similarly to `m.threshold` and `v.threshold` in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on whcih to evaluate the displayed balance measures. If these thresholds are specified in `bal.tab()`, `love.plot()` will use them in the resultant plot with the corresponding balance statistic. The `threshold` argument to `love.plot()` takes precedence.
+
+If mean difference are requested, `love.plot()` will use the mean differences as they are calculated by `bal.tab()` and presented in the mean differences columns of the balance table. See the section on using `bal.tab()` to see what the default calculations are for these values. If `abs = TRUE` in `love.plot()`, the plot will display absolute mean differences, which can aid in display clarity since the magnitude is generally the more important aspect of the statistic.
+
+The order of the covariates displayed can be adjusted using the argument to `var.order`. If left empty or `NULL`, the covariaes will be listed in alphabetical order. If `"adjusted"`, covaiates will be ordered by the requested balance statistic of the adjusted sample. If `"unadjusted"`, covariates will be ordered by the requested balance statistic of the unadjusted sample, which tends to be more visually appealing. Abbreviatons are allowed here.
+
+The plot uses the original variable names as they are given in the data set, which may not not be the names desired for display in publication. By using the argument to `var.names`, users can specify their own variable names to be used instead. This can also be done using ggplot2 commands after the plot has been generated. To specify new variable names with `var.names`, the user must enter an object containing the new variable names and, optionally, the old variable names to replace. For options of how to do so, see the help file for `love.plot()` with `?love.plot`. Below is an example, creating a publication ready plot:
+
+```{r}
+v <- data.frame(old = c("age", "educ", "black", "hispan", 
+                        "re74", "re75"),
+                new = c("Age", "Years of Education", "Black", 
+                        "Hispanic", "Earnings 1974", 
+                        "Earnings 1975"))
+                
+love.plot(bal.tab(m.out), stat = "mean.diffs", threshold = .1, 
+          var.order = "unadjusted", var.names = v, abs = TRUE)
+```
+
+This plot shows that balance was improved on all variables after adjustment, bringing all but 1 below the threshold of .1 for absolute mean differences.
+
+# Details on Calculations and Features
+
+##s.d.denom
+[Always use SD of original group]
+
+##weighted variance
+[for use in var.ratio and std.diffs; formula in Austin vs. traditonal (survey) for sample weighted var; When weights = 1 same value. ]
+
+#Effective sample size for weighting
+[copy formula from twang]
+
+#Using prognositic score
+[demonstration of use with addl, reference Stuart et al 2013]
 
 # What's Missing in cobalt
 
+Compared to the other packages, cobalt may appear quite sparse. A fair amount is missing in cobalt that is present in other packages. Thogh there is value in many of the aspects that cobalt lacks, many were purposefully excluded based on methdologoical recommendations that conflict with the current use of some other packages. Below are aspects that are intentially missing from cobalt that users may be used to from other packages. Their reason for exclusion is included, with the hope that users of cobalt will be satisfied with what is available and be confident htey are using the most methodologically sound tools for balance assessment.
+
+## Test Statistics and P-values
+
+Some of the early literature on propensity score matching included measures for balance assessment that relied on hypothesis tests for the independence of treatment assignment and covariates after adjustment (e.g., Rosenbaum & Rubin, 1983; Hansen, 2004). In a review of propensity score applications in the social sciences, Thoemmes & Kim (2011) found that over 66% of studies used signfiicance tests to assess balance. Likewise, Austin (2008) found that over 70% of studies using propensity scores in the medical literature used signfiicance tests to assess balance, a finding replicated by Ali et al (2016). These hypothesis tests can come in many forms: t-tests for the difference in means between groups, chi-square tests for the difference in proportion between groups, Kolmogorov-Smirnov tests for the difference in cummulative density between groups, or F-tests for the difference in means bewteen groups across subclasses.
+
+The use of hypothesis tests appears natural here: if balance is achieved, we would not expect extreme values for the test statistics, and we can quantify the probability of observing imbalance as extreme as the one observed if there is balance as a way to assess whether there is balance, as we can do with standard hypothesis testing. But this view is not shared by the methodological community: virtually all contemporary propensity score methodolgoists recommend against using hypothesis tests for balance assessment (e.g., Austin, 2009; 2011; Ho et al, 2007; Imai, King & Suart, 2008; Stuart, 2010; Thoemmes & Kim, 2011; Ali et al, 2015). There are logical reasons for this preference agains hypothesis tests, noted clearly in Ali et al (2015): they are influenced by sample size, which fluctuates during adjustment, and the theory behind them is inappropriate because balance is a quality solely of the sample in question, not as it relates to a population. The relevant informaiton in a hypothesis test for group differences is the standardized magnitude of the group difference, and so such a measure is preferred. 
+
+Because hypothesis tests can be misleading and their use is discouraged by leading methodologists, they have been completely excluded in cobalt in favor of summary statistics. This stands in contrast to twang and Matching, both of which report hypothesis test p-values in their balance output.
+
+## Q-Q Plots and Summaries
+
+Q-Q plots have been recommended as tools to assess distributional balance of covariates between groups (Ho et al, 2007), and are implemented in MatchIt and Matching (twang implements them but for a different purpose). Statistics summaries the degree of imbalance in QQ plots are also reported in both MatchIt and Matching. MatchIt's `summary()` command by default reports "eQQ Med", "eQQ Mean", and "eQQ Max" for each covariate before and after adjustment. These are the median, mean, and maximum distance between the treated and control group empirical Q-Q plots on the scale of the covariate. When `standardize = TRUE`, the values reported are "eCDF Med", "eCDF Mean", and "eCDF Max", which are the same values as above but computed using the standardized empirical Q-Q plots. Matching provides all of these values. Values close to 0 indicate good balance between groups for the given covariate.
+
+A weakness of empircal Q-Q plots is that they don't reveal much about the differences in the shapes of the distributions between the groups, which is a key aspect of distributional balance. A density plot essentially contains the same information, but clearer and more intuitive. Althugh the assessment of balance using a Q-Q plot is straightforward (i.e., deviations from the 45 degree line indicate imbalances), density plots present the information in a way more in line with the actual goals of conditioning, in particular, that the distributions of treated and control units are similar.
+
+Empirical Q-Q plot summary statistics may be useful in quantifying imbalance, but currently there are no recommendations for their use, and no precedents in the applied literature either. Similar methods, the Kolmogorov-Smirnov distance and Levy distance, were reviewed in Ali et al, 2015, and were found to have significant limitations not shared by the standardized mean difference. Belitser et al (2011) found empirically that both measures were poor predictors of bias, especially in small samples. Although there may be promise for the use of these statistics, without guidance researchers may not find them useful or worth the space in a quick balance summary.
+
 # What's Added in cobalt
 
+##distinguishing continuous and binary
+
+##Density plots
+
+##variance ratios
+
+##Love plot
+
 # What's Next for cobalt
+
+##Balance assessment for clusters
+
+##New statistics
+[e.g. skew]
+
+##Comparing models side by side
+
+##Incorporating sampling weights
+
+##Integrate with other packages
+[If future packages released, make compatible with cobalt, save programming time]
+
+# Acknowledgments
+
+I thank Kirsten Kainz and Elizabeth Stuart for their support and advice on cobalt's creation. I thank Zachary Fisher for his advice on developing an R package. An early version of `bal.tab()` appeared in the Appendix of Kainz et al (in preparation) for use with MatchIt.
+
+# References
 ---
 
 Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:

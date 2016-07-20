@@ -15,7 +15,7 @@ bal.plot(obj, var.name, ..., un = FALSE, which.sub = NULL)
 the object for which balance is to be assessed; can be a \code{matchit} object from MatchIt, a \code{ps} object from twang, a \code{Match} object from Matching, or a \code{formula} or data frame containing covariate information.
 }
   \item{var.name}{
-\code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{\dQuote{.distance}} as the argument.
+\code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{".distance"} as the argument.
 }
   \item{\dots}{
 other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments.

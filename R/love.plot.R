@@ -62,27 +62,28 @@ love.plot <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL
     else warning("Argument to var.names is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE)
   }
   
+  Sample <- NULL #To avoid CRAN checks rejecting Sample
   SS <- data.frame(var=rep(var.labels, 2), 
                    stat=c(B[,paste0(which.stat,".Adjusted")], B[,paste0(which.stat,".Unadjusted")]), 
-                   sample=c(rep("Adjusted", nrow(B)), rep("Unadjusted", nrow(B))))
+                   Sample=c(rep("Adjusted", nrow(B)), rep("Unadjusted", nrow(B))))
   if (all(is.na(SS$stat))) stop("No balance statistics to display.")
-  if (all(is.na(SS$stat[SS$sample=="Adjusted"]))) SS <- SS[SS$sample=="Unadjusted",]
+  if (all(is.na(SS$stat[SS$Sample=="Adjusted"]))) SS <- SS[SS$Sample=="Unadjusted",]
   if (abs) {
     SS$stat <- abs(SS$stat)
     dec <- FALSE}
   else dec <- TRUE
   if (!is.null(var.order)) {
     var.order <- match.arg(var.order, c("adjusted", "unadjusted")) 
-    SS$var <- factor(SS$var, levels=SS$var[order(SS$stat[tolower(SS$sample)==var.order], decreasing=dec)])
+    SS$var <- factor(SS$var, levels=SS$var[order(SS$stat[tolower(SS$Sample)==var.order], decreasing=dec)])
   }
   else SS$var <- factor(SS$var, levels=unique(SS$var)[order(unique(SS$var), decreasing=TRUE)])
-  SS$sample <- factor(SS$sample, levels=c("Unadjusted", "Adjusted"))
+  SS$Sample <- factor(SS$Sample, levels=c("Unadjusted", "Adjusted"))
   if (stat=="mean.diffs" & any(abs(SS$stat)>5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in i.sum().", call.=FALSE, noBreaks.=TRUE)
   if (no.missing) SS <- SS[!is.na(SS$stat),]
   
   #Make the plot
   #library(ggplot2)
-  lp <- ggplot(SS, aes(y=var, x=stat, color=sample)) + geom_point() + labs(title="Covariate Balance", y="")
+  lp <- ggplot(SS, aes(y=var, x=stat, color=Sample)) + geom_point() + labs(title="Covariate Balance", y="")
   if (stat=="mean.diffs") {
     lp <- lp + geom_vline(xintercept = 0, linetype=1, alpha=.4)
     if (abs) {
