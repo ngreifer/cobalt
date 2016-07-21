@@ -3,9 +3,10 @@ title: "Covariate Balance Tables and Plots: A Guide to the cobalt Package"
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
 output: 
-    html_document:
-        toc: true
-        theme: readable
+    rmarkdown::html_vignette
+    #html_document:
+    #    toc: true
+    #    theme: readable
 vignette: >
   %\VignetteIndexEntry{"Covariate Balance Tables and Plots: A Guide to the cobalt Package"}
   %\VignetteEngine{knitr::rmarkdown}
@@ -13,9 +14,9 @@ vignette: >
 ---
 # Introduction
 
-Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho at al, 2007). Propensity score and other related methods (e.g., coarsed exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. An excellent introduction to propensity score and other preprocessing methods is Stuart (2010) which describes them simply and clearly and points to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader knowledge of the causal assumption of strong ignorability is assumed.
+Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho et al, 2007). Propensity score and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. An excellent introduction to propensity score and other preprocessing methods is Stuart (2010) which describes them simply and clearly and points to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
-Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are MatchIt (Ho et al, 2011), twang (Ridgeway et al, 2016), and Matching (Sekhon, 2011); these are the most used propensity score analysis packages in R, and together provide a near complete set of preprocessing tools to date. 
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho et al, 2011), `twang` (Ridgeway et al, 2016), `Matching` (Sekhon, 2011), and `CBPS` (Fong et al, 2016); these are the most used propensity score analysis packages in R, and together provide a near complete set of preprocessing tools to date. 
 
 The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
 
@@ -25,50 +26,50 @@ The following are the basic steps in performing a causal analysis using data pre
 4. Assess balance on the covariates of interest; if poor, repeat steps 2-4
 5. Estimate the treatment effect in the conditioned sample
 
-Steps 2, 3, and 4 are accomplished by all of the packages mentioned above. However, Step 4, assessing balance, is often overlooked in propensity score applications, with researchers failing to report the degree of covariate balance achieved by their conditioning (Thoemmes & Kim, 2011). Achieivng balance is the very purpose of preprocessing because covariate balance is what justifies ignorability on the observed covariates, allowing for the potential for a valid causal inference after effect estimation. 
+Steps 2, 3, and 4 are accomplished by all of the packages mentioned above. However, Step 4, assessing balance, is often overlooked in propensity score applications, with researchers failing to report the degree of covariate balance achieved by their conditioning (Thoemmes & Kim, 2011). Achieving balance is the very purpose of preprocessing because covariate balance is what justifies ignorability on the observed covariates, allowing for the potential for a valid causal inference after effect estimation (Ho et al, 2007. 
 
-In addition to simply achieving balance, researcher must report balance to convince readers that their analysis was performed adequantely and that their causal conclusions are valid. Covariate balance is typically assessed and reported by using staistical measures, including standardized mean differences, variance ratios, and including t-test or KS-test p-values. Balance can be reported in a journal article by means of balance tables or plots displaying the balance measures before and after conditioning. If a defensible measure of balance is used an presented, readers are empowered to judge for themselves whether the causal claim made is valid or not based on the methods used and covariates chosen.
+In addition to simply achieving balance, researchers must also report balance to convince readers that their analysis was performed adequately and that their causal conclusions are valid (Thoemmes & Kim, 2011). Covariate balance is typically assessed and reported by using statistical measures, including standardized mean differences, variance ratios, and t-test or KS-test p-values. Balance can be reported in an article by means of balance tables or plots displaying the balance measures before and after conditioning. If a defensible measure of balance is used and presented, readers are empowered to judge for themselves whether the causal claim made is valid or not based on the methods used and covariates chosen.
 
-**cobalt** is meant to supplement or replace the balance assessment tools in the above packages and allow researchers to simply, clearly, and flexibly assess and report balance on covariates before and after conditioning. It integrates seamlessly with the above packages so that users can employ both the conditioning package of their choice and **cobalt** in conjuction to assess and report balance. It is important to note that **cobalt** does not replace the highly sophisticated *conditioning* tools of these packages, as it does no conditioning or estimation of its own.
+`cobalt` is meant to supplement or replace the balance assessment tools in the above packages and allow researchers to assess and report balance on covariates simply, clearly, and flexibly before and after conditioning. It integrates seamlessly with the above packages so that users can employ both the conditioning package of their choice and `cobalt` in conjunction to assess and report balance. It is important to note that `cobalt` does not replace the highly sophisticated *conditioning* tools of these packages, as it does no conditioning or estimation of its own.
 
-The rest of this guide explains how to use **cobalt** with the above packages and others, as well as the choices instituted by the functions and customizable by the user.
+The rest of this guide explains how to use `cobalt` with the above packages and others, as well as the choices instituted by the functions and customizable by the user.
 
 ### Citing cobalt
-When using **cobalt**, please cite your use of it along with the conditioning package used. The full APA reference for **cobalt** is the following:
+When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-[APA CITE]
+Greifer, N. (2016). cobalt: Covariate Balance Tables and Plots. R package version 1.1.0.
 
-For example, if you use Matching for propensity score estimation and matching and **cobalt** for balance assessment and/or reporting, a possible citation might go as follows: "Matching was performed using Matching (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2016), both in R 3.3.0 (R Core Team, 2016)."
+For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: "`Matching` was performed using `Matching` (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2016), both in R 3.3.0 (R Core Team, 2016)."
 
 # Why cobalt?
 
-If the major conditioning packages contain functions to assess balance, why use **cobalt** at all? cobalt arose out of several desires when using these packages: to have standardized measures that were consistent acorss all three packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. However, users of these packages may be completely satisfied with their capabilities and comfortable with their output; for them, cobalt still has value in its unique plotting capabilities that make use of ggplot2 in R.
+If the major conditioning packages contain functions to assess balance, why use `cobalt` at all? `cobalt` arose out of several desiderata when using these packages: to have standardized measures that were consistent across all three packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. However, users of these packages may be completely satisfied with their capabilities and comfortable with their output; for them, `cobalt` still has value in its unique plotting capabilities that make use of `ggplot2` in R.
 
-The following are some reasosn why **cobalt** may be attractive to users of MatchIt, twang, and Matching:
+The following are some reasons why `cobalt` may be attractive to users of `MatchIt`, `twang`, `Matching`, and `CBPS`:
 
 ### Visual clarity
 
-**cobalt** presents one table in its balance output, and it contains all the information required to assess balance. MatchIt presents 3 tables, twang presnts 2 tables, and Matching presents as many tables as there are covariates. Although each of these tables contain valuabel information, the `bal.tab()` function in **cobalt** allows for a quick and easy search for the information required, which is often a single column containing a balance statistic (such as the standardized difference) for the adjusted sample.
+`cobalt` presents one table in its balance output, and it contains all the information required to assess balance. `MatchIt` presents 3 tables, `twang` and `CBPS` present 2 tables, and `Matching` presents as many tables as there are covariates. Although each of these tables contain valuable information, the `bal.tab()` function in `cobalt` allows for a quick and easy search for the information required, which is often a single column containing a balance statistic (such as the standardized difference) for the adjusted sample.
 
 ### Useful summaries
 
-Although a thorough balance assessment requires examining the balance of each covariate individually, **cobalt**'s `bal.tab()` function can also produce quick balance summaries that can aid in model selection when there are many covariates or higher order terms to examine. These summaries include the proportion of covariates that have met a user-specified threshold for balance and the covariate with the highest degree of imbalance, two values that have been shown to be effective in diagnosing imbalance and potential bias (Stuart et al, 2013).
+Although a thorough balance assessment requires examining the balance of each covariate individually, `cobalt`'s `bal.tab()` function can also produce quick balance summaries that can aid in model selection when there are many covariates or higher order terms to examine. These summaries include the proportion of covariates that have met a user-specified threshold for balance and the covariate with the highest degree of imbalance, two values that have been shown to be effective in diagnosing imbalance and potential bias (Stuart et al, 2013).
 
 ### One tool to rule them all
 
-Because there is no *a priori* way to know which conditioning method will work best for a given sample, users should try several methods, and these methods are spread across various packages; for example, full matching is available only in MatchIt, generalized boosted modeling only in twang, covariate balancing propensity score weighting only in CBPS, and genetic matching is only available in MatchIt and Matching. If a user wants to compare methods on the packages' ability to generate balance in the sample, they cannot do so on the same metrics and with the same output. Each package computes balance statistics differently, and the relevant balance measures are in different places in each package, or not available at all. By using **cobalt** to assess balance across packages, users can be sure they are using a single, equivalent balance metric across methods, and the relevant balance statistcis will be in the same place and computed the same way regardless of the conditioning method used.
+Because there is no *a priori* way to know which conditioning method will work best for a given sample, users should try several methods, and these methods are spread across various packages; for example, full matching is available only in `MatchIt`, generalized boosted modeling only in `twang`, covariate balancing propensity score weighting only in `CBPS`, and genetic matching only in `MatchIt` and `Matching`. If a user wants to compare these methods on their ability to generate balance in the sample, they cannot do so on the same metrics and with the same output. Each package computes balance statistics differently, and the relevant balance measures are in different places in each package, or not available at all. By using `cobalt` to assess balance across packages, users can be sure they are using a single, equivalent balance metric across methods, and the relevant balance statistics will be in the same place and computed the same way regardless of the conditioning method used.
 
 ### Flexibility
 
-**cobalt** gives users choice for what staitsics are presented and how they are calculated, but intelligently uses defaults that are in line with the goals of common balance assessment and with the data available. Rather than displaying all values calculated, `bal.tab()` only displays what the user wants; at a bare minimum, the standardized difference for each covariate is displayed, which is traditionally considered sufficient for model selection and justification in preprocessing analysis. Even if the user doesn't want other values displayed, they are all still calculated, and thus available for use in programming.
+`cobalt` gives users choice for what statistics are presented and how they are calculated, but intelligently uses defaults that are in line with the goals of unified balance assessment and with the data available. Rather than displaying all values calculated, `bal.tab()` only displays what the user wants; at a bare minimum, the standardized mean difference for each covariate is displayed, which is traditionally considered sufficient for model selection and justification in preprocessing analysis. Even if the user doesn't want other values displayed, they are all still calculated, and thus available for use in programming.
 
 ### Pretty plots
 
-The main conditioning packages produce plots that can be useful in assessing balance, summairizing balance, and understanding the intricacies of the conditioning method for which simple text would be insifiicnet. Many of these plots are unique to the package, and **cobalt** has not attempted to replace or replicate them. For other plots, though, **cobalt** uses ggplot2 to present clean, clear, customizable, and high-quality plots for balance assessment and presentation. The two included plotting functions are `bal.plot()`, which generates plots of the distributions of covairates in the groups so that more complete distributional balance can be assessed beyond numerical summaries, and `love.plot()`, which generates a plot summarizing covariate balance before and after conditioning, popularized by Dr. Thomas E. Love. Because these plots use ggplot2 as their base, users familiar with ggplot2 can customize various elements of the plots for use in publications or presentations.
+The main conditioning packages produce plots that can be useful in assessing balance, summarizing balance, and understanding the intricacies of the conditioning method for which simple text would be insufficient. Many of these plots are unique to the package, and `cobalt` has not attempted to replace or replicate them. For other plots, though, `cobalt` uses `ggplot2` to present clean, clear, customizable, and high-quality displays for balance assessment and presentation. The two included plotting functions are `bal.plot()`, which generates plots of the distributions of covariates in the groups so that more complete distributional balance can be assessed beyond numerical summaries, and `love.plot()`, which generates a plot summarizing covariate balance before and after conditioning, popularized by Dr. Thomas E. Love. Because these plots use `ggplot2` as their base, users familiar with `ggplot2` can customize various elements of the plots for use in publications or presentations.
 
 # How To Use cobalt
 
-There are four functions for use in **cobalt**: `f.build()`, `bal.tab()`, `bal.plot()`, and `love.plot()`. The next sections describe how to use each, complete with example code and output. To start, install and load **cobalt** with the following code:
+There are four functions for use in `cobalt`: `f.build()`, `bal.tab()`, `bal.plot()`, and `love.plot()`. The next sections describe how to use each, complete with example code and output. To start, install and load `cobalt` with the following code:
 
 ```{r}
 #install.packages("cobalt")
@@ -94,21 +95,21 @@ ps.model <- glm(f.build(treat, covs), data = lalonde, family = "binomial")
 library("MatchIt")
 m.out <- matchit(f.build(treat, covs), data = lalonde, method = "nearest")
 ```
-`f.build()` can also be used in the Matching and formula interfaces in `bal.tab()`.
+`f.build()` can also be used in the `Matching` and formula interfaces in `bal.tab()`.
 
-Note: `f.build()` uses the first argument exactly as it is given, with no evaluation or checking; therefore, the named variable does not have to exist in any data set (but, of course, it will be useful if it does). The `names` of the second argument are used to create the right hand side; therefore, the data frame does not actually have to contain the observations of the variables, just columns with names correspondign to the desired variable. In this way, users can add variables to be included in f.build by expanding the data frame with a new variable without having to fill in the variable with its true values.
+Note: `f.build()` uses the first argument exactly as it is given, with no evaluation or checking; therefore, the named variable does not have to exist in any data set (but, of course, it will be useful if it does). The `names` of the second argument are used to create the right hand side; therefore, the data frame does not actually have to contain the observations of the variables, just columns with names corresponding to the desired variables. In this way, users can add variables to be included in `f.build()` by expanding the data frame with a new variable without having to fill in the variable with its true values.
 
 ## bal.tab
 
-`bal.tab()` is the primary function of **cobalt**. It produces balance tables for the objects given as inputs. The balance tables can be customized with a variety of inputs, which affect both calculation and presentation of values. It performs the same functions as `summary()` in MatchIt; `bal.table()`, `summary()`, and `dx.wts()` in twang; `MatchBalance()` and `summary()` in Matching; and `balance()` in CBPS. It can be seen as a replacememnt or a supplement to these functions. 
+`bal.tab()` is the primary function of `cobalt`. It produces balance tables for the objects given as inputs. The balance tables can be customized with a variety of inputs, which affect both calculation and presentation of values. It performs the same functions as `summary()` in `MatchIt`; `bal.table()`, `summary()`, and `dx.wts()` in `twang`; `MatchBalance()` and `summary()` in `Matching`; and `balance()` in `CBPS`. It can be seen as a replacement or a supplement to these functions. 
 
-For help using `bal.tab()`, see `?bal.tab` in R, which contains information on how certain values are calculated and links to the help files for the `bal.tab()` methods that integrate with the above packages.
+For more help using `bal.tab()`, see `?bal.tab` in R, which contains information on how certain values are calculated and links to the help files for the `bal.tab()` methods that integrate with the above packages.
 
-For simplicity, the description of the use of `bal.tab()` will be most complete in its use with MatchIt. The demonstration will display `bal.tab()`'s many options, most of which are not unique to its use with MatchIt. The other demonstrations will be minimal, highlighting how to use `bal.tab()` effectively with the other packages, but not detailing all its possible options with those packages, as doing so would be redundant.
+For simplicity, the description of the use of `bal.tab()` will be most complete in its use with `MatchIt`. The demonstration will display `bal.tab()`'s many options, most of which are not unique to its use with `MatchIt`. The other demonstrations will be minimal, highlighting how to use `bal.tab()` effectively with the other packages, but not detailing all its possible options with those packages, as doing so would be redundant.
 
-### Using bal.tab with MatchIt
+### Using bal.tab with `MatchIt`
 
-`bal.tab()` is used very similarly to `summary()` in MatchIt: it takes in a `matchit` object as its input, and prints a balance table with the requested information. Below is a simple example of its use:
+`bal.tab()` is used very similarly to `summary()` in `MatchIt`: it takes in a `matchit` object as its input, and prints a balance table with the requested information. Below is a simple example of its use:
 
 ```{r, message = FALSE}
 data(lalonde, package = "cobalt")
@@ -120,45 +121,45 @@ m.out <- matchit(f.build(treat, covs0), data = lalonde, method = "nearest", repl
 bal.tab(m.out)
 ```
 
-The ouput looks very similar to matchIt's `summary()` function: at the top is the original `matchit()` call; next is the balance table, and finally is a summary of the sample size before and after adjustment. By dafault, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab`. Setting `binary = "std"` in `bal.tab()` will produce identical calculation to those in MatchIt's `summary(m.out, standardize = TRUE)`, which produces standardized differences for binary variables as well ans continuous variables. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` or `continuous` to `"raw"` or `"std"`. 
+The output looks very similar to `MatchIt`'s `summary()` function: at the top is the original `matchit()` call; next is the balance table, and finally is a summary of the sample size before and after adjustment. By default, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab` or "Details on Calculations" below.. Setting `binary = "std"` in `bal.tab()` will produce identical calculations to those in `MatchIt`'s `summary(m.out, standardize = TRUE)`, which produces standardized differences for binary variables as well as continuous variables. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` or `continuous` to `"raw"` or `"std"`. 
 
 ```{r}
-bal.tab(m.out, binary = "std", continuous = "std") #Same as MatchIt's summary() with std.diffs
+bal.tab(m.out, binary = "std", continuous = "std") #Same as MatchIt's summary(..., standardize = TRUE)
 ```
 
 
-Like with MatchIt, users can specify additional variables for which to display balance using the argument to `addl`. Users can also add all squared terms and two-way interactions between covariates, including those in `addl` by specifying `int = TRUE`. Note: unlike MatchIt's `summary()`, interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables.
+Like with `MatchIt`, users can specify additional variables for which to display balance using the argument to `addl`. Users can also add all squared terms and two-way interactions between covariates, including those in `addl`, by specifying `int = TRUE`. Unlike `MatchIt`'s `summary()`, interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables.
 
 ```{r}
 # Balance on all covariates in data set, including interactions and squares
 bal.tab(m.out, addl = lalonde[,c("nodegree", "married")], int = TRUE)
 ```
 
-Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denomintor is the standard deviation of the treated group (`"treated"`), the standard deviation of the control group (`"control`"), or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087). Typically, this value does not need to be changed, as the default is often most appropriate. Because the ATT is typically saught in MatchIt applications, the default here is `"treated"`, but this can be changed. For complete details, see `?bal.tab` and below in Details.
+Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denominator is the standard deviation of the treated group (`"treated"`), the standard deviation of the control group (`"control`"), or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087). Typically, this value does not need to be changed, as the default is often most appropriate. Because the ATT is typically sought in `MatchIt` applications, the default here is `"treated"`, but this can be changed. For complete details, see `?bal.tab` and below in "Details on Calculations".
 
 The next options only affect display, not the calculation of any statistics. First is `disp.means`, which controls whether the group means for each covariate are displayed in addition to the mean differences. This can be useful in reporting balance for publication, but in balance assessment mean differences are typically more useful.
 
-Next is `disp.v.ratio`, which controls whether variance ratios are displayed, in addition to mean differences. Variance ratios are another important tool for assessing balance beyond mean differences because they pertain the shape of the covariates distributions beyond their centers. Variance ratios close to 1 (i.e., equal variances in both groups) are indicative of group balance (Austin, 2009).
+Next is `disp.v.ratio`, which controls whether variance ratios are displayed, in addition to mean differences. Variance ratios are another important tool for assessing balance beyond mean differences because they pertain to the shape of the covariates distributions beyond their centers. Variance ratios close to 1 (i.e., equal variances in both groups) are indicative of group balance (Austin, 2009).
 
-Next is `un`, which controls whether the statistics to be displayed shopuld be displayed for the unadjusted group as well. This can be useful the first time balance is assessed to see the initial group imbalance. All of the packages named above display unadjusted group statistics in their balance assessment functions. Setting `un = FALSE`, which is the default, can declutter the output to maintain the spotlight on the group balance after adjustment.
+Next is `un`, which controls whether the statistics to be displayed should be displayed for the unadjusted group as well. This can be useful the first time balance is assessed to see the initial group imbalance. All of the packages named above display unadjusted group statistics in their balance assessment functions. Setting `un = FALSE`, which is the default, can declutter the output to maintain the spotlight on the group balance after adjustment.
 
 ```{r}
 # Balance tables with variance ratios and statistics for the unadjusted sample
 bal.tab(m.out, disp.v.ratio = TRUE, un = TRUE)
 ```
 
-Finally the user can specify a threshold for balance for both mean differences and variance ratios through the arguments to `m.threshold` and `v.threshold`. Thresholds can be useful in determining whether satisfactory balance has been achieved. For standardized mean differences, thresholds of .1 and .25 have been proposed, but Stuart et al. (2013) found that a threshold of .1 was more effective at assessing imbalance that would lead to biased outcome estimation. In general, standardize mean differences sould be as close to 0 as possible, but a concervative upper limit such as .1 can be a valuable heuristic in selecting models and defending the conditioning choice.
+Finally, the user can specify a threshold for balance for both mean differences and variance ratios through the arguments to `m.threshold` and `v.threshold`. Thresholds can be useful in determining whether satisfactory balance has been achieved. For standardized mean differences, thresholds of .1 and .25 have been proposed, but Stuart et al. (2013) found that a threshold of .1 was more effective at assessing imbalance that would lead to biased outcome estimation. In general, standardize mean differences should be as close to 0 as possible, but a conservative upper limit such as .1 can be a valuable heuristic in selecting models and defending the conditioning choice.
 
-When `m.threhsold` is specified, a few components are added to the balance output: there will be an extra column in the balance table stating whether each covariate is or is not balanced according to the threshold; there will be an extra table below the balance table with a tally of how many covariates are or are not balanced according to the threshold; and there will be a notice of which covariate has the greatest imbalance after conditionign and whether it met the threshold. Using a threshold for the mean difference implies that the differences are standardized (at least for continuous variables), because the threshold is meant to be scale invariant, which stanrdized mean differences are.
+When `m.threshold` is specified, a few components are added to the balance output: an extra column in the balance table stating whether each covariate is or is not balanced according to the threshold; an extra table below the balance table with a tally of how many covariates are or are not balanced according to the threshold; and a notice of which covariate has the greatest imbalance after conditioning and whether it exceeded the threshold. Using a threshold for the mean difference implies that the differences are standardized (at least for continuous variables), because the threshold is meant to be scale invariant, which standardized mean differences are.
 
-The argument to `v.threshold` determines the threshold for variance ratios that are acceptible for balance. Variance ratios are calculated in **cobalt** such that the greater variance is in the numerator, so they will always be greater than or equal to 1. Variance ratios close to 1 are an indicator of good balance, but ratios as large as 2 may be acceptible (Rubin, 2001). When `v.threshold` is specified,  the same additional output is created as above, except in evaluation of variance ratios. Because varaicne ratios are not displayed in the balance table by default, specifying `v.threshold` will also display variance ratios in the table.
+The argument to `v.threshold` determines the threshold for variance ratios that are acceptable for balance. Variance ratios are calculated in `cobalt` such that the greater variance is in the numerator, so they will always be greater than or equal to 1. Variance ratios close to 1 are an indicator of good balance, but ratios as large as 2 may be acceptable (Rubin, 2001). When `v.threshold` is specified,  the same additional output is created as above, except in evaluation of variance ratios. Because variance ratios are not displayed in the balance table by default, specifying `v.threshold` will also display variance ratios in the table.
 
 ```{r}
 # Balance tables with thresholds for mean differences and variance ratios
 bal.tab(m.out, m.threshold = .1, v.threshold = 2)
 ```
 
-When subclassification is used in `matchit()` either by specifying `method = subclass` or by specifying `subclass`, `bal.tab()` treats the input differently and produces a different type of outout, though it has all of the same features as when just matching is used. The default output is a balance table displaying balance aggregated across subclasses. This conatins the average statistic across the subclasses, but does not contain information on variance ratios. Using the arguments discussed above (except `disp.v.ratio` and `v.threshold`) will change the output as it does when only matching is used.
+When subclassification is used in `matchit()` either by specifying `method = subclass` or by specifying `subclass`, `bal.tab()` treats the input differently and produces a different type of output, though it has all of the same features as when just matching is used. The default output is a balance table displaying balance aggregated across subclasses. Each cell contains the average statistic across the subclasses, but does not contain information on variance ratios. Using the arguments discussed above (except `disp.v.ratio` and `v.threshold`) will change the output as it does when only matching is used.
 
 To examine balance within each subclass, the user can specify `disp.subclass = TRUE`, which will produce output for the subclasses in aggregate as well as for each subclass. Within subclasses, all the information above, including variance ratios, will be presented, except for statistics for the unadjusted groups (since the adjustment occurs by creating the subclasses), as specified by the user.
 
@@ -169,13 +170,13 @@ m.out.sub <- matchit(f.build(treat, covs0), data = lalonde, method = "subclass")
 bal.tab(m.out.sub, disp.subclass = TRUE)
 ```
 
-The next several sections describe the use of `bal.tab()` with other packages and data structures. As stated above, the arguments controlling calculations and display are largely the same across inputs types, so they will not be described again except when they differ from use with MatchIt.
+The next several sections describe the use of `bal.tab()` with other packages and data structures. As stated above, the arguments controlling calculations and display are largely the same across inputs types, so they will not be described again except when they differ from use with `MatchIt`.
 
-### Using bal.tab with twang
+### Using bal.tab with `twang`
 
-Generalized boosted regression (GBM), as used in twang, can be an effective way to generate propensity scores and weights for use in propensity score weighting. `bal.tab()` functions similarly to the functions `bal.table()` and `summary()` when used with GBM in twang. Below is a simple example of its use:
+Generalized boosted modeling (GBM), as used in `twang`, can be an effective way to generate propensity scores and weights for use in propensity score weighting. `bal.tab()` functions similarly to the functions `bal.table()` and `summary()` when used with GBM in `twang`. Below is a simple example of its use:
 
-```{r, eval = FALSE}
+```{r, message = FALSE}
 library("twang")
 data(lalonde, package = "cobalt") ##If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
@@ -185,18 +186,18 @@ ps.out <- ps(f.build(treat, covs0), data = lalonde, stop.method = c("es.mean",
 bal.tab(ps.out, full.stop.method = "es.mean.att")
 ```
 
-The output looks a bit different from twang's `bal.table()` output. First is the original call to `ps()`. Next is the balance table containing mean differences for the covariates included in the input to `ps()`. Finally is a table displaying sample size information, similar to what would be generated using twang's `summary()` function. The "effective" sample size is displayed when weighting (rather than matching or subclassification) is used; it is calculated as is done in twang. See the twang documentation or `?bal.tab` for details on this calculation.
+The output looks a bit different from `twang`'s `bal.table()` output. First is the original call to `ps()`. Next is the balance table containing mean differences for the covariates included in the input to `ps()`. Finally is a table displaying sample size information, similar to what would be generated using `twang`'s `summary()` function. The "effective" sample size is displayed when weighting (rather than matching or subclassification) is used; it is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" below for details on this calculation.
 
-When using `bal.tab()` with twang, the user must specify the `ps` object, the output of a call to `ps()`, as the first argument. The second argument, `full.stop.method`, is the name of the stop method for which balance is to be assessed, since a `ps` object may contain more than if so specified. The argument to `full.stop.method` must include a stop method given in the argument to `stop.method` in the call to `ps()` and the estimand given in the argument to `estimand` in `ps()`. `bal.tab()` can only display the balance of one stop method at a time. If this argument is left empty or if the argument to `full.stop.method` does not correspond to one of the stop methods in the `ps` object, `bal.tab()` will default to displaying balance for the first stop method available. Abbreviations are allowed for the stop method, which is not case sensitive, but if more than one stop method has the same abbreviated name (e.g., "es" for "es.mean.att" and "es.max.att"), `bal.tab()` will again default to using the first stop method available.
+When using `bal.tab()` with `twang`, the user must specify the `ps` object, the output of a call to `ps()`, as the first argument. The second argument, `full.stop.method`, is the name of the stop method for which balance is to be assessed, since a `ps` object may contain more than one if so specified. The argument to `full.stop.method` must include a stop method given in the argument to `stop.method` in the call to `ps()` and the estimand given in the argument to `estimand` in `ps()`. `bal.tab()` can only display the balance of one stop method at a time. If this argument is left empty or if the argument to `full.stop.method` does not correspond to one of the stop methods in the `ps` object, `bal.tab()` will default to displaying balance for the first stop method available. Abbreviations are allowed for the stop method, which is not case sensitive, but if more than one stop method has the same abbreviated name (e.g., "es" for "es.mean.att" and "es.max.att"), `bal.tab()` will again default to using the first stop method available.
 
-The other arguments to `bal.tab()` when using it with twang have the same form and function as those given when using it with MatchIt, except for `s.d.denom`. If the estimand of the stop method used is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`, mimicking the behavior of twang. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable.
+The other arguments to `bal.tab()` when using it with `twang` have the same form and function as those given when using it with `MatchIt`, except for `s.d.denom`. If the estimand of the stop method used is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`, mimicking the behavior of `twang`. The user can specify their own argument to `s.d.denom`, but using the defaults is advised.
 
-### Using bal.tab with Matching
+### Using bal.tab with `Matching`
 
-The Matching package is used for propensity score matching, and was also the first package to implement genetic matching. MatchIt calls Matching to use genetic matching and can accomplish many of the matching methods Matching can, but Matching is still a widely used package with its own strengths. `bal.tab()` functions similarly to Matching's `MatchBalance()` command, which yields a thorough presentation of balance, and is the only package of those integrated with cobalt to display variance ratios by default. Below is a simple example of the use of `bal.tab()` with Matching:
+The `Matching` package is used for propensity score matching, and was also the first package to implement genetic matching. `MatchIt` calls `Matching` to use genetic matching and can accomplish many of the matching methods `Matching` can, but `Matching` is still a widely used package with its own strengths. `bal.tab()` functions similarly to `Matching`'s `MatchBalance()` command, which yields a thorough presentation of balance, and is the only package of those integrated with `cobalt` to display variance ratios by default. Below is a simple example of the use of `bal.tab()` with `Matching`:
 
 ```{r, message = FALSE}
-library(Matching)
+library("Matching")
 data(lalonde, package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
@@ -207,21 +208,21 @@ match.out <- Match(Tr = lalonde$treat, X = p.score, estimand = "ATT")
 bal.tab(match.out, formula = f.build(treat, covs0), data = lalonde)
 ```
 
-The output looks quite different from Matching's `MatchBalance()` output. Rather than being stacked vertically, balance statistics are arranged horizontally in a table format, allowing for quick balance checking. Below the balance table is a summary of the sample size before and after matching, similar to what Matching's `summary()` command would display.
+The output looks quite different from `Matching`'s `MatchBalance()` output. Rather than being stacked vertically, balance statistics are arranged horizontally in a table format, allowing for quick balance checking. Below the balance table is a summary of the sample size before and after matching, similar to what `Matching`'s `summary()` command would display.
 
-The input to `bal.tab()` is similar to that given to `MatchBalance()`: the `Match` object resulting from the call to `Match()`, a formula relating treatment to the covariates for which balance is to be assessed, and the original data set. This is not the only way to call `bal.tab()`: instead of a formula and a data set, one can also input a data frame of covariates and a vector of treatment status indicators. For excample, the code below will yield the same results as the call to `bal.tab()` above:
+The input to `bal.tab()` is similar to that given to `MatchBalance()`: the `Match` object resulting from the call to `Match()`, a formula relating treatment to the covariates for which balance is to be assessed, and the original data set. This is not the only way to call `bal.tab()`: instead of a formula and a data set, one can also input a data frame of covariates and a vector of treatment status indicators. For example, the code below will yield the same results as the call to `bal.tab()` above:
 
 ```{r, eval = FALSE}
 bal.tab(match.out, treat = lalonde$treat, covs = covs0)
 ```
 
-The other arguments to `bal.tab()` when using it with Matching have the same form and function as those given when using it with MatchIt, except for `s.d.denom`. If the estimand of the original call to `Match()` is the ATT, `s.d.denom` will default to `"treated"` if not specified; if the estimand is the ATE, `s.d.denom` will default to `"pooled"`; if the estimand is the ATC, `s.d.denom` will default to "control". The user can specify their own argument to `s.d.denom`, but using the defaults is advisable. In addition, the use of the `addl` argument is unnecessary because the covariates are entered manually as arguments, so all covariates for which balance is to be assessed can be entered through the `formula` or `covs` argument. If the covariates are stored in two seperate data frames, it may be useful to include one in `formula` or `covs` and the other in `addl`.
+The other arguments to `bal.tab()` when using it with `Matching` have the same form and function as those given when using it with `MatchIt`, except for `s.d.denom`. If the estimand of the original call to `Match()` is the ATT, `s.d.denom` will default to `"treated"` if not specified; if the estimand is the ATE, `s.d.denom` will default to `"pooled"`; if the estimand is the ATC, `s.d.denom` will default to "control". The user can specify their own argument to `s.d.denom`, but using the defaults is advisable. In addition, the use of the `addl` argument is unnecessary because the covariates are entered manually as arguments, so all covariates for which balance is to be assessed can be entered through the `formula` or `covs` argument. If the covariates are stored in two separate data frames, it may be useful to include one in `formula` or `covs` and the other in `addl`.
 
-### Using bal.tab with CBPS
+### Using bal.tab with `CBPS`
 
-The CBPS (Covariate Balancing Propensity Score) package is a great tool for generatng covariate balanceing propensity scores, a recently developed class or propensity scores that is quite effective at balancing covariates among treated groups. CBPS includes functions for estmating propensity scores for polytimous and continuous treatments, but as of now cobalt is only compatible with binary treatments for CBPS. `bal.tab()` functions similarly to CBPS's `balance()` command. Below is a simple example of its use:
+The `CBPS` (Covariate Balancing Propensity Score) package is a great tool for generating covariate balancing propensity scores, a recently developed class or propensity scores that is quite effective at balancing covariates among treated groups. `CBPS` includes functions for estimating propensity scores for polytimous and continuous treatments, but as of now `cobalt` is only compatible with binary treatments for `CBPS`. `bal.tab()` functions similarly to `CBPS`'s `balance()` command. Below is a simple example of its use:
 
-```{r, message = FALSE}
+```{r, message = FALSE, collapse = TRUE}
 library("CBPS")
 data(lalonde, package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
@@ -231,15 +232,15 @@ cbps.out <- CBPS(f.build(treat, covs0), data = lalonde, standardize = FALSE)
 bal.tab(cbps.out)
 ```
 
-First is the original call to `CBPS()`. Next is the balance table containing mean differences for the covariates included in the input to `CBPS()`. Finally is a table displaying sample size information. The "effective" sample size is displayed when weighting (rather than matching or subclassification) is used; it is calculated as is done in twang. See the twang documentation or `?bal.tab` for details on this calculation.
+First is the original call to `CBPS()`. Next is the balance table containing mean differences for the covariates included in the input to `CBPS()`. Last is a table displaying sample size information. The "effective" sample size is displayed when weighting (rather than matching or subclassification) is used; it is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" below for details on this calculation.
 
-When using `CBPS()` with cobalt, it is always advisable to set `standardize = FALSE`. Doing otherwise can create weights that are very small, leading to imprecisions in some calculations, including for variance ratios in `bal.tab()`. If `standardize` is set to `TRUE`, a warning will appear at the bottom of the balance output.
+When using `CBPS()` with `cobalt`, it is always advisable to set `standardize = FALSE`. Doing otherwise can create weights that are very small, leading to imprecisions in some calculations, including for variance ratios in `bal.tab()`. If `standardize` is set to `TRUE`, a warning will appear at the bottom of the balance output.
 
-The other arguments to `bal.tab()` when using it with CBPS have the same form and function as those given when using it with MatchIt, except for `s.d.denom`. If the estimand of the original call to `CBPS()` is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable. If `standardized = TRUE` in the original call to `CBSP()`, the user must either specify an argument to `s.d.denom` or argument to `estimand` in `bal.tab()`, which can be `"ATT"` or "`ATE`", and should be in line with the original call to `CBPS()`. When `standardized = FALSE`, `bal.tab()` can assess whether the original requested estimand was the ATT or ATE automatically, setting the default behavior for `s.d.denom`.
+The other arguments to `bal.tab()` when using it with `CBPS` have the same form and function as those given when using it with `MatchIt`, except for `s.d.denom`. If the estimand of the original call to `CBPS()` is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable. If `standardized = TRUE` in the original call to `CBSP()`, the user must either specify an argument to `s.d.denom` or an argument to `estimand` in `bal.tab()`, which can be `"ATT"` or `"ATE"`, and should be in line with the original call to `CBPS()`. When `standardized = FALSE`, `bal.tab()` can automatically assess whether the original requested estimand was the ATT or ATE, setting the default behavior for `s.d.denom`.
 
 ### Using bal.tab with Other Data
 
-One doesn't need to be using the four packages above to take advantage of cobalt. `bal.tab()` can take in any data set and set of weights or subclasses and evaluate balance on them. This can be useful if propensity score weights or subclasses were generated outside any package, if balance assessment is desired prior to adjustment, or if package output is adjusted in such a way as to make it unusable with one `bal.tab()`'sother methods (e.g., if cases were manually removed or weights manually changed). In twang, the function `dx.wts()` performs a similar action, by allowing for the balance assessment of groups weghted not using GBM, but it does not provide support for matching weights (e.g., those generated from MatchIt or Matching) or subclasses. Below is an example of the use of `bal.tab()` without any other conditioning package:
+One doesn't need to be using the four packages above to take advantage of `cobalt`. `bal.tab()` can take in any data set and set of weights or subclasses and evaluate balance on them. This can be useful if propensity score weights or subclasses were generated outside any package, if balance assessment is desired prior to adjustment, or if package output is adjusted in such a way as to make it unusable with one of `bal.tab()`'s other methods (e.g., if cases were manually removed or weights manually changed). In `twang`, the function `dx.wts()` performs a similar action by allowing for the balance assessment of groups weighted not using GBM, but it does not provide support for matching weights (e.g., those generated from `MatchIt `) or subclasses. Below is an example of the use of `bal.tab()` without any other conditioning package:
 
 ```{r}
 # Generating ATT weights as specified in Austin (2011)
@@ -256,11 +257,11 @@ bal.tab(covs0, treat = lalonde$treat, weights = lalonde$att.weights,
 
 ```
 
-The output s similar to tha egenrating when using a conditioning package. First is the balance table, and last is a summary of sample sizne information. Because weighting was specified as the method used, effective sample sizes are given, as with twang.
+The output is similar to that generated when using a conditioning package. First is the balance table, and last is a summary of sample size information. Because weighting was specified as the method used, effective sample sizes are given, as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" below for details on this calculation.
 
-There are several ways to specify input to `bal.tab()` when using data outside a package. The first, as shown above, is to use a data frame of covariates and vectors for treatment status and weights or subclasses. The user can also specify a vector of distance measures (e.g., propensity scores) if balance is to be assessed on those as well. If `weights` is left empty, balance on the unadjusted sample will be reported (which can also be viewed when `un = TRUE` when weights are specified). The user can also optionally specify a data set to the `data` argument; this makes it so that `treat`, `weights`, `distance`, and `subclass` can be specified either with a vector or with the name of a variable in the argument to `data` that contaisn teh respective values.
+There are several ways to specify input to `bal.tab()` when using data outside a package. The first, as shown above, is to use a data frame of covariates and vectors for treatment status and weights or subclasses. The user can also specify a vector of distance measures (e.g., propensity scores) if balance is to be assessed on those as well. If `weights` is left empty, balance on the unadjusted sample will be reported (which can also be viewed by specifying `un = TRUE` when weights are specified). The user can also optionally specify a data set to the `data` argument; this makes it so that `treat`, `weights`, `distance`, and `subclass` can be specified either with a vector or with the name of a variable in the argument to `data` that contains the respective values.
 
-Another way to specify input to `bal.tab()` is to use the formula interface, similar to how input would be given with Matching. Below is an example of its use:
+Another way to specify input to `bal.tab()` is to use the formula interface, similar to how input would be given with `Matching`. Below is an example of its use:
 
 ```{r}
 bal.tab(f.build(treat, covs0), data = lalonde, weights = "att.weights",
@@ -269,19 +270,19 @@ bal.tab(f.build(treat, covs0), data = lalonde, weights = "att.weights",
 
 To use the formula interface, the user must specify a formula relating treatment to the covariates for which balance is to be assessed and the data set where the elements of the formula can be found. As above, the arguments to `weights`, `distance`, and `subclass` can be specified either as vector containing the values or as names of the variable in the argument to `data` containing the values. In the above example, an argument to `distance` was specified, and balance measures for the propensity score now appear in the balance table.
 
-An argument to `method` must be specified for `bal.tab()` to process the data correctly. If left empty, weighting will be assumed but a warning will appear. `"matching"` and `"subclassification"` are also allowed, and can be abbreviated. If no weights or subclasses are provided, no argument to `method` is required.
+An argument to `method` must be specified for `bal.tab()` to process the data correctly. If left empty, weighting will be assumed, but a warning will appear. `"matching"` and `"subclassification"` are also allowed, and can be abbreviated. If no weights or subclasses are provided, no argument to `method` is required.
 
-The other arguments to `bal.tab()` when using it with data outside a package have the same form and function as those given when using it with MatchIt. The default to `s.d.denom` is `"treated"`, which is most appropriate when methods for estimating the ATT are used, so if the ATE or ATC are desired, `s.d.denom` should be changed to `"pooled"` or '"control"`, respectively. See Austin (2011) for en explanation on how to calculate weights for estimation of the ATT, ATE, and ATC.
+The other arguments to `bal.tab()` when using it with data outside a package have the same form and function as those given when using it with `MatchIt`. The default to `s.d.denom` is `"treated"`, which is most appropriate when methods for estimating the ATT are used, so if the ATE or ATC are desired, `s.d.denom` should be changed to `"pooled"` or '"control"`, respectively. See Austin (2011) for an explanation on how to calculate weights for estimation of the ATT, ATE, and ATC.
 
-As with when `bal.tab()` is used with MatchIt, if subclasses are provided, the user can specify `disp.subclass = TRUE` to examine balance within each subclass. The default is to display balance only aggregated across subclasses.
+As with when `bal.tab()` is used with `MatchIt`, if subclasses are provided, the user can specify `disp.subclass = TRUE` to examine balance within each subclass. The default is to display balance only aggregated across subclasses.
 
 ## bal.plot
 
-The gold stanrdard for assessing covariate balance is multidimensional distributional similarity between the treated and control groups. Because this is hard to visualize and assess with large numbers of variables tpyical of causal effect analysis, univariate balance is typically assessed as a proxy. Most conditioning packages, as well as cobalt, will provide numerical summaries of balance, typcially by comparing moments between the treated and control groups. But even univariate balance is more complcated than simple numerical summaries can address; examining distributional balance is a more thorough method to assess balance between the groups. Although there are statistcs to do summarize distributional balance beyond the first few moments, complimenting statistics with a visiaul examination of the distributional densities can be an effective way of assessing distributional similarity between the groups.
+The gold standard for assessing covariate balance is multidimensional distributional similarity between the treated and control groups. Because this is hard to visualize and assess with the large numbers of covariates typical of causal effect analysis, univariate balance is typically assessed as a proxy. Most conditioning packages, as well as `cobalt`, will provide numerical summaries of balance, typically by comparing moments between the treated and control groups. But even univariate balance is more complicated than simple numerical summaries can address; examining distributional balance is a more thorough method to assess balance between groups. Although there are statistics such as the Komologrov-Smirnov distance that summarize distributional balance beyond the first few moments (Austin & Stuart, 2015; Ali et al 2016), complimenting statistics with a visual examination of the distributional densities can be an effective way of assessing distributional similarity between the groups (Ho et al, 2007).
 
-`bal.plot()` allows users to do so by displaying density plots (for continuous variables) or bar graphs (for binary variables) for the treated and control groups so that users can compare the dsitributional shapes between them. Below is an example of the use of `bal.plot()` after using MatchIt to perform matching:
+`bal.plot()` allows users to do so by displaying density plots (for continuous variables) or bar graphs (for binary variables) for the treated and control groups so that users can compare the distributional shapes between them. Below is an example of the use of `bal.plot()` after using `MatchIt` to perform matching:
 
-```{r, message = FALSE}
+```{r, message = FALSE, fig.show = "hold"}
 data(lalonde, package = "cobalt")
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
@@ -293,13 +294,13 @@ bal.plot(m.out, "age")
 bal.plot(m.out, "black")
 ```
 
-The first argument (or set of arguments) is the sufficient set of arguments for a simple call to `bal.tab()`, defining the data object (e.g., the output of a conditoning function), the treatment indicators, and the weights or subclasses. See above for examples. The second argument is the name of the covariate. for which distributional balance is to be assessed. If subclassification is used (i.e., if subclasses are present in the input data object or arguments), an additional argument `which.sub` must be specified, with a number corresponding to the subclass number for which balance is to be assessed on specified covariate.
+The first argument (or set of arguments) is the sufficient set of arguments for a simple call to `bal.tab()`, defining the data object (e.g., the output of a conditioning function), the treatment indicators, and the weights or subclasses. See above for examples. The second argument is the name of the covariate for which distributional balance is to be assessed. If subclassification is used (i.e., if subclasses are present in the input data object or arguments), an additional argument `which.sub` must be specified, with a number corresponding to the subclass number for which balance is to be assessed on specified covariate.
 
 The user can also specify whether distributional balance is to be shown before or after adjusting by using the argument to `un`, as with `bal.tab()`. If `un = TRUE`, balance will be displayed for the unadjusted sample only. The default is to display balance for the adjusted sample.
 
-The output of `bal.plot()` is a density plot for the two groups on the given covariate. For categorical or binary variables, a bar graph is displayed instead. The x-axis is the value of the variable, and the y-axis is the proportion density or proportion of the variable in the given group. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, where the variable is split into several binary variables. The degree to which the density plots for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. String distributional similarity is especially important for variables strongly related to the outcome of interest.
+The output of `bal.plot()` is a density plot for the two groups on the given covariate. For categorical or binary variables, a bar graph is displayed instead. The x-axis is the value of the variable, and the y-axis is the proportion density or proportion of the variable in the given group. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, where the variable is split into several binary variables. The degree to which the density plots for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.
 
-The output plot is made using ggplot2, which means that users familiar with ggplot2 can adjust the plot with ggplot2 commands. For example, to change the colors and theme to black and white, and to change the axis and title names, the following code can be used:
+The output plot is made using `ggplot2`, which means that users familiar with `ggplot2` can adjust the plot with `ggplot2` commands. For example, to change the colors and theme to black and white, and to change the axis and title names, the following code can be used:
 
 ```{r, message = FALSE}
 library("ggplot2")
@@ -308,9 +309,9 @@ bp + theme_bw() + scale_fill_manual( values = c("black","white")) +
     labs(title = "Distributional Balance for Age", x = "Age")
 ```
 
-Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like MatchIt's `plot(..., type = "hist")` or twang's `plot(..., plots = "boxplot")`. To examine the distributions of the distance measure, the input to `var.name` must be `".distance"` (noting the "`.`" at the beginning). If the data input object doesn't already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to `bal.plot()` through `distance`, in addition to being called through `var.name`. Below is an example using the formula input to `bal.plot()` with to display the distributions of propensity scores prior to adjustment:
+Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like `MatchIt`'s `plot(..., type = "hist")` or `twang`'s `plot(..., plots = "boxplot")`. To examine the distributions of the distance measure, the input to `var.name` must be `".distance"` (noting the "`.`" at the beginning). If the data input object doesn't already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to `bal.plot()` through `distance`, in addition to being called through `var.name`. Below is an example using the formula input to `bal.plot()` with to display the distributions of propensity scores before and after adjustment:
 
-```{r}
+```{r, fig.show = "hold"}
 data(lalonde, package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
@@ -321,15 +322,18 @@ lalonde$att.weights <- with(lalonde, treat + (1-treat)*p.score/(1-p.score))
 bal.plot(f.build(treat, covs0), data = lalonde, var.name = ".distance",
          weights = "att.weights", distance = "p.score", 
          method = "weighting", un = TRUE)
+bal.plot(f.build(treat, covs0), data = lalonde, var.name = ".distance",
+         weights = "att.weights", distance = "p.score", 
+         method = "weighting", un = FALSE)
 ```
 
-The same plot could have been generated omiting the argument to `weights` and setting `un = FALSE` (or omitting it). It is generally not a useful assessment of balance to examine the overlap of the distance measure distributions after adjustment, as most conditioning methods will yield good distributional overlap on the distance measure whether or not balance is achieved on the covariates (Stuart et al, 2013).
+It is generally not a useful assessment of balance to examine the overlap of the distance measure distributions after adjustment, as most conditioning methods will yield good distributional overlap on the distance measure whether or not balance is achieved on the covariates (Stuart et al, 2013). However, it may be useful to see the new range of the distance measure if calipers or common support pruning are used.
 
 ## love.plot
 
-The Love plot is a summary plot of covariate balance before and after conditioning popularized by Thomas Love (Love, 2004). In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielson, 2016). Although Love plots are used with some frequency and there are tools to generate them, none of the packages used form conditioning include a function for quickly and easily generating them. `love.plot()` does just this, prividing the user with sveeral options to customize their plot for publication. Below is an example of its use:
+The Love plot is a summary plot of covariate balance before and after conditioning popularized by Thomas Love (Love, 2004). In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielson, 2016). Although Love plots are used with some frequency and there are tools to generate them, none of the packages used for conditioning include a function for quickly and easily generating them. `love.plot()` does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:
 
-```{r}
+```{r, fig.width = 4}
 data(lalonde, package = "cobalt")
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
@@ -340,21 +344,21 @@ m.out <- matchit(f.build(treat, covs0), data = lalonde, method = "nearest", repl
 love.plot(bal.tab(m.out), threshold = .1)
 ```
 
-`love.plot()` takes as its first argument the output of a call to `bal.tab()`; this can be accompished simply by insderting the call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument. There are several other arguments, all of which control display, and are described below.
+`love.plot()` takes as its first argument the output of a call to `bal.tab()`; this can be accomplished simply by inserting the call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument. There are several other arguments, all of which control display, and are described below.
 
-The output is a plot with the distance measure on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved. Like the output of `bal.plot()`, the output of `love.plot()` is a ggplot2 object, which means ggplot2 users can modify the plot to their liking for presentation or publication. This might involve changing the colors, shapes, or labels used in the plot.
+The output is a plot with the distance measure on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment. The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved. Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to their liking for presentation or publication. This might involve changing the colors, shapes, or labels used in the plot.
 
 The default is to present mean differences as they are calculated in the call to `bal.tab()`; by specifying `stat = "variance.ratios"` (abbreviations allowed), the user can request variance ratios instead. Because some variables don't have variance ratios calculated (e.g., binary variables), there will be empty rows if variance ratios are requested, but these rows can be deleted by setting `no.missing = TRUE`.
 
-The threshold works similarly to `m.threshold` and `v.threshold` in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on whcih to evaluate the displayed balance measures. If these thresholds are specified in `bal.tab()`, `love.plot()` will use them in the resultant plot with the corresponding balance statistic. The `threshold` argument to `love.plot()` takes precedence.
+The threshold works similarly to `m.threshold` and `v.threshold` in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on which to evaluate the displayed balance measures. If these thresholds are specified in `bal.tab()`, `love.plot()` will use them in the resultant plot with the corresponding balance statistic. The `threshold` argument to `love.plot()` takes precedence.
 
 If mean difference are requested, `love.plot()` will use the mean differences as they are calculated by `bal.tab()` and presented in the mean differences columns of the balance table. See the section on using `bal.tab()` to see what the default calculations are for these values. If `abs = TRUE` in `love.plot()`, the plot will display absolute mean differences, which can aid in display clarity since the magnitude is generally the more important aspect of the statistic.
 
-The order of the covariates displayed can be adjusted using the argument to `var.order`. If left empty or `NULL`, the covariaes will be listed in alphabetical order. If `"adjusted"`, covaiates will be ordered by the requested balance statistic of the adjusted sample. If `"unadjusted"`, covariates will be ordered by the requested balance statistic of the unadjusted sample, which tends to be more visually appealing. Abbreviatons are allowed here.
+The order of the covariates displayed can be adjusted using the argument to `var.order`. If left empty or `NULL`, the covariates will be listed in alphabetical order. If `"adjusted"`, covariates will be ordered by the requested balance statistic of the adjusted sample. If `"unadjusted"`, covariates will be ordered by the requested balance statistic of the unadjusted sample, which tends to be more visually appealing. Abbreviations are allowed here.
 
-The plot uses the original variable names as they are given in the data set, which may not not be the names desired for display in publication. By using the argument to `var.names`, users can specify their own variable names to be used instead. This can also be done using ggplot2 commands after the plot has been generated. To specify new variable names with `var.names`, the user must enter an object containing the new variable names and, optionally, the old variable names to replace. For options of how to do so, see the help file for `love.plot()` with `?love.plot`. Below is an example, creating a publication ready plot:
+The plot uses the original variable names as they are given in the data set, which may not be the names desired for display in publication. By using the argument to `var.names`, users can specify their own variable names to be used instead. This can also be done using `ggplot2` commands after the plot has been generated. To specify new variable names with `var.names`, the user must enter an object containing the new variable names and, optionally, the old variable names to replace. For options of how to do so, see the help file for `love.plot()` with `?love.plot`. Below is an example, creating a publication-ready plot:
 
-```{r}
+```{r, fig.width = 6}
 v <- data.frame(old = c("age", "educ", "black", "hispan", 
                         "re74", "re75"),
                 new = c("Age", "Years of Education", "Black", 
@@ -365,117 +369,166 @@ love.plot(bal.tab(m.out), stat = "mean.diffs", threshold = .1,
           var.order = "unadjusted", var.names = v, abs = TRUE)
 ```
 
-This plot shows that balance was improved on all variables after adjustment, bringing all but 1 below the threshold of .1 for absolute mean differences.
+This plot shows that balance was improved on all variables after adjustment, bringing all but one below the threshold of .1 for absolute mean differences.
 
-# Details on Calculations and Features
+#Additional Features
+## Using the prognostic score for balance assessment
+The prognostic score is the model-predicted outcome for an individual, excluding the treatment variable in the model (Hansen, 2008). Stuart et al (2013) found that prognostic scores can be an extremely effective tool for assessing balance, greatly outperforming mean differences on covariates and significance tests. This is true even if the prognostic score model is slightly misspecified. Although the use of prognostic scores appears to violate the spirit of preprocessing in that users observe the outcome variable prior to treatment effect estimation, typically the prognostic score model is estimated in just the control group, so that the outcome of the treated group (which may contain treatment effect information) is excluded from analysis.
 
-##s.d.denom
-[Always use SD of original group]
+Assessing balance on the prognostic score is simple in `cobalt`, and highly recommended when available. The steps are:
 
-##weighted variance
-[for use in var.ratio and std.diffs; formula in Austin vs. traditonal (survey) for sample weighted var; When weights = 1 same value. ]
+1. Estimate the outcome model in the control group
+2. Generate model-predicted outcome values for both the treated and control groups
+3. Assess balance on prognostic scores by comparing standardized mean differences
 
-#Effective sample size for weighting
-[copy formula from twang]
+To use prognostic scores in `cobalt`, simply add the prognostic score as a variable in the argument to `addl`. Below is an example of how to do so after a call to `matchit()`:
 
-#Using prognositic score
-[demonstration of use with addl, reference Stuart et al 2013]
+```{r}
+ctrl.data <- lalonde[lalonde$treat == 0,]
+ctrl.fit <- glm(re78 ~ age + educ + black + hispan + 
+                married + nodegree + re74 + re75,
+                data = ctrl.data)
+lalonde$prog.score <- predict(ctrl.fit, lalonde)
+
+bal.tab(m.out, addl = data.frame(prog.score = lalonde$prog.score))
+```
+
+Although the prognostic score is sensitive to the outcome estimation model used, a defensible prognostic score model can yield valid prognostic scores, which can then be used in balance assessment. In the above example, balance on the estimated prognostic score was good, so we can have some confidence that the effect estimate will be relatively unbiased, even though the "age" variable remains imbalanced. The logic is that that age is not a highly prognostic variable, which could be demonstrated by examining the standardized regression output of prognostic score model, so even though imbalance remains, such imbalance is unlikely to effect the effect estimate. The variables "re74" and "re75", though, which are highly prognostic of the outcome, are quite balanced, thereby supporting an unbiased treatment effect estimate.
+
+# Details on Calculations
+
+There are calculations in `cobalt` that may be opaque to users; this section explains them.
+
+## Variance in Standardized Mean Differences
+
+When computing a standardized mean difference, the raw mean difference is divided by a standard deviation, yielding a d-type effect size statistic. In `bal.tab()`, the user can control whether the standard deviation is that of the treated group or control group or a pooled estimate, calculated as the square root of the average of the group variances. In most applications, the standard deviation corresponding to the default for the method is the most appropriate.
+
+A key detail is that the standard deviation, no matter how it is calculated, is always calculated using the unadjusted sample^[Unless common support is used in `Matching`, in which case the standard deviation is computed using the remaining unadjusted sample.]. This is line with how `MatchIt` computes standardized mean differences, and is recommended by Stuart (2008; 2010). One reason to favor the use of the standard deviation of the unadjusted sample is that it prevents the paradoxical situation that occurs when adjustment decreases both the mean difference and the spread of the sample, yielding a larger standardized mean difference than that prior to adjustment even though the adjusted groups are now more similar. By using the same standard deviation before and after adjusting, the change in balance is isolated to the change in mean difference, rather than being conflated with an accompanying change in spread. It is important to note that both `twang` and `Matching` calculate standardized mean differences using the standard deviation of the sample in question, not the unadjusted sample, though `CBPS` uses the standard deviation of the unadjusted sample.
+
+## Weighted Variance
+When using weighting or matching, summary values after adjustment are calculated by using weights generated from the matching or weighting process. For example, group means are computed using the standard formula for a weighted mean, incorporating the weighting or matching weights into the calculation. To estimate a weighted sample variance for use in variance ratios^[Standardized mean difference use only unweighted variance estimates; see section "Variance in Standardized Mean Differences" for details.], there are two formulas that have been proposed:
+
+1. $$\frac{\sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2}{(\sum_{i=1}^{n} w_{i}) - 1}$$
+
+2. $$\frac{\sum_{i=1}^{n} w_{i}}{(\sum_{i=1}^{n} w_{i})^2 - \sum_{i=1}^{n} w^2_{i}} \sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2$$
+
+The weights used in the first formula are often called "frequency weights", while the weights in the second formula are often called normalized or "reliability weights". `MatchIt`, `twang`, and `Matching` all use the first formula when calculating any weighted variance (`CBPS` does not compute a weighted variance). However, Austin (2008) and Austin & Stuart (2015) recommend the second formula when considering matching weights for k:1 matching or weights for propensity score weighting. In `cobalt` the first formula is used to remain in line with the other packages. For some applications (i.e., when all weights are either 0 or 1), the two formulas yield the same variance estimate.
+
+### Effective Sample Size for Weighting
+
+Knowledge of the sample size after adjustment is important not just for outcome analysis but also for assessing the adequacy of a conditioning specification. For example, pruning many units through common support cutoffs, caliper matching, or matching with replacement can yield very small sample sizes that hurt both the precision of the outcome estimate and the external validity of the conclusion. In matching, the sample size is fairly straightforward; it is simply the number of units remaining after matching^[In full matching, this is not so straightforward because units are weighted; `cobalt` mimics `MatchIt` in using the simple sample size rather than the effective sample size, though the true effective sample size may differ.]. In weighting, the sample size is not so straightforward, because the purpose of matching is to down- and up-weight observations to create two similar samples. The "effective sample size" (ESS) is a measure of the sample size a non-weighted sample would have to have to achieve the same level of precision as the weighted sample (Ridgeway, et al 2016). This measure is implemented in `twang` using the following formula:
+$$ESS = \frac{(\sum_{i=1}^{n} w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}$$
+The authors claim that the ESS as calculated above is accurate when the estimand is the ATT, but will underestimate the true effective sample size when the estimate is the ATE.
 
 # What's Missing in cobalt
 
-Compared to the other packages, cobalt may appear quite sparse. A fair amount is missing in cobalt that is present in other packages. Thogh there is value in many of the aspects that cobalt lacks, many were purposefully excluded based on methdologoical recommendations that conflict with the current use of some other packages. Below are aspects that are intentially missing from cobalt that users may be used to from other packages. Their reason for exclusion is included, with the hope that users of cobalt will be satisfied with what is available and be confident htey are using the most methodologically sound tools for balance assessment.
+Compared to the other packages, `cobalt` may appear quite sparse. A fair amount is missing in `cobalt` that is present in other packages. Though there is value in many of the aspects that `cobalt` lacks, many were purposefully excluded based on methodological recommendations that conflict with the current use of some other packages. Below are aspects that are intentionally missing from `cobalt` that users may be used to from other packages. Their reason for exclusion is included, with the hope that users of `cobalt` will be satisfied with what is available and be confident they are using the most methodologically sound tools for balance assessment.
 
 ## Test Statistics and P-values
 
-Some of the early literature on propensity score matching included measures for balance assessment that relied on hypothesis tests for the independence of treatment assignment and covariates after adjustment (e.g., Rosenbaum & Rubin, 1983; Hansen, 2004). In a review of propensity score applications in the social sciences, Thoemmes & Kim (2011) found that over 66% of studies used signfiicance tests to assess balance. Likewise, Austin (2008) found that over 70% of studies using propensity scores in the medical literature used signfiicance tests to assess balance, a finding replicated by Ali et al (2016). These hypothesis tests can come in many forms: t-tests for the difference in means between groups, chi-square tests for the difference in proportion between groups, Kolmogorov-Smirnov tests for the difference in cummulative density between groups, or F-tests for the difference in means bewteen groups across subclasses.
+Some of the early literature on propensity score matching included measures for balance assessment that relied on hypothesis tests for the independence of treatment assignment and covariates after adjustment (e.g., Rosenbaum & Rubin, 1983; Hansen, 2004). In a review of propensity score applications in the social sciences, Thoemmes & Kim (2011) found that over 66% of studies used significance tests to assess balance. Likewise, Austin (2008) found that over 70% of studies using propensity scores in the medical literature used significance tests to assess balance, a finding replicated by Ali et al (2015). These hypothesis tests can come in many forms: t-tests for the difference in means between groups, chi-square tests for the difference in proportion between groups, Kolmogorov-Smirnov tests for the difference in cumulative density between groups, or F-tests for the difference in means between groups across subclasses.
 
-The use of hypothesis tests appears natural here: if balance is achieved, we would not expect extreme values for the test statistics, and we can quantify the probability of observing imbalance as extreme as the one observed if there is balance as a way to assess whether there is balance, as we can do with standard hypothesis testing. But this view is not shared by the methodological community: virtually all contemporary propensity score methodolgoists recommend against using hypothesis tests for balance assessment (e.g., Austin, 2009; 2011; Ho et al, 2007; Imai, King & Suart, 2008; Stuart, 2010; Thoemmes & Kim, 2011; Ali et al, 2015). There are logical reasons for this preference agains hypothesis tests, noted clearly in Ali et al (2015): they are influenced by sample size, which fluctuates during adjustment, and the theory behind them is inappropriate because balance is a quality solely of the sample in question, not as it relates to a population. The relevant informaiton in a hypothesis test for group differences is the standardized magnitude of the group difference, and so such a measure is preferred. 
+The use of hypothesis tests appears natural here: if balance is achieved, we would not expect extreme values for the test statistics, and we can quantify the probability of observing imbalance as extreme as the one observed if no imbalance is present as a way to assess whether there is balance, as we can do with standard hypothesis testing. But this view is not shared by the methodological community: virtually all contemporary propensity score methodologists recommend against using hypothesis tests for balance assessment (e.g., Austin, 2009; 2011; Ho et al, 2007; Imai, King & Stuart, 2008; Stuart, 2010; Thoemmes & Kim, 2011; Ali et al, 2015). There are logical reasons for this preference against hypothesis tests, noted clearly in Ali et al (2015): they are influenced by sample size, which fluctuates during adjustment, and the theory behind them is inappropriate because balance is a quality solely of the sample in question, not as it relates to a population. The relevant information in a hypothesis test for group differences is the standardized magnitude of the group difference, and so such a measure is preferred. 
 
-Because hypothesis tests can be misleading and their use is discouraged by leading methodologists, they have been completely excluded in cobalt in favor of summary statistics. This stands in contrast to twang and Matching, both of which report hypothesis test p-values in their balance output.
+Because hypothesis tests can be misleading and their use is discouraged by leading methodologists, they have been completely excluded in `cobalt` in favor of summary statistics. This stands in contrast to `twang` and `Matching`, both of which report hypothesis test p-values in their balance output.
 
 ## Q-Q Plots and Summaries
 
-Q-Q plots have been recommended as tools to assess distributional balance of covariates between groups (Ho et al, 2007), and are implemented in MatchIt and Matching (twang implements them but for a different purpose). Statistics summaries the degree of imbalance in QQ plots are also reported in both MatchIt and Matching. MatchIt's `summary()` command by default reports "eQQ Med", "eQQ Mean", and "eQQ Max" for each covariate before and after adjustment. These are the median, mean, and maximum distance between the treated and control group empirical Q-Q plots on the scale of the covariate. When `standardize = TRUE`, the values reported are "eCDF Med", "eCDF Mean", and "eCDF Max", which are the same values as above but computed using the standardized empirical Q-Q plots. Matching provides all of these values. Values close to 0 indicate good balance between groups for the given covariate.
+Q-Q plots have been recommended as tools to assess distributional balance of covariates between groups (Ho et al, 2007), and are implemented in `MatchIt` and `Matching` (`twang` implements them but for a different purpose). Statistics summaries the degree of imbalance in QQ plots are also reported in both `MatchIt` and `Matching`. `MatchIt`'s `summary()` command by default reports "eQQ Med", "eQQ Mean", and "eQQ Max" for each covariate before and after adjustment. These are the median, mean, and maximum distance between the treated and control group empirical Q-Q plots on the scale of the covariate. When `standardize = TRUE`, the values reported are "eCDF Med", "eCDF Mean", and "eCDF Max", which are the same values as above but computed using the standardized empirical Q-Q plots. The `Matching` package provides all of these values. Values close to 0 indicate good balance between groups for the given covariate.
 
-A weakness of empircal Q-Q plots is that they don't reveal much about the differences in the shapes of the distributions between the groups, which is a key aspect of distributional balance. A density plot essentially contains the same information, but clearer and more intuitive. Althugh the assessment of balance using a Q-Q plot is straightforward (i.e., deviations from the 45 degree line indicate imbalances), density plots present the information in a way more in line with the actual goals of conditioning, in particular, that the distributions of treated and control units are similar.
+A weakness of empirical Q-Q plots is that they don't reveal much about the differences in the shapes of the distributions between the groups, which is a key aspect of distributional balance. A density plot essentially contains the same information, but clearer and more intuitive. Although the assessment of balance using an empirical Q-Q plot is straightforward (i.e., deviations from the 45-degree line indicate imbalances), density plots present the information in a way more in line with the actual goals of conditioning, in particular, that the distributions of treated and control units are similar (Ho et al, 2007).
 
-Empirical Q-Q plot summary statistics may be useful in quantifying imbalance, but currently there are no recommendations for their use, and no precedents in the applied literature either. Similar methods, the Kolmogorov-Smirnov distance and Levy distance, were reviewed in Ali et al, 2015, and were found to have significant limitations not shared by the standardized mean difference. Belitser et al (2011) found empirically that both measures were poor predictors of bias, especially in small samples. Although there may be promise for the use of these statistics, without guidance researchers may not find them useful or worth the space in a quick balance summary.
+Empirical Q-Q plot summary statistics may be useful in quantifying imbalance, but currently there are no recommendations for their use, and no precedents in the applied literature either. Similar methods, the Kolmogorov-Smirnov distance and Levy distance, were reviewed in Ali et al (2015), and were found to have significant limitations not shared by the standardized mean difference. Belitser et al (2011) found empirically that both measures were poor predictors of bias, especially in small samples. Although there may be promise for the use of these statistics, without guidance researchers may not find them useful or worth the space in a quick balance summary.
 
 # What's Added in cobalt
 
-##distinguishing continuous and binary
+There are several features in `cobalt` that are present in few, if any, balance assessment tools in the major packages. These come from methodological recommendations and requests by members of the methodological community.
 
-##Density plots
+## Density Plots
 
-##variance ratios
+As mentioned above, `cobalt` displays density plots and bar charts rather than empirical Q-Q plots for the assessment of distributional similarity. These charts are not standard in any of the conditioning packages, but can be an intuitive and helpful tool for deciding whether adjustment has yielded similar distributions between the groups for given covariates. Though there are no obvious heuristics for deciding how much dissimilarity is too much dissimilarity, density plots do avoid the sometimes confusing logic of empirical Q-Q plots in favor of simplicity and interpretability. Austin (2009) considered density plots as a compliment to empirical Q-Q plots to more finely examine balance after adjusting.
 
-##Love plot
+## Variance Ratios
 
-# What's Next for cobalt
+Although mean differences (including t-tests and chi-square tests) are the most reported balance statistic (Thoemmes & Kim, 2011), variance ratios have been recommended in the literature as a means to further examine balance between groups (Austin, 2009, Imai et al, 2008; Ho et al, 2007). When group variances are similar, the variance ratio will be close to 1. Common thresholds for the variance ratio for balanced groups are 1/2 and 2 (Rubin, 2001; Stuart, 2010), though ratios closer to 1 are preferred. 
 
-##Balance assessment for clusters
+The `Matching` package is the only one of the conditioning packages that presents variance ratios for covariates. Although `bal.tab()` in `cobalt` does not display variance ratios by default, they can be easily requested and have thresholds set.
 
-##New statistics
-[e.g. skew]
+## Distinguishing Continuous and Binary Variables
 
-##Comparing models side by side
+Continuous and binary variables are treated differently by default in `bal.tab()` and `bal.plot()`. For continuous variables, the standard manipulations apply: standardized mean difference, variance ratios, and density plots. For binary variables, raw differences in proportion and bar charts are preferable, and variance ratios are useless. 
 
-##Incorporating sampling weights
+The value of standardized mean differences for continuous variables is that they are on the same scale so that they can be compared across variables, and they allow for a simple interpretation even when the details of the variable’s original scale are unclear to the analyst. None of these advantages are passed to binary variables because binary variables are already on the same scale (i.e., a proportion), and the scale is easily interpretable. In addition, the details of standardizing the proportion difference of a binary variable involve dividing the proportion difference by a variance, but the variance of a binary variable is a function of its proportion (Austin, 2009). Standardizing the proportion difference of a binary variable can yield the following counterintuitive result: if $X_{T} = .2$ and $X_{C} = .3$, the standardized difference in proportion would be different from that if $X_{T} = .5$ and $X_{C} = .6$, even though the expectation is that the balance statistic should be the same for both scenarios because both would yield the same degree of bias in the effect estimate.
 
-##Integrate with other packages
-[If future packages released, make compatible with cobalt, save programming time]
+`MatchIt` allows users to view standardized mean differences for all covariates or raw differences for all covariates, and `twang` and `Matching` display standardized difference for all variables but calculate test statistics depending on whether the covariate is continuous or binary (`CBPS` does not calculate mean differences, but presents both standardized and unstandardized means for all covariates). `cobalt` allows the user to select how the differences are to be calculated separately for continuous and binary variables, and uses the intuitive default that mean differences for continuous variables should be standardized while proportion differences for binary variables should be raw.
+
+Because the variance of a binary variable is a function only of its proportion, the variance ratio of a binary variable in two groups is a function only of their proportions, thereby containing no more information than the simple difference in proportion. Therefore, for binary variables, `cobalt` does not compute variance ratios, as they can be misleading. `Matching`, the only package that computes variance ratios for balance assessment, does so both for continuous and binary variables.
+
+## Love Plots
+
+Love plots and other similar plots that graphically display covariate balance before and after matching appear with some frequency in the applied and methodological literature (e.g., Ahmed et al, 2007; Austin, 2009; Austin & Stuart, 2015). Several of the conditioning packages implement a similar plot: `MatchIt`'s `plot(summary(..., standardize = TRUE))` and `twang`'s `plot(..., plots = "es")` present line plots showing the change in balance for each covariate. Below are examples of `twang`'s balance plot (left) and `cobalt`'s Love plot (right).
+
+```{r, echo = FALSE, message = FALSE, fig.show = 'hold', fig.width = 4}
+plot(ps.out, plots = "es", subset = 1)
+love.plot(bal.tab(ps.out, full.stop.method = "es.max.att"), threshold = .1,
+          abs = TRUE, var.order = "u")
+```
+
+A Love plot displays the same information, but allows for the clear display of both the balance statistic value and the variable name, unlike the line plot above which displays only the balance statistic value. The Love plot in `cobalt` allows for a great deal of flexibility in appearance, and can present variance ratios as well as mean differences. 
+
+# For Programmers: Integrating cobalt with Your Package
+
+If you are designing a new R package for preprocessing that performs similar functions to `MatchIt`, `twang`, `Matching`, or `CBPS`, you might consider integrating `cobalt` into your package to avoid programming your own balance assessment tool. The simplest way to do so is to have the output of your preprocessing function contain all the elements for use with the formula or data frame interfaces for `bal.tab()` and `bal.plot()`. You are also welcome to contact me to discuss the addition of a `bal.tab()` method for the output of your preprocessing function, which might ease the burden on users by allowing for fewer inputs and decisions (as is done with `MatchIt`'s output objects, for example).
+
+As `cobalt` is updated to remain in line with methodological recommendations, the balance assessment capabilities for your function's output will also improve if `cobalt` is a balance assessment tool for your package. In this way, users of your package can use the most up-to-date balance assessment tools programmed in `cobalt` without you having to update your package.
+
+If you develop a new balance assessment tool, this may also be able to be integrated into `cobalt`, especially if it would be applicable to balance assessment generally in matching, weighting, or subclassification. Incorporating a new tool into `cobalt` may be a good way to broaden its use.
 
 # Acknowledgments
 
-I thank Kirsten Kainz and Elizabeth Stuart for their support and advice on cobalt's creation. I thank Zachary Fisher for his advice on developing an R package. An early version of `bal.tab()` appeared in the Appendix of Kainz et al (in preparation) for use with MatchIt.
+I thank Kirsten Kainz and Elizabeth Stuart for their support and advice on `cobalt`'s creation. I thank Zachary Fisher for his advice on developing an R package. An early version of `bal.tab()` appeared in the Appendix of Kainz et al (in preparation) for use with `MatchIt`.
 
 # References
----
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+Ahmed, A., Rich, M.W., Sanders, P.W., Perry, G.J., Bakris, G.L., Zile, M.R., Love, T.E., Aban, I.B. & Shlipak, M.G. (2007) Chronic kidney disease associated mortality in diastolic versus systolic heart failure: a propensity matched study. The American journal of cardiology, 99(3), pp.393-398.
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+Ali, M. S., Groenwold, R. H. H., Belitser, S. V., Pestman, W. R., Hoes, A. W., Roes, K. C. B., … Klungel, O. H. (2015). Reporting of covariate selection and balance assessment in propensity score analysis is suboptimal: a systematic review. Journal of Clinical Epidemiology, 68(2), 122–131. http://doi.org/10.1016/j.jclinepi.2014.08.011
 
-## Vignette Info
+Austin, P. C. (2008). A critical appraisal of propensity-score matching in the medical literature between 1996 and 2003. Statistics in Medicine, 27(12), 2037–2049. http://doi.org/10.1002/sim.3150
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+Austin, P. C. (2009). Balance diagnostics for comparing the distribution of baseline covariates between treatment groups in propensity-score matched samples. Statistics in Medicine, 28(25), 3083–3107. http://doi.org/10.1002/sim.3697
 
-## Styles
+Austin, P. C. (2011). An Introduction to Propensity Score Methods for Reducing the Effects of Confounding in Observational Studies. Multivariate Behavioral Research, 46(3), 399–424. http://doi.org/10.1080/00273171.2011.568786
 
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+Austin, P. C., & Stuart, E. A. (2015). Moving towards best practice when using inverse probability of treatment weighting (IPTW) using the propensity score to estimate causal treatment effects in observational studies. Statistics in Medicine, 34(28), 3661–3679. http://doi.org/10.1002/sim.6607
 
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
+Belitser, S. V., Martens, E. P., Pestman, W. R., Groenwold, R. H. H., de Boer, A., & Klungel, O. H. (2011). Measuring balance and model selection in propensity score methods. Pharmacoepidemiology and Drug Safety, 20(11), 1115–1129. http://doi.org/10.1002/pds.2188
 
-## Figures
+Hansen, B. B. (2008). The prognostic analogue of the propensity score. Biometrika, 95(2), 481-488.
 
-The figure sizes have been customised so that you can easily put two images side-by-side. 
+Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2007). Matching as Nonparametric Preprocessing for Reducing Model Dependence in Parametric Causal Inference. Political Analysis, 15(3), 199–236. http://doi.org/10.1093/pan/mpl013
 
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
+Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2011). MatchIt: Nonparametric preprocessing for parametric causal inference. Journal of Statistical Software, 42, 1–28. Retrieved from http://www.jstatsoft.org.libproxy.lib.unc.edu/v42/i08/
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+Imai, K., King, G., & Stuart, E. A. (2008). Misunderstandings between experimentalists and observationalists about causal inference. Journal of the royal statistical society: series A (statistics in society), 171(2), 481-502.
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+Keller, B., & Tipton, E. (2016). Propensity Score Analysis in R: A Software Review. Journal of Educational and Behavioral Statistics, 41(3), 326-348.
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+King, G., & Nielsen, R. (2016). Why propensity scores should not be used for matching. Retrieved from http://www.polmeth.wustl.edu/files/polmeth/psnot4.pdf
 
-## More Examples
+Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R Vignette. RAND. Retrieved from ftp://xyz.csail.mit.edu/pub/CRAN/web/packages/twang/vignettes/twang.pdf
 
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+Rosenbaum, P. R., & Rubin, D. B. (1983). The central role of the propensity score in observational studies for causal effects. Biometrika, 70(1), 41–55. http://doi.org/10.1093/biomet/70.1.41
 
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
+Rubin, D. B. (2001). Using Propensity Scores to Help Design Observational Studies: Application to the Tobacco Litigation. Health Services and Outcomes Research Methodology, 2(3-4), 169–188. http://doi.org/10.1023/A:1020363010465
 
-Also a quote using `>`:
+Sekhon, J. S. (2011). Multivariate and Propensity Score Matching Software with Automated Balance Optimization: The Matching Package for R. Journal of Statistical Software, 42(7), 1-52. http://www.jstatsoft.org/v42/i07/.
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+Stuart, E. A. (2008). Developing practical recommendations for the use of propensity scores: Discussion of “A critical appraisal of propensity score matching in the medical literature between 1996 and 2003” by Peter Austin, Statistics in Medicine. Statistics in Medicine, 27(12), 2062–2065. http://doi.org/10.1002/sim.3207
+
+Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1–21. http://doi.org/10.1214/09-STS313
+
+Stuart, E. A., Lee, B. K., & Leacy, F. P. (2013). Prognostic score-based balance measures can be a useful diagnostic for propensity score methods in comparative effectiveness research. Journal of Clinical Epidemiology, 66(8), S84. http://doi.org/http://dx.doi.org.libproxy.lib.unc.edu/10.1016/j.jclinepi.2013.01.013
+
+Thoemmes, F. J., & Kim, E. S. (2011). A Systematic Review of Propensity Score Methods in the Social Sciences. Multivariate Behavioral Research, 46(1), 90–118. http://doi.org/10.1080/00273171.2011.540475
+

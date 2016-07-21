@@ -33,7 +33,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
     return(s.diff)
   }
   std.diff.subclass <- function(x, group, weights, subclass, which.sub, denom) {
-    g0 <- x[group==0 & subclass==which.sub & weights==1];     g1 <- x[group==1 & subclass==which.sub & weights==1];
+    g0 <- x[group==0 & !is.na(subclass) & subclass==which.sub & weights==1];     g1 <- x[group==1 & !is.na(subclass) & subclass==which.sub & weights==1];
     m0 <- mean(g0);        m1 <- mean(g1)
     v0 <- var(x[group==0]) ; v1 <- var(x[group==1])
     s.d <- switch(denom, 
@@ -266,12 +266,15 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
     }
     else if (method=="subclassification") {
       if (is.null(obj$subclass)) stop("obj must contain a vector of subclasses called \"subclass\".")
-      qbins <- max(obj$subclass, na.rm=TRUE)
+      qbins <- length(levels(obj$subclass))
+
       nn <- as.data.frame(matrix(0, 3, qbins))
       dimnames(nn) <- list(c("Control", "Treated", "Total"), 
-                           paste("Subclass", 1:qbins))
+                           paste("Subclass", levels(obj$subclass)))
+
       matched <- obj$weights!=0
-      for (i in 1:qbins) {
+      k <- 0
+      for (i in levels(obj$subclass)) {
         qi <- obj$subclass[matched]==i & (!is.na(obj$subclass[matched]))
         qt <- obj$treat[matched][qi]
         if (sum(qt==1)<2|(sum(qt==0)<2)){
@@ -280,8 +283,8 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
           else if (sum(qt==0)<2)
             warning("Not enough control units in subclass ", i, call. = FALSE)
         }
-
-        nn[, i] <- c(sum(qt==0), sum(qt==1), length(qt))
+        k <- k + 1
+        nn[, k] <- c(sum(qt==0), sum(qt==1), length(qt))
       }
       obs <- nn
       attr(obs, "tag") <- "Sample sizes by subclass:"
@@ -356,21 +359,23 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
     #Set var type (binary/continuous)
     B$Type <- mapply(function(x, y) ifelse(ifelse(is.null(attr(C, "distance.name")), FALSE, x==attr(C, "distance.name")), "Distance", ifelse(length(unique(y))<=2, "Binary", "Contin.")), rownames(B), C)
     
-    SB <- vector("list", max(subclass, na.rm=TRUE))
-    
+    SB <- vector("list", length(levels(subclass)))
+    names(SB) <- levels(subclass)
+
     ############################
-    for (i in 1:max(subclass, na.rm=TRUE)) {
+    for (i in levels(subclass)) {
+
       SB[[i]] <- B
-      
-      SB[[i]]$M.C.Adjusted <- apply(C[treat==0 & subclass==i & weights>0, ], 2, mean)
-      SB[[i]]$M.T.Adjusted <- apply(C[treat==1 & subclass==i & weights>0, ], 2, mean)
+
+      SB[[i]]$M.C.Adjusted <- apply(C[treat==0 & !is.na(subclass) & subclass==i & weights>0, ], 2, mean)
+      SB[[i]]$M.T.Adjusted <- apply(C[treat==1 & !is.na(subclass) & subclass==i & weights>0, ], 2, mean)
       
       #Mean differences
       SB[[i]]$Diff.Adjusted <- mapply(function(x, type) diff.selector(x=C[, x], group=treat, weights=as.numeric(weights>0), subclass=subclass, which.sub=i, x.type=type, continuous=continuous, binary=binary, s.d.denom=s.d.denom), x=rownames(SB[[i]]), type=B$Type)
       
       #Variance ratios
       if ("Contin." %in% SB[[i]]$Type) {
-        SB[[i]]$V.Ratio.Adjusted <- mapply(function(x, y) var.ratio(C[subclass==i & weights>0, x], treat[subclass==i & weights>0], weights=NULL, y), rownames(SB[[i]]), SB[[i]]$Type)
+        SB[[i]]$V.Ratio.Adjusted <- mapply(function(x, y) var.ratio(C[!is.na(subclass) & subclass==i & weights>0, x], treat[!is.na(subclass) & subclass==i & weights>0], weights=NULL, y), rownames(SB[[i]]), SB[[i]]$Type)
       }
       
       if (!is.null(m.threshold)) {
@@ -419,7 +424,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
     if (!is.null(m.threshold)) B.A.df$M.Threshold <- ifelse(B.A.df$Type=="Distance", "", paste0(ifelse(abs(B.A.df["Diff.Adjusted"]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold))
     return(B.A.df)
   }
-  
+
   #Actions
   if (sum(treat !=1 & treat !=0) > 0) {
     stop("Treatment indicator must be a binary (0, 1) variable---i.e., treatment (1) or control (0)")}
@@ -427,8 +432,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
   if (!is.null(v.threshold)) v.threshold <- max(v.threshold, 1/v.threshold)
   if (!is.null(v.threshold)) disp.v.ratio <- TRUE
   if (is.null(weights)) un <- TRUE
-  #if (is.null(subclass)) disp.subclass <- FALSE
-  
+
   if (method %in% "subclassification") {
     if (!is.null(subclass)) {
       out.names <- c("Subclass.Balance", "Balance.Across.Subclass", 
@@ -437,6 +441,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
                      "Subclass.Observations", "call", "print.options")
       out <- vector("list", length(out.names))
       names(out) <- out.names
+      #subclass <- factor(subclass)
       out$Subclass.Balance <- balance.table.subclass(covs=covs, weights=weights, treat=treat, subclass=subclass, distance=distance, int=int, addl=addl, continuous=continuous, binary=binary, s.d.denom=s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold)
       out$Subclass.Observations <- samplesize(object, method="subclassification")
       out$Balance.Across.Subclass <- balance.table.across.subclass(balance.table=balance.table(covs, weights, treat, distance, int, addl, continuous, binary, s.d.denom, m.threshold, v.threshold), 
@@ -446,24 +451,24 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
                                                                    m.threshold=m.threshold, 
                                                                    v.threshold=v.threshold)
       if (!is.null(m.threshold)) {
-        out$Balanced.Means.Subclass <- as.data.frame(lapply(c(1:max(unique(subclass), na.rm=TRUE)), function(x) baltal(out$Subclass.Balance[[x]]$M.Threshold)))
-        names(out$Balanced.Means.Subclass) <- paste("Subclass", 1:max(unique(subclass), na.rm=TRUE))
-        mims.list <- lapply(c(1:max(unique(subclass), na.rm=TRUE)), function(x) {
+        out$Balanced.Means.Subclass <- as.data.frame(lapply(levels(subclass), function(x) baltal(out$Subclass.Balance[[x]]$M.Threshold)))
+        names(out$Balanced.Means.Subclass) <- paste("Subclass", levels(subclass))
+        mims.list <- lapply(levels(subclass), function(x) {
           mi <- max.imbal(out$Subclass.Balance[[x]][out$Subclass.Balance[[x]]$Type!="Distance", ], "Diff.Adjusted", "M.Threshold")
           return(data.frame(Variable=row.names(mi), mi))
         } )
         mims <- do.call("rbind", mims.list)
-        out$Max.Imbalance.Means.Subclass <- data.frame(mims, row.names = paste("Subclass", 1:max(unique(subclass), na.rm=TRUE)))
+        out$Max.Imbalance.Means.Subclass <- data.frame(mims, row.names = paste("Subclass", levels(subclass)))
       }
       if (!is.null(v.threshold)) {
-        out$Balanced.Variances.Subclass <- as.data.frame(lapply(c(1:max(unique(subclass), na.rm=TRUE)), function(x) baltal(out$Subclass.Balance[[x]]$V.Threshold)))
-        names(out$Balanced.Variances.Subclass) <- paste("Subclass", 1:max(unique(subclass), na.rm=TRUE))
+        out$Balanced.Variances.Subclass <- as.data.frame(lapply(levels(subclass), function(x) baltal(out$Subclass.Balance[[x]]$V.Threshold)))
+        names(out$Balanced.Variances.Subclass) <- paste("Subclass", levels(subclass))
         mivs.list <- lapply(c(1:max(unique(subclass), na.rm=TRUE)), function(x) {
           mi <- max.imbal(out$Subclass.Balance[[x]][out$Subclass.Balance[[x]]$Type!="Distance", ], "V.Ratio.Adjusted", "V.Threshold")
           return(data.frame(Variable=row.names(mi), mi))
         } )      
         mivs <- do.call("rbind", mivs.list)
-        out$Max.Imbalance.Variances.Subclass <- data.frame(mivs, row.names = paste("Subclass", 1:max(unique(subclass), na.rm=TRUE)))
+        out$Max.Imbalance.Variances.Subclass <- data.frame(mivs, row.names = paste("Subclass", levels(subclass)))
       }
       out$call <- call
       out$print.options <- list(m.threshold=m.threshold, 
@@ -518,7 +523,7 @@ bal.tab.matchit <- function(x, int = FALSE, addl = NULL, continuous = c("std", "
   #Initializing variables
   X <- matchit2base(x)
   
-  out <- base.bal.tab(object=x, weights=X$weights, treat=X$treat, distance=X$distance, subclass=X$subclass, covs=X$covs, call=X$call, int=int, addl=addl, continuous=continuous, binary=binary, s.d.denom=s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold, un=un, disp.means=disp.means, disp.v.ratio=disp.v.ratio, disp.subclass=disp.subclass, method=X$method)
+  out <- base.bal.tab(object=X$obj, weights=X$weights, treat=X$treat, distance=X$distance, subclass=X$subclass, covs=X$covs, call=X$call, int=int, addl=addl, continuous=continuous, binary=binary, s.d.denom=s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold, un=un, disp.means=disp.means, disp.v.ratio=disp.v.ratio, disp.subclass=disp.subclass, method=X$method)
   return(out)
 }
 bal.tab.ps <- function(x, full.stop.method, int = FALSE, addl = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, ...) {

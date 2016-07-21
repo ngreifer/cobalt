@@ -22,11 +22,15 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
     if (!is.null(X$subclass)) {
         if (!is.null(which.sub)) {
             if (is.numeric(which.sub) && length(which.sub)==1) {
-            X$weights <- X$weights[X$subclass==args$which.sub]
-            X$treat <- X$treat[X$subclass==args$which.sub]
-            var <- var[X$subclass==args$which.sub]
+                if (which.sub %in% levels(X$subclass)) {
+                    X$weights <- X$weights[!is.na(X$subclass) & X$subclass==which.sub]
+                    X$treat <- X$treat[!is.na(X$subclass) & X$subclass==which.sub]
+                    var <- var[!is.na(X$subclass) & X$subclass==which.sub]
+                }
+                else stop(paste0("\"", which.sub, "\" does not correspond to a subclass in the object."))
+
             }
-            else stop("The argument to which.sub must be a single number corresponding to the subclass for which distributions are to be displayed")
+            else stop("The argument to which.sub must be a single number corresponding to the subclass for which distributions are to be displayed.")
         }
         else stop("Argument contains subclasses but no which.sub value was supplied in \"...\".")
     }

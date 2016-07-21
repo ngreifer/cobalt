@@ -99,7 +99,7 @@ print.bal.tab.subclass <- function(x, digits = max(3, getOption("digits") - 3), 
                                p.ops$disp.adj * p.ops$disp.v.ratio, 
                                !is.null(p.ops$v.threshold)))
         cat("\nBalance by subclass:")
-        for (i in seq_along(s.balance)) {
+        for (i in names(s.balance)) {
             cat(paste0("\n - - - Subclass ", i, " - - - \n"))
             print.data.frame(replaceNA(round_df(s.balance[[i]][, s.keep], digits)))
         }

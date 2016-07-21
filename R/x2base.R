@@ -6,10 +6,12 @@ matchit2base <- function(m) {
               subclass=NA, 
               method=NA, 
               distance=NA, 
+              obj=NA,
               call=NA)
     #Initializing variables
     if (any(class(m)=="matchit.subclass")) {
-        X$subclass <- m$subclass 
+        m$subclass <- factor(m$subclass)
+        X$subclass <- m$subclass
         X$method <- "subclassification"
     }
     else {
@@ -23,6 +25,7 @@ matchit2base <- function(m) {
     o.data <- data.frame(m$model$model) #Just the data used in the PS, including treatment and covs
     X$covs <- o.data[, which(names(o.data) %in% attributes(terms(m$model))$term.labels)]
     #X$covs <- data.frame(m$X)
+    X$obj <- m
     
     X$call <- m$call
     return(X)
@@ -343,12 +346,12 @@ df2base <- function(covs, treat, data=NULL, weights=NULL, distance=NULL, subclas
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
-    X$subclass <- subclass
+    X$subclass <- factor(subclass)
     X$call <- NULL
     X$addl <- addl
     X$obj <- data.frame(treat=treat, weights=NA)
     if (!is.null(weights)) X$obj$weights <- weights
-    if (!is.null(subclass)) X$obj$subclass <- subclass
+    if (!is.null(subclass)) X$obj$subclass <- factor(subclass)
     return(X)
 }
 CBPS2base <- function(cbps.fit, estimand=NULL, s.d.denom, std.ok = FALSE) {
