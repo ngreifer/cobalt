@@ -10,17 +10,17 @@ love.plot <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL
   }
   else B <- b$Balance
   
-  if (drop.distance) B <- B[which(!B$Type %in% "Distance"),]
+  if (drop.distance) B <- B[which(!B[,"Type"] %in% "Distance"),]
   
   if (is.null(threshold)) {
     if (which.stat=="Diff") {
-      if (!all(is.na(B$M.Threshold))) {
-        threshold <- as.numeric(substring(names(table(B$M.Threshold))[2], 1+regexpr("[><]",names(table(B$M.Threshold))[2]), nchar(names(table(B$M.Threshold))[2])))
+      if (!all(is.na(B[,"M.Threshold"]))) {
+        threshold <- as.numeric(substring(names(table(B[,"M.Threshold"]))[2], 1+regexpr("[><]",names(table(B[,"M.Threshold"]))[2]), nchar(names(table(B[,"M.Threshold"]))[2])))
       }
     }
     else if (which.stat=="V.Ratio") {
-      if (!all(is.na(B$V.Threshold))) {
-        threshold <- as.numeric(substring(names(table(B$V.Threshold))[2], 1+regexpr("[><]",names(table(B$V.Threshold))[2]), nchar(names(table(B$V.Threshold))[2])))
+      if (!all(is.na(B[,"V.Threshold"]))) {
+        threshold <- as.numeric(substring(names(table(B[,"V.Threshold"]))[2], 1+regexpr("[><]",names(table(B[,"V.Threshold"]))[2]), nchar(names(table(B[,"V.Threshold"]))[2])))
       }
     }
   }
@@ -64,7 +64,7 @@ love.plot <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL
   
   Sample <- NULL #To avoid CRAN checks rejecting Sample
   SS <- data.frame(var=rep(var.labels, 2), 
-                   stat=c(B[,paste0(which.stat,".Adjusted")], B[,paste0(which.stat,".Unadjusted")]), 
+                   stat=c(B[,paste0(which.stat,".Adj")], B[,paste0(which.stat,".Un")]), 
                    Sample=c(rep("Adjusted", nrow(B)), rep("Unadjusted", nrow(B))))
   if (all(is.na(SS$stat))) stop("No balance statistics to display.")
   if (all(is.na(SS$stat[SS$Sample=="Adjusted"]))) SS <- SS[SS$Sample=="Unadjusted",]

@@ -1,15 +1,16 @@
 bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
 
     args <- list(...)
+
     if (any(class(obj)=="matchit")) X <- matchit2base(obj)
     else if (any(class(obj)=="ps")) X <- ps2base(obj, full.stop.method = args$full.stop.method)
     else if (any(class(obj)=="Match")) X <- Match2base(obj, formula=args$formula, data=args$data, treat=args$treat, covs=args$covs)
     else if (any(class(obj)=="CBPS")) X <- CBPS2base(obj, std.ok = TRUE)
     else if (any(class(obj)=="formula")) {
         X0 <- formula2df(obj, data = args$data)
-        X <- df2base(X0$covs, X0$treat, data=args$data, weights=args$weights, distance=args$distance, method=args$method)
+        X <- df2base(X0$covs, X0$treat, data=args$data, weights=args$weights, distance=args$distance, subclass=args$subclass, method=args$method)
     }
-    else if (is.data.frame(obj)) X <- df2base(obj, treat=args$treat, data=args$data, weights=args$weights, distance=args$distance, method=args$method)
+    else if (is.data.frame(obj)) X <- df2base(obj, treat=args$treat, data=args$data, weights=args$weights, distance=args$distance, subclass=args$subclass, method=args$method)
     
     
     if (var.name %in% names(X$covs)) var <- X$covs[, var.name]
@@ -18,8 +19,8 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
     else if (!is.null(args$addl) && var.name %in% names(args$addl)) var <- args$data[, var.name]
     else if (var.name==".distance" && !is.null(X$distance)) var <- X$distance
     else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."))
-    
-    if (!is.null(X$subclass)) {
+
+    if (length(X$subclass)>0) {
         if (!is.null(which.sub)) {
             if (is.numeric(which.sub) && length(which.sub)==1) {
                 if (which.sub %in% levels(X$subclass)) {

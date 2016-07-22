@@ -79,15 +79,15 @@ An object of class \code{"bal.tab"} containing balance summaries for the \code{M
 \item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
 \itemize{
 \item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
-\item{\code{M.C.Unadjusted}: The mean of the control group prior to adjusting.}
-\item{\code{M.T.Unadjusted}: The mean of the treated group prior to adjusting.}
-\item{\code{Diff.Unadjusted}: The (standardized) difference in means between the two groups prior to adjusting.}
-\item{\code{V.Ratio.Unadjusted}: The ratio of the variances of the two groups prior to adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
-\item{\code{M.C.Adjusted}: The mean of the control group after adjusting.}
-\item{\code{M.T.Adjusted}: The mean of the treated group prior to adjusting.}
-\item{\code{Diff.Adjusted}: The (standardized) difference in means between the two groups after adjusting.}
+\item{\code{M.C.Un}: The mean of the control group prior to adjusting.}
+\item{\code{M.T.Un}: The mean of the treated group prior to adjusting.}
+\item{\code{Diff.Un}: The (standardized) difference in means between the two groups prior to adjusting.}
+\item{\code{V.Ratio.Un}: The ratio of the variances of the two groups prior to adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
+\item{\code{M.C.Adj}: The mean of the control group after adjusting.}
+\item{\code{M.T.Adj}: The mean of the treated group after adjusting.}
+\item{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting.}
 \item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{m.threshold}.  If \code{m.threshold} is \code{NULL}, this column will be \code{NA}.}
-\item{\code{V.Ratio.Adjusted}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
+\item{\code{V.Ratio.Adj}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
 \item{\code{V.Threshold}: Whether or not the calculated variance ratio after adjusting exceeds or is within the threshold given by \code{v.threshold} for continuous variables.  If \code{v.threshold} is \code{NULL}, this column will be \code{NA}.}
 }}
 \item{Balanced.Means}{If \code{m.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for mean differences.}
