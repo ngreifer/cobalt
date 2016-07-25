@@ -1,16 +1,19 @@
 bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
 
     args <- list(...)
+    
+    #Goal: all should work except data frame
+    #X <- x2base(obj, ..., std.ok = TRUE)
 
-    if (any(class(obj)=="matchit")) X <- matchit2base(obj)
-    else if (any(class(obj)=="ps")) X <- ps2base(obj, full.stop.method = args$full.stop.method)
-    else if (any(class(obj)=="Match")) X <- Match2base(obj, formula=args$formula, data=args$data, treat=args$treat, covs=args$covs)
-    else if (any(class(obj)=="CBPS")) X <- CBPS2base(obj, std.ok = TRUE)
-    else if (any(class(obj)=="formula")) {
-        X0 <- formula2df(obj, data = args$data)
-        X <- df2base(X0$covs, X0$treat, data=args$data, weights=args$weights, distance=args$distance, subclass=args$subclass, method=args$method)
-    }
-    else if (is.data.frame(obj)) X <- df2base(obj, treat=args$treat, data=args$data, weights=args$weights, distance=args$distance, subclass=args$subclass, method=args$method)
+    X <- x2base(obj, ..., std.ok = TRUE)
+    # if (any(class(obj)=="matchit")) X <- x2base(obj)
+    # else if (any(class(obj)=="ps")) X <- x2base(obj, full.stop.method = args$full.stop.method)
+    # else if (any(class(obj)=="Match")) X <- x2base(obj, formula=args$formula, data=args$data, treat=args$treat, covs=args$covs)
+    # else if (any(class(obj)=="CBPS")) X <- x2base(obj, std.ok = TRUE)
+    # else if (any(class(obj)=="formula")) {
+    #     X <- x2base(obj, data = args$data, weights=args$weights, distance=args$distance, subclass=args$subclass, method=args$method)
+    # }
+    # else if (is.data.frame(obj)) X <- x2base(obj, treat=args$treat, data=args$data, weights=args$weights, distance=args$distance, subclass=args$subclass, method=args$method)
     
     
     if (var.name %in% names(X$covs)) var <- X$covs[, var.name]

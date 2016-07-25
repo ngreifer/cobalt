@@ -2,11 +2,8 @@
 title: "Covariate Balance Tables and Plots: A Guide to the cobalt Package"
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
-output: 
-    rmarkdown::html_vignette
-    #html_document:
-    #    toc: true
-    #    theme: readable
+output: rmarkdown::html_vignette
+
 vignette: >
   %\VignetteIndexEntry{"Covariate Balance Tables and Plots: A Guide to the cobalt Package"}
   %\VignetteEngine{knitr::rmarkdown}
@@ -40,7 +37,8 @@ When using `cobalt`, please cite your use of it along with the conditioning pack
 Greifer, N. (2016). cobalt: Covariate Balance Tables and Plots. R package version 1.1.0.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
->"Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2016), both in R 3.3.0 (R Core Team, 2016)."
+
+> "Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2016), both in R 3.3.0 (R Core Team, 2016)."
 
 # Why cobalt?
 
@@ -332,7 +330,7 @@ It is generally not a useful assessment of balance to examine the overlap of the
 
 ## love.plot
 
-The Love plot is a summary plot of covariate balance before and after conditioning popularized by Thomas Love (Love, 2004). In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielson, 2016). Although Love plots are used with some frequency and there are tools to generate them, none of the packages used for conditioning include a function for quickly and easily generating them. `love.plot()` does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:
+The Love plot is a summary plot of covariate balance before and after conditioning popularized by Dr. Thomas E. Love. In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielson, 2016). Although Love plots are used with some frequency and there are tools to generate them, none of the packages used for conditioning include a function for quickly and easily generating them. `love.plot()` does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:
 
 ```{r, fig.width = 5}
 data(lalonde, package = "cobalt")
@@ -394,7 +392,7 @@ lalonde$prog.score <- predict(ctrl.fit, lalonde)
 bal.tab(m.out, addl = data.frame(prog.score = lalonde$prog.score))
 ```
 
-Although the prognostic score is sensitive to the outcome estimation model used, a defensible prognostic score model can yield valid prognostic scores, which can then be used in balance assessment. In the above example, balance on the estimated prognostic score was good, so we can have some confidence that the effect estimate will be relatively unbiased, even though the "age" variable remains imbalanced. The logic is that that age is not a highly prognostic variable, which could be demonstrated by examining the standardized regression output of prognostic score model, so even though imbalance remains, such imbalance is unlikely to effect the effect estimate. The variables "re74" and "re75", though, which are highly prognostic of the outcome, are quite balanced, thereby supporting an unbiased treatment effect estimate.
+Although the prognostic score is sensitive to the outcome estimation model used, a defensible prognostic score model can yield valid prognostic scores, which can then be used in balance assessment. In the above example, balance on the estimated prognostic score was good, so we can have some confidence that the effect estimate will be relatively unbiased, even though the "age" variable remains imbalanced. The logic is that that age is not a highly prognostic variable, which could be demonstrated by examining the standardized regression output of prognostic score model, so even though imbalance remains, such imbalance is unlikely to affect the effect estimate. The variables "re74" and "re75", though, which are highly prognostic of the outcome, are quite balanced, thereby supporting an unbiased treatment effect estimate.
 
 # Details on Calculations
 
@@ -404,7 +402,7 @@ There are calculations in `cobalt` that may be opaque to users; this section exp
 
 When computing a standardized mean difference, the raw mean difference is divided by a standard deviation, yielding a d-type effect size statistic. In `bal.tab()`, the user can control whether the standard deviation is that of the treated group or control group or a pooled estimate, calculated as the square root of the average of the group variances. In most applications, the standard deviation corresponding to the default for the method is the most appropriate.
 
-A key detail is that the standard deviation, no matter how it is calculated, is always calculated using the unadjusted sample^[Unless common support is used in `Matching`, in which case the standard deviation is computed using the remaining unadjusted sample.]. This is line with how `MatchIt` computes standardized mean differences, and is recommended by Stuart (2008; 2010). One reason to favor the use of the standard deviation of the unadjusted sample is that it prevents the paradoxical situation that occurs when adjustment decreases both the mean difference and the spread of the sample, yielding a larger standardized mean difference than that prior to adjustment even though the adjusted groups are now more similar. By using the same standard deviation before and after adjusting, the change in balance is isolated to the change in mean difference, rather than being conflated with an accompanying change in spread. It is important to note that both `twang` and `Matching` calculate standardized mean differences using the standard deviation of the sample in question, not the unadjusted sample, though `CBPS` uses the standard deviation of the unadjusted sample.
+A key detail is that the standard deviation, no matter how it is calculated, is always calculated using the unadjusted sample^[Unless common support is used in `Matching`, in which case the standard deviation is computed using the remaining unadjusted sample.]. This is line with how `MatchIt` computes standardized mean differences, and is recommended by Stuart (2008; 2010). One reason to favor the use of the standard deviation of the unadjusted sample is that it prevents the paradoxical situation that occurs when adjustment decreases both the mean difference and the spread of the sample, yielding a larger standardized mean difference than that prior to adjustment, even though the adjusted groups are now more similar. By using the same standard deviation before and after adjusting, the change in balance is isolated to the change in mean difference, rather than being conflated with an accompanying change in spread. It is important to note that both `twang` and `Matching` calculate standardized mean differences using the standard deviation of the sample in question, not the unadjusted sample, though `CBPS` uses the standard deviation of the unadjusted sample.
 
 ## Weighted Variance
 When using weighting or matching, summary values after adjustment are calculated by using weights generated from the matching or weighting process. For example, group means are computed using the standard formula for a weighted mean, incorporating the weighting or matching weights into the calculation. To estimate a weighted sample variance for use in variance ratios^[Standardized mean difference use only unweighted variance estimates; see section "Variance in Standardized Mean Differences" for details.], there are two formulas that have been proposed:
@@ -435,7 +433,7 @@ Because hypothesis tests can be misleading and their use is discouraged by leadi
 
 ## Q-Q Plots and Summaries
 
-Q-Q plots have been recommended as tools to assess distributional balance of covariates between groups (Ho et al., 2007), and are implemented in `MatchIt` and `Matching` (`twang` implements them but for a different purpose). Statistics summaries the degree of imbalance in QQ plots are also reported in both `MatchIt` and `Matching`. `MatchIt`'s `summary()` command by default reports "eQQ Med", "eQQ Mean", and "eQQ Max" for each covariate before and after adjustment. These are the median, mean, and maximum distance between the treated and control group empirical Q-Q plots on the scale of the covariate. When `standardize = TRUE`, the values reported are "eCDF Med", "eCDF Mean", and "eCDF Max", which are the same values as above but computed using the standardized empirical Q-Q plots. The `Matching` package provides all of these values. Values close to 0 indicate good balance between groups for the given covariate.
+Q-Q plots have been recommended as tools to assess distributional balance of covariates between groups (Ho et al., 2007), and are implemented in `MatchIt` and `Matching` (`twang` implements them but for a different purpose). Statistics summarizing the degree of imbalance in Q-Q plots are also reported in both `MatchIt` and `Matching`. `MatchIt`'s `summary()` command by default reports "eQQ Med", "eQQ Mean", and "eQQ Max" for each covariate before and after adjustment. These are the median, mean, and maximum distance between the treated and control group empirical Q-Q plots on the scale of the covariate. When `standardize = TRUE`, the values reported are "eCDF Med", "eCDF Mean", and "eCDF Max", which are the same values as above but computed using the empircal cumulative densities. The `Matching` package also provides all of these values. Values close to 0 indicate good balance between groups for the given covariate.
 
 A weakness of empirical Q-Q plots is that they don't reveal much about the differences in the shapes of the distributions between the groups, which is a key aspect of distributional balance. A density plot essentially contains the same information, but clearer and more intuitive. Although the assessment of balance using an empirical Q-Q plot is straightforward (i.e., deviations from the 45-degree line indicate imbalances), density plots present the information in a way more in line with the actual goals of conditioning, in particular, that the distributions of treated and control units are similar (Ho et al., 2007).
 
@@ -457,11 +455,11 @@ The `Matching` package is the only one of the conditioning packages that present
 
 ## Distinguishing Continuous and Binary Variables
 
-Continuous and binary variables are treated differently by default in `bal.tab()` and `bal.plot()`. For continuous variables, the standard manipulations apply: standardized mean difference, variance ratios, and density plots. For binary variables, raw differences in proportion and bar charts are preferable, and variance ratios are useless. 
+Continuous and binary variables are treated differently by default in `bal.tab()` and `bal.plot()`. For continuous variables, the standard manipulations apply: standardized mean differences, variance ratios, and density plots. For binary variables, raw differences in proportion and bar charts are preferable, and variance ratios are useless. 
 
 The value of standardized mean differences for continuous variables is that they are on the same scale so that they can be compared across variables, and they allow for a simple interpretation even when the details of the variable’s original scale are unclear to the analyst. None of these advantages are passed to binary variables because binary variables are already on the same scale (i.e., a proportion), and the scale is easily interpretable. In addition, the details of standardizing the proportion difference of a binary variable involve dividing the proportion difference by a variance, but the variance of a binary variable is a function of its proportion (Austin, 2009). Standardizing the proportion difference of a binary variable can yield the following counterintuitive result: if $X_{T} = .2$ and $X_{C} = .3$, the standardized difference in proportion would be different from that if $X_{T} = .5$ and $X_{C} = .6$, even though the expectation is that the balance statistic should be the same for both scenarios because both would yield the same degree of bias in the effect estimate.
 
-`MatchIt` allows users to view standardized mean differences for all covariates or raw differences for all covariates, and `twang` and `Matching` display standardized difference for all variables but calculate test statistics depending on whether the covariate is continuous or binary (`CBPS` does not calculate mean differences, but presents both standardized and unstandardized means for all covariates). `cobalt` allows the user to select how the differences are to be calculated separately for continuous and binary variables, and uses the intuitive default that mean differences for continuous variables should be standardized while proportion differences for binary variables should be raw.
+`MatchIt` allows users to view either standardized mean differences for all covariates or raw differences for all covariates, and `twang` and `Matching` display standardized differences for all variables but calculate test statistics depending on whether the covariate is continuous or binary (`CBPS` does not calculate mean differences, but presents both standardized and unstandardized means for all covariates). `cobalt` allows the user to select how the differences are to be calculated separately for continuous and binary variables, and uses the intuitive default that mean differences for continuous variables should be standardized while proportion differences for binary variables should be raw.
 
 Because the variance of a binary variable is a function only of its proportion, the variance ratio of a binary variable in two groups is a function only of their proportions, thereby containing no more information than the simple difference in proportion. Therefore, for binary variables, `cobalt` does not compute variance ratios, as they can be misleading. `Matching`, the only package that computes variance ratios for balance assessment, does so both for continuous and binary variables.
 
@@ -511,7 +509,7 @@ Hansen, B. B. (2008). The prognostic analogue of the propensity score. Biometrik
 
 Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2007). Matching as Nonparametric Preprocessing for Reducing Model Dependence in Parametric Causal Inference. Political Analysis, 15(3), 199–236. http://doi.org/10.1093/pan/mpl013
 
-Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2011). MatchIt: Nonparametric preprocessing for parametric causal inference. Journal of Statistical Software, 42, 1–28. Retrieved from http://www.jstatsoft.org.libproxy.lib.unc.edu/v42/i08/
+Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2011). MatchIt: Nonparametric preprocessing for parametric causal inference. Journal of Statistical Software, 42, 1–28. Retrieved from http://www.jstatsoft.org/v42/i08/
 
 Imai, K., King, G., & Stuart, E. A. (2008). Misunderstandings between experimentalists and observationalists about causal inference. Journal of the royal statistical society: series A (statistics in society), 171(2), 481-502.
 
@@ -519,7 +517,7 @@ Keller, B., & Tipton, E. (2016). Propensity Score Analysis in R: A Software Revi
 
 King, G., & Nielsen, R. (2016). Why propensity scores should not be used for matching. Retrieved from http://www.polmeth.wustl.edu/files/polmeth/psnot4.pdf
 
-Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R Vignette. RAND. Retrieved from ftp://xyz.csail.mit.edu/pub/CRAN/web/packages/twang/vignettes/twang.pdf
+Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R Vignette. RAND. Retrieved from https://cran.r-project.org/web/packages/twang/vignettes/twang.pdf
 
 Rosenbaum, P. R., & Rubin, D. B. (1983). The central role of the propensity score in observational studies for causal effects. Biometrika, 70(1), 41–55. http://doi.org/10.1093/biomet/70.1.41
 
@@ -533,7 +531,7 @@ Stuart, E. A. (2008). Developing practical recommendations for the use of propen
 
 Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1–21. http://doi.org/10.1214/09-STS313
 
-Stuart, E. A., Lee, B. K., & Leacy, F. P. (2013). Prognostic score-based balance measures can be a useful diagnostic for propensity score methods in comparative effectiveness research. Journal of Clinical Epidemiology, 66(8), S84. http://doi.org/http://dx.doi.org.libproxy.lib.unc.edu/10.1016/j.jclinepi.2013.01.013
+Stuart, E. A., Lee, B. K., & Leacy, F. P. (2013). Prognostic score-based balance measures can be a useful diagnostic for propensity score methods in comparative effectiveness research. Journal of Clinical Epidemiology, 66(8), S84. http://dx.doi.org/10.1016/j.jclinepi.2013.01.013
 
 Thoemmes, F. J., & Kim, E. S. (2011). A Systematic Review of Propensity Score Methods in the Social Sciences. Multivariate Behavioral Research, 46(1), 90–118. http://doi.org/10.1080/00273171.2011.540475
 

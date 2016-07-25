@@ -1,5 +1,4 @@
 love.plot <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL, abs=FALSE, var.order=NULL, no.missing=FALSE, var.names=NULL, drop.distance=TRUE) {
-
   if (!"bal.tab" %in% class(b)) stop("The argument to \"b\" must be a bal.tab object, the output of a call to bal.tab().")
   stat <- match.arg(stat)
   which.stat <- switch(stat, mean.diffs="Diff", variance.ratios="V.Ratio")

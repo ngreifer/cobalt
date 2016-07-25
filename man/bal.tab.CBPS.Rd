@@ -8,7 +8,7 @@ Balance statistics for CBPS Objects
 Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package.
 }
 \usage{
-\method{bal.tab}{CBPS}(x, estimand = NULL, int = FALSE, 
+\method{bal.tab}{CBPS}(x, estimand, int = FALSE, 
            addl = NULL, continuous = c("std", "raw"), 
            binary = c("raw", "std"), s.d.denom, 
            m.threshold = NULL, v.threshold = NULL, 
