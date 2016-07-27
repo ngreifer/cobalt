@@ -28,8 +28,9 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
                       treated = sqrt(v1), 
                       pooled = sqrt((v0+v1)/2))
         m.dif <- m1-m0
-        if (identical(all.equal(m.dif, 0), TRUE)) s.diff <- 0
+        if (isTRUE(all.equal(m.dif, 0))) s.diff <- 0
         else s.diff <- m.dif/s.d
+        if (!is.finite(s.diff)) s.diff <- NA
         return(s.diff)
     }
     std.diff.subclass <- function(x, group, weights, subclass, which.sub, denom) {
@@ -41,8 +42,9 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
                       treated = sqrt(v1), 
                       pooled = sqrt((v0+v1)/2))
         m.dif <- m1-m0
-        if (identical(all.equal(m.dif, 0), TRUE)) s.diff <- 0
+        if (isTRUE(all.equal(m.dif, 0))) s.diff <- 0
         else s.diff <- m.dif/s.d
+        if (!is.finite(s.diff)) s.diff <- NA
         return(s.diff)
     }
     int.poly.f <- function(df, ex=NULL, int=FALSE, poly=1, nunder=1) {
@@ -93,8 +95,11 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         else colnames(k) <- paste0(varname, "_", substr(levels(x), 1, 10))
         if (ncol(k)==2) retain <- 2
         else retain <- NULL
-        if (!is.null(retain)) k <- k[, retain]
-        if (match(varname, names(data)) == ncol(data)){
+        if (!is.null(retain)) k <- k[, retain, drop = FALSE]
+        if (match(varname, names(data)) == 1){
+            data <- data.frame(k, data[, names(data)!=varname, drop = FALSE])
+        }
+        else if (match(varname, names(data)) == ncol(data)){
             data <- data.frame(data[, names(data)!=varname, drop = FALSE], k)
         }
         else {
@@ -110,7 +115,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         variable <- ifelse(variable==zero, 0, 1)
         return(variable)
     }
-    get.C <- function(covs, int, addl, distance) {
+    get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL) {
         #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
         C <- covs
         if (!is.null(addl)) {
@@ -337,11 +342,11 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         
         if (!is.null(m.threshold)) {
             m.threshcheck <- ifelse(is.null(weights), "Diff.Un", "Diff.Adj")
-            B[,"M.Threshold"] <- ifelse(B[,"Type"]=="Distance", "", paste0(ifelse(abs(B[, m.threshcheck]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold))
+            B[,"M.Threshold"] <- ifelse(B[,"Type"]=="Distance" | is.na(B[, m.threshcheck]), "", paste0(ifelse(abs(B[, m.threshcheck]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold))
         }
         if (!is.null(v.threshold)) {
             v.threshcheck <- ifelse(is.null(weights), "V.Ratio.Un", "V.Ratio.Adj")
-            B[,"V.Threshold"] <- ifelse(B[,"Type"]=="Contin.", paste0(ifelse(B[, v.threshcheck] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
+            B[,"V.Threshold"] <- ifelse(B[,"Type"]=="Contin." | is.na(B[, v.threshcheck]), paste0(ifelse(B[, v.threshcheck] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
         }
         return(B)
     }
@@ -606,7 +611,7 @@ bal.tab.formula <- function(formula, data, weights = NULL, distance = NULL, subc
         }
     }
     
-    X <- x2base(formula, data, weights, distance, subclass, addl, method)
+    X <- x2base(formula, data = data, weights = weights, distance = distance, subclass = subclass, addl = addl, method = method)
     
     out <- base.bal.tab(object=X$obj, weights=X$weights, treat=X$treat, distance=X$distance, subclass=X$subclass, covs=X$covs, call=X$call, int=int, addl=X$addl, continuous=continuous, binary=binary, s.d.denom=s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold, un=un, disp.means=disp.means, disp.v.ratio=disp.v.ratio, disp.subclass=disp.subclass, method=X$method)
     return(out)

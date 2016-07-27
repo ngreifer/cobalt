@@ -248,7 +248,8 @@ x2base.formula <- function(formula, ...) {
     #subclass
     #addl
     #method
-    A <- c(as.list(environment()), list(...))[-1]
+    A <- list(...)
+    
     X <- list(covs=NA,
               weights=NA,
               treat=NA,
@@ -269,8 +270,8 @@ x2base.formula <- function(formula, ...) {
     attr(tt, "intercept") <- 0
     m.try <- try({mf <- model.frame(tt, A$data)}, TRUE)
     if (class(m.try) == "try-error") {
-        stop(paste0(c("All right hand side variables of formula must be variables in data.\nVariables not in data: ",
-                      paste(attr(tt, "term.labels")[which(!attr(tt, "term.labels") %in% names(A$data))], collapse=", "))), call. = FALSE)}
+        stop(paste0(c("All variables of formula must be variables in data.\nVariables not in data: ",
+                      paste(dimnames(attr(tt, "factors"))[[1]][which(!dimnames(attr(tt, "factors"))[[1]] %in% names(A$data))], collapse=", "))), call. = FALSE)}
     treat <- model.response(mf)
     covs <- as.data.frame(model.matrix(tt, data=mf))
     X <- x2base.data.frame(covs, treat = treat, data = A$data, weights = A$weights, distance = A$distance, subclass = A$subclass, addl = A$addl, method = A$method)
