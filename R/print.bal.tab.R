@@ -146,3 +146,77 @@ print.bal.tab.subclass <- function(x, digits = max(3, getOption("digits") - 3), 
     
     invisible(x)
 }
+print.bal.tab.cluster <- function(x, digits = max(3, getOption("digits") - 3), ...) {
+    #Figure out how to print bal.tab for clusters with subclassification
+    call <- x$call
+    c.balance <- x$Cluster.Balance
+    c.balance.summary <- x$Cluster.Summary
+    p.ops <- x$print.options
+    
+    #Checks and Adjustments
+    if (length(p.ops$which.cluster) == 0) 
+        which.cluster <- seq_along(c.balance)
+    else if (is.numeric(p.ops$which.cluster)) {
+        which.cluster <- seq_along(c.balance)[seq_along(c.balance) %in% p.ops$which.cluster]
+        if (length(which.cluster) == 0) {
+            warning("No indices in which.cluster are cluster indices. Displaying all clusters instead.", call. = FALSE)
+            which.cluster <- seq_along(c.balance)
+        }
+    }
+    else if (is.character(p.ops$which.cluster)) {
+        which.cluster <- seq_along(c.balance)[names(c.balance) %in% p.ops$which.cluster]
+        if (length(which.cluster) == 0) {
+            warning("No names in which.cluster are cluster names. Displaying all clusters instead.", call. = FALSE)
+            which.cluster <- seq_along(c.balance)
+        }
+    }
+    else if (is.na(p.ops$which.cluster)) {
+        which.cluster <- integer(0)
+        p.ops$cluster.summary <- TRUE
+    }
+    else {
+        warning("The argument to which.cluster must be NA, NULL, or a vector of cluster indicies or cluster names. Displaying all clusters instead.", call. = FALSE)
+        which.cluster <- seq_along(c.balance)
+    }
+    
+    round_df <- function(df, digits) {
+        nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+        df[, nums] <- round(df[, nums], digits = digits)
+        return(df)
+    }
+    replaceNA <- function(x) {
+        x[is.na(x)] <- ""
+        return(x)
+    }
+    
+    keep <- c((1:ncol(c.balance[[1]]))*c(TRUE, 
+                                         p.ops$un*p.ops$disp.means, 
+                                         p.ops$un*p.ops$disp.means, 
+                                         p.ops$un, 
+                                         p.ops$un*p.ops$disp.v.ratio, 
+                                         p.ops$disp.adj*p.ops$disp.means, 
+                                         p.ops$disp.adj*p.ops$disp.means, 
+                                         p.ops$disp.adj, 
+                                         !is.null(p.ops$m.threshold), 
+                                         p.ops$disp.adj*p.ops$disp.v.ratio, 
+                                         !is.null(p.ops$v.threshold)))
+    
+    if (!is.null(call)) {
+        cat("\nCall:", deparse(call), sep = "\n")
+    }
+    
+    if (length(which.cluster)>0) {
+        cat("\nBalance by cluster:")
+        for (i in which.cluster) {
+            cat(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - \n"))
+            print.data.frame(replaceNA(round_df(c.balance[[i]][, keep], digits)))
+        }
+    }
+    
+    if (isTRUE(as.logical(p.ops$cluster.summary))) {
+        cat("\nBalance summary across all clusters after adjustment:\n")
+        print.data.frame(replaceNA(round_df(c.balance.summary, digits)))
+        cat("\n")
+    }
+    invisible(x)
+}

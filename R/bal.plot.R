@@ -51,9 +51,9 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
             labs(x = var.name, y = "Proportion", fill = "Treat", title = paste0("Distributional Balance for \"", var.name, "\"")) 
     }
     else {
-        bp <- ggplot(mapping=aes(var, fill=treat, weight=weights)) + 
-            geom_density(alpha=.4) + 
-            labs(x=var.name, fill="Treat", title=paste0("Distributional Balance for \"", var.name, "\""))
+        bp <- ggplot(mapping = aes(var, fill = treat, weight = weights)) + 
+            geom_density(alpha = .4) + 
+            labs(x = var.name, y = "Density", fill = "Treat", title = paste0("Distributional Balance for \"", var.name, "\""))
     }
 
     return(bp)
