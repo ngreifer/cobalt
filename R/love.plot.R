@@ -3,22 +3,35 @@ love.plot <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL
   stat <- match.arg(stat)
   which.stat <- switch(stat, mean.diffs="Diff", variance.ratios="V.Ratio")
   
-  if("bal.tab.subclass" %in% class(b)) {
-    if (which.stat=="V.Ratio") stop("Variance ratios not currently supported for subclassification.")
-    B <- b$Balance.Across.Subclass
+  if (any(class(b) == "bal.tab.cluster")) {
+      if (length(b$print.options$which.cluster) != 1) stop("love.plot cannot only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
+      else if (!any(names(b$Cluster.Balance) == b$print.options$which.cluster[1]) && !any(seq_along(b$Cluster.Balance) == b$print.options$which.cluster[1])) stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+      B <- b$Cluster.Balance[[b$print.options$which.cluster]]
+      title <- paste0("Covariate Balance\nCluster: ", {if (is.numeric(b$print.options$which.cluster)) names(b$Cluster.Balance)[b$print.options$which.cluster] else b$print.options$which.cluster})
+      # cluster.fun <- match.arg(cluster.fun)
+      # B <- b$Cluster.Summary[, c("Type", paste0(switch(cluster.fun, mean="Mean", median="Median", max="Max"), ".", which.stat))]
   }
-  else B <- b$Balance
+  else if (any(class(b) == "bal.tab.subclass")) {
+    if (which.stat=="V.Ratio") stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
+    B <- b$Balance.Across.Subclass
+    title <- "Covariate Balance\nAcross Subclasses"
+  }
+  else {
+      B <- b$Balance
+      title <- "Covariate Balance"
+  }
   
-  if (drop.distance) B <- B[which(!B[,"Type"] %in% "Distance"),]
+  #if (drop.distance) B <- B[which(!B[,"Type"] %in% "Distance"),]
+  if (drop.distance) B <- B[-match("Distance", B[,"Type"]),]
   
   if (is.null(threshold)) {
     if (which.stat=="Diff") {
-      if (!all(is.na(B[,"M.Threshold"]))) {
+      if (any(names(B) == "M.Threshold") && !all(is.na(B[,"M.Threshold"]))) {
         threshold <- as.numeric(substring(names(table(B[,"M.Threshold"]))[2], 1+regexpr("[><]",names(table(B[,"M.Threshold"]))[2]), nchar(names(table(B[,"M.Threshold"]))[2])))
       }
     }
     else if (which.stat=="V.Ratio") {
-      if (!all(is.na(B[,"V.Threshold"]))) {
+      if (any(names(B) == "V.Threshold") && !all(is.na(B[,"V.Threshold"]))) {
         threshold <- as.numeric(substring(names(table(B[,"V.Threshold"]))[2], 1+regexpr("[><]",names(table(B[,"V.Threshold"]))[2]), nchar(names(table(B[,"V.Threshold"]))[2])))
       }
     }
@@ -34,15 +47,15 @@ love.plot <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL
         else if (nrow(var.names)==length(var.labels)) {
           var.labels <- ifelse(is.na(var.names) | var.names=="", var.labels, as.character(var.names[,1]))
         }
-        else warning("var.names has only one column, but the row names do not correspond to variable names in the bal.tab object and the length of var.names differs from the number of variables to rename.")
+        else warning("var.names has only one column, but the row names do not correspond to variable names in the bal.tab object and the length of var.names differs from the number of variables to rename.", call. = FALSE)
       }
       else if (ncol(var.names)>1) {
-        if (ncol(var.names)>2) warning("Only using first 2 columns of var.names")
+        if (ncol(var.names)>2) warning("Only using first 2 columns of var.names", call. = FALSE)
         if (any(sapply(var.labels, function(x) x %in% as.character(var.names[,1])))) {
           which. <- match(var.labels, var.names[,1])
           var.labels <- ifelse(is.na(which.), var.labels, as.character(var.names[which.,2]))
         }
-        else warning("var.names has more than one column, but the values in the first column do not correspond to variable names in the bal.tab object.")
+        else warning("var.names has more than one column, but the values in the first column do not correspond to variable names in the bal.tab object.", call. = FALSE)
       } 
     }
     else if (is.character(var.names) || is.factor(var.names)) {
@@ -51,21 +64,21 @@ love.plot <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL
           which. <- match(var.labels, names(var.names))
           var.labels <- ifelse(is.na(which.), var.labels, as.character(var.names[which.]))
         }
-        else warning("var.names is a named vector but the value names do not correspond to variable names in the bal.tab object and the length of var.names differs from the number of variables to rename.")
+        else warning("var.names is a named vector but the value names do not correspond to variable names in the bal.tab object and the length of var.names differs from the number of variables to rename.", call. = FALSE)
       }
       else if (length(var.names)==length(var.labels)) {
         var.labels <- ifelse(is.na(var.names) | var.names=="", var.labels, as.character(var.names))
       }
-      else warning("var.names is a vector, but its values are unnamed and its length differs from the number of variables to rename.")
+      else warning("var.names is a vector, but its values are unnamed and its length differs from the number of variables to rename.", call. = FALSE)
     }
-    else warning("Argument to var.names is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE)
+    else warning("Argument to var.names is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE, call. = FALSE)
   }
   
   Sample <- NULL #To avoid CRAN checks rejecting Sample
   SS <- data.frame(var=rep(var.labels, 2), 
                    stat=c(B[,paste0(which.stat,".Adj")], B[,paste0(which.stat,".Un")]), 
                    Sample=c(rep("Adjusted", nrow(B)), rep("Unadjusted", nrow(B))))
-  if (all(is.na(SS$stat))) stop("No balance statistics to display.")
+  if (all(is.na(SS$stat))) stop("No balance statistics to display.", call. = FALSE)
   if (all(is.na(SS$stat[SS$Sample=="Adjusted"]))) SS <- SS[SS$Sample=="Unadjusted",]
   if (abs) {
     SS$stat <- abs(SS$stat)
@@ -77,12 +90,12 @@ love.plot <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL
   }
   else SS$var <- factor(SS$var, levels=unique(SS$var)[order(unique(SS$var), decreasing=TRUE)])
   SS$Sample <- factor(SS$Sample, levels=c("Unadjusted", "Adjusted"))
-  if (stat=="mean.diffs" & any(abs(SS$stat)>5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in i.sum().", call.=FALSE, noBreaks.=TRUE)
+  if (stat=="mean.diffs" & any(abs(SS$stat) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
   if (no.missing) SS <- SS[!is.na(SS$stat),]
   
   #Make the plot
   #library(ggplot2)
-  lp <- ggplot(SS, aes(y=var, x=stat, color=Sample)) + geom_point() + labs(title="Covariate Balance", y="")
+  lp <- ggplot(SS, aes(y = var, x = stat, color = Sample)) + geom_point() + labs(title = title, y = "")
   if (stat=="mean.diffs") {
     lp <- lp + geom_vline(xintercept = 0, linetype=1, alpha=.4)
     if (abs) {
