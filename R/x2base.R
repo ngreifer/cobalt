@@ -371,7 +371,7 @@ x2base.data.frame <- function(covs, ...) {
         stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status", call. = FALSE)
     }
 
-    if (is.numeric(treat)) {
+    if (is.numeric(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
         treat <- treat
     }
     else if (is.character(treat) && length(treat)==1 && treat %in% names(data)) {
@@ -509,22 +509,24 @@ x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
               cluster=NA)
     #Checks
     if (!std.ok && sum(cbps.fit$weights) < 3) {
-        if ((length(A$estimand>0) && is.character(A$estimand)) || (length(A$s.d.denom>0) && is.character(A$s.d.denom))) warning("Standardized weights were used; this may cause reported values to be incorrect. Use unstandardized weights instead.", call. = FALSE)
+        if ((length(A$estimand > 0) && is.character(A$estimand)) || (length(A$s.d.denom > 0) && is.character(A$s.d.denom))) warning("Standardized weights were used; this may cause reported values to be incorrect. Use unstandardized weights instead.", call. = FALSE)
         else stop("Please specify either the estimand (\"ATT\" or \"ATE\") or an argument to s.d.denom.", call. = FALSE)
     }
     else {
         if (isTRUE(all.equal(cbps.fit$weights, cbps.fit$y / cbps.fit$fitted.values + (1-cbps.fit$y) / (1-cbps.fit$fitted.values)))) A$estimand <- "ATE"
         else A$estimand <- "ATT"
     }
-    if (length(A$s.d.denom>0) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(tolower(A$estimand), att = "treated", ate = "pooled")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
+    if (!any(class(cbps.fit) == "CBPSContinuous")) {
+        if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
+            X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                    error = function(cond) {
+                                        new.s.d.denom <- switch(tolower(A$estimand), att = "treated", ate = "pooled")
+                                        message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                        return(new.s.d.denom)})
+        }
+        else X$s.d.denom <- switch(tolower(A$estimand), att = "treated", ate = "pooled")
     }
-    else X$s.d.denom <- switch(tolower(A$estimand), att = "treated", ate = "pooled")
-    
+
     cluster <- A$cluster
     if (length(cluster) > 0) {
         if (!(is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster) > 1))) {

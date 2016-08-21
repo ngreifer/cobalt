@@ -1,3 +1,5 @@
+#Implement clusters by allowing option for which.cluster
+
 bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
 
     args <- list(...)
