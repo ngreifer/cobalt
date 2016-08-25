@@ -1,12 +1,12 @@
 #Implement clusters by allowing option for which.cluster
 
 bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
-
+    
     args <- list(...)
     
     #Goal: all should work except data frame
     #X <- x2base(obj, ..., std.ok = TRUE)
-
+    
     X <- x2base(obj, ..., std.ok = TRUE)
     # if (any(class(obj)=="matchit")) X <- x2base(obj)
     # else if (any(class(obj)=="ps")) X <- x2base(obj, full.stop.method = args$full.stop.method)
@@ -16,15 +16,24 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
     #     X <- x2base(obj, data = args$data, weights=args$weights, distance=args$distance, subclass=args$subclass, method=args$method)
     # }
     # else if (is.data.frame(obj)) X <- x2base(obj, treat=args$treat, data=args$data, weights=args$weights, distance=args$distance, subclass=args$subclass, method=args$method)
-    
+    binarize <- function(variable) {
+        if (length(unique(variable)) > 2) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
+        if (0 %in% unique(as.numeric(variable))) zero <- 0
+        else zero <- min(unique(as.numeric(variable)))
+        variable <- ifelse(as.numeric(variable)==zero, 0, 1)
+        return(variable)
+    }
+    w.m <- function(x, w=NULL) {
+        if (is.null(w)) w <- rep(1, length(x)); return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))
+    }
     
     if (var.name %in% names(X$covs)) var <- X$covs[, var.name]
     else if (!is.null(args$data) && var.name %in% names(args$data)) var <- args$data[, var.name]
-    else if (!is.null(X$addl) && var.name %in% names(X$addl)) var <- args$data[, var.name]
-    else if (!is.null(args$addl) && var.name %in% names(args$addl)) var <- args$data[, var.name]
+    else if (!is.null(X$addl) && var.name %in% names(X$addl)) var <- args$addl[, var.name]
+    else if (!is.null(args$addl) && var.name %in% names(args$addl)) var <- args$addl[, var.name]
     else if (var.name==".distance" && !is.null(X$distance)) var <- X$distance
     else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."))
-
+    
     if (length(X$subclass)>0) {
         if (!is.null(which.sub)) {
             if (is.numeric(which.sub) && length(which.sub)==1) {
@@ -34,29 +43,53 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL) {
                     var <- var[!is.na(X$subclass) & X$subclass==which.sub]
                 }
                 else stop(paste0("\"", which.sub, "\" does not correspond to a subclass in the object."))
-
+                
             }
             else stop("The argument to which.sub must be a single number corresponding to the subclass for which distributions are to be displayed.")
         }
         else stop("Argument contains subclasses but no which.sub value was supplied in \"...\".")
     }
     
-    if (is.null(X$weights) || isTRUE(un)) X$weights <- rep(1, length(X$treat))
-    weights <- ifelse(X$treat==0, X$weights / sum(X$weights[X$treat==0]), X$weights / sum(X$weights[X$treat==1]))
-    treat <- factor(X$treat)
+    un.weights <- rep(1, length(X$treat))
+    if (is.null(X$weights) || isTRUE(un)) X$weights <- un.weights
     
-    #library(ggplot2)
-    if (length(unique(var)) <= 2 || is.factor(var) || is.character(var)) {
-        var <- factor(var)
-        bp <- ggplot(mapping = aes(var, fill = treat, weight = weights)) + 
-            geom_bar(position = "dodge", alpha = .4, color = "black") + 
-            labs(x = var.name, y = "Proportion", fill = "Treat", title = paste0("Distributional Balance for \"", var.name, "\"")) 
+    if (length(unique(X$treat)) > 2 && is.numeric(X$treat)) { #Continuous treatments
+        treat <- X$treat
+        weights <- X$weights
+        if (length(unique(var)) <= 2 || is.factor(var) || is.character(var)) { #Categorical vars
+            weights <- mapply(function(w, v) w / sum(weights[var==v]), w = weights, v = var)
+            var <- factor(var)
+            bp <- ggplot(mapping = aes(treat, fill = var, weight = weights)) + 
+                geom_density(alpha = .4) + 
+                labs(fill = var.name, y = "Density", x = "Treat", title = paste0("Distributional Balance for \"", var.name, "\""))
+        }
+        else { #Continuous vars
+            bp <- ggplot(mapping = aes(x = var, y = treat, weight = weights)) + 
+                geom_point() + geom_smooth(se = FALSE, alpha = .1) + geom_smooth(method = "lm", se = FALSE, linetype = 2, alpha = .4) + 
+                geom_hline(yintercept = w.m(treat, weights), linetype = 1, alpha = .9) + 
+                labs(y = "Treat", x = var.name, title = paste0("Balance for \"", var.name, "\""))
+        }
     }
-    else {
-        bp <- ggplot(mapping = aes(var, fill = treat, weight = weights)) + 
-            geom_density(alpha = .4) + 
-            labs(x = var.name, y = "Density", fill = "Treat", title = paste0("Distributional Balance for \"", var.name, "\""))
+    else if (length(unique(X$treat)) > 2 && (is.factor(X$treat) || is.character(X$treat))) {
+        stop("Multinomial treaments are not yet supported.", call. = FALSE)
     }
-
+    else { #Binary treatments
+        X$treat <- binarize(X$treat)
+        weights <- mapply(function(w, t) w / sum(X$weights[X$treat==t]), w = X$weights, t = X$treat)
+        treat <- factor(X$treat)
+        
+        if (length(unique(var)) <= 2 || is.factor(var) || is.character(var)) { #Categorical vars
+            var <- factor(var)
+            bp <- ggplot(mapping = aes(var, fill = treat, weight = weights)) + 
+                geom_bar(position = "dodge", alpha = .4, color = "black") + 
+                labs(x = var.name, y = "Proportion", fill = "Treat", title = paste0("Distributional Balance for \"", var.name, "\"")) 
+        }
+        else { #Continuous vars
+            bp <- ggplot(mapping = aes(var, fill = treat, weight = weights)) + 
+                geom_density(alpha = .4) + 
+                labs(x = var.name, y = "Density", fill = "Treat", title = paste0("Distributional Balance for \"", var.name, "\""))
+        }
+    }
+    
     return(bp)
 }

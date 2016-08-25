@@ -367,9 +367,9 @@ x2base.data.frame <- function(covs, ...) {
         stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
     }
     if (is.null(treat)) stop("treat must be specified.", call. = FALSE)
-    else if (!is.character(treat) && !is.numeric(treat)) {
-        stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status", call. = FALSE)
-    }
+    # else if (!is.character(treat) && !is.numeric(treat)) {
+    #     stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status", call. = FALSE)
+    # }
 
     if (is.numeric(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
         treat <- treat
@@ -377,7 +377,7 @@ x2base.data.frame <- function(covs, ...) {
     else if (is.character(treat) && length(treat)==1 && treat %in% names(data)) {
         treat <- data[, treat]
     }
-    else stop("The name supplied to treat is not the name of a variable in data.", call. = FALSE)
+    else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
 
     if (length(treat) != nrow(covs)) {
         stop("treat must be the same length as covs", call. = FALSE)}
@@ -508,15 +508,16 @@ x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
               obj=NA,
               cluster=NA)
     #Checks
-    if (!std.ok && sum(cbps.fit$weights) < 3) {
-        if ((length(A$estimand > 0) && is.character(A$estimand)) || (length(A$s.d.denom > 0) && is.character(A$s.d.denom))) warning("Standardized weights were used; this may cause reported values to be incorrect. Use unstandardized weights instead.", call. = FALSE)
-        else stop("Please specify either the estimand (\"ATT\" or \"ATE\") or an argument to s.d.denom.", call. = FALSE)
-    }
-    else {
-        if (isTRUE(all.equal(cbps.fit$weights, cbps.fit$y / cbps.fit$fitted.values + (1-cbps.fit$y) / (1-cbps.fit$fitted.values)))) A$estimand <- "ATE"
-        else A$estimand <- "ATT"
-    }
-    if (!any(class(cbps.fit) == "CBPSContinuous")) {
+
+    if (!(any(class(cbps.fit) == "CBPSContinuous") || nlevels(as.factor(cbps.fit$y)) > 2)) {
+        if (!std.ok && sum(cbps.fit$weights) < 3) {
+            if ((length(A$estimand > 0) && is.character(A$estimand)) || (length(A$s.d.denom > 0) && is.character(A$s.d.denom))) warning("Standardized weights were used; this may cause reported values to be incorrect. Use unstandardized weights instead.", call. = FALSE)
+            else stop("Please specify either the estimand (\"ATT\" or \"ATE\") or an argument to s.d.denom.", call. = FALSE)
+        }
+        else {
+            if (isTRUE(all.equal(cbps.fit$weights, cbps.fit$y / cbps.fit$fitted.values + (1-cbps.fit$y) / (1-cbps.fit$fitted.values)))) A$estimand <- "ATE"
+            else A$estimand <- "ATT"
+        }
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {

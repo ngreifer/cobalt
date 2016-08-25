@@ -16,7 +16,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
     #which.cluster: a vector of cluster names or numbers of which clusters to print. All clusters are calculated.
     #*print options: un, disp.means, disp.v.ratio, disp.subclass (whether to show individual subclass balance)
     
-    #Functions ----
+    #Functions
     w.m <- function(x, w=NULL) {if (is.null(w)) w <- rep(1, length(x)); return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))}
     w.v <- function(x, w=NULL) {
         if (is.null(w)) w <- rep(1, length(x))
@@ -120,9 +120,9 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
     }
     binarize <- function(variable) {
         if (length(unique(variable)) > 2) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
-        if (0 %in% unique(variable)) zero <- 0
-        else zero <- min(unique(variable))
-        variable <- ifelse(variable==zero, 0, 1)
+        if (0 %in% unique(as.numeric(variable))) zero <- 0
+        else zero <- min(unique(as.numeric(variable)))
+        variable <- ifelse(as.numeric(variable)==zero, 0, 1)
         return(variable)
     }
     get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL) {
@@ -157,6 +157,19 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
             C <- cbind(C, int.poly.f(C, int = TRUE, poly = 2, nunder = nunder))
         }
         
+        #Remove duplicate & redundant variables
+        C.cor <- cor(C)
+        s <- matrix(sapply(C.cor, function(x) isTRUE(all.equal(abs(x), 1))), nrow = nrow(C.cor), dimnames = dimnames(C.cor))
+        remove <- c()
+        for (i in seq_len(ncol(s))) {
+            for (j in seq_len(nrow(s))) {
+                if (i > j) {
+                    if (s[j, i]) remove <- c(remove, rownames(s)[j])
+                }
+            }
+        }
+        
+        C <- C[,is.na(match(names(C), remove))]
         C <- C[!duplicated(as.list(as.data.frame(apply(C, 2, as.numeric))))] #Remove duplicate variables
         
         if (!is.null(distance)) {
@@ -462,15 +475,18 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         return(B)
     }
     
-    #Preparations ----
-    if (sum(treat !=1 & treat !=0) > 0) {
-        stop("Treatment indicator must be a binary (0, 1) variable---i.e., treatment (1) or control (0)")}
+    #Preparations
+    if (length(unique(treat)) != 2) {
+        stop("Treatment indicator must be a binary (0, 1) variable---i.e., treatment (1) or control (0)", call. = FALSE)
+    }
+    else {
+        treat <- binarize(treat)
+    }
+    #if (sum(treat !=1 & treat !=0) > 0) 
     if (!is.null(m.threshold)) m.threshold <- abs(m.threshold)
     if (!is.null(v.threshold)) v.threshold <- max(v.threshold, 1/v.threshold)
     if (!is.null(v.threshold)) disp.v.ratio <- TRUE
     if (is.null(weights)) un <- TRUE
-    
-    
     
     #Actions
     if (length(cluster) > 0) {
@@ -729,6 +745,19 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
             C <- cbind(C, int.poly.f(C, int = TRUE, poly = 2, nunder = nunder))
         }
         
+        #Remove duplicate & redundant variables
+        C.cor <- cor(C)
+        s <- matrix(sapply(C.cor, function(x) isTRUE(all.equal(abs(x), 1))), nrow = nrow(C.cor), dimnames = dimnames(C.cor))
+        remove <- c()
+        for (i in seq_len(ncol(s))) {
+            for (j in seq_len(nrow(s))) {
+                if (i > j) {
+                    if (s[j, i]) remove <- c(remove, rownames(s)[j])
+                }
+            }
+        }
+        
+        C <- C[,is.na(match(names(C), remove))]
         C <- C[!duplicated(as.list(as.data.frame(apply(C, 2, as.numeric))))] #Remove duplicate variables
         
         if (!is.null(distance)) {
@@ -877,7 +906,6 @@ bal.tab.matchit <- function(x, int = FALSE, addl = NULL, continuous = c("std", "
 bal.tab.ps <- function(x, full.stop.method, int = FALSE, addl = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, ...) {
     #ps = ps object from twang
     #full.stop.method = stopping rule/estimand from twang, e.g. "es.mean.att"; code to use first if none or incorrect is requested
-    #print(sapply(formals(), function(x) isTRUE(x==""))); stop()
     args <- as.list(environment())[-1]
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
@@ -954,8 +982,11 @@ bal.tab.formula <- function(formula, data, weights = NULL, distance = NULL, subc
                 method = method,
                 cluster = cluster)
     
-    if (length(unique(X$treat) > 2 && !is.factor(X$treat))) {
+    if (length(unique(X$treat)) > 2 && is.numeric(X$treat)) {
         out <- base.bal.tab.cont(object=X$obj, weights=X$weights, treat = X$treat, distance = X$distance, covs=X$covs, call=X$call, int=int, addl = addl, r.threshold = r.threshold, un = un, method=X$method, cluster = X$cluster, which.cluster = which.cluster, cluster.summary = cluster.summary)
+    }
+    else if (length(unique(X$treat)) > 2 && (is.factor(X$treat) || is.character(X$treat))) {
+        stop("Multinomial treaments are not yet supported.", call. = FALSE)
     }
     else out <- base.bal.tab(object=X$obj, weights=X$weights, treat=X$treat, distance=X$distance, subclass=X$subclass, covs=X$covs, call=X$call, int=int, addl=X$addl, continuous=continuous, binary=binary, s.d.denom=s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold, un=un, disp.means=disp.means, disp.v.ratio=disp.v.ratio, disp.subclass=disp.subclass, method=X$method, cluster = X$cluster, which.cluster = which.cluster, cluster.summary = cluster.summary)
     return(out)
@@ -988,8 +1019,11 @@ bal.tab.data.frame <- function(x, treat, data = NULL, weights = NULL, distance =
                 method = method,
                 cluster = cluster)
     
-    if (length(unique(X$treat) > 2 && !is.factor(X$treat))) {
+    if (length(unique(X$treat)) > 2 && is.numeric(X$treat)) {
         out <- base.bal.tab.cont(object=X$obj, weights=X$weights, treat = X$treat, distance = X$distance, covs=X$covs, call=X$call, int=int, addl = addl, r.threshold = r.threshold, un = un, method=X$method, cluster = X$cluster, which.cluster = which.cluster, cluster.summary = cluster.summary)
+    }
+    else if (length(unique(X$treat)) > 2 && (is.factor(X$treat) || is.character(X$treat))) {
+        stop("Multinomial treaments are not yet supported.", call. = FALSE)
     }
     else out <- base.bal.tab(object=X$obj, weights=X$weights, treat=X$treat, distance=X$distance, subclass=X$subclass, covs=X$covs, call=X$call, int=int, addl=X$addl, continuous=continuous, binary=binary, s.d.denom=s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold, un=un, disp.means=disp.means, disp.v.ratio=disp.v.ratio, disp.subclass=disp.subclass, method=X$method, cluster = X$cluster, which.cluster = which.cluster, cluster.summary = cluster.summary)
     return(out)
@@ -1016,6 +1050,9 @@ bal.tab.CBPS <- function(x, estimand, int = FALSE, addl = NULL, continuous = c("
                 cluster = cluster)
     if (any(class(x) == "CBPSContinuous")) {
         out <- base.bal.tab.cont(object=X$obj, weights=X$weights, treat = X$treat, distance = X$distance, covs=X$covs, call=X$call, int=int, addl = addl, r.threshold = r.threshold, un = un, method = "weighting", cluster = X$cluster, which.cluster = which.cluster, cluster.summary = cluster.summary)
+    }
+    else if (nlevels(as.factor(X$treat)) > 2) {
+        stop("Multinomial treaments are not yet supported.", call. = FALSE)
     }
     else out <- base.bal.tab(object=X$obj, weights=X$weights, treat=X$treat, distance=X$distance, covs=X$covs, call=X$call, int=int, addl=addl, continuous=continuous, binary=binary, s.d.denom=X$s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold, un=un, disp.means=disp.means, disp.v.ratio=disp.v.ratio, method="weighting", cluster = X$cluster, which.cluster = which.cluster, cluster.summary = cluster.summary)
     return(out)
