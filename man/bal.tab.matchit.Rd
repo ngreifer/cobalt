@@ -12,7 +12,9 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
                 s.d.denom = c("treated", "control", "pooled"), 
                 m.threshold = NULL, v.threshold = NULL, un = 
                 FALSE, disp.means = FALSE, disp.v.ratio = 
-                FALSE, disp.subclass = FALSE, ...)
+                FALSE, disp.subclass = FALSE, cluster = NULL, 
+                which.cluster = NULL, cluster.summary = TRUE, 
+                ...)
 }
 
 \arguments{
@@ -52,6 +54,15 @@ a numeric value for the threshold for variance ratios. Will automatically conver
   \item{disp.subclass}{
 \code{logical}; whether to display balance information for individual subclasses if subclassification is used in conditioning.
 }
+  \item{cluster}{
+a vector of cluster membership.
+}
+  \item{which.cluster}{
+which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
+}
+  \item{cluster.summary}{
+\code{logical}; whether to display the cluster summary table. If \code{which.cluster} is \code{NULL}, \code{cluster.summary} will be set to \code{TRUE}.
+}
   \item{...}{
 further arguments passed to or from other methods. They are ignored in this function.
 }
@@ -64,7 +75,7 @@ The last four arguments of \code{bal.tab()} affect display only; they are passed
 The input to \code{addl} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used, R will coerce it to a vector, thus making it unfit for input here. To avoid this, simply wrap the input to \code{addl} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
 }
 \value{
-An object of class \code{"bal.tab"} containing balance summaries for the \code{matchit} object. If subclassifcation is not used, the following are the elements of \code{bal.tab}:
+If clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{matchit} object. If subclassifcation is not used, the following are the elements of \code{bal.tab}:
 \item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
 \itemize{
 \item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
@@ -86,6 +97,8 @@ An object of class \code{"bal.tab"} containing balance summaries for the \code{m
 \item{Observations}{A table displaying the sample sizes before and after adjusting.}
 \item{call}{The original \code{matchit()} call.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab}.}
+
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters.
 
 If subclassification is used, the following are the elements of \code{bal.tab}:
 \item{Subclass.Balance}{A list of data frames containing balance information for each covariate in each subclass.  Each data frame contains the following columns:

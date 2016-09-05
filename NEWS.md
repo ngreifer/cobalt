@@ -1,13 +1,19 @@
 cobalt News and Updates
 ======
     
+Version 1.2.1
+
+* Increased capabailities for cluster balance in bal.tab() and love.plot()
+
 Version 1.2.0
 
 * Added support for continous treatment variables in bal.tab, bal.plot, and love.plot
 
 * Added balance assessment within and across clusters
 
-* Other small performance changes to minimize errors and be more intuitive.
+* Other small performance changes to minimize errors and be more intuitive
+
+* Major revisions and adjustments to the vignette
 
 Version 1.1.0
 

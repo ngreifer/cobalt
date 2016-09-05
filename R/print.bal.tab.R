@@ -263,8 +263,21 @@ print.bal.tab.cluster <- function(x, digits = max(3, getOption("digits") - 3), .
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
-        cat("\nBalance summary across all clusters after adjustment:\n")
-        print.data.frame(replaceNA(round_df(c.balance.summary, digits)))
+        s.keep <- (1:ncol(c.balance.summary))*c(TRUE, 
+                    p.ops$un,
+                    p.ops$un,
+                    p.ops$un,
+                    p.ops$un*p.ops$disp.v.ratio,
+                    p.ops$un*p.ops$disp.v.ratio,
+                    p.ops$un*p.ops$disp.v.ratio,
+                    TRUE,
+                    TRUE,
+                    TRUE,
+                    p.ops$disp.v.ratio,
+                    p.ops$disp.v.ratio,
+                    p.ops$disp.v.ratio)
+        cat("\nBalance summary across all clusters:\n")
+        print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
         cat("\n")
     }
     invisible(x)
@@ -329,8 +342,15 @@ print.bal.tab.cont.cluster <- function(x, digits = max(3, getOption("digits") - 
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
-        cat("\nBalance summary across all clusters after adjustment:\n")
-        print.data.frame(replaceNA(round_df(c.balance.summary, digits)))
+        s.keep <- (1:ncol(c.balance.summary))*c(TRUE, 
+                                                p.ops$un,
+                                                p.ops$un,
+                                                p.ops$un,
+                                                TRUE,
+                                                TRUE,
+                                                TRUE)
+        cat("\nBalance summary across all clusters:\n")
+        print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
         cat("\n")
     }
     invisible(x)

@@ -1,5 +1,7 @@
 \name{love.plot}
 \alias{love.plot}
+\alias{love.plot.bal.tab}
+\alias{love.plot.bal.tab.cont}
 \alias{plot.bal.tab}
 \title{
 Generate Balance Plots for Publication
@@ -8,17 +10,20 @@ Generate Balance Plots for Publication
 Generates a "Love" plot graphically displaying covariate balance before and after adjusting.
 }
 \usage{
-love.plot(b, stat = c("mean.diffs", "variance.ratios"), 
+\method{love.plot}{bal.tab}(b, stat = c("mean.diffs", "variance.ratios"), 
           threshold = NULL, abs = FALSE, var.order = NULL, 
           no.missing = FALSE, var.names = NULL,
-          drop.distance = TRUE)
+          drop.distance = TRUE, ...)
+\method{love.plot}{bal.tab.cont}(b, threshold = NULL, abs = FALSE, 
+          var.order = NULL, no.missing = FALSE, var.names = NULL,
+          drop.distance = TRUE, ...)
 }
 \arguments{
   \item{b}{
 a \code{bal.tab} object. Print options are ignored, but \code{m.threshold} and \code{v.threshold} can be used in \code{bal.tab()} instead of \code{love.plot()}'s \code{threshold} parameter. 
 }
   \item{stat}{
-\code{character}; which statistic should be reported. The options are "mean.diffs" for mean differences (standardized or not according the options selected in \code{bal.tab} object) and "variance.ratios" for variance ratios. "mean.diffs" is default. Abbreviations allowed.
+\code{character}; which statistic should be reported if treatment is binary. The options are "mean.diffs" for mean differences (standardized or not according the options selected in \code{bal.tab} object) and "variance.ratios" for variance ratios. "mean.diffs" is default. Abbreviations allowed.
 }
   \item{threshold}{
 \code{numeric}; an optional value to be used as a threshold marker in the plot. Overrides the threshold set in the \code{bal.tab} object.
@@ -37,6 +42,9 @@ an optional object providing alternate names for the variables in the plot, whic
 }
   \item{drop.distance}{
 \code{logical}; whether to ignore the distance measure (if there is one) in plotting. Because balance on the covariates is primary goal of conditioning, including balance on the distance measure can be misleading; therefore, the default is \code{TRUE}, so that the distance measure is not displayed.
+}
+  \item{...}{
+further arguments passed to or from other methods. They are ignored in this function.
 }
 }
 \details{

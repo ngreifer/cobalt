@@ -12,7 +12,9 @@ Generates balance statistics for \code{Match} objects from \pkg{Matching}.
             continuous = c("std","raw"), binary = c("raw",
             "std"), s.d.denom, m.threshold = NULL, 
             v.threshold = NULL, un = FALSE, disp.means = FALSE, 
-            disp.v.ratio = FALSE, ...)
+            disp.v.ratio = FALSE, cluster = NULL, 
+            which.cluster = NULL, cluster.summary = TRUE, 
+            ...)
 }
 
 \arguments{
@@ -61,6 +63,15 @@ a numeric value for the threshold for variance ratios. Will automatically conver
   \item{disp.v.ratio}{
 \code{logical}; whether to display variance ratios in balance output.
 }
+  \item{cluster}{
+a vector of cluster membership.
+}
+  \item{which.cluster}{
+which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
+}
+  \item{cluster.summary}{
+\code{logical}; whether to display the cluster summary table. If \code{which.cluster} is \code{NULL}, \code{cluster.summary} will be set to \code{TRUE}.
+}
   \item{...}{
 further arguments passed to or from other methods. They are ignored in this function.
 }
@@ -75,7 +86,7 @@ The last four arguments of \code{bal.tab()} affect display only; they are passed
 The input to \code{addl} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), R will coerce it to a vector, thus making it unfit for input in \code{addl}. To avoid this, simply wrap the input to \code{addl} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done. It is recommended to include all desired variables in \code{formula} or \code{covs} rather than specifying additional variables using \code{addl}.
 }
 \value{
-An object of class \code{"bal.tab"} containing balance summaries for the \code{Match} object. The following are the elements of \code{bal.tab}:
+If clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{Match} object. The following are the elements of \code{bal.tab}:
 \item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
 \itemize{
 \item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
@@ -97,6 +108,8 @@ An object of class \code{"bal.tab"} containing balance summaries for the \code{M
 \item{Observations}{A table displaying the sample sizes before and after adjusting.}
 \item{call}{\code{NULL}.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab}.}
+
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters.
 }
 
 \author{

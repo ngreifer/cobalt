@@ -51,6 +51,7 @@ x2base.matchit <- function(m, ...) {
     X$cluster <- factor(cluster)
     X$obj <- m
     if (length(cluster) > 0) X$obj$cluster <- X$cluster
+    if (length(X$subclass) > 0) X$obj$subclass <- X$subclass
     X$call <- m$call
     return(X)
 }
@@ -110,7 +111,7 @@ x2base.ps <- function(ps, ...) {
         if (!(is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1))) {
             stop("The argument to cluster must be a vector of cluster membership.", call. = FALSE)
         }
-        if (length(cluster) != length(m$treat)) {
+        if (length(cluster) != length(ps$treat)) {
             stop("cluster must be the same length as the original data set.", call. = FALSE)
         }
     }
@@ -262,7 +263,7 @@ x2base.Match <- function(Match, ...) {
     X$treat <- o.data2$treat
     X$weights <- o.data2$weights
     X$distance <- NULL #NAs in distance bcause of incomplete list in Match object
-    X$covs <- o.data2[, is.na(match(names(o.data2, c("treat", "weights", "index"))))]
+    X$covs <- o.data2[, is.na(match(names(o.data2), c("treat", "weights", "index")))]
     X$call <- NULL
     X$method <- "matching"
     X$cluster <- factor(cluster)
@@ -456,8 +457,8 @@ x2base.data.frame <- function(covs, ...) {
             }
         }
         else if (is.data.frame(addl)) {
-            if (nrow(addl)!=nrow(data)) {
-                stop("If addl is a data.frame, it must have the same number of rows as data.")
+            if (nrow(addl)!=nrow(covs)) {
+                stop("If addl is a data.frame, it must have the same number of rows as covs")
             }
         }
         else {
@@ -477,6 +478,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     else if (!is.null(subclass)){
         X$method <- "subclassification"
+        weights <- rep(1, length(treat))
     }
     else X$method <- "matching"
 

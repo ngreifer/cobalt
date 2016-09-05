@@ -102,9 +102,6 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         }
         if (is.null(levels(x))) colnames(k) <- paste0(varname, 1:ncol(k))
         else colnames(k) <- paste0(varname, "_", substr(levels(x), 1, 10))
-        # if (ncol(k)==2) retain <- 2
-        # else retain <- NULL
-        # if (!is.null(retain)) k <- k[, retain, drop = FALSE]
         
         if (match(varname, names(data)) == 1){
             data <- data.frame(k, data[, names(data)!=varname, drop = FALSE])
@@ -158,13 +155,13 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         }
         
         #Remove duplicate & redundant variables
-        C.cor <- cor(C)
+        suppressWarnings(C.cor <- cor(C))
         s <- matrix(sapply(C.cor, function(x) isTRUE(all.equal(abs(x), 1))), nrow = nrow(C.cor), dimnames = dimnames(C.cor))
         remove <- c()
         for (i in seq_len(ncol(s))) {
             for (j in seq_len(nrow(s))) {
                 if (i > j) {
-                    if (s[j, i]) remove <- c(remove, rownames(s)[j])
+                    if (s[j, i]) remove <- c(remove, rownames(s)[i])
                 }
             }
         }
@@ -288,7 +285,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
             obs <- nn
             attr(obs, "tag") <- "Sample sizes:"
         }
-        else if (method=="weighting") {
+        else if (method == "weighting") {
             t <- obj$treat
             w <- obj$weights
             obs <- as.data.frame(matrix(c(sum(t==0), 
@@ -297,11 +294,12 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
                                           (sum(w[t==1])^2)/sum(w[t==1]^2)), ncol=2, dimnames = list(c("Unadjusted", "Adjusted"), c("Control", "Treated"))))
             attr(obs, "tag") <- "Effective sample sizes:"
         }
-        else if (method=="subclassification") {
+        else if (method == "subclassification") {
             if (is.null(obj$subclass)) stop("obj must contain a vector of subclasses called \"subclass\".")
             qbins <- length(levels(obj$subclass))
             
             nn <- as.data.frame(matrix(0, 3, qbins))
+
             dimnames(nn) <- list(c("Control", "Treated", "Total"), 
                                  paste("Subclass", levels(obj$subclass)))
             
@@ -374,7 +372,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         }
         if (!is.null(v.threshold)) {
             v.threshcheck <- ifelse(is.null(weights), "V.Ratio.Un", "V.Ratio.Adj")
-            B[,"V.Threshold"] <- ifelse(B[,"Type"]=="Contin." | is.na(B[, v.threshcheck]), paste0(ifelse(B[, v.threshcheck] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
+            B[,"V.Threshold"] <- ifelse(B[,"Type"]=="Contin." & !is.na(B[, v.threshcheck]), paste0(ifelse(B[, v.threshcheck] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
         }
         return(B)
     }
@@ -383,7 +381,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         
         #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
         C <- get.C(covs, int, addl, distance)
-        
+
         #B=Balance frame
         Bnames <- c("Type", "M.C.Adj", "M.T.Adj", "Diff.Adj", "M.Threshold", "V.Ratio.Adj", "V.Threshold")
         B <- as.data.frame(matrix(nrow=ncol(C), ncol=length(Bnames)))
@@ -459,19 +457,19 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
     }
     balance.table.cluster.summary <- function(balance.table.clusters.list, m.threshold = NULL, v.threshold = NULL, cluster.summary = FALSE) {
         Brownames <- unique(do.call("c", lapply(balance.table.clusters.list, rownames)))
-        Bcolnames <- c("Type", "Mean.Diff", "Median.Diff", "Max.Diff", "Mean.V.Ratio", "Median.V.Ratio", "Max.V.Ratio")
+        Bcolnames <- c("Type", "Mean.Diff.Un", "Median.Diff.Un", "Max.Diff.Un", "Mean.V.Ratio.Un", "Median.V.Ratio.Un", "Max.V.Ratio.Un",
+                       "Mean.Diff.Adj", "Median.Diff.Adj", "Max.Diff.Adj", "Mean.V.Ratio.Adj", "Median.V.Ratio.Adj", "Max.V.Ratio.Adj")
         B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
         names(B) <- Bcolnames
         
         B$Type <- sapply(rownames(B), function(x) {u <- unique(sapply(balance.table.clusters.list, function(y) y[x, "Type"])); return(u[!is.na(u)])})
         
-        B$Mean.Diff <- sapply(rownames(B), function(x) mean(sapply(balance.table.clusters.list, function(y) abs(y[x,"Diff.Adj"])), na.rm = TRUE))
-        B$Median.Diff <- sapply(rownames(B), function(x) median(sapply(balance.table.clusters.list, function(y) abs(y[x,"Diff.Adj"])), na.rm = TRUE))
-        B$Max.Diff <- sapply(rownames(B), function(x) max(sapply(balance.table.clusters.list, function(y) abs(y[x,"Diff.Adj"])), na.rm = TRUE))
-        B$Mean.V.Ratio <- sapply(rownames(B), function(x) if (B[x, "Type"]!="Contin.") NA else mean(sapply(balance.table.clusters.list, function(y) y[x,"V.Ratio.Adj"]), na.rm = TRUE))
-        B$Median.V.Ratio <- sapply(rownames(B), function(x) if (B[x, "Type"]!="Contin.") NA else median(sapply(balance.table.clusters.list, function(y) y[x,"V.Ratio.Adj"]), na.rm = TRUE))
-        B$Max.V.Ratio <- sapply(rownames(B), function(x) if (B[x, "Type"]!="Contin.") NA else max(sapply(balance.table.clusters.list, function(y) y[x,"V.Ratio.Adj"]), na.rm = TRUE))
-        
+        for (Fun in c("Mean", "Median", "Max")) {
+            for (sample in c("Un", "Adj")) {
+                B[, paste(Fun, "Diff", sample, sep = ".")] <- sapply(rownames(B), function(x) get(tolower(Fun))(sapply(balance.table.clusters.list, function(y) abs(y[x, paste0("Diff.", sample)])), na.rm = TRUE))
+                B[, paste(Fun, "V.Ratio", sample, sep = ".")] <- sapply(rownames(B), function(x) if (B[x, "Type"]!="Contin.") NA else get(tolower(Fun))(sapply(balance.table.clusters.list, function(y) y[x, paste0("V.Ratio.", sample)]), na.rm = TRUE))
+            }
+        }
         return(B)
     }
     
@@ -511,6 +509,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
             out$Cluster.Summary <- balance.table.cluster.summary(balance.table.clusters.list = out$Cluster.Balance, 
                                                                  m.threshold = m.threshold, v.threshold = v.threshold, 
                                                                  cluster.summary = cluster.summary)
+            if (all(sapply(out$Cluster.Balance, function(x) all(is.na(x[,"V.Ratio.Un"]))))) {disp.v.ratio <- FALSE; v.threshold <- NULL}
             out <- out[!names(out) %in% "Cluster.Balance.Across.Subclass"]
             class(out) <- c("bal.tab.cluster", "bal.tab")
         }
@@ -535,6 +534,9 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
                                "Subclass.Observations", "call", "print.options")
                 out <- vector("list", length(out.names))
                 names(out) <- out.names
+                
+                if (length(list(...)$sub.by > 0)) sub.by <- list(...)$sub.by
+                else sub.by <- call$sub.by
                 
                 out$Subclass.Balance <- balance.table.subclass(covs=covs, weights=weights, treat=treat, subclass=subclass, distance=distance, int=int, addl=addl, continuous=continuous, binary=binary, s.d.denom=s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold)
                 out$Subclass.Observations <- samplesize(object, method="subclassification")
@@ -607,7 +609,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         }
     }
     
-    attr(out, "int") <- int
+    #attr(out, "int") <- int
     return(out)
 }
 base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, r.threshold = NULL, un = FALSE, method = "weighting", cluster = NULL, which.cluster = NULL, cluster.summary = TRUE) {
@@ -746,13 +748,13 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
         }
         
         #Remove duplicate & redundant variables
-        C.cor <- cor(C)
+        suppressWarnings(C.cor <- cor(C))
         s <- matrix(sapply(C.cor, function(x) isTRUE(all.equal(abs(x), 1))), nrow = nrow(C.cor), dimnames = dimnames(C.cor))
         remove <- c()
         for (i in seq_len(ncol(s))) {
             for (j in seq_len(nrow(s))) {
                 if (i > j) {
-                    if (s[j, i]) remove <- c(remove, rownames(s)[j])
+                    if (s[j, i]) remove <- c(remove, rownames(s)[i])
                 }
             }
         }
@@ -809,16 +811,18 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
     }
     balance.table.cont.cluster.summary <- function(balance.table.clusters.list, r.threshold = NULL, cluster.summary = FALSE) {
         Brownames <- unique(do.call("c", lapply(balance.table.clusters.list, rownames)))
-        Bcolnames <- c("Type", "Mean.Corr", "Median.Corr", "Max.Corr")
+        Bcolnames <- c("Type", "Mean.Corr.Un", "Median.Corr.Un", "Max.Corr.Un",
+                       "Mean.Corr.Adj", "Median.Corr.Adj", "Max.Corr.Adj")
         B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
         names(B) <- Bcolnames
         
         B$Type <- sapply(rownames(B), function(x) {u <- unique(sapply(balance.table.clusters.list, function(y) y[x, "Type"])); return(u[!is.na(u)])})
         
-        B$Mean.Corr <- sapply(rownames(B), function(x) mean(sapply(balance.table.clusters.list, function(y) abs(y[x,"Corr.Adj"])), na.rm = TRUE))
-        B$Median.Corr <- sapply(rownames(B), function(x) median(sapply(balance.table.clusters.list, function(y) abs(y[x,"Corr.Adj"])), na.rm = TRUE))
-        B$Max.Corr <- sapply(rownames(B), function(x) max(sapply(balance.table.clusters.list, function(y) abs(y[x,"Corr.Adj"])), na.rm = TRUE))
-        
+        for (Fun in c("Mean", "Median", "Max")) {
+            for (sample in c("Un", "Adj")) {
+                B[, paste(Fun, "Corr", sample, sep = ".")] <- sapply(rownames(B), function(x) get(tolower(Fun))(sapply(balance.table.clusters.list, function(y) abs(y[x, paste0("Corr.", sample)])), na.rm = TRUE))
+            }
+        }
         return(B)
     }
     

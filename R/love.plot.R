@@ -1,17 +1,57 @@
 love.plot <- function(b, ...) UseMethod("love.plot")
 
-love.plot.bal.tab <- function(b, stat=c("mean.diffs", "variance.ratios"), threshold=NULL, abs=FALSE, var.order=NULL, no.missing=FALSE, var.names=NULL, drop.distance=TRUE) {
+love.plot.bal.tab <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = TRUE, cluster.fun = c("mean", "median", "max"), ...) {
   if (!"bal.tab" %in% class(b)) stop("The argument to \"b\" must be a bal.tab object, the output of a call to bal.tab().")
   stat <- match.arg(stat)
-  which.stat <- switch(stat, mean.diffs="Diff", variance.ratios="V.Ratio")
+  which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio")
   
   if (any(class(b) == "bal.tab.cluster")) {
-      if (length(b$print.options$which.cluster) != 1) stop("love.plot cannot only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
-      else if (!any(names(b$Cluster.Balance) == b$print.options$which.cluster[1]) && !any(seq_along(b$Cluster.Balance) == b$print.options$which.cluster[1])) stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
-      B <- b$Cluster.Balance[[b$print.options$which.cluster]]
-      title <- paste0("Covariate Balance\nCluster: ", {if (is.numeric(b$print.options$which.cluster)) names(b$Cluster.Balance)[b$print.options$which.cluster] else b$print.options$which.cluster})
-      # cluster.fun <- match.arg(cluster.fun)
-      # B <- b$Cluster.Summary[, c("Type", paste0(switch(cluster.fun, mean="Mean", median="Median", max="Max"), ".", which.stat))]
+      # if (length(b$print.options$which.cluster) > 1) stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
+      # else if (!any(names(b$Cluster.Balance) == b$print.options$which.cluster[1]) && !any(seq_along(b$Cluster.Balance) == b$print.options$which.cluster[1])) stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+      # B <- b$Cluster.Balance[[b$print.options$which.cluster]]
+      
+      if (is.null(b$print.options$which.cluster) || is.na(b$print.options$which.cluster)) {
+          #Use max, median, etc
+          Cluster.Fun <- switch(match.arg(cluster.fun), mean = "Mean", median = "Median", max = "Max")
+          title <- paste0("Covariate Balance\n", Cluster.Fun, " ", which.stat, " Across Clusters")
+          which.stat <- paste(Cluster.Fun, which.stat, sep = ".")
+          B <- b$Cluster.Summary[, c("Type", 
+                                     paste(which.stat, "Adj", sep = "."),  
+                                     paste(which.stat, "Un", sep = "."))]
+          abs <- TRUE
+          
+      }
+      else if (is.character(b$print.options$which.cluster)) {
+          cluster.names.good <- sapply(names(b$Cluster.Balance), function(x) any(sapply(b$print.options$which.cluster, function(y) isTRUE(all.equal(x, y)))))
+          if (any(cluster.names.good)) {
+              if (sum(cluster.names.good) == 1) {
+                  B <- b$Cluster.Balance[cluster.names.good][[1]]
+                  title <- paste0("Covariate Balance\nCluster: ", b$print.options$which.cluster)
+                  
+              }
+              else {
+                  stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
+              }
+          }
+          else {
+              stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+          }
+      }
+      else if (is.numeric(b$print.options$which.cluster)) {
+          cluster.numbers.good <- (seq_along(b$Cluster.Balance) %in% b$print.options$which.cluster)
+          if (any(cluster.numbers.good)) {
+              if (sum(cluster.numbers.good) == 1) {
+                  B <- b$Cluster.Balance[cluster.numbers.good][[1]]
+                  title <- paste0("Covariate Balance\nCluster: ", names(b$Cluster.Balance)[b$print.options$which.cluster])
+              }
+              else {
+                  stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
+              }
+          }
+          else {
+              stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+          }
+      }
   }
   else if (any(class(b) == "bal.tab.subclass")) {
     if (which.stat=="V.Ratio") stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
@@ -116,17 +156,57 @@ love.plot.bal.tab <- function(b, stat=c("mean.diffs", "variance.ratios"), thresh
 
   return(lp)
 }
-love.plot.bal.tab.cont <- function(b, threshold=NULL, abs=FALSE, var.order=NULL, no.missing=FALSE, var.names=NULL, drop.distance=TRUE) {
+love.plot.bal.tab.cont <- function(b, threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = TRUE, ...) {
     #if (!"bal.tab" %in% class(b)) stop("The argument to \"b\" must be a bal.tab object, the output of a call to bal.tab().")
     which.stat <- "Corr"
     
     if (any(class(b) == "bal.tab.cont.cluster")) {
-        if (length(b$print.options$which.cluster) != 1) stop("love.plot cannot only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
-        else if (!any(names(b$Cluster.Balance) == b$print.options$which.cluster[1]) && !any(seq_along(b$Cluster.Balance) == b$print.options$which.cluster[1])) stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
-        B <- b$Cluster.Balance[[b$print.options$which.cluster]]
-        title <- paste0("Covariate Balance\nCluster: ", {if (is.numeric(b$print.options$which.cluster)) names(b$Cluster.Balance)[b$print.options$which.cluster] else b$print.options$which.cluster})
-        # cluster.fun <- match.arg(cluster.fun)
-        # B <- b$Cluster.Summary[, c("Type", paste0(switch(cluster.fun, mean="Mean", median="Median", max="Max"), ".", which.stat))]
+        # if (length(b$print.options$which.cluster) > 1) stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
+        # else if (!any(names(b$Cluster.Balance) == b$print.options$which.cluster[1]) && !any(seq_along(b$Cluster.Balance) == b$print.options$which.cluster[1])) stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+        # B <- b$Cluster.Balance[[b$print.options$which.cluster]]
+        
+        if (is.null(b$print.options$which.cluster) || is.na(b$print.options$which.cluster)) {
+            #Use max, median, etc
+            Cluster.Fun <- switch(match.arg(cluster.fun), mean = "Mean", median = "Median", max = "Max")
+            title <- paste0("Covariate Balance\n", Cluster.Fun, " ", which.stat, " Across Clusters")
+            which.stat <- paste(Cluster.Fun, which.stat, sep = ".")
+            B <- b$Cluster.Summary[, c("Type", 
+                                       paste(which.stat, "Adj", sep = "."),  
+                                       paste(which.stat, "Un", sep = "."))]
+            abs <- TRUE
+            
+        }
+        else if (is.character(b$print.options$which.cluster)) {
+            cluster.names.good <- sapply(names(b$Cluster.Balance), function(x) any(sapply(b$print.options$which.cluster, function(y) isTRUE(all.equal(x, y)))))
+            if (any(cluster.names.good)) {
+                if (sum(cluster.names.good) == 1) {
+                    B <- b$Cluster.Balance[cluster.names.good][[1]]
+                    title <- paste0("Covariate Balance\nCluster: ", b$print.options$which.cluster)
+                    
+                }
+                else {
+                    stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
+                }
+            }
+            else {
+                stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+            }
+        }
+        else if (is.numeric(b$print.options$which.cluster)) {
+            cluster.numbers.good <- (seq_along(b$Cluster.Balance) %in% b$print.options$which.cluster)
+            if (any(cluster.numbers.good)) {
+                if (sum(cluster.numbers.good) == 1) {
+                    B <- b$Cluster.Balance[cluster.numbers.good][[1]]
+                    title <- paste0("Covariate Balance\nCluster: ", names(b$Cluster.Balance)[b$print.options$which.cluster])
+                }
+                else {
+                    stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
+                }
+            }
+            else {
+                stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+            }
+        }
     }
     else if (any(class(b) == "bal.tab.subclass")) {
         B <- b$Balance.Across.Subclass
@@ -182,17 +262,17 @@ love.plot.bal.tab.cont <- function(b, threshold=NULL, abs=FALSE, var.order=NULL,
         else warning("Argument to var.names is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE, call. = FALSE)
     }
     
-    Sample <- NULL #To avoid CRAN checks rejecting Sample
-    SS <- data.frame(var=rep(var.labels, 2), 
-                     stat=c(B[,paste0(which.stat,".Adj")], B[,paste0(which.stat,".Un")]), 
-                     Sample=c(rep("Adjusted", nrow(B)), rep("Unadjusted", nrow(B))))
+    Sample <- stat <- NULL #To avoid CRAN checks rejecting Sample
+    SS <- data.frame(var = rep(var.labels, 2), 
+                     stat = c(B[, paste0(which.stat,".Adj")], B[, paste0(which.stat,".Un")]), 
+                     Sample = c(rep("Adjusted", nrow(B)), rep("Unadjusted", nrow(B))))
     if (all(is.na(SS$stat))) stop("No balance statistics to display.", call. = FALSE)
     if (all(is.na(SS$stat[SS$Sample=="Adjusted"]))) SS <- SS[SS$Sample=="Unadjusted",]
     if (abs) {
         SS$stat <- abs(SS$stat)
         dec <- FALSE}
     else dec <- TRUE
-    if (!is.null(var.order)) {
+    if (length(var.order) > 0) {
         var.order <- match.arg(var.order, c("adjusted", "unadjusted")) 
         SS$var <- factor(SS$var, levels=SS$var[order(SS$stat[tolower(SS$Sample)==var.order], decreasing=dec)])
     }
