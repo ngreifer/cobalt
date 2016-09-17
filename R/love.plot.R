@@ -55,11 +55,11 @@ love.plot.bal.tab <- function(b, stat = c("mean.diffs", "variance.ratios"), thre
   }
   else if (any(class(b) == "bal.tab.subclass")) {
     if (which.stat=="V.Ratio") stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
-    B <- b$Balance.Across.Subclass
+    B <- b[["Balance.Across.Subclass"]]
     title <- "Covariate Balance\nAcross Subclasses"
   }
   else {
-      B <- b$Balance
+      B <- b[["Balance"]]
       title <- "Covariate Balance"
   }
   
@@ -118,22 +118,22 @@ love.plot.bal.tab <- function(b, stat = c("mean.diffs", "variance.ratios"), thre
   
   Sample <- NULL #To avoid CRAN checks rejecting Sample
   SS <- data.frame(var=rep(var.labels, 2), 
-                   stat=c(B[,paste0(which.stat,".Adj")], B[,paste0(which.stat,".Un")]), 
+                   stat=c(B[, paste0(which.stat,".Adj")], B[, paste0(which.stat,".Un")]), 
                    Sample=c(rep("Adjusted", nrow(B)), rep("Unadjusted", nrow(B))))
-  if (all(is.na(SS$stat))) stop("No balance statistics to display.", call. = FALSE)
-  if (all(is.na(SS$stat[SS$Sample=="Adjusted"]))) SS <- SS[SS$Sample=="Unadjusted",]
+  if (all(is.na(SS[, "stat"]))) stop("No balance statistics to display.", call. = FALSE)
+  if (all(is.na(SS[SS$Sample=="Adjusted", "stat"]))) SS <- SS[SS[, "Sample"]=="Unadjusted",]
   if (abs) {
-    SS$stat <- abs(SS$stat)
+    SS[, "stat"] <- abs(SS[, "stat"])
     dec <- FALSE}
   else dec <- TRUE
   if (!is.null(var.order)) {
     var.order <- match.arg(var.order, c("adjusted", "unadjusted")) 
-    SS$var <- factor(SS$var, levels=SS$var[order(SS$stat[tolower(SS$Sample)==var.order], decreasing=dec)])
+    SS[, "var"] <- factor(SS[, "var"], levels=SS[order(SS[tolower(SS[, "Sample"])==var.order, "stat"], decreasing = dec), "var"])
   }
-  else SS$var <- factor(SS$var, levels=unique(SS$var)[order(unique(SS$var), decreasing=TRUE)])
-  SS$Sample <- factor(SS$Sample, levels=c("Unadjusted", "Adjusted"))
-  if (stat=="mean.diffs" & any(abs(SS$stat) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
-  if (no.missing) SS <- SS[!is.na(SS$stat),]
+  else SS[, "var"] <- factor(SS[, "var"], levels = unique(SS[, "var"])[order(unique(SS[, "var"]), decreasing = TRUE)])
+  SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Unadjusted", "Adjusted"))
+  if (stat=="mean.diffs" & any(abs(SS[, "stat"]) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
+  if (no.missing) SS <- SS[!is.na(SS[, "stat"]),]
   
   #Make the plot
   #library(ggplot2)
@@ -156,7 +156,7 @@ love.plot.bal.tab <- function(b, stat = c("mean.diffs", "variance.ratios"), thre
 
   return(lp)
 }
-love.plot.bal.tab.cont <- function(b, threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = TRUE, ...) {
+love.plot.bal.tab.cont <- function(b, threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = TRUE, cluster.fun = c("mean", "median", "max"), ...) {
     #if (!"bal.tab" %in% class(b)) stop("The argument to \"b\" must be a bal.tab object, the output of a call to bal.tab().")
     which.stat <- "Corr"
     
@@ -193,11 +193,11 @@ love.plot.bal.tab.cont <- function(b, threshold = NULL, abs = FALSE, var.order =
             }
         }
         else if (is.numeric(b$print.options$which.cluster)) {
-            cluster.numbers.good <- (seq_along(b$Cluster.Balance) %in% b$print.options$which.cluster)
+            cluster.numbers.good <- (seq_along(b[["Cluster.Balance"]]) %in% b$print.options$which.cluster)
             if (any(cluster.numbers.good)) {
                 if (sum(cluster.numbers.good) == 1) {
-                    B <- b$Cluster.Balance[cluster.numbers.good][[1]]
-                    title <- paste0("Covariate Balance\nCluster: ", names(b$Cluster.Balance)[b$print.options$which.cluster])
+                    B <- b[["Cluster.Balance"]][cluster.numbers.good][[1]]
+                    title <- paste0("Covariate Balance\nCluster: ", names(b[["Cluster.Balance"]])[b$print.options$which.cluster])
                 }
                 else {
                     stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
@@ -209,11 +209,11 @@ love.plot.bal.tab.cont <- function(b, threshold = NULL, abs = FALSE, var.order =
         }
     }
     else if (any(class(b) == "bal.tab.subclass")) {
-        B <- b$Balance.Across.Subclass
+        B <- b[["Balance.Across.Subclass"]]
         title <- "Covariate Balance\nAcross Subclasses"
     }
     else {
-        B <- b$Balance
+        B <- b[["Balance"]]
         title <- "Covariate Balance"
     }
     
@@ -266,19 +266,19 @@ love.plot.bal.tab.cont <- function(b, threshold = NULL, abs = FALSE, var.order =
     SS <- data.frame(var = rep(var.labels, 2), 
                      stat = c(B[, paste0(which.stat,".Adj")], B[, paste0(which.stat,".Un")]), 
                      Sample = c(rep("Adjusted", nrow(B)), rep("Unadjusted", nrow(B))))
-    if (all(is.na(SS$stat))) stop("No balance statistics to display.", call. = FALSE)
-    if (all(is.na(SS$stat[SS$Sample=="Adjusted"]))) SS <- SS[SS$Sample=="Unadjusted",]
+    if (all(is.na(SS[, "stat"]))) stop("No balance statistics to display.", call. = FALSE)
+    if (all(is.na(SS[SS[, "Sample"]=="Adjusted", "stat"]))) SS <- SS[SS[, "Sample"]=="Unadjusted",]
     if (abs) {
-        SS$stat <- abs(SS$stat)
+        SS$stat <- abs(SS[, "stat"])
         dec <- FALSE}
     else dec <- TRUE
     if (length(var.order) > 0) {
         var.order <- match.arg(var.order, c("adjusted", "unadjusted")) 
-        SS$var <- factor(SS$var, levels=SS$var[order(SS$stat[tolower(SS$Sample)==var.order], decreasing=dec)])
+        SS[, "var"] <- factor(SS[, "var"], levels = SS[order(SS[tolower(SS[, "Sample"])==var.order, "stat"], decreasing = dec), "var"])
     }
-    else SS$var <- factor(SS$var, levels=unique(SS$var)[order(unique(SS$var), decreasing=TRUE)])
-    SS$Sample <- factor(SS$Sample, levels=c("Unadjusted", "Adjusted"))
-    if (no.missing) SS <- SS[!is.na(SS$stat),]
+    else SS[, "var"] <- factor(SS[, "var"], levels = unique(SS[, "var"])[order(unique(SS[, "var"]), decreasing = TRUE)])
+    SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Unadjusted", "Adjusted"))
+    if (no.missing) SS <- SS[!is.na(SS[, "stat"]),]
     
     #Make the plot
     #library(ggplot2)

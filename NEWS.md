@@ -3,7 +3,7 @@ cobalt News and Updates
     
 Version 1.2.1
 
-* Increased capabailities for cluster balance in bal.tab() and love.plot()
+* Increased capabilities for cluster balance in bal.tab() and love.plot()
 
 Version 1.2.0
 
