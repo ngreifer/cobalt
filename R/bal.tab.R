@@ -61,34 +61,36 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         #poly=degree of polynomials to include; will also include all below poly. If 1, no polynomial will be included
         #nunder=number of underscores between variables
         
-        if (!is.null(ex)) d <- df[, !names(df) %in% names(ex)]
+        if (length(ex) > 0) d <- df[, !names(df) %in% names(ex)]
         else d <- df
         nd <- ncol(d)
-        k <- 1
-        if (poly>1) {
-            for (i in 1:ncol(d)) {
-                for (p in 2:poly) {
-                    if (length(unique(d[, i])) > 2) {
-                        if (k>1) new <- data.frame(new, v = d[, i]^p)
-                        else new <- data.frame(v = d[, i]^p)
+        no.poly <- apply(d, 2, function(x) length(unique(x)) <= 2)
+        k <- 0
+        new <- data.frame(matrix(ncol = (poly-1)*(nd - sum(no.poly)) + .5*nd*(nd-1), nrow = nrow(d)))
+        if (poly > 1) {
+            for (i in 1:nd) {
+                if (!no.poly[i]) {
+                    for (p in 2:poly) {
+                        k <- k + 1
+                        new[, k] <- d[, i]^p
                         colnames(new)[k] <- paste0(colnames(d)[i], strrep("_", nunder), p)
                     }
-                    k <- k + 1
                 }
             }
         }
-        if (int==TRUE) {
-            for (i in 1:(ncol(d)-1)) {
-                for (j in (i+1):ncol(d)) {
-                    if (k>1) new <- data.frame(new, v = d[, i]*d[, j])
-                    else new <- data.frame(v = d[, i]*d[, j])
-                    colnames(new)[k] <- paste0(colnames(d)[i], strrep("_", nunder), colnames(d)[j])
+        if (int) {
+            for (i in 1:(nd-1)) {
+                for (j in (i+1):nd) {
                     k <- k + 1
+                    new[, k] <-  d[, i]*d[, j]
+                    colnames(new)[k] <- paste0(colnames(d)[i], strrep("_", nunder), colnames(d)[j])
                 }
                 
             }
         }
-        if (!is.null(ncol(new)) > 0) return(new)
+        single.value <- apply(new, 2, function(x) abs(max(x) - min(x)) < .Machine$double.eps ^ 0.5)
+        new <- new[, !single.value]
+        return(new)
     }
     split.factor <- function(varname, data) {
         #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
@@ -147,6 +149,12 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
             else if (!is.numeric(C[, i])) C <- split.factor(i, C)
         }
         
+        #Remove duplicate & redundant variables
+        suppressWarnings(C.cor <- cor(C))
+        s <- matrix(mapply(function(x, y) if(y) isTRUE(all.equal(abs(x), 1)) else FALSE, x = C.cor, y = upper.tri(C.cor)), nrow = nrow(C.cor), dimnames = dimnames(C.cor))
+        keep <- !apply(s, 2, function(x) any(x))
+        C <- C[, keep]
+
         if (int) {
             #Prevent duplicate var names with _'s
             nunder <- 1
@@ -156,21 +164,6 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
             }
             C <- cbind(C, int.poly.f(C, int = TRUE, poly = 2, nunder = nunder))
         }
-        
-        #Remove duplicate & redundant variables
-        suppressWarnings(C.cor <- cor(C))
-        s <- matrix(sapply(C.cor, function(x) isTRUE(all.equal(abs(x), 1))), nrow = nrow(C.cor), dimnames = dimnames(C.cor))
-        remove <- c()
-        for (i in seq_len(ncol(s))) {
-            for (j in seq_len(nrow(s))) {
-                if (i > j) {
-                    if (s[j, i]) remove <- c(remove, rownames(s)[i])
-                }
-            }
-        }
-        
-        C <- C[,is.na(match(names(C), remove))]
-        C <- C[!duplicated(as.list(as.data.frame(apply(C, 2, as.numeric))))] #Remove duplicate variables
         
         if (!is.null(distance)) {
             distance <- data.frame(.distance = distance)
@@ -654,32 +647,36 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
         #poly=degree of polynomials to include; will also include all below poly. If 1, no polynomial will be included
         #nunder=number of underscores between variables
         
-        if (!is.null(ex)) d <- df[, !names(df) %in% names(ex)]
+        if (length(ex) > 0) d <- df[, !names(df) %in% names(ex)]
         else d <- df
         nd <- ncol(d)
-        k <- 1
-        if (poly>1) {
-            for (i in 1:ncol(d)) {
-                for (p in 2:poly) {
-                    if (k>1) new <- data.frame(new, v = d[, i]^p)
-                    else new <- data.frame(v = d[, i]^p)
-                    colnames(new)[k] <- paste0(colnames(d)[i], strrep("_", nunder), p)
-                    k <- k + 1
+        no.poly <- apply(d, 2, function(x) length(unique(x)) <= 2)
+        k <- 0
+        new <- data.frame(matrix(ncol = (poly-1)*(nd - sum(no.poly)) + .5*nd*(nd-1), nrow = nrow(d)))
+        if (poly > 1) {
+            for (i in 1:nd) {
+                if (!no.poly[i]) {
+                    for (p in 2:poly) {
+                        k <- k + 1
+                        new[, k] <- d[, i]^p
+                        colnames(new)[k] <- paste0(colnames(d)[i], strrep("_", nunder), p)
+                    }
                 }
             }
         }
-        if (int==TRUE) {
-            for (i in 1:(ncol(d)-1)) {
-                for (j in (i+1):ncol(d)) {
-                    if (k>1) new <- data.frame(new, v = d[, i]*d[, j])
-                    else new <- data.frame(v = d[, i]*d[, j])
-                    colnames(new)[k] <- paste0(colnames(d)[i], strrep("_", nunder), colnames(d)[j])
+        if (int) {
+            for (i in 1:(nd-1)) {
+                for (j in (i+1):nd) {
                     k <- k + 1
+                    new[, k] <-  d[, i]*d[, j]
+                    colnames(new)[k] <- paste0(colnames(d)[i], strrep("_", nunder), colnames(d)[j])
                 }
                 
             }
         }
-        if (!is.null(ncol(new)) > 0) return(new)
+        single.value <- apply(new, 2, function(x) abs(max(x) - min(x)) < .Machine$double.eps ^ 0.5)
+        new <- new[, !single.value]
+        return(new)
     }
     split.factor <- function(varname, data) {
         #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
@@ -695,9 +692,6 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
         }
         if (is.null(levels(x))) colnames(k) <- paste0(varname, 1:ncol(k))
         else colnames(k) <- paste0(varname, "_", substr(levels(x), 1, 10))
-        # if (ncol(k)==2) retain <- 2
-        # else retain <- NULL
-        # if (!is.null(retain)) k <- k[, retain, drop = FALSE]
         
         if (match(varname, names(data)) == 1){
             data <- data.frame(k, data[, names(data)!=varname, drop = FALSE])
@@ -741,6 +735,12 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
             else if (!is.numeric(C[, i])) C <- split.factor(i, C)
         }
         
+        #Remove duplicate & redundant variables
+        suppressWarnings(C.cor <- cor(C))
+        s <- matrix(mapply(function(x, y) if(y) isTRUE(all.equal(abs(x), 1)) else FALSE, x = C.cor, y = upper.tri(C.cor)), nrow = nrow(C.cor), dimnames = dimnames(C.cor))
+        keep <- !apply(s, 2, function(x) any(x))
+        C <- C[, keep]
+        
         if (int) {
             #Prevent duplicate var names with _'s
             nunder <- 1
@@ -750,21 +750,6 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
             }
             C <- cbind(C, int.poly.f(C, int = TRUE, poly = 2, nunder = nunder))
         }
-        
-        #Remove duplicate & redundant variables
-        suppressWarnings(C.cor <- cor(C))
-        s <- matrix(sapply(C.cor, function(x) isTRUE(all.equal(abs(x), 1))), nrow = nrow(C.cor), dimnames = dimnames(C.cor))
-        remove <- c()
-        for (i in seq_len(ncol(s))) {
-            for (j in seq_len(nrow(s))) {
-                if (i > j) {
-                    if (s[j, i]) remove <- c(remove, rownames(s)[i])
-                }
-            }
-        }
-        
-        C <- C[,is.na(match(names(C), remove))]
-        C <- C[!duplicated(as.list(as.data.frame(apply(C, 2, as.numeric))))] #Remove duplicate variables
         
         if (!is.null(distance)) {
             distance <- data.frame(.distance = distance)
