@@ -1,5 +1,5 @@
 import(ggplot2)
-importFrom("stats", "fitted", "as.formula", "terms", "model.frame", "model.response", 
+importFrom("stats", "fitted", "reformulate", "terms", "model.frame", "model.response", 
            "model.matrix", "lm", "glm", "aggregate", "var", "cor", "median")
 
 export(bal.tab, bal.plot, love.plot, f.build)
@@ -7,6 +7,7 @@ S3method(print, bal.tab)
 S3method(print, bal.tab.subclass)
 S3method(print, bal.tab.cluster)
 S3method(print, bal.tab.cont)
+S3method(print, bal.tab.cont.cluster)
 S3method(bal.tab, matchit)
 S3method(bal.tab, ps)
 S3method(bal.tab, Match)

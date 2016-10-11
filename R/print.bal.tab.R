@@ -1,4 +1,4 @@
-print.bal.tab <- function(x, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     balance <- x$Balance
     baltal.m <- x$Balanced.Means
@@ -7,6 +7,40 @@ print.bal.tab <- function(x, digits = max(3, getOption("digits") - 3), ...) {
     maximbal.v <- x$Max.Imbalance.Variances
     nn <- x$Observations
     p.ops <- x$print.options
+    
+    #Adjustments to print options
+    if (!p.ops$quick) {
+
+        if (!identical(un, "as.is") && !p.ops$disp.adj) {
+            if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+            p.ops$un <- un
+        }
+        if (!identical(disp.means, "as.is")) {
+            if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.means <- disp.means
+        }
+        if (!identical(disp.v.ratio, "as.is")) {
+            if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.v.ratio <- disp.v.ratio
+        }
+    }
+    if (!identical(disp.m.threshold, "as.is")) {
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.null(p.ops$m.threshold) && !disp.m.threshold) {
+            p.ops$m.threshold <- NULL
+            baltal.m <- NULL
+            maximbal.m <- NULL
+        }
+    }
+    if (!identical(disp.v.threshold, "as.is")) {
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.null(p.ops$v.threshold) && !disp.v.threshold) {
+            p.ops$v.threshold <- NULL
+            baltal.v <- NULL
+            maximbal.v <- NULL
+        }
+    }
+    
     
     keep <- c((1:ncol(balance))*c(TRUE, 
                                   p.ops$un*p.ops$disp.means, 
@@ -65,13 +99,29 @@ print.bal.tab <- function(x, digits = max(3, getOption("digits") - 3), ...) {
     }
     invisible(x)
 }
-print.bal.tab.cont <- function(x, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cont <- function(x, disp.r.threshold = "as.is", un = FALSE, digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     balance <- x$Balance
     baltal.r <- x$Balanced.Corr
     maximbal.r <- x$Max.Imbalance.Corr
     nn <- x$Observations
     p.ops <- x$print.options
+    
+    #Adjustments to print options
+    if (!p.ops$quick) {
+        if (!identical(un, "as.is") && !p.ops$disp.adj) {
+            if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+            p.ops$un <- un
+        }
+    }
+    if (!identical(disp.r.threshold, "as.is")) {
+        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
+        if (!is.null(p.ops$r.threshold) && !disp.r.threshold) {
+            p.ops$r.threshold <- NULL
+            baltal.r <- NULL
+            maximbal.r <- NULL
+        }
+    }
     
     keep <- c((1:ncol(balance))*c(TRUE, 
                                   p.ops$un, 
@@ -106,7 +156,7 @@ print.bal.tab.cont <- function(x, digits = max(3, getOption("digits") - 3), ...)
         print.data.frame(round_df(x$Max.Imbalance.Corr, digits))
         cat("\n")
     }
-
+    
     if (!is.null(nn)) {
         cat(paste0("\n", attr(x$Observations, "tag"), "\n"))
         print.data.frame(replaceNA(x$Observations), digits = digits)
@@ -114,7 +164,7 @@ print.bal.tab.cont <- function(x, digits = max(3, getOption("digits") - 3), ...)
     }
     invisible(x)
 }
-print.bal.tab.subclass <- function(x, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     s.balance <- x$Subclass.Balance
     b.a.subclass <- x$Balance.Across.Subclass
@@ -124,6 +174,42 @@ print.bal.tab.subclass <- function(x, digits = max(3, getOption("digits") - 3), 
     maximbal.v.subclass <- x$Max.Imbalance.Variances.Subclass
     s.nn <- x$Subclass.Observations
     p.ops <- x$print.options
+    
+    #Adjustments to print options
+    if (!p.ops$quick) {
+        if (!identical(un, "as.is") && !p.ops$disp.adj) {
+            if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+            p.ops$un <- un
+        }
+        if (!identical(disp.means, "as.is")) {
+            if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.means <- disp.means
+        }
+        if (!identical(disp.v.ratio, "as.is")) {
+            if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.v.ratio <- disp.v.ratio
+        }
+    }
+    if (!identical(disp.m.threshold, "as.is")) {
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.null(p.ops$m.threshold) && !disp.m.threshold) {
+            p.ops$m.threshold <- NULL
+            baltal.m.subclass <- NULL
+            maximbal.m.subclass <- NULL
+        }
+    }
+    if (!identical(disp.v.threshold, "as.is")) {
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.null(p.ops$v.threshold) && !disp.v.threshold) {
+            p.ops$v.threshold <- NULL
+            baltal.v.subclass <- NULL
+            maximbal.v.subclass <- NULL
+        }
+    }
+    if (!identical(disp.subclass, "as.is")) {
+        if (!is.logical(disp.subclass)) stop("disp.subclass must be TRUE, FALSE, or \"as.is\"")
+        p.ops$disp.subclass <- disp.subclass
+    }
     
     round_df <- function(df, digits) {
         nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
@@ -195,12 +281,48 @@ print.bal.tab.subclass <- function(x, digits = max(3, getOption("digits") - 3), 
     
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", which.cluster, cluster.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     #Figure out how to print bal.tab for clusters with subclassification
     call <- x$call
     c.balance <- x$Cluster.Balance
     c.balance.summary <- x$Cluster.Summary
     p.ops <- x$print.options
+    
+    #Adjustments to print options
+    if (!p.ops$quick) {
+        if (!identical(un, "as.is") && p.ops$disp.adj) {
+            if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+            p.ops$un <- un
+        }
+        if (!identical(disp.means, "as.is")) {
+            if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.means <- disp.means
+        }
+        if (!identical(disp.v.ratio, "as.is")) {
+            if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.v.ratio <- disp.v.ratio
+        }
+        if (!identical(cluster.summary, "as.is")) {
+            if (!is.logical(cluster.summary)) stop("cluster.summary must be TRUE, FALSE, or \"as.is\"")
+            p.ops$cluster.summary <- cluster.summary
+        }
+    }
+    if (!identical(disp.m.threshold, "as.is")) {
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.null(p.ops$m.threshold) && !disp.m.threshold) {
+            p.ops$m.threshold <- NULL
+        }
+    }
+    if (!identical(disp.v.threshold, "as.is")) {
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.null(p.ops$v.threshold) && !disp.v.threshold) {
+            p.ops$v.threshold <- NULL
+        }
+    }
+    if (!missing(which.cluster)) {
+        p.ops$which.cluster <- which.cluster
+    }
+
     
     #Checks and Adjustments
     if (length(p.ops$which.cluster) == 0) 
@@ -264,29 +386,50 @@ print.bal.tab.cluster <- function(x, digits = max(3, getOption("digits") - 3), .
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
         s.keep <- (1:ncol(c.balance.summary))*c(TRUE, 
-                    p.ops$un,
-                    p.ops$un,
-                    p.ops$un,
-                    p.ops$un*p.ops$disp.v.ratio,
-                    p.ops$un*p.ops$disp.v.ratio,
-                    p.ops$un*p.ops$disp.v.ratio,
-                    TRUE,
-                    TRUE,
-                    TRUE,
-                    p.ops$disp.v.ratio,
-                    p.ops$disp.v.ratio,
-                    p.ops$disp.v.ratio)
+                                                p.ops$un,
+                                                p.ops$un,
+                                                p.ops$un,
+                                                p.ops$un*p.ops$disp.v.ratio,
+                                                p.ops$un*p.ops$disp.v.ratio,
+                                                p.ops$un*p.ops$disp.v.ratio,
+                                                p.ops$disp.adj,
+                                                p.ops$disp.adj,
+                                                p.ops$disp.adj,
+                                                p.ops$disp.adj*p.ops$disp.v.ratio,
+                                                p.ops$disp.adj*p.ops$disp.v.ratio,
+                                                p.ops$disp.adj*p.ops$disp.v.ratio)
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
         cat("\n")
     }
     invisible(x)
 }
-print.bal.tab.cont.cluster <- function(x, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cont.cluster <- function(x, disp.r.threshold = "as.is", un = FALSE, which.cluster, cluster.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     c.balance <- x$Cluster.Balance
     c.balance.summary <- x$Cluster.Summary
     p.ops <- x$print.options
+    
+    #Adjustments to print options
+    if (!identical(disp.r.threshold, "as.is")) {
+        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
+        if (!is.null(p.ops$r.threshold) && !disp.r.threshold) {
+            p.ops$r.threshold <- NULL
+            baltal.r <- NULL
+            maximbal.r <- NULL
+        }
+    }
+    if (!identical(un, "as.is") && !p.ops$disp.adj) {
+        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+        p.ops$un <- un
+    }
+    if (!missing(which.cluster)) {
+        p.ops$which.cluster <- which.cluster
+    }
+    if (!identical(cluster.summary, "as.is")) {
+        if (!is.logical(cluster.summary)) stop("cluster.summary must be TRUE, FALSE, or \"as.is\"")
+        p.ops$cluster.summary <- cluster.summary
+    }
     
     #Checks and Adjustments
     if (length(p.ops$which.cluster) == 0) 
@@ -346,9 +489,9 @@ print.bal.tab.cont.cluster <- function(x, digits = max(3, getOption("digits") - 
                                                 p.ops$un,
                                                 p.ops$un,
                                                 p.ops$un,
-                                                TRUE,
-                                                TRUE,
-                                                TRUE)
+                                                p.ops$disp.adj,
+                                                p.ops$disp.adj,
+                                                p.ops$disp.adj)
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
         cat("\n")

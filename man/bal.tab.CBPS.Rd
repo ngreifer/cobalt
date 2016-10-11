@@ -15,7 +15,7 @@ Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package
            un = FALSE, disp.means = FALSE, 
            disp.v.ratio = FALSE, cluster = NULL, 
            which.cluster = NULL, cluster.summary = TRUE, 
-           ...)
+           quick = FALSE, ...)
 }
 
 \arguments{
@@ -66,6 +66,9 @@ which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will
 }
   \item{cluster.summary}{
 \code{logical}; whether to display the cluster summary table. If \code{which.cluster} is \code{NULL}, \code{cluster.summary} will be set to \code{TRUE}.
+}
+  \item{quick}{
+\code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
 further arguments passed to or from other methods. They are ignored in this function.

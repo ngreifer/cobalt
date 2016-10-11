@@ -41,8 +41,8 @@ x2base.matchit <- function(m, ...) {
     if (!all(is.na(m$distance))) X$distance <- m$distance
     else X$distance <- NULL
     if (length(m$model$model) > 0) {
-        o.data <- data.frame(m$model$model) #data used in the PS formula, including treatment and covs
-        X$covs <- o.data[, !is.na(match(names(o.data), attributes(terms(m$model))$term.labels))]
+        o.data <- m$model$model #data used in the PS formula, including treatment and covs
+        X$covs <- data.frame(o.data[, !is.na(match(names(o.data), attributes(terms(m$model))$term.labels))])
     }
     else {
         X$covs <- data.frame(m$X)
@@ -301,13 +301,16 @@ x2base.formula <- function(formula, ...) {
     #Initializing variables
     tt <- terms(formula)
     attr(tt, "intercept") <- 0
+    if (is.na(match(rownames(attr(tt, "factors"))[1], names(A$data)))) {
+        stop(paste0("The given response variable, \"", rownames(attr(tt, "factors"))[1], "\", is not a variable in data."))
+    }
     m.try <- try({mf <- model.frame(tt, A$data)}, TRUE)
     if (class(m.try) == "try-error") {
         stop(paste0(c("All variables of formula must be variables in data.\nVariables not in data: ",
-                      paste(dimnames(attr(tt, "factors"))[[1]][is.na(match(dimnames(attr(tt, "factors"))[[1]], names(A$data)))], collapse=", "))), call. = FALSE)}
+                      paste(attr(tt, "term.labels")[is.na(match(attr(tt, "term.labels"), names(A$data)))], collapse=", "))), call. = FALSE)}
     treat <- model.response(mf)
-    covs <- as.data.frame(model.matrix(tt, data=mf))
-    X <- x2base.data.frame(covs, treat = treat, ...) #<- what it should be after fixing data.frame method 
+    covs <- A$data[, !is.na(match(names(A$data), attr(tt, "term.labels"))), drop = FALSE]
+    X <- x2base.data.frame(covs, treat = treat, ...)
     return(X)
 }
 x2base.data.frame <- function(covs, ...) {
@@ -481,7 +484,7 @@ x2base.data.frame <- function(covs, ...) {
         weights <- rep(1, length(treat))
     }
     else X$method <- "matching"
-
+    
     X$covs <- covs
     X$weights <- weights
     X$treat <- treat
