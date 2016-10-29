@@ -8,15 +8,12 @@ Generates Balance Statistics
 Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument. This page links to each method page and documents the calculation and details of aspects all \code{bal.tab} methods use.
 }
 \usage{
-bal.tab(x, \dots)
+bal.tab(\dots)
 }
 
 \arguments{
-  \item{x}{
-an object used to select a method.
-}
   \item{\dots}{
-further arguments passed to other methods. These arguments may be data-related, computation-related, or print-related.
+arguments passed to other methods. These arguments may be data-related, computation-related, or print-related.
 }
 }
 \details{

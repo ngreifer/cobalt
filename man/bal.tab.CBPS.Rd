@@ -8,7 +8,7 @@ Balance statistics for CBPS Objects
 Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package.
 }
 \usage{
-\method{bal.tab}{CBPS}(x, estimand, int = FALSE, 
+\method{bal.tab}{CBPS}(cbps, estimand, int = FALSE, 
            addl = NULL, continuous = c("std", "raw"), 
            binary = c("raw", "std"), s.d.denom, 
            m.threshold = NULL, v.threshold = NULL, 
@@ -19,7 +19,7 @@ Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package
 }
 
 \arguments{
-  \item{x}{
+  \item{cbps}{
 a \code{CBPS} object; the output of a call to \code{CBPS()} from the \pkg{CBPS} package.
 }
   \item{estimand}{

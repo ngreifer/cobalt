@@ -7,7 +7,7 @@ Balance Statistics for twang Objects
 Generates balance statistics for \code{ps} objects from \pkg{twang}.
 }
 \usage{
-\method{bal.tab}{ps}(x, full.stop.method, int = FALSE, addl = NULL, 
+\method{bal.tab}{ps}(ps, full.stop.method, int = FALSE, addl = NULL, 
          continuous = c("std", "raw"), binary = c("raw", "std"), 
          s.d.denom, m.threshold = NULL, v.threshold = NULL, 
          un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, 
@@ -16,7 +16,7 @@ Generates balance statistics for \code{ps} objects from \pkg{twang}.
 }
 
 \arguments{
-  \item{x}{
+  \item{ps}{
 a \code{ps} object; the output of a call to \code{ps()} from the \pkg{twang} package.
 }
   \item{full.stop.method}{

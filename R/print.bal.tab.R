@@ -69,32 +69,26 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     
     cat("\nBalance Measures:\n")
     print.data.frame(replaceNA(round_df(balance[, keep], digits)))
-    cat("\n")
     
     if (!is.null(baltal.m)) {
         cat("\nBalance tally for mean differences:\n")
         print.data.frame(x$Balanced.Means)
-        cat("\n")
     }
     if (!is.null(maximbal.m)) {
         cat("\nVariable with the greatest mean difference:\n")
         print.data.frame(round_df(x$Max.Imbalance.Means, digits))
-        cat("\n")
     }
     if (!is.null(baltal.v)) {
         cat("\nBalance tally for variance ratios:\n")
         print.data.frame(x$Balanced.Variances, digits)
-        cat("\n")
     }
     if (!is.null(maximbal.v)) {
         cat("\nVariable with the greatest variance ratio:\n")
         print.data.frame(round_df(x$Max.Imbalance.Variances, digits))
-        cat("\n")
     }
     if (!is.null(nn)) {
         cat(paste0("\n", attr(x$Observations, "tag"), "\n"))
         print.data.frame(replaceNA(x$Observations), digits = digits)
-        cat("\n")
     }
     invisible(x)
 }
@@ -143,23 +137,19 @@ print.bal.tab.cont <- function(x, disp.r.threshold = "as.is", un = "as.is", digi
     
     cat("\nBalance Measures:\n")
     print.data.frame(replaceNA(round_df(balance[, keep], digits)))
-    cat("\n")
     
     if (!is.null(baltal.r)) {
         cat("\nBalance tally for correlations:\n")
         print.data.frame(x$Balanced.Corr)
-        cat("\n")
     }
     if (!is.null(maximbal.r)) {
         cat("\nVariable with the greatest treatment correlation:\n")
         print.data.frame(round_df(x$Max.Imbalance.Corr, digits))
-        cat("\n")
     }
     
     if (!is.null(nn)) {
         cat(paste0("\n", attr(x$Observations, "tag"), "\n"))
         print.data.frame(replaceNA(x$Observations), digits = digits)
-        cat("\n")
     }
     invisible(x)
 }
@@ -249,33 +239,27 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                              !is.null(p.ops$m.threshold)))
     cat("\nBalance measures across subclasses:\n")
     print.data.frame(replaceNA(round_df(b.a.subclass[, a.s.keep], digits)))
-    cat("\n")
     
     if (!is.null(baltal.m.subclass)) {
         cat("\nBalance tally for mean differences across subclasses:\n")
         print.data.frame(baltal.m.subclass)
-        cat("\n")
     }
     if (!is.null(maximbal.m.subclass)) {
         cat("\nVariable with the greatest mean difference across subclasses:\n")
         print.data.frame(round_df(maximbal.m.subclass, digits))
-        cat("\n")
     }
     if (!is.null(baltal.v.subclass)) {
         cat("\nBalance tally for variance ratios across subclasses:\n")
         print.data.frame(baltal.v.subclass)
-        cat("\n")
     }
     if (!is.null(maximbal.v.subclass)) {
         cat("\nVariable with the greatest variance ratios across subclasses:\n")
         print.data.frame(round_df(maximbal.v.subclass, digits))
-        cat("\n")
     }
     
     if (!is.null(s.nn)) {
         cat(paste0("\n", attr(x$Subclass.Observations, "tag"), "\n"))
         print.data.frame(replaceNA(x$Subclass.Observations), digits = digits)
-        cat("\n")
     }
     
     invisible(x)
@@ -422,7 +406,6 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                                                 p.ops$disp.adj*p.ops$disp.v.ratio*cf["max"])
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
-        cat("\n")
     }
     invisible(x)
 }
@@ -540,7 +523,6 @@ print.bal.tab.cont.cluster <- function(x, disp.r.threshold = "as.is", un = "as.i
                                                 p.ops$disp.adj*cf["max"])
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
-        cat("\n")
     }
     invisible(x)
 }

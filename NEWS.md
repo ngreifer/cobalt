@@ -3,6 +3,10 @@ cobalt News and Updates
 Version 1.3.1
 
 *Added support for entropy balancing through the ebal package.
+
+*Changed default color scheme of `love.plot()` to be black and white
+
+*Added sample size calculations for continuous treatments
     
 Version 1.3.0
 

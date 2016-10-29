@@ -7,7 +7,7 @@ Balance Statistics for ebalance Objects
 Generates balance statistics for \code{ebalance} objects from \pkg{ebal}.
 }
 \usage{
-\method{bal.tab}{ebalance}(x, formula = NULL, data = NULL, treat = NULL, 
+\method{bal.tab}{ebalance}(ebal, formula = NULL, data = NULL, treat = NULL, 
             covs = NULL, int = FALSE, addl = NULL, 
             continuous = c("std","raw"), binary = c("raw",
             "std"), s.d.denom = c("treated", "control", 
@@ -19,7 +19,7 @@ Generates balance statistics for \code{ebalance} objects from \pkg{ebal}.
 }
 
 \arguments{
-  \item{x}{
+  \item{ebal}{
 an \code{ebalance} object; the output of a call to \code{ebalance()} from the \pkg{ebal} package.
 }
   \item{formula}{

@@ -7,7 +7,7 @@ Balance Statistics for Matching Objects
 Generates balance statistics for \code{Match} objects from \pkg{Matching}.
 }
 \usage{
-\method{bal.tab}{Match}(x, formula = NULL, data = NULL, treat = NULL, 
+\method{bal.tab}{Match}(M, formula = NULL, data = NULL, treat = NULL, 
             covs = NULL, int = FALSE, addl = NULL, 
             continuous = c("std","raw"), binary = c("raw",
             "std"), s.d.denom, m.threshold = NULL, 
@@ -18,7 +18,7 @@ Generates balance statistics for \code{Match} objects from \pkg{Matching}.
 }
 
 \arguments{
-  \item{x}{
+  \item{M}{
 a \code{Match} object; the output of a call to \code{Match()} from the \pkg{Matching} package.
 }
   \item{formula}{

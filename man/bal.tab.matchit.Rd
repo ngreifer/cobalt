@@ -7,7 +7,7 @@ Balance Statistics for Matchit Objects
 Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 }
 \usage{
-\method{bal.tab}{matchit}(x, int = FALSE, addl = NULL, continuous = c("std", 
+\method{bal.tab}{matchit}(m, int = FALSE, addl = NULL, continuous = c("std", 
                 "raw"), binary = c("raw", "std"), 
                 s.d.denom = c("treated", "control", "pooled"), 
                 m.threshold = NULL, v.threshold = NULL, un = 
@@ -18,7 +18,7 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 }
 
 \arguments{
-  \item{x}{
+  \item{m}{
 a \code{matchit} object; the output of a call to \code{matchit()} from the \pkg{MatchIt} package.
 }
   \item{int}{
