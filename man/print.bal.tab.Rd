@@ -15,7 +15,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
       disp.v.ratio = "as.is", digits = max(3, 
       getOption("digits") - 3), ...)
 
-\method{print}{bal.tab.cont}(x, disp.r.threshold = "as.is", un = FALSE, 
+\method{print}{bal.tab.cont}(x, disp.r.threshold = "as.is", un = "as.is", 
       digits = max(3, getOption("digits") - 3), ...)
 
 \method{print}{bal.tab.subclass}(x, disp.m.threshold = "as.is", disp.v.threshold = 
@@ -26,18 +26,19 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
 \method{print}{bal.tab.cluster}(x, disp.m.threshold = "as.is", disp.v.threshold = 
       "as.is", un = "as.is", disp.means = "as.is", 
       disp.v.ratio = "as.is", which.cluster, 
-      cluster.summary = "as.is", digits = max(3, 
-      getOption("digits") - 3), ...)
+      cluster.summary = "as.is", cluster.fun = NULL,
+      digits = max(3, getOption("digits") - 3), ...)
 
-\method{print}{bal.tab.cont.cluster}(x, disp.r.threshold = "as.is", un = FALSE, 
+\method{print}{bal.tab.cont.cluster}(x, disp.r.threshold = "as.is", un = "as.is", 
       which.cluster, cluster.summary = "as.is", 
+      cluster.fun = NULL, 
       digits = max(3, getOption("digits") - 3), ...)
 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
-a \code{bal.tab} object; the output of a call to \code{\link{bal.tab()}}.
+a \code{bal.tab} object; the output of a call to \code{bal.tab()}.
 }
   \item{disp.m.threshold}{
 whether to display output related to specifying \code{m.threshold} in the call to \code{bal.tab()}, which includes the Mean Difference Threshold column in the Balance table, the Mean Difference Balance Tally, and the variable with the Maximum Mean Difference Imbalance. Either \code{FALSE} or \code{"as.is"}.
@@ -68,6 +69,9 @@ which cluster(s) to display. If \code{NULL}, all clusters will be displayed. If 
   \item{cluster.summary}{
 whether to display the cluster summary table. If \code{which.cluster} is \code{NULL}, \code{cluster.summary} will be set to \code{TRUE}.
 }
+  \item{cluster.fun}{
+a character vector of functions of balance statistics to display when dislaying balance across clusters. Can be "mean", "median", "min", or "max". More than one are allowed. "min" cannot be used if \code{quick = TRUE} in the original \code{bal.tab()} call.
+}
   \item{\dots}{
 further arguments passed to or from other methods.
 }
@@ -75,21 +79,23 @@ further arguments passed to or from other methods.
 \details{
 Simply calling \code{bal.tab()} will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The \code{print()} function automatically dispatches the correct method for the \code{bal.tab} object given. For balance tables generated from using weighting, matching, or no adjustement with a binary treatment, \code{print.bal.tab()} will be used. For balance tables generated from using weighting or no adjustment with a continuous treatment, \code{print.bal.tab.cont()} will be used. For balance tables generated from using weighting, matching, or no adjustement with a binary treatment and with clusters, \code{print.bal.tab.cluster()} will be used. For balance tables generated from using subclassification, \code{print.bal.tab.subclass()} will be used. For balance tables generated from using weighting or no adjustement with a continuous treatment, \code{print.bal.tab.cont.cluster()} will be used.
 
-For all paramaters except \code{disp.m.threshold}, \code{disp.v.threshold}, \code{disp.r.threshold}, and \code{which.cluster}, either omiting the argument or setting it to \code{"as.is"} will use the corresponding print option stored in the \code{bal.tab} object, which results from the original call to \code{bal.tab()}. 
+For all paramaters except \code{disp.m.threshold}, \code{disp.v.threshold}, \code{disp.r.threshold}, and \code{which.cluster}, either omitting the argument or setting it to \code{"as.is"} will use the corresponding print option stored in the \code{bal.tab} object, which results from the original call to \code{bal.tab()}. 
 
 For \code{disp.m.threshold}, \code{disp.v.threshold}, and \code{disp.r.threshold}, setting the argument to \code{FALSE} will display the results as if the corresponding threshold value had been omitted or set to \code{NULL} in the original call to \code{bal.tab()}. If the original threshold was omitted or set to \code{NULL}, a new threshold cannot be set without a new call to \code{bal.tab()}, so \code{TRUE} is not an acceptable option here.
 
 For \code{which.cluster}, to retain the display option of the original call to \code{bal.tab()}, the argument must omitted, as using \code{"as.is"} would cause \code{print()} to attempt to display balance for a cluster called \code{"as.is"}. If such a cluster existed and it was desired, it would otherwise be impossible to display it.
 
-Any paramater used in \code{bal.tab()} for calculations, such as \code{int}, \code{addl}, or \code{distance}, cannot be used with \code{print()}; only those paramaters listed above, those that solely determine printing options, can be used. To change computation options, a new call to \code{bal.tab()} must be performed.
+Any paramater used in \code{bal.tab()} for calculations, such as \code{int}, \code{addl}, or \code{distance}, cannot be used with \code{print()}; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to \code{bal.tab()} must be performed.
 }
-
+\note{
+If \code{quick = TRUE} in the original call to \code{bal.tab()}, some values may not be calculated, in which case using \code{print()} will not display these values even when requested. For example, if \code{disp.means = FALSE} and \code{quick = TRUE} in the original call to \code{bal.tab()}, setting \code{disp.means = TRUE} in \code{print()} will not print the covariate means because they were not calculated.
+}
 \author{
 Noah Greifer \email{noah@unc.edu}
 }
 
 \seealso{
-\code{\link{print}}, \code{\link{bal.tab}}
+\code{\link[base]{print}}, \code{\link{bal.tab}}
 }
 \examples{
 \dontrun{

@@ -14,7 +14,7 @@ Generates balance statistics for \code{Match} objects from \pkg{Matching}.
             v.threshold = NULL, un = FALSE, disp.means = FALSE, 
             disp.v.ratio = FALSE, cluster = NULL, 
             which.cluster = NULL, cluster.summary = TRUE, 
-            ...)
+            quick = FALSE, ...)
 }
 
 \arguments{
@@ -70,7 +70,10 @@ a vector of cluster membership.
 which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
 }
   \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table. If \code{which.cluster} is \code{NULL}, \code{cluster.summary} will be set to \code{TRUE}.
+\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
+}
+  \item{quick}{
+\code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
 further arguments passed to or from other methods. They are ignored in this function.
@@ -109,7 +112,7 @@ If clusters are not specified, an object of class \code{"bal.tab"} containing ba
 \item{call}{\code{NULL}.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab}.}
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters. Minimum statistics are calculated as well, but not displayed. To see these, use the options in \code{\link{print.bal.tab.cluster}}.
 }
 
 \author{

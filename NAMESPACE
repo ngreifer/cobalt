@@ -1,6 +1,7 @@
 import(ggplot2)
 importFrom("stats", "fitted", "reformulate", "terms", "model.frame", "model.response", 
            "model.matrix", "lm", "glm", "aggregate", "var", "cor", "median")
+importFrom("utils", "combn")
 
 export(bal.tab, bal.plot, love.plot, f.build)
 S3method(print, bal.tab)
@@ -14,5 +15,4 @@ S3method(bal.tab, Match)
 S3method(bal.tab, CBPS)
 S3method(bal.tab, formula)
 S3method(bal.tab, data.frame)
-S3method(love.plot, bal.tab)
-S3method(love.plot, bal.tab.cont)
+S3method(bal.tab, ebalance)

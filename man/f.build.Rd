@@ -1,6 +1,9 @@
 \name{f.build}
 \alias{f.build}
 \title{Convenient Formula Generation}
+\description{
+\code{f.build()} returns a formula of the form \code{y ~ x1 + x2 + ...} from a data frame input. It can be much quicker to use \code{f.build()} than to hand-write the precise formula, which may contain errors. It can be used in place of a formula in, for example, \code{\link{glm}()}, \code{matchit()}, or \code{\link{bal.tab}()}.
+}
 \usage{
 f.build(y, rhs)
 }
@@ -12,9 +15,7 @@ f.build(y, rhs)
 \value{
 an object of class \code{"formula"}.
 }
-\description{
-\code{f.build()} returns a formula of the form \code{y ~ x1 + x2 + ...} from a data frame input. It can be much quicker to use \code{f.build()} than to hand-write the precise formula, which may contain errors. It can be used in place of a formula in, for example, \code{\link{glm}()}, \code{matchit}, or \code{\link{bal.tab}()}.
-}
+
 
 \examples{
 data(lalonde)

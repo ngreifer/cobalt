@@ -10,8 +10,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     
     #Adjustments to print options
     if (!p.ops$quick) {
-
-        if (!identical(un, "as.is") && !p.ops$disp.adj) {
+        if (!identical(un, "as.is") && p.ops$disp.adj) {
             if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
             p.ops$un <- un
         }
@@ -99,7 +98,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     invisible(x)
 }
-print.bal.tab.cont <- function(x, disp.r.threshold = "as.is", un = FALSE, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cont <- function(x, disp.r.threshold = "as.is", un = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     balance <- x$Balance
     baltal.r <- x$Balanced.Corr
@@ -109,7 +108,7 @@ print.bal.tab.cont <- function(x, disp.r.threshold = "as.is", un = FALSE, digits
     
     #Adjustments to print options
     if (!p.ops$quick) {
-        if (!identical(un, "as.is") && !p.ops$disp.adj) {
+        if (!identical(un, "as.is") && p.ops$disp.adj) {
             if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
             p.ops$un <- un
         }
@@ -177,7 +176,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     
     #Adjustments to print options
     if (!p.ops$quick) {
-        if (!identical(un, "as.is") && !p.ops$disp.adj) {
+        if (!identical(un, "as.is") && p.ops$disp.adj) {
             if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
             p.ops$un <- un
         }
@@ -281,7 +280,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", which.cluster, cluster.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
     #Figure out how to print bal.tab for clusters with subclassification
     call <- x$call
     c.balance <- x$Cluster.Balance
@@ -322,7 +321,24 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     if (!missing(which.cluster)) {
         p.ops$which.cluster <- which.cluster
     }
-
+    
+    cluster.funs <- c("min", "mean", "median", "max")
+    if (length(cluster.fun) > 0) {
+        cluster.fun <- match.arg(tolower(cluster.fun), cluster.funs, several.ok = TRUE)
+        if (!is.na(match("min", cluster.fun)) && p.ops$quick) {
+            cluster.fun <- cluster.fun[is.na(match(cluster.fun, "min"))]
+            if (length(cluster.fun) == 0) {
+                warning("\"min\" was the only valid entry to cluster.fun, but it cannot be used when quick = TRUE in the call to bal.tab(). Using all other cluster.funs instead.", call. = FALSE)
+                cluster.fun <- c("mean", "median", "max")
+            }
+            else warning("\"min\" cannot be requested when quick = TRUE in the call to bal.tab(), so it was ignored.", call. = FALSE)
+        }
+        else if (length(cluster.fun) == 0) {
+            warning("There were no valid entries to cluster.fun. Using all other cluster.funs instead.", call. = FALSE)
+            cluster.fun <- c("mean", "median", "max")
+        }
+    }
+    else cluster.fun <- c("mean", "median", "max")
     
     #Checks and Adjustments
     if (length(p.ops$which.cluster) == 0) 
@@ -385,32 +401,48 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
+        cf <- !is.na(match(cluster.funs, cluster.fun))
+        names(cf) <- cluster.funs
         s.keep <- (1:ncol(c.balance.summary))*c(TRUE, 
-                                                p.ops$un,
-                                                p.ops$un,
-                                                p.ops$un,
-                                                p.ops$un*p.ops$disp.v.ratio,
-                                                p.ops$un*p.ops$disp.v.ratio,
-                                                p.ops$un*p.ops$disp.v.ratio,
-                                                p.ops$disp.adj,
-                                                p.ops$disp.adj,
-                                                p.ops$disp.adj,
-                                                p.ops$disp.adj*p.ops$disp.v.ratio,
-                                                p.ops$disp.adj*p.ops$disp.v.ratio,
-                                                p.ops$disp.adj*p.ops$disp.v.ratio)
+                                                p.ops$un*cf["min"],
+                                                p.ops$un*cf["mean"],
+                                                p.ops$un*cf["median"],
+                                                p.ops$un*cf["max"],
+                                                p.ops$un*p.ops$disp.v.ratio*cf["min"],
+                                                p.ops$un*p.ops$disp.v.ratio*cf["mean"],
+                                                p.ops$un*p.ops$disp.v.ratio*cf["median"],
+                                                p.ops$un*p.ops$disp.v.ratio*cf["max"],
+                                                p.ops$disp.adj*cf["min"],
+                                                p.ops$disp.adj*cf["mean"],
+                                                p.ops$disp.adj*cf["median"],
+                                                p.ops$disp.adj*cf["max"],
+                                                p.ops$disp.adj*p.ops$disp.v.ratio*cf["min"],
+                                                p.ops$disp.adj*p.ops$disp.v.ratio*cf["mean"],
+                                                p.ops$disp.adj*p.ops$disp.v.ratio*cf["median"],
+                                                p.ops$disp.adj*p.ops$disp.v.ratio*cf["max"])
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
         cat("\n")
     }
     invisible(x)
 }
-print.bal.tab.cont.cluster <- function(x, disp.r.threshold = "as.is", un = FALSE, which.cluster, cluster.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cont.cluster <- function(x, disp.r.threshold = "as.is", un = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     c.balance <- x$Cluster.Balance
     c.balance.summary <- x$Cluster.Summary
     p.ops <- x$print.options
     
     #Adjustments to print options
+    if (!p.ops$quick) {
+        if (!identical(un, "as.is") && p.ops$disp.adj) {
+            if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+            p.ops$un <- un
+        }
+        if (!identical(cluster.summary, "as.is")) {
+            if (!is.logical(cluster.summary)) stop("cluster.summary must be TRUE, FALSE, or \"as.is\"")
+            p.ops$cluster.summary <- cluster.summary
+        }
+    }
     if (!identical(disp.r.threshold, "as.is")) {
         if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
         if (!is.null(p.ops$r.threshold) && !disp.r.threshold) {
@@ -419,17 +451,27 @@ print.bal.tab.cont.cluster <- function(x, disp.r.threshold = "as.is", un = FALSE
             maximbal.r <- NULL
         }
     }
-    if (!identical(un, "as.is") && !p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
-        p.ops$un <- un
-    }
     if (!missing(which.cluster)) {
         p.ops$which.cluster <- which.cluster
     }
-    if (!identical(cluster.summary, "as.is")) {
-        if (!is.logical(cluster.summary)) stop("cluster.summary must be TRUE, FALSE, or \"as.is\"")
-        p.ops$cluster.summary <- cluster.summary
+ 
+    cluster.funs <- c("min", "mean", "median", "max")
+    if (length(cluster.fun) > 0) {
+        cluster.fun <- match.arg(tolower(cluster.fun), cluster.funs, several.ok = TRUE)
+        if (!is.na(match("min", cluster.fun)) && p.ops$quick) {
+            cluster.fun <- cluster.fun[is.na(match(cluster.fun, "min"))]
+            if (length(cluster.fun) == 0) {
+                warning("\"min\" was the only valid entry to cluster.fun, but it cannot be used when quick = TRUE in the call to bal.tab(). Using all other cluster.funs instead.", call. = FALSE)
+                cluster.fun <- c("mean", "median", "max")
+            }
+            else warning("\"min\" cannot be requested when quick = TRUE in the call to bal.tab(), so it was ignored.", call. = FALSE)
+        }
+        else if (length(cluster.fun) == 0) {
+            warning("There were no valid entries to cluster.fun. Using all other cluster.funs instead.", call. = FALSE)
+            cluster.fun <- c("mean", "median", "max")
+        }
     }
+    else cluster.fun <- c("mean", "median", "max")
     
     #Checks and Adjustments
     if (length(p.ops$which.cluster) == 0) 
@@ -485,13 +527,17 @@ print.bal.tab.cont.cluster <- function(x, disp.r.threshold = "as.is", un = FALSE
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
+        cf <- !is.na(match(cluster.funs, cluster.fun))
+        names(cf) <- cluster.funs
         s.keep <- (1:ncol(c.balance.summary))*c(TRUE, 
-                                                p.ops$un,
-                                                p.ops$un,
-                                                p.ops$un,
-                                                p.ops$disp.adj,
-                                                p.ops$disp.adj,
-                                                p.ops$disp.adj)
+                                                p.ops$un*cf["min"],
+                                                p.ops$un*cf["mean"],
+                                                p.ops$un*cf["median"],
+                                                p.ops$un*cf["max"],
+                                                p.ops$disp.adj*cf["min"],
+                                                p.ops$disp.adj*cf["mean"],
+                                                p.ops$disp.adj*cf["median"],
+                                                p.ops$disp.adj*cf["max"])
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
         cat("\n")

@@ -1,21 +1,28 @@
 cobalt News and Updates
 ======
+Version 1.3.1
+
+*Added support for entropy balancing through the ebal package.
     
-Version 1.2.1
+Version 1.3.0
 
 * Increased capabilities for cluster balance in `bal.tab()` and `love.plot()`
+
+* Increased information and decreased redundancy when assessing balance on interactions
+
+* Added "quick" option for `bal.tab()` to increase speed
+
+* Added options for `print()`
 
 * Bug fixes
 
 * Speed improvements
 
-* Increased information and decreased redundancy when assessing balance on interactions
-
-* Added "quick" option for `bal.tab()` to incease speed
+* Edits to the vignette
 
 Version 1.2.0
 
-* Added support for continous treatment variables in bal.tab, bal.plot, and love.plot
+* Added support for continous treatment variables in `bal.tab()`, `bal.plot()`, and `love.plot()`
 
 * Added balance assessment within and across clusters
 

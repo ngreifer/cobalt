@@ -554,3 +554,115 @@ x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
     if (length(cluster) > 0) X$obj$cluster <- X$cluster
     return(X)
 }
+x2base.ebalance <- function(ebalance, ...) {
+    #formula
+    #data
+    #treat
+    #covs
+    A <- list(...)
+    X <- list(covs=NA,
+              treat=NA,
+              weights=NA,
+              method=NA,
+              distance=NA,
+              call=NA,
+              obj=NA,
+              cluster = NA)
+    #Checks
+    useWhich <- function(formula, data, treat, covs) {
+        #output: tc, fd, both
+        good <- data.frame(formula=0, data=0, covs=0, treat=0)
+        if (!is.null(formula) & class(formula)=="formula") good[1] <- 1
+        if (!is.null(data) & is.data.frame(data)) good[2] <- 1
+        if (!is.null(covs) & is.data.frame(covs)) good[3] <- 1
+        if (!is.null(treat) & length(unique(treat))==2) good[4] <- 1
+        
+        if (any(c(0,1) == sum(good))) {
+            stop("Either formula and data or treat and covs must be specified correctly.", call. = FALSE)}
+        else if (sum(good)==2) {
+            if (sum(good[1:2])==0) {
+                use.which <- "tc"}
+            else if (sum(good[1:2])==1) {
+                stop("Either formula and data or treat and covs must be specified correctly.", call. = FALSE)}
+            else if (sum(good[1:2])==2) {
+                use.which <- "fd"}
+        }
+        else if (sum(good)==3) {
+            bad <- names(good)[match(0, good)]
+            if (match(0, good) %in% 1:2) {
+                warning(paste("Argument to", bad, "is missing; using treat and covs instead."), call. = FALSE, immediate.=TRUE)
+                use.which <- "tc"}
+            else {
+                warning(paste("Argument to", bad, "is missing; using formula and data instead."), call. = FALSE, immediate.=TRUE)
+                use.which <- "fd"}
+        }
+        else if (sum(good)==4) {
+            use.which <- "both"
+        }
+        return(use.which)
+    }
+    use.which <- useWhich(A$formula, A$data, A$treat, A$covs)
+    
+    use.fd <- function(formula, data){
+        #outputs a list containing treat [1] and covs [2]
+        out.list <- list(treat=NA, covs=data.frame(NA))
+        tt <- terms(formula)
+        attr(tt, "intercept") <- 0
+        mf<- tryCatch(model.frame(tt, data),
+                      error = function(cond) stop(paste0(c("All right hand side variables of formula must be variables in data.\nVariables not in data: ",
+                                                           paste(attr(tt, "term.labels")[which(!attr(tt, "term.labels") %in% names(data))], collapse=", "))), call. = FALSE))
+        out.list$treat <- model.response(mf) #treat
+        out.list$covs <- as.data.frame(model.matrix(tt, data=mf)) #covs
+        return(out.list)
+    }
+    use.tc <- function(treat, covs) {
+        if (length(treat)!=nrow(covs)) {
+            stop("treat must be the same length as covs", call. = FALSE)}
+        out.list <- list(treat=treat, covs=covs)
+        return(out.list)
+    }
+    
+    if (use.which == "fd") {
+        t.c <- use.fd(A$formula, A$data)}
+    else if (use.which == "tc") {
+        t.c <- use.tc(A$treat, A$covs)}
+    else if (use.which == "both") {
+        try.fd <- try({t.c <- use.fd(A$formula, A$data)})
+        if (class(try.fd) == "try-error") {
+            message("Formula, data, treat, and covs all supplied; ignoring formula and data.")
+            t.c <- use.tc(A$treat, A$covs)}
+        else {
+            message("Formula, data, treat, and covs all supplied; ignoring treat and covs.")}
+    }
+    
+    if (sum(is.na(t.c$covs))>0)
+        stop("Missing values exist in the covariates", call. = FALSE)
+    
+    #Initializing variables
+    
+    treat <- t.c$treat
+    covs  <- t.c$covs
+    weights <- rep(1, length(treat))
+    weights[treat == 0] <- ebalance$w
+    
+    cluster <- A$cluster
+    if (length(cluster) > 0) {
+        if (!(is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1))) {
+            stop("The argument to cluster must be a vector of cluster membership.", call. = FALSE)
+        }
+        if (length(cluster) != length(treat)) {
+            stop("cluster must be the same length as the original data set.", call. = FALSE)
+        }
+    }
+    
+    X$treat <- treat
+    X$weights <- weights
+    X$distance <- NULL #No distance measure
+    X$covs <- covs
+    X$call <- NULL
+    X$method <- "weighting"
+    X$cluster <- factor(cluster)
+    X$obj <- list(treat=X$treat, weights=X$weights)
+    if (length(cluster) > 0) X$obj$cluster <- X$cluster
+    return(X)
+}
