@@ -3,6 +3,7 @@
 #split.factor splits factor variable into indicators
 #binarize transforms 2-value variable into binary (0,1)
 #get.C controls flow and handles redunancy
+#get.types gets variables types (contin./binary)
 
 int.poly.f <- function(df, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"

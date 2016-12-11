@@ -277,21 +277,25 @@ x2base.formula <- function(formula, ...) {
     #distance
     #subclass
     #addl
+    #s.d.denom
     #method
     #cluster
+    #estimand
     
     A <- list(...)
     
-    X <- list(covs = NA,
-              weights = NA,
-              treat = NA,
-              distance = NA,
-              subclass = NA,
-              addl = NA,
-              method = NA,
-              call = NA,
-              obj = NA,
-              cluster = NA)
+    # X <- list(covs = NA,
+    #           weights = NA,
+    #           treat = NA,
+    #           distance = NA,
+    #           subclass = NA,
+    #           addl = NA,
+    #           s.d.denom = NA, 
+    #           method = NA,
+    #           call = NA,
+    #           obj = NA,
+    #           cluster = NA)
+    
     #Checks
     if (is.null(A$data)) {
         stop("Dataframe must be specified.", call. = FALSE)}
@@ -320,8 +324,10 @@ x2base.data.frame <- function(covs, ...) {
     #distance
     #subclass
     #addl
+    #s.d.denom
     #method
     #cluster
+    #estimand
     
     A <- list(...)
     X <- list(covs = NA,
@@ -342,7 +348,9 @@ x2base.data.frame <- function(covs, ...) {
     subclass <- A$subclass
     cluster <- A$cluster
     addl <- A$addl
+    s.d.denom <- A$s.d.denom
     method <- A$method
+    estimand <- A$estimand
     
     #Checks
     if (is.null(covs)) {
@@ -371,9 +379,6 @@ x2base.data.frame <- function(covs, ...) {
         stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
     }
     if (is.null(treat)) stop("treat must be specified.", call. = FALSE)
-    # else if (!is.character(treat) && !is.numeric(treat)) {
-    #     stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status", call. = FALSE)
-    # }
 
     if (is.numeric(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
         treat <- treat
@@ -388,7 +393,8 @@ x2base.data.frame <- function(covs, ...) {
 
     if (sum(is.na(treat)) > 0)
         stop("Missing values exist in treat", call. = FALSE)
-
+    
+    #Process weights
     if (!is.null(weights)) {
         if (is.numeric(weights)) {
             weights <- weights
@@ -405,7 +411,8 @@ x2base.data.frame <- function(covs, ...) {
         if (sum(is.na(weights)) > 0)
             stop("Missing values exist in weights", call. = FALSE)
     }
-
+    
+    #Process distance
     if (!is.null(distance)) {
         if (is.numeric(distance)) {
             distance <- distance
@@ -422,7 +429,8 @@ x2base.data.frame <- function(covs, ...) {
         if (sum(is.na(distance)) > 0)
             stop("Missing values exist in distance", call. = FALSE)
     }
-
+    
+    #Process subclass
     if (!is.null(subclass)) {
         if (is.numeric(subclass)) {
             subclass <- subclass
@@ -437,6 +445,7 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     
+    #Process cluster
     if (!is.null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -450,7 +459,8 @@ x2base.data.frame <- function(covs, ...) {
             stop("cluster must be the same length as covs", call. = FALSE)
         }
     }
-
+    
+    #Process addl
     if (!is.null(addl)) {
         if (is.character(addl)) {
             if (any(!addl %in% names(data))) {
@@ -469,7 +479,8 @@ x2base.data.frame <- function(covs, ...) {
             addl <- NULL
         }
     }
-
+    
+    #Get method
     if (!is.null(weights)) {
         if (!is.null(method)) {
             X$method <- match.arg(method, c("weighting", "matching", "subclassification"))
@@ -484,6 +495,48 @@ x2base.data.frame <- function(covs, ...) {
         weights <- rep(1, length(treat))
     }
     else X$method <- "matching"
+    
+    #Get estimand
+    if (is.null(estimand)) {
+        if (X$method == "weighting") {
+            if (max(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) < sqrt(.Machine$double.eps) &&
+                max(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) >= sqrt(.Machine$double.eps)
+            ) { #if treated weights are only all either 0 the same
+                estimand <- "att"
+            }
+            else if (max(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) < sqrt(.Machine$double.eps) &&
+                     max(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) >= sqrt(.Machine$double.eps)
+            ) { #if control weights are only all either 0 the same
+                estimand <- "atc"
+            }
+            else {
+                estimand <- "ate"
+            }
+        }
+    }
+    else {
+        estimand <- tryCatch(match.arg(tolower(estimand), c("att", "atc", "ate")),
+                 error = function(cond) {return(NULL)})
+    }
+    
+    #Get s.d.denom
+    if (length(s.d.denom > 0) && is.character(s.d.denom)) {
+        X$s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled")),
+                                error = function(cond) {
+                                    if (!is.null(estimand)) {
+                                        new.s.d.denom <- switch(estimand, att = "treated", atc = "control", ate = "pooled")
+                                    }
+                                    else new.s.d.denom <- "treated"
+                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                    return(new.s.d.denom)})
+    }
+    else {
+        if (!is.null(estimand)) {
+            X$s.d.denom <- switch(estimand, att = "treated", atc = "control", ate = "pooled")
+        }
+        else X$s.d.denom <- "treated"
+        message("s.d.denom not specified; assuming ", deparse(X$s.d.denom), ".")
+    }
     
     X$covs <- covs
     X$weights <- weights

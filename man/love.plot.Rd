@@ -45,7 +45,15 @@ an optional object providing alternate names for the variables in the plot, whic
 if balance is to be displayed across clusters rather than within a single cluster, which summarizing function (mean, median, max, or range) of the balance statistics sould be used. If "range" is entered, \code{love.plot()} will display a line from the min to the max with a point at the mean for each covariate; it can only be used if \code{quick = FALSE} in the \code{bal.tab()} call. Abbreviations allowed; "mean" is default.
 }
   \item{...}{
-further arguments passed to or from other methods. They are ignored in this function.
+Options for display of the plot. The following arguments are accepted:
+\describe{
+    \item{\code{size}}{\code{numeric}; the size of the points on the plot. Defaults to 1.
+    }
+    \item{\code{shape}}{\code{numeric}; the shape of the points on the plot. Must be a number between 21 and 25. Defaults to 21 (circle).}
+    \item{\code{un.color}}{The color of the points on the plot for the unadjusted sample. See 'Color Specification' at \code{\link[graphics]{par}}.}
+    \item{\code{adj.color}}{The color of the points on the plot for the adjusted sample. See 'Color Specification' at \code{\link[graphics]{par}}.}
+    \item{\code{title}}{\code{character}; the title of the plot.}
+  }
 }
 }
 \details{

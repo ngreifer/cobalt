@@ -11,9 +11,9 @@ vignette: >
 ---
 # Introduction
 
-Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity score and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. An excellent introduction to propensity score and other preprocessing methods is Stuart (2010), which describes them simply and clearly and points to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
+Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introduction to propensity score and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
-Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), and `ebal` (Hainmueller, 2014); these together provide a near complete set of preprocessing tools to date.
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), and `ebal` (Hainmueller, 2014); these together provide a near complete set of preprocessing tools in R to date.
 
 The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
 
@@ -60,7 +60,7 @@ Because there is no *a priori* way to know which conditioning method will work b
 
 ### Flexibility
 
-`cobalt` gives users choice for what statistics are presented and how they are calculated, but intelligently uses defaults that are in line with the goals of unified balance assessment and with the data available. Rather than displaying all values calculated, `bal.tab()` only displays what the user wants; at a bare minimum, the standardized mean difference for each covariate is displayed, which is traditionally considered sufficient for model selection and justification in preprocessing analysis for binary treatments. Even if the user doesn't want other values displayed, they are all still calculated, and thus available for use in programming.
+`cobalt` gives users choice in which statistics are presented and how they are calculated, but intelligently uses defaults that are in line with the goals of unified balance assessment and with the data available. Rather than displaying all values calculated, `bal.tab()` only displays what the user wants; at a bare minimum, the standardized mean difference for each covariate is displayed, which is traditionally considered sufficient for model selection and justification in preprocessing analysis for binary treatments. Even if the user doesn't want other values displayed, they are all still calculated, and thus available for use in programming (though this can be disabled for improved speed).
 
 ### Pretty plots
 
@@ -110,7 +110,7 @@ For simplicity, the description of the use of `bal.tab()` will be most complete 
 
 One doesn't need to be using the supported packages (`MatchIt`, `twang`, `Matching`, `CBPS`, or `ebal`) to use `cobalt`. `bal.tab()` can take in any data set and set of weights or subclasses and evaluate balance on them. This can be useful if propensity score weights or subclasses were generated outside any package, if balance assessment is desired prior to adjustment, or if package output is adjusted in such a way as to make it unusable with one of `bal.tab()`'s other methods (e.g., if cases were manually removed or weights manually changed). In `twang`, the function `dx.wts()` performs a similar action by allowing for the balance assessment of groups weighted not using GBM, but it does not provide support for matching weights (e.g., those generated from `MatchIt`) or subclasses. Below is an example of the use of `bal.tab()` with ATT weights generating using logistic regression for a weighting-by-the-odds analysis:
 
-```{r, message = FALSE}
+```{r}
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
@@ -154,7 +154,7 @@ bal.tab(covs0, treat = lalonde$treat, weights = lalonde$att.weights, method = "w
         addl = lalonde[,c("nodegree", "married")], int = TRUE)
 ```
 
-Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denominator is the standard deviation of the treated group (`"treated"`), the standard deviation of the control group (`"control"`), or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087). The default is `"treated"`, which is most appropriate when methods for estimating the ATT are used, so if the ATE or ATC are desired, `s.d.denom` should be changed to `"pooled"` or `"control"`, respectively. See Austin (2011) for an explanation on how to calculate weights for estimation of the ATT, ATE, and ATC.
+Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denominator is the standard deviation of the treated group (`"treated"`), most apprpriate when computing the ATT; the standard deviation of the control group (`"control"`), most appropriate when computing the ATC; or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087), most appropriate when computing the ATE. If using weights for weighted analysis, `bal.tab()` can determine if the ATT or ATC are being estimated and supply `s.d.denom` accordingly. Otherwise, the default is `"pooled"`, and when matching or subclassification are used, the default is `"treated"`. See Austin (2011) for an explanation on how to calculate weights for estimation of the ATT, ATE, and ATC.
 
 The next options only affect display, not the calculation of any statistics. First is `disp.means`, which controls whether the group means for each covariate are displayed in addition to the mean differences. This can be useful in reporting balance for publication, but in balance assessment mean differences are typically more useful.
 
@@ -391,7 +391,7 @@ love.plot(bal.tab(m.out), threshold = .1)
 
 `love.plot()` takes as its first argument the output of a call to `bal.tab()`; this can be accomplished simply by inserting the call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument. There are several other arguments, all of which control display, and are described below.
 
-The output is a plot with the distance measure on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment. The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved. Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to their liking for presentation or publication. This might involve changing the colors, shapes, or labels used in the plot.
+The output is a plot with the distance measure on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment. The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved. Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to some extent for presentation or publication.
 
 The default is to present mean differences as they are calculated in the call to `bal.tab()`; by specifying `stat = "variance.ratios"` (abbreviations allowed), the user can request variance ratios instead. Because some variables don't have variance ratios calculated (e.g., binary variables), there will be empty rows if variance ratios are requested, but these rows can be deleted by setting `no.missing = TRUE`.
 
@@ -419,6 +419,8 @@ This plot shows that balance was improved on almost all variables after adjustme
 Users can create plots that display balance for a given cluster when the data are clustered. To do so, the `bal.tab` argument to `love.plot()` must contain an argument to `cluster` denoting cluster membership and an argument to `which.cluster` specifying for which single cluster balance is to be displayed in the plot. Users can also create plots tha tsmmarize balance across clusters; the user must specify an argument to `cluster` in `bal.tab()`, and the argument to `which.cluster` must be `NULL` or `NA`. In the `love.plot()` syntax, the user can specify which function of balance statistics is to be plotted: either the mean, minimum, or maximum balance statistic across clusters for each covariate. See `?love.plot` for more details and the section "Using bal.tab on its own" above for details on how to use `bal.tab()` with clustered data.
 
 When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stat` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations. Continuous treatments can be used with clusters as well.
+
+Several aspects of the appearance of the plot can be customized, including the size, shape, and color of the points, and the title of the plot. See `?love.plot` for details. It may be challenging to make adjustments to these aspects using `ggplot2` syntax, so these arguments allow for some simple adjustments.
 
 #Additional Features
 ## Using cobalt with continuous treatments

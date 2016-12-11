@@ -4,9 +4,11 @@ Version 1.3.1
 
 *Added support for entropy balancing through the ebal package.
 
-*Changed default color scheme of `love.plot()` to be black and white
+*Changed default color scheme of `love.plot()` to be black and white and added options for color, shape, and size of points
 
 *Added sample size calculations for continuous treatments
+
+*Edits to the vignette
     
 Version 1.3.0
 

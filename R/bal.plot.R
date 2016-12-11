@@ -5,13 +5,6 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
     X <- x2base(obj, ..., cluster = cluster, std.ok = TRUE)
 
     #Functions
-    binarize <- function(variable) {
-        if (length(unique(variable)) > 2) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
-        if (0 %in% unique(as.numeric(variable))) zero <- 0
-        else zero <- min(unique(as.numeric(variable)))
-        variable <- ifelse(as.numeric(variable)==zero, 0, 1)
-        return(variable)
-    }
     w.m <- function(x, w = NULL) {
         if (is.null(w)) w <- rep(1, length(x)); return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))
     }

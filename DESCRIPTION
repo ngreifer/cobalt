@@ -1,12 +1,12 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 1.3.0
+Version: 1.3.1
 Author: Noah Greifer [aut, cre]
 Maintainer: Noah Greifer <noah@unc.edu>
 Description: Generate balance tables and plots for covariates of groups
     preprocessed through matching, weighting or subclassification, for example,
-    using propensity scores. Includes integration with 'MatchIt', 'twang', 'Matching', and
-    'CBPS' for assessing balance on the output of their preprocessing functions. Users
+    using propensity scores. Includes integration with 'MatchIt', 'twang', 'Matching',
+    'CBPS', and 'ebal' for assessing balance on the output of their preprocessing functions. Users
     can also specify data for balance assessment not generated through the above packages.
 Depends:
     R (>= 3.2.0)
@@ -22,5 +22,5 @@ Suggests:
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
-Date: 2016-10-22
+Date: XXXXXXX
 VignetteBuilder: knitr
