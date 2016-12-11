@@ -496,46 +496,76 @@ x2base.data.frame <- function(covs, ...) {
     }
     else X$method <- "matching"
     
-    #Get estimand
-    if (is.null(estimand)) {
+    #Get s.d.denom
+    check.estimand <- check.weights <- FALSE
+    if (!is.null(s.d.denom)) {
+        try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled")),
+                                  error = function(cond) FALSE)
+        if (try.s.d.denom == FALSE) {
+            check.estimand <- TRUE
+            bad.s.d.denom <- TRUE
+        }
+        else {
+            bad.s.d.denom <- FALSE
+            X$s.d.denom <- try.s.d.denom
+        }
+    }
+    else {
+        check.estimand <- TRUE
+        bad.s.d.denom <- FALSE
+    }
+    
+    if (check.estimand == TRUE) {
+        if (!is.null(estimand)) {
+            try.estimand <- tryCatch(match.arg(tolower(estimand), c("att", "atc", "ate")),
+                                      error = function(cond) FALSE)
+            if (try.estimand == FALSE) {
+                check.weights <- TRUE
+                bad.estimand <- TRUE
+            }
+            else {
+                bad.estimand <- FALSE
+                X$s.d.denom <- switch(try.estimand, att = "treated", atc = "control", ate = "pooled")
+            }
+        }
+        else {
+            check.weights <- TRUE
+            bad.estimand <- FALSE
+        }
+    }
+    
+    if (check.weights == TRUE) {
         if (X$method == "weighting") {
             if (max(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) < sqrt(.Machine$double.eps) &&
                 max(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) >= sqrt(.Machine$double.eps)
-            ) { #if treated weights are only all either 0 the same
+            ) { #if treated weights are only all either 0 the same; ATT
                 estimand <- "att"
+                X$s.d.denom <- "treated"
             }
             else if (max(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) < sqrt(.Machine$double.eps) &&
                      max(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) >= sqrt(.Machine$double.eps)
-            ) { #if control weights are only all either 0 the same
+            ) { #if control weights are only all either 0 the same; ATC
                 estimand <- "atc"
+                X$s.d.denom <- "control"
             }
             else {
                 estimand <- "ate"
+                X$s.d.denom <- "pooled"
             }
         }
-    }
-    else {
-        estimand <- tryCatch(match.arg(tolower(estimand), c("att", "atc", "ate")),
-                 error = function(cond) {return(NULL)})
+        else {
+            X$s.d.denom <- "treated"
+        }
     }
     
-    #Get s.d.denom
-    if (length(s.d.denom > 0) && is.character(s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    if (!is.null(estimand)) {
-                                        new.s.d.denom <- switch(estimand, att = "treated", atc = "control", ate = "pooled")
-                                    }
-                                    else new.s.d.denom <- "treated"
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
+    if (bad.s.d.denom && bad.estimand) {
+        message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using ", deparse(X$s.d.denom), " instead.")
     }
-    else {
-        if (!is.null(estimand)) {
-            X$s.d.denom <- switch(estimand, att = "treated", atc = "control", ate = "pooled")
-        }
-        else X$s.d.denom <- "treated"
-        message("s.d.denom not specified; assuming ", deparse(X$s.d.denom), ".")
+    else if (bad.estimand) {
+        message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using ", deparse(toupper(estimand)), " instead.")
+    }
+    else if (check.weights && X$method == "weighting") {
+        message("Note: estimand and s.d.denom not specified; assuming ", deparse(toupper(estimand)), " and ", deparse(X$s.d.denom), ".")
     }
     
     X$covs <- covs

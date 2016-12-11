@@ -16,7 +16,7 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
         v.threshold = NULL, r.threshold = NULL, un = FALSE,  disp.means = FALSE, 
         disp.v.ratio = FALSE, disp.subclass = FALSE,
         cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, 
-        quick = FALSE, ...)
+        estimand = NULL, quick = FALSE, ...)
 
 \method{bal.tab}{formula}(formula, data, weights = NULL, distance = NULL, 
         subclass = NULL, method, int = FALSE, addl = NULL, 
@@ -25,7 +25,7 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
         m.threshold = NULL, v.threshold = NULL, r.threshold = NULL, un = FALSE, 
         disp.means = FALSE, disp.v.ratio = FALSE, 
         disp.subclass = FALSE, cluster = NULL, which.cluster = NULL, 
-        cluster.summary = TRUE, quick = FALSE, ...)
+        cluster.summary = TRUE, estimand = NULL, quick = FALSE, ...)
 }
 
 \arguments{
@@ -68,7 +68,7 @@ Whether mean differences for continuous variables should be standardized ("std")
 Whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw").  Default "raw".  Abbreviations allowed.
 }
   \item{s.d.denom}{
-Whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), or the pooled standard deviation ("pooled"), computed as the square root of the mean of the group variances.  Abbreviations allowed.  If weights are supplied, \code{bal.tab()} will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply \code{s.d.denom} accordingly. If matching or subclassification are used, the default is \code{"treated"}; if weighting is used, the default is \code{"pooled"}.
+Whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), or the pooled standard deviation ("pooled"), computed as the square root of the mean of the group variances.  Abbreviations allowed.  If weights are supplied, \code{bal.tab()} will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply \code{s.d.denom} accordingly. If matching or subclassification are used, the default is \code{"treated"}; if weighting is used, the default is \code{"pooled"}. If left blank, \code{bal.tab()} will try to use the \code{estimand} argument.
 }
   \item{m.threshold}{
 A numeric value for the threshold for mean differences.  .1 is recommended.  
@@ -99,6 +99,9 @@ which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will
 }
   \item{cluster.summary}{
 \code{logical}; whether to display the cluster summary table if \code{cluster} is specified. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
+}
+  \item{estimand}{
+\code{character}; whether the desired estimand is the "ATT", "ATC", or "ATE." This argument can be used in place of \code{s.d.denom} to specify how standardized differences are calculated.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
