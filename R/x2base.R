@@ -497,7 +497,7 @@ x2base.data.frame <- function(covs, ...) {
     else X$method <- "matching"
     
     #Get s.d.denom
-    check.estimand <- check.weights <- FALSE
+    check.estimand <- check.weights <- bad.s.d.denom <- bad.estimand <- FALSE
     if (!is.null(s.d.denom)) {
         try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled")),
                                   error = function(cond) FALSE)
@@ -506,13 +506,11 @@ x2base.data.frame <- function(covs, ...) {
             bad.s.d.denom <- TRUE
         }
         else {
-            bad.s.d.denom <- FALSE
             X$s.d.denom <- try.s.d.denom
         }
     }
     else {
         check.estimand <- TRUE
-        bad.s.d.denom <- FALSE
     }
     
     if (check.estimand == TRUE) {
@@ -524,13 +522,11 @@ x2base.data.frame <- function(covs, ...) {
                 bad.estimand <- TRUE
             }
             else {
-                bad.estimand <- FALSE
                 X$s.d.denom <- switch(try.estimand, att = "treated", atc = "control", ate = "pooled")
             }
         }
         else {
             check.weights <- TRUE
-            bad.estimand <- FALSE
         }
     }
     

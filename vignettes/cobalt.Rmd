@@ -9,9 +9,12 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
 # Introduction
 
-Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introduction to propensity score and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
+Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
 Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), and `ebal` (Hainmueller, 2014); these together provide a near complete set of preprocessing tools in R to date.
 
@@ -70,7 +73,7 @@ The main conditioning packages produce plots that can be useful in assessing bal
 
 There are four functions for use in `cobalt`: `f.build()`, `bal.tab()`, `bal.plot()`, and `love.plot()`. The next sections describe how to use each, complete with example code and output. To start, install and load `cobalt` with the following code:
 
-```{r, message = FALSE, eval = 2}
+```{r, eval = 2}
 install.packages("cobalt")
 library("cobalt")
 ```
@@ -130,7 +133,7 @@ There are several ways to specify input to `bal.tab()` when using data outside a
 
 Another way to specify input to `bal.tab()` is to use the formula interface. Below is an example of its use:
 
-```{r, message = FALSE}
+```{r}
 bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
         distance = "p.score", method = "weighting")
 ```
@@ -141,14 +144,14 @@ An argument to `method` must be specified for `bal.tab()` to process the data co
 
 By default, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab` or "Details on Calculations" below. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` and/or `continuous` to `"raw"` or `"std"`. 
 
-```{r, message = FALSE}
+```{r}
 bal.tab(covs0, treat = lalonde$treat, weights = lalonde$att.weights, method = "weighting", 
         binary = "std", continuous = "std")
 ```
 
 Users can specify additional variables for which to display balance using the argument to `addl`; this input must be in the form of a data frame. Users can also add all squared terms and two-way interactions between covariates, including those in `addl`, by specifying `int = TRUE`. Interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables. For more details on interactions, see "Details on Calculations", below.
 
-```{r, message = FALSE}
+```{r}
 # Balance on all covariates in data set, including interactions and squares
 bal.tab(covs0, treat = lalonde$treat, weights = lalonde$att.weights, method = "weighting", 
         addl = lalonde[,c("nodegree", "married")], int = TRUE)
@@ -162,7 +165,7 @@ Next is `disp.v.ratio`, which controls whether variance ratios are displayed, in
 
 Next is `un`, which controls whether the statistics to be displayed should be displayed for the unadjusted group as well. This can be useful the first time balance is assessed to see the initial group imbalance. All of the packages named above display unadjusted group statistics in their balance assessment functions. Setting `un = FALSE`, which is the default, can declutter the output to maintain the spotlight on the group balance after adjustment.
 
-```{r, message = FALSE}
+```{r}
 # Balance tables with variance ratios and statistics for the unadjusted sample
 bal.tab(covs0, treat = lalonde$treat, weights = lalonde$att.weights, method = "weighting", 
         disp.v.ratio = TRUE, un = TRUE)
@@ -174,7 +177,7 @@ When `m.threshold` is specified, a few components are added to the balance outpu
 
 The argument to `v.threshold` determines the threshold for variance ratios that are acceptable for balance. Variance ratios are calculated in `cobalt` such that the greater variance is in the numerator, so they will always be greater than or equal to 1. Variance ratios close to 1 are indicative of good balance, but ratios as large as 2 may be acceptable (Rubin, 2001). When `v.threshold` is specified,  the same additional output is created as above, except in evaluation of variance ratios. Because variance ratios are not displayed in the balance table by default, specifying `v.threshold` will also display variance ratios in the table.
 
-```{r, message = FALSE}
+```{r}
 # Balance tables with thresholds for mean differences and variance ratios
 bal.tab(covs0, treat = lalonde$treat, weights = lalonde$att.weights, method = "weighting", 
         m.threshold = .1, v.threshold = 2)
@@ -205,7 +208,8 @@ To examine balance within each subclass, the user can specify `disp.subclass = T
 # Subclassification for ATT with 6 subclasses
 lalonde$p.score <- glm(f.build("treat", covs0), data = lalonde, family = "binomial")$fitted.values
 lalonde$subclass <- findInterval(lalonde$p.score, 
-                                 quantile(lalonde$p.score[lalonde$treat==1], (0:6)/6), all.inside = T)
+                                 quantile(lalonde$p.score[lalonde$treat==1], 
+                                          (0:6)/6), all.inside = T)
 
 bal.tab(covs0, treat = lalonde$treat, subclass = lalonde$subclass, 
         method = "subclassification", disp.subclass = TRUE)
@@ -219,7 +223,7 @@ The next several sections describe the use of `bal.tab()` with the conditioning 
 
 When using `bal.tab()` with `MatchIt`, fewer arguments need to be specified because information is stored in the `matchit` object, the output of a call to `matchit()`. `bal.tab()` is used very similarly to `summary()` in `MatchIt`: it takes in a `matchit` object as its input, and prints a balance table with the requested information. Below is a simple example of its use:
 
-```{r, message = FALSE}
+```{r}
 data("lalonde", package = "cobalt")
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
@@ -236,13 +240,13 @@ The output looks very similar to `MatchIt`'s `summary()` function: at the top is
 
 Generalized boosted modeling (GBM), as implemented in `twang`, can be an effective way to generate propensity scores and weights for use in propensity score weighting. `bal.tab()` functions similarly to the functions `bal.table()` and `summary()` when used with GBM in `twang`. Below is a simple example of its use:
 
-```{r, message = FALSE, warning = FALSE}
+```{r, warning = FALSE}
 library("twang")
 data("lalonde", package = "cobalt") ##If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
-ps.out <- ps(f.build("treat", covs0), data = lalonde, stop.method = c("es.mean",
-             "es.max"), estimand = "ATT", n.trees = 1000, verbose = FALSE)
+ps.out <- ps(f.build("treat", covs0), data = lalonde, stop.method = c("es.mean"), 
+             estimand = "ATT", n.trees = 1000, verbose = FALSE)
 bal.tab(ps.out, full.stop.method = "es.mean.att")
 ```
 
@@ -256,7 +260,7 @@ The other arguments to `bal.tab()` when using it with `twang` have the same form
 
 The `Matching` package is used for propensity score matching, and was also the first package to implement genetic matching. `MatchIt` calls `Matching` to use genetic matching and can accomplish many of the matching methods `Matching` can, but `Matching` is still a widely used package with its own strengths. `bal.tab()` functions similarly to `Matching`'s `MatchBalance()` command, which yields a thorough presentation of balance, and makes `Matching` the only package of those integrated with `cobalt` to display variance ratios by default. Below is a simple example of the use of `bal.tab()` with `Matching`:
 
-```{r, message = FALSE}
+```{r}
 library("Matching")
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
@@ -280,9 +284,9 @@ The other arguments to `bal.tab()` when using it with `Matching` have the same f
 
 ### Using bal.tab with CBPS
 
-The `CBPS` (Covariate Balancing Propensity Score) package is a great tool for generating covariate balancing propensity scores, a recently developed class of propensity scores that is quite effective at balancing covariates among groups. `CBPS` includes functions for estimating propensity scores for binary, polytimous, and continuous treatments, but presently `cobalt` is only compatible with binary and continuous treatments for `CBPS`. `bal.tab()` functions similarly to `CBPS`'s `balance()` command. Below is a simple example of its use with a binary treatment:
+The `CBPS` (Covariate Balancing Propensity Score) package is a great tool for generating covariate balancing propensity scores, a recently developed class of propensity scores that are quite effective at balancing covariates among groups. `CBPS` includes functions for estimating propensity scores for binary, polytimous, and continuous treatments, but presently `cobalt` is only compatible with binary and continuous treatments for `CBPS`. `bal.tab()` functions similarly to `CBPS`'s `balance()` command. Below is a simple example of its use with a binary treatment:
 
-```{r, message = FALSE}
+```{r}
 library("CBPS")
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
@@ -305,7 +309,7 @@ When using `CBPS` and `bal.tab()` with continuous treatments, the same guideline
 
 The `ebal` package implements entropy balancing, a method of weighting for the ATT that yields perfect balance on all desired moments of the covariate distributions between groups. Rather than estimate a propensity score, entropy balancing generates weights directly that satisfy a user-defined moment condition, specifiying which moments are to be balanced. `ebal` does not have its own balance assessment function; thus, `cobalt` is the only way to assess balance without programming, which the `ebal` documentation instructs. Below is a simple example of using `bal.tab` with `ebal`:
 
-```{r, message = FALSE}
+```{r}
 library("ebal")
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
@@ -313,10 +317,12 @@ covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 #Generating entorpy balancing weights
 e.out <- ebalance(lalonde$treat, covs0)
 
-bal.tab(e.out)
+bal.tab(e.out, treat = lalonde$treat, covs = covs0)
 ```
 
 First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. The "effective" sample size is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" below for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure. That said, in simulations by Zhao and Percival (2015), entropy balancing reliably had smaller empirical standard deviations than covariate balancing propensity scores, indicating that bootstrap standard errors for effect estimates may be most appropriate.
+
+The input is similar to that for using `bal.tab()` with `Matching`. One must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
 
 ## bal.plot
 
@@ -324,7 +330,7 @@ The gold standard for covariate balance is multidimensional independence between
 
 `bal.plot()` allows users to do so by displaying density plots, bar graphs, and scatterplots so that users can visually assess independence between treatment and covariates before and after conditioning. Below is an example of the use of `bal.plot()` after using propensity score weighting by the odds:
 
-```{r, message = FALSE, fig.show = "hold"}
+```{r, fig.show = "hold"}
 data("lalonde", package = "cobalt")
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
@@ -347,7 +353,7 @@ The output of `bal.plot()` is a density plot for the two groups on the given cov
 
 The output plot is made using `ggplot2`, which means that users familiar with `ggplot2` can adjust the plot with `ggplot2` commands. For example, to change the colors and theme to black and white, and to change the axis and title names, the following code can be used:
 
-```{r, message = FALSE}
+```{r}
 library("ggplot2")
 bp <- bal.plot(m.out, "age")
 bp + theme_bw() + scale_fill_manual( values = c("black","white")) + 
@@ -586,7 +592,7 @@ Because the number of computations increases both with sample size and number of
 
 Love plots and other similar plots that graphically display covariate balance before and after matching appear with some frequency in the applied and methodological literature (e.g., Ahmed et al., 2007; Austin, 2009; Austin & Stuart, 2015). Several of the conditioning packages implement a similar plot: `MatchIt`'s `plot(summary(..., standardize = TRUE))` and `twang`'s `plot(..., plots = "es")` present line plots showing the change in balance for each covariate. Below are examples of `twang`'s balance plot (above) and `cobalt`'s Love plot (below).
 
-```{r, echo = FALSE, message = FALSE, fig.show = 'hold', fig.width = 5}
+```{r, echo = FALSE, fig.show = 'hold', fig.width = 5}
 plot(ps.out, plots = "es", subset = 1)
 love.plot(bal.tab(ps.out, full.stop.method = "es.max.att"), threshold = .1,
           abs = TRUE, var.order = "u")

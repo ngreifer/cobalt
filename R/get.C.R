@@ -26,12 +26,12 @@ int.poly.f <- function(df, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     if (poly > 1 && npol != 0) {
         for (i in 2:poly) {
             new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
-            new.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], strrep("_", ncarrot), i)
+            new.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], paste0(replicate(ncarrot, "_"), collapse = ""), i)
         }
     }
     if (int && nd > 1) {
         new[,(nc - .5*nd*(nd-1) + 1):nc] <- matrix(t(apply(d, 1, combn, 2, prod)), nrow = nrd)
-        new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(names(d), 2, paste, collapse=strrep("_", nunder))
+        new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(names(d), 2, paste, collapse=paste0(replicate(nunder, "_"), collapse = ""))
     }
     new <- data.frame(new)
     names(new) <- new.names
@@ -110,12 +110,12 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         #Prevent duplicate var names with _'s
         nunder <- ncarrot <- 1
         repeat {
-            if (all(sapply(names(C), function(x) !x %in% do.call(paste, c(expand.grid(names(C), names(C)), list(sep = strrep("_", nunder))))))) break
+            if (all(sapply(names(C), function(x) !x %in% do.call(paste, c(expand.grid(names(C), names(C)), list(sep = paste0(replicate(nunder, "_"), collapse = ""))))))) break
             else nunder <- nunder + 1
         }
         #Variable names don't contain carrots
         # repeat {
-        #     if (all(sapply(names(C), function(x) !x %in% paste0(names(C), strrep("_", nunder), "2")))) break
+        #     if (all(sapply(names(C), function(x) !x %in% paste0(names(C), paste0(replicate(nunder, "_"), collapse = ""), "2")))) break
         #     else ncarrot <- ncarrot + 1
         # }
         C <- cbind(C, int.poly.f(C, int = TRUE, poly = 2, nunder = nunder, ncarrot = ncarrot))

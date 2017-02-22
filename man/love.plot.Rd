@@ -14,7 +14,8 @@ love.plot(b, stat = c("mean.diffs", "variance.ratios"),
           threshold = NULL, abs = FALSE, var.order = NULL, 
           no.missing = TRUE, var.names = NULL,
           drop.distance = TRUE, cluster.fun = c("mean", 
-          "median", "max", "range"), ...)
+          "median", "max", "range"), colors = NULL, 
+          shapes = NULL, line = FALSE, ...)
 }
 \arguments{
   \item{b}{
@@ -44,14 +45,20 @@ an optional object providing alternate names for the variables in the plot, whic
   \item{cluster.fun}{
 if balance is to be displayed across clusters rather than within a single cluster, which summarizing function (mean, median, max, or range) of the balance statistics sould be used. If "range" is entered, \code{love.plot()} will display a line from the min to the max with a point at the mean for each covariate; it can only be used if \code{quick = FALSE} in the \code{bal.tab()} call. Abbreviations allowed; "mean" is default.
 }
+  \item{colors}{
+  The colors of the points on the plot. See 'Color Specification' at \code{\link[graphics]{par}}. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample.
+  }
+  \item{shapes}{
+  \code{numeric}; the shape of the points on the plot. Must be a number between 21 and 25. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. if \code{colors} is specified, defaults to 21 (circle) for both. Otherwise defaults to 21 (circle) and 24 (triangle).
+  }
+  \item{line}{
+  \code{logical}; whether to display a line connecting the points for each sample.
+  }
   \item{...}{
-Options for display of the plot. The following arguments are accepted:
+Options for display of the plot. The following arguments are currently accepted:
 \describe{
     \item{\code{size}}{\code{numeric}; the size of the points on the plot. Defaults to 1.
     }
-    \item{\code{shape}}{\code{numeric}; the shape of the points on the plot. Must be a number between 21 and 25. Defaults to 21 (circle).}
-    \item{\code{un.color}}{The color of the points on the plot for the unadjusted sample. See 'Color Specification' at \code{\link[graphics]{par}}.}
-    \item{\code{adj.color}}{The color of the points on the plot for the adjusted sample. See 'Color Specification' at \code{\link[graphics]{par}}.}
     \item{\code{title}}{\code{character}; the title of the plot.}
   }
 }
@@ -96,6 +103,12 @@ v <- data.frame(old = c("age", "educ", "black", "hispan",
                 
 love.plot(bal.tab(m.out1), stat = "mean.diffs", threshold = .1, 
           var.order = "unadjusted", var.names = v)
+          
+#Changing colors and shapes and adding lines
+love.plot(bal.tab(m.out1), stat = "mean.diffs", threshold = .1, 
+          var.order = "unadjusted", var.names = v, abs = TRUE,
+          shapes = c(22, 25), colors = c("darkblue", "lightblue"),
+          line = TRUE)
 
 }
 \keyword{design}

@@ -1,5 +1,11 @@
 cobalt News and Updates
 ======
+Version 1.3.2
+
+*Adjusted specifications in `love.plot()` for color and shape of poins, and added option to generate a line
+
+*Adjusted `love.plot()` display to perform better on Windows
+
 Version 1.3.1
 
 *Added support for entropy balancing through the ebal package.

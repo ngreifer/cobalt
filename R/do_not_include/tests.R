@@ -53,6 +53,10 @@ lalonde$subclass <- findInterval(lalonde$distance,
 
 bal.tab(covs, treat = lalonde$treat, subclass = lalonde$subclass, 
         method = "subclassification", disp.subclass = TRUE)
+#Entropy balancing
+library("ebal")
+e.out <- ebalance(lalonde$treat, covs)
+bal.tab(e.out, treat = lalonde$treat, covs = covs)
 #Continuous treatment (CBPS)
 cbps.out2 <- CBPS(re78 ~ age + educ + black + hispan + married + nodegree + re74 + 
                      re75, data = lalonde, 

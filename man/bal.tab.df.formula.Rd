@@ -8,28 +8,29 @@ Balance Statistics for Data Sets
 Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a data frame or formula interface.
 }
 \usage{
-\method{bal.tab}{data.frame}(x, treat, data = NULL, weights = NULL, 
+\method{bal.tab}{data.frame}(covs, treat, data = NULL, weights = NULL, 
         distance = NULL, subclass = NULL, method, int = FALSE,
         addl = NULL, continuous = c("std", "raw"), 
-        binary = c("raw","std"), s.d.denom = c("treated", 
-        "pooled", "control"), m.threshold = NULL, 
-        v.threshold = NULL, r.threshold = NULL, un = FALSE,  disp.means = FALSE, 
-        disp.v.ratio = FALSE, disp.subclass = FALSE,
-        cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, 
+        binary = c("raw","std"), s.d.denom, m.threshold = NULL, 
+        v.threshold = NULL, r.threshold = NULL, un = FALSE, 
+        disp.means = FALSE, disp.v.ratio = FALSE, 
+        disp.subclass = FALSE, cluster = NULL, 
+        which.cluster = NULL, cluster.summary = TRUE, 
         estimand = NULL, quick = FALSE, ...)
 
 \method{bal.tab}{formula}(formula, data, weights = NULL, distance = NULL, 
         subclass = NULL, method, int = FALSE, addl = NULL, 
         continuous = c("std", "raw"), binary = c("raw", "std"),
-        s.d.denom = c("treated", "pooled", "control"), 
-        m.threshold = NULL, v.threshold = NULL, r.threshold = NULL, un = FALSE, 
-        disp.means = FALSE, disp.v.ratio = FALSE, 
-        disp.subclass = FALSE, cluster = NULL, which.cluster = NULL, 
-        cluster.summary = TRUE, estimand = NULL, quick = FALSE, ...)
+        s.d.denom, m.threshold = NULL, v.threshold = NULL, 
+        r.threshold = NULL, un = FALSE, disp.means = FALSE, 
+        disp.v.ratio = FALSE, disp.subclass = FALSE, 
+        cluster = NULL, which.cluster = NULL, 
+        cluster.summary = TRUE, estimand = NULL, quick = FALSE, 
+        ...)
 }
 
 \arguments{
-  \item{x}{
+  \item{covs}{
 A data frame containing covariate values for each unit.
 }
   \item{treat}{

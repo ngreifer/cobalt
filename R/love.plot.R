@@ -1,14 +1,16 @@
-love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = TRUE, cluster.fun = c("mean", "median", "max", "range"), ...) {
+love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = TRUE, cluster.fun = c("mean", "median", "max", "range"), colors = NULL, shapes = NULL, line = FALSE, ...) {
     if (!"bal.tab" %in% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
     else stat <- match.arg(stat)
     
     args <- list(...)
     #size
-    #shape
-    #un.color
-    #adj.color
+    #shape (deprecated)
+    #un.color (deprecated)
+    #adj.color (deprecated)
     #title
+    #colors
+    #shapes
     
     null.threshold <- is.null(threshold)
     if (!null.threshold) {
@@ -18,7 +20,6 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", correlation = "Corr")
     which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", correlation = "Correlation")
     Cluster.Fun <- ""
-    
     
     if (any(class(b) == "bal.tab.cluster")) {
         if (is.null(b$print.options$which.cluster) || is.na(b$print.options$which.cluster)) {
@@ -36,10 +37,10 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
             }
             else {
                 title <- paste0("Covariate Balance\n", Cluster.Fun, " ", which.stat2, " Across Clusters")
-                which.stat <- paste(Cluster.Fun, which.stat, sep = ".")
+                #which.stat <- paste(Cluster.Fun, which.stat, sep = ".")
                 B <- b[["Cluster.Summary"]][, c("Type", 
-                                                paste(which.stat, "Adj", sep = "."),  
-                                                paste(which.stat, "Un", sep = "."))]
+                                                paste(Cluster.Fun, which.stat, "Adj", sep = "."),  
+                                                paste(Cluster.Fun, which.stat, "Un", sep = "."))]
             }
             
             abs <- TRUE
@@ -172,16 +173,20 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
                 warning(paste0("var.order was set to \"", var.order, "\", but no ", var.order, " ", tolower(which.stat2), "s were calculated. Using \"", new.var.order, "\" instead."), call. = FALSE, immediate. = TRUE)
                 var.order <- new.var.order
             }
-            SS[, "var"] <- factor(SS[, "var"], levels=SS[order(SS[tolower(SS[, "Sample"])==var.order, "stat"], decreasing = dec), "var"])
+            SS[, "var"] <- factor(SS[, "var"], levels=SS[order(SS[tolower(SS[, "Sample"])==var.order, "mean.stat"], decreasing = dec), "var"])
         }
         else SS[, "var"] <- factor(SS[, "var"], levels = unique(SS[, "var"])[order(unique(SS[, "var"]), decreasing = TRUE)])
         SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Unadjusted", "Adjusted"))
         if (which.stat == "Diff" && any(abs(SS[, "max.stat"]) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[, "min.stat"]),]
+        SS$stat <- SS[,"mean.stat"]
     }
     else {
         SS <- data.frame(var=rep(var.labels, 2), 
-                         stat=c(B[, paste(which.stat, "Un", sep = ".")], B[, paste(which.stat, "Adj", sep = ".")]), 
+                         stat=c(B[, ifelse(Cluster.Fun == "", paste(which.stat, "Un", sep = "."),
+                                           paste(Cluster.Fun, which.stat, "Un", sep = "."))], 
+                                  B[, ifelse(Cluster.Fun == "", paste(which.stat, "Adj", sep = "."),
+                                             paste(Cluster.Fun, which.stat, "Adj", sep = "."))]), 
                          Sample=c(rep("Unadjusted", nrow(B)), rep("Adjusted", nrow(B))))
         if (all(is.na(SS[, "stat"]))) stop("No balance statistics to display.", call. = FALSE)
         if (all(is.na(SS[SS$Sample=="Adjusted", "stat"]))) {
@@ -213,6 +218,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         if (which.stat == "Diff" && any(abs(SS[, "stat"]) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[, "stat"]),]
     }
+    SS <- SS[order(SS[, "var"]),]
     
     #Make the plot
     #library(ggplot2)
@@ -220,84 +226,169 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     #Setting up appearance
     #Size
     if (is.null(args$size)) size <- 1
-    else if (is.numeric(args$size)) size <- args$size
+    else if (is.numeric(args$size[1])) size <- args$size[1]
     else {
         warning("The argument to size must be a number. Using 1 instead.", call. = FALSE)
         size <- 1
     }
     stroke <- .8*size
     nudge <- .15*size
+    
     #Shape
-    if (is.null(args$shape)) shape <- 21 #circle
-    else if (any(21:25 == args$shape)) shape <- args$shape
-    else {
-        warning("The argument to shape must be a number between 21 and 25. Using 21 (circle) instead.", call. = FALSE)
-        shape <- 21
-    }
+    # if (is.null(args$shape)) shape <- 21 #circle
+    # else if (is.numeric(args$shape[1]) && any(21:25 == args$shape[1])) shape <- args$shape[1]
+    # else {
+    #     warning("The argument to shape must be a number between 21 and 25. Using 21 (circle) instead.", call. = FALSE)
+    #     shape <- 21
+    # }
+    
     #Colors
-    null.un.color <- is.null(args$un.color)
-    null.adj.color <- is.null(args$adj.color)
-    if (!null.un.color || !null.adj.color) {
+    # null.un.color <- is.null(args$un.color)
+    # null.adj.color <- is.null(args$adj.color)
+    # if (!null.un.color || !null.adj.color) {
+    #     isColor <- function(x) {
+    #         tryCatch(is.matrix(col2rgb(x)), 
+    #                  error = function(e) FALSE)
+    #     }
+    # }
+    # 
+    # if (null.un.color) un.color <- "white"
+    # else if (isColor(args$un.color[1])) {
+    #     un.color <- args$un.color[1]
+    # }
+    # else {
+    #     warning("The argument to un.color is not a recognized color. Using white instead.", call. = FALSE)
+    #     un.color <- "white"
+    # }
+    # if (null.adj.color) adj.color <- "black"
+    # else if (isColor(args$adj.color[1])) {
+    #     adj.color <- args$adj.color[1]
+    # }
+    # else {
+    #     warning("The argument to adj.color is not a recognized color. Using black instead.", call. = FALSE)
+    #     adj.color <- "black"
+    # }
+    
+    null.colors <- is.null(colors)
+    if (!null.colors) {
         isColor <- function(x) {
             tryCatch(is.matrix(col2rgb(x)), 
                      error = function(e) FALSE)
         }
     }
-    if (null.un.color) un.color <- "white"
-    else if (isColor(args$un.color[1])) {
-        un.color <- args$un.color[1]
+    
+    if (null.colors) {
+        colors <- c("black", "black")
+        fill <- c("white", "white")
+        if (is.null(shapes)) {
+            shapes <- c(21, 24)
+        }
+        else if (!is.numeric(shapes) || !all(shapes %in% 21:25)) {
+            warning("The argument to shape must contain two numbers between 21 and 25. \nUsing 21 (circle) and 24 (triangle) instead.", call. = FALSE)
+            shapes <- c(21, 24)
+        }
+        
     }
     else {
-        warning("The argument to un.color is not a recognized color. Using white instead.", call. = FALSE)
-        un.color <- "white"
+        if (all(sapply(colors[1:2], isColor))) {
+            fill <- colors
+            if (is.null(shapes)) {
+                shapes <- c(21, 21)
+            }
+            else if (!is.numeric(shapes) || !all(shapes %in% 21:25)) {
+                warning("The argument to shape must contain two numbers between 21 and 25. \nUsing 21 (circle) for both instead.", call. = FALSE)
+                shapes <- c(21, 21)
+            }
+        }
+        else {
+            warning("The argument to colors contains at least one value that is not a recognized color.", call. = FALSE)
+            colors <- c("black", "black")
+            fill <- c("white", "white")
+            if (is.null(shapes)) {
+                shapes <- c(21, 24)
+            }
+            else if (!is.numeric(shapes) || !all(shapes %in% 21:25)) {
+                warning("The argument to shape must contain two numbers between 21 and 25. \nUsing 21 (circle) and 24 (triangle) instead.", call. = FALSE)
+                shapes <- c(21, 24)
+            }
+        }
     }
-    if (null.adj.color) adj.color <- "black"
-    else if (isColor(args$adj.color[1])) {
-        adj.color <- args$adj.color[1]
-    }
-    else {
-        warning("The argument to adj.color is not a recognized color. Using black instead.", call. = FALSE)
-        adj.color <- "black"
-    }
+    
     #Title
     if (!is.null(args$title)) title <- as.character(args$title)
     
-    lp <- ggplot(data = SS) + theme_linedraw()
+    lp <- ggplot(data = SS, aes(y = var, x = stat, group = Sample)) + theme(
+        panel.grid.major = element_line(color = "gray85"),
+        panel.grid.minor = element_line(color = "gray90"),
+        panel.background = element_rect(fill = "white", color = "black")
+        ) + 
+        scale_shape_manual(values = shapes) +
+        scale_fill_manual(values = fill) +
+        scale_color_manual(values = colors) + 
+        labs(title = title, y = "") 
     if (which.stat == "Corr") {
-        lp <- lp + geom_vline(xintercept = 0, linetype=1, alpha=1)
+        baseline.xintercept <- 0
         if (abs) {
             lp <- lp + xlab("Absolute Treatment-Covariate Correlations")
-            if (!null.threshold) lp <- lp + geom_vline(xintercept = abs(threshold), linetype=2)
+            if (!null.threshold) threshold.xintercept <- abs(intercept)
         }
         else {
             lp <- lp + xlab("Treatment-Covariate Correlations") 
-            if (!null.threshold) lp <- lp + geom_vline(xintercept = c(-threshold, threshold), linetype=2)
+            if (!null.threshold) threshold.xintercept <- c(-threshold, threshold)
         }
     }
-    else {
-        if (stat=="mean.diffs") {
-            lp <- lp + geom_vline(xintercept = 0, linetype=1, color = "gray65")
-            if (abs) {
-                lp <- lp + xlab("Absolute Mean Differences") 
-                if (!null.threshold) lp <- lp + geom_vline(xintercept = abs(threshold), linetype=2)
-            }
-            else {
-                lp <- lp + xlab("Mean Differences") 
-                if (!null.threshold) lp <- lp + geom_vline(xintercept = c(-threshold, threshold), linetype=2)
-            }
+    else if (which.stat == "Diff") {
+        baseline.xintercept <- 0
+        if (abs) {
+            lp <- lp + xlab("Absolute Mean Differences") 
+            if (!null.threshold) threshold.xintercept <- abs(threshold)
         }
-        else if (stat=="variance.ratios") {
-            lp <- lp + xlab("Variance Ratios") + geom_vline(xintercept = 1, linetype=1, alpha=1)
-            if (!null.threshold) lp <- lp + geom_vline(xintercept = max(threshold, 1/threshold), linetype=2)
+        else {
+            lp <- lp + xlab("Mean Differences") 
+            if (!null.threshold) threshold.xintercept <- c(-threshold, threshold)
         }
     }
+    else if (which.stat == "V.Ratio") {
+        baseline.xintercept <- 1
+        lp <- lp + xlab("Variance Ratios")
+        if (!null.threshold) threshold.xintercept <- max(threshold, 1/threshold)
+    }
+    
+    lp <- lp + geom_vline(xintercept = baseline.xintercept, linetype = 1, color = "gray5")
+    if (!null.threshold) lp <- lp + geom_vline(xintercept = threshold.xintercept, linetype=2, color = "gray8")
+    
     if (Cluster.Fun == "Range") {
+        position.nudge <- position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge))
+        if (args$line == TRUE) {
+            lp <- lp + geom_path(aes(color = Sample), size = size*.8, position = position.nudge)
+        }
         lp <- lp + 
-            geom_segment(aes(y = var, yend = var, x = min.stat, xend = max.stat), position = position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge)), lineend = "butt", size = size) + 
-            geom_point(aes(y = var, x = mean.stat, fill = Sample), size = 2*size, stroke = stroke, shape = shape, color = "black", position = position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge))) + 
-            scale_fill_manual(values=c(un.color, adj.color)) + 
+            geom_segment(aes(y = var, yend = var, x = min.stat, xend = max.stat, color = Sample), position = position.nudge, lineend = "butt", size = size) + 
+            geom_point(aes(y = var, x = mean.stat, fill = Sample, shape = Sample, color = Sample), size = 2*size, stroke = stroke, position = position.nudge) + 
             labs(title = title, y = "")
     }
-    else lp <- lp + geom_point(aes(y = var, x = stat, fill = Sample), size = 2*size, stroke = stroke, shape = shape, color = "black") + labs(title = title, y = "") + scale_fill_manual(values=c(un.color, adj.color))
+    else {
+        if (line == TRUE) {
+            lp <- lp + geom_path(aes(color = Sample), size = size*.8)
+        }
+        lp <- lp + geom_point(aes(fill = Sample, shape = Sample,
+                                    color = Sample), 
+                               size = 2*size, stroke = stroke) 
+        
+    }
+    # if (Cluster.Fun == "Range") {
+    #     lp <- lp + 
+    #         geom_segment(aes(y = var, yend = var, x = min.stat, xend = max.stat), position = position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge)), lineend = "butt", size = size) + 
+    #         geom_point(aes(y = var, x = mean.stat, fill = Sample, color = Sample), size = 2*size, stroke = stroke, shape = shape, color = "black", position = position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge))) + 
+    #         scale_fill_manual(values=c(un.color, adj.color)) +
+    #         scale_color_manual(values=border.colors) + 
+    #         labs(title = title, y = "")
+    # }
+    # else {lp <- lp + geom_point(aes(y = var, x = stat, fill = Sample, color = Sample), 
+    #                             size = 2*size, stroke = stroke, shape = shape) + 
+    #     labs(title = title, y = "") + 
+    #     scale_fill_manual(values=c(un.color, adj.color)) +
+    #     scale_color_manual(values=border.colors)
+    # }
     return(lp)
 }
