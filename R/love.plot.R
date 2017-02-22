@@ -93,16 +93,19 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         if (which.stat=="Diff") {
             if (!is.null(b$print.options$m.threshold)) {
                 threshold <- b$print.options$m.threshold
+                null.threshold <- FALSE
             }
         }
         else if (which.stat=="V.Ratio") {
             if (!is.null(b$print.options$v.threshold)) {
                 threshold <- b$print.options$v.threshold
+                null.threshold <- FALSE
             }
         }
         else if (which.stat=="Corr") {
             if (!is.null(b$print.options$r.threshold)) {
                 threshold <- b$print.options$r.threshold
+                null.threshold <- FALSE
             }
         }
     }
@@ -330,7 +333,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         baseline.xintercept <- 0
         if (abs) {
             lp <- lp + xlab("Absolute Treatment-Covariate Correlations")
-            if (!null.threshold) threshold.xintercept <- abs(intercept)
+            if (!null.threshold) threshold.xintercept <- abs(threshold)
         }
         else {
             lp <- lp + xlab("Treatment-Covariate Correlations") 

@@ -6,6 +6,8 @@ Version 1.3.2
 
 *Adjusted `love.plot()` display to perform better on Windows
 
+*Added felxibility to `f.builf()`
+
 Version 1.3.1
 
 *Added support for entropy balancing through the ebal package.
