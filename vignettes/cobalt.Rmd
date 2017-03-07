@@ -16,7 +16,7 @@ knitr::opts_chunk$set(message = FALSE)
 
 Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
-Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), and `ebal` (Hainmueller, 2014); these together provide a near complete set of preprocessing tools in R to date.
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch`(Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), and `ebal` (Hainmueller, 2014); these together provide a near complete set of preprocessing tools in R to date.
 
 The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
 
@@ -37,17 +37,17 @@ The rest of this guide explains how to use `cobalt` with the above packages and 
 ### Citing cobalt
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2016). cobalt: Covariate Balance Tables and Plots. R package version 1.3.1.
+Greifer, N. (2017). cobalt: Covariate Balance Tables and Plots. R package version 1.4.0.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
-> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2016), both in R 3.3.0 (R Core Team, 2016).
+> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2017), both in R 3.3.0 (R Core Team, 2016).
 
 # Why cobalt?
 
 If most of the major conditioning packages contain functions to assess balance, why use `cobalt` at all? `cobalt` arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. However, some users of these packages may be completely satisfied with their capabilities and comfortable with their output; for them, `cobalt` still has value in its unique plotting capabilities that make use of `ggplot2` in R.
 
-The following are some reasons why `cobalt` may be attractive to users of `MatchIt`, `twang`, `Matching`, `CBPS`, and `ebal`:
+The following are some reasons why `cobalt` may be attractive to users of `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, and `ebal`:
 
 ### Visual clarity
 
@@ -59,7 +59,7 @@ Although a thorough balance assessment requires examining the balance of each co
 
 ### One tool to rule them all
 
-Because there is no *a priori* way to know which conditioning method will work best for a given sample, users should try several methods, and these methods are spread across various packages; for example, full matching is available only in `MatchIt`, generalized boosted modeling only in `twang`, covariate balancing propensity score weighting only in `CBPS`, genetic matching only in `MatchIt` and `Matching`, and entropy balancing only in `ebal`. If a user wants to compare these methods on their ability to generate balance in the sample, they cannot do so on the same metrics and with the same output. Each package computes balance statistics differently, and the relevant balance measures are in different places in each package, or not available at all. By using `cobalt` to assess balance across packages, users can be sure they are using a single, equivalent balance metric across methods, and the relevant balance statistics will be in the same place and computed the same way regardless of the conditioning package used.
+Because there is no *a priori* way to know which conditioning method will work best for a given sample, users should try several methods, and these methods are spread across various packages; for example, full matching is available only in `MatchIt` and `optmatch`, generalized boosted modeling only in `twang`, covariate balancing propensity score weighting only in `CBPS`, genetic matching only in `MatchIt` and `Matching`, and entropy balancing only in `ebal`. If a user wants to compare these methods on their ability to generate balance in the sample, they cannot do so on the same metrics and with the same output. Each package computes balance statistics differently, and the relevant balance measures are in different places in each package, or not available at all. By using `cobalt` to assess balance across packages, users can be sure they are using a single, equivalent balance metric across methods, and the relevant balance statistics will be in the same place and computed the same way regardless of the conditioning package used.
 
 ### Flexibility
 
@@ -97,7 +97,7 @@ p.score <- glm(f.build("treat", covs), data = lalonde, family = "binomial")$fitt
 library("MatchIt")
 m.out <- matchit(f.build("treat", covs), data = lalonde, method = "nearest")
 ```
-`f.build()` can also be used in the `Matching` and formula interfaces in `bal.tab()`.
+`f.build()` can also be used in the `Matching`, `optmatch`, `ebalance`, and formula interfaces in `bal.tab()`.
 
 *Note*: in an earlier version of `cobalt`, the first argument of `f.build()` was unquoted; this has been changed to reap the benefits of standard evaluation, including the ability to loop through response variables.
 
@@ -111,7 +111,7 @@ For simplicity, the description of the use of `bal.tab()` will be most complete 
 
 ### Using bal.tab on its own
 
-One doesn't need to be using the supported packages (`MatchIt`, `twang`, `Matching`, `CBPS`, or `ebal`) to use `cobalt`. `bal.tab()` can take in any data set and set of weights or subclasses and evaluate balance on them. This can be useful if propensity score weights or subclasses were generated outside any package, if balance assessment is desired prior to adjustment, or if package output is adjusted in such a way as to make it unusable with one of `bal.tab()`'s other methods (e.g., if cases were manually removed or weights manually changed). In `twang`, the function `dx.wts()` performs a similar action by allowing for the balance assessment of groups weighted not using GBM, but it does not provide support for matching weights (e.g., those generated from `MatchIt`) or subclasses. Below is an example of the use of `bal.tab()` with ATT weights generating using logistic regression for a weighting-by-the-odds analysis:
+One doesn't need to be using the supported packages (`MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, or `ebal`) to use `cobalt`. `bal.tab()` can take in any data set and set of weights,  subclasses, or matching strata and evaluate balance on them. This can be useful if propensity score weights, subclasses or matching strata were generated outside any package, if balance assessment is desired prior to adjustment, or if package output is adjusted in such a way as to make it unusable with one of `bal.tab()`'s other methods (e.g., if cases were manually removed or weights manually changed). In `twang`, the function `dx.wts()` performs a similar action by allowing for the balance assessment of groups weighted not using GBM, but it does not provide support for matching strata (e.g., those generated from `optmatch`) or subclasses. Below is an example of the use of `bal.tab()` with ATT weights generating using logistic regression for a weighting-by-the-odds analysis:
 
 ```{r}
 data("lalonde", package = "cobalt") #If not yet loaded
@@ -281,6 +281,25 @@ bal.tab(match.out, treat = lalonde$treat, covs = covs0)
 ```
 
 The other arguments to `bal.tab()` when using it with `Matching` have the same form and function as those given when using it without a conditioning package, except for `s.d.denom`. If the estimand of the original call to `Match()` is the ATT, `s.d.denom` will default to `"treated"` if not specified; if the estimand is the ATE, `s.d.denom` will default to `"pooled"`; if the estimand is the ATC, `s.d.denom` will default to `"control"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable. In addition, the use of the `addl` argument is unnecessary because the covariates are entered manually as arguments, so all covariates for which balance is to be assessed can be entered through the `formula` or `covs` argument. If the covariates are stored in two separate data frames, it may be useful to include one in `formula` or `covs` and the other in `addl`.
+
+### Using bal.tab with optmatch
+
+The `optmatch` package is useful for performing optimal pairwise or full matching. Most functions in `optmatch` are subsumed in `MatchIt`, but `optmatch` sees use from those who want finer control of the matching process than `MatchIt` allows. The output of calls to functions in `optmatch` is an `optmatch` object, which contains matching stratum membership for each unit in the given data set. Units that are matched with each other are assigned the same matching stratum. The user guide for `optmatch` recommends using the `RItools` package for balance assessment, but below is an example of how to use `bal.tab()` for the same purpose. Note that some results will differ between `cobalt` and `RItools` because of differences in how balance is calculated in each.
+
+```{r}
+#Optimal full matching on the propensity score
+library("optmatch")
+data("lalonde", package = "cobalt") #If not yet loaded
+covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+
+fit <- glm(f.build("treat", covs0), data = lalonde, family = "binomial")
+lalonde$p.score <- fit$fitted.values #get the propensity score
+fm <- fullmatch(treat ~ p.score, data = lalonde)
+
+bal.tab(fm, formula = f.build("treat", covs0), data = lalonde)
+```
+
+Most details for the use of `bal.tab()` with `optmatch` are similar to those when using `bal.tab()` with `Matching`. Users can enter either a formula and a data set or a vector of treatment status and a set of covariates. 
 
 ### Using bal.tab with CBPS
 
@@ -639,6 +658,8 @@ Green, K. M., & Stuart, E. A. (2014). Examining moderation analyses in propensit
 Hainmueller, J. (2014). ebal: Entropy reweighting to create balanced samples. R package version 0.1-6. https://CRAN.R-project.org/package=ebal
   
 Hansen, B. B. (2008). The prognostic analogue of the propensity score. Biometrika, 95(2), 481-488.
+
+Hansen, B.B. and Klopfer, S.O. (2006) Optimal full matching and related designs via network flows. Journal of Computational and Graphical Statistics, 15, 609-627.
 
 Hirano, K., and G. W. Imbens. (2004) "The Propensity Score with Continuous Treatments.” in Applied Bayesian Modeling and Causal Inference From Incomplete Data Perspectives, edited by A.Gelman and X. L.Meng. England : West Sussex, 2004: 73–84.
 

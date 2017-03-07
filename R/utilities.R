@@ -24,3 +24,29 @@ inxnoty <- function(x, y) {
     else out <- x[, is.na(match(X, Y))]
     return(out)
 }
+word.list <- function(word.list = NULL) {
+    #When given a vector of strings, creates a strign of the form "a and b"
+    #or "a, b, and c"
+    L <- length(word.list)
+    if (L == 0) {
+        out <- ""
+    }
+    else {
+        word.list <- word.list[!word.list %in% c(NA, "")]
+        L <- length(word.list)
+        if (L == 0) {
+            out <- ""
+        }
+        else if (L == 1) {
+            out <- word.list
+        }
+        else if (L == 2) {
+            out <- paste(word.list, collapse = " and ")
+        }
+        else if (L >= 3) {
+            out <- paste(paste(word.list[seq_len(L-1)], collapse = ", "), word.list[L], sep = ", and ")
+        }
+            
+    }
+    return(out)
+}

@@ -1,35 +1,48 @@
-\name{bal.tab.CBPS}
-\alias{bal.tab.CBPS}
+\name{bal.tab.optmatch}
+\alias{bal.tab.optmatch}
 
 \title{
-Balance statistics for CBPS Objects
+Balance Statistics for optmatch Objects
 }
 \description{
-Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package.
+Generates balance statistics for \code{optmatch} objects from \pkg{optmatch}.
 }
 \usage{
-\method{bal.tab}{CBPS}(cbps, estimand, int = FALSE, 
-           addl = NULL, continuous = c("std", "raw"), 
-           binary = c("raw", "std"), s.d.denom, 
-           m.threshold = NULL, v.threshold = NULL, 
-           r.threshold = NULL, un = FALSE, 
-           disp.means = FALSE, disp.v.ratio = FALSE, 
-           cluster = NULL, which.cluster = NULL, 
-           cluster.summary = TRUE, quick = FALSE, ...)
+\method{bal.tab}{optmatch}(optmatch, formula = NULL, data = NULL, treat = NULL, 
+covs = NULL, distance = NULL, int = FALSE, addl = NULL, 
+continuous = c("std", "raw"), binary = c("raw", 
+"std"), s.d.denom = c("treated", "control", 
+"pooled"), m.threshold = NULL, 
+v.threshold = NULL, un = FALSE, 
+disp.means = FALSE, disp.v.ratio = FALSE, 
+cluster = NULL, which.cluster = NULL, 
+cluster.summary = TRUE, quick = FALSE, ...)
 }
 
 \arguments{
-  \item{cbps}{
-a \code{CBPS} object; the output of a call to \code{CBPS()} from the \pkg{CBPS} package.
+  \item{optmatch}{
+an \code{optmatch} object; the output of a call to \code{pairmatch()} or \code{fullmatch()} from the \pkg{optmatch} package. This should be a factor vector containing the matching stratum membership for each unit.
 }
-  \item{estimand}{
-whether the desired estimand is the "ATT" or "ATE". Used for determining \code{s.d.denom} if not specified. \code{bal.tab()} will determine this automatically if unstandardized weights were requested in the original call to \code{CBPS()}. This argument is only required if standardized weights were requested and if \code{s.d.denom} is left blank.
+  \item{formula}{
+a \code{formula} with the treatment variable as the response and the covariates for which balanace is to be assessed as the predictors. All named variables must be in \code{data}. See Details.
+}
+  \item{data}{
+a data frame containing all the variables named in \code{formula}. See Details.
+}
+  \item{treat}{
+a vector of treatment statuses. See Details.
+}
+  \item{covs}{
+a data frame of covariate values for which to check balance. See Details.
+}
+  \item{distance}{
+Optional; either a vector containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
 }
   \item{int}{
-\code{logical}; whether or not to include 2-way interactions of covariates included in the call to \code{CBPS()} and in \code{addl}.
+\code{logical}; whether or not to include 2-way interactions of covariates included in \code{formula} or \code{covs} and in \code{addl}.
 }
   \item{addl}{
-a data frame of additional covariates for which to present balance. These may be covariates included in the original dataset but not included in the call to \code{CBPS()}. See note in Details.
+a data frame of additional covariates for which to present balance. These may be covariates included in the original dataset but not included in \code{formula} or \code{covs}. In general, it makes more sense to include all desired variables in \code{formula} or \code{covs} than in \code{addl}. See note in Details for using \code{addl}.
 }
   \item{continuous}{
 whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed.
@@ -38,16 +51,13 @@ whether mean differences for continuous variables should be standardized ("std")
 whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed.
 }
   \item{s.d.denom}{
-whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), or the pooled standard deviation ("pooled"), computed as the square root of the mean of the group variances. Abbreviations allowed. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{CBPS()} (or that specified by the user to \code{estimand}) is the ATT and "pooled" if the estimand is the ATE.
+whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), or the pooled standard deviation ("pooled"), computed as the square root of the mean of the group variances. Abbreviations allowed. The default is "treated".
 }
   \item{m.threshold}{
 a numeric value for the threshold for mean differences. .1 is recommended. 
 }
   \item{v.threshold}{
 a numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.
-}
-  \item{r.threshold}{
-A numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
   \item{un}{
 \code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
@@ -59,7 +69,7 @@ A numeric value for the threshold for correlations between covariates and treatm
 \code{logical}; whether to display variance ratios in balance output.
 }
   \item{cluster}{
-a vector of cluster membership.
+either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data}. 
 }
   \item{which.cluster}{
 which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
@@ -75,17 +85,16 @@ further arguments passed to or from other methods. They are ignored in this func
 }
 }
 \details{
-\code{bal.tab.CBPS} generates a list of balance summaries for the \code{CBPS} object given, and functions similarly to \code{balance()} in \pkg{CBPS}.
+\code{bal.tab.optmatch()} generates a list of balance summaries for the optmatch object given.
 
-All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}), and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+The input to \code{bal.tab.optmatch()} must include either both \code{formula} and \code{data} or both \code{treat} and \code{covs}. 
 
-The input to \code{addl} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used, R will coerce it to a vector, thus making it unfit for input here. To avoid this, simply wrap the input to \code{addl} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
+All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
-When standardized weights are requested in the call to \code{CBPS()}, variance ratios may not be computed, and if they are computed, they may not be accurate. For this reason, unstandardized weights are preferred. Mean differences, standardized or not, should be unaffected.
+The input to \code{covs} and (optionally) \code{addl} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to \code{covs} or \code{addl} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done. It is recommended to include all desired variables in \code{formula} or \code{covs} rather than specifying additional variables using \code{addl}.
 }
 \value{
-If clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{CBPS} object. The following are the elements of \code{bal.tab}:
-
+If clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{optmatch} object. The following are the elements of \code{bal.tab}:
 \item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
 \itemize{
 \item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
@@ -105,30 +114,35 @@ If clusters are not specified, an object of class \code{"bal.tab"} containing ba
 \item{Balanced.Variances}{If \code{v.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for variance ratios.}
 \item{Max.Imbalance.Variance}{If \code{v.threshold} is specified, a table displaying the variable with the greatest variance ratio.}
 \item{Observations}{A table displaying the sample sizes before and after adjusting.}
-\item{call}{The original \code{CBPS()} call.}
+\item{call}{\code{NULL}.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab}.}
 
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters. Minimum statistics are calculated as well, but not displayed. To see these, use the options in \code{\link{print.bal.tab.cluster}}.
-
-If treatment is continuous, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold} or \code{v.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, and cluster arguments are still used as described above.
 }
 
 \author{
 Noah Greifer \email{noah@unc.edu}
 }
 
-
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
 \examples{
-library(CBPS); data("lalonde", package = "cobalt")
+library("optmatch"); data("lalonde", package = "cobalt")
 
-## Using CBPS() for generating covariate balancing propensity score weights
-cbps.out <- CBPS(treat ~ age + educ + black + hispan + married + 
-             nodegree + re74 + re75, data = lalonde, 
-             standardize = FALSE)
-bal.tab(cbps.out)
+lalonde$prop.score <- glm(treat ~ age + educ + black + hispan + 
+            married + nodegree + re74 + re75, 
+            data = lalonde, family = binomial)$fitted.values
+pm <- pairmatch(treat ~ prop.score, data = lalonde)
+
+## Using formula and data
+bal.tab(pm, treat ~ age + educ + black + hispan + 
+        married + nodegree + re74 + re75, data = lalonde)
+
+## Using treat and covs
+covariates <- subset(lalonde, select=-c(treat, re78, prop.score))
+bal.tab(pm, treat = lalonde$treat, covs = covariates)
 
 }
 \keyword{design}
+

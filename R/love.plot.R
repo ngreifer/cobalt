@@ -283,37 +283,45 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     if (null.colors) {
         colors <- c("black", "black")
         fill <- c("white", "white")
-        if (is.null(shapes)) {
+        if (length(shapes) == 0) {
             shapes <- c(21, 24)
         }
-        else if (!is.numeric(shapes) || !all(shapes %in% 21:25)) {
-            warning("The argument to shape must contain two numbers between 21 and 25. \nUsing 21 (circle) and 24 (triangle) instead.", call. = FALSE)
+        else if (!is.numeric(shapes) || !all(shapes %in% 21:25) || length(shapes) > 2) {
+            warning("The argument to shape must contain one or two numbers between 21 and 25. \nUsing 21 (circle) and 24 (triangle) instead.", call. = FALSE)
             shapes <- c(21, 24)
         }
+        else if (length(shapes) == 1) shapes <- rep(shapes, 2)
         
     }
     else {
-        if (all(sapply(colors[1:2], isColor))) {
+        if (length(colors) == 1) colors <- rep(colors, 2)
+        else if (length(colors) > 2) {
+            colors <- colors[1:2]
+            warning("Only using first two values in colors.", call. = FALSE)
+        }
+        if (all(sapply(colors, isColor))) {
             fill <- colors
-            if (is.null(shapes)) {
+            if (length(shapes) == 0) {
                 shapes <- c(21, 21)
             }
-            else if (!is.numeric(shapes) || !all(shapes %in% 21:25)) {
-                warning("The argument to shape must contain two numbers between 21 and 25. \nUsing 21 (circle) for both instead.", call. = FALSE)
+            else if (!is.numeric(shapes) || !all(shapes %in% 21:25) || length(shapes) > 2) {
+                warning("The argument to shape must contain one or two numbers between 21 and 25. \nUsing 21 (circle) for both instead.", call. = FALSE)
                 shapes <- c(21, 21)
             }
+            else if (length(shapes) == 1) shapes <- rep(shapes, 2)
         }
         else {
             warning("The argument to colors contains at least one value that is not a recognized color.", call. = FALSE)
             colors <- c("black", "black")
             fill <- c("white", "white")
-            if (is.null(shapes)) {
+            if (length(shapes) == 0) {
                 shapes <- c(21, 24)
             }
-            else if (!is.numeric(shapes) || !all(shapes %in% 21:25)) {
-                warning("The argument to shape must contain two numbers between 21 and 25. \nUsing 21 (circle) and 24 (triangle) instead.", call. = FALSE)
+            else if (!is.numeric(shapes) || !all(shapes %in% 21:25) || length(shapes) > 2) {
+                warning("The argument to shape must contain one or two numbers between 21 and 25. \nUsing 21 (circle) and 24 (triangle) instead.", call. = FALSE)
                 shapes <- c(21, 24)
             }
+            else if (length(shapes) == 1) shapes <- rep(shapes, 2)
         }
     }
     
@@ -367,16 +375,16 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         }
         lp <- lp + 
             geom_segment(aes(y = var, yend = var, x = min.stat, xend = max.stat, color = Sample), position = position.nudge, lineend = "butt", size = size) + 
-            geom_point(aes(y = var, x = mean.stat, fill = Sample, shape = Sample, color = Sample), size = 2*size, stroke = stroke, position = position.nudge) + 
+            geom_point(aes(y = var, x = mean.stat, shape = Sample, color = Sample), fill = "white", size = 2*size, stroke = stroke, position = position.nudge) + 
             labs(title = title, y = "")
     }
     else {
         if (line == TRUE) {
             lp <- lp + geom_path(aes(color = Sample), size = size*.8)
         }
-        lp <- lp + geom_point(aes(fill = Sample, shape = Sample,
+        lp <- lp + geom_point(aes(shape = Sample,
                                     color = Sample), 
-                               size = 2*size, stroke = stroke) 
+                               size = 2*size, stroke = stroke, fill = "white") 
         
     }
     # if (Cluster.Fun == "Range") {
