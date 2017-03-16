@@ -68,10 +68,11 @@ split.factor <- function(varname, data) {
 }
 binarize <- function(variable) {
     if (length(unique(variable)) > 2) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
-    if (0 %in% unique(as.numeric(variable))) zero <- 0
+    variable.numeric <- as.numeric(variable)
+    if (!is.na(match(0, unique(variable.numeric)))) zero <- 0
     #else if (1 %in% unique(as.numeric(variable))) zero <- unique(as.numeric(variable))[unique(as.numeric(variable)) != 1]
-    else zero <- min(unique(as.numeric(variable)))
-    variable <- ifelse(as.numeric(variable)==zero, 0, 1)
+    else zero <- min(unique(variable.numeric))
+    variable <- ifelse(variable.numeric==zero, 0, 1)
     return(variable)
 }
 get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL) {
@@ -83,7 +84,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             else stop("The argument to addl must be a data.frame. Wrap data.frame() around the argument if it is a matrix or vector.", call. = FALSE)
         }
         else {
-            repeat.name.indices <- sapply(names(addl), function(x) x %in% names(C))
+            repeat.name.indices <- sapply(names(addl), function(x) !is.na(match(x, names(C))))
             if (any(repeat.name.indices)) {
             warning(paste("The following variables in addl have the same name as covariates and will be ignored:\n",
                           paste(names(addl)[repeat.name.indices], collapse = " ")), call. = FALSE)
@@ -105,6 +106,9 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             C <- split.factor(i, C)
         }
     }
+    
+    single.value <- apply(C, 2, function(x) abs(max(x) - min(x)) < sqrt(.Machine$double.eps))
+    C <- C[, !single.value, drop = FALSE]
 
     if (int) {
         #Prevent duplicate var names with _'s
@@ -121,8 +125,17 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         C <- cbind(C, int.poly.f(C, int = TRUE, poly = 2, nunder = nunder, ncarrot = ncarrot))
     }
     #Remove duplicate & redundant variables
-    suppressWarnings(C.cor <- cor(C))
-    s <- (1 - abs(C.cor) < .Machine$double.eps ^ .5) & !lower.tri(C.cor, diag=TRUE)
+    #If many rows, select subset to test redundancy
+    if (nrow(C) > 1500) {
+        repeat {
+            mini.C <- C[sample(seq_len(nrow(C)), 1000),]
+            single.value <- apply(mini.C, 2, function(x) abs(max(x) - min(x)) < sqrt(.Machine$double.eps))
+            if (all(!single.value)) break
+        }
+        suppressWarnings(C.cor <- cor(mini.C))
+    }
+    else suppressWarnings(C.cor <- cor(C))
+    s <- !lower.tri(C.cor, diag=TRUE) & (1 - abs(C.cor) < sqrt(.Machine$double.eps))
     redundant.vars <- apply(s, 2, function(x) any(x))
     C <- C[, !redundant.vars, drop = FALSE]        
     

@@ -4,11 +4,6 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
     
     X <- x2base(obj, ..., cluster = cluster, std.ok = TRUE)
     
-    #Functions
-    w.m <- function(x, w = NULL) {
-        if (is.null(w)) w <- rep(1, length(x)); return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))
-    }
-    
     if (var.name %in% names(X$covs)) var <- X$covs[, var.name]
     else if (!is.null(args$data) && var.name %in% names(args$data)) var <- args$data[, var.name]
     else if (!is.null(X$addl) && var.name %in% names(X$addl)) var <- args$addl[, var.name]

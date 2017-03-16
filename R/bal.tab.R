@@ -284,9 +284,10 @@ bal.tab.matchit <- function(m, int = FALSE, addl = NULL, continuous = c("std", "
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    if (any(sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), "")))) {
-        for (arg.name in names(args)[sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), ""))]) {
-            if (identical(as.character(args[arg.name]), "")) {
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
         }
@@ -305,9 +306,10 @@ bal.tab.ps <- function(ps, full.stop.method, int = FALSE, addl = NULL, continuou
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    if (any(sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), "")))) {
-        for (arg.name in names(args)[sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), ""))]) {
-            if (identical(as.character(args[arg.name]), "")) {
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
         }
@@ -330,9 +332,10 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    if (any(sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), "")))) {
-        for (arg.name in names(args)[sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), ""))]) {
-            if (identical(as.character(args[arg.name]), "")) {
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
         }
@@ -358,9 +361,10 @@ bal.tab.formula <- function(formula, data, weights = NULL, distance = NULL, subc
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    if (any(sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), "")))) {
-        for (arg.name in names(args)[sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), ""))]) {
-            if (identical(as.character(args[arg.name]), "")) {
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
         }
@@ -419,9 +423,10 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    if (any(sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), "")))) {
-        for (arg.name in names(args)[sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), ""))]) {
-            if (identical(as.character(args[arg.name]), "")) {
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
         }
@@ -478,9 +483,10 @@ bal.tab.CBPS <- function(cbps, estimand, int = FALSE, addl = NULL, continuous = 
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    if (any(sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), "")))) {
-        for (arg.name in names(args)[sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), ""))]) {
-            if (identical(as.character(args[arg.name]), "")) {
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
         }
@@ -508,9 +514,10 @@ bal.tab.ebalance <- function(ebal, formula = NULL, data = NULL, treat = NULL, co
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    if (any(sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), "")))) {
-        for (arg.name in names(args)[sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), ""))]) {
-            if (identical(as.character(args[arg.name]), "")) {
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
         }
@@ -534,9 +541,10 @@ bal.tab.optmatch <- function(optmatch, formula = NULL, data = NULL, treat = NULL
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    if (any(sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), "")))) {
-        for (arg.name in names(args)[sapply(formals()[-c(1, length(formals()))], function(x) identical(as.character(x), ""))]) {
-            if (identical(as.character(args[arg.name]), "")) {
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
         }

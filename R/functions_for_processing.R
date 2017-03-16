@@ -118,7 +118,11 @@ use.tc.fd <- function(formula, data, treat, covs) {
 }
 
 #base.bal.tab
-w.m <- function(x, w) {return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))}
+#w.m <- function(x, w) {return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))}
+w.m <- function(x, w = NULL) {
+    if (is.null(w)) w <- rep(1, length(x))
+    return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))
+}
 w.v <- function(x, w) {
     return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE)/(sum(w, na.rm=TRUE)-1))
 }
@@ -166,10 +170,10 @@ diff.selector <- function(x, group, weights = NULL, subclass = NULL, which.sub =
     else ss <- (subclass == which.sub & weights > 0)
     
     if (x.type=="Distance")  {
-        diff <- w.m(x[group==1 & ss], w = weights[group==1 & ss]) - w.m(x[group==0 & ss], w = weights[group==0 & ss])
+        diff <- w.m(x[ss & group==1], w = weights[ss & group==1]) - w.m(x[ss & group==0], w = weights[ss & group==0])
     }
     else if (x.type=="Binary") {
-        if      (binary=="raw") diff <- w.m(x[group==1 & ss], w = weights[group==1 & ss]) - w.m(x[group==0 & ss], w = weights[group==0 & ss])
+        if      (binary=="raw") diff <- w.m(x[ss & group==1], w = weights[ss & group==1]) - w.m(x[ss & group==0], w = weights[ss & group==0])
         else if (binary=="std") {
             if (no.sub) diff <- std.diff(x, group, weights, denom = s.d.denom)
             else diff <- std.diff.subclass(x, group, weights, subclass, which.sub, denom = s.d.denom)
@@ -177,7 +181,7 @@ diff.selector <- function(x, group, weights = NULL, subclass = NULL, which.sub =
         else diff <- NULL
     }
     else if (x.type=="Contin.") {
-        if      (continuous=="raw") diff <- w.m(x[group==1 & ss], w = weights[group==1 & ss]) - w.m(x[group==0 & ss], w = weights[group==0 & ss])
+        if      (continuous=="raw") diff <- w.m(x[ss & group==1], w = weights[ss & group==1]) - w.m(x[ss & group==0], w = weights[ss & group==0])
         else if (continuous=="std") {
             if (no.sub) diff <- std.diff(x, group, weights, denom = s.d.denom)
             else diff <- std.diff.subclass(x, group, weights, subclass, which.sub, denom = s.d.denom)
@@ -574,4 +578,21 @@ balance.table.cont.cluster.summary <- function(balance.table.clusters.list, r.th
         }
     }
     return(B)
+}
+
+#love.plot
+isColor <- function(x) {
+    tryCatch(is.matrix(col2rgb(x)), 
+             error = function(e) FALSE)
+}
+
+#print.bal.tab
+round_df <- function(df, digits) {
+    nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+    df[, nums] <- round(df[, nums], digits = digits)
+    return(df)
+}
+replaceNA <- function(x) {
+    x[is.na(x)] <- ""
+    return(x)
 }

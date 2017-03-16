@@ -9,6 +9,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     #un.color (deprecated)
     #adj.color (deprecated)
     #title
+    #subtitle
     #colors
     #shapes
     
@@ -272,15 +273,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     #     adj.color <- "black"
     # }
     
-    null.colors <- is.null(colors)
-    if (!null.colors) {
-        isColor <- function(x) {
-            tryCatch(is.matrix(col2rgb(x)), 
-                     error = function(e) FALSE)
-        }
-    }
-    
-    if (null.colors) {
+    if (is.null(colors)) {
         colors <- c("black", "black")
         fill <- c("white", "white")
         if (length(shapes) == 0) {
@@ -327,6 +320,8 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     
     #Title
     if (!is.null(args$title)) title <- as.character(args$title)
+    if (!is.null(args$subtitle)) subtitle <- as.character(args$subtitle)
+    else subtitle <- NULL
     
     lp <- ggplot(data = SS, aes(y = var, x = stat, group = Sample)) + theme(
         panel.grid.major = element_line(color = "gray85"),
@@ -336,7 +331,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         scale_shape_manual(values = shapes) +
         scale_fill_manual(values = fill) +
         scale_color_manual(values = colors) + 
-        labs(title = title, y = "") 
+        labs(title = title, subtitle = subtitle, y = "") 
     if (which.stat == "Corr") {
         baseline.xintercept <- 0
         if (abs) {

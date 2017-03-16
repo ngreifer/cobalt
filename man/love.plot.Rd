@@ -60,6 +60,7 @@ Options for display of the plot. The following arguments are currently accepted:
     \item{\code{size}}{\code{numeric}; the size of the points on the plot. Defaults to 1.
     }
     \item{\code{title}}{\code{character}; the title of the plot.}
+    \item{\code{subtitle}}{\code{character}; the subtitle of the plot.}
   }
 }
 }

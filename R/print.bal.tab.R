@@ -53,15 +53,6 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
                                   p.ops$disp.adj*p.ops$disp.v.ratio, 
                                   !is.null(p.ops$v.threshold)))
     
-    round_df <- function(df, digits) {
-        nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-        df[, nums] <- round(df[, nums], digits = digits)
-        return(df)
-    }
-    replaceNA <- function(x) {
-        x[is.na(x)] <- ""
-        return(x)
-    }
     
     if (!is.null(call)) {
         cat("\nCall:", deparse(call), sep = "\n")
@@ -120,16 +111,6 @@ print.bal.tab.cont <- function(x, disp.r.threshold = "as.is", un = "as.is", digi
                                   p.ops$un, 
                                   p.ops$disp.adj, 
                                   !is.null(p.ops$r.threshold)))
-    
-    round_df <- function(df, digits) {
-        nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-        df[, nums] <- round(df[, nums], digits = digits)
-        return(df)
-    }
-    replaceNA <- function(x) {
-        x[is.na(x)] <- ""
-        return(x)
-    }
     
     if (!is.null(call)) {
         cat("\nCall:", deparse(call), sep = "\n")
@@ -198,16 +179,6 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     if (!identical(disp.subclass, "as.is")) {
         if (!is.logical(disp.subclass)) stop("disp.subclass must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.subclass <- disp.subclass
-    }
-    
-    round_df <- function(df, digits) {
-        nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-        df[, nums] <- round(df[, nums], digits = digits)
-        return(df)
-    }
-    replaceNA <- function(x) {
-        x[is.na(x)] <- ""
-        return(x)
     }
     
     if (!is.null(call)) {
@@ -350,16 +321,6 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         which.cluster <- seq_along(c.balance)
     }
     
-    round_df <- function(df, digits) {
-        nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-        df[, nums] <- round(df[, nums], digits = digits)
-        return(df)
-    }
-    replaceNA <- function(x) {
-        x[is.na(x)] <- ""
-        return(x)
-    }
-    
     keep <- c((1:ncol(c.balance[[1]]))*c(TRUE, 
                                          p.ops$un*p.ops$disp.means, 
                                          p.ops$un*p.ops$disp.means, 
@@ -480,16 +441,6 @@ print.bal.tab.cont.cluster <- function(x, disp.r.threshold = "as.is", un = "as.i
     else {
         warning("The argument to which.cluster must be NA, NULL, or a vector of cluster indicies or cluster names. Displaying all clusters instead.", call. = FALSE)
         which.cluster <- seq_along(c.balance)
-    }
-    
-    round_df <- function(df, digits) {
-        nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-        df[, nums] <- round(df[, nums], digits = digits)
-        return(df)
-    }
-    replaceNA <- function(x) {
-        x[is.na(x)] <- ""
-        return(x)
     }
     
     keep <- c((1:ncol(c.balance[[1]]))*c(TRUE, 
