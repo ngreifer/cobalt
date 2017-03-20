@@ -2,27 +2,29 @@ cobalt News and Updates
 ======
 Version 1.4.0
 
-*Added support for matching using the optmatch package or by specifying matching strata.
+* Added support for matching using the optmatch package or by specifying matching strata.
 
-*Adjusted specifications in `love.plot()` for color and shape of points, and added option to generate a line connecting the points.
+* Adjusted specifications in `love.plot()` for color and shape of points, and added option to generate a line connecting the points.
 
-*Adjusted `love.plot()` display to perform better on Windows.
+* Adjusted `love.plot()` display to perform better on Windows.
 
-*Added flexibility to `f.build()`.
+* Added flexibility to `f.build()`.
 
-*Updated `bal.plot()`, giving the capability to view multiple plots for subclassified or clustered data. Multinomial treatments are also supported.
+* Updated `bal.plot()`, giving the capability to view multiple plots for subclassified or clustered data. Multinomial treatments are also supported.
 
-*Edits to the vignette and help files.
+* Edits to the vignette and help files.
+
+* Speed improvements
 
 Version 1.3.1
 
-*Added support for entropy balancing through the ebal package.
+* Added support for entropy balancing through the ebal package.
 
-*Changed default color scheme of `love.plot()` to be black and white and added options for color, shape, and size of points.
+* Changed default color scheme of `love.plot()` to be black and white and added options for color, shape, and size of points.
 
-*Added sample size calculations for continuous treatments.
+* Added sample size calculations for continuous treatments.
 
-*Edits to the vignette.
+* Edits to the vignette.
     
 Version 1.3.0
 

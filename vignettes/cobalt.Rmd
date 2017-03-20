@@ -74,7 +74,7 @@ The main conditioning packages produce plots that can be useful in assessing bal
 There are four functions for use in `cobalt`: `f.build()`, `bal.tab()`, `bal.plot()`, and `love.plot()`. The next sections describe how to use each, complete with example code and output. To start, install and load `cobalt` with the following code:
 
 ```{r, eval = 2}
-install.packages("cobalt")
+#install.packages("cobalt")
 library("cobalt")
 ```
 
@@ -341,7 +341,7 @@ bal.tab(e.out, treat = lalonde$treat, covs = covs0)
 
 First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. The "effective" sample size is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" below for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure. That said, in simulations by Zhao and Percival (2015), entropy balancing reliably had smaller empirical standard deviations than covariate balancing propensity scores, indicating that bootstrap standard errors for effect estimates may be most appropriate.
 
-The input is similar to that for using `bal.tab()` with `Matching` pr `optmatch`. One must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
+The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. One must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
 
 ## bal.plot
 

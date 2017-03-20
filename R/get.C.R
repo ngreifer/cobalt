@@ -93,7 +93,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             C <- cbind(C, addl)
         }
     } 
-    
+
     for (i in names(C)) {
         if (is.character(C[, i])) C[, i] <- factor(C[, i])
         if (length(unique(C[, i])) <= 2) {
@@ -101,7 +101,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             else if (is.numeric(C[, i])) C[, i] <- binarize(C[, i])
         }
         
-        if (length(cluster) > 0 && qr(matrix(c(C[, i], as.numeric(cluster)), ncol = 2))$rank == 1) C <- C[, names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
+        if (nlevels(cluster) > 0 && qr(matrix(c(C[, i], as.numeric(cluster)), ncol = 2))$rank == 1) C <- C[, names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
         else if (!is.numeric(C[, i])) {
             C <- split.factor(i, C)
         }

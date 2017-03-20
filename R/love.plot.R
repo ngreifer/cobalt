@@ -10,8 +10,6 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     #adj.color (deprecated)
     #title
     #subtitle
-    #colors
-    #shapes
     
     null.threshold <- is.null(threshold)
     if (!null.threshold) {
@@ -365,7 +363,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     
     if (Cluster.Fun == "Range") {
         position.nudge <- position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge))
-        if (args$line == TRUE) {
+        if (line == TRUE) {
             lp <- lp + geom_path(aes(color = Sample), size = size*.8, position = position.nudge)
         }
         lp <- lp + 

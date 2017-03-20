@@ -142,7 +142,7 @@ x2base.Match <- function(Match, ...) {
               obj=NA,
               cluster = NA)
     #Checks
-    if (!is.list(Match) & !is.null(Match)) {
+    if (!is.list(Match) & length(Match) > 0) {
         stop("'Match' object contains no valid matches")}
     
     #Get treat and covs
@@ -190,7 +190,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process cluster
     cluster <- A$cluster
-    if (!is.null(cluster)) {
+    if (length(cluster) > 0) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
         }
@@ -228,21 +228,8 @@ x2base.formula <- function(formula, ...) {
     
     A <- list(...)
     
-    # X <- list(covs = NA,
-    #           weights = NA,
-    #           treat = NA,
-    #           distance = NA,
-    #           subclass = NA,
-    #           match.strata = NA
-    #           addl = NA,
-    #           s.d.denom = NA, 
-    #           method = NA,
-    #           call = NA,
-    #           obj = NA,
-    #           cluster = NA)
-    
     #Checks
-    if (is.null(A$data)) {
+    if (length(A$data) == 0) {
         stop("Dataframe must be specified.", call. = FALSE)}
     if (!is.data.frame(A$data)) {
         stop("Data must be a dataframe.", call. = FALSE)}
@@ -274,6 +261,7 @@ x2base.data.frame <- function(covs, ...) {
     #method
     #cluster
     #estimand
+    #imp
     
     A <- list(...)
     X <- list(covs = NA,
@@ -286,7 +274,8 @@ x2base.data.frame <- function(covs, ...) {
               method = NA,
               call = NA,
               obj = NA,
-              cluster = NA)
+              cluster = NA,
+              imp = NA)
     
     treat <- A$treat
     data <- A$data
@@ -299,9 +288,10 @@ x2base.data.frame <- function(covs, ...) {
     s.d.denom <- A$s.d.denom
     method <- A$method
     estimand <- A$estimand
+    imp <- A$imp
     
     #Checks
-    if (is.null(covs)) {
+    if (length(covs) == 0) {
         stop("covs dataframe must be specified.", call. = FALSE)
     }
     if (!is.data.frame(covs)) {
@@ -310,27 +300,27 @@ x2base.data.frame <- function(covs, ...) {
     if (sum(is.na(covs)) > 0) {
         stop("Missing values exist in the covariates.", call. = FALSE)
     }
-    if (!is.null(data) && !is.data.frame(data)) {
+    if (length(data) > 0 && !is.data.frame(data)) {
         warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execuction will halt.")
         data <- NULL
     }
     specified <- setNames(rep(FALSE, 3), c("match.strata", "subclass", "weights"))
-    if (!is.null(weights)) {
+    if (length(weights) > 0) {
         if (!is.character(weights) && !is.numeric(weights)) {
             stop("The argument to weights must be a vector of weights or the (quoted) name of a variable in data that contains weights.", call. = FALSE)
         }
         specified["weights"] <- TRUE
     }
-    if (!is.null(distance) && !is.character(distance) && !is.numeric(distance)) {
+    if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance)) {
         stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
     }
-    if (!is.null(subclass)){
+    if (length(subclass) > 0){
         if (!is.character(subclass) && !is.numeric(subclass)) {
             stop("The argument to subclass must be a vector of subclass membership or the (quoted) name of a variable in data that contains subclass membership.", call. = FALSE)
         }
         specified["subclass"] <- TRUE
     }
-    if (!is.null(match.strata)) {
+    if (length(match.strata) > 0) {
         if (!is.character(match.strata) && !is.numeric(match.strata) && !is.factor(match.strata)) {
             stop("The argument to match.strata must be a vector of match stratum membership or the (quoted) name of a variable in data that contains match stratum membership.", call. = FALSE)
         }
@@ -338,7 +328,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Getting method
-    if (is.null(method)) {
+    if (length(method) == 0) {
         if (specified["match.strata"]) {
             if (sum(specified) > 1) {
                 message(word.list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word.list(names(specified)[specified & names(specified)!="match.strata"]), ".")
@@ -437,10 +427,13 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     
-    if (!is.null(cluster) && !is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
+    if (length(cluster) > 0 && !is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
         stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
     }
-    if (is.null(treat)) stop("treat must be specified.", call. = FALSE)
+    if (length(imp) > 0 && !is.character(imp) && !is.numeric(imp) && !is.factor(imp)) {
+        stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
+    }
+    if (length(treat) == 0) stop("treat must be specified.", call. = FALSE)
     
     #Process treat
     if (is.numeric(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
@@ -451,14 +444,13 @@ x2base.data.frame <- function(covs, ...) {
     }
     else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
     
-    if (length(treat) != nrow(covs)) {
-        stop("treat must be the same length as covs.", call. = FALSE)}
+
     
     if (sum(is.na(treat)) > 0)
         stop("Missing values exist in treat.", call. = FALSE)
     
     #Process weights
-    if (!is.null(weights)) {
+    if (length(weights) > 0) {
         if (is.numeric(weights)) {
             weights <- weights
         }
@@ -467,16 +459,12 @@ x2base.data.frame <- function(covs, ...) {
         }
         else stop("The name supplied to weights is not the name of a variable in data.", call. = FALSE)
         
-        if (length(weights) != nrow(covs)) {
-            stop("weights must be the same length as covs.", call. = FALSE)
-        }
-        
         if (sum(is.na(weights)) > 0)
             stop("Missing values exist in weights.", call. = FALSE)
     }
     
     #Process distance
-    if (!is.null(distance)) {
+    if (length(distance) > 0) {
         if (is.numeric(distance)) {
             distance <- distance
         }
@@ -485,16 +473,12 @@ x2base.data.frame <- function(covs, ...) {
         }
         else stop("The name supplied to distance is not the name of a variable in data.", call. = FALSE)
         
-        if (length(distance) != nrow(covs)) {
-            stop("distance must be the same length as covs.", call. = FALSE)
-        }
-        
         if (sum(is.na(distance)) > 0)
             stop("Missing values exist in distance.", call. = FALSE)
     }
     
     #Process subclass
-    if (!is.null(subclass)) {
+    if (length(subclass) > 0) {
         if (is.numeric(subclass)) {
             subclass <- subclass
         }
@@ -503,13 +487,10 @@ x2base.data.frame <- function(covs, ...) {
         }
         else stop("The name supplied to subclass is not the name of a variable in data.", call. = FALSE)
         
-        if (length(subclass) != nrow(covs)) {
-            stop("subclass must be the same length as covs.", call. = FALSE)
-        }
     }
     
     #Process match.strata
-    if (!is.null(match.strata)) {
+    if (length(match.strata) > 0) {
         if (is.character(match.strata) && length(match.strata)==1) {
             if (match.strata %in% names(data)) {
                 match.strata <- data[, match.strata]
@@ -517,16 +498,13 @@ x2base.data.frame <- function(covs, ...) {
             else stop("The name supplied to match.strata is not the name of a variable in data.", call. = FALSE)
         }
         
-        if (length(match.strata) != nrow(covs)) {
-            stop("match.strata must be the same length as covs.", call. = FALSE)
-        }
             weights <- match.strata2weights(covs = covs, 
                                             treat = treat, 
                                             match.strata = match.strata)
     }
     
     #Process cluster
-    if (!is.null(cluster)) {
+    if (length(cluster) > 0) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
         }
@@ -535,13 +513,13 @@ x2base.data.frame <- function(covs, ...) {
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
         
-        if (length(cluster) != nrow(covs)) {
-            stop("cluster must be the same length as covs.", call. = FALSE)
-        }
+
     }
     
+
+    
     #Process addl
-    if (!is.null(addl)) {
+    if (length(addl) > 0) {
         if (is.character(addl)) {
             if (any(!addl %in% names(data))) {
                 warning(paste("The following variable(s) named in addl are not in data and will be ignored: ",
@@ -550,20 +528,96 @@ x2base.data.frame <- function(covs, ...) {
             }
         }
         else if (is.data.frame(addl)) {
-            if (nrow(addl)!=nrow(covs)) {
-                stop("If addl is a data.frame, it must have the same number of rows as covs")
-            }
+            # if (nrow(addl)!=nrow(covs)) {
+            #     stop("If addl is a data.frame, it must have the same number of rows as covs")
+            # }
         }
         else {
             warning("addl must be a list of names of variables in data or a data.frame containing additional variable(s). addl will be ignored in the following output.")
             addl <- NULL
         }
     }
+    ensure.equal.lengths <- TRUE
+    vectors <- c("treat", "weights", "distance", "subclass", "match.strata", "cluster")
+    data.frames <- c("covs", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    #Process imp
+    if (length(imp) > 0) {
+        if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
+            imp <- imp
+        }
+        else if (is.character(imp) && length(imp)==1 && imp %in% names(data)) {
+            imp <- data[, imp]
+        }
+        else stop("The name supplied to imp is not the name of a variable in data.", call. = FALSE)
+        
+        imp.lengths <- sapply(unique(imp), function(i) sum(imp == i))
+
+        if (abs(max(imp.lengths) - min(imp.lengths)) < sqrt(.Machine$double.eps)) { #all the same
+            for (i in vectors) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (lengths[i] == imp.lengths[1]) {
+                        temp.imp <- data.frame(imp = imp, order = sort(rep(seq_len(lengths[i]), length(imp.lengths))),
+                                               order2 = seq_along(imp))
+                        temp.var <- data.frame(sort(imp), rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               get(i)[rep(seq_len(lengths[i]), length(imp.lengths))]
+                        )
+                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
+                                            by.y = 1:2, sort = FALSE)
+                        assign(i, temp.merge[order(temp.merge[,3]), -c(1:3), drop = TRUE])
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+            for (i in data.frames) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (lengths[i] == imp.lengths[1]) {
+                        temp.imp <- data.frame(imp = imp, order = sort(rep(seq_len(lengths[i]), length(imp.lengths))),
+                                               order2 = seq_along(imp))
+                        temp.var <- data.frame(sort(imp),rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               get(i)[rep(seq_len(lengths[i]), length(imp.lengths)), ]
+                                               )
+                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
+                                            by.y = 1:2, sort = FALSE)
+                        assign(i, setNames(temp.merge[order(temp.merge[,3]), -c(1:3)], names(get(i))))
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+        }
+        else {
+            problematic <- lengths[i] > 0 && lengths[i] != length(imp)
+        }
+        if (any(problematic)) {
+            stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as imp or one imputation."), call. = FALSE)
+        }
+        else ensure.equal.lengths <- FALSE
+    }
     
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="covs"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["covs"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
+    }
     
     #Get s.d.denom
     check.estimand <- check.weights <- bad.s.d.denom <- bad.estimand <- FALSE
-    if (!is.null(s.d.denom)) {
+    if (length(s.d.denom) > 0) {
         try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled")),
                                   error = function(cond) FALSE)
         if (try.s.d.denom == FALSE) {
@@ -579,7 +633,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     if (check.estimand == TRUE) {
-        if (!is.null(estimand)) {
+        if (length(estimand) > 0) {
             try.estimand <- tryCatch(match.arg(tolower(estimand), c("att", "atc", "ate")),
                                      error = function(cond) FALSE)
             if (try.estimand == FALSE) {
@@ -638,9 +692,10 @@ x2base.data.frame <- function(covs, ...) {
     X$call <- NULL
     X$addl <- addl
     X$obj <- data.frame(treat=X$treat, weights=NA)
-    if (!is.null(weights)) X$obj$weights <- X$weights
-    if (!is.null(subclass)) X$obj$subclass <- X$subclass
-    if (!is.null(cluster)) X$obj$cluster <- X$cluster
+    X$imp <- factor(imp)
+    if (length(weights) > 0) X$obj$weights <- X$weights
+    if (length(subclass) > 0) X$obj$subclass <- X$subclass
+    if (length(cluster) > 0) X$obj$cluster <- X$cluster
     return(X)
 }
 x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
@@ -732,7 +787,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process cluster
     cluster <- A$cluster
-    if (!is.null(cluster)) {
+    if (length(cluster) > 0) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
         }
@@ -791,7 +846,7 @@ x2base.optmatch <- function(optmatch, ...) {
                                     match.strata = optmatch)
     
     #Process distance
-    if (!is.null(A$distance)) {
+    if (!length(A$distance) > 0) {
         if (is.numeric(A$distance)) {
             distance <- A$distance
         }
@@ -811,7 +866,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process cluster
     cluster <- A$cluster
-    if (!is.null(cluster)) {
+    if (length(cluster) > 0) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
         }
