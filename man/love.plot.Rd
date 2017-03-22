@@ -61,6 +61,7 @@ Options for display of the plot. The following arguments are currently accepted:
     }
     \item{\code{title}}{\code{character}; the title of the plot.}
     \item{\code{subtitle}}{\code{character}; the subtitle of the plot.}
+    \item{\code{limits}}{\code{numeric}; the bounds for the x-axis of the plot. Must a vector of length 2 in ascending order.}
   }
 }
 }

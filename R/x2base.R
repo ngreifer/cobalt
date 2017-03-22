@@ -9,21 +9,14 @@ x2base.matchit <- function(m, ...) {
               weights=NA,
               subclass=NA,
               method=NA,
+              addl=NA,
               distance=NA,
               obj=NA,
               call=NA,
               cluster=NA)
     
     #Initializing variables
-    cluster <- A$cluster
-    if (length(cluster) > 0) {
-        if (!(is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1))) {
-            stop("The argument to cluster must be a vector of cluster membership.", call. = FALSE)
-        }
-        if (length(cluster) != length(m$treat)) {
-            stop("cluster must be the same length as the original data set.", call. = FALSE)
-        }
-    }
+
     if (any(class(m) == "matchit.subclass")) {
         X$subclass <- factor(m$subclass)
         X$method <- "subclassification"
@@ -38,16 +31,102 @@ x2base.matchit <- function(m, ...) {
     }
     X$weights <- m$weights
     X$treat <- m$treat
-    if (!all(is.na(m$distance))) X$distance <- m$distance
-    else X$distance <- NULL
+    
     if (length(m$model$model) > 0) {
         o.data <- m$model$model #data used in the PS formula, including treatment and covs
-        X$covs <- data.frame(o.data[, !is.na(match(names(o.data), attributes(terms(m$model))$term.labels))])
+        covs <- data.frame(o.data[, !is.na(match(names(o.data), attributes(terms(m$model))$term.labels))])
+        if (identical(o.data, data)) o.data <- NULL
     }
     else {
-        X$covs <- data.frame(m$X)
+        o.data <- NULL
+        covs <- data.frame(m$X)
+    }
+    m.data <- m$model$data
+    
+    #Process cluster
+    cluster <- A$cluster
+    if (length(cluster) > 0) {
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+            cluster <- cluster
+        }
+        else if (is.character(cluster) && length(cluster)==1) {
+            if (cluster %in% names(data)) {
+                cluster <- data[, cluster]
+            }
+            else if (cluster %in% names(m.data)) {
+                cluster <- m.data[, cluster]
+            }
+        }
+        else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
     }
     
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.numeric(val)) {
+                val.df <- setNames(data.frame(val), i)
+            }
+            else if (is.character(val)) {
+                if (length(data) > 0 && any(val %in% names(data))) {
+                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
+                    val <- val[!val %in% names(data)]
+                    
+                }
+                if (length(m.data) > 0 && any(val %in% names(m.data))) {
+                    if (length(val.df) > 0) val.df <- cbind(val.df, m.data[, val[val %in% names(m.data)], drop = FALSE])
+                    else val.df <- m.data[, val[val %in% names(m.data)], drop = FALSE]
+                    val <- val[!val %in% names(m.data)]
+                    
+                }
+                if (length(val) > 0) {
+                    
+                    warning(paste("The following variable(s) named in", i, "are not in any given data set and will be ignored: ",
+                                  paste(val)))
+                }
+            }
+            else if (is.data.frame(val)) {
+                val.df <- val
+            }
+            else stop(paste("The names supplied to", i, "are not the name of a variable in any given data set."), call. = FALSE)
+            
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+            }
+        }
+        assign(i, val.df)
+    }
+    
+    if (!all(is.na(m$distance))) {
+        if (length(distance) > 0) distance <- cbind(distance, .distance = m$distance)
+        else distance <- data.frame(.distance = m$distance)
+    }
+    
+    ensure.equal.lengths <- TRUE
+    vectors <- c("cluster")
+    data.frames <- c("covs", "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="covs"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["covs"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to matchit()."), call. = FALSE)
+    }
+    
+    X$covs <- covs
+    X$distance <- distance
+    X$addl <- addl
     X$cluster <- factor(cluster)
     X$obj <- m
     if (length(cluster) > 0) X$obj$cluster <- X$cluster
@@ -64,6 +143,7 @@ x2base.ps <- function(ps, ...) {
               treat=NA,
               weights=NA,
               distance=NA,
+              addl=NA,
               s.d.denom=NA,
               call=NA,
               obj=NA,
@@ -106,22 +186,99 @@ x2base.ps <- function(ps, ...) {
     }
     else X$s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
     
+    weights <- ps$w[, s]
+    treat <- ps$treat
+    covs <- ps$data[, ps$gbm.obj$var.names, drop = FALSE]
+    
+    ps.data <- ps$data
+    
+    #Process cluster
     cluster <- A$cluster
     if (length(cluster) > 0) {
-        if (!(is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1))) {
-            stop("The argument to cluster must be a vector of cluster membership.", call. = FALSE)
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+            cluster <- cluster
         }
-        if (length(cluster) != length(ps$treat)) {
-            stop("cluster must be the same length as the original data set.", call. = FALSE)
+        else if (is.character(cluster) && length(cluster)==1) {
+            if (cluster %in% names(data)) {
+                cluster <- data[, cluster]
+            }
+            else if (cluster %in% names(ps.data)) {
+                cluster <- ps.data[, cluster]
+            }
+        }
+        else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+    }
+    
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.numeric(val)) {
+                val.df <- setNames(data.frame(val), i)
+            }
+            else if (is.character(val)) {
+                if (length(data) > 0 && any(val %in% names(data))) {
+                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
+                    val <- val[!val %in% names(data)]
+                    
+                }
+                if (length(ps.data) > 0 && any(val %in% names(ps.data))) {
+                    if (length(val.df) > 0) val.df <- cbind(val.df, ps.data[, val[val %in% names(ps.data)], drop = FALSE])
+                    else val.df <- ps.data[, val[val %in% names(ps.data)], drop = FALSE]
+                    val <- val[!val %in% names(ps.data)]
+                    
+                }
+                if (length(val) > 0) {
+                    
+                    warning(paste("The following variable(s) named in", i, "are not in any given data set and will be ignored: ",
+                                  paste(val)))
+                }
+            }
+            else if (is.data.frame(val)) {
+                val.df <- val
+            }
+            else stop(paste("The names supplied to", i, "are not the name of a variable in any given data set."), call. = FALSE)
+            
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+            }
+        }
+        assign(i, val.df)
+    }
+    
+        if (length(distance) > 0) distance <- cbind(distance, prop.score = ps$ps[s][, ])
+        else distance <- data.frame(prop.score = ps$ps[s][, ])
+    
+    ensure.equal.lengths <- TRUE
+    vectors <- c("cluster")
+    data.frames <- c("covs", "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="covs"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["covs"]) {
+                problematic[i] <- TRUE
+            }
         }
     }
-    X$weights <- as.matrix(ps$w[s])
-    X$treat <- ps$treat
-    X$distance <- ps$ps[s][, ]
-    X$covs <- ps$data[ps$gbm.obj$var.names]
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
+    }
+    
+    X$weights <- weights
+    X$treat <- treat
+    X$distance <- distance
+    X$addl <- addl
+    X$covs <- covs
     X$call <- ps$parameters
     X$cluster <- factor(cluster)
-    X$obj <- list(treat=X$treat, weights=X$weights)
+    X$obj <- list(treat=treat, weights=weights)
     if (length(cluster) > 0) X$obj$cluster <- X$cluster
     return(X)
 }
@@ -137,6 +294,7 @@ x2base.Match <- function(Match, ...) {
               weights=NA,
               method=NA,
               distance=NA,
+              addl=NA,
               call=NA,
               s.d.denom=NA,
               obj=NA,
@@ -172,16 +330,16 @@ x2base.Match <- function(Match, ...) {
     
     covs.list$control <- cbind(covs0[m$index.control, ], index=m$index.control)
     covs.list$treated <- cbind(covs0[m$index.treat, ], index=m$index.treat)
-    covs.list$unmatched <- cbind(covs0[!(1:nobs) %in% c(m$index.treated, m$index.control, m$index.dropped), ], index=as.numeric(row.names(covs0)[!(1:nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]))
+    covs.list$unmatched <- cbind(covs0[!seq_len(nobs) %in% c(m$index.treated, m$index.control, m$index.dropped), ], index=as.numeric(row.names(covs0)[!(1:nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]))
     covs.list$dropped <- cbind(covs0[m$index.dropped, ], index=m$index.dropped)
     
     treat.list$control <- treat0[m$index.control]
     treat.list$treated <- treat0[m$index.treat]
-    treat.list$unmatched <- treat0[!(1:nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]
+    treat.list$unmatched <- treat0[!seq_len(nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]
     treat.list$dropped <- treat0[m$index.dropped]
     
     weights.list$control <- weights.list$treated <- m$weights
-    weights.list$unmatched <- rep(0, length(treat0[!(1:nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]))
+    weights.list$unmatched <- rep(0, length(treat0[!seq_len(nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]))
     weights.list$dropped <- rep(0, length(m$index.dropped))
     
     data.list <- lapply(1:4, function(x) cbind(data.frame(treat=treat.list[[x]]), data.frame(weights=weights.list[[x]]), covs.list[[x]]))
@@ -199,18 +357,73 @@ x2base.Match <- function(Match, ...) {
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
         
-        if (length(cluster) != nrow(covs)) {
-            stop(paste0("cluster must be the same length as ", ifelse(attr(t.c, "which")=="fd", "data", "covs"), "."), call. = FALSE)        }
     }
     
-    X$treat <- o.data2$treat
-    X$weights <- o.data2$weights
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.numeric(val)) {
+                val.df <- setNames(data.frame(val), i)
+            }
+            else if (is.character(val)) {
+                if (length(A$data) > 0 && any(val %in% names(A$data))) {
+                    val.df <- A$data[, val[val %in% names(A$data)], drop = FALSE]
+                    val <- val[!val %in% names(A$data)]
+                }
+                if (length(val) > 0) {
+                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
+                                  paste(val)))
+                }
+            }
+            else if (is.data.frame(val)) {
+                val.df <- val
+            }
+            else stop(paste("The names supplied to", i, "are not the name of a variable in data."), call. = FALSE)
+            
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+            }
+        }
+        assign(i, val.df)
+    }
+    
+    treat <- o.data2$treat
+    weights <- o.data2$weights
+    covs <- o.data2[, is.na(match(names(o.data2), c("treat", "weights", "index")))]
+    
+    ensure.equal.lengths <- TRUE
+    covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
+    vectors <- c("weights", "treat", "cluster")
+    data.frames <- c(covs.data, "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="weights"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["weights"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to Match()."), call. = FALSE)
+    }
+    
+    X$treat <- treat
+    X$weights <- weights
     X$distance <- NULL #NAs in distance bcause of incomplete list in Match object
-    X$covs <- o.data2[, is.na(match(names(o.data2), c("treat", "weights", "index")))]
+    X$covs <- covs
     X$call <- NULL
     X$method <- "matching"
     X$cluster <- factor(cluster)
-    X$obj <- list(treat=X$treat, weights=X$weights)
+    X$obj <- list(treat=treat, weights=weights)
     if (length(cluster) > 0) X$obj$cluster <- X$cluster
     return(X)
 }
@@ -311,7 +524,7 @@ x2base.data.frame <- function(covs, ...) {
         }
         specified["weights"] <- TRUE
     }
-    if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance)) {
+    if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
         stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
     }
     if (length(subclass) > 0){
@@ -444,8 +657,6 @@ x2base.data.frame <- function(covs, ...) {
     }
     else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
     
-
-    
     if (sum(is.na(treat)) > 0)
         stop("Missing values exist in treat.", call. = FALSE)
     
@@ -463,23 +674,9 @@ x2base.data.frame <- function(covs, ...) {
             stop("Missing values exist in weights.", call. = FALSE)
     }
     
-    #Process distance
-    if (length(distance) > 0) {
-        if (is.numeric(distance)) {
-            distance <- distance
-        }
-        else if (is.character(distance) && length(distance) == 1 && distance %in% names(data)) {
-            distance <- data[, distance]
-        }
-        else stop("The name supplied to distance is not the name of a variable in data.", call. = FALSE)
-        
-        if (sum(is.na(distance)) > 0)
-            stop("Missing values exist in distance.", call. = FALSE)
-    }
-    
     #Process subclass
     if (length(subclass) > 0) {
-        if (is.numeric(subclass)) {
+        if (is.numeric(subclass) || is.factor(subclass) || (is.character(subclass) && length(subclass)>1)) {
             subclass <- subclass
         }
         else if (is.character(subclass) && length(subclass)==1 && subclass %in% names(data)) {
@@ -516,30 +713,39 @@ x2base.data.frame <- function(covs, ...) {
 
     }
     
-
-    
-    #Process addl
-    if (length(addl) > 0) {
-        if (is.character(addl)) {
-            if (any(!addl %in% names(data))) {
-                warning(paste("The following variable(s) named in addl are not in data and will be ignored: ",
-                              paste(addl[which(!addl %in% names(data))], collapse=", ")))
-                addl <- data[, addl[which(addl %in% names(data))]]
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.numeric(val)) {
+                val.df <- setNames(data.frame(val), i)
+            }
+            else if (is.character(val)) {
+                if (length(data) > 0 && any(val %in% names(data))) {
+                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
+                    val <- val[!val %in% names(data)]
+                }
+                if (length(val) > 0) {
+                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
+                                  paste(val)))
+                }
+            }
+            else if (is.data.frame(val)) {
+                val.df <- val
+            }
+            else stop(paste("The names supplied to", i, "are not the name of a variable in data."), call. = FALSE)
+            
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
             }
         }
-        else if (is.data.frame(addl)) {
-            # if (nrow(addl)!=nrow(covs)) {
-            #     stop("If addl is a data.frame, it must have the same number of rows as covs")
-            # }
-        }
-        else {
-            warning("addl must be a list of names of variables in data or a data.frame containing additional variable(s). addl will be ignored in the following output.")
-            addl <- NULL
-        }
+        assign(i, val.df)
     }
+    
     ensure.equal.lengths <- TRUE
-    vectors <- c("treat", "weights", "distance", "subclass", "match.strata", "cluster")
-    data.frames <- c("covs", "addl")
+    vectors <- c("treat", "weights", "subclass", "match.strata", "cluster")
+    data.frames <- c("covs", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
@@ -707,19 +913,25 @@ x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
               treat=NA,
               weights=NA,
               distance=NA,
+              addl=NA,
               s.d.denom=NA,
               call=NA,
               obj=NA,
               cluster=NA)
     #Checks
     
-    if (!(any(class(cbps.fit) == "CBPSContinuous") || nlevels(as.factor(cbps.fit$y)) > 2)) {
-        if (!std.ok && sum(cbps.fit$weights) < 3) {
-            if ((length(A$estimand > 0) && is.character(A$estimand)) || (length(A$s.d.denom > 0) && is.character(A$s.d.denom))) warning("Standardized weights were used; this may cause reported values to be incorrect. Use unstandardized weights instead.", call. = FALSE)
+    treat <- cbps.fit$y
+    covs <- cbps.fit$data[, !is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
+    weights <- cbps.fit$weights
+    
+    if (!(any(class(cbps.fit) == "CBPSContinuous") || nlevels(as.factor(treat)) > 2)) {
+        if (!std.ok && sum(weights) < 3) {
+            if ((length(A$estimand > 0) && is.character(A$estimand)) || (length(A$s.d.denom > 0) && is.character(A$s.d.denom))) 
+                warning("Standardized weights were used; this may cause reported values to be incorrect. Use unstandardized weights instead.", call. = FALSE)
             else stop("Please specify either the estimand (\"ATT\" or \"ATE\") or an argument to s.d.denom.", call. = FALSE)
         }
         else {
-            if (isTRUE(all.equal(cbps.fit$weights, cbps.fit$y / cbps.fit$fitted.values + (1-cbps.fit$y) / (1-cbps.fit$fitted.values)))) A$estimand <- "ATE"
+            if (isTRUE(all.equal(weights, treat / cbps.fit$fitted.values + (1-treat) / (1-cbps.fit$fitted.values)))) A$estimand <- "ATE"
             else A$estimand <- "ATT"
         }
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
@@ -732,24 +944,95 @@ x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
         else X$s.d.denom <- switch(tolower(A$estimand), att = "treated", ate = "pooled")
     }
     
+    c.data <- cbps.fit$data
+    
+    #Process cluster
     cluster <- A$cluster
     if (length(cluster) > 0) {
-        if (!(is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster) > 1))) {
-            stop("The argument to cluster must be a vector of cluster membership.", call. = FALSE)
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+            cluster <- cluster
         }
-        if (length(cluster) != length(cbps.fit$y)) {
-            stop("cluster must be the same length as the original data set.", call. = FALSE)
+        else if (is.character(cluster) && length(cluster)==1) {
+            if (cluster %in% names(data)) {
+                cluster <- data[, cluster]
+            }
+            else if (cluster %in% names(c.data)) {
+                cluster <- c.data[, cluster]
+            }
         }
+        else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
     }
     
-    if (length(cbps.fit$fitted.values) > 0) X$distance <- cbps.fit$fitted.values
-    else X$distance <- NULL
-    X$weights <- cbps.fit$weights
-    X$treat <- cbps.fit$y
-    X$covs <- cbps.fit$data[, !is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.numeric(val)) {
+                val.df <- setNames(data.frame(val), i)
+            }
+            else if (is.character(val)) {
+                if (length(data) > 0 && any(val %in% names(data))) {
+                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
+                    val <- val[!val %in% names(data)]
+                    
+                }
+                if (length(c.data) > 0 && any(val %in% names(c.data))) {
+                    if (length(val.df) > 0) val.df <- cbind(val.df, c.data[, val[val %in% names(c.data)], drop = FALSE])
+                    else val.df <- c.data[, val[val %in% names(c.data)], drop = FALSE]
+                    val <- val[!val %in% names(c.data)]
+                    
+                }
+                if (length(val) > 0) {
+                    
+                    warning(paste("The following variable(s) named in", i, "are not in any given data set and will be ignored: ",
+                                  paste(val)))
+                }
+            }
+            else if (is.data.frame(val)) {
+                val.df <- val
+            }
+            else stop(paste("The names supplied to", i, "are not the name of a variable in any given data set."), call. = FALSE)
+            
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+            }
+        }
+        assign(i, val.df)
+    }
+    
+        if (length(distance) > 0) distance <- cbind(distance, prop.score = cbps.fit$fitted.values)
+        else distance <- data.frame(prop.score = cbps.fit$fitted.values)
+    
+    ensure.equal.lengths <- TRUE
+    vectors <- c("cluster")
+    data.frames <- c("covs", "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="covs"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["covs"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to CBPS()."), call. = FALSE)
+    }
+    
+    X$distance <- distance
+    X$addl <- addl
+    X$weights <- weights
+    X$treat <- treat
+    X$covs <- covs
     X$cluster <- factor(cluster)
     X$call <- cbps.fit$call
-    X$obj <- list(treat = X$treat, weights = X$weights)
+    X$obj <- list(treat = treat, weights = weights)
     if (length(cluster) > 0) X$obj$cluster <- X$cluster
     return(X)
 }
@@ -766,7 +1049,8 @@ x2base.ebalance <- function(ebalance, ...) {
               distance=NA,
               call=NA,
               obj=NA,
-              cluster = NA)
+              cluster = NA,
+              addl=NA)
     
     #Get treat and covs
     t.c <- use.tc.fd(A$formula, A$data, A$treat, A$covs)
@@ -796,18 +1080,70 @@ x2base.ebalance <- function(ebalance, ...) {
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
         
-        if (length(cluster) != nrow(covs)) {
-            stop(paste0("cluster must be the same length as ", ifelse(attr(t.c, "which")=="fd", "data", "covs"), "."), call. = FALSE)        }
+    }
+    
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.numeric(val)) {
+                val.df <- setNames(data.frame(val), i)
+            }
+            else if (is.character(val)) {
+                if (length(A$data) > 0 && any(val %in% names(A$data))) {
+                    val.df <- A$data[, val[val %in% names(A$data)], drop = FALSE]
+                    val <- val[!val %in% names(A$data)]
+                }
+                if (length(val) > 0) {
+                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
+                                  paste(val)))
+                }
+            }
+            else if (is.data.frame(val)) {
+                val.df <- val
+            }
+            else stop(paste("The names supplied to", i, "are not the name of a variable in data."), call. = FALSE)
+            
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+            }
+        }
+        assign(i, val.df)
+    }
+    
+    ensure.equal.lengths <- TRUE
+    covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
+    vectors <- c("weights", "treat", "cluster")
+    data.frames <- c(covs.data, "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="weights"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["weights"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to ebalance()."), call. = FALSE)
     }
     
     X$treat <- treat
     X$weights <- weights
-    X$distance <- NULL #No distance measure
     X$covs <- covs
+    X$distance <- distance
+    X$addl <- addl
     X$call <- NULL
     X$method <- "weighting"
     X$cluster <- factor(cluster)
-    X$obj <- list(treat=X$treat, weights=X$weights)
+    X$obj <- list(treat=treat, weights=weights)
     if (length(cluster) > 0) X$obj$cluster <- X$cluster
     return(X)
 }
@@ -845,24 +1181,6 @@ x2base.optmatch <- function(optmatch, ...) {
                                     treat = treat, 
                                     match.strata = optmatch)
     
-    #Process distance
-    if (!length(A$distance) > 0) {
-        if (is.numeric(A$distance)) {
-            distance <- A$distance
-        }
-        else if (is.character(A$distance) && length(A$distance) == 1 && A$distance %in% names(A$data)) {
-            distance <- A$data[, A$distance]
-        }
-        else stop("The name supplied to distance is not the name of a variable in data.", call. = FALSE)
-        
-        if (length(distance) != nrow(covs)) {
-            stop(paste0("distance must be the same length as ", ifelse(attr(t.c, "which")=="fd", "data", "covs"), "."), call. = FALSE)
-        }
-        
-        if (sum(is.na(distance)) > 0)
-            stop("Missing values exist in distance.", call. = FALSE)
-    }
-    
     
     #Process cluster
     cluster <- A$cluster
@@ -874,16 +1192,66 @@ x2base.optmatch <- function(optmatch, ...) {
             cluster <- A$data[, cluster]
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
-        
-        if (length(cluster) != nrow(covs)) {
-            stop(paste0("cluster must be the same length as ", ifelse(attr(t.c, "which")=="fd", "data", "covs"), "."), call. = FALSE)        
+    }
+    
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.numeric(val)) {
+                val.df <- setNames(data.frame(val), i)
+            }
+            else if (is.character(val)) {
+                if (length(A$data) > 0 && any(val %in% names(A$data))) {
+                    val.df <- A$data[, val[val %in% names(A$data)], drop = FALSE]
+                    val <- val[!val %in% names(A$data)]
+                }
+                if (length(val) > 0) {
+                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
+                                  paste(val)))
+                }
+            }
+            else if (is.data.frame(val)) {
+                val.df <- val
+            }
+            else stop(paste("The names supplied to", i, "are not the name of a variable in data."), call. = FALSE)
+            
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+            }
         }
+        assign(i, val.df)
+    }
+    
+    ensure.equal.lengths <- TRUE
+    covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
+    vectors <- c("weights", "treat", "cluster")
+    data.frames <- c(covs.data, "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="weights"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["weights"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to optmatch()."), call. = FALSE)
     }
     
     X$treat <- treat
     X$distance <- distance
     X$covs <- covs
     X$weights <- weights
+    X$addl <- addl
     X$call <- NULL
     X$method <- "matching"
     X$cluster <- factor(cluster)

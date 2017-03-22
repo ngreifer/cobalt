@@ -1,8 +1,10 @@
 cobalt News and Updates
 ======
-Version 1.4.0
+Version 2.0.0
 
 * Added support for matching using the optmatch package or by specifying matching strata.
+
+* Added full support for multiply imputed data, including for clustered data sets.
 
 * Adjusted specifications in `love.plot()` for color and shape of points, and added option to generate a line connecting the points.
 

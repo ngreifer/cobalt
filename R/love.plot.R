@@ -1,4 +1,4 @@
-love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = TRUE, cluster.fun = c("mean", "median", "max", "range"), colors = NULL, shapes = NULL, line = FALSE, ...) {
+love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = FALSE, cluster.fun = c("mean", "median", "max", "range"), colors = c("red", "blue"), shapes = NULL, line = FALSE, ...) {
     if (!"bal.tab" %in% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
     else stat <- match.arg(stat)
@@ -10,6 +10,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     #adj.color (deprecated)
     #title
     #subtitle
+    #limits
     
     null.threshold <- is.null(threshold)
     if (!null.threshold) {
@@ -19,13 +20,15 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", correlation = "Corr")
     which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", correlation = "Correlation")
     Cluster.Fun <- ""
+    subtitle <- NULL
     
     if (any(class(b) == "bal.tab.cluster")) {
         if (is.null(b$print.options$which.cluster) || is.na(b$print.options$which.cluster)) {
             Cluster.Fun <- switch(match.arg(cluster.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
             if (Cluster.Fun == "Range") {
                 if (b$print.options$quick) stop("cluster.fun = \"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
-                title <- paste0("Covariate Balance\n", which.stat2, " Range Across Clusters")
+                title <- "Covariate Balance"
+                subtitle <- paste0(which.stat2, " Range Across Clusters")
                 B <- b[["Cluster.Summary"]][, c("Type",
                                                 paste("Max", which.stat, "Adj", sep = "."),
                                                 paste("Min", which.stat, "Adj", sep = "."),
@@ -35,7 +38,8 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
                                                 paste("Mean", which.stat, "Un", sep = "."))]
             }
             else {
-                title <- paste0("Covariate Balance\n", Cluster.Fun, " ", which.stat2, " Across Clusters")
+                title <- "Covariate Balance"
+                subtitle <- paste(ifelse(Cluster.Fun == "Mean", "Average", Cluster.Fun), which.stat2, "Across Clusters", sep = " ")
                 #which.stat <- paste(Cluster.Fun, which.stat, sep = ".")
                 B <- b[["Cluster.Summary"]][, c("Type", 
                                                 paste(Cluster.Fun, which.stat, "Adj", sep = "."),  
@@ -49,8 +53,8 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
             if (any(cluster.names.good)) {
                 if (sum(cluster.names.good) == 1) {
                     B <- b[["Cluster.Balance"]][cluster.names.good][[1]]
-                    title <- paste0("Covariate Balance\nCluster: ", b$print.options$which.cluster)
-                    
+                    title <- "Covariate Balance"
+                    subtitle <- paste0("Cluster: ", b$print.options$which.cluster)
                 }
                 else {
                     stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
@@ -61,33 +65,38 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
             }
         }
         else if (is.numeric(b$print.options$which.cluster)) {
-            cluster.numbers.good <- (seq_along(b$Cluster.Balance) %in% b$print.options$which.cluster)
-            if (any(cluster.numbers.good)) {
-                if (sum(cluster.numbers.good) == 1) {
-                    B <- b$Cluster.Balance[cluster.numbers.good][[1]]
-                    title <- paste0("Covariate Balance\nCluster: ", names(b$Cluster.Balance)[b$print.options$which.cluster])
+            cluster.numbers.good <- names(b$Cluster.Balance)[(seq_along(b$Cluster.Balance) %in% b$print.options$which.cluster)]
+            if (length(cluster.numbers.good) > 0) {
+                if (length(cluster.numbers.good) == 1) {
+                    B <- b$Cluster.Balance[[cluster.numbers.good]][["Balance.Table"]]
+                    title <- "Covariate Balance"
+                    subtitle <- paste0("Cluster: ", names(b$Cluster.Balance)[b$print.options$which.cluster])
                 }
                 else {
                     stop("love.plot can only display balance for one cluster at a time. Make sure the argument to which.cluster in bal.tab() is the name or index of a single cluster.", call. = FALSE)
                 }
             }
             else {
-                stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+                stop("The argument to which.cluster in bal.tab() is not the name or index of a cluster.", call. = FALSE)
             }
         }
     }
     else if (any(class(b) == "bal.tab.subclass")) {
         if (which.stat=="V.Ratio") stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
         B <- b[["Balance.Across.Subclass"]]
-        title <- "Covariate Balance\nAcross Subclasses"
+        title <- "Covariate Balance"
+        subtitle <- "Across Subclasses"
     }
     else {
         B <- b[["Balance"]]
         title <- "Covariate Balance"
     }
     
-    if (drop.distance) B <- B[is.na(match(B[,"Type"], "Distance")),]
-    
+    distance.names <- rownames(B)[B[,"Type"] == "Distance"]
+    if (drop.distance) {
+        B <- B[is.na(match(rownames(B), distance.names)),]
+    }
+        
     if (null.threshold) {
         if (which.stat=="Diff") {
             if (!is.null(b$print.options$m.threshold)) {
@@ -175,9 +184,12 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
                 warning(paste0("var.order was set to \"", var.order, "\", but no ", var.order, " ", tolower(which.stat2), "s were calculated. Using \"", new.var.order, "\" instead."), call. = FALSE, immediate. = TRUE)
                 var.order <- new.var.order
             }
-            SS[, "var"] <- factor(SS[, "var"], levels=SS[order(SS[tolower(SS[, "Sample"])==var.order, "mean.stat"], decreasing = dec), "var"])
-        }
-        else SS[, "var"] <- factor(SS[, "var"], levels = unique(SS[, "var"])[order(unique(SS[, "var"]), decreasing = TRUE)])
+            v <- as.character(SS[order(SS[tolower(SS[, "Sample"])==var.order, "mean.stat"], decreasing = dec), "var"])
+            SS[, "var"] <- factor(SS[, "var"], 
+                                  levels=c(v[!v %in% distance.names], 
+                                           distance.names))
+            }
+        else SS[, "var"] <- factor(SS[, "var"], levels = c(as.character(unique(SS[SS$var != distance.names, "var"])[order(unique(SS[SS$var != distance.names, "var"]), decreasing = TRUE)]), distance.names))
         SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Unadjusted", "Adjusted"))
         if (which.stat == "Diff" && any(abs(SS[, "max.stat"]) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[, "min.stat"]),]
@@ -213,9 +225,15 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
                 warning(paste0("var.order was set to \"", var.order, "\", but no ", var.order, " ", tolower(which.stat2), "s were calculated. Using \"", new.var.order, "\" instead."), call. = FALSE, immediate. = TRUE)
                 var.order <- new.var.order
             }
-            SS[, "var"] <- factor(SS[, "var"], levels=SS[order(SS[tolower(SS[, "Sample"])==var.order, "stat"], decreasing = dec), "var"])
+            v <- as.character(SS[order(SS[tolower(SS[, "Sample"])==var.order, "stat"], decreasing = dec), "var"])
+            SS[, "var"] <- factor(SS[, "var"], 
+                                  levels=c(v[!v %in% distance.names], 
+                                           distance.names))
         }
-        else SS[, "var"] <- factor(SS[, "var"], levels = unique(SS[, "var"])[order(unique(SS[, "var"]), decreasing = TRUE)])
+        else {
+            v <- as.character(unique(SS[, "var"])[order(unique(SS[, "var"]), decreasing = TRUE)])
+            SS[, "var"] <- factor(SS[, "var"], levels = c(v[!v %in% distance.names], distance.names))
+        }
         SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Unadjusted", "Adjusted"))
         if (which.stat == "Diff" && any(abs(SS[, "stat"]) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[, "stat"]),]
@@ -242,33 +260,6 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     # else {
     #     warning("The argument to shape must be a number between 21 and 25. Using 21 (circle) instead.", call. = FALSE)
     #     shape <- 21
-    # }
-    
-    #Colors
-    # null.un.color <- is.null(args$un.color)
-    # null.adj.color <- is.null(args$adj.color)
-    # if (!null.un.color || !null.adj.color) {
-    #     isColor <- function(x) {
-    #         tryCatch(is.matrix(col2rgb(x)), 
-    #                  error = function(e) FALSE)
-    #     }
-    # }
-    # 
-    # if (null.un.color) un.color <- "white"
-    # else if (isColor(args$un.color[1])) {
-    #     un.color <- args$un.color[1]
-    # }
-    # else {
-    #     warning("The argument to un.color is not a recognized color. Using white instead.", call. = FALSE)
-    #     un.color <- "white"
-    # }
-    # if (null.adj.color) adj.color <- "black"
-    # else if (isColor(args$adj.color[1])) {
-    #     adj.color <- args$adj.color[1]
-    # }
-    # else {
-    #     warning("The argument to adj.color is not a recognized color. Using black instead.", call. = FALSE)
-    #     adj.color <- "black"
     # }
     
     if (is.null(colors)) {
@@ -319,10 +310,10 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     #Title
     if (!is.null(args$title)) title <- as.character(args$title)
     if (!is.null(args$subtitle)) subtitle <- as.character(args$subtitle)
-    else subtitle <- NULL
+    #else subtitle <- NULL
     
     lp <- ggplot(data = SS, aes(y = var, x = stat, group = Sample)) + theme(
-        panel.grid.major = element_line(color = "gray85"),
+        panel.grid.major = element_line(color = "gray87"),
         panel.grid.minor = element_line(color = "gray90"),
         panel.background = element_rect(fill = "white", color = "black")
         ) + 
@@ -363,8 +354,9 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     
     if (Cluster.Fun == "Range") {
         position.nudge <- position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge))
-        if (line == TRUE) {
-            lp <- lp + geom_path(aes(color = Sample), size = size*.8, position = position.nudge)
+        if (line == TRUE) { #Add line except to distance
+            f <- function(x) {x[x$var %in% distance.names, "stat"] <- NA; x}
+            lp <- lp + layer(geom = "path", data = f, position = position.nudge, stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
         }
         lp <- lp + 
             geom_segment(aes(y = var, yend = var, x = min.stat, xend = max.stat, color = Sample), position = position.nudge, lineend = "butt", size = size) + 
@@ -372,27 +364,32 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
             labs(title = title, y = "")
     }
     else {
-        if (line == TRUE) {
-            lp <- lp + geom_path(aes(color = Sample), size = size*.8)
+        if (line == TRUE) { #Add line except to distance
+            f <- function(x) {x[x$var %in% distance.names, "stat"] <- NA; x}
+            lp <- lp + layer(geom = "path", data = f, position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
         }
-        lp <- lp + geom_point(aes(shape = Sample,
+        lp <- lp + geom_point(data = SS, aes(shape = Sample,
                                     color = Sample), 
-                               size = 2*size, stroke = stroke, fill = "white") 
+                               size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE) 
         
     }
-    # if (Cluster.Fun == "Range") {
-    #     lp <- lp + 
-    #         geom_segment(aes(y = var, yend = var, x = min.stat, xend = max.stat), position = position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge)), lineend = "butt", size = size) + 
-    #         geom_point(aes(y = var, x = mean.stat, fill = Sample, color = Sample), size = 2*size, stroke = stroke, shape = shape, color = "black", position = position_nudge(y = ifelse(SS$Sample == "Adjusted", -nudge, nudge))) + 
-    #         scale_fill_manual(values=c(un.color, adj.color)) +
-    #         scale_color_manual(values=border.colors) + 
-    #         labs(title = title, y = "")
-    # }
-    # else {lp <- lp + geom_point(aes(y = var, x = stat, fill = Sample, color = Sample), 
-    #                             size = 2*size, stroke = stroke, shape = shape) + 
-    #     labs(title = title, y = "") + 
-    #     scale_fill_manual(values=c(un.color, adj.color)) +
-    #     scale_color_manual(values=border.colors)
-    # }
+    if (length(args$limits) > 0) {
+        if (length(args$limits) != 2 || !is.numeric(args$limits)) {
+  
+            warning("limits must be a numeric vector of length 2. Ignoring limits.", call. = FALSE)
+        }
+        else {
+            if (args$limits[2] < args$limits[1]) {
+                warning("The values in limits must be in ascending order. Reversing them.", call. = FALSE)
+                args$limits <- sort(args$limits)
+            }
+            if (any(SS[, ifelse(Cluster.Fun == "Range", "min.stat", "stat")] < args$limits[1]) || any(SS[, ifelse(Cluster.Fun == "Range", "max.stat", "stat")] > args$limits[2])) {
+                warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+            }
+        lp <- lp + scale_x_continuous(limits = args$limits)
+        }
+    }
+    if (!drop.distance && length(distance.names) > 0) lp <- lp + geom_hline(linetype = 1, color = "black", 
+                          yintercept = nlevels(SS[,"var"]) - length(distance.names) + .5)
     return(lp)
 }

@@ -140,16 +140,17 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     C <- C[, !redundant.vars, drop = FALSE]        
     
     if (!is.null(distance)) {
-        distance <- data.frame(.distance = distance)
-        while (names(distance) %in% names(C)) {names(distance) <- paste0(names(distance), "_")}
+        #distance <- data.frame(.distance = distance)
+        #while (names(distance) %in% names(C)) {names(distance) <- paste0(names(distance), "_")}
+        if (any(names(distance) %in% names(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
         C <- cbind(distance, C)
-        attr(C, "distance.name") <- names(distance)
+        attr(C, "distance.names") <- names(distance)
     }
     
     return(C)
 
 }
 get.types <- function(C) {
-    types <- mapply(function(x, y) ifelse(ifelse(is.null(attr(C, "distance.name")), FALSE, x==attr(C, "distance.name")), "Distance", ifelse(length(unique(y))<=2, "Binary", "Contin.")), colnames(C), C)
+    types <- mapply(function(x, y) ifelse(ifelse(is.null(attr(C, "distance.names")), FALSE, x %in% attr(C, "distance.names")), "Distance", ifelse(length(unique(y))<=2, "Binary", "Contin.")), colnames(C), C)
     return(types)
 }
