@@ -165,14 +165,17 @@ split.factor <- function(varname, data) {
     #varname= the name of the variable to split when data is specified
     #data=data set to be changed
     
-    x <- factor(data[, varname])
-    if (length(unique(x)) > 1) k <- model.matrix(~ as.character(as.matrix(x)) - 1)
-    else {
-        k <- matrix(0, ncol = nlevels(x), nrow = length(x))
-        k[, levels(x) %in% unique(x)] <- 1
+    x <- data[, varname] <- factor(data[, varname])
+    
+    if (nlevels(x) > 1) {
+        k <- model.matrix(as.formula(paste0("~", varname, "- 1")), data = data)
     }
+    else {
+        k <- matrix(1, ncol = nlevels(x), nrow = length(x))
+    }
+    
     if (is.null(levels(x))) colnames(k) <- paste0(varname, 1:ncol(k))
-    else colnames(k) <- paste0(varname, "_", substr(levels(x), 1, 10))
+    else colnames(k) <- paste(varname, substr(sapply(strsplit(colnames(k), varname), function(n) paste(n, collapse = "")), 1, 10), sep = "_")
     
     if (match(varname, names(data)) == 1){
         data <- data.frame(k, data[, names(data)!=varname, drop = FALSE])
@@ -260,6 +263,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     C <- C[, !redundant.vars, drop = FALSE]        
     
     if (!is.null(distance)) {
+        
         #distance <- data.frame(.distance = distance)
         #while (names(distance) %in% names(C)) {names(distance) <- paste0(names(distance), "_")}
         if (any(names(distance) %in% names(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
@@ -282,7 +286,8 @@ w.m <- function(x, w = NULL) {
     return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))
 }
 w.v <- function(x, w) {
-    return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE)/(sum(w, na.rm=TRUE)-1))
+    #return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE)/(sum(w, na.rm=TRUE)-1))
+    return((sum(w, na.rm = TRUE) / (sum(w, na.rm = TRUE)^2 - sum(w^2, na.rm = TRUE)) )*sum(w*(x-w.m(x, w))^2, na.rm=TRUE))
 }
 std.diff <- function(x, group, weights, denom) {
     #Uses variance of original group, as in MatchIt.
@@ -765,10 +770,9 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
 
 #base.bal.tab.imp
 balance.table.imp.summary <- function(bal.tab.imp.list, no.adj = FALSE, quick = FALSE, types = NULL) {
-    
-    cont.treat <- !is.na(match("bal.tab.cont", unique(do.call("c", lapply(bal.tab.imp.list, class)))))
     if (!is.na(match("bal.tab", unique(do.call("c", lapply(bal.tab.imp.list, class)))))) {
         bal.tab.imp.list <- lapply(bal.tab.imp.list, function(x) x[["Balance"]])}
+    cont.treat <- !is.na(match("Corr.Un", unique(do.call("c", lapply(bal.tab.imp.list, names)))))
     Brownames <- unique(do.call("c", lapply(bal.tab.imp.list, rownames)))
     imp.functions <- c("Min", "Mean", "Median", "Max")
     stats <- if (cont.treat) "Corr" else c("Diff", "V.Ratio")

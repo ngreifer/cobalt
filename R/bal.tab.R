@@ -47,7 +47,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         # out[["Cluster.Balance"]] <- vector("list", length(levels(cluster)))
         # names(out[["Cluster.Balance"]]) <- levels(cluster)
         C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster)
-        C.list <- structure(lapply(levels(cluster), function(x) C[cluster == x, ]), names = levels(cluster))
+        C.list <- structure(lapply(levels(cluster), function(x) C[cluster == x, , drop = FALSE]), names = levels(cluster))
         types <- get.types(C)
         
         if (method == "subclassification") {
@@ -56,8 +56,8 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         }
         else {
             out[["Cluster.Balance"]] <- lapply(levels(cluster), function(c) setNames(list(balance.table(C = C.list[[c]], weights = weights[cluster == c], treat = treat[cluster == c], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, no.adj = no.adj, types = types, quick = quick),
-                                                                                 samplesize(object, method = method, cluster = cluster, which.cluster = c)), 
-                                                                                 c("Balance.Table", "Observations")))
+                                                                                          samplesize(object, method = method, cluster = cluster, which.cluster = c)), 
+                                                                                     c("Balance.Table", "Observations")))
             names(out[["Cluster.Balance"]]) <- levels(cluster)
             balance.tables <- lapply(levels(cluster), function(c) out[["Cluster.Balance"]][[c]][["Balance.Table"]])
             observations <- lapply(levels(cluster), function(c) out[["Cluster.Balance"]][[c]][["Observations"]])
@@ -82,7 +82,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
                                            quick = quick)
             class(out) <- c("bal.tab.cluster", "bal.tab")
         }
-
+        
     }
     else {
         if (method %in% "subclassification") {
@@ -217,7 +217,7 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
         names(out[["Cluster.Balance"]]) <- levels(cluster)
         
         C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster)
-        C.list <- structure(lapply(levels(cluster), function(x) C[cluster == x, ]), names = levels(cluster))
+        C.list <- structure(lapply(levels(cluster), function(x) C[cluster == x, , drop = FALSE]), names = levels(cluster))
         types <- get.types(C)
         
         if (method == "subclassification") {
@@ -249,7 +249,7 @@ base.bal.tab.cont <- function(object, weights, treat, distance = NULL, subclass 
                                            quick = quick)
             class(out) <- c("bal.tab.cont.cluster", "bal.tab.cluster", "bal.tab.cont", "bal.tab")
         }
-
+        
     }
     else {
         if (method %in% "subclassification") {
@@ -322,16 +322,15 @@ base.bal.tab.imp <- function(object, weights, treat, distance = NULL, subclass =
     
     #Get list of bal.tabs for each imputation
     
-    #if continuous treatment
-    if (length(unique(treat)) > 2 && is.numeric(treat)) {
-        out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab.cont(object = object[imp==i,], weights = weights[imp==i], treat = treat[imp==i], distance = distance[imp==i], subclass = subclass[imp==i], covs = covs[imp == i,], call = call, int = int, addl = addl[imp = i,], r.threshold = r.threshold, un = un, method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, quick = quick, ...))
+    
+    if (length(unique(treat)) > 2 && is.numeric(treat)) {#if continuous treatment
+        out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab.cont(object = object[imp==i, , drop = FALSE], weights = weights[imp==i], treat = treat[imp==i], distance = distance[imp==i, , drop = FALSE], subclass = subclass[imp==i], covs = covs[imp == i, , drop = FALSE], call = call, int = int, addl = addl[imp = i, , drop = FALSE], r.threshold = r.threshold, un = un, method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, quick = quick, ...))
     }
     else if (length(unique(treat)) > 2 && (is.factor(treat) || is.character(treat))) {
         stop("Multinomial treaments are not yet supported.", call. = FALSE)
     }
-    else {
-        #if binary treatment
-        out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab(object = object[imp==i,], weights = weights[imp==i], treat = treat[imp==i], distance = distance[imp==i], subclass = subclass[imp==i], covs = covs[imp==i,], call = call, int = int, addl = addl[imp==i,], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, disp.subclass = disp.subclass, method = method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, quick = quick, ...))
+    else {#if binary treatment
+        out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab(object = object[imp==i, , drop = FALSE], weights = weights[imp==i], treat = treat[imp==i], distance = distance[imp==i, , drop = FALSE], subclass = subclass[imp==i], covs = covs[imp==i, , drop = FALSE], call = call, int = int, addl = addl[imp==i, , drop = FALSE], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, disp.subclass = disp.subclass, method = method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, quick = quick, ...))
     }
     
     names(out[["Imputation.Balance"]]) <- levels(imp)
@@ -341,18 +340,18 @@ base.bal.tab.imp <- function(object, weights, treat, distance = NULL, subclass =
     if (!is.na(match("bal.tab.cluster", class(out[["Imputation.Balance"]][[1]])))) {
         if (!(!imp.summary && quick)) {
             out[["Cluster.Balance.Across.Imputations"]] <- lapply(levels(cluster), 
-                                                                  function(c) setNames(list(balance.table.imp.summary(lapply(levels(imp), function(i) out[["Imputation.Balance"]][[i]][["Cluster.Balance"]][[c]][["Balance.Table"]]), 
-                                                                                                        no.adj = no.adj, quick = quick),
-                                                                                            samplesize.across.imps(lapply(levels(imp), function(i) out[["Imputation.Balance"]][[i]][["Cluster.Balance"]][[c]][["Observations"]]))), 
+                                                                  function(c) setNames(list(balance.table.imp.summary(lapply(out[["Imputation.Balance"]], function(i) i[["Cluster.Balance"]][[c]][["Balance.Table"]]), 
+                                                                                                                      no.adj = no.adj, quick = quick),
+                                                                                            samplesize.across.imps(lapply(out[["Imputation.Balance"]], function(i) i[["Cluster.Balance"]][[c]][["Observations"]]))), 
                                                                                        c("Cluster.Balance", "Cluster.Observations")))
             names(out[["Cluster.Balance.Across.Imputations"]]) <- levels(cluster)
-            balance.tables <- lapply(levels(cluster), function(c) out[["Cluster.Balance.Across.Imputations"]][[c]][["Cluster.Balance"]])
-            observations <- lapply(levels(cluster), function(c) out[["Cluster.Balance.Across.Imputations"]][[c]][["Cluster.Observations"]])
+            balance.tables <- lapply(out[["Cluster.Balance.Across.Imputations"]], function(c) c[["Cluster.Balance"]])
+            observations <- lapply(out[["Cluster.Balance.Across.Imputations"]], function(c) c[["Cluster.Observations"]])
             
             out[["Balance.Across.Imputations"]] <- balance.table.clust.imp.summary(balance.tables,
-                                                                                                             no.adj = no.adj,
-                                                                                                             quick = quick,
-                                                                                                             types = NULL)
+                                                                                   no.adj = no.adj,
+                                                                                   quick = quick,
+                                                                                   types = NULL)
         }
         
         out[["Observations"]] <- samplesize.across.clusters(observations)
@@ -361,15 +360,17 @@ base.bal.tab.imp <- function(object, weights, treat, distance = NULL, subclass =
     }
     else {
         if (!is.na(match("bal.tab.subclass", class(out[["Imputation.Balance"]][[1]])))) {
-            
+            #Put something here
         }
         else {
             if (!(!imp.summary && quick)) out[["Balance.Across.Imputations"]] <- balance.table.imp.summary(bal.tab.imp.list = out[["Imputation.Balance"]], 
                                                                                                            no.adj = no.adj,
                                                                                                            quick = quick,
                                                                                                            types = NULL)
-            out[["Observations"]] <- samplesize.across.imps(out[["Imputation.Balance"]])
-            class(out) <- "bal.tab.imp"
+            observations <- lapply(out[["Imputation.Balance"]], function(x) x[["Observations"]])
+            
+            out[["Observations"]] <- samplesize.across.imps(observations)
+            classes <- "bal.tab.imp"
         }
     }
     
@@ -386,7 +387,7 @@ base.bal.tab.imp <- function(object, weights, treat, distance = NULL, subclass =
                                    quick = quick,
                                    disp.means=disp.means, 
                                    disp.v.ratio=disp.v.ratio)
-    class(out) <- c(classes, unique(sapply(out[["Imputation.Balance"]], class)))
+    class(out) <- unique(c(classes, sapply(out[["Imputation.Balance"]], class)))
     
     return(out)
 }
@@ -632,28 +633,28 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
     }
     else {
         out <- base.bal.tab(object=X$obj, 
-                             weights=X$weights, 
-                             treat=X$treat, 
-                             distance=X$distance, 
-                             subclass=X$subclass, 
-                             covs=X$covs, 
-                             call=X$call, 
-                             int=int, 
-                             addl=X$addl, 
-                             continuous=continuous, 
-                             binary=binary, 
-                             s.d.denom=X$s.d.denom, 
-                             m.threshold=m.threshold, 
-                             v.threshold=v.threshold, 
-                             un=un, 
-                             disp.means=disp.means, 
-                             disp.v.ratio=disp.v.ratio, 
-                             disp.subclass=disp.subclass, 
-                             method=X$method, 
-                             cluster = X$cluster, 
-                             which.cluster = which.cluster, 
-                             cluster.summary = cluster.summary, 
-                             quick = quick)
+                            weights=X$weights, 
+                            treat=X$treat, 
+                            distance=X$distance, 
+                            subclass=X$subclass, 
+                            covs=X$covs, 
+                            call=X$call, 
+                            int=int, 
+                            addl=X$addl, 
+                            continuous=continuous, 
+                            binary=binary, 
+                            s.d.denom=X$s.d.denom, 
+                            m.threshold=m.threshold, 
+                            v.threshold=v.threshold, 
+                            un=un, 
+                            disp.means=disp.means, 
+                            disp.v.ratio=disp.v.ratio, 
+                            disp.subclass=disp.subclass, 
+                            method=X$method, 
+                            cluster = X$cluster, 
+                            which.cluster = which.cluster, 
+                            cluster.summary = cluster.summary, 
+                            quick = quick)
     }
     return(out)
 }

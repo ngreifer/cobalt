@@ -12,7 +12,9 @@ Description: Generate balance tables and plots for covariates of groups
 Depends:
     R (>= 3.1)
 Imports:
-    ggplot2 (>= 2.2.0)
+    ggplot2 (>= 2.2.0),
+    ggstance,
+    forcats
 Suggests:
     MatchIt,
     twang,

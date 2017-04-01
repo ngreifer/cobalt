@@ -4,7 +4,9 @@ Version 2.0.0
 
 * Added support for matching using the optmatch package or by specifying matching strata.
 
-* Added full support for multiply imputed data, including for clustered data sets.
+* Added full support (`bal.tab()`, `love.plot()`, and `bal.plot()`) for multiply imputed data, including for clustered data sets.
+
+* Added support for multiple distance measures, including special treatment in `love.plot()`
 
 * Adjusted specifications in `love.plot()` for color and shape of points, and added option to generate a line connecting the points.
 
@@ -17,6 +19,10 @@ Version 2.0.0
 * Edits to the vignette and help files.
 
 * Speed improvements
+
+* Fixed a bug causing mislabelling of categorical variables
+
+* Changed calculation of weighted variance to be in line with recommendations; CBPS can now be used with standardized weights
 
 Version 1.3.1
 

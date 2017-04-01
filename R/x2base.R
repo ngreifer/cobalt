@@ -16,7 +16,7 @@ x2base.matchit <- function(m, ...) {
               cluster=NA)
     
     #Initializing variables
-
+    
     if (any(class(m) == "matchit.subclass")) {
         X$subclass <- factor(m$subclass)
         X$method <- "subclassification"
@@ -247,8 +247,8 @@ x2base.ps <- function(ps, ...) {
         assign(i, val.df)
     }
     
-        if (length(distance) > 0) distance <- cbind(distance, prop.score = ps$ps[s][, ])
-        else distance <- data.frame(prop.score = ps$ps[s][, ])
+    if (length(distance) > 0) distance <- cbind(distance, prop.score = ps$ps[s][, ])
+    else distance <- data.frame(prop.score = ps$ps[s][, ])
     
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster")
@@ -695,9 +695,9 @@ x2base.data.frame <- function(covs, ...) {
             else stop("The name supplied to match.strata is not the name of a variable in data.", call. = FALSE)
         }
         
-            weights <- match.strata2weights(covs = covs, 
-                                            treat = treat, 
-                                            match.strata = match.strata)
+        weights <- match.strata2weights(covs = covs, 
+                                        treat = treat, 
+                                        match.strata = match.strata)
     }
     
     #Process cluster
@@ -710,7 +710,7 @@ x2base.data.frame <- function(covs, ...) {
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
         
-
+        
     }
     
     #Process addl and distance
@@ -763,7 +763,7 @@ x2base.data.frame <- function(covs, ...) {
         else stop("The name supplied to imp is not the name of a variable in data.", call. = FALSE)
         
         imp.lengths <- sapply(unique(imp), function(i) sum(imp == i))
-
+        
         if (abs(max(imp.lengths) - min(imp.lengths)) < sqrt(.Machine$double.eps)) { #all the same
             for (i in vectors) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) {
@@ -789,7 +789,7 @@ x2base.data.frame <- function(covs, ...) {
                                                order2 = seq_along(imp))
                         temp.var <- data.frame(sort(imp),rep(seq_len(lengths[i]), length(imp.lengths)),
                                                get(i)[rep(seq_len(lengths[i]), length(imp.lengths)), ]
-                                               )
+                        )
                         temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                             by.y = 1:2, sort = FALSE)
                         assign(i, setNames(temp.merge[order(temp.merge[,3]), -c(1:3)], names(get(i))))
@@ -823,70 +823,72 @@ x2base.data.frame <- function(covs, ...) {
     
     #Get s.d.denom
     check.estimand <- check.weights <- bad.s.d.denom <- bad.estimand <- FALSE
-    if (length(s.d.denom) > 0) {
-        try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled")),
-                                  error = function(cond) FALSE)
-        if (try.s.d.denom == FALSE) {
-            check.estimand <- TRUE
-            bad.s.d.denom <- TRUE
-        }
-        else {
-            X$s.d.denom <- try.s.d.denom
-        }
-    }
-    else {
-        check.estimand <- TRUE
-    }
-    
-    if (check.estimand == TRUE) {
-        if (length(estimand) > 0) {
-            try.estimand <- tryCatch(match.arg(tolower(estimand), c("att", "atc", "ate")),
-                                     error = function(cond) FALSE)
-            if (try.estimand == FALSE) {
-                check.weights <- TRUE
-                bad.estimand <- TRUE
+    if (length(unique(treat)) <= 2 || !is.numeric(treat)) { #non-continuous
+        if (length(s.d.denom) > 0) {
+            try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled")),
+                                      error = function(cond) FALSE)
+            if (try.s.d.denom == FALSE) {
+                check.estimand <- TRUE
+                bad.s.d.denom <- TRUE
             }
             else {
-                X$s.d.denom <- switch(try.estimand, att = "treated", atc = "control", ate = "pooled")
+                X$s.d.denom <- try.s.d.denom
             }
         }
         else {
-            check.weights <- TRUE
+            check.estimand <- TRUE
         }
-    }
-    
-    if (check.weights == TRUE) {
-        if (X$method == "weighting") {
-            if (max(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) < sqrt(.Machine$double.eps) &&
-                max(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) >= sqrt(.Machine$double.eps)
-            ) { #if treated weights are only all either 0 the same; ATT
-                estimand <- "att"
+        
+        if (check.estimand == TRUE) {
+            if (length(estimand) > 0) {
+                try.estimand <- tryCatch(match.arg(tolower(estimand), c("att", "atc", "ate")),
+                                         error = function(cond) FALSE)
+                if (try.estimand == FALSE) {
+                    check.weights <- TRUE
+                    bad.estimand <- TRUE
+                }
+                else {
+                    X$s.d.denom <- switch(try.estimand, att = "treated", atc = "control", ate = "pooled")
+                }
+            }
+            else {
+                check.weights <- TRUE
+            }
+        }
+        
+        if (check.weights == TRUE) {
+            if (X$method == "weighting") {
+                if (max(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) < sqrt(.Machine$double.eps) &&
+                    max(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) >= sqrt(.Machine$double.eps)
+                ) { #if treated weights are only all either 0 the same; ATT
+                    estimand <- "att"
+                    X$s.d.denom <- "treated"
+                }
+                else if (max(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) < sqrt(.Machine$double.eps) &&
+                         max(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) >= sqrt(.Machine$double.eps)
+                ) { #if control weights are only all either 0 the same; ATC
+                    estimand <- "atc"
+                    X$s.d.denom <- "control"
+                }
+                else {
+                    estimand <- "ate"
+                    X$s.d.denom <- "pooled"
+                }
+            }
+            else {
                 X$s.d.denom <- "treated"
             }
-            else if (max(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==0 & weights > sqrt(.Machine$double.eps)]) < sqrt(.Machine$double.eps) &&
-                     max(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) - min(weights[treat==1 & weights > sqrt(.Machine$double.eps)]) >= sqrt(.Machine$double.eps)
-            ) { #if control weights are only all either 0 the same; ATC
-                estimand <- "atc"
-                X$s.d.denom <- "control"
-            }
-            else {
-                estimand <- "ate"
-                X$s.d.denom <- "pooled"
-            }
         }
-        else {
-            X$s.d.denom <- "treated"
+        
+        if (bad.s.d.denom && bad.estimand) {
+            message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using ", deparse(X$s.d.denom), " instead.")
         }
-    }
-    
-    if (bad.s.d.denom && bad.estimand) {
-        message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using ", deparse(X$s.d.denom), " instead.")
-    }
-    else if (bad.estimand) {
-        message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using ", deparse(toupper(estimand)), " instead.")
-    }
-    else if (check.weights && X$method == "weighting") {
-        message("Note: estimand and s.d.denom not specified; assuming ", deparse(toupper(estimand)), " and ", deparse(X$s.d.denom), ".")
+        else if (bad.estimand) {
+            message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using ", deparse(toupper(estimand)), " instead.")
+        }
+        else if (check.weights && X$method == "weighting") {
+            message("Note: estimand and s.d.denom not specified; assuming ", deparse(toupper(estimand)), " and ", deparse(X$s.d.denom), ".")
+        }
     }
     
     X$covs <- covs
@@ -904,7 +906,7 @@ x2base.data.frame <- function(covs, ...) {
     if (length(cluster) > 0) X$obj$cluster <- X$cluster
     return(X)
 }
-x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
+x2base.CBPS <- function(cbps.fit, ...) {
     #estimand
     #s.d.denom
     #cluster
@@ -925,14 +927,23 @@ x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
     weights <- cbps.fit$weights
     
     if (!(any(class(cbps.fit) == "CBPSContinuous") || nlevels(as.factor(treat)) > 2)) {
-        if (!std.ok && sum(weights) < 3) {
-            if ((length(A$estimand > 0) && is.character(A$estimand)) || (length(A$s.d.denom > 0) && is.character(A$s.d.denom))) 
-                warning("Standardized weights were used; this may cause reported values to be incorrect. Use unstandardized weights instead.", call. = FALSE)
-            else stop("Please specify either the estimand (\"ATT\" or \"ATE\") or an argument to s.d.denom.", call. = FALSE)
+        # if (!std.ok && sum(weights) < 3) {
+        #     if ((length(A$estimand > 0) && is.character(A$estimand)) || (length(A$s.d.denom > 0) && is.character(A$s.d.denom))) {
+        #         #warning("Standardized weights were used; this may cause reported values to be incorrect. Use unstandardized weights instead.", call. = FALSE)
+        #     }
+        #     else {
+        #         stop("Please specify either the estimand (\"ATT\" or \"ATE\") or an argument to s.d.denom.", call. = FALSE)
+        #     }
+        # }
+        # else {
+        #     if (isTRUE(all.equal(weights, treat / cbps.fit$fitted.values + (1-treat) / (1-cbps.fit$fitted.values)))) A$estimand <- "ATE"
+        #     else A$estimand <- "ATT"
+        # }
+        if (abs(max(weights[treat == 1], na.rm = TRUE) - min(weights[treat == 1], na.rm = TRUE)) < sqrt(.Machine$double.eps)) {
+            A$estimand <- "ATT"
         }
         else {
-            if (isTRUE(all.equal(weights, treat / cbps.fit$fitted.values + (1-treat) / (1-cbps.fit$fitted.values)))) A$estimand <- "ATE"
-            else A$estimand <- "ATT"
+            A$estimand <- "ATE"
         }
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
@@ -1001,8 +1012,14 @@ x2base.CBPS <- function(cbps.fit, std.ok = FALSE, ...) {
         assign(i, val.df)
     }
     
-        if (length(distance) > 0) distance <- cbind(distance, prop.score = cbps.fit$fitted.values)
-        else distance <- data.frame(prop.score = cbps.fit$fitted.values)
+    if (abs(max(cbps.fit$fitted.values) - min(cbps.fit$fitted.values)) < sqrt(.Machine$double.eps)) {
+        if (length(distance) == 0) distance <- NULL
+    }
+    else {
+        if (length(distance) == 0) distance <- data.frame(prop.score = cbps.fit$fitted.values)
+        else distance <- cbind(distance, prop.score = cbps.fit$fitted.values)
+    }
+
     
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster")

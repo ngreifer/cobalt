@@ -388,37 +388,37 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
-        cf <- !is.na(match(cluster.funs, cluster.fun))
-        names(cf) <- cluster.funs
+        CF <- !is.na(match(cluster.funs, cluster.fun))
+        names(CF) <- cluster.funs
         if (!is.na(match("bal.tab.cont.cluster", class(x)))) {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un*cf["min"],
-                                   p.ops$un*cf["mean"],
-                                   p.ops$un*cf["median"],
-                                   p.ops$un*cf["max"],
-                                   p.ops$disp.adj*cf["min"],
-                                   p.ops$disp.adj*cf["mean"],
-                                   p.ops$disp.adj*cf["median"],
-                                   p.ops$disp.adj*cf["max"]))
+                                   p.ops$un*CF["min"],
+                                   p.ops$un*CF["mean"],
+                                   p.ops$un*CF["median"],
+                                   p.ops$un*CF["max"],
+                                   p.ops$disp.adj*CF["min"],
+                                   p.ops$disp.adj*CF["mean"],
+                                   p.ops$disp.adj*CF["median"],
+                                   p.ops$disp.adj*CF["max"]))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un*cf["min"],
-                                   p.ops$un*cf["mean"],
-                                   p.ops$un*cf["median"],
-                                   p.ops$un*cf["max"],
-                                   p.ops$un*p.ops$disp.v.ratio*cf["min"],
-                                   p.ops$un*p.ops$disp.v.ratio*cf["mean"],
-                                   p.ops$un*p.ops$disp.v.ratio*cf["median"],
-                                   p.ops$un*p.ops$disp.v.ratio*cf["max"],
-                                   p.ops$disp.adj*cf["min"],
-                                   p.ops$disp.adj*cf["mean"],
-                                   p.ops$disp.adj*cf["median"],
-                                   p.ops$disp.adj*cf["max"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*cf["min"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*cf["mean"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*cf["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*cf["max"]))
+                                   p.ops$un*CF["min"],
+                                   p.ops$un*CF["mean"],
+                                   p.ops$un*CF["median"],
+                                   p.ops$un*CF["max"],
+                                   p.ops$un*p.ops$disp.v.ratio*CF["min"],
+                                   p.ops$un*p.ops$disp.v.ratio*CF["mean"],
+                                   p.ops$un*p.ops$disp.v.ratio*CF["median"],
+                                   p.ops$un*p.ops$disp.v.ratio*CF["max"],
+                                   p.ops$disp.adj*CF["min"],
+                                   p.ops$disp.adj*CF["mean"],
+                                   p.ops$disp.adj*CF["median"],
+                                   p.ops$disp.adj*CF["max"],
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["min"],
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["mean"],
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["median"],
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["max"]))
         }
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
@@ -524,17 +524,17 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
-        cf <- !is.na(match(cluster.funs, cluster.fun))
-        names(cf) <- cluster.funs
+        CF <- !is.na(match(cluster.funs, cluster.fun))
+        names(CF) <- cluster.funs
         s.keep <- as.logical(c(TRUE, 
-                               p.ops$un*cf["min"],
-                               p.ops$un*cf["mean"],
-                               p.ops$un*cf["median"],
-                               p.ops$un*cf["max"],
-                               p.ops$disp.adj*cf["min"],
-                               p.ops$disp.adj*cf["mean"],
-                               p.ops$disp.adj*cf["median"],
-                               p.ops$disp.adj*cf["max"]))
+                               p.ops$un*CF["min"],
+                               p.ops$un*CF["mean"],
+                               p.ops$un*CF["median"],
+                               p.ops$un*CF["max"],
+                               p.ops$disp.adj*CF["min"],
+                               p.ops$disp.adj*CF["mean"],
+                               p.ops$disp.adj*CF["median"],
+                               p.ops$disp.adj*CF["max"]))
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
     }
@@ -849,17 +849,25 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     if (length(which.imp) > 0) {
         cat("Balance by imputation:\n")
         for (i in which.imp) {
-            cat(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))
+            cat(paste0("\n - - - - Imputation: ", names(i.balance)[i], " - - - - \n"))
             do.call(print, c(list(i.balance[[i]]), args))
         }
-        cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
+        cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - - Imputation: ", names(i.balance)[i], " - - - - "))/2)), collapse = ""), " \n"))
     }
     
     if (isTRUE(as.logical(p.ops$imp.summary))) {
         IF <- !is.na(match(imp.funs, imp.fun))
         names(IF) <- imp.funs
         if (!is.na(match("bal.tab.cont", class(x)))) {
-            
+            s.keep <- as.logical(c(TRUE, 
+                                   p.ops$un*IF["min"],
+                                   p.ops$un*IF["mean"],
+                                   p.ops$un*IF["median"],
+                                   p.ops$un*IF["max"],
+                                   p.ops$disp.adj*IF["min"],
+                                   p.ops$disp.adj*IF["mean"],
+                                   p.ops$disp.adj*IF["median"],
+                                   p.ops$disp.adj*IF["max"]))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
@@ -881,8 +889,9 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]))
         }
         
-        cat("\nCluster balance summary across all imputations:\n")
+        
         if (length(which.cluster) > 0) {
+            cat("\nCluster balance summary across all imputations:\n")
             for (c in which.cluster) {
                 cat(paste0("\n - - - Cluster: ", names(i.balance.c.summary)[c], " - - - \n"))
                 cat("Balance summary across imputations:\n")
@@ -891,7 +900,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                 print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Observations"]], digits)))
             }
         }
-        cat("\nBalance summary across all clusters and imputations:\n")
+        cat("\nBalance summary across all imputations and clusters:\n")
         print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
     }
     if (!is.null(nn)) {

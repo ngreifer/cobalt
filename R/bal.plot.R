@@ -1,8 +1,8 @@
-bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster = NULL, which.cluster = NULL) {
+bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL) {
     
     args <- list(...)
     
-    X <- x2base(obj, ..., cluster = cluster, std.ok = TRUE)
+    X <- x2base(obj, ..., cluster = cluster, imp = imp)
     
     if (var.name %in% names(X$covs)) var <- X$covs[, var.name]
     else if (!is.null(args$data) && var.name %in% names(args$data)) var <- args$data[, var.name]
@@ -14,9 +14,10 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
     title <- paste0("Distributional Balance for \"", var.name, "\"")
     subtitle <- "Adjusted sample"
     
-    facet <- "none"
+    facet <- NULL
     if (length(X$subclass) > 0  && !isTRUE(un)) {
         if (length(X$cluster) > 0) stop("Subclasses are not supported with clusters.", call. = FALSE)
+        if (length(X$imp) > 0) stop("Subclasses are not supported with multiple imputations.", call. = FALSE)
         if (is.null(which.sub)) { #display all subs
             X$weights <- X$weights[!is.na(X$subclass)]
             X$treat <- X$treat[!is.na(X$subclass)]
@@ -50,44 +51,82 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
         warning("which.sub was specified but no subclasses were supplied. Ignoring which.sub.", call. = FALSE)
     }
     
+    #NULL: all; NA: none
+    in.imp <- NULL
+    if (length(X$imp) > 0) {
+        if (length(which.imp) == 0) {
+            in.imp <- !is.na(X$imp)
+        }
+        else if (!is.na(which.imp)) {
+            if (is.numeric(which.imp)) {
+                if (all(which.imp %in% seq_len(nlevels(X$imp)))) {
+                    in.imp <- !is.na(X$imp) & sapply(X$imp, function(x) !is.na(match(x, levels(X$imp)[which.imp])))
+                }
+                else {
+                    stop(paste0("The following inputs to which.imp do not correspond to given imputations:\n\t", word.list(which.imp[!which.imp %in% seq_len(nlevels(X$imp))])), call. = FALSE)
+                }
+            }
+            else stop("The argument to which.imp must be the indices corresponding to the imputations for which distributions are to be displayed.", call. = FALSE)
+        }
+    }
+    else if (length(which.imp) > 0) {
+        warning("which.imp was specified but no imp values were supplied. Ignoring which.imp.", call. = FALSE)
+    }
+    
+    in.cluster <- NULL
     if (length(X$cluster) > 0) {
         if (length(which.cluster) == 0) {
-            X$weights <- X$weights[!is.na(X$cluster)]
-            X$treat <- X$treat[!is.na(X$cluster)]
-            var <- var[!is.na(X$cluster)]
-            cluster <- paste("cluster", X$cluster[!is.na(X$cluster)])
-            facet <- "cluster"
+            in.cluster <- !is.na(X$cluster)
         }
-        else if (length(which.cluster) > 0) {
-            if (!is.na(which.cluster)) {
-                if (is.numeric(which.cluster)) {
-                    if (all(which.cluster %in% seq_len(nlevels(X$cluster)))) {
-                        in.cluster <- sapply(X$cluster, function(x) !is.na(match(x, levels(X$cluster)[which.cluster])))
-                    }
-                    else {
-                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word.list(which.cluster[!which.cluster %in% seq_len(nlevels(X$cluster))])), call. = FALSE)
-                    }
+        else if (!is.na(which.cluster)) {
+            if (is.numeric(which.cluster)) {
+                if (all(which.cluster %in% seq_len(nlevels(X$cluster)))) {
+                    in.cluster <- !is.na(X$cluster) & sapply(X$cluster, function(x) !is.na(match(x, levels(X$cluster)[which.cluster])))
                 }
-                else if (is.character(which.cluster)) {
-                    if (all(!is.na(match(which.cluster, levels(X$cluster))))) {
-                        in.cluster <- sapply(X$cluster, function(x) !is.na(match(x, which.cluster)))
-                    }
-                    else {
-                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word.list(which.cluster[is.na(match(which.cluster, levels(X$cluster)))])), call. = FALSE)
-                    }
+                else {
+                    stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word.list(which.cluster[!which.cluster %in% seq_len(nlevels(X$cluster))])), call. = FALSE)
                 }
-                else stop("The argument to which.cluster must be the names or indices corresponding to the clusters for which distributions are to be displayed.", call. = FALSE)
-                
-                X$weights <- X$weights[!is.na(X$cluster) & in.cluster]
-                X$treat <- X$treat[!is.na(X$cluster) & in.cluster]
-                var <- var[!is.na(X$cluster) & in.cluster]
-                cluster <- paste("cluster", X$cluster[!is.na(X$cluster) & in.cluster])
-                facet <- "cluster"
             }
+            else if (is.character(which.cluster)) {
+                if (all(!is.na(match(which.cluster, levels(X$cluster))))) {
+                    in.cluster <- !is.na(X$cluster) & sapply(X$cluster, function(x) !is.na(match(x, which.cluster)))
+                }
+                else {
+                    stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word.list(which.cluster[is.na(match(which.cluster, levels(X$cluster)))])), call. = FALSE)
+                }
+            }
+            else stop("The argument to which.cluster must be the names or indices corresponding to the clusters for which distributions are to be displayed.", call. = FALSE)
         }
     }
     else if (length(which.cluster) > 0) {
         warning("which.cluster was specified but no cluster values were supplied. Ignoring which.cluster.", call. = FALSE)
+    }
+    
+    if (length(unique(X$imp[in.imp])) > 1 && length(unique(X$cluster[in.cluster])) > 1) {
+        stop("Only either one imputation or one cluster may be specified at a time. Ensure either which.imp or which.cluster are given one (non-NULL, non-NA) value.", call. = FALSE)
+    }
+    
+    if (length(in.imp) > 0 && length(in.cluster) > 0) {
+        X$weights <- X$weights[in.imp & in.cluster]
+        X$treat <- X$treat[in.imp & in.cluster]
+        var <- var[in.imp & in.cluster]
+        imp <- paste("Imputation", X$imp[in.imp & in.cluster])
+        cluster <- paste("Cluster", X$cluster[in.imp & in.cluster])
+        facet <- c("imp", "cluster")
+    }
+    else if (length(in.imp) > 0) {
+        X$weights <- X$weights[in.imp]
+        X$treat <- X$treat[in.imp]
+        var <- var[in.imp]
+        imp <- paste("Imputation", X$imp[in.imp])
+        facet <- "imp"
+    }
+    else if (length(in.cluster) > 0) {
+        X$weights <- X$weights[in.cluster]
+        X$treat <- X$treat[in.cluster]
+        var <- var[in.cluster]
+        cluster <- paste("Cluster", X$cluster[in.cluster])
+        facet <- "cluster"
     }
     
     if (is.null(X$weights) || isTRUE(un)) {
@@ -98,7 +137,7 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
     if (length(unique(X$treat)) > 2 && is.numeric(X$treat)) { #Continuous treatments
         treat <- X$treat
         is.categorical.var <- length(unique(var)) <= 2 || is.factor(var) || is.character(var)
-        if (facet == "subclass") {
+        if (identical(facet,"subclass")) {
             if (is.categorical.var) {
                 weights <- mapply(function(w, s, v) w[var==v] / sum(X$weights[subclass==s & var==v]), w = X$weights, s = subclass, v = var)
             }
@@ -107,7 +146,7 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
             }
             d <- data.frame(weights = weights, treat = treat, var = var, subclass = subclass)
         }
-        else if (facet == "cluster") {
+        else if (identical(facet,"cluster")) {
             if (is.categorical.var) {
                 weights <- mapply(function(w, c, v) w / sum(X$weights[cluster==c & var==v]), w = X$weights, c = cluster, v = var)
             }
@@ -115,6 +154,24 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
                 weights <- mapply(function(w, c) w / sum(X$weights[cluster==c]), w = X$weights, c = cluster)
             }
             d <- data.frame(weights = weights, treat = treat, var = var, cluster = cluster)
+        }
+        else if ((identical(facet,"imp"))) {
+            if (is.categorical.var) {
+                weights <- mapply(function(w, i, v) w / sum(X$weights[imp==i & var==v]), w = X$weights, i = imp, v = var)
+            }
+            else {
+                weights <- mapply(function(w, i) w / sum(X$weights[imp==i]), w = X$weights, i = imp)
+            }
+            d <- data.frame(weights = weights, treat = treat, var = var, imp = imp)
+        }
+        else if (identical(facet,c("imp", "cluster"))) {
+            if (is.categorical.var) {
+                weights <- mapply(function(w, i, c, v) w / sum(X$weights[imp==i & cluster == c & var==v]), w = X$weights, i = imp, c = cluster, v = var)
+            }
+            else {
+                weights <- mapply(function(w, i, c) w / sum(X$weights[imp==i & cluster == c]), w = X$weights, i = imp, c = cluster)
+            }
+            d <- data.frame(weights = weights, treat = treat, var = var, imp = imp, cluster = cluster)
         }
         else {
             if (is.categorical.var) {
@@ -138,19 +195,27 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
                 labs(y = "Treat", x = var.name, title = title, subtitle = subtitle)
         }
     }
-    # else if (length(unique(X$treat)) > 2 && (is.factor(X$treat) || is.character(X$treat))) {
-    #     stop("Multinomial treaments are not yet supported.", call. = FALSE)
-    # }
+    
     else { #Categorical treatments (multinomial supported)
-        #treat <- factor(binarize(X$treat))
         treat <- factor(X$treat)
-        if (facet == "subclass") {
-            weights <- mapply(function(w, t, s) w / sum(X$weights[X$treat==t & subclass==s]), w = X$weights, t = X$treat, s = subclass)
-            d <- data.frame(weights = weights, treat = treat, var = var, subclass = subclass)
-        }
-        else if (facet == "cluster") {
-            weights <- mapply(function(w, t, c) w / sum(X$weights[X$treat==t & cluster==c]), w = X$weights, t = X$treat, c = cluster)
-            d <- data.frame(weights = weights, treat = treat, var = var, cluster = cluster)
+        
+        if (length(facet) > 0) {
+            if (identical(facet,"subclass")) {
+                weights <- mapply(function(w, t, s) w / sum(X$weights[X$treat==t & subclass==s]), w = X$weights, t = X$treat, s = subclass)
+                d <- data.frame(weights = weights, treat = treat, var = var, subclass = subclass)
+            }
+            else if (identical(facet,"cluster")) {
+                weights <- mapply(function(w, t, c) w / sum(X$weights[X$treat==t & cluster==c]), w = X$weights, t = X$treat, c = cluster)
+                d <- data.frame(weights = weights, treat = treat, var = var, cluster = cluster)
+            }
+            else if (identical(facet,"imp")){
+                weights <- mapply(function(w, t, i) w / sum(X$weights[X$treat==t & imp==i]), w = X$weights, t = X$treat, i = imp)
+                d <- data.frame(weights = weights, treat = treat, var = var, imp = imp)
+            }
+            else if (identical(facet, c("imp", "cluster"))) {
+                weights <- mapply(function(w, t, c, i) w / sum(X$weights[X$treat==t & cluster==c & imp==i]), w = X$weights, t = X$treat, c= cluster, i = imp)
+                d <- data.frame(weights = weights, treat = treat, var = var, cluster = cluster, imp = imp)
+            }
         }
         else {
             weights <- mapply(function(w, t) w / sum(X$weights[X$treat==t]), w = X$weights, t = X$treat)
@@ -169,11 +234,21 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
                 labs(x = var.name, y = "Density", fill = "Treat", title = title, subtitle = subtitle)
         }
     }
-    if (facet == "subclass") {
-        bp <- bp + facet_wrap(~subclass)
+    
+    if (length(facet) > 0) {
+        if (identical(facet,"subclass")) {
+            bp <- bp + facet_wrap(~subclass)
+        }
+        else if (identical(facet,"cluster")) {
+            bp <- bp + facet_wrap(~cluster)
+        }
+        else if (identical(facet,"imp")) {
+            bp <- bp + facet_wrap(~imp)
+        }
+        else if (identical(facet,c("imp", "cluster"))) {
+            bp <- bp + facet_wrap(~imp+cluster)
+        }
     }
-    else if (facet == "cluster") {
-        bp <- bp + facet_wrap(~cluster)
-    }
+    
     return(bp)
 }
