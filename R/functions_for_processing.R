@@ -363,8 +363,9 @@ var.ratio <- function(x, group, weights, var.type, no.weights = FALSE) {
 }
 baltal <- function(threshold) {
     #threshold: vector of threshold values (i.e., "Balanced"/"Not Balanced")
-    
-    thresh.val <- substring(names(table(threshold))[2], 1+regexpr("[><]", names(table(threshold))[2]), nchar(names(table(threshold))[2]))
+    threshnames <- names(table(threshold))
+    balstring <- threshnames[nchar(threshnames) > 0][1]
+    thresh.val <- substring(balstring, 1+regexpr("[><]", balstring), nchar(balstring))
     b <- data.frame(count=c(sum(threshold==paste0("Balanced, <", thresh.val)), 
                             sum(threshold==paste0("Not Balanced, >", thresh.val))))
     rownames(b) <- c(paste0("Balanced, <", thresh.val), paste0("Not Balanced, >", thresh.val))
