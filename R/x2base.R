@@ -99,8 +99,8 @@ x2base.matchit <- function(m, ...) {
     }
     
     if (!all(is.na(m$distance))) {
-        if (length(distance) > 0) distance <- cbind(distance, .distance = m$distance)
-        else distance <- data.frame(.distance = m$distance)
+        if (length(distance) > 0) distance <- cbind(distance, distance = m$distance)
+        else distance <- data.frame(distance = m$distance)
     }
     
     ensure.equal.lengths <- TRUE
