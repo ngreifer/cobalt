@@ -6,13 +6,14 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
     
     if (var.name %in% names(X$covs)) var <- X$covs[, var.name]
     else if (!is.null(args$data) && var.name %in% names(args$data)) var <- args$data[, var.name]
-    else if (!is.null(X$addl) && var.name %in% names(X$addl)) var <- args$addl[, var.name]
+    else if (!is.null(X$addl) && var.name %in% names(X$addl)) var <- X$addl[, var.name]
     else if (!is.null(args$addl) && var.name %in% names(args$addl)) var <- args$addl[, var.name]
-    else if (var.name == ".distance" && !is.null(X$distance)) var <- X$distance
+    else if (!is.null(X$distance) && var.name %in% names(X$distance)) var <- X$distance[, var.name]
+    else if (!is.null(args$distance) && var.name %in% names(args$distance)) var <- args$distance[, var.name]
     else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."))
     
     title <- paste0("Distributional Balance for \"", var.name, "\"")
-    subtitle <- "Adjusted sample"
+    subtitle <- "Adjusted Sample"
     
     facet <- NULL
     if (length(X$subclass) > 0  && !isTRUE(un)) {
@@ -57,7 +58,7 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
         if (length(which.imp) == 0) {
             in.imp <- !is.na(X$imp)
         }
-        else if (!is.na(which.imp)) {
+        else if (all(!is.na(which.imp))) {
             if (is.numeric(which.imp)) {
                 if (all(which.imp %in% seq_len(nlevels(X$imp)))) {
                     in.imp <- !is.na(X$imp) & sapply(X$imp, function(x) !is.na(match(x, levels(X$imp)[which.imp])))
@@ -195,7 +196,6 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
                 labs(y = "Treat", x = var.name, title = title, subtitle = subtitle)
         }
     }
-    
     else { #Categorical treatments (multinomial supported)
         treat <- factor(X$treat)
         
@@ -226,7 +226,8 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
             d$var <- factor(d$var)
             bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
                 geom_bar(position = "dodge", alpha = .4, color = "black") + 
-                labs(x = var.name, y = "Proportion", fill = "Treat", title = title, subtitle = subtitle) 
+                labs(x = var.name, y = "Proportion", fill = "Treat", title = title, subtitle = subtitle) + 
+                scale_x_discrete(drop=FALSE) + scale_fill_discrete(drop=FALSE)
         }
         else { #Continuous vars
             bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
@@ -236,18 +237,7 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
     }
     
     if (length(facet) > 0) {
-        if (identical(facet,"subclass")) {
-            bp <- bp + facet_wrap(~subclass)
-        }
-        else if (identical(facet,"cluster")) {
-            bp <- bp + facet_wrap(~cluster)
-        }
-        else if (identical(facet,"imp")) {
-            bp <- bp + facet_wrap(~imp)
-        }
-        else if (identical(facet,c("imp", "cluster"))) {
-            bp <- bp + facet_wrap(~imp+cluster)
-        }
+        bp <- bp + facet_grid(f.build(".", facet), drop = FALSE)
     }
     
     return(bp)
