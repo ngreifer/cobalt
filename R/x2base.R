@@ -808,7 +808,7 @@ x2base.data.frame <- function(covs, ...) {
             }
         }
         else {
-            problematic[] <- lengths > 0 && lengths != length(imp)
+            problematic[] <- lengths > 0 & lengths != length(imp)
         }
         if (any(problematic)) {
             stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp or one imputation."), call. = FALSE)
