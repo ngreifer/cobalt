@@ -337,8 +337,8 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     }
     
     if (length(facet) > 0) {
-        if (length(var.order) > 0 && var.order != "alphabetical") {
-            warning("var.order cannot be set with multiple plots (unless \"alphebatical\"). Ignoring var.order.", call. = FALSE)
+        if (length(var.order) > 0 && var.order != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1)) {
+            warning("var.order cannot be set with multiple plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
             var.order <- NULL
         }
     }
@@ -523,6 +523,68 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     if (!is.null(args$title)) title <- as.character(args$title)
     if (!is.null(args$subtitle)) subtitle <- as.character(args$subtitle)
     #else subtitle <- NULL
+    
+    if (which.stat == "Corr") {
+        baseline.xintercept <- 0
+        if (abs) {
+            xlab <- "Absolute Treatment-Covariate Correlations"
+            if (!null.threshold) threshold.xintercept <- abs(threshold)
+        }
+        else {
+            xlab <- "Treatment-Covariate Correlations"
+            if (!null.threshold) threshold.xintercept <- c(-threshold, threshold)
+        }
+    }
+    else if (which.stat == "Diff") {
+        baseline.xintercept <- 0
+        if (abs) {
+            xlab <- "Absolute Mean Differences"
+            if (!null.threshold) threshold.xintercept <- abs(threshold)
+        }
+        else {
+            xlab <- "Mean Differences"
+            if (!null.threshold) threshold.xintercept <- c(-threshold, threshold)
+        }
+    }
+    else if (which.stat == "V.Ratio") {
+        baseline.xintercept <- 1
+        xlab <- "Variance Ratios"
+        if (!null.threshold) threshold.xintercept <- max(threshold, 1/threshold)
+    }
+    
+    apply.limits <- FALSE
+    if (length(args$limits) > 0) {
+        limits <- args$limits
+        if (length(limits) != 2 || !is.numeric(limits)) {
+            warning("limits must be a numeric vector of length 2. Ignoring limits.", call. = FALSE)
+        }
+        else {
+            if (limits[2] < limits[1]) {
+                warning("The values in limits must be in ascending order. Reversing them.", call. = FALSE)
+                limits <- sort(limits)
+            }
+            
+            if (limits[1] >= 0) limits[1] <- baseline.xintercept - .05*limits[2]
+            if (limits[2] <= 0) limits[2] <- baseline.xintercept - .05*limits[1]
+            
+            if (agg.range) {
+                if (any(SS[,"min.stat"] < limits[1]) || any(SS[, "max.stat"] > limits[2])) {
+                    for (i in c("min.stat", "stat", "max.stat")) {
+                        SS[SS[, i] < limits[1], i] <- limits[1]
+                        SS[SS[, i] > limits[2], i] <- limits[2]
+                    }
+                    warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                }
+            }
+            else {
+                if (any(SS[,"stat"] < limits[1]) || any(SS[, "stat"] > limits[2])) {
+                    warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                }
+            }
+            apply.limits <- TRUE
+        }
+    }
+    
 
     lp <- ggplot(data = SS, aes(y = var, x = stat, group = Sample)) + 
         theme(panel.grid.major = element_line(color = "gray87"),
@@ -532,49 +594,24 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         scale_shape_manual(values = shapes) +
         scale_fill_manual(values = fill) +
         scale_color_manual(values = colors) + 
-        labs(title = title, subtitle = subtitle, y = "") 
-    if (which.stat == "Corr") {
-        baseline.xintercept <- 0
-        if (abs) {
-            lp <- lp + xlab("Absolute Treatment-Covariate Correlations")
-            if (!null.threshold) threshold.xintercept <- abs(threshold)
-        }
-        else {
-            lp <- lp + xlab("Treatment-Covariate Correlations") 
-            if (!null.threshold) threshold.xintercept <- c(-threshold, threshold)
-        }
-    }
-    else if (which.stat == "Diff") {
-        baseline.xintercept <- 0
-        if (abs) {
-            lp <- lp + xlab("Absolute Mean Differences") 
-            if (!null.threshold) threshold.xintercept <- abs(threshold)
-        }
-        else {
-            lp <- lp + xlab("Mean Differences") 
-            if (!null.threshold) threshold.xintercept <- c(-threshold, threshold)
-        }
-    }
-    else if (which.stat == "V.Ratio") {
-        baseline.xintercept <- 1
-        lp <- lp + xlab("Variance Ratios")
-        if (!null.threshold) threshold.xintercept <- max(threshold, 1/threshold)
-    }
-    
+        labs(title = title, subtitle = subtitle, y = "", x = xlab) 
+
     lp <- lp + geom_vline(xintercept = baseline.xintercept, linetype = 1, color = "gray5")
     if (!null.threshold) lp <- lp + geom_vline(xintercept = threshold.xintercept, linetype=2, color = "gray8")
     
     if (agg.range) {
-        #print(all.equal(SS, lp$data)); stop()
-        
         position.dodge <- ggstance::position_dodgev(.5*(size))
         if (line == TRUE) { #Add line except to distance
             f <- function(x) {x[x$var %in% distance.names, "stat"] <- NA; x}
-            lp <- lp + layer(geom = "path", data = f, position = position.dodge, stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+            lp <- lp + layer(geom = "path", data = f, position = position.dodge, stat = "identity", 
+                             aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
         }
         lp <- lp + 
-            ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat, color = Sample), position = position.dodge, size = size) + 
-            geom_point(aes(y = var, x = mean.stat, shape = Sample, color = Sample), fill = "white", size = 2*size, stroke = stroke, position = position.dodge) + 
+            ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat, 
+                                          color = Sample), position = position.dodge, size = size) + 
+            geom_point(aes(y = var, x = mean.stat, shape = Sample, color = Sample), 
+                       fill = "white", size = 2*size, stroke = stroke, na.rm = TRUE,
+                       position = position.dodge) + 
             labs(title = title, y = "")
     }
     else {
@@ -587,25 +624,13 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
                               size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE) 
         
     }
-    if (length(args$limits) > 0) {
-        if (length(args$limits) != 2 || !is.numeric(args$limits)) {
-            
-            warning("limits must be a numeric vector of length 2. Ignoring limits.", call. = FALSE)
-        }
-        else {
-            if (args$limits[2] < args$limits[1]) {
-                warning("The values in limits must be in ascending order. Reversing them.", call. = FALSE)
-                args$limits <- sort(args$limits)
-            }
-            if (any(SS[, ifelse(agg.range, "min.stat", "stat")] < args$limits[1]) || any(SS[, ifelse(agg.range, "max.stat", "stat")] > args$limits[2])) {
-                warning("Some points will be removed from the plot by the limits.", call. = FALSE)
-            }
-            lp <- lp + scale_x_continuous(limits = args$limits)
-        }
-    }
+
     if (!drop.distance && length(distance.names) > 0) {
         lp <- lp + geom_hline(linetype = 1, color = "black", 
                               yintercept = nlevels(SS[,"var"]) - length(distance.names) + .5)
+    }
+    if (apply.limits) {
+        lp <- lp + scale_x_continuous(limits = limits, expand = c(0, 0))
     }
     if (length(facet) > 0) {
         lp <- lp + facet_grid(f.build(".", facet), drop = FALSE)
