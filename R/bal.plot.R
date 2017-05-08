@@ -1,6 +1,9 @@
 bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL) {
     
     args <- list(...)
+    if (missing(var.name)) {
+        stop("An argument for var.name must be specified.", call. = FALSE)
+    }
     
     X <- x2base(obj, ..., cluster = cluster, imp = imp)
     
@@ -79,7 +82,7 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
         if (length(which.cluster) == 0) {
             in.cluster <- !is.na(X$cluster)
         }
-        else if (!is.na(which.cluster)) {
+        else if (all(!is.na(which.cluster))) {
             if (is.numeric(which.cluster)) {
                 if (all(which.cluster %in% seq_len(nlevels(X$cluster)))) {
                     in.cluster <- !is.na(X$cluster) & sapply(X$cluster, function(x) !is.na(match(x, levels(X$cluster)[which.cluster])))
@@ -112,7 +115,7 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
         X$treat <- X$treat[in.imp & in.cluster]
         var <- var[in.imp & in.cluster]
         imp <- paste("Imputation", X$imp[in.imp & in.cluster])
-        cluster <- paste("Cluster", X$cluster[in.imp & in.cluster])
+        cluster <- X$cluster[in.imp & in.cluster]
         facet <- c("imp", "cluster")
     }
     else if (length(in.imp) > 0) {
@@ -126,7 +129,7 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
         X$weights <- X$weights[in.cluster]
         X$treat <- X$treat[in.cluster]
         var <- var[in.cluster]
-        cluster <- paste("Cluster", X$cluster[in.cluster])
+        cluster <- X$cluster[in.cluster]
         facet <- "cluster"
     }
     
