@@ -10,6 +10,11 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     nn <- x$Observations
     p.ops <- x$print.options
     
+    #Prevent expnential notation printing
+    op <- options(scipen=getOption("scipen"))
+    options(scipen = 999)
+    on.exit(options(op))
+    
     #Adjustments to print options
     if (!p.ops$quick) {
         if (!identical(un, "as.is") && p.ops$disp.adj) {
@@ -102,57 +107,9 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         print.data.frame(round_df(x$Max.Imbalance.Variances, digits))
     }
     if (!is.null(nn)) {
-        cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
-        print.data.frame(replaceNA(x$Observations), digits = digits)
-    }
-    invisible(x)
-}
-.print.bal.tab.cont <- function(x, disp.r.threshold = "as.is", un = "as.is", digits = max(3, getOption("digits") - 3), ...) {
-    call <- x$call
-    balance <- x$Balance
-    baltal.r <- x$Balanced.Corr
-    maximbal.r <- x$Max.Imbalance.Corr
-    nn <- x$Observations
-    p.ops <- x$print.options
-    
-    #Adjustments to print options
-    if (!p.ops$quick) {
-        if (!identical(un, "as.is") && p.ops$disp.adj) {
-            if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
-            p.ops$un <- un
+        for (i in rownames(x$Observations)) {
+            if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
         }
-    }
-    if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
-        if (!is.null(p.ops$r.threshold) && !disp.r.threshold) {
-            p.ops$r.threshold <- NULL
-            baltal.r <- NULL
-            maximbal.r <- NULL
-        }
-    }
-    
-    keep <- as.logical(c(TRUE, 
-                         p.ops$un, 
-                         p.ops$disp.adj, 
-                         !is.null(p.ops$r.threshold)))
-    
-    if (!is.null(call)) {
-        cat("\nCall:", deparse(call), sep = "\n")
-    }
-    
-    cat("\nBalance Measures:\n")
-    print.data.frame(replaceNA(round_df(balance[, keep], digits)))
-    
-    if (!is.null(baltal.r)) {
-        cat("\nBalance tally for correlations:\n")
-        print.data.frame(x$Balanced.Corr)
-    }
-    if (!is.null(maximbal.r)) {
-        cat("\nVariable with the greatest treatment correlation:\n")
-        print.data.frame(round_df(x$Max.Imbalance.Corr, digits))
-    }
-    
-    if (!is.null(nn)) {
         cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
         print.data.frame(replaceNA(x$Observations), digits = digits)
     }
@@ -168,6 +125,11 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     maximbal.v.subclass <- x$Max.Imbalance.Variances.Subclass
     s.nn <- x$Subclass.Observations
     p.ops <- x$print.options
+    
+    #Prevent expnential notation printing
+    op <- options(scipen=getOption("scipen"))
+    options(scipen = 999)
+    on.exit(options(op))
     
     #Adjustments to print options
     if (!p.ops$quick) {
@@ -266,6 +228,11 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     c.balance.summary <- x$Cluster.Summary
     nn <- x$Observations
     p.ops <- x$print.options
+    
+    #Prevent expnential notation printing
+    op <- options(scipen=getOption("scipen"))
+    options(scipen = 999)
+    on.exit(options(op))
     
     #Adjustments to print options
     if (!p.ops$quick) {
@@ -382,9 +349,13 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             cat(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - \n"))
             cat("Balance measures:\n")
             print.data.frame(replaceNA(round_df(c.balance[[i]][["Balance.Table"]][, keep], digits)))
+            for (j in rownames(c.balance[[i]][["Observations"]])) {
+                if (all(c.balance[[i]][["Observations"]][j,] == 0)) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!=j,]
+            }
             cat(paste0("\n", attr(c.balance[[i]][["Observations"]], "tag"), ":\n"))
             print.data.frame(replaceNA(round_df(c.balance[[i]][["Observations"]], digits)))
         }
+        cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
@@ -422,126 +393,16 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         }
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
-    }
-    if (!is.null(nn)) {
-        cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
-        print.data.frame(replaceNA(x$Observations), digits = digits)
-    }
-    invisible(x)
-}
-.print.bal.tab.cont.cluster <- function(x, disp.r.threshold = "as.is", un = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
-    call <- x$call
-    c.balance <- x$Cluster.Balance
-    c.balance.summary <- x$Cluster.Summary
-    nn <- x$Observations
-    p.ops <- x$print.options
-    
-    #Adjustments to print options
-    if (!p.ops$quick) {
-        if (!identical(un, "as.is") && p.ops$disp.adj) {
-            if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
-            p.ops$un <- un
-        }
-        if (!identical(cluster.summary, "as.is")) {
-            if (!is.logical(cluster.summary)) stop("cluster.summary must be TRUE, FALSE, or \"as.is\"")
-            p.ops$cluster.summary <- cluster.summary
-        }
-    }
-    if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
-        if (!is.null(p.ops$r.threshold) && !disp.r.threshold) {
-            p.ops$r.threshold <- NULL
-            baltal.r <- NULL
-            maximbal.r <- NULL
-        }
-    }
-    if (!missing(which.cluster)) {
-        p.ops$which.cluster <- which.cluster
-    }
-    
-    cluster.funs <- c("min", "mean", "median", "max")
-    if (length(cluster.fun) > 0) {
-        cluster.fun <- match.arg(tolower(cluster.fun), cluster.funs, several.ok = TRUE)
-        if (!is.na(match("min", cluster.fun)) && p.ops$quick) {
-            cluster.fun <- cluster.fun[is.na(match(cluster.fun, "min"))]
-            if (length(cluster.fun) == 0) {
-                warning("\"min\" was the only valid entry to cluster.fun, but it cannot be used when quick = TRUE in the call to bal.tab(). Using all other cluster.funs instead.", call. = FALSE)
-                cluster.fun <- c("mean", "median", "max")
+        
+        if (!is.null(nn)) {
+            for (i in rownames(x$Observations)) {
+                if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
-            else warning("\"min\" cannot be requested when quick = TRUE in the call to bal.tab(), so it was ignored.", call. = FALSE)
-        }
-        else if (length(cluster.fun) == 0) {
-            warning("There were no valid entries to cluster.fun. Using all other cluster.funs instead.", call. = FALSE)
-            cluster.fun <- c("mean", "median", "max")
+            cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+            print.data.frame(replaceNA(x$Observations), digits = digits)
         }
     }
-    else cluster.fun <- c("mean", "median", "max")
-    
-    #Checks and Adjustments
-    if (length(p.ops$which.cluster) == 0) 
-        which.cluster <- seq_along(c.balance)
-    else if (is.numeric(p.ops$which.cluster)) {
-        which.cluster <- seq_along(c.balance)[seq_along(c.balance) %in% p.ops$which.cluster]
-        if (length(which.cluster) == 0) {
-            warning("No indices in which.cluster are cluster indices. Displaying all clusters instead.", call. = FALSE)
-            which.cluster <- seq_along(c.balance)
-        }
-    }
-    else if (is.character(p.ops$which.cluster)) {
-        which.cluster <- seq_along(c.balance)[names(c.balance) %in% p.ops$which.cluster]
-        if (length(which.cluster) == 0) {
-            warning("No names in which.cluster are cluster names. Displaying all clusters instead.", call. = FALSE)
-            which.cluster <- seq_along(c.balance)
-        }
-    }
-    else if (is.na(p.ops$which.cluster)) {
-        which.cluster <- integer(0)
-        p.ops$cluster.summary <- TRUE
-    }
-    else {
-        warning("The argument to which.cluster must be NA, NULL, or a vector of cluster indicies or cluster names. Displaying all clusters instead.", call. = FALSE)
-        which.cluster <- seq_along(c.balance)
-    }
-    
-    keep <- as.logical(c(TRUE, 
-                         p.ops$un, 
-                         p.ops$disp.adj, 
-                         !is.null(p.ops$r.threshold)))
-    
-    if (!is.null(call)) {
-        cat("\nCall:", deparse(call), sep = "\n")
-    }
-    
-    if (length(which.cluster)>0) {
-        cat("Balance by cluster:\n")
-        for (i in which.cluster) {
-            cat(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - \n"))
-            cat("Balance measures:\n")
-            print.data.frame(replaceNA(round_df(c.balance[[i]][["Balance.Table"]][, keep], digits)))
-            cat("\nObservations:\n")
-            print.data.frame(replaceNA(round_df(c.balance[[i]][["Observations"]], digits)))
-        }
-    }
-    
-    if (isTRUE(as.logical(p.ops$cluster.summary))) {
-        CF <- !is.na(match(cluster.funs, cluster.fun))
-        names(CF) <- cluster.funs
-        s.keep <- as.logical(c(TRUE, 
-                               p.ops$un*CF["min"],
-                               p.ops$un*CF["mean"],
-                               p.ops$un*CF["median"],
-                               p.ops$un*CF["max"],
-                               p.ops$disp.adj*CF["min"],
-                               p.ops$disp.adj*CF["mean"],
-                               p.ops$disp.adj*CF["median"],
-                               p.ops$disp.adj*CF["max"]))
-        cat("\nBalance summary across all clusters:\n")
-        print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
-    }
-    if (!is.null(nn)) {
-        cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
-        print.data.frame(replaceNA(x$Observations), digits = digits)
-    }
+
     invisible(x)
 }
 print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
@@ -552,6 +413,11 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     i.balance.summary <- x[["Balance.Across.Imputations"]]
     nn <- x$Observations
     p.ops <- x$print.options
+    
+    #Prevent expnential notation printing
+    op <- options(scipen=getOption("scipen"))
+    options(scipen = 999)
+    on.exit(options(op))
     
     #Adjustments to print options
     if (!p.ops$quick) {
@@ -689,11 +555,16 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         
         cat("\nBalance summary across all imputations:\n")
         print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
+        
+        if (!is.null(nn)) {
+            for (i in rownames(x$Observations)) {
+                if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
+            }
+            cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+            print.data.frame(replaceNA(x$Observations), digits = digits)
+        }
     }
-    if (!is.null(nn)) {
-        cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
-        print.data.frame(replaceNA(x$Observations), digits = digits)
-    }
+
     invisible(x)
     
 }
@@ -706,6 +577,11 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     i.balance.summary <- x[["Balance.Across.Imputations"]]
     nn <- x$Observations
     p.ops <- x$print.options
+    
+    #Prevent expnential notation printing
+    op <- options(scipen=getOption("scipen"))
+    options(scipen = 999)
+    on.exit(options(op))
     
     #Adjustments to print options
     if (!p.ops$quick) {
@@ -902,10 +778,14 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         }
         cat("\nBalance summary across all imputations and clusters:\n")
         print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
-    }
-    if (!is.null(nn)) {
-        cat(paste0("\n", attr(nn, "tag"), ":\n"))
-        print.data.frame(replaceNA(nn), digits = digits)
+        
+        if (!is.null(nn)) {
+            for (i in rownames(x$Observations)) {
+                if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
+            }
+            cat(paste0("\n", attr(nn, "tag"), ":\n"))
+            print.data.frame(replaceNA(nn), digits = digits)
+        }
     }
     invisible(x)
     
