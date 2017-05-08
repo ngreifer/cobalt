@@ -22,6 +22,7 @@ Suggests:
     optmatch,
     CBPS,
     ebal,
+    mice,
     knitr,
     rmarkdown
 License: GPL (>=2)
