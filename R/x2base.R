@@ -1,3 +1,5 @@
+#Make sure problematic works for when imputations are not the same size
+
 #Functions to convert object to base.bal.tab input
 
 x2base <- function(obj, ...) UseMethod("x2base")
@@ -98,7 +100,7 @@ x2base.matchit <- function(m, ...) {
         assign(i, val.df)
     }
     
-    if (!all(is.na(m$distance))) {
+    if (any(is.finite(m$distance))) {
         if (length(distance) > 0) distance <- cbind(distance, distance = m$distance)
         else distance <- data.frame(distance = m$distance)
     }
@@ -287,6 +289,8 @@ x2base.Match <- function(Match, ...) {
     #data
     #treat
     #covs
+    #addl
+    #distance
     #s.d.denom
     A <- list(...)
     X <- list(covs=NA,
@@ -392,6 +396,7 @@ x2base.Match <- function(Match, ...) {
     treat <- o.data2$treat
     weights <- o.data2$weights
     covs <- o.data2[, is.na(match(names(o.data2), c("treat", "weights", "index")))]
+    if (attr(t.c, "which")=="fd") data <- A$data
     
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
@@ -406,7 +411,7 @@ x2base.Match <- function(Match, ...) {
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
-        for (i in c(vectors, data.frames[data.frames!="weights"])) {
+        for (i in c(vectors[vectors!="weights"], data.frames)) {
             if (lengths[i] > 0 && lengths[i] != lengths["weights"]) {
                 problematic[i] <- TRUE
             }
@@ -419,6 +424,7 @@ x2base.Match <- function(Match, ...) {
     X$treat <- treat
     X$weights <- weights
     X$distance <- NULL #NAs in distance bcause of incomplete list in Match object
+    X$addl <- addl
     X$covs <- covs
     X$call <- NULL
     X$method <- "matching"
@@ -517,15 +523,16 @@ x2base.data.frame <- function(covs, ...) {
         warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execuction will halt.")
         data <- NULL
     }
+    if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
+        stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
+    }
+    
     specified <- setNames(rep(FALSE, 3), c("match.strata", "subclass", "weights"))
     if (length(weights) > 0) {
         if (!is.character(weights) && !is.numeric(weights)) {
             stop("The argument to weights must be a vector of weights or the (quoted) name of a variable in data that contains weights.", call. = FALSE)
         }
         specified["weights"] <- TRUE
-    }
-    if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
-        stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
     }
     if (length(subclass) > 0){
         if (!is.character(subclass) && !is.numeric(subclass)) {
@@ -555,6 +562,7 @@ x2base.data.frame <- function(covs, ...) {
                 weights <- match.strata <- NULL
             }
             X$method <- "subclassification"
+            weights <- rep(1, length(treat))
         }
         else if (specified["weights"]) {
             if (sum(specified) > 1) {
@@ -709,8 +717,6 @@ x2base.data.frame <- function(covs, ...) {
             cluster <- data[, cluster]
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
-        
-        
     }
     
     #Process addl and distance
@@ -766,10 +772,11 @@ x2base.data.frame <- function(covs, ...) {
         
         if (abs(max(imp.lengths) - min(imp.lengths)) < sqrt(.Machine$double.eps)) { #all the same
             for (i in vectors) {
-                if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) { 
                     if (lengths[i] == imp.lengths[1]) {
-                        temp.imp <- data.frame(imp = imp, order = sort(rep(seq_len(lengths[i]), length(imp.lengths))),
+                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                order2 = seq_along(imp))
+                        
                         temp.var <- data.frame(sort(imp), rep(seq_len(lengths[i]), length(imp.lengths)),
                                                get(i)[rep(seq_len(lengths[i]), length(imp.lengths))]
                         )
@@ -785,7 +792,7 @@ x2base.data.frame <- function(covs, ...) {
             for (i in data.frames) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) {
                     if (lengths[i] == imp.lengths[1]) {
-                        temp.imp <- data.frame(imp = imp, order = sort(rep(seq_len(lengths[i]), length(imp.lengths))),
+                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                order2 = seq_along(imp))
                         temp.var <- data.frame(sort(imp),rep(seq_len(lengths[i]), length(imp.lengths)),
                                                get(i)[rep(seq_len(lengths[i]), length(imp.lengths)), ]
@@ -801,10 +808,10 @@ x2base.data.frame <- function(covs, ...) {
             }
         }
         else {
-            problematic <- lengths[i] > 0 && lengths[i] != length(imp)
+            problematic[] <- lengths > 0 && lengths != length(imp)
         }
         if (any(problematic)) {
-            stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as imp or one imputation."), call. = FALSE)
+            stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp or one imputation."), call. = FALSE)
         }
         else ensure.equal.lengths <- FALSE
     }
@@ -907,7 +914,6 @@ x2base.data.frame <- function(covs, ...) {
     return(X)
 }
 x2base.CBPS <- function(cbps.fit, ...) {
-    #estimand
     #s.d.denom
     #cluster
     A <- list(...)
@@ -939,12 +945,6 @@ x2base.CBPS <- function(cbps.fit, ...) {
         #     if (isTRUE(all.equal(weights, treat / cbps.fit$fitted.values + (1-treat) / (1-cbps.fit$fitted.values)))) A$estimand <- "ATE"
         #     else A$estimand <- "ATT"
         # }
-        if (abs(max(weights[treat == 1], na.rm = TRUE) - min(weights[treat == 1], na.rm = TRUE)) < sqrt(.Machine$double.eps)) {
-            A$estimand <- "ATT"
-        }
-        else {
-            A$estimand <- "ATE"
-        }
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
@@ -952,7 +952,16 @@ x2base.CBPS <- function(cbps.fit, ...) {
                                         message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                         return(new.s.d.denom)})
         }
-        else X$s.d.denom <- switch(tolower(A$estimand), att = "treated", ate = "pooled")
+        else {
+            if (abs(max(weights[treat == 1], na.rm = TRUE) - 
+                    min(weights[treat == 1], na.rm = TRUE)) < 
+                sqrt(.Machine$double.eps)) {
+                X$s.d.denom <- "treated"
+            }
+            else {
+                X$s.d.denom <- "pooled"
+            }
+        }
     }
     
     c.data <- cbps.fit$data
