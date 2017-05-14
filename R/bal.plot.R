@@ -5,10 +5,10 @@ bal.plot <- function(obj, var.name, ..., un = FALSE, which.sub = NULL, cluster =
         stop("An argument for var.name must be specified.", call. = FALSE)
     }
     
-    X <- x2base(obj, ..., cluster = cluster, imp = imp)
+    X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     
     if (var.name %in% names(X$covs)) var <- X$covs[, var.name]
-    else if (!is.null(args$data) && var.name %in% names(args$data)) var <- args$data[, var.name]
+    #else if (!is.null(args$data) && var.name %in% names(args$data)) var <- args$data[, var.name]
     else if (!is.null(X$addl) && var.name %in% names(X$addl)) var <- X$addl[, var.name]
     else if (!is.null(args$addl) && var.name %in% names(args$addl)) var <- args$addl[, var.name]
     else if (!is.null(X$distance) && var.name %in% names(X$distance)) var <- X$distance[, var.name]
