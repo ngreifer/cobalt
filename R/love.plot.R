@@ -323,7 +323,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         }
         else warning("Argument to var.names is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE, call. = FALSE)
         new.labels <- new.labels[new.labels %in% B[, "var.names"]]
-        B[, "var.names"] <- do.call(forcats::fct_recode, c(list(B[, "var.names"]), as.list(new.labels)))
+        B[, "var.names"] <- do.call(f.recode, c(list(B[, "var.names"]), as.list(new.labels)))
     }
     
     distance.names <- as.character(unique(B[B[,"Type"] == "Distance",  "var.names"]))
