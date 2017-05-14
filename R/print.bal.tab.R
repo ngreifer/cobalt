@@ -110,6 +110,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         for (i in rownames(x$Observations)) {
             if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
         }
+        if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
         cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
         print.data.frame(replaceNA(x$Observations), digits = digits)
     }
@@ -349,9 +350,11 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             cat(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - \n"))
             cat("Balance measures:\n")
             print.data.frame(replaceNA(round_df(c.balance[[i]][["Balance.Table"]][, keep], digits)))
+            
             for (j in rownames(c.balance[[i]][["Observations"]])) {
                 if (all(c.balance[[i]][["Observations"]][j,] == 0)) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!=j,]
             }
+            if (!is.na(c.balance[[i]][["Observations"]]["Matched (Unweighted)",]) && all(c.balance[[i]][["Observations"]]["Matched",] == c.balance[[i]][["Observations"]]["Matched (Unweighted)",])) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!="Matched (Unweighted)",]
             cat(paste0("\n", attr(c.balance[[i]][["Observations"]], "tag"), ":\n"))
             print.data.frame(replaceNA(round_df(c.balance[[i]][["Observations"]], digits)))
         }
@@ -398,6 +401,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
+            if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
             cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
             print.data.frame(replaceNA(x$Observations), digits = digits)
         }
@@ -456,7 +460,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             p.ops$r.threshold <- NULL
         }
     }
-    if (!missing(which.imp)) {
+    if (!missing(which.imp) && which.imp != "as.is") {
         p.ops$which.imp <- which.imp
     }
     
@@ -484,14 +488,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     else if (is.numeric(p.ops$which.imp)) {
         which.imp <- seq_along(i.balance)[seq_along(i.balance) %in% p.ops$which.imp]
         if (length(which.imp) == 0) {
-            warning("No indices in which.imp are imputation indices. No imputations will be displayed.", call. = FALSE)
-            which.imp <- integer(0)
-        }
-    }
-    else if (is.character(p.ops$which.imp)) {
-        which.imp <- seq_along(i.balance)[names(i.balance) %in% p.ops$which.imp]
-        if (length(which.imp) == 0) {
-            warning("No names in which.imp are imputation names. No imputations will be displayed.", call. = FALSE)
+            warning("No numbers in which.imp are imputation numbers. No imputations will be displayed.", call. = FALSE)
             which.imp <- integer(0)
         }
     }
@@ -500,7 +497,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         p.ops$imp.summary <- TRUE
     }
     else {
-        warning("The argument to which.imp must be NA, NULL, or a vector of imputation indicies or imputation names. No imputations will be displayed.", call. = FALSE)
+        warning("The argument to which.imp must be NA, NULL, or a vector of imputation numbers. No imputations will be displayed.", call. = FALSE)
         which.imp <- integer(0)
     }
     
@@ -560,6 +557,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
+            if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
             cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
             print.data.frame(replaceNA(x$Observations), digits = digits)
         }
@@ -624,7 +622,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             p.ops$v.threshold <- NULL
         }
     }
-    if (!missing(which.imp)) {
+    if (!missing(which.imp) && which.imp != "as.is") {
         p.ops$which.imp <- which.imp
     }
     if (!missing(which.cluster)) {
@@ -697,14 +695,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     else if (is.numeric(p.ops$which.imp)) {
         which.imp <- seq_along(i.balance)[seq_along(i.balance) %in% p.ops$which.imp]
         if (length(which.imp) == 0) {
-            warning("No indices in which.imp are imputation indices. No imputations will be displayed.", call. = FALSE)
-            which.imp <- integer(0)
-        }
-    }
-    else if (is.character(p.ops$which.imp)) {
-        which.imp <- seq_along(i.balance)[names(i.balance) %in% p.ops$which.imp]
-        if (length(which.imp) == 0) {
-            warning("No names in which.imp are imputation names. No imputations will be displayed.", call. = FALSE)
+            warning("No numbers in which.imp are imputation numbers. No imputations will be displayed.", call. = FALSE)
             which.imp <- integer(0)
         }
     }
@@ -713,7 +704,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         p.ops$imp.summary <- TRUE
     }
     else {
-        warning("The argument to which.imp must be NA, NULL, or a vector of imputation indicies or imputation names. No imputations will be displayed.", call. = FALSE)
+        warning("The argument to which.imp must be NA, NULL, or a vector of imputation numbers. No imputations will be displayed.", call. = FALSE)
         which.imp <- integer(0)
     }
     
@@ -772,6 +763,11 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                 cat(paste0("\n - - - Cluster: ", names(i.balance.c.summary)[c], " - - - \n"))
                 cat("Balance summary across imputations:\n")
                 print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Balance"]][, s.keep], digits)))
+                
+                for (j in rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])) {
+                    if (all(i.balance.c.summary[[c]][["Cluster.Observations"]][j,] == 0)) i.balance.c.summary[[c]][["Cluster.Observations"]] <- i.balance.c.summary[[c]][["Cluster.Observations"]][rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])!=j,]
+                }
+                if (!is.na(i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched (Unweighted)",]) && all(i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched",] == i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched (Unweighted)",])) i.balance.c.summary[[c]][["Cluster.Observations"]] <- i.balance.c.summary[[c]][["Cluster.Observations"]][rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])!="Matched (Unweighted)",]
                 cat(paste0("\n", attr(i.balance.c.summary[[c]][["Cluster.Observations"]], "tag"), ":\n"))
                 print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Observations"]], digits)))
             }
@@ -783,6 +779,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
+            if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
             cat(paste0("\n", attr(nn, "tag"), ":\n"))
             print.data.frame(replaceNA(nn), digits = digits)
         }
