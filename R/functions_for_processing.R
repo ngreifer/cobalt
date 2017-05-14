@@ -161,7 +161,7 @@ int.poly.f <- function(df, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
 }
 split.factor <- function(varname, data) {
     #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
-    #Retains all categories unless only 2 levels, in which case only the second level is retained.
+    #Retains all categories.
     #varname= the name of the variable to split when data is specified
     #data=data set to be changed
     
@@ -275,12 +275,15 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     
 }
 get.types <- function(C) {
-    types <- mapply(function(x, y) ifelse(ifelse(is.null(attr(C, "distance.names")), FALSE, x %in% attr(C, "distance.names")), "Distance", ifelse(length(unique(y))<=2, "Binary", "Contin.")), colnames(C), C)
+    types <- mapply(function(x, y) ifelse(ifelse(is.null(attr(C, "distance.names")), 
+                                                 FALSE, x %in% attr(C, "distance.names")), 
+                                          "Distance", ifelse(length(unique(y))<=2, 
+                                                             "Binary", "Contin.")), 
+                    colnames(C), C)
     return(types)
 }
 
 #base.bal.tab
-#w.m <- function(x, w) {return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))}
 w.m <- function(x, w = NULL) {
     if (length(w) == 0) w <- rep(1, length(x))
     return(sum(x*w, na.rm=TRUE)/sum(w, na.rm=TRUE))
@@ -387,17 +390,18 @@ samplesize <- function(obj, method=c("matching", "weighting", "subclassification
     
     if (method=="matching") {
         if (any(class(obj)=="matchit")) {
-            nn <- matrix(0, ncol=2, nrow=4)
+            nn <- matrix(0, ncol=2, nrow=5)
             # nn[1, ] <- c(sum(in.cluster & obj$treat==0), sum(in.cluster & obj$treat==1))
             # nn[2, ] <- c(sum(in.cluster & obj$treat==0 & obj$weights>0), sum(in.cluster & obj$treat==1 & obj$weights>0))
             # nn[3, ] <- c(sum(in.cluster & obj$treat==0 & obj$weights==0 & obj$discarded==0), sum(in.cluster & obj$treat==1 & obj$weights==0 & obj$discarded==0))
             # nn[4, ] <- c(sum(in.cluster & obj$treat==0 & obj$weights==0 & obj$discarded==1), sum(in.cluster & obj$treat==1 & obj$weights==0 & obj$discarded==1))
             nn[1, ] <- c(sum(in.cluster & obj$treat==0), sum(in.cluster & obj$treat==1))
             nn[2, ] <- c(sum(obj$weights[in.cluster & obj$treat==0]), sum(obj$weights[in.cluster & obj$treat==1]))
-            nn[3, ] <- c(sum(in.cluster & obj$treat==0 & obj$weights==0 & obj$discarded==0), sum(in.cluster & obj$treat==1 & obj$weights==0 & obj$discarded==0))
-            nn[4, ] <- c(sum(in.cluster & obj$treat==0 & obj$weights==0 & obj$discarded==1), sum(in.cluster & obj$treat==1 & obj$weights==0 & obj$discarded==1))
+            nn[3, ] <- c(sum(in.cluster & obj$treat==0 & obj$weights>0), sum(in.cluster & obj$treat==1 & obj$weights>0))
+            nn[4, ] <- c(sum(in.cluster & obj$treat==0 & obj$weights==0 & obj$discarded==0), sum(in.cluster & obj$treat==1 & obj$weights==0 & obj$discarded==0))
+            nn[5, ] <- c(sum(in.cluster & obj$treat==0 & obj$weights==0 & obj$discarded==1), sum(in.cluster & obj$treat==1 & obj$weights==0 & obj$discarded==1))
             nn <- as.data.frame(nn)
-            dimnames(nn) <- list(c("All", "Matched", "Unmatched", "Discarded"), 
+            dimnames(nn) <- list(c("All", "Matched", "Matched (Unweighted)", "Unmatched", "Discarded"), 
                                  c("Control", "Treated"))
         }
         else {
@@ -763,31 +767,6 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     
     return(B)
 }
-.balance.table.cont.cluster.summary <- function(balance.table.clusters.list, no.adj = FALSE, types = NULL) {
-    
-    Brownames <- unique(do.call("c", lapply(balance.table.clusters.list, rownames)))
-    cluster.functions <- c("Min", "Mean", "Median", "Max")
-    Bcolnames <- c("Type", apply(expand.grid(cluster.functions, "Corr", c("Un", "Adj")), 1, paste, collapse = "."))
-    B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
-    names(B) <- Bcolnames
-    
-    if (length(types) > 0) B[,"Type"] <- types
-    else B[,"Type"] <- unlist(sapply(Brownames, function(x) {u <- unique(sapply(balance.table.clusters.list, function(y) y[x, "Type"])); return(u[!is.na(u)])}), use.names = FALSE)
-    
-    funs <- structure(vector("list", length(cluster.functions)), names = cluster.functions)
-    for (Fun in cluster.functions[c(!quick, TRUE, TRUE, TRUE)]) {
-        funs[[Fun]] <- function(x, ...) {
-            if (!any(is.finite(x))) NA
-            else get(tolower(Fun))(x, ...)
-        }
-        for (sample in c("Un", "Adj")) {
-            if (sample == "Un" || !no.adj) { #Only fill in Corr.Adj if no.adj = FALSE
-                B[, paste(Fun, "Corr", sample, sep = ".")] <- sapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) abs(y[x, paste0("Corr.", sample)])), na.rm = TRUE))
-            }
-        }
-    }
-    return(B)
-}
 
 #base.bal.tab.imp
 balance.table.imp.summary <- function(bal.tab.imp.list, no.adj = FALSE, quick = FALSE, types = NULL) {
@@ -894,3 +873,6 @@ replaceNA <- function(x) {
     x[is.na(x)] <- ""
     return(x)
 }
+
+#To pass CRAN checks:
+utils::globalVariables(c("distance", "addl", "quick"))
