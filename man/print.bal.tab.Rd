@@ -1,39 +1,46 @@
 \name{print.bal.tab}
 \alias{print.bal.tab}
-\alias{print.bal.tab.cont}
 \alias{print.bal.tab.cluster}
 \alias{print.bal.tab.subclass}
-\alias{print.bal.tab.cont.cluster}
+\alias{print.bal.tab.imp}
+\alias{print.bal.tab.imp.cluster}
+
 \title{
 Print Results of a Call to bal.tab()
 }
 \description{
 Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
 \usage{
-\method{print}{bal.tab}(x, disp.m.threshold = "as.is", disp.v.threshold = 
-      "as.is", un = "as.is", disp.means = "as.is", 
-      disp.v.ratio = "as.is", digits = max(3, 
-      getOption("digits") - 3), ...)
+\method{print}{bal.tab}(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", 
+    disp.r.threshold = "as.is", un = "as.is", 
+    disp.means = "as.is", disp.v.ratio = "as.is", 
+    digits = max(3, getOption("digits") - 3), ...)
 
-\method{print}{bal.tab.cont}(x, disp.r.threshold = "as.is", un = "as.is", 
-      digits = max(3, getOption("digits") - 3), ...)
+\method{print}{bal.tab.subclass}(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", 
+    un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", 
+    disp.subclass = "as.is", digits = max(3, 
+    getOption("digits") - 3), ...)
 
-\method{print}{bal.tab.subclass}(x, disp.m.threshold = "as.is", disp.v.threshold = 
-      "as.is", un = "as.is", disp.means = "as.is", 
-      disp.v.ratio = "as.is", disp.subclass = "as.is", 
-      digits = max(3, getOption("digits") - 3), ...)
+\method{print}{bal.tab.cluster}(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", 
+    disp.r.threshold = "as.is", un = "as.is", 
+    disp.means = "as.is", disp.v.ratio = "as.is", 
+    which.cluster, cluster.summary = "as.is", 
+    cluster.fun = NULL, digits = max(3, 
+    getOption("digits") - 3), ...)
 
-\method{print}{bal.tab.cluster}(x, disp.m.threshold = "as.is", disp.v.threshold = 
-      "as.is", un = "as.is", disp.means = "as.is", 
-      disp.v.ratio = "as.is", which.cluster, 
-      cluster.summary = "as.is", cluster.fun = NULL,
-      digits = max(3, getOption("digits") - 3), ...)
+\method{print}{bal.tab.imp}(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", 
+    disp.r.threshold = "as.is", un = "as.is", 
+    disp.means = "as.is", disp.v.ratio = "as.is", 
+    which.imp, imp.summary = "as.is", imp.fun = NULL, 
+    digits = max(3, getOption("digits") - 3), ...)
 
-\method{print}{bal.tab.cont.cluster}(x, disp.r.threshold = "as.is", un = "as.is", 
-      which.cluster, cluster.summary = "as.is", 
-      cluster.fun = NULL, 
-      digits = max(3, getOption("digits") - 3), ...)
-
+\method{print}{bal.tab.imp.cluster}(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", 
+    disp.r.threshold = "as.is", un = "as.is", 
+    disp.means = "as.is", disp.v.ratio = "as.is", 
+    which.cluster, cluster.summary = "as.is", 
+    cluster.fun = NULL, which.imp, imp.summary = "as.is", 
+    imp.fun = NULL, digits = max(3, 
+    getOption("digits") - 3), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -46,6 +53,8 @@ whether to display output related to specifying \code{m.threshold} in the call t
   \item{disp.v.threshold}{
 whether to display output related to specifying \code{v.threshold} in the call to \code{bal.tab()}, which includes the Variance Ratio Threshold column in the Balance table, the Variance Ratio Balance Tally, and the variable with the Maximum Variance Ratio Imbalance. Either \code{FALSE} or \code{"as.is"}.
 }
+  \item{disp.r.threshold}{
+whether to display output related to specifying \code{r.threshold} in the call to \code{bal.tab()} with a continuous treatment, which includes the Correlation Threshold column in the Balance table, the Correlation Balance Tally, and the variable with the Maximum Correlation Imbalance. Either \code{FALSE} or \code{"as.is"}.}
   \item{un}{
 whether to display balance values for the unadjusted sample. Ignored (and set to \code{TRUE}) if no conditioning was performed.
 }
@@ -58,8 +67,6 @@ whether to display variance ratios in balance output.
   \item{digits}{
 the number of digits to display.
 }
-  \item{disp.r.threshold}{
-whether to display output related to specifying \code{r.threshold} in the call to \code{bal.tab()} with a continuous treatment, which includes the Correlation Threshold column in the Balance table, the Correlation Balance Tally, and the variable with the Maximum Correlation Imbalance. Either \code{FALSE} or \code{"as.is"}.}
   \item{disp.subclass}{
 whether to display balance information for individual subclasses if subclassification is used in conditioning.
 }
@@ -67,10 +74,19 @@ whether to display balance information for individual subclasses if subclassific
 which cluster(s) to display. If \code{NULL}, all clusters will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to \code{bal.tab()}, omit this argument, as specifying \code{"as.is"} will request a cluster called "as.is.".
 }
   \item{cluster.summary}{
-whether to display the cluster summary table. If \code{which.cluster} is \code{NULL}, \code{cluster.summary} will be set to \code{TRUE}.
+whether to display the cluster summary table. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
 }
   \item{cluster.fun}{
 a character vector of functions of balance statistics to display when dislaying balance across clusters. Can be "mean", "median", "min", or "max". More than one are allowed. "min" cannot be used if \code{quick = TRUE} in the original \code{bal.tab()} call.
+}
+  \item{which.imp}{
+which imputation(s) to display. If \code{NULL}, all imputations will be displayed. If \code{NA}, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to \code{bal.tab()}, omit this argument, or enter \code{"as.is"}.
+}
+  \item{imp.summary}{
+whether to display the imputation summary table. If \code{which.imp} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
+}
+  \item{imp.fun}{
+a character vector of functions of balance statistics to display when dislaying balance across imputations. Can be "mean", "median", "min", or "max". More than one are allowed. "min" cannot be used if \code{quick = TRUE} in the original \code{bal.tab()} call.
 }
   \item{\dots}{
 further arguments passed to or from other methods.

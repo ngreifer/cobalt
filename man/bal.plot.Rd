@@ -14,10 +14,10 @@ bal.plot(obj, var.name, ..., un = FALSE, which.sub = NULL,
 }
 \arguments{
   \item{obj}{
-the object for which balance is to be assessed; can be a \code{matchit} object from \pkg{MatchIt}, a \code{ps} object from \pkg{twang}, a \code{Match} object from \pkg{Matching}, a \code{optmatch} object from \pkg{optmatch}, a \code{CBPS} or \code{CBPSContinuous} object from \pkg{CBPS}, an \code{ebalance} object from \pkg{ebal}, or a \code{formula} or data frame containing covariate information.
+the object for which balance is to be assessed; can be a \code{matchit} object from \pkg{MatchIt}, a \code{ps} object from \pkg{twang}, a \code{Match} object from \pkg{Matching}, an \code{optmatch} object from \pkg{optmatch}, a \code{CBPS} or \code{CBPSContinuous} object from \pkg{CBPS}, an \code{ebalance} object from \pkg{ebal}, or a \code{formula} or data frame containing covariate information.
 }
   \item{var.name}{
-\code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named.
+\code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate data frame from \code{obj}, followed by \code{addl}, and then \code{distance}, if any.
 }
   \item{\dots}{
 other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments.
@@ -46,7 +46,7 @@ if imputations are used, which imputations(s) to display. Must be numerical indi
 
 For \code{matchit} objects: None
 
-For \code{ps} objects: (\code{full.stop.method}; see \link[bal.tab.ps]{defaults}).
+For \code{ps} objects: (\code{full.stop.method}; see \link[=bal.tab.ps]{defaults}).
 
 For \code{Match} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
@@ -56,9 +56,9 @@ For \code{CBPS} objects: None
 
 For \code{ebalance} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
-For \code{formula}s: \code{data}, \code{weights}, (\code{distance}), (\code{method}; see \link[bal.tab.formula]{defaults})
+For \code{formula}s: \code{data}, \code{weights}, (\code{distance}), (\code{method}; see \link[=bal.tab.formula]{defaults})
 
-For data frames: \code{treat}, (\code{data}), \code{weights}, (\code{distance}), (\code{method}; see \link[bal.tab.data.frame]{defaults})
+For data frames: \code{treat}, (\code{data}), \code{weights}, (\code{distance}), (\code{method}; see \link[=bal.tab.data.frame]{defaults})
 }
 \details{
 \code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \pkg{ggplot2}'s \code{geom_density()} method; for categorical treatments with categorical covariates, bar graphs are created using \pkg{ggplot2}'s \code{geom_bar()} method; for continuous treatments with continuous covariates, scatterplots are created using \pkg{ggplot2}'s \code{geom_point()} method.

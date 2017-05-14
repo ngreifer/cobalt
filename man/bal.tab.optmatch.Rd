@@ -9,14 +9,13 @@ Generates balance statistics for \code{optmatch} objects from \pkg{optmatch}.
 }
 \usage{
 \method{bal.tab}{optmatch}(optmatch, formula = NULL, data = NULL, treat = NULL, 
-covs = NULL, distance = NULL, int = FALSE, addl = NULL, 
-continuous = c("std", "raw"), binary = c("raw", 
-"std"), s.d.denom = c("treated", "control", 
-"pooled"), m.threshold = NULL, 
-v.threshold = NULL, un = FALSE, 
-disp.means = FALSE, disp.v.ratio = FALSE, 
-cluster = NULL, which.cluster = NULL, 
-cluster.summary = TRUE, quick = FALSE, ...)
+    covs = NULL, int = FALSE, distance = NULL, addl = NULL, 
+    continuous = c("std", "raw"), binary = c("raw", "std"), 
+    s.d.denom = c("treated", "control", "pooled"), 
+    m.threshold = NULL, v.threshold = NULL, un = FALSE, 
+    disp.means = FALSE, disp.v.ratio = FALSE, 
+    cluster = NULL, which.cluster = NULL, 
+    cluster.summary = TRUE, quick = FALSE, ...)
 }
 
 \arguments{
@@ -35,14 +34,14 @@ a vector of treatment statuses. See Details.
   \item{covs}{
 a data frame of covariate values for which to check balance. See Details.
 }
-  \item{distance}{
-Optional; either a vector containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
-}
   \item{int}{
 \code{logical}; whether or not to include 2-way interactions of covariates included in \code{formula} or \code{covs} and in \code{addl}.
 }
+  \item{distance}{
+Optional; either a vector containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
+}
   \item{addl}{
-a data frame of additional covariates for which to present balance. These may be covariates included in the original dataset but not included in \code{formula} or \code{covs}. In general, it makes more sense to include all desired variables in \code{formula} or \code{covs} than in \code{addl}. See note in Details for using \code{addl}.
+a data frame of additional covariates for which to present balance. These may be covariates included in the original dataset but not included in \code{formula} or \code{covs}. In general, it makes more sense to include all desired variables in \code{formula} or \code{covs} than in \code{addl}.
 }
   \item{continuous}{
 whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed.
@@ -91,7 +90,7 @@ The input to \code{bal.tab.optmatch()} must include either both \code{formula} a
 
 All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
-The input to \code{covs} and (optionally) \code{addl} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to \code{covs} or \code{addl} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done. It is recommended to include all desired variables in \code{formula} or \code{covs} rather than specifying additional variables using \code{addl}.
+The inputs (if any) to \code{covs} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to \code{covs} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
 }
 \value{
 If clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{optmatch} object. The following are the elements of \code{bal.tab}:
@@ -130,13 +129,13 @@ Noah Greifer \email{noah@unc.edu}
 \examples{
 library("optmatch"); data("lalonde", package = "cobalt")
 
-lalonde$prop.score <- glm(treat ~ age + educ + black + hispan + 
+lalonde$prop.score <- glm(treat ~ age + educ + race + 
             married + nodegree + re74 + re75, 
             data = lalonde, family = binomial)$fitted.values
 pm <- pairmatch(treat ~ prop.score, data = lalonde)
 
 ## Using formula and data
-bal.tab(pm, treat ~ age + educ + black + hispan + 
+bal.tab(pm, treat ~ age + educ + race + 
         married + nodegree + re74 + re75, data = lalonde)
 
 ## Using treat and covs

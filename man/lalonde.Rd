@@ -1,11 +1,14 @@
 \name{lalonde}
 \alias{lalonde}
+\alias{lalonde_mis}
 \docType{data}
 \title{Lalonde's National Supported Work Demonstration data}
 \description{
-One of the datasets used by Dehejia and Wahba in their paper "Causal Effects in Non-Experimental Studies: Reevaluating the Evaluation of Training Programs." Versions of this data set have been used as an example data set in \pkg{MatchIt}, \pkg{twang}, \pkg{Matching}, and \pkg{CBPS}.
+One of the datasets used by Dehejia and Wahba in their paper "Causal Effects in Non-Experimental Studies: Reevaluating the Evaluation of Training Programs." Versions of this data set have been used as an example data set in \pkg{MatchIt}, \pkg{twang}, \pkg{Matching}, and \pkg{CBPS}. The data set \code{lalonde_mis} is the same but with some values missing (set to \code{NA}).
 }
-\usage{data("lalonde")}
+\usage{
+data("lalonde")
+data("lalonde_mis")}
 \format{
   A data frame with 614 observations on the following 9 variables.
   \describe{
