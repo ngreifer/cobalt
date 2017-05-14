@@ -7,13 +7,17 @@ output: github_document
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  tidy = TRUE,
+  fig.align='center',
   comment = "#>",
   fig.path = "README-"
 )
 ```
 #cobalt
 
-Welcome to `cobalt`, which stands for **Co**variate **Bal**ance **T**ables (and Plots). `cobalt` allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. `cobalt`'s primary function is `bal.tab()`, which stands for "balance table", and essentially repalces (or supplements) the balance assessment tools found in the R packages twang, MatchIt, CBPS, and Matching. To examine how `bal.tab()` integrates with these packages and others, see the help file for `bal.tab()` with `?bal.tab`, which links to the methods used for each package. Each page has examples of how `bal.tab()` is used with the package. There is also a vignette detailing the use of all `cobalt`, which can be accessed with `browseVignettes("cobalt")`. Currently, `cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, and `ebal`, as well as data not processed through these packages.
+Welcome to `cobalt`, which stands for **Co**variate **Bal**ance **T**ables (and Plots). `cobalt` allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. `cobalt`'s primary function is `bal.tab()`, which stands for "balance table", and essentially repalces (or supplements) the balance assessment tools found in the R packages `twang`, `MatchIt`, `CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these packages and others, see the help file for `bal.tab()` with `?bal.tab`, which links to the methods used for each package. Each page has examples of how `bal.tab()` is used with the package. There are also two vignette detailing the use of `cobalt`, which can be accessed with `browseVignettes("cobalt")`: one for basic uses of `cobalt`, and the other for the use of `cobalt` with multiply imputed and/or clustered data. Currently, `cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, and `ebal`, as well as data not processed through these packages.
 
 # Why cobalt?
 
@@ -24,6 +28,29 @@ Because conditioning methods are spread across several packages which each have 
 A large focus in devloping `cobalt` was to streamline output so that only the most useful, non-redundant, and complete information is displayed, all at the user's choice. Balance statistics are intuitive, methodological informed, and simple to interpret. Visual displays of balance reflect the goals of balance assessment rather than being steps removed. While other packages have focused their efforts on processing data, `cobalt` only assesses balance, and does so particularly well.
 
 New features are being added all the time, following the cutting edge of methodolgocial work on balance assessment. As new packages and methods are developed, `cobalt` will be ready to integrate them to further our goal of simple, unified balance assessment.
+
+Below are examples of `cobalt`'s primary functions:
+
+```{r}
+library("cobalt")
+library("MatchIt")
+data("lalonde", package = "cobalt")
+
+#Nearest neighbor matching with MatchIt
+m.out <- matchit(treat ~ age + educ + race + married + nodegree +
+                     re74 + re75, data = lalonde)
+
+#Checking balance before and after matching:
+bal.tab(m.out, m.threshold = .1, un = TRUE)
+```
+```{r, fig.show = "hold", fig.width = 5, fig.height=3}
+#Examining distributional balance with plots:
+bal.plot(m.out, var.name = "educ")
+```
+```{r}
+#Generating a Love plot to report balance:
+love.plot(bal.tab(m.out), threshold = .1, abs = TRUE, var.order = "unadjusted")
+```
 
 Please remember to cite this package when using it to analyze data. For example, in a manuscript, write: "Matching was performed using Matching (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2017) in R (R Core team, 2017)." Use `citation("cobalt")` to generate a bibliographic reference for the `cobalt` package.
 

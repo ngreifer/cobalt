@@ -2,7 +2,7 @@ cobalt News and Updates
 ======
 Version 2.0.0
 
-* Added support for matching using the optmatch package or by specifying matching strata.
+* Added support for matching using the `optmatch` package or by specifying matching strata.
 
 * Added full support (`bal.tab()`, `love.plot()`, and `bal.plot()`) for multiply imputed data, including for clustered data sets.
 
@@ -12,11 +12,13 @@ Version 2.0.0
 
 * Adjusted `love.plot()` display to perform better on Windows.
 
+* Added capabilties for `love.plot()` and `bal.plot()` to display plots for multiple groups at a time
+
 * Added flexibility to `f.build()`.
 
 * Updated `bal.plot()`, giving the capability to view multiple plots for subclassified or clustered data. Multinomial treatments are also supported.
 
-* Edits to the vignette and help files.
+* Created of a new vignette for clustered and multiply imputed data
 
 * Speed improvements
 
