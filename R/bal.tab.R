@@ -350,9 +350,8 @@ base.bal.tab.imp <- function(object, weights, treat, distance = NULL, subclass =
                                                                                    no.adj = no.adj,
                                                                                    quick = quick,
                                                                                    types = NULL)
+            out[["Observations"]] <- samplesize.across.clusters(observations)
         }
-        
-        out[["Observations"]] <- samplesize.across.clusters(observations)
         
         classes <- c("bal.tab.imp.cluster", "bal.tab.imp")
     }
