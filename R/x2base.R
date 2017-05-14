@@ -1,5 +1,3 @@
-#Make sure problematic works for when imputations are not the same size
-
 #Functions to convert object to base.bal.tab input
 
 x2base <- function(obj, ...) UseMethod("x2base")
@@ -112,7 +110,7 @@ x2base.matchit <- function(m, ...) {
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
                           sapply(data.frames, 
-                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -167,7 +165,7 @@ x2base.ps <- function(ps, ...) {
             rule1 <- names(ps$w)[A$full.stop.method]
         }
         else {
-            warning("full.stop.method should be one of ", paste(deparse(names(ps$w)), collapse = ", "), ".\nUsing ", deparse(names(ps$w)[1]), " instead.", call. = FALSE)
+            warning("full.stop.method should be ", word.list(sapply(names(ps$w), deparse), "or"), ".\nUsing ", deparse(names(ps$w)[1]), " instead.", call. = FALSE)
             rule1 <- names(ps$w)[1]
         }
     }
@@ -259,7 +257,7 @@ x2base.ps <- function(ps, ...) {
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
                           sapply(data.frames, 
-                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -308,7 +306,8 @@ x2base.Match <- function(Match, ...) {
         stop("'Match' object contains no valid matches")}
     
     #Get treat and covs
-    t.c <- use.tc.fd(A$formula, A$data, A$treat, A$covs)
+    data <- A$data
+    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
     
     if (sum(is.na(t.c$covs))>0)
         stop("Missing values exist in the covariates.", call. = FALSE)
@@ -356,8 +355,8 @@ x2base.Match <- function(Match, ...) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
         }
-        else if (is.character(cluster) && length(cluster)==1 && cluster %in% names(A$data)) {
-            cluster <- A$data[, cluster]
+        else if (is.character(cluster) && length(cluster)==1 && cluster %in% names(data)) {
+            cluster <- data[, cluster]
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
         
@@ -372,9 +371,9 @@ x2base.Match <- function(Match, ...) {
                 val.df <- setNames(data.frame(val), i)
             }
             else if (is.character(val)) {
-                if (length(A$data) > 0 && any(val %in% names(A$data))) {
-                    val.df <- A$data[, val[val %in% names(A$data)], drop = FALSE]
-                    val <- val[!val %in% names(A$data)]
+                if (length(A$data) > 0 && any(val %in% names(data))) {
+                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
+                    val <- val[!val %in% names(data)]
                 }
                 if (length(val) > 0) {
                     warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
@@ -396,7 +395,6 @@ x2base.Match <- function(Match, ...) {
     treat <- o.data2$treat
     weights <- o.data2$weights
     covs <- o.data2[, is.na(match(names(o.data2), c("treat", "weights", "index")))]
-    if (attr(t.c, "which")=="fd") data <- A$data
     
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
@@ -406,7 +404,7 @@ x2base.Match <- function(Match, ...) {
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
                           sapply(data.frames, 
-                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
     
     #Ensure all input lengths are the same.
@@ -562,7 +560,7 @@ x2base.data.frame <- function(covs, ...) {
                 weights <- match.strata <- NULL
             }
             X$method <- "subclassification"
-            weights <- rep(1, length(treat))
+            weights <- rep(1, nrow(covs))
         }
         else if (specified["weights"]) {
             if (sum(specified) > 1) {
@@ -596,7 +594,7 @@ x2base.data.frame <- function(covs, ...) {
             else if (specified["subclass"]) {
                 message("method = \"weighting\" is specified, but no weights are present. Assuming \"subclassification\" and using subclass instead.")
                 X$method <- "subclassification"
-                weights <- rep(1, length(treat))
+                weights <- rep(1, nrow(covs))
             }
             else {
                 X$method <- "matching"
@@ -620,7 +618,7 @@ x2base.data.frame <- function(covs, ...) {
             else if (specified["subclass"]) {
                 message("method = \"matching\" is specified, but no weights or match.strata are present. Assuming \"subclassification\" and using subclass instead.")
                 X$method <- "subclassification"
-                weights <- rep(1, length(treat))
+                weights <- rep(1, nrow(covs))
             }
             else {
                 X$method <- "matching"
@@ -633,7 +631,7 @@ x2base.data.frame <- function(covs, ...) {
                     weights <- match.strata <- NULL
                 }
                 X$method <- "subclassification"
-                weights <- rep(1, length(treat))
+                weights <- rep(1, nrow(covs))
             }
             else if (specified["match.strata"]) {
                 message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"matching\" and using match.strata instead.")
@@ -756,7 +754,7 @@ x2base.data.frame <- function(covs, ...) {
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
                           sapply(data.frames, 
-                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
     #Process imp
     if (length(imp) > 0) {
@@ -808,10 +806,10 @@ x2base.data.frame <- function(covs, ...) {
             }
         }
         else {
-            problematic[] <- lengths > 0 & lengths != length(imp)
+            problematic <- lengths > 0 & lengths != length(imp)
         }
         if (any(problematic)) {
-            stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp or one imputation."), call. = FALSE)
+            stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
         }
         else ensure.equal.lengths <- FALSE
     }
@@ -1037,11 +1035,11 @@ x2base.CBPS <- function(cbps.fit, ...) {
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
                           sapply(data.frames, 
-                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
-        for (i in c(vectors, data.frames[data.frames!="covs"])) {
+        for (i in c(vectors[vectors!="weights"], data.frames)) {
             if (lengths[i] > 0 && lengths[i] != lengths["covs"]) {
                 problematic[i] <- TRUE
             }
@@ -1079,7 +1077,8 @@ x2base.ebalance <- function(ebalance, ...) {
               addl=NA)
     
     #Get treat and covs
-    t.c <- use.tc.fd(A$formula, A$data, A$treat, A$covs)
+    data <- A$data
+    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
     
     if (sum(is.na(t.c$covs))>0)
         stop("Missing values exist in the covariates.", call. = FALSE)
@@ -1101,8 +1100,8 @@ x2base.ebalance <- function(ebalance, ...) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
         }
-        else if (is.character(cluster) && length(cluster)==1 && cluster %in% names(A$data)) {
-            cluster <- A$data[, cluster]
+        else if (is.character(cluster) && length(cluster)==1 && cluster %in% names(data)) {
+            cluster <- data[, cluster]
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
         
@@ -1117,9 +1116,9 @@ x2base.ebalance <- function(ebalance, ...) {
                 val.df <- setNames(data.frame(val), i)
             }
             else if (is.character(val)) {
-                if (length(A$data) > 0 && any(val %in% names(A$data))) {
-                    val.df <- A$data[, val[val %in% names(A$data)], drop = FALSE]
-                    val <- val[!val %in% names(A$data)]
+                if (length(data) > 0 && any(val %in% names(data))) {
+                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
+                    val <- val[!val %in% names(data)]
                 }
                 if (length(val) > 0) {
                     warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
@@ -1137,7 +1136,6 @@ x2base.ebalance <- function(ebalance, ...) {
         }
         assign(i, val.df)
     }
-    
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
     vectors <- c("weights", "treat", "cluster")
@@ -1146,12 +1144,12 @@ x2base.ebalance <- function(ebalance, ...) {
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
                           sapply(data.frames, 
-                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
-        for (i in c(vectors, data.frames[data.frames!="weights"])) {
+        for (i in c(vectors[vectors!="weights"], data.frames)) {
             if (lengths[i] > 0 && lengths[i] != lengths["weights"]) {
                 problematic[i] <- TRUE
             }
@@ -1189,7 +1187,8 @@ x2base.optmatch <- function(optmatch, ...) {
               cluster = NA)
     
     #Get treat and covs
-    t.c <- use.tc.fd(A$formula, A$data, A$treat, A$covs)
+    data <- A$data
+    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
     
     if (sum(is.na(t.c$covs))>0)
         stop("Missing values exist in the covariates.", call. = FALSE)
@@ -1207,15 +1206,14 @@ x2base.optmatch <- function(optmatch, ...) {
                                     treat = treat, 
                                     match.strata = optmatch)
     
-    
     #Process cluster
     cluster <- A$cluster
     if (length(cluster) > 0) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
         }
-        else if (is.character(cluster) && length(cluster)==1 && cluster %in% names(A$data)) {
-            cluster <- A$data[, cluster]
+        else if (is.character(cluster) && length(cluster)==1 && cluster %in% names(data)) {
+            cluster <- data[, cluster]
         }
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
     }
@@ -1229,9 +1227,9 @@ x2base.optmatch <- function(optmatch, ...) {
                 val.df <- setNames(data.frame(val), i)
             }
             else if (is.character(val)) {
-                if (length(A$data) > 0 && any(val %in% names(A$data))) {
-                    val.df <- A$data[, val[val %in% names(A$data)], drop = FALSE]
-                    val <- val[!val %in% names(A$data)]
+                if (length(data) > 0 && any(val %in% names(data))) {
+                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
+                    val <- val[!val %in% names(data)]
                 }
                 if (length(val) > 0) {
                     warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
@@ -1258,12 +1256,13 @@ x2base.optmatch <- function(optmatch, ...) {
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
                           sapply(data.frames, 
-                                 function(x) {if (is.null(get(x))) 0 else nrow(get(x))
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
-        for (i in c(vectors, data.frames[data.frames!="weights"])) {
+        for (i in c(vectors[vectors!="weights"], data.frames)) {
+            print(i)
             if (lengths[i] > 0 && lengths[i] != lengths["weights"]) {
                 problematic[i] <- TRUE
             }
