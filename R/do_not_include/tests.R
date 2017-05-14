@@ -17,6 +17,11 @@ bal.tab(m3, int = T, quick = T, v.threshold = 2, disp.subclass = T)
 #Matchit: full matching
 m4 <- matchit(f.build("treat", covs), data = lalonde, method = "full")
 bal.tab(m4, int = T, quick = T, v.threshold = 2)
+#Matchit: genetic matching, using matching weights
+m5 <- matchit(f.build("treat", covs), data = lalonde, method = "genetic", replace = T,
+              ratio = 2, print.level = 0, pop.size = 1000)
+bal.tab(f.build("treat", covs_), data = lalonde_, weights = m5$weights, method = "m",
+        estimand = "ATT")
 #twang
 library("twang")
 ps.out <- ps(f.build("treat", covs), data = lalonde, 
@@ -103,3 +108,9 @@ ate <- ATE(Y = lalonde$re78, lalonde$treat, cov, ATT = TRUE)
 ate$weights.q[lalonde$treat == 1] <- 1
 bal.tab(cov, lalonde$treat, weights = ate$weights.q, method = "w", estimand = "att", disp.v.ratio = T)
 
+#sourcing
+source('~/Dropbox (Personal)/Research/R/cobalt/R/x2base.R')
+source('~/Dropbox (Personal)/Research/R/cobalt/R/bal.tab.R')
+source('~/Dropbox (Personal)/Research/R/cobalt/R/functions_for_processing.R')
+source('~/Dropbox (Personal)/Research/R/cobalt/R/print.bal.tab.R')
+source('~/Dropbox (Personal)/Research/R/cobalt/R/utilities.R')
