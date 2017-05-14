@@ -5,3 +5,4 @@
 ^NEWS\.md$
 ^CRANlogs$
 ^do_not_include$
+^vignettes/cobalt_old\.Rmd$
