@@ -24,8 +24,8 @@ inxnoty <- function(x, y) {
     else out <- x[, is.na(match(X, Y))]
     return(out)
 }
-word.list <- function(word.list = NULL) {
-    #When given a vector of strings, creates a strign of the form "a and b"
+word.list <- function(word.list = NULL, and.or = "and") {
+    #When given a vector of strings, creates a string of the form "a and b"
     #or "a, b, and c"
     L <- length(word.list)
     if (L == 0) {
@@ -41,12 +41,25 @@ word.list <- function(word.list = NULL) {
             out <- word.list
         }
         else if (L == 2) {
-            out <- paste(word.list, collapse = " and ")
+            out <- paste(word.list, collapse = paste0(" ", and.or," "))
         }
         else if (L >= 3) {
-            out <- paste(paste(word.list[seq_len(L-1)], collapse = ", "), word.list[L], sep = ", and ")
+            out <- paste(paste(word.list[seq_len(L-1)], collapse = ", "), 
+                         word.list[L], sep = paste0(", ", and.or," "))
         }
             
     }
     return(out)
+}
+f.recode <- function(f, ...) {
+    #Simplified version of forcats::fct_recode
+    f <- factor(f)
+    new_levels <- unlist(list(...))
+    old_levels <- levels(f)
+    idx <- match(new_levels, old_levels)
+    
+    old_levels[idx] <- names(new_levels)
+    
+    levels(f) <- old_levels
+    return(f)
 }
