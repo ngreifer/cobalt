@@ -44,7 +44,7 @@ an optional object providing alternate names for the variables in the plot, whic
 if balance is to be displayed across clusters or imputations rather than within a single cluster or imputation, which summarizing function (mean, median, max, or range) of the balance statistics sould be used. If "range" is entered, \code{love.plot()} will display a line from the min to the max with a point at the mean for each covariate; it can only be used if \code{quick = FALSE} in the \code{bal.tab()} call. Abbreviations allowed; "mean" is default.
 }
   \item{colors}{
-  The colors of the points on the plot. See 'Color Specification' at \code{\link[graphics]{par}}. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to "red"" and "blue".
+  The colors of the points on the plot. See 'Color Specification' at \code{\link[graphics]{par}}. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to "red" and "blue".
   }
   \item{shapes}{
   \code{numeric}; the shapes of the points on the plot. See Example at \code{\link[ggplot2]{shape}}. Must be one or two numbers between 21 and 25. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 21 (circle).
