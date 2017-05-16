@@ -120,7 +120,7 @@ use.tc.fd <- function(formula, data, treat, covs) {
 #get.C
 #Functions to turn input covariates into usable form
 #int.poly.f creates interactions and polynomials
-#split.factor splits factor variable into indicators
+#split.factor splits factor variable into indicators (now in utilities)
 #binarize transforms 2-value variable into binary (0,1)
 #get.C controls flow and handles redunancy
 #get.types gets variables types (contin./binary)
@@ -159,36 +159,6 @@ int.poly.f <- function(df, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     new <- new[, !single.value, drop = FALSE]
     return(new)
 }
-split.factor <- function(varname, data) {
-    #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
-    #Retains all categories.
-    #varname= the name of the variable to split when data is specified
-    #data=data set to be changed
-    
-    x <- data[, varname] <- factor(data[, varname])
-    
-    if (nlevels(x) > 1) {
-        k <- model.matrix(as.formula(paste0("~", varname, "- 1")), data = data)
-    }
-    else {
-        k <- matrix(1, ncol = nlevels(x), nrow = length(x))
-    }
-    
-    if (is.null(levels(x))) colnames(k) <- paste0(varname, 1:ncol(k))
-    else colnames(k) <- paste(varname, substr(sapply(strsplit(colnames(k), varname), function(n) paste(n, collapse = "")), 1, 10), sep = "_")
-    
-    if (match(varname, names(data)) == 1){
-        data <- data.frame(k, data[, names(data)!=varname, drop = FALSE])
-    }
-    else if (match(varname, names(data)) == ncol(data)) {
-        data <- data.frame(data[, names(data)!=varname, drop = FALSE], k)
-    }
-    else {
-        where <- match(varname, names(data))
-        data <- data.frame(data[, 1:(where-1), drop = FALSE], k, data[, (where+1):ncol(data), drop = FALSE])
-    }
-    return(data)
-}
 binarize <- function(variable) {
     if (length(unique(variable)) > 2) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
     variable.numeric <- as.numeric(variable)
@@ -226,7 +196,8 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         
         if (nlevels(cluster) > 0 && qr(matrix(c(C[, i], as.numeric(cluster)), ncol = 2))$rank == 1) C <- C[, names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
         else if (!is.numeric(C[, i])) {
-            C <- split.factor(i, C)
+            C <- split.factor(C, i, replace = TRUE, sep = "_", drop.first = FALSE, 
+                              drop.singleton = FALSE)
         }
     }
     
@@ -861,6 +832,18 @@ samplesize.across.imps <- function(obs.list) {
 isColor <- function(x) {
     tryCatch(is.matrix(col2rgb(x)), 
              error = function(e) FALSE)
+}
+f.recode <- function(f, ...) {
+    #Simplified version of forcats::fct_recode
+    f <- factor(f)
+    new_levels <- unlist(list(...))
+    old_levels <- levels(f)
+    idx <- match(new_levels, old_levels)
+    
+    old_levels[idx] <- names(new_levels)
+    
+    levels(f) <- old_levels
+    return(f)
 }
 
 #print.bal.tab
