@@ -394,7 +394,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         else {
             SS[, "var"] <- factor(SS[, "var"], levels = c(as.character(unique(SS[is.na(match(SS$var, distance.names)), "var"])[order(unique(SS[is.na(match(SS$var, distance.names)), "var"]), decreasing = TRUE)]), sort(distance.names, decreasing = TRUE)))
         }
-        SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Unadjusted", "Adjusted"))
+        SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
         if (which.stat == "Diff" && any(abs(SS[, "max.stat"]) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[, "min.stat"]),]
         SS$stat <- SS[,"mean.stat"]
@@ -447,7 +447,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         else {
             SS[, "var"] <- factor(SS[, "var"], levels = c(as.character(unique(SS[is.na(match(SS$var, distance.names)), "var"])[order(unique(SS[is.na(match(SS$var, distance.names)), "var"]), decreasing = TRUE)]), sort(distance.names, decreasing = TRUE)))
         }
-        SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Unadjusted", "Adjusted"))
+        SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
         if (which.stat == "Diff" && any(abs(SS[, "stat"]) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[, "stat"]),]
     }
@@ -589,11 +589,13 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     lp <- ggplot(data = SS, aes(y = var, x = stat, group = Sample)) + 
         theme(panel.grid.major = element_line(color = "gray87"),
               panel.grid.minor = element_line(color = "gray90"),
-              panel.background = element_rect(fill = "white", color = "black")
+              panel.background = element_rect(fill = "white", color = "black"),
+              axis.text.x = element_text(color = "black"),
+              axis.text.y = element_text(color = "black")
         ) + 
         scale_shape_manual(values = shapes) +
         scale_fill_manual(values = fill) +
-        scale_color_manual(values = colors) + 
+        scale_color_manual(values = rev(colors)) + 
         labs(title = title, subtitle = subtitle, y = "", x = xlab) 
 
     lp <- lp + geom_vline(xintercept = baseline.xintercept, linetype = 1, color = "gray5")
