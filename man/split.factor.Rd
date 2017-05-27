@@ -5,7 +5,7 @@
 Splits factor variables into dummy (0/1) variables. This can be useful when functions do not process factor variables well or require numeric matrices to operate.
 }
 \usage{
-split.factor(data, varname, replace = TRUE, sep = "_", drop.first = c("if2", TRUE, FALSE), drop.singleton = FALSE)
+split.factor(data, varname, replace = TRUE, sep = "_", drop = NULL, drop.first = c("if2", TRUE, FALSE), drop.singleton = FALSE)
 }
 \arguments{
 \item{data}{
@@ -19,6 +19,9 @@ Whether to replace the original factor variable with the dummies (\code{TRUE}) o
 }
 \item{sep}{
 A character seperating the the stem from the value of the variable for each newly created dummy.
+}
+\item{drop.level}{
+The name of a level of \code{varname} for which to drop the dummy variable. Only works if there is only one variable to be split.
 }
 \item{drop.first}{
 Whether to drop the first dummy created for each factor. If \code{"if2"}, will only drop the first category if the factor has exactly two levels.
