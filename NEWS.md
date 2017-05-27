@@ -1,5 +1,21 @@
 cobalt News and Updates
 ======
+Version 2.1.0
+
+* Added support in `bal.tab()` and `love.plot()` for examining multiple weight specifications at a time.
+
+* Added new utilities `split.factor()`
+
+* Added option in `bal.plot()` to display points sized by weights when treatment and covariate are continuous
+
+* Add option in `bal.plot()` to simultaneously display plots for both adjusted and unadjusted samples
+
+* Fixes to `love.plot()` to ensure adjusted points are in front of unadjusted points
+
+* Fixed bug where `s.d.denom` and `estimand` were not functioning correctly in `bal.tab()`
+
+
+
 Version 2.0.0
 
 * Added support for matching using the `optmatch` package or by specifying matching strata.
