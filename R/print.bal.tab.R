@@ -58,8 +58,8 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     if (!is.na(match("bal.tab.cont", class(x)))) {
         keep <- as.logical(c(TRUE, 
                              p.ops$un, 
-                             p.ops$disp.adj, 
-                             !is.null(p.ops$r.threshold)))
+                             rep(c(p.ops$disp.adj, 
+                             !is.null(p.ops$r.threshold)), p.ops$nweights + !p.ops$disp.adj)))
     }
     else {
         keep <- as.logical(c(TRUE, 
@@ -67,12 +67,12 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
                              p.ops$un*p.ops$disp.means, 
                              p.ops$un, 
                              p.ops$un*p.ops$disp.v.ratio, 
-                             p.ops$disp.adj*p.ops$disp.means, 
+                             rep(c(p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj, 
                              !is.null(p.ops$m.threshold), 
                              p.ops$disp.adj*p.ops$disp.v.ratio, 
-                             !is.null(p.ops$v.threshold)))
+                             !is.null(p.ops$v.threshold)), p.ops$nweights + !p.ops$disp.adj)))
     }
     
     if (!is.null(call)) {
@@ -112,7 +112,14 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         }
         if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
         cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+        print.warning <- FALSE
+        if (length(attr(x$Observations, "ss.type")) > 1 && length(unique(attr(x$Observations, "ss.type")[-1])) > 1) {
+            ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
+            x$Observations <- setNames(cbind(x$Observations, ess), c(names(x$Observations), ""))
+            print.warning <- TRUE
+        }
         print.data.frame(replaceNA(x$Observations), digits = digits)
+        if (print.warning) cat("* indicates effective sample size")
     }
     invisible(x)
 }
@@ -323,8 +330,8 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     if (!is.na(match("bal.tab.cont.cluster", class(x)))) {
         keep <- as.logical(c(TRUE, 
                              p.ops$un, 
-                             p.ops$disp.adj, 
-                             !is.null(p.ops$r.threshold)))
+                             rep(c(p.ops$disp.adj, 
+                             !is.null(p.ops$r.threshold)), p.ops$nweights)))
     }
     else {
         keep <- as.logical(c(TRUE, 
@@ -332,12 +339,12 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                              p.ops$un*p.ops$disp.means, 
                              p.ops$un, 
                              p.ops$un*p.ops$disp.v.ratio, 
-                             p.ops$disp.adj*p.ops$disp.means, 
+                             rep(c(p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj, 
                              !is.null(p.ops$m.threshold), 
                              p.ops$disp.adj*p.ops$disp.v.ratio, 
-                             !is.null(p.ops$v.threshold)))
+                             !is.null(p.ops$v.threshold)), p.ops$nweights)))
     }
     
     if (!is.null(call)) {
@@ -356,7 +363,15 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             }
             if (!is.na(c.balance[[i]][["Observations"]]["Matched (Unweighted)",]) && all(c.balance[[i]][["Observations"]]["Matched",] == c.balance[[i]][["Observations"]]["Matched (Unweighted)",])) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!="Matched (Unweighted)",]
             cat(paste0("\n", attr(c.balance[[i]][["Observations"]], "tag"), ":\n"))
+            print.warning <- FALSE
+            if (length(attr(c.balance[[i]][["Observations"]], "ss.type")) > 1 && length(unique(attr(c.balance[[i]][["Observations"]], "ss.type")[-1])) > 1) {
+                ess <- ifelse(attr(c.balance[[i]][["Observations"]], "ss.type") == "ess", "*", "")
+                xc.balance[[i]][["Observations"]] <- setNames(cbind(c.balance[[i]][["Observations"]], ess), c(names(c.balance[[i]][["Observations"]]), ""))
+                print.warning <- TRUE
+            }
             print.data.frame(replaceNA(round_df(c.balance[[i]][["Observations"]], digits)))
+            if (print.warning) cat("* indicates effective sample size")
+            
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
     }
@@ -370,10 +385,10 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                                    p.ops$un*CF["mean"],
                                    p.ops$un*CF["median"],
                                    p.ops$un*CF["max"],
-                                   p.ops$disp.adj*CF["min"],
+                                   rep(c(p.ops$disp.adj*CF["min"],
                                    p.ops$disp.adj*CF["mean"],
                                    p.ops$disp.adj*CF["median"],
-                                   p.ops$disp.adj*CF["max"]))
+                                   p.ops$disp.adj*CF["max"]), p.ops$nweights)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
@@ -385,14 +400,14 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                                    p.ops$un*p.ops$disp.v.ratio*CF["mean"],
                                    p.ops$un*p.ops$disp.v.ratio*CF["median"],
                                    p.ops$un*p.ops$disp.v.ratio*CF["max"],
-                                   p.ops$disp.adj*CF["min"],
+                                   rep(c(p.ops$disp.adj*CF["min"],
                                    p.ops$disp.adj*CF["mean"],
                                    p.ops$disp.adj*CF["median"],
                                    p.ops$disp.adj*CF["max"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["max"]))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["max"]), p.ops$nweights)))
         }
         cat("\nBalance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
@@ -403,7 +418,14 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             }
             if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
             cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+            print.warning <- FALSE
+            if (length(attr(x$Observations, "ss.type")) > 1 && length(unique(attr(x$Observations, "ss.type")[-1])) > 1) {
+                ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
+                x$Observations <- setNames(cbind(x$Observations, ess), c(names(x$Observations), ""))
+                print.warning <- TRUE
+            }
             print.data.frame(replaceNA(x$Observations), digits = digits)
+            if (print.warning) cat("* indicates effective sample size")
         }
     }
 
@@ -524,10 +546,10 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                    p.ops$un*IF["mean"],
                                    p.ops$un*IF["median"],
                                    p.ops$un*IF["max"],
-                                   p.ops$disp.adj*IF["min"],
+                                   rep(c(p.ops$disp.adj*IF["min"],
                                    p.ops$disp.adj*IF["mean"],
                                    p.ops$disp.adj*IF["median"],
-                                   p.ops$disp.adj*IF["max"]))
+                                   p.ops$disp.adj*IF["max"]), p.ops$nweights)))
         }
         else { #binary
             s.keep <- as.logical(c(TRUE, 
@@ -539,14 +561,14 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                    p.ops$un*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$un*p.ops$disp.v.ratio*IF["median"],
                                    p.ops$un*p.ops$disp.v.ratio*IF["max"],
-                                   p.ops$disp.adj*IF["min"],
+                                   rep(c(p.ops$disp.adj*IF["min"],
                                    p.ops$disp.adj*IF["mean"],
                                    p.ops$disp.adj*IF["median"],
                                    p.ops$disp.adj*IF["max"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]), p.ops$nweights)))
         }
         
         
@@ -559,7 +581,14 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             }
             if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
             cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+            print.warning <- FALSE
+            if (length(attr(x$Observations, "ss.type")) > 1 && length(unique(attr(x$Observations, "ss.type")[-1])) > 1) {
+                ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
+                x$Observations <- setNames(cbind(x$Observations, ess), c(names(x$Observations), ""))
+                print.warning <- TRUE
+            }
             print.data.frame(replaceNA(x$Observations), digits = digits)
+            if (print.warning) cat("* indicates effective sample size")
         }
     }
 
@@ -731,10 +760,10 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                                    p.ops$un*IF["mean"],
                                    p.ops$un*IF["median"],
                                    p.ops$un*IF["max"],
-                                   p.ops$disp.adj*IF["min"],
+                                   rep(c(p.ops$disp.adj*IF["min"],
                                    p.ops$disp.adj*IF["mean"],
                                    p.ops$disp.adj*IF["median"],
-                                   p.ops$disp.adj*IF["max"]))
+                                   p.ops$disp.adj*IF["max"]), p.ops$nweights)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
@@ -746,14 +775,14 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                                    p.ops$un*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$un*p.ops$disp.v.ratio*IF["median"],
                                    p.ops$un*p.ops$disp.v.ratio*IF["max"],
-                                   p.ops$disp.adj*IF["min"],
+                                   rep(c(p.ops$disp.adj*IF["min"],
                                    p.ops$disp.adj*IF["mean"],
                                    p.ops$disp.adj*IF["median"],
                                    p.ops$disp.adj*IF["max"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]), p.ops$nweights)))
         }
         
         
@@ -769,7 +798,14 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                 }
                 if (!is.na(i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched (Unweighted)",]) && all(i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched",] == i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched (Unweighted)",])) i.balance.c.summary[[c]][["Cluster.Observations"]] <- i.balance.c.summary[[c]][["Cluster.Observations"]][rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])!="Matched (Unweighted)",]
                 cat(paste0("\n", attr(i.balance.c.summary[[c]][["Cluster.Observations"]], "tag"), ":\n"))
+                print.warning <- FALSE
+                if (length(attr(i.balance.c.summary[[c]][["Cluster.Observations"]], "ss.type")) > 1 && length(unique(attr(i.balance.c.summary[[c]][["Cluster.Observations"]], "ss.type")[-1])) > 1) {
+                    ess <- ifelse(attr(i.balance.c.summary[[c]][["Cluster.Observations"]], "ss.type") == "ess", "*", "")
+                    i.balance.c.summary[[c]][["Cluster.Observations"]] <- setNames(cbind(i.balance.c.summary[[c]][["Cluster.Observations"]], ess), c(names(i.balance.c.summary[[c]][["Cluster.Observations"]]), ""))
+                    print.warning <- TRUE
+                }
                 print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Observations"]], digits)))
+                if (print.warning) cat("* indicates effective sample size")
             }
         }
         cat("\nBalance summary across all imputations and clusters:\n")
@@ -780,8 +816,15 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
             if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
-            cat(paste0("\n", attr(nn, "tag"), ":\n"))
-            print.data.frame(replaceNA(nn), digits = digits)
+            cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+            print.warning <- FALSE
+            if (length(attr(x$Observations, "ss.type")) > 1 && length(unique(attr(x$Observations, "ss.type")[-1])) > 1) {
+                ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
+                x$Observations <- setNames(cbind(x$Observations, ess), c(names(x$Observations), ""))
+                print.warning <- TRUE
+            }
+            print.data.frame(replaceNA(x$Observations), digits = digits)
+            if (print.warning) cat("* indicates effective sample size")
         }
     }
     invisible(x)
