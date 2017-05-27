@@ -8,9 +8,9 @@ Generate Univariate Balance Plots
 Generates density plots, bar graphs, or scatterplots displaying distributional balance between treatment and covariates using \pkg{ggplot2}.
 }
 \usage{
-bal.plot(obj, var.name, ..., un = FALSE, which.sub = NULL, 
+bal.plot(obj, var.name, ..., which, which.sub = NULL, 
          cluster = NULL, which.cluster = NULL, imp = NULL, 
-         which.imp = NULL)
+         which.imp = NULL, size.weight = FALSE)
 }
 \arguments{
   \item{obj}{
@@ -22,8 +22,8 @@ the object for which balance is to be assessed; can be a \code{matchit} object f
   \item{\dots}{
 other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments.
 }
-  \item{un}{
-  \code{logical}; whether to display distributional balance for the unadjusted sample or not. The default is to display balance for the adjusted sample.
+  \item{which}{
+  whether to display distributional balance for the adjusted (\code{"adjusted"}) or unadjusted sample (\code{"unadjusted"}) or both at the same time (\code{"both"}). The default is to display balance for the adjusted sample only unless no weights, subclasses, or matching strata are specified. Abbreviations allows.
  }
   \item{which.sub}{
 \code{numeric}; if subclassification is used, a vector corresponding to the subclass(es) for which the distributions are to be displayed. If \code{NULL} (the default), distributions from all subclasses are displayed in a grid.
@@ -39,6 +39,9 @@ optional; a vector of imputation indices, or the name of a variable in an availa
 }
   \item{which.imp}{
 if imputations are used, which imputations(s) to display. Must be numerical indices for which to display balance. If \code{NULL} (the default), all imputations are displayed. If \code{NA}, imputations are ignored.
+}
+  \item{size.weight}{
+\code{logical}; if both the treatment and the covariate are continuous and \code{un = FALSE}, whether points should be sized according to their weight. 
 }
 }
 \section{Additional Arguments}{
