@@ -23,7 +23,7 @@ the object for which balance is to be assessed; can be a \code{matchit} object f
 other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments.
 }
   \item{which}{
-  whether to display distributional balance for the adjusted (\code{"adjusted"}) or unadjusted sample (\code{"unadjusted"}) or both at the same time (\code{"both"}). The default is to display balance for the adjusted sample only unless no weights, subclasses, or matching strata are specified. Abbreviations allows.
+  whether to display distributional balance for the adjusted (\code{"adjusted"}) or unadjusted sample (\code{"unadjusted"}) or both at the same time (\code{"both"}). The default is to display balance for the adjusted sample only unless no weights, subclasses, or matching strata are specified. Abbreviations allowed.
  }
   \item{which.sub}{
 \code{numeric}; if subclassification is used, a vector corresponding to the subclass(es) for which the distributions are to be displayed. If \code{NULL} (the default), distributions from all subclasses are displayed in a grid.
@@ -32,16 +32,16 @@ other arguments to define the variable, treatment, and weights. Some inputs are 
 optional; a vector of cluster membership, or the name of a variable in an available data set passed to \code{bal.plot()} that contains cluster membership.
 }
   \item{which.cluster}{
-if clusters are used, which cluster(s) to display. Can be cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. If \code{NULL} (the default), all clusters are displayed. If \code{NA}, clusters are ignored.
+if clusters are used, which cluster(s) to display. Can be cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. If \code{NULL} (the default) or \code{NA}, all clusters are displayed.
 }
   \item{imp}{
 optional; a vector of imputation indices, or the name of a variable in an available data set passed to \code{bal.plot()} that contains imputation indices.
 }
   \item{which.imp}{
-if imputations are used, which imputations(s) to display. Must be numerical indices for which to display balance. If \code{NULL} (the default), all imputations are displayed. If \code{NA}, imputations are ignored.
+if imputations are used, which imputations(s) to display. Must be numerical indices for which to display balance. If \code{NULL} (the default) or \code{NA}, all imputations are displayed.
 }
   \item{size.weight}{
-\code{logical}; if both the treatment and the covariate are continuous and \code{un = FALSE}, whether points should be sized according to their weight. 
+\code{logical}; if both the treatment and the covariate are continuous, whether points should be sized according to their weight. 
 }
 }
 \section{Additional Arguments}{
@@ -68,7 +68,7 @@ For data frames: \code{treat}, (\code{data}), \code{weights}, (\code{distance}),
 
 For continuous treatments with continuous covariates, three additional lines are presented for aid in balance assessment. The dashed blue line is the linear fit line. The solid blue line is a Loess fit curve generated with \pkg{ggplot2}'s \code{geom_smooth(method = "loess")}. The solid black line is a horizontal reference line intercepting the (weighted) treatment mean. Proximity of the fit lines to the reference line is indicative of independence between the covariate and treatment variable.
 
-When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{facet_grid()}. Subclassification cannot be used with clusters or multiply imputed data. If both clusters and multiple imputation are used (and the arguments to \code{which.cluster} and \code{which.imp} are not both \code{NA}), at least one of \code{which.cluster} and \code{which.imp} must correspond to a single (non-\code{NULL}) value. That is, plots can be displayed for one cluster and multiple imputations or multiple clusters and only one imputation.
+When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance or when multiple sets of weights are provided or \code{which = "both"}), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{facet_grid()}. Subclassification cannot be used with clusters or multiply imputed data.
 }
 \value{
 A \code{"ggplot"} object, returned invisbly.
@@ -90,7 +90,7 @@ m.out <- matchit(treat ~ age + educ + race +
                  married + nodegree + re74 + re75, 
                  data = lalonde)
 
-bal.plot(m.out, "age")
-bal.plot(m.out, "race")
+bal.plot(m.out, "age", which = "both")
+bal.plot(m.out, "race", which = "both")
 }
 \keyword{design}
