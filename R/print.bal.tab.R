@@ -77,41 +77,49 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     
     if (!is.null(call)) {
         cat("\nCall:", deparse(call), sep = "\n")
+        cat("\n")
     }
     
-    cat("\nBalance Measures:\n")
+    cat("Balance Measures:\n")
     print.data.frame(replaceNA(round_df(balance[, keep], digits)))
+    cat("\n")
     
     if (!is.null(baltal.r)) {
-        cat("\nBalance tally for correlations:\n")
+        cat("Balance tally for correlations:\n")
         print.data.frame(x$Balanced.Corr)
+        cat("\n")
     }
     if (!is.null(maximbal.r)) {
-        cat("\nVariable with the greatest treatment correlation:\n")
+        cat("Variable with the greatest treatment correlation:\n")
         print.data.frame(round_df(x$Max.Imbalance.Corr, digits))
+        cat("\n")
     }
     if (!is.null(baltal.m)) {
-        cat("\nBalance tally for mean differences:\n")
+        cat("Balance tally for mean differences:\n")
         print.data.frame(x$Balanced.Means)
+        cat("\n")
     }
     if (!is.null(maximbal.m)) {
-        cat("\nVariable with the greatest mean difference:\n")
+        cat("Variable with the greatest mean difference:\n")
         print.data.frame(round_df(x$Max.Imbalance.Means, digits))
+        cat("\n")
     }
     if (!is.null(baltal.v)) {
-        cat("\nBalance tally for variance ratios:\n")
+        cat("Balance tally for variance ratios:\n")
         print.data.frame(x$Balanced.Variances, digits)
+        cat("\n")
     }
     if (!is.null(maximbal.v)) {
-        cat("\nVariable with the greatest variance ratio:\n")
+        cat("Variable with the greatest variance ratio:\n")
         print.data.frame(round_df(x$Max.Imbalance.Variances, digits))
+        cat("\n")
     }
     if (!is.null(nn)) {
         for (i in rownames(x$Observations)) {
             if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
         }
         if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
-        cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+        cat(paste0(attr(x$Observations, "tag"), ":\n"))
         print.warning <- FALSE
         if (length(attr(x$Observations, "ss.type")) > 1 && length(unique(attr(x$Observations, "ss.type")[-1])) > 1) {
             ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
@@ -176,7 +184,8 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     }
     
     if (!is.null(call)) {
-        cat("\nCall:", deparse(call), sep = "\n")
+        cat("Call:", deparse(call), sep = "\n")
+        cat("\n")
     }
     
     if (p.ops$disp.subclass) {
@@ -187,11 +196,12 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                                !is.null(p.ops$m.threshold), 
                                p.ops$disp.adj * p.ops$disp.v.ratio, 
                                !is.null(p.ops$v.threshold)))
-        cat("\nBalance by subclass:")
+        cat("Balance by subclass:")
         for (i in names(s.balance)) {
             cat(paste0("\n - - - Subclass ", i, " - - - \n"))
             print.data.frame(replaceNA(round_df(s.balance[[i]][, s.keep], digits)))
         }
+        cat("\n")
     }
     
     a.s.keep <- as.logical(c(TRUE, 
@@ -202,28 +212,33 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                              p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj, 
                              !is.null(p.ops$m.threshold)))
-    cat("\nBalance measures across subclasses:\n")
+    cat("Balance measures across subclasses:\n")
     print.data.frame(replaceNA(round_df(b.a.subclass[, a.s.keep], digits)))
+    cat("\n")
     
     if (!is.null(baltal.m.subclass)) {
-        cat("\nBalance tally for mean differences across subclasses:\n")
+        cat("Balance tally for mean differences across subclasses:\n")
         print.data.frame(baltal.m.subclass)
+        cat("\n")
     }
     if (!is.null(maximbal.m.subclass)) {
-        cat("\nVariable with the greatest mean difference across subclasses:\n")
+        cat("Variable with the greatest mean difference across subclasses:\n")
         print.data.frame(round_df(maximbal.m.subclass, digits))
+        cat("\n")
     }
     if (!is.null(baltal.v.subclass)) {
-        cat("\nBalance tally for variance ratios across subclasses:\n")
+        cat("Balance tally for variance ratios across subclasses:\n")
         print.data.frame(baltal.v.subclass)
+        cat("\n")
     }
     if (!is.null(maximbal.v.subclass)) {
-        cat("\nVariable with the greatest variance ratios across subclasses:\n")
+        cat("Variable with the greatest variance ratios across subclasses:\n")
         print.data.frame(round_df(maximbal.v.subclass, digits))
+        cat("\n")
     }
     
     if (!is.null(s.nn)) {
-        cat(paste0("\n", attr(x$Subclass.Observations, "tag"), ":\n"))
+        cat(paste0(attr(x$Subclass.Observations, "tag"), ":\n"))
         print.data.frame(replaceNA(x$Subclass.Observations), digits = digits)
     }
     
@@ -344,11 +359,13 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                              p.ops$disp.adj, 
                              !is.null(p.ops$m.threshold), 
                              p.ops$disp.adj*p.ops$disp.v.ratio, 
-                             !is.null(p.ops$v.threshold)), p.ops$nweights)))
+                             !is.null(p.ops$v.threshold)), p.ops$nweights + !p.ops$disp.adj)))
     }
     
+    #Printing
     if (!is.null(call)) {
-        cat("\nCall:", deparse(call), sep = "\n")
+        cat("Call:", deparse(call), sep = "\n")
+        cat("\n")
     }
     
     if (length(which.cluster)>0) {
@@ -374,6 +391,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
+        cat("\n")
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary))) {
@@ -388,7 +406,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                                    rep(c(p.ops$disp.adj*CF["min"],
                                    p.ops$disp.adj*CF["mean"],
                                    p.ops$disp.adj*CF["median"],
-                                   p.ops$disp.adj*CF["max"]), p.ops$nweights)))
+                                   p.ops$disp.adj*CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
@@ -407,17 +425,18 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["max"]), p.ops$nweights)))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
-        cat("\nBalance summary across all clusters:\n")
+        cat("Balance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
+        cat("\n")
         
         if (!is.null(nn)) {
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
             if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
-            cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+            cat(paste0(attr(x$Observations, "tag"), ":\n"))
             print.warning <- FALSE
             if (length(attr(x$Observations, "ss.type")) > 1 && length(unique(attr(x$Observations, "ss.type")[-1])) > 1) {
                 ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
@@ -525,7 +544,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     
     #Printing output
     if (!is.null(call)) {
-        cat("\nCall:", deparse(call), sep = "\n")
+        cat("Call:\n", deparse(call), "\n")
     }
     
     if (length(which.imp) > 0) {
@@ -535,6 +554,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             do.call(print, c(list(i.balance[[i]]), args))
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
+        cat("\n")
     }
     
     if (isTRUE(as.logical(p.ops$imp.summary))) {
@@ -549,7 +569,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                    rep(c(p.ops$disp.adj*IF["min"],
                                    p.ops$disp.adj*IF["mean"],
                                    p.ops$disp.adj*IF["median"],
-                                   p.ops$disp.adj*IF["max"]), p.ops$nweights)))
+                                   p.ops$disp.adj*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else { #binary
             s.keep <- as.logical(c(TRUE, 
@@ -568,19 +588,20 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]), p.ops$nweights)))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
         
-        cat("\nBalance summary across all imputations:\n")
+        cat("Balance summary across all imputations:\n")
         print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
+        cat("\n")
         
         if (!is.null(nn)) {
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
             if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
-            cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+            cat(paste0(attr(x$Observations, "tag"), ":\n"))
             print.warning <- FALSE
             if (length(attr(x$Observations, "ss.type")) > 1 && length(unique(attr(x$Observations, "ss.type")[-1])) > 1) {
                 ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
@@ -739,7 +760,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     
     #Printing output
     if (!is.null(call)) {
-        cat("\nCall:", deparse(call), sep = "\n")
+        cat("Call:\n", deparse(call), "\n")
     }
     
     if (length(which.imp) > 0) {
@@ -749,6 +770,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             do.call(print, c(list(i.balance[[i]]), args))
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - - Imputation: ", names(i.balance)[i], " - - - - "))/2)), collapse = ""), " \n"))
+        cat("\n")
     }
     
     if (isTRUE(as.logical(p.ops$imp.summary))) {
@@ -763,7 +785,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                                    rep(c(p.ops$disp.adj*IF["min"],
                                    p.ops$disp.adj*IF["mean"],
                                    p.ops$disp.adj*IF["median"],
-                                   p.ops$disp.adj*IF["max"]), p.ops$nweights)))
+                                   p.ops$disp.adj*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
@@ -782,12 +804,12 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]), p.ops$nweights)))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
         
         if (length(which.cluster) > 0) {
-            cat("\nCluster balance summary across all imputations:\n")
+            cat("Cluster balance summary across all imputations:\n")
             for (c in which.cluster) {
                 cat(paste0("\n - - - Cluster: ", names(i.balance.c.summary)[c], " - - - \n"))
                 cat("Balance summary across imputations:\n")
@@ -807,16 +829,18 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                 print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Observations"]], digits)))
                 if (print.warning) cat("* indicates effective sample size")
             }
+            cat("\n")
         }
-        cat("\nBalance summary across all imputations and clusters:\n")
+        cat("Balance summary across all imputations and clusters:\n")
         print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
+        cat("\n")
         
         if (!is.null(nn)) {
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
             if (!is.na(x$Observations["Matched (Unweighted)",]) && all(x$Observations["Matched",] == x$Observations["Matched (Unweighted)",])) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)",]
-            cat(paste0("\n", attr(x$Observations, "tag"), ":\n"))
+            cat(paste0(attr(x$Observations, "tag"), ":\n"))
             print.warning <- FALSE
             if (length(attr(x$Observations, "ss.type")) > 1 && length(unique(attr(x$Observations, "ss.type")[-1])) > 1) {
                 ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
