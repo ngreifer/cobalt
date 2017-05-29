@@ -1,7 +1,8 @@
 #x2base
-match.strata2weights <- function(covs, treat, match.strata) {
+match.strata2weights <- function(match.strata, treat, covs = NULL) {
     #Process match.strata into weights (similar to weight.subclass from MatchIt)
-    names(treat) <- row.names(covs)
+    if (length(covs) == 0) names(treat) <- seq_along(treat)
+    else names(treat) <- row.names(covs)
     matched <- !is.na(match.strata); unmatched <- !matched
     treat.matched <- treat[matched]
     match.strata.matched <- match.strata[matched]
@@ -26,7 +27,6 @@ match.strata2weights <- function(covs, treat, match.strata) {
         num.cs <- sum(weights.matched[clabels] > sqrt(.Machine$double.eps))
         weights.matched[clabels] <- weights.matched[clabels]*num.cs/sum(weights.matched[clabels])
     }
-    
     
     if (any(unmatched)) {
         weights.unmatched <- rep(0, sum(unmatched))
@@ -369,10 +369,10 @@ samplesize <- function(obj, method=c("matching", "weighting", "subclassification
         dimnames(nn) <- list(c("Control", "Treated", "Total"), 
                              paste("Subclass", levels(obj$subclass)))
         
-        matched <- obj$weights!=0
+        matched <- !is.na(obj$subclass)
         k <- 0
         for (i in levels(obj$subclass)) {
-            qi <- obj$subclass[matched]==i & (!is.na(obj$subclass[matched]))
+            qi <- obj$subclass[matched]==i
             qt <- obj$treat[matched][qi]
             if (sum(qt==1)<2|(sum(qt==0)<2)){
                 if (sum(qt==1)<2)
@@ -572,7 +572,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     if (no.adj || ncol(weights) <= 1) names(B)[grepl("V.Threshold", names(B), fixed = TRUE)] <- "V.Threshold"
     return(B)
 }
-balance.table.subclass <- function(C, weights, treat, subclass, continuous, binary, s.d.denom, m.threshold=NULL, v.threshold=NULL, disp.means = FALSE, disp.v.ratio = FALSE, types = NULL, quick = FALSE) {
+balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuous, binary, s.d.denom, m.threshold=NULL, v.threshold=NULL, disp.means = FALSE, disp.v.ratio = FALSE, types = NULL, quick = FALSE) {
     #Creates list SB of balance tables for each subclass
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
@@ -594,16 +594,16 @@ balance.table.subclass <- function(C, weights, treat, subclass, continuous, bina
         SB[[i]] <- B
         
         if (!(!disp.means && quick)) {
-            SB[[i]][,"M.C.Adj"] <- apply(C[treat==0 & !is.na(subclass) & subclass==i & weights>0, ], 2, function(x) sum(x)/length(x))
-            SB[[i]][,"M.T.Adj"] <- apply(C[treat==1 & !is.na(subclass) & subclass==i & weights>0, ], 2, function(x) sum(x)/length(x))
+            SB[[i]][,"M.C.Adj"] <- apply(C[treat==0 & !is.na(subclass) & subclass==i, ], 2, function(x) sum(x)/length(x))
+            SB[[i]][,"M.T.Adj"] <- apply(C[treat==1 & !is.na(subclass) & subclass==i, ], 2, function(x) sum(x)/length(x))
         }
         
         #Mean differences
-        SB[[i]][,"Diff.Adj"] <- mapply(function(x, type) diff.selector(x=C[, x], group=treat, weights=as.numeric(weights>0), subclass=subclass, which.sub=i, x.type=type, continuous=continuous, binary=binary, s.d.denom=s.d.denom, no.weights = TRUE), x=rownames(SB[[i]]), type=B[,"Type"])
+        SB[[i]][,"Diff.Adj"] <- mapply(function(x, type) diff.selector(x=C[, x], group=treat, weights=weights, subclass=subclass, which.sub=i, x.type=type, continuous=continuous, binary=binary, s.d.denom=s.d.denom, no.weights = TRUE), x=rownames(SB[[i]]), type=B[,"Type"])
         
         #Variance ratios
         if ("Contin." %in% SB[[i]][,"Type"] && !(!disp.v.ratio && quick)) {
-            SB[[i]][,"V.Ratio.Adj"] <- mapply(function(x, y) var.ratio(C[!is.na(subclass) & subclass==i & weights>0, x], treat[!is.na(subclass) & subclass==i & weights>0], weights=NULL, y, no.weights = TRUE), rownames(SB[[i]]), SB[[i]][,"Type"])
+            SB[[i]][,"V.Ratio.Adj"] <- mapply(function(x, y) var.ratio(C[!is.na(subclass) & subclass==i, x], treat[!is.na(subclass) & subclass==i], weights=weights, y, no.weights = TRUE), rownames(SB[[i]]), SB[[i]][,"Type"])
         }
     }
     

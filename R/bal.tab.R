@@ -33,13 +33,13 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
         v.threshold <- max(v.threshold, 1/v.threshold)
         disp.v.ratio <- TRUE
     }
-    if (length(weights) == 0) {
+    if (length(weights) == 0 && length(subclass) == 0) {
         un <- TRUE
         no.adj <- TRUE
     }
     else {
         no.adj <- FALSE
-        if (ncol(weights) == 1) names(weights) <- "Adj"
+        if (length(weights) > 0 && ncol(weights) == 1) names(weights) <- "Adj"
     }
     
     #Actions
@@ -146,7 +146,7 @@ base.bal.tab <- function(object, weights, treat, distance = NULL, subclass = NUL
                                                un=un, 
                                                disp.means=disp.means, 
                                                disp.v.ratio=disp.v.ratio, 
-                                               disp.adj=length(weights) > 0, 
+                                               disp.adj=!no.adj, 
                                                disp.subclass=disp.subclass,
                                                quick = quick)
                 class(out) <- c("bal.tab.subclass", "bal.tab")
@@ -484,7 +484,6 @@ bal.tab.matchit <- function(m, int = FALSE, distance = NULL, addl = NULL, data =
     return(out)
 }
 bal.tab.ps <- function(ps, full.stop.method, int = FALSE, distance = NULL, addl = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, quick = FALSE, ...) {
-    #full.stop.method = stopping rule/estimand from twang, e.g. "es.mean.att"; code to use first if none or incorrect is requested
     args <- as.list(environment())[-1]
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
@@ -749,7 +748,8 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                      s.d.denom = s.d.denom,
                      distance = distance,
                      addl = addl,
-                     cluster = cluster)
+                     cluster = cluster, 
+                     use.weights = args$use.weights)
     if (any(class(cbps) == "CBPSContinuous")) {
         out <- base.bal.tab.cont(object=X$obj, weights=X$weights, treat = X$treat, distance = X$distance, covs=X$covs, call=X$call, int=int, addl = X$addl, r.threshold = r.threshold, un = un, method = "weighting", cluster = X$cluster, which.cluster = which.cluster, cluster.summary = cluster.summary, quick = quick)
     }
