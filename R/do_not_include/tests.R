@@ -2,7 +2,7 @@
 library("cobalt")
 data("lalonde", package = "cobalt")
 covs <- subset(lalonde, select = -c(re78, treat))
-lalonde_ <- split.factor("race", lalonde)
+lalonde_ <- split.factor(lalonde, "race")
 covs_ <- subset(lalonde_, select = -c(re78, treat))
 #MatchIt: matching w/ PS
 library("MatchIt")
@@ -67,7 +67,7 @@ bal.tab(covs, treat = lalonde$treat, subclass = lalonde$subclass,
         m.threshold = .1, v.threshold = 2)
 #Entropy balancing
 library("ebal")
-e.out <- ebalance(lalonde$treat, covs_[,-3])
+e.out <- ebalance(lalonde$treat, covs_)
 bal.tab(e.out, treat = lalonde$treat, covs = covs)
 #Continuous treatment (CBPS)
 cbps.out2 <- CBPS(f.build("re78", covs), data = lalonde)
@@ -99,14 +99,14 @@ bal.plot(cbps.out2, "race", cluster = lalonde$school, which.cluster = 2)
 #Other packages
 #sbw
 library("sbw")
-s <- sbw(lalonde, "treat", names(cov), .001, "treated", solver = "quadprog")
+s <- sbw(lalonde_, "treat", names(covs_), .0001, "treat", solver = "quadprog")
 s$w <- s$data_frame_weights$weights; s$w[lalonde$treat==1] <- 1
-bal.tab(cov, lalonde$treat, weights = s$w, method = "w", estimand = "att", disp.v.ratio = T)
+bal.tab(covs, lalonde$treat, weights = s$w, method = "w", estimand = "att", disp.v.ratio = T)
 #ATE
 library("ATE")
-ate <- ATE(Y = lalonde$re78, lalonde$treat, cov, ATT = TRUE)
+ate <- ATE(Y = lalonde_$re78, lalonde_$treat, covs_, ATT = TRUE)
 ate$weights.q[lalonde$treat == 1] <- 1
-bal.tab(cov, lalonde$treat, weights = ate$weights.q, method = "w", estimand = "att", disp.v.ratio = T)
+bal.tab(covs, lalonde$treat, weights = ate$weights.q, method = "w", estimand = "att", disp.v.ratio = T)
 
 #sourcing
 source('~/Dropbox (Personal)/Research/R/cobalt/R/x2base.R')
