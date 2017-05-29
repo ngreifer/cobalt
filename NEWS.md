@@ -2,19 +2,19 @@ cobalt News and Updates
 ======
 Version 2.1.0
 
-* Added support in `bal.tab()` and `love.plot()` for examining multiple weight specifications at a time.
+* Added support in `bal.tab()`, `bal.plot()`, and `love.plot()` for examining balance on multiple weight specifications at a time
 
-* Added new utilities `split.factor()`
+* Added new utilities `split.factor()`, `un.split.factor()`, and `get.w()`
 
 * Added option in `bal.plot()` to display points sized by weights when treatment and covariate are continuous
 
-* Add option in `bal.plot()` to simultaneously display plots for both adjusted and unadjusted samples
+* Added "both" option in `bal.plot()` to simultaneously display plots for both adjusted and unadjusted samples; changed argument syntax to accomodate
 
-* Fixes to `love.plot()` to ensure adjusted points are in front of unadjusted points
+* Allowed `bal.plot()` to display balance for mutliple clusters and imputations simultaneously
+
+* Fixes to `love.plot()` to ensure adjusted points are in front of unadjusted points; changed colors and shape defaults and allowable values
 
 * Fixed bug where `s.d.denom` and `estimand` were not functioning correctly in `bal.tab()`
-
-
 
 Version 2.0.0
 
