@@ -2,7 +2,10 @@
 title: "Covariate Balance Tables and Plots: A Guide to the cobalt Package"
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+    html_vignette:
+        df_print: kable
+
 
 vignette: >
   %\VignetteIndexEntry{"Covariate Balance Tables and Plots: A Guide to the cobalt Package"}
@@ -77,14 +80,18 @@ There are unique features in `cobalt` that do not exist in any other package. Th
 
 # How To Use cobalt
 
-There are four functions for use in `cobalt`: `f.build()`, `bal.tab()`, `bal.plot()`, and `love.plot()`. The next sections describe how to use each, complete with example code and output. To start, install and load `cobalt` with the following code:
+There are three main functions for use in `cobalt`: `bal.tab()`, `bal.plot()`, and `love.plot()`. There are also several utility functions which can be used to ease the use of `cobalt` and other packages. The next sections describe how to use each, complete with example code and output. To start, install and load `cobalt` with the following code:
 
 ```{r, eval = 2}
 #install.packages("cobalt")
 library("cobalt")
 ```
 
-## `f.build()`
+## Utilities
+
+In addition to its main functions, `cobalt` contains several utility functions. These are meant to reduce the typing and programming burden that often accompany the use of R with a diverse set of packages. 
+
+### `f.build()`
 
 `f.build()` is a small tool that can be helpful in quickly specifying formula inputs to functions. An example is provided below:
 
@@ -106,6 +113,32 @@ m.out <- matchit(f.build("treat", covs), data = lalonde, method = "nearest")
 `f.build()` can also be used in the `Matching`, `optmatch`, `ebalance`, and formula interfaces in `bal.tab()`.
 
 *Note*: in an earlier version of `cobalt`, the first argument of `f.build()` was unquoted; this has been changed to reap the benefits of standard evaluation, including the ability to loop through response variables.
+
+### `split.factor()` and `un.split.factor()`
+
+Some functions (outside of `cobalt`) are not friendly to factor or character variables, and require numeric variables to operate correctly. For example, some regression-stype functions, such as `ebalance()` in `ebal`, can only take in non-singular numeric matrices. Other functions will process factor variables, but will return output in terms of dummy coded version of the factors. For example, `lm()` will create dummy variables out of a factor and drop the reference category to create regression coefficients.
+
+To prepare data sets for use in functions that do not allow factors or to mimic the output of functions that split factor variables, users can use `split.factor()`, which takes in a data set and the names of variables to split, and outputs a new data set with newly created dummy variables. Below is an example splitting the `race` variable in the Lalonde data set into dummies, eliminating the reference category (`"black"`):
+
+```{r}
+head(lalonde)
+lalonde.split <- split.factor(lalonde, "race")
+head(lalonde.split)
+```
+
+It is possible to undo the action of `split.factor()` with `un.split.factor()`, which takes in a data set with dummy variables formed from split factor and recreates the original factor variable. If the reference category was dropped, its value needs to be supplied.
+
+```{r}
+lalonde.unsplit <- un.split.factor(lalonde.split, "race", 
+                                   dropped.level = "black")
+head(lalonde.unsplit)
+```
+
+Notice the original data set and the unsplit data set look identical.
+
+### `get.w()`
+
+`get.w()` allows users to extract weights from the output of a call to a preprocessing function in one of the supported packages. Because each package stores weights in different ways, it can be helpful to have a single function that applies equally to all outputs. `twang` had a function called `get.weights()` that performs the same functions with finer control for the output of a call to `ps()`. See the section "Comparing balancing methods" for examples of the use of `get.w()`.
 
 ## `bal.tab()`
 
@@ -144,7 +177,7 @@ bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
         distance = "p.score", method = "weighting")
 ```
 
-To use the formula interface, the user must specify a formula relating treatment to the covariates for which balance is to be assessed **and** the data set where the elements of the formula can be found. Here, `f.build()` was used for simplicity, but the traditional formula input of `treat ~ v1 + v2 + v3 + ...` is also acceptible. As above, the arguments to `weights`, `distance`, `subclass`, and others can be specified either as vectors containing the values or as names of the variables in the argument to `data` containing the values. In the above example, an argument to `distance` was specified, and balance measures for the propensity score now appear in the balance table.
+To use the formula interface, the user must specify a formula relating treatment to the covariates for which balance is to be assessed **and** the data set where the elements of the formula can be found. Here, `f.build()` was used for simplicity, but the traditional formula input of `treat ~ v1 + v2 + v3 + ...` is also acceptible. As above, the arguments to `weights`, `distance`, `subclass`, and others can be specified either as vectors or data frames containing the values or as names of the variables in the argument to `data` containing the values. In the above example, an argument to `distance` was specified, and balance measures for the propensity score now appear in the balance table.
 
 An argument to `method` must be specified for `bal.tab()` to process the data correctly. If left empty, weighting will be assumed, but a warning will appear. `"matching"` and `"subclassification"` are also allowed, and can be abbreviated. If no weights or subclasses are provided (i.e., to examine balance without preprocessing), no argument to `method` is required.
 
@@ -187,6 +220,18 @@ The argument to `v.threshold` determines the threshold for variance ratios that 
 # Balance tables with thresholds for mean differences and variance ratios
 bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
         method = "weighting", m.threshold = .1, v.threshold = 2)
+```
+
+It is possible to view balance for more than one set of weights at a time. The input to `weights` should be either than names of variables in `data` containing the desired weights or a named data frame containing each set of weights. The arguments to `method` and `s.d.denom` or `estimand` must have the same length as the number of sets of weights, or else be of length 1, applying the sole input to all sets of weights. Below is an example comparing the weights estimated above to a new set of weights. Another example can be found in the section "Comparing Balancing Methods".
+
+```{r}
+# Generating ATT weights with different covariates
+lalonde$p.score2 <- glm(treat ~ age + I(age^2) + race + educ + re74, 
+                        data = lalonde, family = "binomial")$fitted.values
+lalonde$att.weights2 <- with(lalonde, treat + (1-treat)*p.score2/(1-p.score2))
+
+bal.tab(f.build("treat", covs0), data = lalonde, weights = c("att.weights", "att.weights2"),
+        method = "weighting", estimand = "ATT")
 ```
 
 When subclassification is used in conditioning, an argument to `subclass` must be specified; this can be a vector of subclass membership or the name of a variable in `data` containing subclass membership. `bal.tab()` produces a different type of output from when matching or weighting are used, though it has all of the same features. The default output is a balance table displaying balance aggregated across subclasses. Each cell contains the average statistic across the subclasses, but does not contain information on variance ratios. Using the arguments discussed above (except `disp.v.ratio` and `v.threshold`) will change the output as it does when only matching or weighting is used.
@@ -359,22 +404,18 @@ bal.plot(covs0, treat = lalonde$treat, weights = lalonde$att.weights, method = "
 
 The first argument (or set of arguments) is the sufficient set of arguments for a simple call to `bal.tab()`, defining the data object (e.g., the output of a conditioning function), the treatment indicators, and the weights or subclasses. See above for examples. The next argument is the name of the covariate for which distributional balance is to be assessed. If subclassification is used (i.e., if subclasses are present in the input data object or arguments), an additional argument `which.sub` can be specified, with a number corresponding to the subclass number for which balance is to be assessed on the specified covariate; if it is not specified, plots for all subclasses will be displayed.
 
-The user can also specify whether distributional balance is to be shown before or after adjusting by using the argument to `un`, as with `bal.tab()`. If `un = TRUE`, balance will be displayed for the unadjusted sample only. The default is to display balance for the adjusted sample.
+The user can also specify whether distributional balance is to be shown before or after adjusting or both by using the argument to `which`. If `which = "unadjusted"`, balance will be displayed for the unadjusted sample only. If `which = "both"`, balance will be displayed for both the unadjusted sample and teh adjusted sample. The default is to display balance for the adjusted sample.
 
 The output of `bal.plot()` is a density plot for the two groups on the given covariate. For categorical or binary variables, a bar graph is displayed instead. The x-axis is the value of the variable, and the y-axis is the proportion density or proportion of the variable in the given group. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, which splits the variable into several binary variables. The degree to which the density plots for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.
 
 Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like `MatchIt`'s `plot(..., type = "hist")` or `twang`'s `plot(..., plots = "boxplot")`. To examine the distributions of the distance measure, the input to `var.name` must be `".distance"` (noting the "`.`" at the beginning). If the data input object doesn't already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to `bal.plot()` through `distance`, in addition to being called through `var.name`. Below is an example using the formula input to `bal.plot()` to display the distributions of propensity scores before and after weighting adjustment:
 
-```{r, fig.show = "hold"}
-#Before weighting; un = TRUE
+```{r, fig.width = 5}
+#Before and after weighting; which = "both"
 bal.plot(f.build("treat", covs0), data = lalonde, var.name = "p.score",
          weights = "att.weights", distance = "p.score", 
-         method = "weighting", un = TRUE)
+         method = "weighting", which = "both")
 
-#After weighting
-bal.plot(f.build("treat", covs0), data = lalonde, var.name = "p.score",
-         weights = "att.weights", distance = "p.score", 
-         method = "weighting", un = FALSE)
 ```
 
 It is generally not a useful assessment of balance to examine the overlap of the distance measure distributions after adjustment, as most conditioning methods will yield good distributional overlap on the distance measure whether or not balance is achieved on the covariates (Stuart et al., 2013). However, it may be useful to see the new range of the distance measure if calipers or common support pruning are used.
@@ -460,15 +501,11 @@ bal.tab(cbps.c, un = TRUE, r.threshold = .1, int = TRUE)
 
 We can also visually assess balance using `bal.plot()`. For continuous covariates, `bal.plot()` dispalys a scatterplot of treatment against the covariate, and includes a linear fit line (blue, dashed), a Loess curve (blue, solid), and a reference line (black, solid) at the (weighted) mean of the treatment variable. These three lines can be used to diagnose dependence. If either fit line is not close to flat (i.e., lying on top of the reference line), there may be some remaining dependence between treatment and the covariate. For categorical covariates, including binary, `bal.plot()` displays a density plot of the treatment variable in each category. If treatment and the covariate are independent, the densities for each category should overlap with each other. A distinct lack of overlap is indicative of remaining dependence between treatment and the covariate.
 
-```{r, fig.show = "hold"}
+```{r, fig.width = 5}
 #Assessing balance graphically
-bal.plot(cbps.c, "re74", un = T) #Clear dependence
-bal.plot(cbps.c, "re74")         #Balance improvement
-```
-```{r, fig.show = "hold"}
-bal.plot(cbps.c, "married", un = T) #Clear dependence
-bal.plot(cbps.c, "married")         #Remaining dependence, even though numerical
-                                    #summary indicates balance
+bal.plot(cbps.c, "re74", which = "both")
+
+bal.plot(cbps.c, "married", which = "both")
 ```
 
 When balance has been achieved to a satisfactory level, users can present balance improvements in a Love plot using the `love.plot()` command, just as with binary treatments.
@@ -477,6 +514,35 @@ When balance has been achieved to a satisfactory level, users can present balanc
 #Summarizing balance in a Love plot
 love.plot(bal.tab(cbps.c), threshold = .1, abs = TRUE, var.order = "unadjusted",
           line = TRUE)
+```
+
+## Comparing balancing methods
+It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. Do do so, weights generated from each balancing mehtod need to be supplid together in each call. For example, we can compare weights generated through CBPS and generalized boosted modeling using the following code and the output generated above.
+
+```{r}
+bal.tab(f.build("treat", covs0), data = lalonde, 
+        weights = data.frame(GBM = get.w(ps.out),
+                             CBPS = get.w(cbps.out)),
+        method = "weighting", disp.v.ratio = TRUE)
+```
+
+To use `bal.plot()`, the same syntax can be used:
+
+```{r, fig.width=7}
+bal.plot(f.build("treat", covs0), data = lalonde, 
+         weights = data.frame(GBM = get.w(ps.out),
+                              CBPS = get.w(cbps.out)),
+         method = "weighting", var.name = "age", which = "both")
+```
+
+With `love.plot()`, `var.order` can be `"unadjusted"`, `"alphabetical"`, or one of the names of the weights to order the variables. Also, `colors` and `shapes` should have the same length as the number of weights or have length 1.
+
+```{r, fig.width=5}
+love.plot(bal.tab(f.build("treat", covs0), data = lalonde, 
+                  weights = data.frame(GBM = get.w(ps.out),
+                                       CBPS = get.w(cbps.out)),
+                  method = "weighting"), var.order = "unadjusted",
+          abs = TRUE, colors = c("red", "blue", "darkgreen"))
 ```
 
 ## Using the prognostic score for balance assessment
@@ -590,7 +656,8 @@ Love plots and other similar plots that graphically display covariate balance be
 ```{r, echo = FALSE, fig.show = 'hold', fig.width = 5}
 plot(ps.out, plots = "es", subset = 1)
 love.plot(bal.tab(ps.out, full.stop.method = "es.mean.att"), threshold = .1,
-          abs = TRUE, var.order = "u", color = c("red", "blue"), line = TRUE)
+          abs = TRUE, var.order = "u", color = c("red", "blue"), line = TRUE,
+          drop.distance = TRUE)
 ```
 
 A Love plot displays the same information, but allows for the clear display of both the balance statistic value and the variable name, unlike the line plot above which displays only the balance statistic value. The Love plot in `cobalt` allows for a great deal of flexibility in appearance, and can present variance ratios as well as mean differences. 
