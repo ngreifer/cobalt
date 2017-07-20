@@ -1,20 +1,28 @@
 cobalt News and Updates
 ======
+Version 2.X
+
+* Added support in `splitfactor()` and `unsplitfactor()` for `NA` values
+
 Version 2.1.0
 
 * Added support in `bal.tab()`, `bal.plot()`, and `love.plot()` for examining balance on multiple weight specifications at a time
 
-* Added new utilities `split.factor()`, `un.split.factor()`, and `get.w()`
+* Added new utilities `splitfactor()`, `unsplitfactor()`, and `get.w()`
 
 * Added option in `bal.plot()` to display points sized by weights when treatment and covariate are continuous
 
-* Added "both" option in `bal.plot()` to simultaneously display plots for both adjusted and unadjusted samples; changed argument syntax to accomodate
+* Added `which = "both"` option in `bal.plot()` to simultaneously display plots for both adjusted and unadjusted samples; changed argument syntax to accommodate
 
 * Allowed `bal.plot()` to display balance for mutliple clusters and imputations simultaneously
+
+* Allowed `bal.plot()` to display balance for mutliple subclasses simultaneously with `which.sub`
 
 * Fixes to `love.plot()` to ensure adjusted points are in front of unadjusted points; changed colors and shape defaults and allowable values
 
 * Fixed bug where `s.d.denom` and `estimand` were not functioning correctly in `bal.tab()`
+
+* `distance`, `addl`, and `weights` can now be specified as lists of the usual arguments
 
 Version 2.0.0
 
