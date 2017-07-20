@@ -479,7 +479,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     }
     stroke <- .8*size
     
-    #SColor
+    #Color
     ntypes <- nlevels(SS$Sample)
     if (length(args$colours) > 0) colors <- args$colours
     

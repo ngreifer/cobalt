@@ -2,7 +2,7 @@
 library("cobalt")
 data("lalonde", package = "cobalt")
 covs <- subset(lalonde, select = -c(re78, treat))
-lalonde_ <- split.factor(lalonde, "race")
+lalonde_ <- splitfactor(lalonde, "race")
 covs_ <- subset(lalonde_, select = -c(re78, treat))
 #MatchIt: matching w/ PS
 library("MatchIt")

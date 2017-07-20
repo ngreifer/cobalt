@@ -36,7 +36,7 @@ skew.diff <- function(x, group, weights, var.type) {
 }
 
 dum2factor <- function(data, varlist, newvar, other = NULL, sep = NULL) {
-    #Like split.factor; creates factor variable from series of dummies. Could be used as a utility.
+    #Like splitfactor; creates factor variable from series of dummies. Could be used as a utility.
     dummies <- data[, varlist]
     if (sum(rowSums(dummies)) < nrow(dummies)) dummies <- setNames(data.frame(dummies, ifelse(rowSums(dummies)==0, 1, 0)),c(names(dummies), other))
     factor <- factor(as.matrix(dummies) %*% 1:ncol(dummies), labels = colnames(dummies))

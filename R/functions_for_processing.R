@@ -116,11 +116,48 @@ use.tc.fd <- function(formula, data, treat, covs) {
     }
     return(t.c)
 }
+process.val <- function(val, i, treat, covs, data) {
+    if (is.numeric(val)) {
+        val.df <- setNames(data.frame(val), i)
+    }
+    else if (is.character(val)) {
+        bad.ones <- character(0)
+        if ((length(data) > 0 && length(val) > ncol(data)) || length(val) == nrow(covs) || length(val) == length(treat)){
+            val.df <- setNames(data.frame(val), i)
+        }
+        else {
+            val <- unique(val)
+            if (length(data) > 0 && any(val %in% names(data))) {
+                val.df <- data[, val[val %in% names(data)], drop = FALSE]
+                bad.ones <- val[!val %in% names(data)]
+                if (length(bad.ones) > 0) {
+                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
+                                  paste(bad.ones)))
+                }
+            }
+            else {
+                if (length(data) == 0) {
+                    stop(paste0("Names were provided to ", i, ", but no argument to data was provided."), call. = FALSE)
+                }
+                else {
+                    stop(paste0("No names provided to ", i, ", are the names of variables in data."), call. = FALSE)
+                }
+            }
+        }
+        
+    }
+    else if (is.data.frame(val)) {
+        val.df <- val
+    }
+    else stop(paste("The argument supplied to", i, "must be a vector, a data.frame, or a list thereof."), call. = FALSE)
+    
+    return(val.df)
+}
 
 #get.C
 #Functions to turn input covariates into usable form
 #int.poly.f creates interactions and polynomials
-#split.factor splits factor variable into indicators (now in utilities)
+#splitfactor splits factor variable into indicators (now in utilities)
 #binarize transforms 2-value variable into binary (0,1)
 #get.C controls flow and handles redunancy
 #get.types gets variables types (contin./binary)
@@ -196,7 +233,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         
         if (nlevels(cluster) > 0 && qr(matrix(c(C[, i], as.numeric(cluster)), ncol = 2))$rank == 1) C <- C[, names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
         else if (!is.numeric(C[, i])) {
-            C <- split.factor(C, i, replace = TRUE, sep = "_", drop.first = FALSE, 
+            C <- splitfactor(C, i, replace = TRUE, sep = "_", drop.first = FALSE, 
                               drop.singleton = FALSE)
         }
     }
@@ -865,7 +902,7 @@ balance.table.imp.summary <- function(bal.tab.imp.list, weight.names = NULL, no.
     Brownames <- unique(do.call("c", lapply(bal.tab.imp.list, rownames)))
     imp.functions <- c("Min", "Mean", "Median", "Max")
     stats <- if (cont.treat) "Corr" else c("Diff", "V.Ratio")
-    Bcolnames <- c("Type", apply(expand.grid(imp.functions, stats, c("Un", "weight.names")), 1, paste, collapse = "."))
+    Bcolnames <- c("Type", apply(expand.grid(imp.functions, stats, c("Un", weight.names)), 1, paste, collapse = "."))
     B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
     names(B) <- Bcolnames
     
@@ -994,4 +1031,4 @@ replaceNA <- function(x) {
 }
 
 #To pass CRAN checks:
-utils::globalVariables(c("distance", "addl", "quick"))
+utils::globalVariables(c("distance", "addl", "quick", "treat"))

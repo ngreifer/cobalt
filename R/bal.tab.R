@@ -384,7 +384,7 @@ base.bal.tab.imp <- function(object, weights, treat, distance = NULL, subclass =
                    "call", "print.options")
     out <- vector("list", length(out.names))
     names(out) <- out.names
-    
+    #print(str(lapply(levels(imp), function(i) lapply(object, function(x) if (is.data.frame(x)) x[imp==i,,drop = F] else x[imp==i])))); stop()
     #Get list of bal.tabs for each imputation
     if (length(unique(treat)) > 2 && is.numeric(treat)) {#if continuous treatment
         out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab.cont(object = object[imp==i, , drop = FALSE], weights = weights[imp==i, , drop  = FALSE], treat = treat[imp==i], distance = distance[imp==i, , drop = FALSE], subclass = subclass[imp==i], covs = covs[imp == i, , drop = FALSE], call = call, int = int, addl = addl[imp = i, , drop = FALSE], r.threshold = r.threshold, un = un, method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, quick = quick, ...))
@@ -393,7 +393,7 @@ base.bal.tab.imp <- function(object, weights, treat, distance = NULL, subclass =
         stop("Multinomial treaments are not yet supported.", call. = FALSE)
     }
     else {#if binary treatment
-        out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab(object = object[imp==i, , drop = FALSE], weights = weights[imp==i, , drop = FALSE], treat = treat[imp==i], distance = distance[imp==i, , drop = FALSE], subclass = subclass[imp==i], covs = covs[imp==i, , drop = FALSE], call = call, int = int, addl = addl[imp==i, , drop = FALSE], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, disp.subclass = disp.subclass, method = method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, quick = quick, ...))
+        out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab(object = lapply(object, function(o) if (is.data.frame(o)) o[imp==i, , drop = FALSE] else o[imp==i]), weights = weights[imp==i, , drop = FALSE], treat = treat[imp==i], distance = distance[imp==i, , drop = FALSE], subclass = subclass[imp==i], covs = covs[imp==i, , drop = FALSE], call = call, int = int, addl = addl[imp==i, , drop = FALSE], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, disp.subclass = disp.subclass, method = method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, quick = quick, ...))
     }
     
     names(out[["Imputation.Balance"]]) <- levels(imp)

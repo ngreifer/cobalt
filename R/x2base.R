@@ -65,32 +65,21 @@ x2base.matchit <- function(m, ...) {
         val <- A[[i]]
         val.df <- NULL
         if (length(val) > 0) {
-            if (is.numeric(val)) {
-                val.df <- setNames(data.frame(val), i)
-            }
-            else if (is.character(val)) {
-                if (length(data) > 0 && any(val %in% names(data))) {
-                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
-                    val <- val[!val %in% names(data)]
-                    
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
                 }
-                if (length(m.data) > 0 && any(val %in% names(m.data))) {
-                    if (length(val.df) > 0) val.df <- cbind(val.df, m.data[, val[val %in% names(m.data)], drop = FALSE])
-                    else val.df <- m.data[, val[val %in% names(m.data)], drop = FALSE]
-                    val <- val[!val %in% names(m.data)]
-                    
-                }
-                if (length(val) > 0) {
-                    
-                    warning(paste("The following variable(s) named in", i, "are not in any given data set and will be ignored: ",
-                                  paste(val)))
-                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
             }
-            else if (is.data.frame(val)) {
-                val.df <- val
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
             }
-            else stop(paste("The names supplied to", i, "are not the name of a variable in any given data set."), call. = FALSE)
-            
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
             }
@@ -213,32 +202,21 @@ x2base.ps <- function(ps, ...) {
         val <- A[[i]]
         val.df <- NULL
         if (length(val) > 0) {
-            if (is.numeric(val)) {
-                val.df <- setNames(data.frame(val), i)
-            }
-            else if (is.character(val)) {
-                if (length(data) > 0 && any(val %in% names(data))) {
-                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
-                    val <- val[!val %in% names(data)]
-                    
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
                 }
-                if (length(ps.data) > 0 && any(val %in% names(ps.data))) {
-                    if (length(val.df) > 0) val.df <- cbind(val.df, ps.data[, val[val %in% names(ps.data)], drop = FALSE])
-                    else val.df <- ps.data[, val[val %in% names(ps.data)], drop = FALSE]
-                    val <- val[!val %in% names(ps.data)]
-                    
-                }
-                if (length(val) > 0) {
-                    
-                    warning(paste("The following variable(s) named in", i, "are not in any given data set and will be ignored: ",
-                                  paste(val)))
-                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
             }
-            else if (is.data.frame(val)) {
-                val.df <- val
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
             }
-            else stop(paste("The names supplied to", i, "are not the name of a variable in any given data set."), call. = FALSE)
-            
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
             }
@@ -367,24 +345,21 @@ x2base.Match <- function(Match, ...) {
         val <- A[[i]]
         val.df <- NULL
         if (length(val) > 0) {
-            if (is.numeric(val)) {
-                val.df <- setNames(data.frame(val), i)
-            }
-            else if (is.character(val)) {
-                if (length(A$data) > 0 && any(val %in% names(data))) {
-                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
-                    val <- val[!val %in% names(data)]
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
                 }
-                if (length(val) > 0) {
-                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
-                                  paste(val)))
-                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
             }
-            else if (is.data.frame(val)) {
-                val.df <- val
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
             }
-            else stop(paste("The names supplied to", i, "are not the name of a variable in data."), call. = FALSE)
-            
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
             }
@@ -487,14 +462,14 @@ x2base.data.frame <- function(covs, ...) {
         warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execuction will halt.")
         data <- NULL
     }
-    if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
-        stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
-    }
+    # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
+    #     stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
+    # }
     
     specified <- setNames(rep(FALSE, 3), c("match.strata", "subclass", "weights"))
     if (length(weights) > 0) {
-        if (!is.character(weights) && !is.numeric(weights) && !is.data.frame(weights)) {
-            stop("The argument to weights must be a vector or data frame of weights or the (quoted) name of a variable in data that contains weights.", call. = FALSE)
+        if (!is.character(weights) && !is.numeric(weights) && !is.data.frame(weights) && !is.list(weights)) {
+            stop("The argument to weights must be a vector, list, or data frame of weights or the (quoted) names of variables in data that contain weights.", call. = FALSE)
         }
         specified["weights"] <- TRUE
     }
@@ -638,9 +613,10 @@ x2base.data.frame <- function(covs, ...) {
     if (length(imp) > 0 && !is.character(imp) && !is.numeric(imp) && !is.factor(imp)) {
         stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
     }
-    if (length(treat) == 0) stop("treat must be specified.", call. = FALSE)
     
     #Process treat
+    if (length(treat) == 0) stop("treat must be specified.", call. = FALSE)
+    
     if (is.numeric(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
         treat <- treat
     }
@@ -657,24 +633,21 @@ x2base.data.frame <- function(covs, ...) {
         val <- A[[i]]
         val.df <- NULL
         if (length(val) > 0) {
-            if (is.numeric(val)) {
-                val.df <- setNames(data.frame(val), i)
-            }
-            else if (is.character(val)) {
-                if (length(data) > 0 && any(val %in% names(data))) {
-                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
-                    val <- val[!val %in% names(data)]
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
                 }
-                if (length(val) > 0) {
-                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
-                                  paste(val)))
-                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
             }
-            else if (is.data.frame(val)) {
-                val.df <- val
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
             }
-            else stop(paste("The names supplied to", i, "are not the name of a variable in data."), call. = FALSE)
-            
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
             }
@@ -794,8 +767,6 @@ x2base.data.frame <- function(covs, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
     }
     
-    
-    
     #Turn match.strata into weights
     if (length(match.strata) > 0) {
         weights <- data.frame(weights = match.strata2weights(match.strata = match.strata,
@@ -804,8 +775,14 @@ x2base.data.frame <- function(covs, ...) {
                                                              ))
     }
     
-    if (length(weights) > 0 && length(X$method) == 1) {
-        X$method <- rep(X$method, ncol(weights))
+    if (length(weights) > 0) {
+        if (any(sapply(weights, function(x) !is.numeric(x)))) {
+            stop("All weights must be numeric.", call. = FALSE)
+        }
+        if (length(X$method) == 1) {
+            X$method <- rep(X$method, ncol(weights))
+        }
+        
     }
     
     #Get s.d.denom
@@ -1016,32 +993,21 @@ x2base.CBPS <- function(cbps.fit, ...) {
         val <- A[[i]]
         val.df <- NULL
         if (length(val) > 0) {
-            if (is.numeric(val)) {
-                val.df <- setNames(data.frame(val), i)
-            }
-            else if (is.character(val)) {
-                if (length(data) > 0 && any(val %in% names(data))) {
-                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
-                    val <- val[!val %in% names(data)]
-                    
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
                 }
-                if (length(c.data) > 0 && any(val %in% names(c.data))) {
-                    if (length(val.df) > 0) val.df <- cbind(val.df, c.data[, val[val %in% names(c.data)], drop = FALSE])
-                    else val.df <- c.data[, val[val %in% names(c.data)], drop = FALSE]
-                    val <- val[!val %in% names(c.data)]
-                    
-                }
-                if (length(val) > 0) {
-                    
-                    warning(paste("The following variable(s) named in", i, "are not in any given data set and will be ignored: ",
-                                  paste(val)))
-                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
             }
-            else if (is.data.frame(val)) {
-                val.df <- val
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
             }
-            else stop(paste("The names supplied to", i, "are not the name of a variable in any given data set."), call. = FALSE)
-            
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
             }
@@ -1144,30 +1110,28 @@ x2base.ebalance <- function(ebalance, ...) {
         val <- A[[i]]
         val.df <- NULL
         if (length(val) > 0) {
-            if (is.numeric(val)) {
-                val.df <- setNames(data.frame(val), i)
-            }
-            else if (is.character(val)) {
-                if (length(data) > 0 && any(val %in% names(data))) {
-                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
-                    val <- val[!val %in% names(data)]
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
                 }
-                if (length(val) > 0) {
-                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
-                                  paste(val)))
-                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
             }
-            else if (is.data.frame(val)) {
-                val.df <- val
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
             }
-            else stop(paste("The names supplied to", i, "are not the name of a variable in data."), call. = FALSE)
-            
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
             }
         }
         assign(i, val.df)
     }
+    
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
     vectors <- c("treat", "cluster")
@@ -1254,24 +1218,21 @@ x2base.optmatch <- function(optmatch, ...) {
         val <- A[[i]]
         val.df <- NULL
         if (length(val) > 0) {
-            if (is.numeric(val)) {
-                val.df <- setNames(data.frame(val), i)
-            }
-            else if (is.character(val)) {
-                if (length(data) > 0 && any(val %in% names(data))) {
-                    val.df <- data[, val[val %in% names(data)], drop = FALSE]
-                    val <- val[!val %in% names(data)]
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
                 }
-                if (length(val) > 0) {
-                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
-                                  paste(val)))
-                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
             }
-            else if (is.data.frame(val)) {
-                val.df <- val
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
             }
-            else stop(paste("The names supplied to", i, "are not the name of a variable in data."), call. = FALSE)
-            
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
             }

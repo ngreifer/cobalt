@@ -114,22 +114,22 @@ m.out <- matchit(f.build("treat", covs), data = lalonde, method = "nearest")
 
 *Note*: in an earlier version of `cobalt`, the first argument of `f.build()` was unquoted; this has been changed to reap the benefits of standard evaluation, including the ability to loop through response variables.
 
-### `split.factor()` and `un.split.factor()`
+### `splitfactor()` and `unsplitfactor()`
 
 Some functions (outside of `cobalt`) are not friendly to factor or character variables, and require numeric variables to operate correctly. For example, some regression-stype functions, such as `ebalance()` in `ebal`, can only take in non-singular numeric matrices. Other functions will process factor variables, but will return output in terms of dummy coded version of the factors. For example, `lm()` will create dummy variables out of a factor and drop the reference category to create regression coefficients.
 
-To prepare data sets for use in functions that do not allow factors or to mimic the output of functions that split factor variables, users can use `split.factor()`, which takes in a data set and the names of variables to split, and outputs a new data set with newly created dummy variables. Below is an example splitting the `race` variable in the Lalonde data set into dummies, eliminating the reference category (`"black"`):
+To prepare data sets for use in functions that do not allow factors or to mimic the output of functions that split factor variables, users can use `splitfactor()`, which takes in a data set and the names of variables to split, and outputs a new data set with newly created dummy variables. Below is an example splitting the `race` variable in the Lalonde data set into dummies, eliminating the reference category (`"black"`):
 
 ```{r}
 head(lalonde)
-lalonde.split <- split.factor(lalonde, "race")
+lalonde.split <- splitfactor(lalonde, "race")
 head(lalonde.split)
 ```
 
-It is possible to undo the action of `split.factor()` with `un.split.factor()`, which takes in a data set with dummy variables formed from split factor and recreates the original factor variable. If the reference category was dropped, its value needs to be supplied.
+It is possible to undo the action of `splitfactor()` with `unsplitfactor()`, which takes in a data set with dummy variables formed from split factor and recreates the original factor variable. If the reference category was dropped, its value needs to be supplied.
 
 ```{r}
-lalonde.unsplit <- un.split.factor(lalonde.split, "race", 
+lalonde.unsplit <- unsplitfactor(lalonde.split, "race", 
                                    dropped.level = "black")
 head(lalonde.unsplit)
 ```

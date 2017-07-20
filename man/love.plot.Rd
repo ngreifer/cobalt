@@ -12,8 +12,8 @@ love.plot(b, stat = c("mean.diffs", "variance.ratios"),
     threshold = NULL, abs = FALSE, var.order = NULL, 
     no.missing = TRUE, var.names = NULL, 
     drop.distance = FALSE, agg.fun = c("mean", "median", 
-    "max", "range"), colors = c("red", "blue"), 
-    shapes = NULL, line = FALSE, ...)
+    "max", "range"), colors = NULL, shapes = NULL, 
+    line = FALSE, ...)
 }
 \arguments{
   \item{b}{

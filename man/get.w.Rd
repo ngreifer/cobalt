@@ -1,5 +1,11 @@
 \name{get.w}
 \alias{get.w}
+\alias{get.w.matchit}
+\alias{get.w.ps}
+\alias{get.w.Match}
+\alias{get.w.CBPS}
+\alias{get.w.ebalance}
+\alias{get.w.optmatch}
 
 \title{
 Extract Weights from Preprocessing Objects

@@ -40,52 +40,47 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (which %in% c("adjusted", "both")) {
             if (length(X$cluster) > 0) stop("Subclasses are not supported with clusters.", call. = FALSE)
             if (length(X$imp) > 0) stop("Subclasses are not supported with multiple imputations.", call. = FALSE)
-            if (is.null(which.sub)) { #display all subs
-                #weights <- X$weights[!is.na(X$subclass), 1]
-                treat <- X$treat[!is.na(X$subclass)]
-                var <- X$var[!is.na(X$subclass)]
-                subclass <- paste("Subclass", X$subclass[!is.na(X$subclass)])
-                subtitle <- NULL
-                #title <- paste0(title, "\nacross subclasses")
+            if (is.null(which.sub)) { 
+                which.sub <- levels(X$subclass)
             }
-            else {
-                if (is.numeric(which.sub) && length(which.sub) == 1) {
-                    if (which.sub %in% levels(X$subclass)) {
-                        #weights <- X$weights[!is.na(X$subclass) & X$subclass==which.sub, 1]
-                        treat <- X$treat[!is.na(X$subclass) & X$subclass==which.sub]
-                        var <- X$var[!is.na(X$subclass) & X$subclass==which.sub]
-                        subclass <- paste("Subclass", X$subclass[!is.na(X$subclass) & X$subclass==which.sub])
-                        #title <- paste0(title, "\nin subclass ", which.sub)
-                        subtitle <- NULL
-                        if (which == "unadjusted") {
-                            message("which.sub specified and unadjusted sample requested; displaying adjusted sample.")
-                            which == "adjusted"
-                        }
-                    }
-                    else stop(paste0("\"", which.sub, "\" does not correspond to a subclass in the object."), call. = FALSE)
-                    
+            if (is.numeric(which.sub) && any(which.sub %in% levels(X$subclass))) {
+                if (any(!which.sub %in% levels(X$subclass))) {
+                    w.l <- word.list(which.sub[!which.sub %in% levels(X$subclass)])
+                    warning(paste(w.l, ifelse(attr(w.l, "plural"), "do", "does"), "not correspond to any subclass in the object and will be ignored."), call. = FALSE)
+                    which.sub <- which.sub[which.sub %in% levels(X$subclass)]
                 }
-                else stop("The argument to which.sub must be a single number corresponding to the subclass for which distributions are to be displayed.", call. = FALSE)
+                in.sub <- !is.na(X$subclass) & X$subclass %in% which.sub
+                D <- setNames(as.data.frame(matrix(0, nrow = sum(in.sub), ncol = 4)),
+                              c("weights", "treat", "var", "subclass"))
+                D$weights <- rep(1, nrow(D))
+                D$treat <- X$treat[in.sub]
+                D$var <- X$var[in.sub]
+                D$subclass <- paste("Subclass", X$subclass[in.sub])
+                #title <- paste0(title, "\nin subclass ", which.sub)
+                subtitle <- NULL
             }
-            weights <- rep(1, length(treat))
-            if (which == "both") {
-                weights <- c(weights, weights)
-                treat <- c(treat, X$treat)
-                var <- c(var, X$var)
-                subclass <- factor(c(subclass, rep("Unadjusted Sample", length(X$treat))),
-                                   levels = c("Unadjusted Sample", sort(unique(subclass))))
-            }
+            else stop("The argument to which.sub must be a number vector corresponding to the subclass for which distributions are to be displayed.", call. = FALSE)
             facet <- "subclass"
         }
-    }  
+        #D$weights <- rep(1, length(treat))
+        if (which == "both") {
+            D2 <- setNames(as.data.frame(matrix(0, nrow = length(X$treat), ncol = 4)),
+                           c("weights", "treat", "var", "subclass"))
+            D2$weights <- rep(1, nrow(D2))
+            D2$treat <- X$treat
+            D2$var <- X$var
+            D2$subclass <- rep("Unadjusted Sample", length(X$treat))
+            D <- rbind(D2, D, stringsAsFactors = TRUE)
+            D$subclass <- relevel(factor(D$subclass), "Unadjusted Sample")
+        }
+        
+    }
     else if (length(X$subclass) == 0 && length(which.sub) > 0) {
         warning("which.sub was specified but no subclasses were supplied. Ignoring which.sub.", call. = FALSE)
     }
     else if (which == "unadjusted" && length(which.sub) > 0) {
         warning("which.sub was specified but the unadjusted sample was requested. Ignoring which.sub.", call. = FALSE)
     }
-    
-    
     
     if (!"subclass" %in% facet) {
         
@@ -213,60 +208,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, facet.which = D$facet.which)
             
         }
-        # if (identical(facet,"subclass")) {
-        #     if (is.categorical.var) {
-        #         weights <- mapply(function(w, s, v) w[var==v] / sum(weights[subclass==s & var==v]), w = weights, s = subclass, v = var)
-        #     }
-        #     else {
-        #         weights <- mapply(function(w, s) w / sum(weights[subclass==s]), w = weights, s = subclass)
-        #     }
-        #     d <- data.frame(weights = weights, treat = treat, var = var, subclass = subclass)
-        # }
-        # else if (identical(facet,"cluster")) {
-        #     if (is.categorical.var) {
-        #         weights <- mapply(function(w, c, v) w / sum(weights[cluster==c & var==v]), w = weights, c = cluster, v = var)
-        #     }
-        #     else {
-        #         weights <- mapply(function(w, c) w / sum(weights[cluster==c]), w = weights, c = cluster)
-        #     }
-        #     d <- data.frame(weights = weights, treat = treat, var = var, cluster = cluster)
-        # }
-        # else if ((identical(facet,"imp"))) {
-        #     if (is.categorical.var) {
-        #         weights <- mapply(function(w, i, v) w / sum(weights[imp==i & var==v]), w = weights, i = imp, v = var)
-        #     }
-        #     else {
-        #         weights <- mapply(function(w, i) w / sum(weights[imp==i]), w = weights, i = imp)
-        #     }
-        #     d <- data.frame(weights = weights, treat = treat, var = var, imp = imp)
-        # }
-        # else if (identical(facet,c("imp", "cluster"))) {
-        #     if (is.categorical.var) {
-        #         weights <- mapply(function(w, i, c, v) w / sum(weights[imp==i & cluster == c & var==v]), w = weights, i = imp, c = cluster, v = var)
-        #     }
-        #     else {
-        #         weights <- mapply(function(w, i, c) w / sum(weights[imp==i & cluster == c]), w = weights, i = imp, c = cluster)
-        #     }
-        #     d <- data.frame(weights = weights, treat = treat, var = var, imp = imp, cluster = cluster)
-        # }
-        # else if (identical(facet, "facet.which")) {
-        #     if (is.categorical.var) {
-        #         weights <- mapply(function(w, v, f.which) w / sum(weights[var==v & facet.which==f.which]), w = weights, v = var, f.which = facet.which)
-        #     }
-        #     else {
-        #         #weights <- weights
-        #     }
-        #     d <- data.frame(weights = weights, treat = treat, var = var, facet.which = facet.which)
-        # }
-        # else {
-        #     if (is.categorical.var) {
-        #         weights <- mapply(function(w, v) w / sum(weights[var==v]), w = weights, v = var)
-        #     }
-        #     else {
-        #         weights <- weights
-        #     }
-        #     d <- data.frame(weights = weights, treat = treat, var = var)
-        # }
+
         if (is.categorical.var) { #Categorical vars
             d$var <- factor(d$var)
             bp <- ggplot(d, mapping = aes(treat, fill = var, weight = weights)) + 
@@ -288,7 +230,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (length(facet) > 0) {
             if ("subclass" %in% facet) {
                 weights <- with(D, mapply(function(w, t, s) w / sum(weights[treat==t & subclass==s]), w = weights, t = treat, s = subclass))
-                d <- data.frame(weights = D$weights, treat = D$treat, var = D$var, subclass = D$subclass)
+                d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
             }
             else {
                 weights <- with(D, mapply(function(w, t, c, i, f.which) w / sum(weights[treat==t & cluster==c & imp==i & facet.which==f.which]), w = weights, t = treat, c= cluster, i = imp, f.which = facet.which))
@@ -316,15 +258,21 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
     }
     
-
+    
     
     if (length(facet) > 0) {
         if (length(facet) >= 2) {
             if ("facet.which" %in% facet) {
                 facet.formula <- f.build("facet.which", facet[!facet %in% "facet.which"])
             }
+            else if ("imp" %in% facet) {
+                facet.formula <- f.build("imp", facet[!facet %in% "imp"])
+            }
             else {
-                facet.formula <- f.build(facet[1], facet[-1])
+                facets <- data.frame(facet = facet, length = sapply(facet, function(x) nlevels(d[, x])),
+                                     stringsAsFactors = FALSE)
+                facets <- facets[with(facets, order(length, facet, decreasing = c(FALSE, TRUE))), ]
+                facet.formula <- f.build(facets[1, "facet"], facets[-1, "facet"])
             }
         }
         else facet.formula <- f.build(".", facet)

@@ -243,7 +243,7 @@ library("MatchIt"); library("cobalt"); library("mice")
 data("lalonde_mis", package = "cobalt")
 
 #Generate imputed data sets
-m <- 10 #number of imputed data sets
+m <- 5 #number of imputed data sets
 imp <- mice(lalonde_mis, m = m, print = FALSE) 
 imp.data <- complete(imp, "long", include = FALSE)
 
@@ -289,7 +289,7 @@ As mentioned above, in general, you may be most interested in (4) if individual 
 
 ##`bal.plot()`
 
-As in other cases, `bal.plot()` can display dsitributional balance for one variable at a time in either multiple clusters or multiple imputations (bot not both). The syntax for `bal.plot()` is similar ot that of `bal.tab()`, except for the following differences: 1) `imp.summary` and `cluster.summary` are ignored, and 2) at least one of `which.imp` and `which.cluster` must be set to a (non-`NULL`, non-`NA`) value of length 1. So, you can display balance for one cluster across several imputations, or balance for several clusters across one imputation. Below is an example of examining balance for all clusters in one imputation:
+As in other cases, `bal.plot()` can display dsitributional balance for one variable at a time in either multiple clusters or multiple imputations (bot not both). The syntax for `bal.plot()` is similar to that of `bal.tab()`, except that `imp.summary` and `cluster.summary` are ignored. Below is an example of examining balance for all clusters in one imputation:
 
 ```{r}
 bal.plot(treat ~ age + educ + married + nodegree + re74 + re75, 
