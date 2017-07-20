@@ -10,7 +10,7 @@ f.build <- function(y, rhs) {
     f <- reformulate(vars, y)
     return(f)
 }
-split.factor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = NULL, drop.first = c(TRUE, FALSE, "if2"), drop.singleton = FALSE, check = TRUE) {
+splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = NULL, drop.first = c(TRUE, FALSE, "if2"), drop.singleton = FALSE, drop.na = TRUE, check = TRUE) {
     #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
     #Retains all categories unless only 2 levels, in which case only the second level is retained.
     #If variable only has one level, will delete.
@@ -63,7 +63,7 @@ split.factor <- function(data, var.name, replace = TRUE, sep = "_", drop.level =
                 }
             }
         }
-
+        
     }
     else if (is.atomic(data)) {
         dep <- deparse(substitute(data))
@@ -99,11 +99,23 @@ split.factor <- function(data, var.name, replace = TRUE, sep = "_", drop.level =
     
     for (v in var.name) {
         drop <- character(0)
-        x <- data[, names(data) == v] <- factor(data[, names(data) == v])
+        x <- data[, names(data) == v] <- factor(data[, names(data) == v], exclude = NULL)
         
         skip <- FALSE
         if (nlevels(x) > 1) {
             k <- model.matrix(as.formula(paste0("~", v, "- 1")), data = data)
+            
+            if (any(is.na(levels(x)))) {
+                if (drop.na) {
+                    k[k[,is.na(levels(x))] == 1,] <- NA
+                    #k <- k[, !is.na(levels(x)), drop = FALSE]
+                }
+                else {
+                    
+                }
+            }
+            else drop.na <- FALSE
+            
         }
         else {
             if (drop.singleton) {
@@ -133,7 +145,13 @@ split.factor <- function(data, var.name, replace = TRUE, sep = "_", drop.level =
                     drop <- levels(x)[1]
                 }
             }
-            if (length(drop) > 0) k <- k[, levels(x)!=drop, drop = FALSE]
+            
+            dropl <- rep(FALSE, ncol(k))
+            if (length(drop) > 0) {
+                dropl[!is.na(levels(x)) & levels(x) %in% drop] <- TRUE
+            }
+            if (drop.na) dropl[is.na(levels(x))] <- TRUE
+            k <- k[, !dropl, drop = FALSE]
             
             if (ncol(data) == 1) {
                 data <- data.frame(k)
@@ -160,7 +178,7 @@ split.factor <- function(data, var.name, replace = TRUE, sep = "_", drop.level =
     
     return(data)
 }
-un.split.factor <- function(data, var.name, replace = TRUE, sep = "_", dropped.level = NULL) {
+unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.level = NULL, dropped.na = TRUE) {
     
     if (!is.data.frame(data)) stop("data must be a data.frame containing the variables to unsplit.", call = FALSE)
     if (!is.character(var.name)) stop("var.name must be a string containing the name of the variables to unsplit.", call. = FALSE)
@@ -179,15 +197,30 @@ un.split.factor <- function(data, var.name, replace = TRUE, sep = "_", dropped.l
     
     for (v in var.name) {
         dropped.level0 <- dropped.level
-        #var.to.combine <- apply(data[, startsWith(names(data), paste0(var.name, sep)), drop = FALSE], 2, binarize)
         var.to.combine <- data[, startsWith(names(data), paste0(v, sep)), drop = FALSE]
         if (length(var.to.combine) == 0) {
             not.the.stem <- c(not.the.stem, paste0(v, sep))
             next
         }
+        
+        if (!all(rowSums(apply(var.to.combine, 2, is.na)) %in% c(0, ncol(var.to.combine)))) {
+            stop("The variables in data selected based on var.name and sep do not seem to form a split variable based on the <NA> pattern.", call. = FALSE)
+        }
+        NA.column <- character(0)
+        
+        if (!isTRUE(dropped.na)) {
+            NA.column <- paste0(v, sep, ifelse(dropped.na == FALSE, "NA", dropped.na))
+            if (NA.column %in% names(var.to.combine)) {
+                var.to.combine[var.to.combine[, NA.column] == 1,] <- NA
+                var.to.combine <- var.to.combine[, names(var.to.combine) != NA.column, drop = FALSE]
+            }
+            else {
+                stop(paste("There is no variable called", word.list(NA.column, quotes = TRUE), "to generate the NA values."), call. = FALSE)
+            }
+        }
         var.sum <- rowSums(var.to.combine)
         if (isTRUE(all.equal(unique(var.sum), 1))) {
-            
+            #Already unsplit
         }
         else if (isTRUE(all.equal(sort(unique(var.sum)), c(0, 1)))) {
             #Missing category
@@ -211,7 +244,7 @@ un.split.factor <- function(data, var.name, replace = TRUE, sep = "_", dropped.l
             
         }
         else {
-            stop("The variables in data selected based on var.name and sep do not seem to form a split variable.", call. = FALSE)
+            stop("The variables in data selected based on var.name and sep do not seem to form a split variable based on the row sums.", call. = FALSE)
         }
         
         k.levels <- sapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep))[[1]][2])
@@ -225,7 +258,7 @@ un.split.factor <- function(data, var.name, replace = TRUE, sep = "_", dropped.l
         
         
         if (replace) {
-            where <- which(names(data) %in% names(var.to.combine))
+            where <- which(names(data) %in% c(names(var.to.combine), NA.column))
             
             data[, min(where)] <- k
             remove.cols <- where[where!=min(where)]
@@ -344,16 +377,19 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
     if (quotes) word.list <- sapply(word.list, function(x) paste0("\"", x, "\""))
     if (L == 0) {
         out <- ""
+        attr(out, "plural") = FALSE
     }
     else {
         word.list <- word.list[!word.list %in% c(NA, "")]
         L <- length(word.list)
         if (L == 0) {
             out <- ""
+            attr(out, "plural") = FALSE
         }
         else if (L == 1) {
             out <- word.list
             if (is.are) out <- paste(out, "is")
+            attr(out, "plural") = FALSE
         }
         else {
             and.or <- match.arg(and.or)
@@ -366,6 +402,7 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
                 
             }
             if (is.are) out <- paste(out, "are")
+            attr(out, "plural") = TRUE
         }
         
         
