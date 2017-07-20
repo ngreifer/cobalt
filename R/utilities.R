@@ -96,7 +96,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         warning("drop.level cannot be used with multiple entries to var.name. Ignoring drop.level.", call. = FALSE)
         drop.level <- NULL
     }
-    
+    drop.na <- setNames(rep(drop.na, length(var.name)), var.name)
     for (v in var.name) {
         drop <- character(0)
         x <- data[, names(data) == v] <- factor(data[, names(data) == v], exclude = NULL)
@@ -106,15 +106,13 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             k <- model.matrix(as.formula(paste0("~", v, "- 1")), data = data)
             
             if (any(is.na(levels(x)))) {
-                if (drop.na) {
+                
+                if (drop.na[v]) {
                     k[k[,is.na(levels(x))] == 1,] <- NA
                     #k <- k[, !is.na(levels(x)), drop = FALSE]
                 }
-                else {
-                    
-                }
             }
-            else drop.na <- FALSE
+            else drop.na[v] <- FALSE
             
         }
         else {
@@ -150,7 +148,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             if (length(drop) > 0) {
                 dropl[!is.na(levels(x)) & levels(x) %in% drop] <- TRUE
             }
-            if (drop.na) dropl[is.na(levels(x))] <- TRUE
+            if (drop.na[v]) dropl[is.na(levels(x))] <- TRUE
             k <- k[, !dropl, drop = FALSE]
             
             if (ncol(data) == 1) {
