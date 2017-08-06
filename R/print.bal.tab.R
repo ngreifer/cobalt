@@ -1,4 +1,4 @@
-print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     balance <- x$Balance
     baltal.r <- x$Balanced.Corr
@@ -10,7 +10,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     nn <- x$Observations
     p.ops <- x$print.options
     
-    #Prevent expnential notation printing
+    #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
     options(scipen = 999)
     on.exit(options(op))
@@ -28,6 +28,10 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         if (!identical(disp.v.ratio, "as.is")) {
             if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
             p.ops$disp.v.ratio <- disp.v.ratio
+        }
+        if (!identical(disp.ks, "as.is")) {
+            if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.ks <- disp.ks
         }
     }
     if (!identical(disp.r.threshold, "as.is")) {
@@ -62,17 +66,20 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
                              !is.null(p.ops$r.threshold)), p.ops$nweights + !p.ops$disp.adj)))
     }
     else {
-        keep <- as.logical(c(TRUE, 
+        keep <- setNames(as.logical(c(TRUE, 
                              p.ops$un*p.ops$disp.means, 
                              p.ops$un*p.ops$disp.means, 
                              p.ops$un, 
                              p.ops$un*p.ops$disp.v.ratio, 
+                             p.ops$un*p.ops$disp.ks, 
                              rep(c(p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj, 
                              !is.null(p.ops$m.threshold), 
                              p.ops$disp.adj*p.ops$disp.v.ratio, 
-                             !is.null(p.ops$v.threshold)), p.ops$nweights + !p.ops$disp.adj)))
+                             !is.null(p.ops$v.threshold), 
+                             p.ops$disp.adj*p.ops$disp.ks), p.ops$nweights + !p.ops$disp.adj))),
+                         names(balance))
     }
     
     if (!is.null(call)) {
@@ -131,7 +138,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     invisible(x)
 }
-print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     s.balance <- x$Subclass.Balance
     b.a.subclass <- x$Balance.Across.Subclass
@@ -160,6 +167,10 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         if (!identical(disp.v.ratio, "as.is")) {
             if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
             p.ops$disp.v.ratio <- disp.v.ratio
+        }
+        if (!identical(disp.ks, "as.is")) {
+            if (!is.logical(disp.ks)) stop("disp.ksmust be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.ks <- disp.ks
         }
     }
     if (!identical(disp.m.threshold, "as.is")) {
@@ -195,7 +206,8 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                                p.ops$disp.adj, 
                                !is.null(p.ops$m.threshold), 
                                p.ops$disp.adj * p.ops$disp.v.ratio, 
-                               !is.null(p.ops$v.threshold)))
+                               !is.null(p.ops$v.threshold), 
+                               p.ops$disp.adj * p.ops$disp.ks))
         cat("Balance by subclass:")
         for (i in names(s.balance)) {
             cat(paste0("\n - - - Subclass ", i, " - - - \n"))
@@ -244,7 +256,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
     #Figure out how to print bal.tab for clusters with subclassification
     call <- x$call
     c.balance <- x$Cluster.Balance
@@ -270,6 +282,10 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         if (!identical(disp.v.ratio, "as.is")) {
             if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
             p.ops$disp.v.ratio <- disp.v.ratio
+        }
+        if (!identical(disp.ks, "as.is")) {
+            if (!is.logical(disp.ks)) stop("disp.ksmust be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.ks <- disp.ks
         }
         if (!identical(cluster.summary, "as.is")) {
             if (!is.logical(cluster.summary)) stop("cluster.summary must be TRUE, FALSE, or \"as.is\"")
@@ -354,12 +370,14 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                              p.ops$un*p.ops$disp.means, 
                              p.ops$un, 
                              p.ops$un*p.ops$disp.v.ratio, 
+                             p.ops$un*p.ops$disp.ks, 
                              rep(c(p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj*p.ops$disp.means, 
                              p.ops$disp.adj, 
                              !is.null(p.ops$m.threshold), 
                              p.ops$disp.adj*p.ops$disp.v.ratio, 
-                             !is.null(p.ops$v.threshold)), p.ops$nweights + !p.ops$disp.adj)))
+                             !is.null(p.ops$v.threshold),
+                             p.ops$disp.adj*p.ops$disp.ks), p.ops$nweights + !p.ops$disp.adj)))
     }
     
     #Printing
@@ -418,6 +436,10 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                                    p.ops$un*p.ops$disp.v.ratio*CF["mean"],
                                    p.ops$un*p.ops$disp.v.ratio*CF["median"],
                                    p.ops$un*p.ops$disp.v.ratio*CF["max"],
+                                   p.ops$un*p.ops$disp.ks*CF["min"],
+                                   p.ops$un*p.ops$disp.ks*CF["mean"],
+                                   p.ops$un*p.ops$disp.ks*CF["median"],
+                                   p.ops$un*p.ops$disp.ks*CF["max"],
                                    rep(c(p.ops$disp.adj*CF["min"],
                                    p.ops$disp.adj*CF["mean"],
                                    p.ops$disp.adj*CF["median"],
@@ -425,7 +447,11 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*CF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*CF["max"],
+                                   p.ops$disp.adj*p.ops$disp.ks*CF["min"],
+                                   p.ops$disp.adj*p.ops$disp.ks*CF["mean"],
+                                   p.ops$disp.adj*p.ops$disp.ks*CF["median"],
+                                   p.ops$disp.adj*p.ops$disp.ks*CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         cat("Balance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
@@ -450,7 +476,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
 
     invisible(x)
 }
-print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     call <- x$call
@@ -477,6 +503,10 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         if (!identical(disp.v.ratio, "as.is")) {
             if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
             p.ops$disp.v.ratio <- disp.v.ratio
+        }
+        if (!identical(disp.ks, "as.is")) {
+            if (!is.logical(disp.ks)) stop("disp.ksmust be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.ks <- disp.ks
         }
         if (!identical(imp.summary, "as.is")) {
             if (!is.logical(imp.summary)) stop("imp.summary must be TRUE, FALSE, or \"as.is\"")
@@ -581,6 +611,10 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                    p.ops$un*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$un*p.ops$disp.v.ratio*IF["median"],
                                    p.ops$un*p.ops$disp.v.ratio*IF["max"],
+                                   p.ops$un*p.ops$disp.ks*IF["min"],
+                                   p.ops$un*p.ops$disp.ks*IF["mean"],
+                                   p.ops$un*p.ops$disp.ks*IF["median"],
+                                   p.ops$un*p.ops$disp.ks*IF["max"],
                                    rep(c(p.ops$disp.adj*IF["min"],
                                    p.ops$disp.adj*IF["mean"],
                                    p.ops$disp.adj*IF["median"],
@@ -588,7 +622,11 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"],
+                                   p.ops$disp.adj*p.ops$disp.ks*IF["min"],
+                                   p.ops$disp.adj*p.ops$disp.ks*IF["mean"],
+                                   p.ops$disp.adj*p.ops$disp.ks*IF["median"],
+                                   p.ops$disp.adj*p.ops$disp.ks*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
         
@@ -616,7 +654,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     invisible(x)
     
 }
-print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     call <- x$call
@@ -644,6 +682,10 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         if (!identical(disp.v.ratio, "as.is")) {
             if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
             p.ops$disp.v.ratio <- disp.v.ratio
+        }
+        if (!identical(disp.ks, "as.is")) {
+            if (!is.logical(disp.ks)) stop("disp.ksmust be TRUE, FALSE, or \"as.is\"")
+            p.ops$disp.ks <- disp.ks
         }
         if (!identical(imp.summary, "as.is")) {
             if (!is.logical(imp.summary)) stop("imp.summary must be TRUE, FALSE, or \"as.is\"")
@@ -797,6 +839,10 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                                    p.ops$un*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$un*p.ops$disp.v.ratio*IF["median"],
                                    p.ops$un*p.ops$disp.v.ratio*IF["max"],
+                                   p.ops$un*p.ops$disp.ks*IF["min"],
+                                   p.ops$un*p.ops$disp.ks*IF["mean"],
+                                   p.ops$un*p.ops$disp.ks*IF["median"],
+                                   p.ops$un*p.ops$disp.ks*IF["max"],
                                    rep(c(p.ops$disp.adj*IF["min"],
                                    p.ops$disp.adj*IF["mean"],
                                    p.ops$disp.adj*IF["median"],
@@ -804,7 +850,11 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["min"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["mean"],
                                    p.ops$disp.adj*p.ops$disp.v.ratio*IF["median"],
-                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"],
+                                   p.ops$disp.adj*p.ops$disp.ks*IF["min"],
+                                   p.ops$disp.adj*p.ops$disp.ks*IF["mean"],
+                                   p.ops$disp.adj*p.ops$disp.ks*IF["median"],
+                                   p.ops$disp.adj*p.ops$disp.ks*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
         

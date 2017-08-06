@@ -137,30 +137,31 @@ x2base.ps <- function(ps, ...) {
               s.d.denom=NA,
               call=NA,
               obj=NA,
-              cluster = NA)
+              cluster = NA,
+              s.weights = NA)
     
     #Initializing variables
     
-    if (length(A$full.stop.method) > 1) {
-        warning("The argument to full.stop.method must have length 1; using the first available stop method instead.", call. = FALSE)
-        rule1 <- names(ps$w)[1]
-    }
-    else if (length(A$full.stop.method)==1) {
+    if (length(A$full.stop.method) > 0) {
         if (is.character(A$full.stop.method)) {
-            rule1 <- tryCatch(match.arg(tolower(A$full.stop.method), tolower(names(ps$w))),
-                              error = function(cond) {message(paste0("Warning: full.stop.method should be one of ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing ", word.list(names(ps$w)[1], quotes = TRUE), " instead."));
-                                  return(names(ps$w)[1])})
+            rule1 <- tryCatch(match.arg(tolower(A$full.stop.method), tolower(names(ps$w)), several.ok = TRUE),
+                              error = function(cond) {message(paste0("Warning: full.stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
+                                  return(names(ps$w))})
         }
-        else if (is.numeric(A$full.stop.method) && A$full.stop.method %in% seq_along(names(ps$w))) {
-            rule1 <- names(ps$w)[A$full.stop.method]
+        else if (is.numeric(A$full.stop.method) && any(A$full.stop.method %in% seq_along(names(ps$w)))) {
+            if (any(!A$full.stop.method %in% seq_along(names(ps$w)))) {
+                message(paste0("Warning: There are ", length(names(ps$w)), " stop methods available, but you requested ", 
+                               word.list(A$full.stop.method[!A$full.stop.method %in% seq_along(names(ps$w))], and.or = "and"),"."))
+            }
+            rule1 <- names(ps$w)[A$full.stop.method %in% seq_along(names(ps$w))]
         }
         else {
-            warning("full.stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing ", word.list(names(ps$w)[1], quotes = TRUE), " instead.", call. = FALSE)
-            rule1 <- names(ps$w)[1]
+            warning("full.stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            rule1 <- names(ps$w)
         }
     }
     else {
-        rule1 <- names(ps$w)[1]
+        rule1 <- names(ps$w)
     }
     
     s <- names(ps$w)[match(tolower(rule1), tolower(names(ps$w)))]
@@ -174,7 +175,7 @@ x2base.ps <- function(ps, ...) {
     }
     else X$s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
     
-    weights <- data.frame(weights = ps$w[, s])
+    weights <- ps$w[, s, drop = FALSE]; weights <- as.data.frame(lapply(weights, function(x) ifelse(ps$sampw == 0, 0, x/ps$sampw)))
     treat <- ps$treat
     covs <- ps$data[, ps$gbm.obj$var.names, drop = FALSE]
     
@@ -255,8 +256,9 @@ x2base.ps <- function(ps, ...) {
     X$covs <- covs
     X$call <- ps$parameters
     X$cluster <- factor(cluster)
-    X$obj <- setNames(vector("list", 3), 
-                      c("treat", "weights", "cluster"))
+    X$s.weights <- ps$sampw
+    X$obj <- setNames(vector("list", 4), 
+                      c("treat", "weights", "cluster", "s.weights"))
     for (i in names(X$obj)) X$obj[[i]] <- X[[i]]
     return(X)
 }
@@ -433,7 +435,8 @@ x2base.data.frame <- function(covs, ...) {
               call = NA,
               obj = NA,
               cluster = NA,
-              imp = NA)
+              imp = NA,
+              s.weights = NA)
     
     treat <- A$treat
     data <- A$data
@@ -447,6 +450,8 @@ x2base.data.frame <- function(covs, ...) {
     method <- A$method
     estimand <- A$estimand
     imp <- A$imp
+    s.weights <- A$s.weights
+    
     
     #Checks
     if (length(covs) == 0) {
@@ -785,6 +790,14 @@ x2base.data.frame <- function(covs, ...) {
         
     }
     
+    #Process sampling weights
+    if (length(s.weights) > 0) {
+        if (!is.character(s.weights) && !is.numeric(s.weights)) {
+            stop("The argument to s.weights must be a vector or data frame of sampling weights or the (quoted) names of variables in data that contain sampling weights.", call. = FALSE)
+        }
+    }
+    else s.weights <- rep(1, length(treat))
+    
     #Get s.d.denom
     check.estimand <- check.weights <- bad.s.d.denom <- bad.estimand <- FALSE
     if (length(unique(treat)) <= 2 || !is.numeric(treat)) { #non-continuous
@@ -888,8 +901,9 @@ x2base.data.frame <- function(covs, ...) {
     X$call <- NULL
     X$addl <- addl
     X$imp <- factor(imp)
-    X$obj <- setNames(vector("list", 4), 
-                      c("treat", "weights", "subclass", "cluster"))
+    X$s.weights <- s.weights
+    X$obj <- setNames(vector("list", 5), 
+                      c("treat", "weights", "subclass", "cluster", "s.weights"))
     for (i in names(X$obj)) X$obj[[i]] <- X[[i]]
     return(X)
 }
