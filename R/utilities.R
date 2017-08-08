@@ -277,31 +277,46 @@ get.w <- function(...) UseMethod("get.w")
 get.w.matchit <- function(m,...) {
     return(m$weights)
 }
-get.w.ps <- function(ps, stop.method = NULL, ...) {
-    if (length(stop.method) > 1) {
-        warning("The argument to stop.method must have length 1; using the first available stop method instead.", call. = FALSE)
-        rule1 <- names(ps$w)[1]
-    }
-    else if (length(stop.method)==1) {
+get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
+    if (length(stop.method) > 0) {
         if (is.character(stop.method)) {
-            rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w))),
-                              error = function(cond) {message(paste0("Warning: stop.method should be one of ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing ", word.list(names(ps$w)[1], quotes = TRUE), " instead."));
-                                  return(names(ps$w)[1])})
+            rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
+                              error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
+                                  return(names(ps$w))})
         }
-        else if (is.numeric(stop.method) && stop.method %in% seq_along(names(ps$w))) {
-            rule1 <- names(ps$w)[stop.method]
+        else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(ps$w)))) {
+            if (any(!stop.method %in% seq_along(names(ps$w)))) {
+                message(paste0("Warning: There are ", length(names(ps$w)), " stop methods available, but you requested ", 
+                               word.list(stop.method[!stop.method %in% seq_along(names(ps$w))], and.or = "and"),"."))
+            }
+            rule1 <- names(ps$w)[stop.method %in% seq_along(names(ps$w))]
         }
         else {
-            warning("stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing ", word.list(names(ps$w)[1], quotes = TRUE), " instead.", call. = FALSE)
-            rule1 <- names(ps$w)[1]
+            warning("stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            rule1 <- names(ps$w)
         }
     }
     else {
-        rule1 <- names(ps$w)[1]
+        rule1 <- names(ps$w)
     }
     
     s <- names(ps$w)[match(tolower(rule1), tolower(names(ps$w)))]
-    return(ps$w[, s])
+    
+    if (length(estimand) == 0) estimand <- setNames(substr(tolower(s), nchar(s)-2, nchar(s)), s)
+    else if (!all(tolower(estimand) %in% c("att", "ate", "atc"))) {
+        stop('estimand must be "ATT", "ATE", or "ATC".', call. = FALSE)
+    }
+    else {
+        names(estimand) <- s
+    }
+    
+    w <- setNames(as.data.frame(lapply(s, function(p) {
+        if (estimand[p] == "att") ps$treat + (1-ps$treat)*ps$ps[,p]/(1-ps$ps[,p])
+        else if (estimand[p] == "ate") ps$treat/ps$ps[,p] + (1-ps$treat)/(1-ps$ps[,p])
+        else (1-ps$treat) + ps$treat*ps$ps[,p]/(1-ps$ps[,p])})),
+        ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
+    
+    return(w)
 }
 get.w.Match <- function(M,  ...) {
     nobs <- M$orig.nobs
@@ -323,31 +338,28 @@ get.w.Match <- function(M,  ...) {
                      by="index")
     return(o.data2$weights)
 }
-get.w.CBPS <- function(c, use.weights = TRUE, estimand = NULL, ...) {
+get.w.CBPS <- function(c, estimand = NULL, ...) {
     if ("CBPSContinuous" %in% class(c)) { #continuous
         return(c$weights)
     }
     else {
-        if (use.weights) return(c$weights)
-        else {
-            ps <- c$fitted.values
-            t <- c$y 
-            if (length(estimand) == 0) {
-                if (abs(max(c$weights[t == 1], na.rm = TRUE) - 
-                        min(c$weights[t == 1], na.rm = TRUE)) < 
-                    sqrt(.Machine$double.eps)) {
-                    estimand <- "att"
-                }
-                else estimand <- "ate"
+        ps <- c$fitted.values
+        t <- c$y 
+        if (length(estimand) == 0) {
+            if (abs(max(c$weights[t == 1], na.rm = TRUE) - 
+                    min(c$weights[t == 1], na.rm = TRUE)) < 
+                sqrt(.Machine$double.eps)) {
+                estimand <- "att"
             }
-            
-            estimand <- match.arg(tolower(estimand), c("att", "ate"))
-            if (estimand == "att") {
-                return(ifelse(t == 1, 1, ps/(1-ps)))
-            }
-            else if (estimand == "ate") {
-                return(ifelse(t == 1, 1/ps, 1/(1-ps)))
-            }
+            else estimand <- "ate"
+        }
+        
+        estimand <- match.arg(tolower(estimand), c("att", "ate"))
+        if (estimand == "att") {
+            return(ifelse(t == 1, 1, ps/(1-ps)))
+        }
+        else if (estimand == "ate") {
+            return(ifelse(t == 1, 1/ps, 1/(1-ps)))
         }
     }
 }
