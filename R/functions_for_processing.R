@@ -346,7 +346,8 @@ std.diff.subclass <- function(x, treat, weights, subclass, which.sub, denom) {
 ks <- function(x, treat, weights = NULL, var.type, no.weights = FALSE) {
     #Computes ks-statistic
     if (no.weights) weights <- rep(1, length(x))
-    if (var.type=="Contin.") {
+    # if (var.type=="Contin.") {
+    if (TRUE) {
         weights[treat == 1] <- weights[treat==1]/sum(weights[treat==1])
         weights[treat == 0] <- -weights[treat==0]/sum(weights[treat==0])
         
@@ -354,7 +355,8 @@ ks <- function(x, treat, weights = NULL, var.type, no.weights = FALSE) {
         cumv <- abs(cumsum(weights[ordered.index]))[diff(x[ordered.index]) != 0]
         ks <- ifelse(length(cumv) > 0, max(cumv), 0)
         
-        return(ks)}
+        return(ks)
+    }
     else return(NA)
 }
 diff.selector <- function(x, group, weights = NULL, subclass = NULL, which.sub = NULL, x.type, continuous, binary, s.d.denom, no.weights = FALSE, s.weights = rep(1, length(treat))) {
@@ -410,6 +412,7 @@ samplesize <- function(obj, method=c("matching", "weighting", "subclassification
     
     if (nlevels(cluster) > 0 && length(which.cluster) > 0) in.cluster <- cluster == which.cluster
     else in.cluster <- rep(TRUE, length(obj$treat))
+    if (length(obj$s.weights) == 0) obj$s.weights <- rep(1, length(obj$treat))
     
     if (length(method) == 1 && method == "subclassification") {
         if (length(obj$subclass) == 0) stop("obj must contain a vector of subclasses called \"subclass\".")
@@ -497,6 +500,7 @@ samplesize <- function(obj, method=c("matching", "weighting", "subclassification
             #attr(nn, "tag") <- "Sample sizes"
         }
         else if (method == "weighting") {
+            
             t <- obj$treat[in.cluster]
             w <- obj$weights[in.cluster, 1]
             sw <- obj$s.weights[in.cluster]
