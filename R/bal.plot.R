@@ -1,4 +1,4 @@
-bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, size.weight = FALSE) {
+bal.plot <- function(obj, ..., var.name, which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, size.weight = FALSE) {
     
     args <- list(...)
     
@@ -28,7 +28,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     }
     else {
         if (length(X$weights) == 0 && length(X$subclass) == 0) which <- "unadjusted"
-        else which <- match.arg(tolower(which), c("adjusted", "unadjusted", "both"))
+        else {
+            which <- tryCatch(match.arg(tolower(which), c("adjusted", "unadjusted", "both")),
+                              error = function(cond) stop(paste("The argument to 'which' should be one of", word.list(c("adjusted", "unadjusted", "both"), "or", quotes = TRUE)), call. = FALSE))
+        }
     }
     
     title <- paste0("Distributional Balance for \"", var.name, "\"")
