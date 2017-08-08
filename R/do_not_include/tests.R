@@ -25,9 +25,15 @@ bal.tab(f.build("treat", covs_), data = lalonde_, weights = m5$weights, method =
 #twang
 library("twang")
 ps.out <- ps(f.build("treat", covs), data = lalonde, 
-   stop.method = c("ks.max"), 
+   stop.method = c("ks.max", "es.max"), 
    estimand = "ATT", verbose = FALSE)
 bal.tab(ps.out)
+sampw <- sample(c(1.25, 0.75), nrow(covs), TRUE, c(.5, .5))
+ps.out.s <- ps(f.build("treat", covs), data = lalonde, 
+             stop.method = c("ks.max"), 
+             estimand = "ATT", verbose = FALSE,
+             sampw = sampw)
+bal.tab(ps.out.s)
 #CBPS: binary
 library("CBPS")
 cbps.out <- CBPS(f.build("treat", covs), data = lalonde)
@@ -69,6 +75,8 @@ bal.tab(covs, treat = lalonde$treat, subclass = lalonde$subclass,
 library("ebal")
 e.out <- ebalance(lalonde$treat, covs_)
 bal.tab(e.out, treat = lalonde$treat, covs = covs)
+e.out.s <- ebalance(lalonde$treat, covs_, base.weight = sampw)
+bal.tab(e.out.s, treat = lalonde$treat, covs = covs)
 #Continuous treatment (CBPS)
 cbps.out2 <- CBPS(f.build("re78", covs), data = lalonde)
 bal.tab(cbps.out2)
