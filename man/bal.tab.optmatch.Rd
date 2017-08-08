@@ -14,7 +14,7 @@ Generates balance statistics for \code{optmatch} objects from \pkg{optmatch}.
     s.d.denom = c("treated", "control", "pooled"), 
     m.threshold = NULL, v.threshold = NULL, un = FALSE, 
     disp.means = FALSE, disp.v.ratio = FALSE, 
-    cluster = NULL, which.cluster = NULL, 
+    disp.ks = FALSE, cluster = NULL, which.cluster = NULL, 
     cluster.summary = TRUE, quick = FALSE, ...)
 }
 
@@ -35,7 +35,7 @@ a vector of treatment statuses. See Details.
 a data frame of covariate values for which to check balance. See Details.
 }
   \item{int}{
-\code{logical}; whether or not to include 2-way interactions of covariates included in \code{formula} or \code{covs} and in \code{addl}.
+\code{logical}; whether or not to include squares and 2-way interactions of covariates included in \code{formula} or \code{covs} and in \code{addl}.
 }
   \item{distance}{
 Optional; either a vector containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
@@ -66,6 +66,9 @@ a numeric value for the threshold for variance ratios. Will automatically conver
 }
   \item{disp.v.ratio}{
 \code{logical}; whether to display variance ratios in balance output.
+}
+  \item{disp.ks}{
+\code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
 }
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data}. 

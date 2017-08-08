@@ -14,10 +14,11 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     "raw"), binary = c("raw", "std"), s.d.denom, 
     m.threshold = NULL, v.threshold = NULL, 
     r.threshold = NULL, un = FALSE, disp.means = FALSE, 
-    disp.v.ratio = FALSE, disp.subclass = FALSE, 
-    cluster = NULL, which.cluster = NULL, 
-    cluster.summary = TRUE, imp = NULL, which.imp = NA, 
-    imp.summary = TRUE, estimand = NULL, quick = FALSE, ...)
+    disp.v.ratio = FALSE, disp.ks = FALSE, 
+    disp.subclass = FALSE, cluster = NULL, 
+    which.cluster = NULL, cluster.summary = TRUE, 
+    imp = NULL, which.imp = NA, imp.summary = TRUE, 
+    s.weights = NULL, estimand = NULL, quick = FALSE, ...)
 
 \method{bal.tab}{formula}(formula, data, weights = NULL, distance = NULL, 
     subclass = NULL, match.strata = NULL, method, 
@@ -25,10 +26,10 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     binary = c("raw", "std"), s.d.denom, m.threshold = NULL, 
     v.threshold = NULL, r.threshold = NULL, un = FALSE, 
     disp.means = FALSE, disp.v.ratio = FALSE, 
-    disp.subclass = FALSE, cluster = NULL, 
-    which.cluster = NULL, cluster.summary = TRUE, imp = NULL, 
-    which.imp = NA, imp.summary = TRUE, estimand = NULL, 
-    quick = FALSE, ...)
+    disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, 
+    which.cluster = NULL, cluster.summary = TRUE, 
+    imp = NULL, which.imp = NA, imp.summary = TRUE, 
+    s.weights = NULL, estimand = NULL, quick = FALSE, ...)
 }
 
 \arguments{
@@ -62,7 +63,7 @@ Optional; either a vector containing matching stratum membership for each unit o
 A character vector containing the method of adjustement, if any.  If \code{weights} are specified, the user must specify either "matching" or "weighting"; "weighting" is the default. If multiple sets of weights are used, each must have a corresponding value for \code{method}, but if they are all of the same type, only one value is required. If \code{subclass} is specified, "subclassification" is the default.  Abbreviations allowed.
 }
   \item{int}{
-\code{logical}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}.
+\code{logical}; whether or not to include squares and 2-way interactions of covariates included in \code{covs} and in \code{addl}.
 }
   \item{addl}{
 A vector, data frame, or the quoted names of additional covariates for which to present balance.  These may be covariates included in the original dataset but not included in \code{covs}.  In general, it makes more sense to include all desired variables in \code{covs} than in \code{addl}. If the argument is a vector, the variable will be displayed as "addl" in the output.
@@ -94,6 +95,9 @@ A numeric value for the threshold for correlations between covariates and treatm
   \item{disp.v.ratio}{
 \code{logical}; whether to display variance ratios in balance output.
 }
+  \item{disp.ks}{
+\code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
+}
   \item{disp.subclass}{
 \code{logical}; whether to display balance information for individual subclasses if subclassification is used in conditioning.
 }
@@ -114,6 +118,9 @@ which imputation(s) to display. If \code{NULL}, all imputations in \code{imp} wi
 }
   \item{imp.summary}{
 \code{logical}; whether to display the across-imputation summary table if \code{imp} is specified. If \code{which.imp} is \code{NA}, \code{imp.summary} will be set to \code{TRUE}.
+}
+  \item{s.weights}{
+Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.
 }
   \item{estimand}{
 \code{character}; whether the desired estimand is the "ATT", "ATC", or "ATE" for each set of weights. This argument can be used in place of \code{s.d.denom} to specify how standardized differences are calculated.
