@@ -13,10 +13,10 @@ m2 <- matchit(f.build("treat", covs), data = lalonde, distance = "mahalanobis")
 bal.tab(m2, int = T, quick = T, v.threshold = 2)
 #MatchIt: subclassification
 m3 <- matchit(f.build("treat", covs), data = lalonde, method = "subclass")
-bal.tab(m3, int = T, quick = T, v.threshold = 2, disp.subclass = T)
+bal.tab(m3, int = T, quick = T, v.threshold = 2, disp.subclass = T, ks.threshold = .1)
 #Matchit: full matching
 m4 <- matchit(f.build("treat", covs), data = lalonde, method = "full")
-bal.tab(m4, int = T, quick = T, v.threshold = 2)
+bal.tab(m4, int = T, quick = T, ks.threshold = .05)
 #Matchit: genetic matching, using matching weights
 m5 <- matchit(f.build("treat", covs), data = lalonde, method = "genetic", replace = T,
               ratio = 2, print.level = 0, pop.size = 1000)
@@ -27,13 +27,13 @@ library("twang")
 ps.out <- ps(f.build("treat", covs), data = lalonde, 
    stop.method = c("ks.max", "es.max"), 
    estimand = "ATT", verbose = FALSE)
-bal.tab(ps.out)
+bal.tab(ps.out, disp.ks = T)
 sampw <- sample(c(1.25, 0.75), nrow(covs), TRUE, c(.5, .5))
 ps.out.s <- ps(f.build("treat", covs), data = lalonde, 
              stop.method = c("ks.max"), 
              estimand = "ATT", verbose = FALSE,
              sampw = sampw)
-bal.tab(ps.out.s)
+bal.tab(ps.out.s, un = T)
 #CBPS: binary
 library("CBPS")
 cbps.out <- CBPS(f.build("treat", covs), data = lalonde)
