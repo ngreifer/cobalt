@@ -1,4 +1,4 @@
-love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
+love.plot <- function(b, stat = c("mean.diffs", "variance.ratios", "ks.statistics"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
                        colors = NULL, shapes = NULL, line = FALSE, ...) {
     if (!"bal.tab" %in% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
@@ -20,8 +20,8 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     }
     
     if (length(args$cluster.fun) > 0) agg.fun <- args$cluster.fun
-    which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", correlation = "Corr")
-    which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", correlation = "Correlation")
+    which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlation = "Corr")
+    which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", ks.statistics = "Kolmogorov-Smirnov Statistic", correlation = "Correlation")
     Agg.Fun <- NULL
     subtitle <- NULL
     title <- "Covariate Balance"
@@ -259,6 +259,8 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
     }
     else if (any(class(b) == "bal.tab.subclass")) {
         if (which.stat=="V.Ratio") stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
+        if (which.stat=="KS") stop("KS statistics not currently supported for subclassification.", call. = FALSE)
+        if (any(class(b) == "bal.tab.cont")) stop("Continuous treatments not currently supported for subclassification.", call. = FALSE)
         B <- cbind(b[["Balance.Across.Subclass"]], var.names = row.names(b[["Balance.Across.Subclass"]]))
         subtitle <- "Across Subclasses"
     }
@@ -276,6 +278,12 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         else if (which.stat=="V.Ratio") {
             if (!is.null(b$print.options$v.threshold)) {
                 threshold <- b$print.options$v.threshold
+                null.threshold <- FALSE
+            }
+        }
+        else if (which.stat=="KS") {
+            if (!is.null(b$print.options$ks.threshold)) {
+                threshold <- b$print.options$ks.threshold
                 null.threshold <- FALSE
             }
         }
@@ -354,7 +362,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         }
     }
     
-    Sample <- min.stat <- max.stat <- mean.stat <- NULL #To avoid CRAN checks
+    #Sample <- min.stat <- max.stat <- mean.stat <- NULL #To avoid CRAN checks
     if (length(Agg.Fun) > 0 && Agg.Fun == "Range") {
         agg.range <- TRUE
     }
@@ -386,7 +394,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         }
        
         if (abs) dec <- FALSE
-        else dec <- TRUE
+        else dec <- FALSE
         
         if (length(var.order)>0) {
             if (var.order %in% ua) {
@@ -394,10 +402,12 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
                     warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
                     var.order <- character(0)
                 }
+                else {
                 v <- as.character(SS[order(SS[SS[, "Sample"]==var.order, "mean.stat"], decreasing = dec), "var"])
                 SS[, "var"] <- factor(SS[, "var"], 
                                       levels=c(v[is.na(match(v, distance.names))], 
                                                sort(distance.names, decreasing = TRUE)))
+                }
             }
             else if (var.order == "alphabetical") {
                 SS[, "var"] <- factor(SS[, "var"], levels = c(sort(as.character(unique(SS[is.na(match(SS$var, distance.names)), "var"])), decreasing = TRUE), sort(distance.names, decreasing = TRUE)))
@@ -439,8 +449,9 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
 
         if (abs) {
             SS[, "stat"] <- abs(SS[, "stat"])
-            dec <- FALSE}
-        else dec <- TRUE
+            dec <- FALSE
+        }
+        else dec <- FALSE
         
         if (length(var.order)>0) {
             if (var.order %in% ua) {
@@ -448,10 +459,12 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
                     warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
                     var.order <- character(0)
                 }
+                else {
                 v <- as.character(SS[order(SS[SS[, "Sample"]==var.order, "stat"], decreasing = dec), "var"])
                 SS[, "var"] <- factor(SS[, "var"], 
                                       levels=c(v[is.na(match(v, distance.names))], 
                                                sort(distance.names, decreasing = TRUE)))
+                }
             }
             else if (var.order == "alphabetical") {
                 SS[, "var"] <- factor(SS[, "var"], levels = c(sort(as.character(unique(SS[is.na(match(SS$var, distance.names)), "var"])), decreasing = TRUE), sort(distance.names, decreasing = TRUE)))
@@ -465,6 +478,7 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         if (no.missing) SS <- SS[!is.na(SS[, "stat"]),]
     }
     SS <- SS[order(SS[, "var"]),]
+    SS$var <- factor(SS$var)
     
     #Make the plot
     #library(ggplot2)
@@ -552,6 +566,11 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios"), threshold = 
         baseline.xintercept <- 1
         xlab <- "Variance Ratios"
         if (!null.threshold) threshold.xintercept <- max(threshold, 1/threshold)
+    }
+    else if (which.stat == "KS") {
+        baseline.xintercept <- 0
+        xlab <- "Kolmogorov-Smirnov Statistics"
+        if (!null.threshold) threshold.xintercept <- abs(threshold)
     }
     
     apply.limits <- FALSE
