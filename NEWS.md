@@ -1,14 +1,18 @@
 cobalt News and Updates
 ======
-Version 2.X
+Version 2.2.0
 
 * Added support in `splitfactor()` and `unsplitfactor()` for `NA` values
 
-* Added `disp.ks` option to `bal.tab()` to display Kolmogorov-Smirnov statistics before and after preprocessing.
+* Added `disp.ks` and `ks.threshold` options to `bal.tab()` to display Kolmogorov-Smirnov statistics before and after preprocessing.
 
 * Added support for sampling weights, which are applied to both control and treated units, using option `s.weights` in `bal.tab()`. Sampling weights are also now compatible with the sampling weights in `ps` objects from `twang`; the default is to apply the sampling weights before and after adjustment, mimicking the behavior of `bal.table()` in `twang`.
 
-* Changed behavior of `bal.tab()` for `ps` objects to allow displaying balance for more than one stop method at a time, and to default to displaying balance for all available stop methods. The `full.stop.method` argument in `bal.tab()` has been renamed `stop.method`, but `full.stop.method` still works. `get.w()` for `ps` objects has also gone through some changes to be more like `twang`'s `get.weights()`
+* Changed behavior of `bal.tab()` for `ps` objects to allow displaying balance for more than one stop method at a time, and to default to displaying balance for all available stop methods. The `full.stop.method` argument in `bal.tab()` has been renamed `stop.method`, but `full.stop.method` still works. `get.w()` for `ps` objects has also gone through some changes to be more like `twang`'s `get.weights()`.
+
+* Added support in `bal.tab()` and `bal.plot()` for subclassification with continuous treatments.
+
+* Fixed a bug in `love.plot()` caused when `var.order` was specified to be a sample that was not present.
 
 Version 2.1.0
 
