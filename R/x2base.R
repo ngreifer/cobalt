@@ -147,7 +147,7 @@ x2base.ps <- function(ps, ...) {
     if (length(A$stop.method) > 0) {
         if (is.character(A$stop.method)) {
             rule1 <- tryCatch(match.arg(tolower(A$stop.method), tolower(names(ps$w)), several.ok = TRUE),
-                              error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
+                              error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(substr(names(ps$w), 1, nchar(names(ps$w))-4), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
                                   return(names(ps$w))})
         }
         else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(names(ps$w)))) {
