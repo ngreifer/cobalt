@@ -38,6 +38,7 @@ bal.plot <- function(obj, ..., var.name, which, which.sub = NULL, cluster = NULL
     subtitle <- NULL
     
     facet <- NULL
+    is.categorical.var <- length(unique(X$var)) <= 2 || is.factor(X$var) || is.character(X$var)
     
     if (length(X$subclass) > 0) {
         if (which %in% c("adjusted", "both")) {
@@ -191,14 +192,15 @@ bal.plot <- function(obj, ..., var.name, which, which.sub = NULL, cluster = NULL
     }
     
     if (length(unique(D$treat)) > 2 && is.numeric(D$treat)) { #Continuous treatments
-        is.categorical.var <- length(unique(D$var)) <= 2 || is.factor(D$var) || is.character(D$var)
+        
         if ("subclass" %in% facet) {
             if (is.categorical.var) {
-                weights <- with(D, mapply(function(w, s, v) w[var==v] / sum(weights[subclass==s & var==v]), w = weights, s = subclass, v = var))
+                weights <- with(D, mapply(function(w, s, v) w / sum(weights[subclass==s & var==v]), w = weights, s = subclass, v = var))
             }
             else {
                 weights <- with(D, mapply(function(w, s) w / sum(weights[subclass==s]), w = weights, s = subclass))
             }
+            
             d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
         }
         else {
@@ -279,7 +281,7 @@ bal.plot <- function(obj, ..., var.name, which, which.sub = NULL, cluster = NULL
             }
         }
         else facet.formula <- f.build(".", facet)
-        bp <- bp + facet_grid(facet.formula, drop = FALSE)
+        bp <- bp + facet_grid(facet.formula, drop = FALSE, scales = ifelse("subclass" %in% facet, "free_x", "fixed"))
     }
     
     return(bp)
