@@ -8,12 +8,14 @@ Generates balance statistics for \code{ps} objects from \pkg{twang}.
 }
 \usage{
 \method{bal.tab}{ps}(ps, stop.method, int = FALSE, distance = NULL, 
-    addl = NULL, data = NULL, continuous = c("std", "raw"), 
-    binary = c("raw", "std"), s.d.denom, m.threshold = NULL, 
-    v.threshold = NULL, un = FALSE, disp.means = FALSE, 
-    disp.v.ratio = FALSE, ks.threshold = NULL, 
-    disp.ks = FALSE, cluster = NULL, which.cluster = NULL, 
-    cluster.summary = TRUE, quick = FALSE, ...)
+    addl = NULL, data = NULL, 
+    continuous = c("std", "raw"), 
+    binary = c("raw", "std"), s.d.denom, 
+    m.threshold = NULL, v.threshold = NULL, 
+    ks.threshold = NULL, un = FALSE, disp.means = FALSE, 
+    disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, 
+    which.cluster = NULL, cluster.summary = TRUE, 
+    quick = FALSE, ...)
 }
 
 \arguments{

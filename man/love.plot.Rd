@@ -8,19 +8,20 @@ Generate Balance Plots for Publication
 Generates a "Love" plot graphically displaying covariate balance before and after adjusting.
 }
 \usage{
-love.plot(b, stat = c("mean.diffs", "variance.ratios"), 
-    threshold = NULL, abs = FALSE, var.order = NULL, 
-    no.missing = TRUE, var.names = NULL, 
-    drop.distance = FALSE, agg.fun = c("mean", "median", 
-    "max", "range"), colors = NULL, shapes = NULL, 
-    line = FALSE, ...)
+love.plot(x, stat = c("mean.diffs", "variance.ratios",
+    "ks.statistics"), threshold = NULL, abs = FALSE, 
+    var.order = NULL, no.missing = TRUE, 
+    var.names = NULL, drop.distance = FALSE, 
+    agg.fun = c("mean", "median", "max", "range"), 
+    colors = NULL, shapes = NULL, line = FALSE, ...)
 }
+
 \arguments{
-  \item{b}{
+  \item{x}{
 a \code{bal.tab} object; the output of a call to \code{bal.tab()}. \code{m.threshold}, \code{v.threshold}, and \code{r.threshold} can be used in \code{bal.tab()} instead of \code{love.plot()}'s \code{threshold} parameter. 
 }
   \item{stat}{
-\code{character}; which statistic should be reported if treatment is binary. The options are "mean.diffs" for mean differences (standardized or not according the options selected in \code{bal.tab} object) and "variance.ratios" for variance ratios. "mean.diffs" is default. Abbreviations allowed.
+\code{character}; which statistic should be reported if treatment is binary. The options are "mean.diffs" for mean differences (standardized or not according the options selected in \code{bal.tab} object), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. Abbreviations allowed.
 }
   \item{threshold}{
 \code{numeric}; an optional value to be used as a threshold marker in the plot. Overrides the threshold set in the \code{bal.tab} object.
@@ -74,6 +75,9 @@ There are several ways to specify alternate names for presentation in the displa
 }
 \value{
 A \code{"ggplot"} object, returned invisbly.
+}
+\note{
+\code{love.plot()} can also be called by using \code{plot()} on a \code{bal.tab} object. That is, the "love." prefix is optional.
 }
 
 \author{
