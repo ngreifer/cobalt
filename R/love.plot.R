@@ -1,5 +1,6 @@
-love.plot <- function(b, stat = c("mean.diffs", "variance.ratios", "ks.statistics"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
+love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistics"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
                        colors = NULL, shapes = NULL, line = FALSE, ...) {
+    b <- x
     if (!"bal.tab" %in% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
     else stat <- match.arg(stat)
@@ -661,3 +662,4 @@ love.plot <- function(b, stat = c("mean.diffs", "variance.ratios", "ks.statistic
 
     return(lp)
 }
+plot.bal.tab <- love.plot
