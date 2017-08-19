@@ -1155,4 +1155,5 @@ replaceNA <- function(x) {
 }
 
 #To pass CRAN checks:
-utils::globalVariables(c("distance", "addl", "quick", "treat"))
+utils::globalVariables(c("distance", "addl", "quick", "treat", "Sample", "min.stat",
+                         "max.stat", "mean.stat"))
