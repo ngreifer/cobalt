@@ -34,10 +34,10 @@ get.w(\dots)
 Output from the corresponding preprocessing packages.
 }
   \item{stop.method}{
-The name of the stop method used in the original call to \code{ps()} in \pkg{twang}, e.g., \code{"es.mean"}. If empty, will return weights from stop method available in a data.frame. Abbreviations allowed.
+The name of the stop method used in the original call to \code{ps()} in \pkg{twang}, e.g., \code{"es.mean"}. If empty, will return weights from all stop method available into a data.frame. Abbreviations allowed.
 }
   \item{estimand}{
-If weights are computed using the propensity score (i.e., for the \code{ps} and \code{CBPS} methods), which estimand to use to compute the weights. If \code{"ATE"}, weights will compute as \code{1/ps} for the treated group and \code{1/(1-ps)} for the control group. If \code{"ATT"}, weights will compute as \code{1} for the treated group and \code{ps/(1-ps)} for the control group. If \code{NULL}, \code{get.w()} will try to figure out which estimand is desired based on the object.
+If weights are computed using the propensity score (i.e., for the \code{ps} and \code{CBPS} methods), which estimand to use to compute the weights. If \code{"ATE"}, weights will be computed as \code{1/ps} for the treated group and \code{1/(1-ps)} for the control group. If \code{"ATT"}, weights will be computed as \code{1} for the treated group and \code{ps/(1-ps)} for the control group. If \code{NULL}, \code{get.w()} will try to figure out which estimand is desired based on the object.
 }
   \item{treat}{
 A vector of treatment status for each unit. This is required for methods that include \code{treat} as an argument. The treatment variable that was used in the original preprocessing function call should be used.

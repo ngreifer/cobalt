@@ -37,7 +37,7 @@ When subclassification is used, the balance tables for each subclass stored in \
 
 \strong{With Continuous Treatments}
 
-When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. Currently only weighting and matching are supported with continuous treatments; the calculated correlation after adjustment is weighted by the generated weights.
+When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The calculated correlation after adjustment is weighted by the generated weights.
 
 \strong{Quick}
 
@@ -72,7 +72,6 @@ Noah Greifer \email{noah@unc.edu}
 \code{\link{bal.tab.ebalance}} for the method for objects returned by \pkg{ebal}.
 
 }
-\keyword{design}
 
 
 

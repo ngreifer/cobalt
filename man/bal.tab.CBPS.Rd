@@ -9,12 +9,13 @@ Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package
 }
 \usage{
 \method{bal.tab}{CBPS}(cbps, int = FALSE, distance = NULL, addl = NULL, 
-    data = NULL, continuous = c("std", "raw"), binary = c("raw", 
-    "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, 
+    data = NULL, continuous = c("std", "raw"), 
+    binary = c("raw", "std"), s.d.denom, m.threshold = NULL, 
+    v.threshold = NULL, ks.threshold = NULL, 
     r.threshold = NULL, un = FALSE, disp.means = FALSE, 
     disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, 
-    which.cluster = NULL, cluster.summary = TRUE, quick = FALSE, 
-    ...)
+    which.cluster = NULL, cluster.summary = TRUE, 
+    quick = FALSE, ...)
 }
 
 \arguments{
@@ -47,6 +48,9 @@ a numeric value for the threshold for mean differences. .1 is recommended.
 }
   \item{v.threshold}{
 a numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.
+}
+  \item{ks.threshold}{
+a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
 }
   \item{r.threshold}{
 A numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.

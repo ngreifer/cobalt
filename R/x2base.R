@@ -11,7 +11,6 @@ x2base.matchit <- function(m, ...) {
               method=NA,
               addl=NA,
               distance=NA,
-              obj=NA,
               call=NA,
               cluster=NA)
     
@@ -119,8 +118,6 @@ x2base.matchit <- function(m, ...) {
     X$distance <- distance
     X$addl <- addl
     X$cluster <- factor(cluster)
-    X$obj <- m
-    for (i in c("subclass", "weights", "cluster")) X$obj[[i]] <- X[[i]]
     X$call <- m$call
     return(X)
 }
@@ -136,7 +133,6 @@ x2base.ps <- function(ps, ...) {
               addl=NA,
               s.d.denom=NA,
               call=NA,
-              obj=NA,
               cluster = NA,
               s.weights = NA)
     
@@ -261,9 +257,7 @@ x2base.ps <- function(ps, ...) {
     X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- ps$sampw
-    X$obj <- setNames(vector("list", 4), 
-                      c("treat", "weights", "cluster", "s.weights"))
-    for (i in names(X$obj)) X$obj[[i]] <- X[[i]]
+
     return(X)
 }
 x2base.Match <- function(Match, ...) {
@@ -283,7 +277,6 @@ x2base.Match <- function(Match, ...) {
               addl=NA,
               call=NA,
               s.d.denom=NA,
-              obj=NA,
               cluster = NA)
     #Checks
     if (!is.list(Match) & length(Match) > 0) {
@@ -408,9 +401,7 @@ x2base.Match <- function(Match, ...) {
     X$call <- NULL
     X$method <- "matching"
     X$cluster <- factor(cluster)
-    X$obj <- setNames(vector("list", 3), 
-                      c("treat", "weights", "cluster"))
-    for (i in names(X$obj)) X$obj[[i]] <- X[[i]]
+
     return(X)
 }
 x2base.data.frame <- function(covs, ...) {
@@ -437,7 +428,6 @@ x2base.data.frame <- function(covs, ...) {
               addl = NA,
               method = NA,
               call = NA,
-              obj = NA,
               cluster = NA,
               imp = NA,
               s.weights = NA)
@@ -913,9 +903,7 @@ x2base.data.frame <- function(covs, ...) {
     X$addl <- addl
     X$imp <- factor(imp)
     X$s.weights <- s.weights
-    X$obj <- setNames(vector("list", 5), 
-                      c("treat", "weights", "subclass", "cluster", "s.weights"))
-    for (i in names(X$obj)) X$obj[[i]] <- X[[i]]
+
     return(X)
 }
 x2base.formula <- function(formula, ...) {
@@ -964,7 +952,6 @@ x2base.CBPS <- function(cbps.fit, ...) {
               addl=NA,
               s.d.denom=NA,
               call=NA,
-              obj=NA,
               cluster=NA)
     #Checks
     
@@ -1077,9 +1064,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     X$covs <- covs
     X$cluster <- factor(cluster)
     X$call <- cbps.fit$call
-    X$obj <- setNames(vector("list", 3), 
-                      c("treat", "weights", "cluster"))
-    for (i in names(X$obj)) X$obj[[i]] <- X[[i]]
+
     return(X)
 }
 x2base.ebalance <- function(ebalance, ...) {
@@ -1094,7 +1079,6 @@ x2base.ebalance <- function(ebalance, ...) {
               method=NA,
               distance=NA,
               call=NA,
-              obj=NA,
               cluster = NA,
               addl=NA)
     
@@ -1188,9 +1172,7 @@ x2base.ebalance <- function(ebalance, ...) {
     X$call <- NULL
     X$method <- "weighting"
     X$cluster <- factor(cluster)
-    X$obj <- setNames(vector("list", 3), 
-                      c("treat", "weights", "cluster", "s.weights"))
-    for (i in names(X$obj)) X$obj[[i]] <- X[[i]]
+
     return(X)
 }
 x2base.optmatch <- function(optmatch, ...) {
@@ -1205,7 +1187,6 @@ x2base.optmatch <- function(optmatch, ...) {
               method=NA,
               distance=NA,
               call=NA,
-              obj=NA,
               cluster = NA)
     
     #Get treat and covs
@@ -1296,9 +1277,7 @@ x2base.optmatch <- function(optmatch, ...) {
     X$call <- NULL
     X$method <- "matching"
     X$cluster <- factor(cluster)
-    X$obj <- setNames(vector("list", 3), 
-                      c("treat", "weights", "cluster"))
-    for (i in names(X$obj)) X$obj[[i]] <- X[[i]]
+
     return(X)
     
 }

@@ -11,11 +11,11 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
     data = NULL, continuous = c("std", "raw"), 
     binary = c("raw", "std"), s.d.denom = c("treated", 
     "control", "pooled"), m.threshold = NULL, 
-    v.threshold = NULL, un = FALSE, disp.means = FALSE, 
-    disp.v.ratio = FALSE, disp.ks = FALSE, 
-    disp.subclass = FALSE, cluster = NULL, 
-    which.cluster = NULL, cluster.summary = TRUE, 
-    quick = FALSE, ...)
+    v.threshold = NULL, ks.threshold = NULL, un = FALSE, 
+    disp.means = FALSE, disp.v.ratio = FALSE, 
+    disp.ks = FALSE, disp.subclass = FALSE, 
+    cluster = NULL, which.cluster = NULL, 
+    cluster.summary = TRUE, quick = FALSE, ...)
 }
 
 \arguments{
