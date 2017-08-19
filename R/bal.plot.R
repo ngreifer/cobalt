@@ -1,4 +1,4 @@
-bal.plot <- function(obj, ..., var.name, which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, size.weight = FALSE) {
+bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, size.weight = FALSE) {
     
     args <- list(...)
     
