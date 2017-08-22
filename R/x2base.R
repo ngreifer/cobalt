@@ -12,7 +12,8 @@ x2base.matchit <- function(m, ...) {
               addl=NA,
               distance=NA,
               call=NA,
-              cluster=NA)
+              cluster=NA,
+              discarded=NA)
     
     #Initializing variables
     
@@ -114,6 +115,7 @@ x2base.matchit <- function(m, ...) {
     
     X$treat <- treat
     X$weights <- weights
+    X$discarded <- m$discarded
     X$covs <- covs
     X$distance <- distance
     X$addl <- addl
@@ -142,9 +144,11 @@ x2base.ps <- function(ps, ...) {
     
     if (length(A$stop.method) > 0) {
         if (is.character(A$stop.method)) {
-            rule1 <- tryCatch(match.arg(tolower(A$stop.method), tolower(names(ps$w)), several.ok = TRUE),
-                              error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(substr(names(ps$w), 1, nchar(names(ps$w))-4), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
-                                  return(names(ps$w))})
+            rule1 <- names(ps$w)[apply(sapply(tolower(A$stop.method), function(x) startsWith(tolower(names(ps$w)), x)), 1, any)]
+            if (length(rule1) == 0) {
+                message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                rule1 <- names(ps$w)
+            }
         }
         else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(names(ps$w)))) {
             if (any(!A$stop.method %in% seq_along(names(ps$w)))) {
@@ -260,6 +264,151 @@ x2base.ps <- function(ps, ...) {
 
     return(X)
 }
+x2base.mnps <- function(mnps, ...) {
+    #stop.method
+    #s.d.denom
+    A <- list(...)
+    
+    X <- list(covs=NA,
+              treat=NA,
+              weights=NA,
+              distance=NA,
+              addl=NA,
+              s.d.denom=NA,
+              call=NA,
+              cluster = NA,
+              s.weights = NA)
+    
+    #Initializing variables
+    if (names(A)[1]=="" && length(A$stop.method)==0) A$stop.method <- A[[1]]
+    if (length(A$stop.method) == 0 && length(A$full.stop.method) > 0) A$stop.method <- A$full.stop.method
+    
+    if (length(A$stop.method) > 0) {
+        if (any(is.character(A$stop.method))) {
+            rule1 <- mnps$stopMethods[sapply(t(sapply(tolower(A$stop.method), function(x) startsWith(tolower(mnps$stopMethods), x))), any)]
+            if (length(rule1) == 0) {
+                message(paste0("Warning: stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                rule1 <- mnps$stopMethods
+            }
+            # rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
+            #                   error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
+            #                       return(names(ps$w))})
+        }
+        else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(mnps$stopMethods))) {
+            if (any(!A$stop.method %in% seq_along(mnps$stopMethods))) {
+                message(paste0("Warning: There are ", length(mnps$stopMethods), " stop methods available, but you requested ", 
+                               word.list(A$stop.method[!A$stop.method %in% seq_along(mnps$stopMethods)], and.or = "and"),"."))
+            }
+            rule1 <- mnps$stopMethods[A$stop.method %in% seq_along(mnps$stopMethods)]
+        }
+        else {
+            warning("stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            rule1 <- mnps$stopMethods
+        }
+    }
+    else {
+        rule1 <- mnps$stopMethods
+    }
+    
+    s <- mnps$stopMethods[match(tolower(rule1), tolower(mnps$stopMethods))]
+    
+    estimand <- setNames(mnps$estimand, s)
+    
+    if (length(A$s.d.denom>0) && is.character(A$s.d.denom)) {
+        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                error = function(cond) {
+                                    new.s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
+                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                    return(new.s.d.denom)})
+    }
+    else X$s.d.denom <- sapply(estimand, switch, att = "treated", ate = "pooled")
+    
+    weights <- get.w(mnps, s)
+    treat <- mnps$treatVar
+    covs <- mnps$data[, mnps$psList[[1]]$gbm.obj$var.names, drop = FALSE]
+    
+    mnps.data <- mnps$data
+    
+    #Process cluster
+    cluster <- A$cluster
+    if (length(cluster) > 0) {
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+            cluster <- cluster
+        }
+        else if (is.character(cluster) && length(cluster)==1) {
+            if (cluster %in% names(data)) {
+                cluster <- data[, cluster]
+            }
+            else if (cluster %in% names(mnps.data)) {
+                cluster <- mnps.data[, cluster]
+            }
+        }
+        else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+    }
+    
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
+                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
+            }
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
+            }
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+            }
+        }
+        assign(i, val.df)
+    }
+    
+    # if (length(distance) > 0) distance <- cbind(distance, prop.score = ps$ps[s][, ])
+    # else distance <- data.frame(prop.score = ps$ps[s][, ])
+    
+    ensure.equal.lengths <- TRUE
+    vectors <- c("cluster")
+    data.frames <- c("covs", "weights", "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="covs"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["covs"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
+    }
+    
+    X$weights <- weights
+    X$treat <- treat
+    X$distance <- distance
+    X$addl <- addl
+    X$covs <- covs
+    X$call <- NULL
+    X$cluster <- factor(cluster)
+    X$method <- rep("weighting", ncol(weights))
+    X$s.weights <- mnps$sampw
+    
+    return(X)
+}
 x2base.Match <- function(Match, ...) {
     #formula
     #data
@@ -369,6 +518,8 @@ x2base.Match <- function(Match, ...) {
     treat <- o.data2$treat
     weights <- data.frame(weights = o.data2$weights)
     covs <- o.data2[, is.na(match(names(o.data2), c("treat", "weights", "index")))]
+    dropped <- rep(0, length(treat))
+    if (length(m$index.dropped) > 0) dropped[m$index.dropped] <- 1
     
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
@@ -395,6 +546,7 @@ x2base.Match <- function(Match, ...) {
     
     X$treat <- treat
     X$weights <- weights
+    X$discarded <- dropped
     X$distance <- NULL #NAs in distance bcause of incomplete list in Match object
     X$addl <- addl
     X$covs <- covs
@@ -626,6 +778,10 @@ x2base.data.frame <- function(covs, ...) {
     
     if (sum(is.na(treat)) > 0)
         stop("Missing values exist in treat.", call. = FALSE)
+    
+    if (length(unique(treat)) == 2) {
+        treat <- binarize(treat)
+    }
     
     #Process weights, addl, and distance
     for (i in c("weights", "addl", "distance")) {
