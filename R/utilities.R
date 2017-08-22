@@ -279,10 +279,15 @@ get.w.matchit <- function(m,...) {
 }
 get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
     if (length(stop.method) > 0) {
-        if (is.character(stop.method)) {
-            rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
-                              error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
-                                  return(names(ps$w))})
+        if (any(is.character(stop.method))) {
+            rule1 <- names(ps$w)[sapply(t(sapply(tolower(stop.method), function(x) startsWith(tolower(names(ps$w)), x))), any)]
+            if (length(rule1) == 0) {
+                message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                rule1 <- names(ps$w)
+            }
+            # rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
+            #                   error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
+            #                       return(names(ps$w))})
         }
         else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(ps$w)))) {
             if (any(!stop.method %in% seq_along(names(ps$w)))) {
@@ -316,6 +321,54 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
         else (1-ps$treat) + ps$treat*ps$ps[,p]/(1-ps$ps[,p])})),
         ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
     
+    return(w)
+}
+get.w.mnps <- function(mnps, stop.method = NULL, ...) {
+    if (length(stop.method) > 0) {
+        if (any(is.character(stop.method))) {
+            rule1 <- mnps$stopMethods[sapply(t(sapply(tolower(stop.method), function(x) startsWith(tolower(mnps$stopMethods), x))), any)]
+            if (length(rule1) == 0) {
+                message(paste0("Warning: stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                rule1 <- mnps$stopMethods
+            }
+            # rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
+            #                   error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
+            #                       return(names(ps$w))})
+        }
+        else if (is.numeric(stop.method) && any(stop.method %in% seq_along(mnps$stopMethods))) {
+            if (any(!stop.method %in% seq_along(mnps$stopMethods))) {
+                message(paste0("Warning: There are ", length(mnps$stopMethods), " stop methods available, but you requested ", 
+                               word.list(stop.method[!stop.method %in% seq_along(mnps$stopMethods)], and.or = "and"),"."))
+            }
+            rule1 <- mnps$stopMethods[stop.method %in% seq_along(mnps$stopMethods)]
+        }
+        else {
+            warning("stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            rule1 <- mnps$stopMethods
+        }
+    }
+    else {
+        rule1 <- mnps$stopMethods
+    }
+    
+    s <- paste(mnps$stopMethods[match(tolower(rule1), tolower(mnps$stopMethods))],
+               mnps$estimand, sep = ".")
+    
+    estimand <- setNames(mnps$estimand, s)
+    
+    w <- setNames(as.data.frame(matrix(1, nrow = length(mnps$treatVar), ncol = length(s))),
+                  s)
+    
+    if (estimand == "ATT") {
+        for (i in mnps$levExceptTreatATT) {
+            w[mnps$treatVar == i, s] <- get.w.ps(mnps$psList[[i]])[mnps$psList[[i]]$treat == FALSE, s]
+        }
+    }
+    else if (estimand == "ATE") {
+        for (i in mnps$treatLev) {
+            w[mnps$treatVar == i, s] <- get.w.ps(mnps$psList[[i]])[mnps$psList[[i]]$treat == TRUE, s]
+        }
+    }
     return(w)
 }
 get.w.Match <- function(M,  ...) {
