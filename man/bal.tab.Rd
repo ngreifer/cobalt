@@ -39,6 +39,10 @@ When subclassification is used, the balance tables for each subclass stored in \
 
 When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The calculated correlation after adjustment is weighted by the generated weights.
 
+\strong{With Multinomial Treatments}
+
+Most functions in \pkg{cobalt} are not yet ready for multinomial treatments. If a single set of weights or subclasses is used across all treatments, it may be possible to display balance in the following ways. Using the data.frame or formula method, display balance as usual but subsetting all inputs with a restriction to view only two treatment levels at a time. Do this for all desired treatment value pairs to assess balance on each. The treatment value with the lowest value (e.g., 2 in 2, 3) will be considered the control condition. \code{link{bal.plot}} can display distributional balance on multiple treatments with no modificaion; simply specify the inputs without subsetting.
+
 \strong{Quick}
 
 Calculations can take some time, especially when there are many variables, interactions, or clusters. One reason for this is that \code{bal.tab()} computes all values that it can, even if they are not requested by the user. For example, even if \code{un = FALSE}, which is the default, values for the unadjusted samples are still calculated. This can be useful if the output is to be further examined with \code{print()} or \code{love.plot()} or is to be used in some other way after the original call to \code{bal.tab()}. To avoid these extra calculations if they are not needed, users can set \code{quick = TRUE}, which will often quite dramatically speed up calculation and still display all statistics the user requests. For simple and quick model comparisons, it may be quite useful to do so, but for model reporting and graphical displays, it may be more useful to leave \code{quick = FALSE}, which is the default.
@@ -59,7 +63,9 @@ Noah Greifer \email{noah@unc.edu}
 
 \code{\link{bal.tab.matchit}} for the method for objects returned by \pkg{MatchIt}.
 
-\code{\link{bal.tab.ps}} for the method for objects returned by \pkg{twang}.
+\code{\link{bal.tab.ps}} for the method for \code{ps} objects returned by \pkg{twang}.
+
+\code{\link{bal.tab.mnps}} for the method for \code{mnps} objects returned by \pkg{twang}.
 
 \code{\link{bal.tab.Match}} for the method for objects returned by \pkg{Matching}.
 
@@ -72,7 +78,3 @@ Noah Greifer \email{noah@unc.edu}
 \code{\link{bal.tab.ebalance}} for the method for objects returned by \pkg{ebal}.
 
 }
-
-
-
-
