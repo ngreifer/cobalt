@@ -18,6 +18,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
     #data=data set to be changed
     
     if (is.data.frame(data)) {
+        data <- as.data.frame(data)
         if (check) {
             factor.names <- names(data)[sapply(data, function(x) is.factor(x) || is.character(x))]
             if (missing(var.name)) {
@@ -280,7 +281,7 @@ get.w.matchit <- function(m,...) {
 get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
     if (length(stop.method) > 0) {
         if (any(is.character(stop.method))) {
-            rule1 <- names(ps$w)[sapply(t(sapply(tolower(stop.method), function(x) startsWith(tolower(names(ps$w)), x))), any)]
+            rule1 <- names(ps$w)[sapply(names(ps$w), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
             if (length(rule1) == 0) {
                 message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps$w)
@@ -315,10 +316,10 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
         names(estimand) <- s
     }
     
-    w <- setNames(as.data.frame(lapply(s, function(p) {
-        if (estimand[p] == "att") ps$treat + (1-ps$treat)*ps$ps[,p]/(1-ps$ps[,p])
-        else if (estimand[p] == "ate") ps$treat/ps$ps[,p] + (1-ps$treat)/(1-ps$ps[,p])
-        else (1-ps$treat) + ps$treat*ps$ps[,p]/(1-ps$ps[,p])})),
+    w <- setNames(as.data.frame(lapply(seq_along(s), function(p) {
+        if (estimand[p] == "att") ps$treat + (1-ps$treat)*ps$ps[,s[p]]/(1-ps$ps[,s[p]])
+        else if (estimand[p] == "ate") ps$treat/ps$ps[,s[p]] + (1-ps$treat)/(1-ps$ps[,s[p]])
+        else (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])})),
         ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
     
     return(w)

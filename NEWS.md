@@ -1,8 +1,13 @@
 cobalt News and Updates
 ======
-Version 2.2.0
 
-* Added support in `splitfactor()` and `unsplitfactor()` for `NA` values
+Version 2.2.1
+
+* Fixes to the vignette.
+
+* Fixes to `splitfactor()` to handle tibbles better. 
+
+Version 2.2.0
 
 * Added `disp.ks` and `ks.threshold` options to `bal.tab()` to display Kolmogorov-Smirnov statistics before and after preprocessing.
 
@@ -11,6 +16,8 @@ Version 2.2.0
 * Changed behavior of `bal.tab()` for `ps` objects to allow displaying balance for more than one stop method at a time, and to default to displaying balance for all available stop methods. The `full.stop.method` argument in `bal.tab()` has been renamed `stop.method`, but `full.stop.method` still works. `get.w()` for `ps` objects has also gone through some changes to be more like `twang`'s `get.weights()`.
 
 * Added support in `bal.tab()` and `bal.plot()` for subclassification with continuous treatments.
+
+* Added support in `splitfactor()` and `unsplitfactor()` for `NA` values
 
 * Fixed a bug in `love.plot()` caused when `var.order` was specified to be a sample that was not present.
 

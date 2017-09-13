@@ -530,7 +530,7 @@ It is possible to display balance for multiple balancing methods at the same tim
 
 ```{r}
 bal.tab(f.build("treat", covs0), data = lalonde, 
-        weights = data.frame(GBM = get.w(ps.out),
+        weights = data.frame(GBM = get.w(ps.out, "es.max"),
                              CBPS = get.w(cbps.out)),
         method = "weighting", disp.v.ratio = TRUE)
 ```
@@ -539,7 +539,7 @@ To use `bal.plot()`, the same syntax can be used:
 
 ```{r, fig.width=7}
 bal.plot(f.build("treat", covs0), data = lalonde, 
-         weights = data.frame(GBM = get.w(ps.out),
+         weights = data.frame(GBM = get.w(ps.out, "es.max"),
                               CBPS = get.w(cbps.out)),
          method = "weighting", var.name = "age", which = "both")
 ```
@@ -548,7 +548,7 @@ With `love.plot()`, `var.order` can be `"unadjusted"`, `"alphabetical"`, or one 
 
 ```{r, fig.width=5}
 love.plot(bal.tab(f.build("treat", covs0), data = lalonde, 
-                  weights = data.frame(GBM = get.w(ps.out),
+                  weights = data.frame(GBM = get.w(ps.out, "es.max"),
                                        CBPS = get.w(cbps.out)),
                   method = "weighting"), var.order = "unadjusted",
           abs = TRUE, colors = c("red", "blue", "darkgreen"))

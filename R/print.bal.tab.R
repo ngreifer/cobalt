@@ -77,19 +77,22 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     else {
         keep <- setNames(as.logical(c(TRUE, 
-                                      p.ops$un*p.ops$disp.means, 
-                                      p.ops$un*p.ops$disp.means, 
+                                      p.ops$un && p.ops$disp.means, 
+                                      p.ops$un && p.ops$disp.means, 
                                       p.ops$un, 
-                                      p.ops$un*p.ops$disp.v.ratio, 
-                                      p.ops$un*p.ops$disp.ks, 
-                                      rep(c(p.ops$disp.adj*p.ops$disp.means, 
-                                            p.ops$disp.adj*p.ops$disp.means, 
+                                      p.ops$un && !p.ops$disp.adj && !is.null(p.ops$m.threshold),
+                                      p.ops$un && p.ops$disp.v.ratio, 
+                                      p.ops$un && !p.ops$disp.adj && !is.null(p.ops$v.threshold), 
+                                      p.ops$un && p.ops$disp.ks, 
+                                      p.ops$un && !p.ops$disp.adj && !is.null(p.ops$ks.threshold),
+                                      rep(c(p.ops$disp.adj && p.ops$disp.means, 
+                                            p.ops$disp.adj && p.ops$disp.means, 
                                             p.ops$disp.adj, 
-                                            !is.null(p.ops$m.threshold), 
-                                            p.ops$disp.adj*p.ops$disp.v.ratio, 
-                                            !is.null(p.ops$v.threshold), 
-                                            p.ops$disp.adj*p.ops$disp.ks, 
-                                            !is.null(p.ops$ks.threshold)), p.ops$nweights + !p.ops$disp.adj))),
+                                            p.ops$disp.adj && !is.null(p.ops$m.threshold), 
+                                            p.ops$disp.adj && p.ops$disp.v.ratio, 
+                                            p.ops$disp.adj && !is.null(p.ops$v.threshold), 
+                                            p.ops$disp.adj && p.ops$disp.ks, 
+                                            p.ops$disp.adj && !is.null(p.ops$ks.threshold)), p.ops$nweights + !p.ops$disp.adj))),
                          names(balance))
     }
     
@@ -252,9 +255,9 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                                    p.ops$disp.means, 
                                    p.ops$disp.adj, 
                                    !is.null(p.ops$m.threshold), 
-                                   p.ops$disp.adj * p.ops$disp.v.ratio, 
+                                   p.ops$disp.adj  &&  p.ops$disp.v.ratio, 
                                    !is.null(p.ops$v.threshold), 
-                                   p.ops$disp.adj * p.ops$disp.ks, 
+                                   p.ops$disp.adj  &&  p.ops$disp.ks, 
                                    !is.null(p.ops$ks.threshold)))
         }
         cat("Balance by subclass:")
@@ -267,11 +270,11 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     
     if (!is.null(b.a.subclass)) {
         a.s.keep <- as.logical(c(TRUE, 
-                                 p.ops$un*p.ops$disp.means, 
-                                 p.ops$un*p.ops$disp.means, 
+                                 p.ops$un && p.ops$disp.means, 
+                                 p.ops$un && p.ops$disp.means, 
                                  p.ops$un, 
-                                 p.ops$disp.adj*p.ops$disp.means, 
-                                 p.ops$disp.adj*p.ops$disp.means, 
+                                 p.ops$disp.adj && p.ops$disp.means, 
+                                 p.ops$disp.adj && p.ops$disp.means, 
                                  p.ops$disp.adj, 
                                  !is.null(p.ops$m.threshold)))
         cat("Balance measures across subclasses:\n")
@@ -443,19 +446,23 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     }
     else {
         keep <- as.logical(c(TRUE, 
-                             p.ops$un*p.ops$disp.means, 
-                             p.ops$un*p.ops$disp.means, 
+                             p.ops$un && p.ops$disp.means, 
+                             p.ops$un && p.ops$disp.means, 
                              p.ops$un, 
-                             p.ops$un*p.ops$disp.v.ratio, 
-                             p.ops$un*p.ops$disp.ks, 
-                             rep(c(p.ops$disp.adj*p.ops$disp.means, 
-                                   p.ops$disp.adj*p.ops$disp.means, 
+                             p.ops$un && !p.ops$disp.adj && !is.null(p.ops$m.threshold),
+                             p.ops$un && p.ops$disp.v.ratio, 
+                             p.ops$un && !p.ops$disp.adj && !is.null(p.ops$v.threshold), 
+                             p.ops$un && p.ops$disp.ks, 
+                             p.ops$un && !p.ops$disp.adj && !is.null(p.ops$ks.threshold), 
+                             rep(c(p.ops$disp.adj && p.ops$disp.means, 
+                                   p.ops$disp.adj && p.ops$disp.means, 
                                    p.ops$disp.adj, 
-                                   !is.null(p.ops$m.threshold), 
-                                   p.ops$disp.adj*p.ops$disp.v.ratio, 
-                                   !is.null(p.ops$v.threshold),
-                                   p.ops$disp.adj*p.ops$disp.ks, 
-                                   !is.null(p.ops$ks.threshold)), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$disp.adj && !is.null(p.ops$m.threshold), 
+                                   p.ops$disp.adj && p.ops$disp.v.ratio, 
+                                   p.ops$disp.adj && !is.null(p.ops$v.threshold),
+                                   p.ops$disp.adj && p.ops$disp.ks, 
+                                   p.ops$disp.adj && !is.null(p.ops$ks.threshold)), 
+                                 p.ops$nweights + !p.ops$disp.adj)))
     }
     
     #Printing
@@ -495,41 +502,41 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         names(CF) <- cluster.funs
         if (!is.na(match("bal.tab.cont.cluster", class(x)))) {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un*CF["min"],
-                                   p.ops$un*CF["mean"],
-                                   p.ops$un*CF["median"],
-                                   p.ops$un*CF["max"],
-                                   rep(c(p.ops$disp.adj*CF["min"],
-                                         p.ops$disp.adj*CF["mean"],
-                                         p.ops$disp.adj*CF["median"],
-                                         p.ops$disp.adj*CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && CF["min"],
+                                   p.ops$un && CF["mean"],
+                                   p.ops$un && CF["median"],
+                                   p.ops$un && CF["max"],
+                                   rep(c(p.ops$disp.adj && CF["min"],
+                                         p.ops$disp.adj && CF["mean"],
+                                         p.ops$disp.adj && CF["median"],
+                                         p.ops$disp.adj && CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un*CF["min"],
-                                   p.ops$un*CF["mean"],
-                                   p.ops$un*CF["median"],
-                                   p.ops$un*CF["max"],
-                                   p.ops$un*p.ops$disp.v.ratio*CF["min"],
-                                   p.ops$un*p.ops$disp.v.ratio*CF["mean"],
-                                   p.ops$un*p.ops$disp.v.ratio*CF["median"],
-                                   p.ops$un*p.ops$disp.v.ratio*CF["max"],
-                                   p.ops$un*p.ops$disp.ks*CF["min"],
-                                   p.ops$un*p.ops$disp.ks*CF["mean"],
-                                   p.ops$un*p.ops$disp.ks*CF["median"],
-                                   p.ops$un*p.ops$disp.ks*CF["max"],
-                                   rep(c(p.ops$disp.adj*CF["min"],
-                                         p.ops$disp.adj*CF["mean"],
-                                         p.ops$disp.adj*CF["median"],
-                                         p.ops$disp.adj*CF["max"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*CF["min"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*CF["mean"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*CF["median"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*CF["max"],
-                                         p.ops$disp.adj*p.ops$disp.ks*CF["min"],
-                                         p.ops$disp.adj*p.ops$disp.ks*CF["mean"],
-                                         p.ops$disp.adj*p.ops$disp.ks*CF["median"],
-                                         p.ops$disp.adj*p.ops$disp.ks*CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && CF["min"],
+                                   p.ops$un && CF["mean"],
+                                   p.ops$un && CF["median"],
+                                   p.ops$un && CF["max"],
+                                   p.ops$un && p.ops$disp.v.ratio && CF["min"],
+                                   p.ops$un && p.ops$disp.v.ratio && CF["mean"],
+                                   p.ops$un && p.ops$disp.v.ratio && CF["median"],
+                                   p.ops$un && p.ops$disp.v.ratio && CF["max"],
+                                   p.ops$un && p.ops$disp.ks && CF["min"],
+                                   p.ops$un && p.ops$disp.ks && CF["mean"],
+                                   p.ops$un && p.ops$disp.ks && CF["median"],
+                                   p.ops$un && p.ops$disp.ks && CF["max"],
+                                   rep(c(p.ops$disp.adj && CF["min"],
+                                         p.ops$disp.adj && CF["mean"],
+                                         p.ops$disp.adj && CF["median"],
+                                         p.ops$disp.adj && CF["max"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && CF["min"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && CF["mean"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && CF["median"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && CF["max"],
+                                         p.ops$disp.adj && p.ops$disp.ks && CF["min"],
+                                         p.ops$disp.adj && p.ops$disp.ks && CF["mean"],
+                                         p.ops$disp.adj && p.ops$disp.ks && CF["median"],
+                                         p.ops$disp.adj && p.ops$disp.ks && CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         cat("Balance summary across all clusters:\n")
         print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
@@ -664,7 +671,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     if (length(which.imp) > 0) {
         cat("Balance by imputation:\n")
         for (i in which.imp) {
-            cat(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))
+            cat(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - \n"))
             do.call(print, c(list(i.balance[[i]]), args))
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
@@ -676,41 +683,41 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         names(IF) <- imp.funs
         if (!is.na(match("bal.tab.cont", class(x)))) { #continuous
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un*IF["min"],
-                                   p.ops$un*IF["mean"],
-                                   p.ops$un*IF["median"],
-                                   p.ops$un*IF["max"],
-                                   rep(c(p.ops$disp.adj*IF["min"],
-                                         p.ops$disp.adj*IF["mean"],
-                                         p.ops$disp.adj*IF["median"],
-                                         p.ops$disp.adj*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && IF["min"],
+                                   p.ops$un && IF["mean"],
+                                   p.ops$un && IF["median"],
+                                   p.ops$un && IF["max"],
+                                   rep(c(p.ops$disp.adj && IF["min"],
+                                         p.ops$disp.adj && IF["mean"],
+                                         p.ops$disp.adj && IF["median"],
+                                         p.ops$disp.adj && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else { #binary
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un*IF["min"],
-                                   p.ops$un*IF["mean"],
-                                   p.ops$un*IF["median"],
-                                   p.ops$un*IF["max"],
-                                   p.ops$un*p.ops$disp.v.ratio*IF["min"],
-                                   p.ops$un*p.ops$disp.v.ratio*IF["mean"],
-                                   p.ops$un*p.ops$disp.v.ratio*IF["median"],
-                                   p.ops$un*p.ops$disp.v.ratio*IF["max"],
-                                   p.ops$un*p.ops$disp.ks*IF["min"],
-                                   p.ops$un*p.ops$disp.ks*IF["mean"],
-                                   p.ops$un*p.ops$disp.ks*IF["median"],
-                                   p.ops$un*p.ops$disp.ks*IF["max"],
-                                   rep(c(p.ops$disp.adj*IF["min"],
-                                         p.ops$disp.adj*IF["mean"],
-                                         p.ops$disp.adj*IF["median"],
-                                         p.ops$disp.adj*IF["max"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*IF["min"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*IF["mean"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*IF["median"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"],
-                                         p.ops$disp.adj*p.ops$disp.ks*IF["min"],
-                                         p.ops$disp.adj*p.ops$disp.ks*IF["mean"],
-                                         p.ops$disp.adj*p.ops$disp.ks*IF["median"],
-                                         p.ops$disp.adj*p.ops$disp.ks*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && IF["min"],
+                                   p.ops$un && IF["mean"],
+                                   p.ops$un && IF["median"],
+                                   p.ops$un && IF["max"],
+                                   p.ops$un && p.ops$disp.v.ratio && IF["min"],
+                                   p.ops$un && p.ops$disp.v.ratio && IF["mean"],
+                                   p.ops$un && p.ops$disp.v.ratio && IF["median"],
+                                   p.ops$un && p.ops$disp.v.ratio && IF["max"],
+                                   p.ops$un && p.ops$disp.ks && IF["min"],
+                                   p.ops$un && p.ops$disp.ks && IF["mean"],
+                                   p.ops$un && p.ops$disp.ks && IF["median"],
+                                   p.ops$un && p.ops$disp.ks && IF["max"],
+                                   rep(c(p.ops$disp.adj && IF["min"],
+                                         p.ops$disp.adj && IF["mean"],
+                                         p.ops$disp.adj && IF["median"],
+                                         p.ops$disp.adj && IF["max"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["min"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["mean"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["median"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["max"],
+                                         p.ops$disp.adj && p.ops$disp.ks && IF["min"],
+                                         p.ops$disp.adj && p.ops$disp.ks && IF["mean"],
+                                         p.ops$disp.adj && p.ops$disp.ks && IF["median"],
+                                         p.ops$disp.adj && p.ops$disp.ks && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
         
@@ -910,41 +917,41 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         names(IF) <- imp.funs
         if (!is.na(match("bal.tab.cont", class(x)))) {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un*IF["min"],
-                                   p.ops$un*IF["mean"],
-                                   p.ops$un*IF["median"],
-                                   p.ops$un*IF["max"],
-                                   rep(c(p.ops$disp.adj*IF["min"],
-                                         p.ops$disp.adj*IF["mean"],
-                                         p.ops$disp.adj*IF["median"],
-                                         p.ops$disp.adj*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && IF["min"],
+                                   p.ops$un && IF["mean"],
+                                   p.ops$un && IF["median"],
+                                   p.ops$un && IF["max"],
+                                   rep(c(p.ops$disp.adj && IF["min"],
+                                         p.ops$disp.adj && IF["mean"],
+                                         p.ops$disp.adj && IF["median"],
+                                         p.ops$disp.adj && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un*IF["min"],
-                                   p.ops$un*IF["mean"],
-                                   p.ops$un*IF["median"],
-                                   p.ops$un*IF["max"],
-                                   p.ops$un*p.ops$disp.v.ratio*IF["min"],
-                                   p.ops$un*p.ops$disp.v.ratio*IF["mean"],
-                                   p.ops$un*p.ops$disp.v.ratio*IF["median"],
-                                   p.ops$un*p.ops$disp.v.ratio*IF["max"],
-                                   p.ops$un*p.ops$disp.ks*IF["min"],
-                                   p.ops$un*p.ops$disp.ks*IF["mean"],
-                                   p.ops$un*p.ops$disp.ks*IF["median"],
-                                   p.ops$un*p.ops$disp.ks*IF["max"],
-                                   rep(c(p.ops$disp.adj*IF["min"],
-                                         p.ops$disp.adj*IF["mean"],
-                                         p.ops$disp.adj*IF["median"],
-                                         p.ops$disp.adj*IF["max"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*IF["min"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*IF["mean"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*IF["median"],
-                                         p.ops$disp.adj*p.ops$disp.v.ratio*IF["max"],
-                                         p.ops$disp.adj*p.ops$disp.ks*IF["min"],
-                                         p.ops$disp.adj*p.ops$disp.ks*IF["mean"],
-                                         p.ops$disp.adj*p.ops$disp.ks*IF["median"],
-                                         p.ops$disp.adj*p.ops$disp.ks*IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && IF["min"],
+                                   p.ops$un && IF["mean"],
+                                   p.ops$un && IF["median"],
+                                   p.ops$un && IF["max"],
+                                   p.ops$un && p.ops$disp.v.ratio && IF["min"],
+                                   p.ops$un && p.ops$disp.v.ratio && IF["mean"],
+                                   p.ops$un && p.ops$disp.v.ratio && IF["median"],
+                                   p.ops$un && p.ops$disp.v.ratio && IF["max"],
+                                   p.ops$un && p.ops$disp.ks && IF["min"],
+                                   p.ops$un && p.ops$disp.ks && IF["mean"],
+                                   p.ops$un && p.ops$disp.ks && IF["median"],
+                                   p.ops$un && p.ops$disp.ks && IF["max"],
+                                   rep(c(p.ops$disp.adj && IF["min"],
+                                         p.ops$disp.adj && IF["mean"],
+                                         p.ops$disp.adj && IF["median"],
+                                         p.ops$disp.adj && IF["max"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["min"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["mean"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["median"],
+                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["max"],
+                                         p.ops$disp.adj && p.ops$disp.ks && IF["min"],
+                                         p.ops$disp.adj && p.ops$disp.ks && IF["mean"],
+                                         p.ops$disp.adj && p.ops$disp.ks && IF["median"],
+                                         p.ops$disp.adj && p.ops$disp.ks && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
         

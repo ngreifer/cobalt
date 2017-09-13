@@ -11,7 +11,7 @@ Will eventually automatically generate balance statistics for \code{mnps} object
 }
 
 \arguments{
-  \item{ps}{
+  \item{mnps}{
 an \code{mnps} object; the output of a call to \code{mnps()} from the \pkg{twang} package.
 }
   \item{stop.method}{
@@ -24,9 +24,10 @@ further arguments passed to or from other methods.
 \details{
 An \code{mnps} object contains a list of \code{ps} objects called "\code{psList}". For estimating the "ATE", the list will contain one \code{ps} object for each treatment group, and each one contains the weights for comparing that treatment group to the others combined. For estmating the "ATT", the list will contain one \code{ps} object for each group that is not the reference group (as specified by the user), and each one contains the weights for comparing that group to the reference group. Thus, to assess balance, it is possible to use \code{bal.tab()} on each item in the list seperately. Otherwise, use \pkg{twang}'s \code{bal.table()} command.
 
-It is possible to visually essess balance on \code{mnps} objects using \code{\link{bal.plot()}}. 
+It is possible to visually essess balance on \code{mnps} objects using \code{\link{bal.plot}}. 
 }
 \value{
+Currently, nothing. Throws an error.
 }
 
 \author{
@@ -35,14 +36,14 @@ Noah Greifer \email{noah@unc.edu}
 
 \seealso{
 \code{\link{bal.tab}} for details of multinomial balance assessment outside of \code{mnps} objects.
+\code{\link{bal.tab.ps}} for \code{ps} objects returned by \pkg{twang}.
 }
 \examples{
-library(twang); data("lalonde", package = "cobalt")
+library("twang"); data("lalonde", package = "cobalt")
 
 \dontrun{
 ## Using mnps() for generalized boosted modeling
 
-data("lalonde", package = "cobalt")
 lalonde$treat3 <- factor(sample(1:3, nrow(lalonde),
                          replace = TRUE))
 mnps.out <- mnps(treat3 ~ age + educ + married + race +

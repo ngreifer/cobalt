@@ -139,7 +139,7 @@ x2base.ps <- function(ps, ...) {
               s.weights = NA)
     
     #Initializing variables
-    if (names(A)[1]=="" && length(A$stop.method)==0) A$stop.method <- A[[1]]
+    if (length(A) > 0 && names(A)[1]=="" && length(A$stop.method)==0) A$stop.method <- A[[1]]
     if (length(A$stop.method) == 0 && length(A$full.stop.method) > 0) A$stop.method <- A$full.stop.method
     
     if (length(A$stop.method) > 0) {
@@ -177,7 +177,7 @@ x2base.ps <- function(ps, ...) {
                                     return(new.s.d.denom)})
     }
     else X$s.d.denom <- sapply(estimand, switch, att = "treated", ate = "pooled")
-
+    
     weights <- get.w(ps, s, estimand)
     treat <- ps$treat
     covs <- ps$data[, ps$gbm.obj$var.names, drop = FALSE]
@@ -280,7 +280,7 @@ x2base.mnps <- function(mnps, ...) {
               s.weights = NA)
     
     #Initializing variables
-    if (names(A)[1]=="" && length(A$stop.method)==0) A$stop.method <- A[[1]]
+    if (length(A) > 0 && names(A)[1]=="" && length(A$stop.method)==0) A$stop.method <- A[[1]]
     if (length(A$stop.method) == 0 && length(A$full.stop.method) > 0) A$stop.method <- A$full.stop.method
     
     if (length(A$stop.method) > 0) {
