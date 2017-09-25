@@ -428,6 +428,7 @@ get.w.ebalance <- function(e, treat, ...) {
     weights[treat == 0] <- e$w
     return(weights)
 }
+get.w.ebalance.trim <- get.w.ebalance
 get.w.optmatch <- function(o, treat, ...) {
     return(match.strata2weights(o, treat = treat, covs = NULL))
 }

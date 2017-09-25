@@ -1331,6 +1331,7 @@ x2base.ebalance <- function(ebalance, ...) {
 
     return(X)
 }
+x2base.ebalance.trim <- x2base.ebalance
 x2base.optmatch <- function(optmatch, ...) {
     #formula
     #data

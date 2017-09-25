@@ -3,6 +3,8 @@ cobalt News and Updates
 
 Version 2.2.1
 
+* Added support for `ebalance.trim` objects from `ebal`.
+
 * Fixes to the vignette.
 
 * Fixes to `splitfactor()` to handle tibbles better. 

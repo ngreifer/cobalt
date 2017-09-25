@@ -95,7 +95,6 @@ e.out <- ebalance(lalonde$treat, cbind(covs_, age_2 = covs_$age^2, re74_2 = covs
                                        covs_$re75^3/1000000, covs_$age^3.5/1000))
 bal.tab(e.out, treat = lalonde$treat, covs = covs, disp.ks = T, disp.v.ratio = T)
 e.out.trim <- ebalance.trim(e.out)
-class(e.out.trim) <- "ebalance"
 bal.tab(e.out.trim, treat = lalonde$treat, covs = covs, disp.ks = T, disp.v.ratio = T)
 bal.tab(covs, lalonde$treat, weights = list(e = get.w(e.out, treat = lalonde$treat),
                                             e.trim = get.w(e.out.trim, treat = lalonde$treat)),
