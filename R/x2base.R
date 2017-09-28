@@ -176,7 +176,7 @@ x2base.ps <- function(ps, ...) {
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- sapply(estimand, switch, att = "treated", ate = "pooled")
+    else X$s.d.denom <- sapply(tolower(estimand), switch, att = "treated", ate = "pooled")
     
     weights <- get.w(ps, s, estimand)
     treat <- ps$treat
@@ -321,7 +321,7 @@ x2base.mnps <- function(mnps, ...) {
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- sapply(estimand, switch, att = "treated", ate = "pooled")
+    else X$s.d.denom <- sapply(tolower(estimand), switch, att = "treated", ate = "pooled")
     
     weights <- get.w(mnps, s)
     treat <- mnps$treatVar
@@ -373,8 +373,13 @@ x2base.mnps <- function(mnps, ...) {
         assign(i, val.df)
     }
     
-    # if (length(distance) > 0) distance <- cbind(distance, prop.score = ps$ps[s][, ])
-    # else distance <- data.frame(prop.score = ps$ps[s][, ])
+    # model.ps <- setNames(as.data.frame(lapply(mnps$psList, function(x) x$ps)), names(mnps$psList))
+    # model.ps.combined <- numeric(length(treat))
+    # for (i in levels(treat)) {
+    #     model.ps.combined[treat == i] <- model.ps[treat == i, i]
+    # }
+    # if (length(distance) > 0) distance <- cbind(distance, prop.score = model.ps.combined)
+    # else distance <- data.frame(prop.score = model.ps.combined)
     
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster")
@@ -406,6 +411,7 @@ x2base.mnps <- function(mnps, ...) {
     X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- mnps$sampw
+    X$focal <- mnps$treatATT
     
     return(X)
 }
@@ -813,13 +819,12 @@ x2base.data.frame <- function(covs, ...) {
     #Process subclass
     if (length(subclass) > 0) {
         if (is.numeric(subclass) || is.factor(subclass) || (is.character(subclass) && length(subclass) > 1)) {
-            subclass <- subclass
+            subclass <- factor(subclass)
         }
         else if (is.character(subclass) && length(subclass)==1 && subclass %in% names(data)) {
-            subclass <- data[, subclass]
+            subclass <- factor(data[, subclass])
         }
         else stop("The name supplied to subclass is not the name of a variable in data.", call. = FALSE)
-        #weights <- data.frame(weights = rep(1, length(treat)))
     }
     
     #Process match.strata
@@ -1053,7 +1058,7 @@ x2base.data.frame <- function(covs, ...) {
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
-    X$subclass <- factor(subclass)
+    X$subclass <- subclass
     X$cluster <- factor(cluster)
     X$call <- NULL
     X$addl <- addl
@@ -1117,7 +1122,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                                                 use.weights = ifelse(length(A$use.weights) == 0, TRUE,
                                                                                A$use.weights)))
     
-    if (!(any(class(cbps.fit) == "CBPSContinuous") || nlevels(as.factor(treat)) > 2)) {
+    if (!(any(class(cbps.fit) == "CBPSContinuous") || nunique(treat) > 2)) {
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
@@ -1135,6 +1140,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
                 X$s.d.denom <- "pooled"
             }
         }
+    }
+    else if (nunique(treat) > 2) {
+        X$s.d.denom <- "pooled"
     }
     
     c.data <- cbps.fit$data
@@ -1183,15 +1191,25 @@ x2base.CBPS <- function(cbps.fit, ...) {
         assign(i, val.df)
     }
     
-    if (abs(max(cbps.fit$fitted.values) - min(cbps.fit$fitted.values)) < sqrt(.Machine$double.eps)) {
-        if (length(distance) == 0) distance <- NULL
+    if (!any(class(cbps.fit) == "CBPSContinuous") && nunique(treat) > 2) {
+        # model.ps <- setNames(data.frame(cbps.fit$fitted.values), levels(treat))
+        # model.ps.combined <- numeric(length(treat))
+        # for (i in levels(treat)) {
+        #     model.ps.combined[treat == i] <- model.ps[treat == i, i]
+        # }
+        # if (length(distance) > 0) distance <- cbind(distance, prop.score = model.ps.combined)
+        # else distance <- data.frame(prop.score = model.ps.combined)
     }
     else {
-        if (length(distance) == 0) distance <- data.frame(prop.score = cbps.fit$fitted.values)
-        else distance <- cbind(distance, prop.score = cbps.fit$fitted.values)
+        if (abs(max(cbps.fit$fitted.values) - min(cbps.fit$fitted.values)) < sqrt(.Machine$double.eps)) {
+            if (length(distance) == 0) distance <- NULL
+        }
+        else {
+            if (length(distance) == 0) distance <- data.frame(prop.score = cbps.fit$fitted.values)
+            else distance <- cbind(distance, prop.score = cbps.fit$fitted.values)
+        }
     }
-    
-    
+
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster")
     data.frames <- c("covs", "weights", "distance", "addl")
