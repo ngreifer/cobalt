@@ -474,6 +474,13 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
     }
     return(out)
 }
+expand.grid_string <- function(..., collapse = "") {
+    return(apply(expand.grid(...), 1, paste, collapse = collapse))
+}
+nunique <- function(x) {
+    if (is.factor(x)) return(nlevels(x))
+    else return(length(x))
+}
 
 #Under construction
 inxnoty <- function(x, y) {
