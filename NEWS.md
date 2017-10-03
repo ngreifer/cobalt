@@ -5,6 +5,8 @@ Version 3.0.0
 
 * Added support for multinomial treatments in `bal.tab()`, including output from `CBPS` and `twang`
 
+* Added support for `weightit` objects from `WeightIt`.
+
 * Added support for `ebalance.trim` objects from `ebal`.
 
 * Fixes to the vignette.

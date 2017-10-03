@@ -432,6 +432,9 @@ get.w.ebalance.trim <- get.w.ebalance
 get.w.optmatch <- function(o, treat, ...) {
     return(match.strata2weights(o, treat = treat, covs = NULL))
 }
+get.w.weightit <- function(weightit,...) {
+    return(weightit$weights)
+}
 
 #For cobalt
 word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE, quotes = FALSE) {

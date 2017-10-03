@@ -1,5 +1,7 @@
-love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistics"), threshold = NULL, abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
-                       colors = NULL, shapes = NULL, line = FALSE, ...) {
+love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistics"), threshold = NULL, 
+                      abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
+                      drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
+                      colors = NULL, shapes = NULL, line = FALSE, ...) {
     b <- x
     if (!"bal.tab" %in% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
@@ -14,6 +16,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     #subtitle
     #limits
     #cluster.fun (deprecated)
+    
+    if (length(args$which.cluster) > 0) b$print.options$which.cluster <- args$which.cluster
+    if (length(args$which.imp) > 0) b$print.options$which.imp <- args$which.imp
+    if (length(args$which.treat) > 0) b$print.options$which.treat <- args$which.treat
     
     null.threshold <- is.null(threshold)
     if (!null.threshold) {
@@ -31,8 +37,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     
     cluster.names.good <- NULL
     imp.numbers.good <- NULL
+    treat.names.good <- NULL
     null.cluster <- is.null(b$print.options$which.cluster) || is.na(b$print.options$which.cluster)
     null.imp <- (is.null(b$print.options$which.imp) || is.na(b$print.options$which.imp))
+    null.treat <- (is.null(b$print.options$which.treat) || is.na(b$print.options$which.treat))
     
     if (any(class(b) == "bal.tab.imp.cluster")) {
         #Get imp.numbers.good
@@ -107,10 +115,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (config == "agg.none") {
             B <- do.call("rbind", lapply(names(b[["Imputation.Balance"]])[imp.numbers.good],
                                          function(x) do.call("rbind", lapply(names(b[["Imputation.Balance"]][[x]][["Cluster.Balance"]])[cluster.names.good],
-                                                                             function(y) cbind(b[["Imputation.Balance"]][[x]][["Cluster.Balance"]][[y]][["Balance.Table"]],
+                                                                             function(y) cbind(b[["Imputation.Balance"]][[x]][["Cluster.Balance"]][[y]][["Balance"]],
                                                                                                cluster = y,
                                                                                                imp = paste("Imputation:", x),
-                                                                                               var.names = rownames(b[["Imputation.Balance"]][[x]][["Cluster.Balance"]][[y]][["Balance.Table"]]))))))
+                                                                                               var.names = rownames(b[["Imputation.Balance"]][[x]][["Cluster.Balance"]][[y]][["Balance"]]))))))
             if (sum(imp.numbers.good) == 1) {
                 facet <- "cluster"
                 subtitle <- paste("Imputation:", imp.numbers[imp.numbers.good])
@@ -239,9 +247,9 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         #Get B from b
         if (config == "agg.none") {
             B <- do.call("rbind", lapply(names(b[["Cluster.Balance"]])[cluster.names.good], 
-                                         function(x) cbind(b[["Cluster.Balance"]][[x]][["Balance.Table"]],
+                                         function(x) cbind(b[["Cluster.Balance"]][[x]][["Balance"]],
                                                            cluster = x,
-                                                           var.names = rownames(b[["Cluster.Balance"]][[x]][["Balance.Table"]]))))
+                                                           var.names = rownames(b[["Cluster.Balance"]][[x]][["Balance"]]))))
             facet <- "cluster"
         }
         else if (config == "agg.cluster") {
@@ -255,6 +263,71 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
             B <- cbind(b[["Cluster.Summary"]],
                        var.names = rownames(b[["Cluster.Summary"]]))
+            abs <- TRUE
+        }
+    }
+    else if (any(class(b) == "bal.tab.multi")) {
+        #Get cluster.names.good
+        treat.names <- b$print.options$treat.names
+        if (null.treat) {
+            config <- "agg.pair"
+            treat.names.good <- NULL
+        }
+        else if (is.character(b$print.options$which.treat)) {
+            treat.names.good <- b$print.options$treat.names %in% b$print.options$which.treat
+            if (any(treat.names.good)) {
+                config <- "agg.none"
+            }
+            else {
+                stop("Make sure the arguments to which.treat in bal.tab() are valid treatment names or indices.", call. = FALSE)
+            }
+        }
+        else if (is.numeric(b$print.options$which.treat)) {
+            treat.names.good <- seq_along(b$print.options$treat.names) %in% b$print.options$which.treat
+            if (any(treat.names.good)) {
+                config <- "agg.none"
+            }
+            else {
+                stop("Make sure the arguments to which.cluster in bal.tab() are valid cluster names or indices.", call. = FALSE)
+            }
+        }
+        else stop("The argument to which.cluster in bal.tab() must be NULL, NA, or the names or indices of clusters.", call. = FALSE)
+        
+        
+        if (null.treat) {
+            disp.treat.pairs <- character(0)
+        }
+        else {
+            if (sum(treat.names.good) == 1) {
+                disp.treat.pairs <- sapply(b$print.options$treat.names[!treat.names.good], function(x) paste(sort(c(b$print.options$which.treat, x)), collapse = "|"))
+            }
+            else {
+                disp.treat.pairs <- sapply(combn(b$print.options$treat.names[treat.names.good], 2, list), function(x) paste(sort(x), collapse = "|"))
+            }
+            disp.treat.pairs <- disp.treat.pairs[disp.treat.pairs %in% names(b[["Pair.Balance"]])]
+        }
+        
+        #Get B from b
+        if (config == "agg.none") {
+            B <- do.call("rbind", lapply(disp.treat.pairs,
+                                         function(x) cbind(b[["Pair.Balance"]][[x]][["Balance"]],
+                                                           treat.pair = x,
+                                                           var.names = rownames(b[["Pair.Balance"]][[x]][["Balance"]]))))
+
+            facet <- "treat.pair"
+        }
+        else if (config == "agg.pair") {
+            #Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            Agg.Fun <- "Max"
+            if (Agg.Fun == "Range") {
+                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
+                subtitle <- paste0(which.stat2, " Range Across Treatment Pairs")
+            }
+            else {
+                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Treatment Pairs")
+            }
+            B <- cbind(b[["Balance.Across.Pairs"]],
+                       var.names = rownames(b[["Balance.Across.Pairs"]]))
             abs <- TRUE
         }
     }
@@ -383,6 +456,9 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (length(facet) > 0 && "imp" %in% facet) {
             SS$imp <- rep(B[, "imp"], 1 + b$print.options$nweights)
         }
+        if (length(facet) > 0 && "treat.pair" %in% facet) {
+            SS$treat.pair <- rep(B[, "treat.pair"], 1 + b$print.options$nweights)
+        }
         
         if (all(is.na(SS[, c("min.stat", "max.stat", "mean.stat")]))) stop("No balance statistics to display.", call. = FALSE)
         gone <- character(0)
@@ -438,6 +514,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (length(facet) > 0 && "imp" %in% facet) {
             SS$imp <- rep(B[, "imp"], 1 + b$print.options$nweights)
         }
+        if (length(facet) > 0 && "treat.pair" %in% facet) {
+            SS$treat.pair <- rep(B[, "treat.pair"], 1 + b$print.options$nweights)
+        }
+        
         if (all(is.na(SS[, "stat"]))) stop("No balance statistics to display.", call. = FALSE)
         gone <- character(0)
         for (i in levels(SS$Sample)) {

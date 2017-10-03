@@ -1172,15 +1172,20 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
     return(B)
 }
 samplesize.multi <- function(bal.tab.multi.list, treat.names) {
-    obs <- do.call("cbind", lapply(bal.tab.multi.list, function(x) x[["Observations"]]))[, treat.names]
+    obs <- do.call("cbind", unname(lapply(bal.tab.multi.list, function(x) x[["Observations"]])))[, treat.names]
     attr(obs, "tag") <- attr(bal.tab.multi.list[[1]][["Observations"]], "tag")
     attr(obs, "ss.type") <- attr(bal.tab.multi.list[[1]][["Observations"]], "ss.type")
     return(obs)
 }
-treat.pair <- function(x) {
-    tp <- attr(x, "treat.pair")
-    if (length(tp) == 0) return(NULL)
-    else return(sort(tp)) 
+treat.pair <- function(x, sort = FALSE) {
+    # tp <- attr(x, "treat.pair")
+    # if (length(tp) == 0) return(NULL)
+    # else return(sort(tp)) 
+    
+    tp <- names(x)
+    s <- strsplit(x, "|", fixed = TRUE)[[1]]
+    if (sort) return(sort(s)) 
+    else return(s)
 }
 
 #love.plot

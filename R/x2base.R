@@ -961,8 +961,8 @@ x2base.data.frame <- function(covs, ...) {
 
     
     #Get s.d.denom
-    check.estimand <- check.weights <- bad.s.d.denom <- bad.estimand <- FALSE
-    if (length(unique(treat)) <= 2 || !is.numeric(treat)) { #non-continuous
+    if (nunique(treat) <= 2 || !is.numeric(treat)) { #non-continuous
+        check.estimand <- check.weights <- bad.s.d.denom <- bad.estimand <- FALSE
         if (length(s.d.denom) > 0) {
             try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
                                       error = function(cond) FALSE)
@@ -1003,31 +1003,40 @@ x2base.data.frame <- function(covs, ...) {
         
         if (check.weights == TRUE) {
             if (length(weights) == 0) {
-                X$s.d.denom <- "treated"
-                estimand <- "ATT"
+                X$s.d.denom <- "pooled"
+                estimand <- "ATE"
             }
             else {
                 X$s.d.denom <- estimand <- character(ncol(weights))
                 for (i in seq_len(ncol(weights))) {
                     if (X$method[i] == "weighting") {
-                        if (max(weights[treat==1 & weights[, i] > sqrt(.Machine$double.eps), i]) - min(weights[treat==1 & weights[, i] > sqrt(.Machine$double.eps), i]) < sqrt(.Machine$double.eps) &&
-                            max(weights[treat==0 & weights[, i] > sqrt(.Machine$double.eps), i]) - min(weights[treat==0 & weights[, i] > sqrt(.Machine$double.eps), i]) >= sqrt(.Machine$double.eps)
-                        ) { #if treated weights are only all either 0 the same; ATT
+                        if (nunique(treat) <= 2) {
+                            if (max(weights[treat==1 & weights[, i] > sqrt(.Machine$double.eps), i]) - min(weights[treat==1 & weights[, i] > sqrt(.Machine$double.eps), i]) < sqrt(.Machine$double.eps) &&
+                                max(weights[treat==0 & weights[, i] > sqrt(.Machine$double.eps), i]) - min(weights[treat==0 & weights[, i] > sqrt(.Machine$double.eps), i]) >= sqrt(.Machine$double.eps)
+                            ) { #if treated weights are only all either 0 the same; ATT
+                                estimand[i] <- "att"
+                                X$s.d.denom[i] <- "treated"
+                            }
+                            else if (max(weights[treat==0 & weights[, i] > sqrt(.Machine$double.eps), i]) - min(weights[treat==0 & weights[, i] > sqrt(.Machine$double.eps), i]) < sqrt(.Machine$double.eps) &&
+                                     max(weights[treat==1 & weights[, i] > sqrt(.Machine$double.eps), i]) - min(weights[treat==1 & weights[, i] > sqrt(.Machine$double.eps), i]) >= sqrt(.Machine$double.eps)
+                            ) { #if control weights are only all either 0 the same; ATC
+                                estimand[i] <- "atc"
+                                X$s.d.denom[i] <- "control"
+                            }
+                            else {
+                                estimand[i] <- "ate"
+                                X$s.d.denom[i] <- "pooled"
+                            }
+                        }
+                        else if (length(focal) == 1) {
                             estimand[i] <- "att"
                             X$s.d.denom[i] <- "treated"
-                        }
-                        else if (max(weights[treat==0 & weights[, i] > sqrt(.Machine$double.eps), i]) - min(weights[treat==0 & weights[, i] > sqrt(.Machine$double.eps), i]) < sqrt(.Machine$double.eps) &&
-                                 max(weights[treat==1 & weights[, i] > sqrt(.Machine$double.eps), i]) - min(weights[treat==1 & weights[, i] > sqrt(.Machine$double.eps), i]) >= sqrt(.Machine$double.eps)
-                        ) { #if control weights are only all either 0 the same; ATC
-                            estimand[i] <- "atc"
-                            X$s.d.denom[i] <- "control"
                         }
                         else {
                             estimand[i] <- "ate"
                             X$s.d.denom[i] <- "pooled"
                         }
                     }
-                    
                     else {
                         estimand[i] <- "att"
                         X$s.d.denom[i] <- "treated"
@@ -1044,7 +1053,7 @@ x2base.data.frame <- function(covs, ...) {
             message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(length(unique(estimand)) == 1, toupper(estimand), word.list(toupper(estimand))), "\" instead.")
         }
         else if (check.weights) {
-            message("Note: estimand and s.d.denom not specified; assuming ", word.list(toupper(estimand)), " and ", word.list(X$s.d.denom), ".")
+            message("Note: estimand and s.d.denom not specified; assuming ", ifelse(nunique(toupper(estimand)) == 1, toupper(unique(estimand)), word.list(toupper(estimand))), " and ", ifelse(nunique(X$s.d.denom) == 1, unique(X$s.d.denom), word.list(X$s.d.denom)), ".")
         }
         
         if (all(X$method %in% c("weighting", "matching"))) {
@@ -1083,9 +1092,9 @@ x2base.formula <- function(formula, ...) {
     
     #Checks
     if (length(A$data) == 0) {
-        stop("Dataframe must be specified.", call. = FALSE)}
+        stop("Data must be specified.", call. = FALSE)}
     if (!is.data.frame(A$data)) {
-        stop("Data must be a dataframe.", call. = FALSE)}
+        stop("Data must be a data.frame.", call. = FALSE)}
     
     #Initializing variables
     tt <- terms(formula)
@@ -1455,4 +1464,119 @@ x2base.optmatch <- function(optmatch, ...) {
 
     return(X)
     
+}
+x2base.weightit <- function(weightit, ...) {
+    #stop.method
+    #s.d.denom
+    A <- list(...)
+    
+    X <- list(covs=NA,
+              treat=NA,
+              weights=NA,
+              distance=NA,
+              addl=NA,
+              s.d.denom=NA,
+              call=NA,
+              cluster = NA,
+              s.weights = NA)
+    
+    #Initializing variables
+    estimand <- weightit$estimand
+    
+    if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
+        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                error = function(cond) {
+                                    new.s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
+                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                    return(new.s.d.denom)})
+    }
+    else {
+        s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
+    }
+    
+    weights <- get.w(weightit)
+    treat <- weightit$treat
+    covs <- weightit$covs
+    
+    weightit.data <- weightit$data
+    
+    #Process cluster
+    cluster <- A$cluster
+    if (length(cluster) > 0) {
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+            cluster <- cluster
+        }
+        else if (is.character(cluster) && length(cluster)==1) {
+            if (cluster %in% names(data)) {
+                cluster <- data[, cluster]
+            }
+            else if (cluster %in% names(weightit.data)) {
+                cluster <- weightit.data[, cluster]
+            }
+        }
+        else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+    }
+    
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        val <- A[[i]]
+        val.df <- NULL
+        if (length(val) > 0) {
+            if (is.vector(val, mode = "list")) {
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(seq_along(val.list), function(x) {
+                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                    val.list[[x]]})
+                if (length(unique(sapply(val.list, nrow))) > 1) {
+                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
+                }
+                
+                val.df <- setNames(do.call("cbind", val.list),
+                                   c(sapply(val.list, names)))
+            }
+            else {
+                val.df <- process.val(val, i, treat, covs, data)
+            }
+            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+            }
+        }
+        assign(i, val.df)
+    }
+    
+    if (length(distance) > 0) distance <- cbind(distance, prop.score = weightit$ps)
+    else distance <- data.frame(prop.score = weightit$ps)
+    
+    ensure.equal.lengths <- TRUE
+    vectors <- c("cluster")
+    data.frames <- c("covs", "weights", "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="covs"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["covs"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
+    }
+    
+    X$weights <- weights
+    X$treat <- treat
+    X$distance <- distance
+    X$addl <- addl
+    X$covs <- covs
+    X$cluster <- factor(cluster)
+    X$method <- rep("weighting", ncol(weights))
+    X$s.weights <- weightit$s.weights
+    X$discarded <- weightit$discarded
+    
+    return(X)
 }

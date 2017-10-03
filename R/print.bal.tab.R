@@ -543,7 +543,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         for (i in which.cluster) {
             cat(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - \n"))
             cat("Balance measures:\n")
-            print.data.frame(replaceNA(round_df(c.balance[[i]][["Balance.Table"]][, keep], digits)))
+            print.data.frame(replaceNA(round_df(c.balance[[i]][["Balance"]][, keep], digits)))
             
             for (j in rownames(c.balance[[i]][["Observations"]])) {
                 if (all(c.balance[[i]][["Observations"]][j,] == 0)) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!=j,]

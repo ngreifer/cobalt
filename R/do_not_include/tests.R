@@ -208,25 +208,36 @@ ate.ate$weights <- ate.ate$weights.q + ate.ate$weights.p
 bal.tab(covs, lalonde$treat, weights = ate.ate$weights, method = "w", estimand = "ate", disp.v.ratio = T)
 
 #Multinomial
-lalonde$treat4 <- factor(ifelse(lalonde$treat == 1, 1, sample(2:4, nrow(lalonde), T)))
-mnps4.out <- mnps(f.build("treat4", covs), data = lalonde, 
+lalonde$treat3 <- factor(ifelse(lalonde$treat == 1, 1, sample(2:3, nrow(lalonde), T)))
+mnps3.out <- mnps(f.build("treat3", covs), data = lalonde, 
                   stop.method = c("ks.max"), 
                   estimand = "ATE", verbose = FALSE)
-bal.tab(mnps4.out)
-bal.plot(mnps4.out, var.name = "age")
-mnps4.att <- mnps(f.build("treat4", covs), data = lalonde, 
+bal.tab(mnps3.out)
+bal.plot(mnps3.out, var.name = "age")
+mnps3.att <- mnps(f.build("treat3", covs), data = lalonde, 
                   stop.method = c("ks.max"), 
                   estimand = "ATT", verbose = FALSE,
-                  treatATT = 4)
-bal.tab(mnps4.att)
-bal.plot(mnps4.att, var.name = "age")
-cbps.out4 <- CBPS(f.build("treat4", covs), data = lalonde)
-bal.tab(cbps.out4)
-bal.plot(cbps.out4, var.name = "age")
-bal.plot(f.build("treat4", covs), data = lalonde, var.name = "age",
-         weights = data.frame(cbps = get.w(cbps.out4),
-                              gbm = get.w(mnps4.out)),
+                  treatATT = 3)
+bal.tab(mnps3.att)
+bal.plot(mnps3.att, var.name = "age")
+cbps.out3 <- CBPS(f.build("treat3", covs), data = lalonde)
+bal.tab(cbps.out3)
+bal.plot(cbps.out3, var.name = "age")
+bal.plot(f.build("treat3", covs), data = lalonde, var.name = "age",
+         weights = data.frame(cbps = get.w(cbps.out3),
+                              gbm = get.w(mnps3.out)),
          method = "w", which = "both")
+ate3.out <- ATE(rep(0, nrow(lalonde)), as.numeric(lalonde$treat3)-1,
+                covs_)
+ate3.out$weights <- ifelse(lalonde$treat3 == "1", ate3.out$weights.mat[,1],
+                           ifelse(lalonde$treat3 == "2", ate3.out$weights.mat[,2],
+                                  ate3.out$weights.mat[,3]))
+bal.plot(f.build("treat3", covs), data = lalonde, var.name = "age",
+         weights = data.frame(ate = ate3.out$weights),
+         method = "w", which = "both")
+bal.tab(f.build("treat3", covs), data = lalonde,
+         weights = data.frame(ate = ate3.out$weights),
+         method = "w")
 
 #sourcing
 source('R/x2base.R')
