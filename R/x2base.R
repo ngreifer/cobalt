@@ -165,7 +165,7 @@ x2base.ps <- function(ps, ...) {
     else {
         rule1 <- names(ps$w)
     }
-
+    
     s <- names(ps$w)[match(tolower(rule1), tolower(names(ps$w)))]
     estimand <- substr(tolower(s), nchar(s)-2, nchar(s))
     
@@ -261,7 +261,7 @@ x2base.ps <- function(ps, ...) {
     X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- ps$sampw
-
+    
     return(X)
 }
 x2base.mnps <- function(mnps, ...) {
@@ -559,7 +559,7 @@ x2base.Match <- function(Match, ...) {
     X$call <- NULL
     X$method <- "matching"
     X$cluster <- factor(cluster)
-
+    
     return(X)
 }
 x2base.data.frame <- function(covs, ...) {
@@ -603,6 +603,7 @@ x2base.data.frame <- function(covs, ...) {
     estimand <- A$estimand
     imp <- A$imp
     s.weights <- A$s.weights
+    focal <- A$focal
     
     
     #Checks
@@ -788,6 +789,9 @@ x2base.data.frame <- function(covs, ...) {
     if (length(unique(treat)) == 2) {
         treat <- binarize(treat)
     }
+    else if (is.character(treat)) {
+        treat <- factor(treat)
+    }
     
     #Process weights, addl, and distance
     for (i in c("weights", "addl", "distance")) {
@@ -849,7 +853,7 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     else s.weights <- rep(1, length(treat))
-
+    
     #Process cluster
     if (length(cluster) > 0) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
@@ -945,7 +949,7 @@ x2base.data.frame <- function(covs, ...) {
         weights <- data.frame(weights = match.strata2weights(match.strata = match.strata,
                                                              treat = treat,
                                                              covs = covs
-                                                             ))
+        ))
     }
     
     if (length(weights) > 0) {
@@ -958,7 +962,19 @@ x2base.data.frame <- function(covs, ...) {
         
     }
     
-
+    #Check focal
+    if (length(focal) > 0 && is.factor(treat)) {
+        if (is.numeric(focal)) {
+            if (focal <= nunique(treat)) focal <- levels(treat)[focal]
+            else 
+                stop(paste0("focal was specified as ", focal, 
+                             ", but there are only ", levels(treat), " treatment groups."), call. = FALSE)
+        }
+        else {
+            if (!focal %in% levels(treat)) 
+                stop(paste0("The name specified to focal is not the name of any treatment group."), call. = FALSE)
+        }
+    }
     
     #Get s.d.denom
     if (nunique(treat) <= 2 || !is.numeric(treat)) { #non-continuous
@@ -1028,13 +1044,15 @@ x2base.data.frame <- function(covs, ...) {
                                 X$s.d.denom[i] <- "pooled"
                             }
                         }
-                        else if (length(focal) == 1) {
-                            estimand[i] <- "att"
-                            X$s.d.denom[i] <- "treated"
-                        }
                         else {
-                            estimand[i] <- "ate"
-                            X$s.d.denom[i] <- "pooled"
+                            if (length(focal) == 1) {
+                                estimand[i] <- "att"
+                                X$s.d.denom[i] <- "treated"
+                            }
+                            else {
+                                estimand[i] <- "ate"
+                                X$s.d.denom[i] <- "pooled"
+                            }
                         }
                     }
                     else {
@@ -1073,7 +1091,7 @@ x2base.data.frame <- function(covs, ...) {
     X$addl <- addl
     X$imp <- factor(imp)
     X$s.weights <- s.weights
-
+    
     return(X)
 }
 x2base.formula <- function(formula, ...) {
@@ -1128,8 +1146,8 @@ x2base.CBPS <- function(cbps.fit, ...) {
     treat <- cbps.fit$y
     covs <- cbps.fit$data[, !is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
     weights <- data.frame(weights = get.w(cbps.fit, 
-                                                use.weights = ifelse(length(A$use.weights) == 0, TRUE,
-                                                                               A$use.weights)))
+                                          use.weights = ifelse(length(A$use.weights) == 0, TRUE,
+                                                               A$use.weights)))
     
     if (!(any(class(cbps.fit) == "CBPSContinuous") || nunique(treat) > 2)) {
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
@@ -1218,7 +1236,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
             else distance <- cbind(distance, prop.score = cbps.fit$fitted.values)
         }
     }
-
+    
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster")
     data.frames <- c("covs", "weights", "distance", "addl")
@@ -1247,7 +1265,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     X$covs <- covs
     X$cluster <- factor(cluster)
     X$call <- cbps.fit$call
-
+    
     return(X)
 }
 x2base.ebalance <- function(ebalance, ...) {
@@ -1355,7 +1373,7 @@ x2base.ebalance <- function(ebalance, ...) {
     X$call <- NULL
     X$method <- "weighting"
     X$cluster <- factor(cluster)
-
+    
     return(X)
 }
 x2base.ebalance.trim <- x2base.ebalance
@@ -1461,7 +1479,7 @@ x2base.optmatch <- function(optmatch, ...) {
     X$call <- NULL
     X$method <- "matching"
     X$cluster <- factor(cluster)
-
+    
     return(X)
     
 }

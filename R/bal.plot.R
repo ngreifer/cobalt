@@ -1,4 +1,4 @@
-bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, size.weight = FALSE) {
+bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, size.weight = FALSE) {
     
     args <- list(...)
     
@@ -191,8 +191,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
     }
     
-    if (length(unique(D$treat)) > 2 && is.numeric(D$treat)) { #Continuous treatments
-        
+    if (nunique(D$treat) > 2 && is.numeric(D$treat)) { #Continuous treatments
         if ("subclass" %in% facet) {
             if (is.categorical.var) {
                 weights <- with(D, mapply(function(w, s, v) w / sum(weights[subclass==s & var==v]), w = weights, s = subclass, v = var))
@@ -232,6 +231,33 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     else { #Categorical treatments (multinomial supported)
         D$treat <- factor(D$treat)
         
+        if (length(which.treat) == 0) 
+            which.treat <- character(0)
+        else if (is.numeric(which.treat)) {
+            which.treat <- levels(D$treat)[seq_along(levels(D$treat)) %in% which.treat]
+            if (length(which.treat) == 0) {
+                warning("No numbers in which.treat correspond to treatment values. All treatment groups will be displayed.", call. = FALSE)
+                which.treat <- character(0)
+            }
+        }
+        else if (is.character(which.treat)) {
+            which.treat <- levels(D$treat)[levels(D$treat) %in% which.treat]
+            if (length(which.treat) == 0) {
+                warning("No names in which.treat correspond to treatment values. All treatment groups will be displayed.", call. = FALSE)
+                which.treat <- character(0)
+            }
+        }
+        else if (is.na(which.treat)) {
+            which.treat <- character(0)
+        }
+        else {
+            warning("The argument to which.treat must be NA, NULL, or a vector of treatment names or indices. All treatment groups will be displayed.", call. = FALSE)
+            which.treat <- character(0)
+        }
+        if (length(which.treat) > 0 && all(!is.na(which.treat))) D <- D[D$treat %in% which.treat,]
+        
+        for (i in names(D)[sapply(D, is.factor)]) D[, i] <- factor(D[, i])
+        
         if (length(facet) > 0) {
             if ("subclass" %in% facet) {
                 weights <- with(D, mapply(function(w, t, s) w / sum(weights[treat==t & subclass==s]), w = weights, t = treat, s = subclass))
@@ -240,9 +266,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             else {
                 weights <- with(D, mapply(function(w, t, c, i, f.which) w / sum(weights[treat==t & cluster==c & imp==i & facet.which==f.which]), w = weights, t = treat, c= cluster, i = imp, f.which = facet.which))
                 d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, facet.which = D$facet.which)
-                
             }
-            
         }
         else {
             weights <- with(D, mapply(function(w, t) w / sum(weights[treat==t]), w = weights, t = treat))

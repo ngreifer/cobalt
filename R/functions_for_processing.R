@@ -140,7 +140,7 @@ process.val <- function(val, i, treat, covs, data) {
                     stop(paste0("Names were provided to ", i, ", but no argument to data was provided."), call. = FALSE)
                 }
                 else {
-                    stop(paste0("No names provided to ", i, ", are the names of variables in data."), call. = FALSE)
+                    stop(paste0("No names provided to ", i, " are the names of variables in data."), call. = FALSE)
                 }
             }
         }
@@ -283,11 +283,10 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     
 }
 get.types <- function(C) {
-    types <- mapply(function(x, y) ifelse(ifelse(is.null(attr(C, "distance.names")), 
+    types <- sapply(colnames(C), function(x) ifelse(ifelse(is.null(attr(C, "distance.names")), 
                                                  FALSE, x %in% attr(C, "distance.names")), 
-                                          "Distance", ifelse(length(unique(y))<=2, 
-                                                             "Binary", "Contin.")), 
-                    colnames(C), C)
+                                          "Distance", ifelse(nunique(C[, x]) <= 2, 
+                                                             "Binary", "Contin.")))
     return(types)
 }
 
@@ -1171,21 +1170,13 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
 
     return(B)
 }
-samplesize.multi <- function(bal.tab.multi.list, treat.names) {
-    obs <- do.call("cbind", unname(lapply(bal.tab.multi.list, function(x) x[["Observations"]])))[, treat.names]
+samplesize.multi <- function(bal.tab.multi.list, treat.names, focal) {
+    if (length(focal) > 0) which <- c(treat.names[treat.names != focal], focal)
+    else which <- rev(treat.names)
+    obs <- do.call("cbind", unname(lapply(bal.tab.multi.list, function(x) x[["Observations"]])))[, which]
     attr(obs, "tag") <- attr(bal.tab.multi.list[[1]][["Observations"]], "tag")
     attr(obs, "ss.type") <- attr(bal.tab.multi.list[[1]][["Observations"]], "ss.type")
     return(obs)
-}
-treat.pair <- function(x, sort = FALSE) {
-    # tp <- attr(x, "treat.pair")
-    # if (length(tp) == 0) return(NULL)
-    # else return(sort(tp)) 
-    
-    tp <- names(x)
-    s <- strsplit(x, "|", fixed = TRUE)[[1]]
-    if (sort) return(sort(s)) 
-    else return(s)
 }
 
 #love.plot

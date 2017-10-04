@@ -70,7 +70,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
             maximbal.v <- NULL
         }
     }
-    if (!p.ops$disp.v.ratio) {
+    if (length(p.ops$disp.v.ratio) == 0 || !p.ops$disp.v.ratio) {
         p.ops$v.threshold <- NULL
         baltal.v <- NULL
         maximbal.v <- NULL
@@ -83,7 +83,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
             maximbal.ks <- NULL
         }
     }
-    if (!p.ops$disp.ks) {
+    if (length(p.ops$disp.ks) == 0 || !p.ops$disp.ks) {
         p.ops$ks.threshold <- NULL
         baltal.ks <- NULL
         maximbal.ks <- NULL
@@ -94,6 +94,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
                              p.ops$un, 
                              rep(c(p.ops$disp.adj, 
                                    !is.null(p.ops$r.threshold)), p.ops$nweights + !p.ops$disp.adj)))
+        
     }
     else {
         keep <- setNames(as.logical(c(TRUE, 
@@ -255,7 +256,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
             maximbal.v <- NULL
         }
     }
-    if (!p.ops$disp.v.ratio) {
+    if (length(p.ops$disp.v.ratio) == 0 || !p.ops$disp.v.ratio) {
         p.ops$v.threshold <- NULL
         baltal.v <- NULL
         maximbal.v <- NULL
@@ -268,7 +269,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
             maximbal.ks <- NULL
         }
     }
-    if (!p.ops$disp.ks) {
+    if (length(p.ops$disp.ks) == 0 || !p.ops$disp.ks) {
         p.ops$ks.threshold <- NULL
         baltal.ks <- NULL
         maximbal.ks <- NULL
@@ -433,7 +434,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             maximbal.v <- NULL
         }
     }
-    if (!p.ops$disp.v.ratio) {
+    if (length(p.ops$disp.v.ratio) == 0 || !p.ops$disp.v.ratio) {
         p.ops$v.threshold <- NULL
         baltal.v <- NULL
         maximbal.v <- NULL
@@ -446,7 +447,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             maximbal.ks <- NULL
         }
     }
-    if (!p.ops$disp.ks) {
+    if (length(p.ops$disp.ks) == 0 || !p.ops$disp.ks) {
         p.ops$ks.threshold <- NULL
         baltal.ks <- NULL
         maximbal.ks <- NULL
@@ -692,7 +693,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             maximbal.v <- NULL
         }
     }
-    if (!p.ops$disp.v.ratio) {
+    if (length(p.ops$disp.v.ratio) == 0 || !p.ops$disp.v.ratio) {
         p.ops$v.threshold <- NULL
         baltal.v <- NULL
         maximbal.v <- NULL
@@ -705,7 +706,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             maximbal.ks <- NULL
         }
     }
-    if (!p.ops$disp.ks) {
+    if (length(p.ops$disp.ks) == 0 || !p.ops$disp.ks) {
         p.ops$ks.threshold <- NULL
         baltal.ks <- NULL
         maximbal.ks <- NULL
@@ -920,7 +921,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             maximbal.v <- NULL
         }
     }
-    if (!p.ops$disp.v.ratio) {
+    if (length(p.ops$disp.v.ratio) == 0 || !p.ops$disp.v.ratio) {
         p.ops$v.threshold <- NULL
         baltal.v <- NULL
         maximbal.v <- NULL
@@ -933,7 +934,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             maximbal.ks <- NULL
         }
     }
-    if (!p.ops$disp.ks) {
+    if (length(p.ops$disp.ks) == 0 || !p.ops$disp.ks) {
         p.ops$ks.threshold <- NULL
         baltal.ks <- NULL
         maximbal.ks <- NULL
@@ -1194,7 +1195,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
             maximbal.v <- NULL
         }
     }
-    if (!p.ops$disp.v.ratio) {
+    if (length(p.ops$disp.v.ratio) == 0 || !p.ops$disp.v.ratio) {
         p.ops$v.threshold <- NULL
         baltal.v <- NULL
         maximbal.v <- NULL
@@ -1207,7 +1208,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
             maximbal.ks <- NULL
         }
     }
-    if (!p.ops$disp.ks) {
+    if (length(p.ops$disp.ks) == 0 || !p.ops$disp.ks) {
         p.ops$ks.threshold <- NULL
         baltal.ks <- NULL
         maximbal.ks <- NULL
@@ -1248,12 +1249,11 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     }
     else {
         if (length(which.treat) == 1) {
-            disp.treat.pairs <- lapply(p.ops$treat.names[p.ops$treat.names != which.treat], function(x) sort(c(which.treat, x)))
+            disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) any(m.balance[[x]]$print.options$treat.names %in% which.treat))]
         }
         else {
-            disp.treat.pairs <- lapply(combn(which.treat, 2, list), sort)
+            disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) all(m.balance[[x]]$print.options$treat.names %in% which.treat))]
         }
-        disp.treat.pairs <- disp.treat.pairs[sapply(disp.treat.pairs, function(x) any(sapply(lapply(m.balance, treat.pair), function(y) identical(y, x))))]
     }
     
     #Printing output
@@ -1266,11 +1266,10 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         headings <- character(length(disp.treat.pairs))
         cat("Balance by treatment pair:\n")
         for (i in seq_along(disp.treat.pairs)) {
-            k <- which(sapply(m.balance, function(x) all(x$print.options$treat.names %in% disp.treat.pairs[[i]])))
-            headings[i] <- paste0("\n - - - ", m.balance[[k]]$print.options$treat.names[1]," (0) vs. ",
-                                  m.balance[[k]]$print.options$treat.names[2]," (1) - - - \n")
+            headings[i] <- paste0("\n - - - ", m.balance[[i]]$print.options$treat.names[1]," (0) vs. ",
+                                  m.balance[[i]]$print.options$treat.names[2]," (1) - - - \n")
             cat(headings[i])
-            do.call(print, c(list(m.balance[[k]]), args))
+            do.call(print, c(list(m.balance[[i]]), args))
         }
         cat(paste0(paste(rep(" -", round(max(nchar(headings))/2)), collapse = ""), " \n"))
         cat("\n")

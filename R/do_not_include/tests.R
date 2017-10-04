@@ -188,7 +188,6 @@ bal.plot(f.build("treat", covs_mis), data = imp.data, weights = "match.weight",
          method = "matching", imp = ".imp", cluster = "race", which.imp = 1,
          var.name = "age", which = "b")
 
-#Add MI tests
 #Other packages
 #sbw
 library("sbw")
@@ -209,15 +208,16 @@ bal.tab(covs, lalonde$treat, weights = ate.ate$weights, method = "w", estimand =
 
 #Multinomial
 lalonde$treat3 <- factor(ifelse(lalonde$treat == 1, 1, sample(2:3, nrow(lalonde), T)))
+bal.tab(f.build("treat3", covs), data = lalonde, focal = 1, which.treat = 1:3, m.threshold = .1)
 mnps3.out <- mnps(f.build("treat3", covs), data = lalonde, 
                   stop.method = c("ks.max"), 
                   estimand = "ATE", verbose = FALSE)
-bal.tab(mnps3.out)
+bal.tab(mnps3.out, which.treat = 1:3)
 bal.plot(mnps3.out, var.name = "age")
 mnps3.att <- mnps(f.build("treat3", covs), data = lalonde, 
                   stop.method = c("ks.max"), 
                   estimand = "ATT", verbose = FALSE,
-                  treatATT = 3)
+                  treatATT = 2)
 bal.tab(mnps3.att)
 bal.plot(mnps3.att, var.name = "age")
 cbps.out3 <- CBPS(f.build("treat3", covs), data = lalonde)
@@ -227,11 +227,13 @@ bal.plot(f.build("treat3", covs), data = lalonde, var.name = "age",
          weights = data.frame(cbps = get.w(cbps.out3),
                               gbm = get.w(mnps3.out)),
          method = "w", which = "both")
+bal.tab(f.build("treat3", covs), data = lalonde, 
+         weights = data.frame(cbps = get.w(cbps.out3),
+                              gbm = get.w(mnps3.out)),
+         method = "w")
 ate3.out <- ATE(rep(0, nrow(lalonde)), as.numeric(lalonde$treat3)-1,
                 covs_)
-ate3.out$weights <- ifelse(lalonde$treat3 == "1", ate3.out$weights.mat[,1],
-                           ifelse(lalonde$treat3 == "2", ate3.out$weights.mat[,2],
-                                  ate3.out$weights.mat[,3]))
+ate3.out$weights <- apply(ate3.out$weights.mat, 2, sum)
 bal.plot(f.build("treat3", covs), data = lalonde, var.name = "age",
          weights = data.frame(ate = ate3.out$weights),
          method = "w", which = "both")

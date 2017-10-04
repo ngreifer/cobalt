@@ -17,9 +17,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     #limits
     #cluster.fun (deprecated)
     
-    if (length(args$which.cluster) > 0) b$print.options$which.cluster <- args$which.cluster
-    if (length(args$which.imp) > 0) b$print.options$which.imp <- args$which.imp
-    if (length(args$which.treat) > 0) b$print.options$which.treat <- args$which.treat
+    p.ops <- c("which.cluster", "which.imp", "which.treat")
+    for (i in p.ops) {
+        if (length(args[[i]]) > 0) b$print.options[[i]] <- args[[i]]
+    }
     
     null.threshold <- is.null(threshold)
     if (!null.threshold) {
@@ -299,12 +300,11 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
         else {
             if (sum(treat.names.good) == 1) {
-                disp.treat.pairs <- sapply(b$print.options$treat.names[!treat.names.good], function(x) paste(sort(c(b$print.options$which.treat, x)), collapse = "|"))
+                disp.treat.pairs <- names(b[["Pair.Balance"]])[sapply(names(b[["Pair.Balance"]]), function(x) any(b[["Pair.Balance"]][[x]]$print.options$treat.names %in% b$print.options$treat.names[treat.names.good]))]
             }
             else {
-                disp.treat.pairs <- sapply(combn(b$print.options$treat.names[treat.names.good], 2, list), function(x) paste(sort(x), collapse = "|"))
+                disp.treat.pairs <- names(b[["Pair.Balance"]])[sapply(names(b[["Pair.Balance"]]), function(x) all(b[["Pair.Balance"]][[x]]$print.options$treat.names %in% b$print.options$treat.names[treat.names.good]))]
             }
-            disp.treat.pairs <- disp.treat.pairs[disp.treat.pairs %in% names(b[["Pair.Balance"]])]
         }
         
         #Get B from b
@@ -707,7 +707,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         position.dodge <- ggstance::position_dodgev(.5*(size))
         if (line == TRUE) { #Add line except to distance
             f <- function(x) {x[x$var %in% distance.names, "stat"] <- NA; x}
-            lp <- lp + layer(geom = "path", data = f, position = position.dodge, stat = "identity", 
+            lp <- lp + ggplot2::layer(geom = "path", data = f, position = position.dodge, stat = "identity", 
                              aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
         }
         lp <- lp + 
@@ -721,7 +721,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     else {
         if (line == TRUE) { #Add line except to distance
             f <- function(x) {x[x$var %in% distance.names, "stat"] <- NA; x}
-            lp <- lp + layer(geom = "path", data = f, position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+            lp <- lp + ggplot2::layer(geom = "path", data = f, position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
         }
         lp <- lp + geom_point(data = SS, aes(shape = Sample,
                                              color = Sample), 

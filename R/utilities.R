@@ -319,7 +319,7 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
     w <- setNames(as.data.frame(lapply(seq_along(s), function(p) {
         if (estimand[p] == "att") ps$treat + (1-ps$treat)*ps$ps[,s[p]]/(1-ps$ps[,s[p]])
         else if (estimand[p] == "ate") ps$treat/ps$ps[,s[p]] + (1-ps$treat)/(1-ps$ps[,s[p]])
-        else (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])})),
+        else if (estimand[p] == "atc") (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])})),
         ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
     
     return(w)
@@ -432,7 +432,7 @@ get.w.ebalance.trim <- get.w.ebalance
 get.w.optmatch <- function(o, treat, ...) {
     return(match.strata2weights(o, treat = treat, covs = NULL))
 }
-get.w.weightit <- function(weightit,...) {
+get.w.weightit <- function(weightit, ...) {
     return(weightit$weights)
 }
 
@@ -482,7 +482,7 @@ expand.grid_string <- function(..., collapse = "") {
 }
 nunique <- function(x) {
     if (is.factor(x)) return(nlevels(x))
-    else return(length(x))
+    else return(length(unique(x)))
 }
 
 #Under construction
