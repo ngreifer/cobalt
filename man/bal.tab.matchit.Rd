@@ -68,13 +68,13 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 \code{logical}; whether to display balance information for individual subclasses if subclassification is used in conditioning.
 }
   \item{cluster}{
-a vector of cluster membership.
+either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{which.cluster}{
-which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
+which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
+\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
@@ -113,7 +113,7 @@ If clusters are not specified, an object of class \code{"bal.tab"} containing ba
 \item{call}{The original \code{matchit()} call.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab}.}
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters. Minimum statistics are calculated as well, but not displayed. To see these, use the options in \code{\link{print.bal.tab.cluster}}.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
 
 If subclassification is used, the following are the elements of \code{bal.tab}:
 \item{Subclass.Balance}{A list of data frames containing balance information for each covariate in each subclass.  Each data frame contains the following columns:
@@ -161,4 +161,3 @@ m.out2 <- matchit(treat ~ age + educ + race +
 bal.tab(m.out2, disp.subclass = TRUE)
 
 }
-\keyword{design}

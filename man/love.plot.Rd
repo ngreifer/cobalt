@@ -61,6 +61,10 @@ Options for display of the plot. The following arguments are currently accepted:
     \item{\code{title}}{\code{character}; the title of the plot.}
     \item{\code{subtitle}}{\code{character}; the subtitle of the plot.}
     \item{\code{limits}}{\code{numeric}; the bounds for the x-axis of the plot. Must a vector of length 2 in ascending order.}
+    \item{\code{which.cluster}}{which clusters to display. Overrides the \code{which.cluster} option in the original \code{bal.tab} object.}
+    \item{\code{which.imp}}{which imputations to display. Overrides the \code{which.imp} option in the original \code{bal.tab} object.}
+    \item{\code{which.treat}}{which treatment groups to display. Overrides the \code{which.treat} option in the original \code{bal.tab} object.}
+
   }
 }
 }
@@ -116,4 +120,3 @@ love.plot(bal.tab(m.out1), stat = "mean.diffs", threshold = .1,
           line = TRUE)
 
 }
-\keyword{design}

@@ -17,7 +17,8 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     disp.means = FALSE, disp.v.ratio = FALSE, 
     disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, 
     which.cluster = NULL, cluster.summary = TRUE, 
-    imp = NULL, which.imp = NA, imp.summary = TRUE, 
+    imp = NULL, which.imp = NA, imp.summary = TRUE,
+    focal = NULL, which.treat = NA, multi.summary = TRUE,
     s.weights = NULL, estimand = NULL, quick = FALSE, ...)
 
 \method{bal.tab}{formula}(formula, data, weights = NULL, distance = NULL, 
@@ -30,6 +31,7 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     disp.subclass = FALSE, cluster = NULL, 
     which.cluster = NULL, cluster.summary = TRUE, 
     imp = NULL, which.imp = NA, imp.summary = TRUE, 
+    focal = NULL, which.treat = NA, multi.summary = TRUE,
     s.weights = NULL, estimand = NULL, quick = FALSE, ...)
 }
 
@@ -106,22 +108,32 @@ A numeric value for the threshold for correlations between covariates and treatm
 \code{logical}; whether to display balance information for individual subclasses if subclassification is used in conditioning.
 }
   \item{cluster}{
-either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data}. 
+either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in data or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{which.cluster}{
-which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
+which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
+\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{imp}{
-either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. 
+either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link{bal.tab.imp}} for details.
 }
   \item{which.imp}{
-which imputation(s) to display. If \code{NULL}, all imputations in \code{imp} will be displayed. If \code{NA}, no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance.
+which imputations(s) to display if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
+
 }
   \item{imp.summary}{
-\code{logical}; whether to display the across-imputation summary table if \code{imp} is specified. If \code{which.imp} is \code{NA}, \code{imp.summary} will be set to \code{TRUE}.
+\code{logical}; whether to display the cluster summary table if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
+}
+  \item{focal}{
+The name of the focal treatment when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
+}
+  \item{which.treat}{
+which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
+}
+  \item{multi.summary}{
+\code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
 }
   \item{s.weights}{
 Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.
@@ -141,9 +153,9 @@ further arguments passed to or from other methods. They are ignored in this func
 
 The argument to \code{match.strata} correspond to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of \code{weights}, \code{subclass}, or \code{match.strata} are specified, \code{bal.tab()} will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, bal.tab creates balance statistics for each subclass and for the sample in aggregate.
 
-All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}.  The threshold values (\code{m.threshold}, \code{v.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold.  Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.  When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
+All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}.  The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold.  Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.  When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 
-The inputs (if any) to \code{covs} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to \code{covs} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
+The inputs (if any) to \code{covs} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), \R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to \code{covs} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
 
 Multiple sets of weights can be supplied simultaneously by incuding entering a data frame or a character vector containing the names of weight variables found in \code{data} or a list thereof. The arguments to \code{method}, \code{s.d.denom}, and \code{estimand}, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to \code{s.d.denom} or \code{estimand}. When only one set of weights is supplied, the output for the adjusted group will simply be called \code{"Adj"}, but otherwise will be named after each corresponding set of weights. Specifying mutliple sets of weights will also add components to other output of \code{bal.tab()}.
 
@@ -176,7 +188,7 @@ If clusters are not specified, an object of class \code{"bal.tab"} containing ba
 
 If multiple weights are supplied, \code{"Adj"} in \code{Balance} will be replaced by the provided names of the sets of weights, and extra columns will be added for each set of weights. Additional columns and rows for other items in the output will be created as well.
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters. Minimum statistics are calculated as well, but not displayed. To see these, use the options in \code{\link{print.bal.tab.cluster}}.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
 
 If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters.
 
@@ -203,7 +215,9 @@ If subclassification is used, the following are the elements of bal.tab:
 \item{call}{\code{NULL}.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab.subclass}.}
 
-If treatment is continuous, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold} or \code{v.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{distance}, \code{addl}, \code{un}, cluster and imputation arguments are still used as described above.
+If treatment is continuous, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{distance}, \code{addl}, \code{un}, cluster and imputation arguments are still used as described above.
+
+If multiple categorical treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 }
 
 
@@ -213,6 +227,10 @@ Noah Greifer \email{noah@unc.edu}
 
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
+\code{\link{bal.tab.cluster}} for more information on clustered data.
+\code{\link{bal.tab.imp}} for more information on multiply imputed data.
+\code{\link{bal.tab.multi}} for more information on multiple categorical treatments.
+
 }
 \examples{
 data("lalonde", package = "cobalt")

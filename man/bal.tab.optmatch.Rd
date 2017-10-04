@@ -75,13 +75,13 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 \code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
 }
   \item{cluster}{
-either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data}. 
+either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{which.cluster}{
-which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
+which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
+\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.

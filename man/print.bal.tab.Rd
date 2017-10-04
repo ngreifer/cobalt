@@ -4,6 +4,7 @@
 \alias{print.bal.tab.subclass}
 \alias{print.bal.tab.imp}
 \alias{print.bal.tab.imp.cluster}
+\alias{print.bal.tab.multi}
 
 \title{
 Print Results of a Call to bal.tab()

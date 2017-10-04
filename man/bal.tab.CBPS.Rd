@@ -15,6 +15,7 @@ Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package
     r.threshold = NULL, un = FALSE, disp.means = FALSE, 
     disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, 
     which.cluster = NULL, cluster.summary = TRUE, 
+    focal = NULL, which.treat = NA, multi.summary = TRUE,
     quick = FALSE, ...)
 }
 
@@ -68,13 +69,22 @@ A numeric value for the threshold for correlations between covariates and treatm
 \code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
 }
   \item{cluster}{
-either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in data or the CBPS object. 
+either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{which.cluster}{
-which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
+which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
+\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
+}
+  \item{focal}{
+The name of the focal treatment when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
+}
+  \item{which.treat}{
+which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
+}
+  \item{multi.summary}{
+\code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
@@ -114,9 +124,11 @@ If clusters are not specified, an object of class \code{"bal.tab"} containing ba
 \item{call}{The original \code{CBPS()} call.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab}.}
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters. Minimum statistics are calculated as well, but not displayed. To see these, use the options in \code{\link{print.bal.tab.cluster}}.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
 
-If treatment is continuous, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold} or \code{v.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
+If treatment is continuous, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
+
+If multiple categorical treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 }
 
 \author{
@@ -126,6 +138,8 @@ Noah Greifer \email{noah@unc.edu}
 
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
+\code{\link{bal.tab.cluster}} for more information on clustered data.
+\code{\link{bal.tab.multi}} for more information on multiple categorical treatments.
 }
 \examples{
 library(CBPS); data("lalonde", package = "cobalt")
@@ -136,4 +150,3 @@ cbps.out <- CBPS(treat ~ age + educ + married + race +
 bal.tab(cbps.out)
 
 }
-\keyword{design}

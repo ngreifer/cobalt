@@ -74,13 +74,13 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 \code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
 }
   \item{cluster}{
-either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data}. 
+either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{which.cluster}{
-which cluster(s) to display. If \code{NULL}, all clusters in \code{cluster} will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. 
+which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
+\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
@@ -94,7 +94,7 @@ further arguments passed to or from other methods. They are ignored in this func
 
 The input to \code{bal.tab.Match()} must include either both \code{formula} and \code{data} or both \code{treat} and \code{covs}. Using the \code{formula} + \code{data} inputs mirrors how \code{MatchBalance()} is used in \pkg{Matching}. 
 
-All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}, and \code{ks.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 The inputs (if any) to \code{covs} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to \code{covs} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
 }
@@ -122,7 +122,8 @@ If clusters are not specified, an object of class \code{"bal.tab"} containing ba
 \item{call}{\code{NULL}.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab}.}
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. Each balance summary is a balance table as described in \code{Balance} above. The summary of balance across clusters displays the mean, median, and maximum mean difference and variance ratio after adjustment for each covariate across clusters. Minimum statistics are calculated as well, but not displayed. To see these, use the options in \code{\link{print.bal.tab.cluster}}.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
+
 }
 
 \author{
@@ -149,4 +150,3 @@ covariates <- subset(lalonde, select=-c(treat, re78))
 bal.tab(Match.out, treat = lalonde$treat, covs = covariates)
 
 }
-\keyword{design}

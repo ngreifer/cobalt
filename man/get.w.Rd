@@ -2,6 +2,7 @@
 \alias{get.w}
 \alias{get.w.matchit}
 \alias{get.w.ps}
+\alias{get.w.mnps}
 \alias{get.w.Match}
 \alias{get.w.CBPS}
 \alias{get.w.ebalance}
@@ -20,6 +21,8 @@ get.w(\dots)
 
 \method{get.w}{ps}(ps, stop.method = NULL, estimand = NULL, ...)
 
+\method{get.w}{mnps}(mnps, stop.method = NULL, ...)
+
 \method{get.w}{Match}(M, ...)
 
 \method{get.w}{CBPS}(c, estimand = NULL, ...)
@@ -30,11 +33,11 @@ get.w(\dots)
 }
 
 \arguments{
-  \item{m, ps, M, c, e, o}{
+  \item{m, ps, mnps, M, c, e, o}{
 Output from the corresponding preprocessing packages.
 }
   \item{stop.method}{
-The name of the stop method used in the original call to \code{ps()} in \pkg{twang}, e.g., \code{"es.mean"}. If empty, will return weights from all stop method available into a data.frame. Abbreviations allowed.
+The name of the stop method used in the original call to \code{ps()} or \code{mnps()} in \pkg{twang}, e.g., \code{"es.mean"}. If empty, will return weights from all stop method available into a data.frame. Abbreviations allowed.
 }
   \item{estimand}{
 If weights are computed using the propensity score (i.e., for the \code{ps} and \code{CBPS} methods), which estimand to use to compute the weights. If \code{"ATE"}, weights will be computed as \code{1/ps} for the treated group and \code{1/(1-ps)} for the control group. If \code{"ATT"}, weights will be computed as \code{1} for the treated group and \code{ps/(1-ps)} for the control group. If \code{NULL}, \code{get.w()} will try to figure out which estimand is desired based on the object.
@@ -54,7 +57,6 @@ The output of \code{get.w()} can be used in calls to the formula and data frame 
 \value{
 A vector or data.frame of weights for each unit. These may be matching weights or balancing weights.
 }
-
 
 \author{
 Noah Greifer \email{noah@unc.edu}

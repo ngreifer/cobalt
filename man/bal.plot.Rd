@@ -10,7 +10,8 @@ Generates density plots, bar graphs, or scatterplots displaying distributional b
 \usage{
 bal.plot(obj, var.name, ..., which, which.sub = NULL, 
          cluster = NULL, which.cluster = NULL, imp = NULL, 
-         which.imp = NULL, size.weight = FALSE)
+         which.imp = NULL, which.treat = NULL,
+         size.weight = FALSE)
 }
 \arguments{
   \item{obj}{
@@ -40,6 +41,9 @@ optional; a vector of imputation indices, or the name of a variable in an availa
   \item{which.imp}{
 if imputations are used, which imputations(s) to display. Must be numerical indices for which to display balance. If \code{NULL} (the default) or \code{NA}, all imputations are displayed.
 }
+  \item{which.treat}{
+Which treatment groups to display. If \code{NULL} (the default) or \code{NA}, all imputations are displayed.
+}
   \item{size.weight}{
 \code{logical}; if both the treatment and the covariate are continuous, whether points should be sized according to their weight. 
 }
@@ -49,7 +53,7 @@ if imputations are used, which imputations(s) to display. Must be numerical indi
 
 For \code{matchit} objects: None
 
-For \code{ps} objects: (\code{full.stop.method}; see \link[=bal.tab.ps]{defaults}).
+For \code{ps} and \code{mnps} objects: (\code{stop.method}; see \link[=bal.tab.ps]{defaults}).
 
 For \code{Match} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
@@ -93,4 +97,3 @@ m.out <- matchit(treat ~ age + educ + race +
 bal.plot(m.out, "age", which = "both")
 bal.plot(m.out, "race", which = "both")
 }
-\keyword{design}
