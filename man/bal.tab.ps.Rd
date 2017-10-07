@@ -92,7 +92,7 @@ which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.
 \code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{focal}{
-Ignored. \code{bal.tab()} automatically assigns a focal treatment based on the \code{mnps} object. See \code{\link{bal.tab.multi}} for details.
+ignored. With multiple categorical treatments, \code{bal.tab()} automatically assigns a focal treatment based on the \code{mnps} object. See \code{\link{bal.tab.multi}} for details.
 }
   \item{which.treat}{
 which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
