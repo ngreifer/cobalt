@@ -121,7 +121,8 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
                                                                                   sub.by=sub.by, 
                                                                                   m.threshold=m.threshold, 
                                                                                   v.threshold=v.threshold, 
-                                                                                  ks.threshold=ks.threshold)
+                                                                                  ks.threshold=ks.threshold,
+                                                                                  s.d.denom = s.d.denom[1])
                 if (length(m.threshold) > 0) {
                     out[["Balanced.Means.Subclass"]] <- as.data.frame(lapply(levels(subclass), function(x) baltal(out[["Subclass.Balance"]][[x]][,"M.Threshold"])))
                     names(out[["Balanced.Means.Subclass"]]) <- paste("Subclass", levels(subclass))

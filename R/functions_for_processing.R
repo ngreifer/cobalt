@@ -328,6 +328,14 @@ std.diff <- function(x, treat, weights, denom, s.weights = rep(1, length(treat))
 }
 std.diff.subclass <- function(x, treat, weights, subclass, which.sub, denom) {
     #treated <- as.logical(treat)
+    if (sum(treat==0 & !is.na(subclass) & subclass==which.sub & weights==1) == 0) {
+        warning(paste0("There are no control units in subclass ", which.sub, "."), call. = FALSE)
+        return(NA)
+    }
+    if (sum(treat==1 & !is.na(subclass) & subclass==which.sub & weights==1) == 0) {
+        warning(paste0("There are no treated units in subclass ", which.sub, "."), call. = FALSE)
+        return(NA)
+    }
     g0 <- x[treat==0 & !is.na(subclass) & subclass==which.sub & weights==1]
     g1 <- x[treat==1 & !is.na(subclass) & subclass==which.sub & weights==1]
     m0 <- sum(g0)/length(g0)
@@ -685,8 +693,8 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
         in.subclass <- !is.na(subclass) & subclass==i
         
         if (!(!disp.means && quick)) {
-            SB[[i]][,"M.0.Adj"] <- apply(C[treat==0 & in.subclass, ], 2, function(x) sum(x)/length(x))
-            SB[[i]][,"M.1.Adj"] <- apply(C[treat==1 & in.subclass, ], 2, function(x) sum(x)/length(x))
+            SB[[i]][,"M.0.Adj"] <- apply(C[treat==0 & in.subclass, , drop = FALSE], 2, function(x) sum(x)/length(x))
+            SB[[i]][,"M.1.Adj"] <- apply(C[treat==1 & in.subclass, , drop = FALSE], 2, function(x) sum(x)/length(x))
         }
         
         #Mean differences
@@ -735,35 +743,26 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     
     return(SB)
 }
-balance.table.across.subclass <- function(balance.table, balance.table.subclass.list, subclass.obs, sub.by = NULL, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL) {
+balance.table.across.subclass <- function(balance.table, balance.table.subclass.list, subclass.obs, sub.by = NULL, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, s.d.denom = NULL) {
     #Variance ratio, v.threshold, and KS not yet supported
-    q.table <- array(0, dim=c(nrow(balance.table.subclass.list[[1]]), 3, length(balance.table.subclass.list)), dimnames=list(row.names(balance.table.subclass.list[[1]]), names(balance.table.subclass.list[[1]][, 2:4])))
-    for (i in seq_along(balance.table.subclass.list)) {
-        q.table[, , i] <- as.matrix(balance.table.subclass.list[[i]][, 2:4])
-    }
     
-    if (length(sub.by) == 0){
-        sub.by <- "treat"
+    if (length(s.d.denom) > 0){
+        sub.by <- switch(s.d.denom, treated = "treat",
+                         pooled = "all", control = "control")
     }
     if (sub.by=="treat") {
-        wsub <- subclass.obs["Treated", ]/sum(subclass.obs["Treated", ])
+        wsub <- "Treated"
     } else if (sub.by=="control") {
-        wsub <- subclass.obs["Control", ]/sum(subclass.obs["Control", ])
+        wsub <- "Control"
     } else if (sub.by=="all") {
-        wsub <- subclass.obs["Total", ]/sum(subclass.obs["Total", ])
+        wsub <- "Total"
     }
-    B.A <- array(0, dim=dim(q.table[, , 1]), dimnames = dimnames(q.table[, , 1]))
+    
+    B.A <- balance.table.subclass.list[[1]][, c("M.0.Adj", "M.1.Adj", "Diff.Adj")]
     for(i in rownames(B.A)) {
         for(j in colnames(B.A)) {
-            if (j=="Diff.Adj") {
-                B.A[i, j] <- sqrt(sum((wsub^2)*(q.table[i, j, ]^2)))
-            }
-            # else if (j=="V.Ratio.Adj") {
-            #   B.A[i, j] <- NA
-            # }
-            else {
-                B.A[i, j] <- sum(wsub*q.table[i, j, ])
-            }
+            B.A[i, j] <- sum(sapply(seq_along(balance.table.subclass.list),
+                                    function(s) subclass.obs[wsub, s]/sum(subclass.obs[wsub, ]) * (balance.table.subclass.list[[s]][i, j])))
         }
     }
     B.A.df <- data.frame(balance.table[, c("Type", "M.0.Un", "M.1.Un", "Diff.Un")], 
