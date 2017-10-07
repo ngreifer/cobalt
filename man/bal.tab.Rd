@@ -31,9 +31,9 @@ Although the reported mean differences (standardized or otherwise) are presented
 
 Variance ratios are computed within-sample, with the larger of the two variances in the numerator, always yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion. \code{bal.tab()} takes the reciprocal of the input to \code{v.threshold} if it is less than 1.
 
-When matching is used for conditioning, the presented sample sizes are calculated simply by summing the number of observations in each group with matching weights greater than 0. When weighting is used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}, as is used in \pkg{twang}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples.
+When matching is used for conditioning, the presented sample sizes are calculated simply by summing the number of observations in each group with matching weights greater than 0. When weighting is used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}, as is used in \pkg{twang}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being discarded.
 
-When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass},  the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass, as is done in \pkg{MatchIt}. 
+When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass},  the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See \code{\link{bal.tab.subclass}} for more details.
 
 \strong{With Continuous Treatments}
 
@@ -41,7 +41,7 @@ When continuous treatment variables are considered, the balance statistic calcul
 
 \strong{With Multinomial Treatments}
 
-Most functions in \pkg{cobalt} are not yet ready for multinomial treatments. If a single set of weights or subclasses is used across all treatments, it may be possible to display balance in the following ways. Using the data.frame or formula method, display balance as usual but subsetting all inputs with a restriction to view only two treatment levels at a time. Do this for all desired treatment value pairs to assess balance on each. The treatment value with the lowest value (e.g., 2 in 2, 3) will be considered the control condition. \code{link{bal.plot}} can display distributional balance on multiple treatments with no modificaion; simply specify the inputs without subsetting.
+For information on using \code{bal.tab()} with multiple categorical treatments, see \code{\link{bal.tab.multi}}. Essentially, \code{bal.tab()} compares pairs of treatment groups in a standard way.
 
 \strong{Quick}
 

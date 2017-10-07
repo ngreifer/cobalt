@@ -65,7 +65,7 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 \code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
 }
   \item{disp.subclass}{
-\code{logical}; whether to display balance information for individual subclasses if subclassification is used in conditioning.
+\code{logical}; whether to display balance information for individual subclasses if subclassification is used in conditioning. See \code{\link{bal.tab.subclass}} for details.
 }
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
@@ -115,26 +115,7 @@ If clusters are not specified, an object of class \code{"bal.tab"} containing ba
 
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
 
-If subclassification is used, the following are the elements of \code{bal.tab}:
-\item{Subclass.Balance}{A list of data frames containing balance information for each covariate in each subclass.  Each data frame contains the following columns:
-\itemize{
-\item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
-\item{\code{M.C.Adj}: The mean of the control group in the subclass.}
-\item{\code{M.T.Adj}: The mean of the treated group in the subclass.}
-\item{\code{Diff.Adj}: The (standardized) difference in means between the two groups in the subclass.}
-\item{\code{M.Threshold}: Whether or not the calculated mean difference exceeds or is within the threshold given by \code{m.threshold}.  If \code{m.threshold} is \code{NULL}, this column will be \code{NA}.}
-\item{\code{V.Ratio.Adj}: The ratio of the variances of the two groups in the subclass.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
-\item{\code{V.Threshold}: Whether or not the calculated variance ratio exceeds or is within the threshold given by \code{v.threshold} for continuous variables.  If \code{v.threshold} is \code{NULL}, this column will be \code{NA}.}
-}}
-
-\item{Balance.Across.Subclass}{A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted).  Variance ratios are not reported here.}
-\item{Balanced.Means.Subclass}{If \code{m.threshold} is specified, a table tallying the number of variables in each subclass that exceed or are within the threshold for mean differences.}
-\item{Max.Imbalance.Means.Subclass}{If \code{m.threshold} is specified, a table displaying the variable in each subclass with the greatest absolute mean difference.}
-\item{Balanced.Variances.Subclass}{If \code{v.threhsold} is specified, a table tallying the number of variables in each subclass that exceed or are within the threshold for variance ratios.}
-\item{Max.Imbalance.Variance.Subclass}{If \code{v.threshold} is specified, a table displaying the variable in each subclass with the greatest variance ratio.}
-\item{Subclass.Observations}{A table displaying the sample sizes in each subclass.}
-\item{call}{The original \code{matchit()} call.}
-\item{print.options}{A list of print options passed to \code{print.bal.tab}.}
+If subclassification is used, an object of class \code{"bal.tab.subclass"} containing balance summaries within each subclass and a summary of balance across subclass. See \code{\link{bal.tab.subclass}} for details.
 }
 
 \author{

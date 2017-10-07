@@ -25,6 +25,11 @@ The output is a \code{bal.tab.imp} object, which inherits from \code{bal.tab}. I
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.
 }
+
+\author{
+Noah Greifer \email{noah@unc.edu}
+}
+
 \seealso{
-\link{bal.tab}, \link{bal.tab.data.frame}, \link{print.bal.tab.imp}
+\code{\link{bal.tab}}, \code{\link{bal.tab.data.frame}}, \code{\link{print.bal.tab.imp}}
 }
