@@ -279,6 +279,7 @@ get.w.matchit <- function(m,...) {
     return(m$weights)
 }
 get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
+    estimand <- tolower(estimand)
     if (length(stop.method) > 0) {
         if (any(is.character(stop.method))) {
             rule1 <- names(ps$w)[sapply(names(ps$w), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
@@ -393,7 +394,8 @@ get.w.Match <- function(M,  ...) {
     return(o.data2$weights)
 }
 get.w.CBPS <- function(c, estimand = NULL, ...) {
-    if ("CBPSContinuous" %in% class(c)) { #continuous
+    estimand <- tolower(estimand)
+    if ("CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
         return(c$weights)
     }
     else {
@@ -416,6 +418,9 @@ get.w.CBPS <- function(c, estimand = NULL, ...) {
             return(ifelse(t == 1, 1/ps, 1/(1-ps)))
         }
     }
+}
+get.w.npCBPS <- function(c, estimand = NULL, ...) {
+    return(c$weights)
 }
 get.w.ebalance <- function(e, treat, ...) {
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
