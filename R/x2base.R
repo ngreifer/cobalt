@@ -1595,6 +1595,7 @@ x2base.weightit <- function(weightit, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- weightit$s.weights
     X$discarded <- weightit$discarded
+    X$focal <- weightit$focal
     
     return(X)
 }
