@@ -1233,6 +1233,36 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
     #Initializing variables
     X <- x2base.weightit(weightit, data = data, distance = distance, addl = addl, cluster = cluster)
     
-    out <- base.bal.tab(weights=X$weights, treat=X$treat, distance=X$distance, subclass=NULL, covs=X$covs, call=X$call, int=int, addl=X$addl, continuous=continuous, binary=binary, s.d.denom=X$s.d.denom, m.threshold=m.threshold, v.threshold=v.threshold, ks.threshold=ks.threshold, un=un, disp.means=disp.means, disp.v.ratio=disp.v.ratio, disp.ks=disp.ks, disp.subclass=disp.subclass, method = X$method, cluster = X$cluster, which.cluster = which.cluster, cluster.summary = cluster.summary, discarded = X$discarded, quick = quick)
+    if (weightit$treat.type == "binary") {
+        out <- base.bal.tab(weights=X$weights, treat=X$treat, distance=X$distance, 
+                            subclass=NULL, covs=X$covs, call=X$call, int=int, addl=X$addl, 
+                            continuous=continuous, binary=binary, s.d.denom=X$s.d.denom, 
+                            m.threshold=m.threshold, v.threshold=v.threshold, 
+                            ks.threshold=ks.threshold, un=un, disp.means=disp.means, 
+                            disp.v.ratio=disp.v.ratio, disp.ks=disp.ks, 
+                            disp.subclass=disp.subclass, method = X$method, 
+                            cluster = X$cluster, which.cluster = which.cluster, 
+                            cluster.summary = cluster.summary, discarded = X$discarded, 
+                            quick = quick)
+    }
+    else if (weightit$treat.type == "multi") {
+        out <- base.bal.tab.multi(weights=X$weights, treat=X$treat, distance=X$distance, 
+                                  covs=X$covs, call=X$call, int=int, addl=X$addl, 
+                                  continuous=continuous, binary=binary, s.d.denom=X$s.d.denom, 
+                                  m.threshold=m.threshold, v.threshold=v.threshold, 
+                                  ks.threshold=ks.threshold, un=un, disp.means=disp.means, 
+                                  disp.v.ratio=disp.v.ratio, disp.ks=disp.ks, method=X$method, 
+                                  cluster = X$cluster, which.cluster = which.cluster, 
+                                  cluster.summary = cluster.summary, focal = X$focal,
+                                  which.treat = which.treat, multi.summary = multi.summary,
+                                  s.weights = X$s.weights, quick = quick)
+    }
+    else if (weightit$treat.type == "continuous") {
+        out <- base.bal.tab.cont(weights=X$weights, treat = X$treat, distance = X$distance, 
+                                 covs=X$covs, call=X$call, int=int, addl = X$addl, 
+                                 r.threshold = r.threshold, un = un, method = X$method, 
+                                 cluster = X$cluster, which.cluster = which.cluster, 
+                                 cluster.summary = cluster.summary, quick = quick)
+    }
     return(out)
 }
