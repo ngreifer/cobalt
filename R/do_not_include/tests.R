@@ -220,7 +220,7 @@ mnps3.att <- mnps(f.build("treat3", covs), data = lalonde,
                   treatATT = 2)
 bal.tab(mnps3.att)
 bal.plot(mnps3.att, var.name = "age")
-cbps.out3 <- CBPS(f.build("treat3", covs), data = lalonde)
+cbps.out3 <- npCBPS(f.build("treat3", covs), data = lalonde)
 bal.tab(cbps.out3)
 bal.plot(cbps.out3, var.name = "age")
 bal.plot(f.build("treat3", covs), data = lalonde, var.name = "age",
