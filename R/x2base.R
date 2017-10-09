@@ -1509,10 +1509,10 @@ x2base.weightit <- function(weightit, ...) {
                                     return(new.s.d.denom)})
     }
     else {
-        s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
+        X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
     }
     
-    weights <- get.w(weightit)
+    weights <- data.frame(weights = get.w(weightit))
     treat <- weightit$treat
     covs <- weightit$covs
     
@@ -1574,6 +1574,7 @@ x2base.weightit <- function(weightit, ...) {
                           sapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
+    
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames[data.frames!="covs"])) {
@@ -1596,6 +1597,7 @@ x2base.weightit <- function(weightit, ...) {
     X$s.weights <- weightit$s.weights
     X$discarded <- weightit$discarded
     X$focal <- weightit$focal
+    X$call <- weightit$call
     
     return(X)
 }

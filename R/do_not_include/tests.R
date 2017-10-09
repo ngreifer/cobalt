@@ -232,7 +232,7 @@ bal.tab(f.build("treat3", covs), data = lalonde,
                               gbm = get.w(mnps3.out)),
          method = "w")
 ate3.out <- ATE(rep(0, nrow(lalonde)), as.numeric(lalonde$treat3)-1,
-                covs_)
+                covs_, ATT = TRUE)
 ate3.out$weights <- apply(ate3.out$weights.mat, 2, sum)
 bal.plot(f.build("treat3", covs), data = lalonde, var.name = "age",
          weights = data.frame(ate = ate3.out$weights),

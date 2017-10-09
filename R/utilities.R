@@ -395,7 +395,7 @@ get.w.Match <- function(M,  ...) {
 }
 get.w.CBPS <- function(c, estimand = NULL, ...) {
     estimand <- tolower(estimand)
-    if ("CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
+    if (TRUE || "CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
         return(c$weights)
     }
     else {
@@ -410,9 +410,12 @@ get.w.CBPS <- function(c, estimand = NULL, ...) {
             else estimand <- "ate"
         }
         
-        estimand <- match.arg(tolower(estimand), c("att", "ate"))
+        estimand <- match.arg(tolower(estimand), c("att", "atc", "ate"))
         if (estimand == "att") {
             return(ifelse(t == 1, 1, ps/(1-ps)))
+        }
+        if (estimand == "atc") {
+            return(ifelse(t == 1, (1-ps)/ps, 1))
         }
         else if (estimand == "ate") {
             return(ifelse(t == 1, 1/ps, 1/(1-ps)))
