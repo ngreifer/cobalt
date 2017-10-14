@@ -882,8 +882,6 @@ samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = 
             w <- weights[in.cluster, 1]
             sw <- s.weights[in.cluster]
             
-            #nn <- as.data.frame(matrix(0, ncol=2, nrow=1+ncol(weights)))
-            
             nn <- as.data.frame(matrix(0, ncol = 1, nrow = 2))
             nn[1, ] <- (sum(sw)^2)/sum(sw^2)
             nn[2, ] <- (sum(w*sw)^2)/sum((w*sw)^2)
