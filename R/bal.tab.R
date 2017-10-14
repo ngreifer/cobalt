@@ -785,7 +785,8 @@ bal.tab.formula <- function(formula, data, weights = NULL, distance = NULL, subc
                         cluster = cluster,
                         estimand = estimand,
                         imp = imp,
-                        focal = focal)
+                        focal = focal,
+                        s.weights = s.weights)
     
     if (length(X$imp) > 0) {
         out <- base.bal.tab.imp(weights=X$weights, 
