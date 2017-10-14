@@ -1588,7 +1588,7 @@ x2base.weightit <- function(weightit, ...) {
     if (any(problematic)) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
     }
-    print(distance)
+
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
