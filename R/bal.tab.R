@@ -1243,7 +1243,8 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                             disp.v.ratio=disp.v.ratio, disp.ks=disp.ks, 
                             disp.subclass=disp.subclass, method = X$method, 
                             cluster = X$cluster, which.cluster = which.cluster, 
-                            cluster.summary = cluster.summary, discarded = X$discarded, 
+                            cluster.summary = cluster.summary, 
+                            s.weights = X$s.weights, discarded = X$discarded, 
                             quick = quick)
     }
     else if (weightit$treat.type == "multi") {
@@ -1263,7 +1264,8 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                                  covs=X$covs, call=X$call, int=int, addl = X$addl, 
                                  r.threshold = r.threshold, un = un, method = X$method, 
                                  cluster = X$cluster, which.cluster = which.cluster, 
-                                 cluster.summary = cluster.summary, quick = quick)
+                                 cluster.summary = cluster.summary, s.weights = X$s.weights, 
+                                 quick = quick)
     }
     return(out)
 }

@@ -1515,6 +1515,7 @@ x2base.weightit <- function(weightit, ...) {
     weights <- data.frame(weights = get.w(weightit))
     treat <- weightit$treat
     covs <- weightit$covs
+    s.weights <- weightit$s.weights
     
     weightit.data <- weightit$data
     
@@ -1563,10 +1564,11 @@ x2base.weightit <- function(weightit, ...) {
     }
     
     if (length(distance) > 0) distance <- cbind(distance, prop.score = weightit$ps)
-    else distance <- data.frame(prop.score = weightit$ps)
+    else if (length(weightit$ps) > 0) distance <- data.frame(prop.score = weightit$ps)
+    else distance <- NULL
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster")
+    vectors <- c("cluster", "s.weights")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(sapply(vectors, 
@@ -1586,7 +1588,7 @@ x2base.weightit <- function(weightit, ...) {
     if (any(problematic)) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
     }
-    
+    print(distance)
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
