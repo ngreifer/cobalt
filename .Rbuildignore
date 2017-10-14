@@ -3,5 +3,5 @@
 ^README\.Rmd$
 ^README-.*\.png$
 ^CRANlogs$
-^do_not_include$
+^do_not_include
 ^vignettes/cobalt_old\.Rmd$

@@ -13,7 +13,7 @@ The balance summary is, for each variable, a weighted average of the means and m
 }
 \arguments{
 There are two arguments for \code{bal.tab()} that relate to subclasses: \code{subclass} and \code{disp.subclass}.
-\item{subclass}{For the data.frame and formula methods of \code{bal.tab}, a vector of subclass membership or the name of the variable in \code{data} containing subclass membership. When using subclassification with a function compatible with \pkg{cobalt}, such as \code{matchit()} in \cpkg{MatchIt}, this argument can be omitted because the subclass are in the output object.}
+\item{subclass}{For the data.frame and formula methods of \code{bal.tab}, a vector of subclass membership or the name of the variable in \code{data} containing subclass membership. When using subclassification with a function compatible with \pkg{cobalt}, such as \code{matchit()} in \pkg{MatchIt}, this argument can be omitted because the subclass are in the output object.}
 \item{disp.subclass}{This is a display option that does not affect computation. If \code{TRUE}, balance for each subclass will be displayed. This can be cumbersome with many subclasses or covariates. The default is \code{TRUE}.}
 }
 \value{
@@ -47,5 +47,5 @@ Noah Greifer \email{noah@unc.edu}
 }
 
 \seealso{
-\code{link{bal.tab}}, \code{\link{bal.tab.data.frame}), \code{\link{print.bal.tab.subclass}}
+\code{link{bal.tab}}, \code{\link{bal.tab.data.frame}}, \code{\link{print.bal.tab.subclass}}
 }
