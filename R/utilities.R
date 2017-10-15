@@ -395,7 +395,7 @@ get.w.Match <- function(M,  ...) {
 }
 get.w.CBPS <- function(c, estimand = NULL, ...) {
     estimand <- tolower(estimand)
-    if (TRUE || "CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
+    if ("CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
         return(c$weights)
     }
     else {

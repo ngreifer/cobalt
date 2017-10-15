@@ -1247,7 +1247,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                             s.weights = X$s.weights, discarded = X$discarded, 
                             quick = quick)
     }
-    else if (weightit$treat.type == "multi") {
+    else if (weightit$treat.type == "multinomial") {
         out <- base.bal.tab.multi(weights=X$weights, treat=X$treat, distance=X$distance, 
                                   covs=X$covs, call=X$call, int=int, addl=X$addl, 
                                   continuous=continuous, binary=binary, s.d.denom=X$s.d.denom, 
