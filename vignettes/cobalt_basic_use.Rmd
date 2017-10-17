@@ -21,7 +21,7 @@ This is an introductory guide for the use of `cobalt` in most common scenarios. 
 
 Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
-Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch`(Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), and `ebal`  (Hainmueller, 2014); these together provide a near complete set of preprocessing tools in R to date.
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), `ebal`  (Hainmueller, 2014) and `WeightIt` (Greifer, 2017); these together provide a near complete set of preprocessing tools in R to date.
 
 The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
 
@@ -42,7 +42,7 @@ The rest of this guide explains how to use `cobalt` with the above packages and 
 ### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2017). cobalt: Covariate Balance Tables and Plots. R package version 2.0.0.
+Greifer, N. (2017). cobalt: Covariate Balance Tables and Plots. R package version 3.0.0.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
@@ -138,7 +138,7 @@ Notice the original data set and the unsplit data set look identical.
 
 ### `get.w()`
 
-`get.w()` allows users to extract weights from the output of a call to a preprocessing function in one of the supported packages. Because each package stores weights in different ways, it can be helpful to have a single function that applies equally to all outputs. `twang` had a function called `get.weights()` that performs the same functions with slightly finer control for the output of a call to `ps()`. See the section "Comparing balancing methods" for examples of the use of `get.w()`.
+`get.w()` allows users to extract weights from the output of a call to a preprocessing function in one of the supported packages. Because each package stores weights in different ways, it can be helpful to have a single function that applies equally to all outputs. `twang` has a function called `get.weights()` that performs the same functions with slightly finer control for the output of a call to `ps()`. See the section "Comparing balancing methods" for examples of the use of `get.w()`.
 
 ## `bal.tab()`
 
@@ -242,7 +242,7 @@ bal.tab(f.build("treat", covs0), data = lalonde, weights = c("att.weights", "att
 
 When subclassification is used in conditioning, an argument to `subclass` must be specified; this can be a vector of subclass membership or the name of a variable in `data` containing subclass membership. `bal.tab()` produces a different type of output from when matching or weighting are used, though it has all of the same features. The default output is a balance table displaying balance aggregated across subclasses. Each cell contains the average statistic across the subclasses, but does not contain information on variance ratios. Using the arguments discussed above (except `disp.v.ratio` and `v.threshold`) will change the output as it does when only matching or weighting is used.
 
-To examine balance within each subclass, the user can specify `disp.subclass = TRUE`, which will produce output for the subclasses in aggregate as well as for each subclass. Within subclasses, all the information above, including variance ratios, will be presented, except for statistics for the unadjusted groups (since the adjustment occurs by creating the subclasses), as specified by the user.
+To examine balance within each subclass, the user can specify `disp.subclass = TRUE`, which will produce output for the subclasses in aggregate as well as for each subclass. Within subclasses, all the information above, including variance ratios, will be presented, except for statistics for the unadjusted groups (since the adjustment occurs by creating the subclasses), as specified by the user. See `?bal.tab.subclass` for more details.
 
 ```{r}
 # Subclassification for ATT with 6 subclasses
@@ -380,7 +380,7 @@ library("ebal")
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, race))
 
-#Generating entorpy balancing weights
+#Generating entropy balancing weights
 e.out <- ebalance(lalonde$treat, covs0)
 
 bal.tab(e.out, treat = lalonde$treat, covs = covs0)
@@ -389,6 +389,24 @@ bal.tab(e.out, treat = lalonde$treat, covs = covs0)
 First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. The "effective" sample size is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" below for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure. That said, in simulations by Zhao and Percival (2015), entropy balancing reliably had smaller empirical standard errors than did covariate balancing propensity scores.
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In additon to the `ebalance` object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
+
+### Using `bal.tab()` with `WeightIt`
+
+The `WeightIt` package is a convenient wrapper for the weighting functions of several packages, including `twang`, `CBPS`, `ebal`, and `ATE`, and allows for the estimation weights for binary, multinomial, and categorical treatments. It was designed to work seamlessly with `cobalt`, so using it with `cobalt` is very straightforward. Below is a simple example of using `bal.tab()` with `WeightIt`:
+
+```{r}
+#Note: this code will not work until WeightIt is on CRAN
+
+library("WeightIt")
+data("lalonde", package = "cobalt") #If not yet loaded
+covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+
+#Generating propensity score weights for the ATC
+W.out <- weightit(f.build("treat", covs0), data = lalonde,
+                  method = "ps", estimand = "ATC")
+
+bal.tab(W.out)
+```
 
 ## `bal.plot()`
 
@@ -497,8 +515,9 @@ data("lalonde", package = "cobalt")
 library("CBPS")
 cov.c <- subset(lalonde, select = -c(treat, re78, re75))
 
-#Generating propensity scores with re75 as the continuous treatment
-cbps.c <- CBPS(f.build("re75", cov.c), data = lalonde)
+#Generating weights with re75 as the continuous treatment
+cbps.c <- CBPS(f.build("re75", cov.c), data = lalonde, 
+               method = "exact")
 ```
 
 First, we can assess balance numerically using `bal.tab()`. The balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using `r.threshold`; though there are no specific guidelines for this value, we choose .1 as indicating balance. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and squared terms through the use of `int = TRUE` is recommended.
@@ -523,6 +542,49 @@ When balance has been achieved to a satisfactory level, users can present balanc
 #Summarizing balance in a Love plot
 love.plot(bal.tab(cbps.c), threshold = .1, abs = TRUE, var.order = "unadjusted",
           line = TRUE)
+```
+
+## Using `cobalt` with multinomial treatments
+When multiple categorical treatment are to be compared with each other, it is possible to create balance across the treatment groups using preprocessing methods. Lopez & Gutman (2017) compare methods used to create balance with multinomial treatments and briefly describe balance assessment for these scenarios. An important note is the choice of estimand to be examined. The ATE represents the causal effect of moving from one tretament group to another for all units in the population; the ATT represents the causal effect of moving from one treatment group to another "focal" treatment group for just the units that wuld have been in the focal treatment group. The way balance is assessed in these scnaerios differs. For the ATE, all possible treatment pairs must be assessed for balance because all possible comparisons are potentially meaningful, but for the ATT, only treatment pairs that include the focal treatment group can be meaningfully compared, so balance needs only to be assessed in these pairs.
+
+In `cobalt`, users can assess and present balance for multinomial treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The output is slightly different, though, and is similar to the output generated when using these functions with clusters. `bal.tab()` computes balance statistics for all pairwise comparsions between tretament groups and a table containing the worst balance for each covariate across pairwise comparisons. For mean differences, this is described in Lopez & Gutman (2017) as "Max2SB," or the maximum pairwise standardized bias. In `cobalt`, this has been extended to variance ratios and KS statistics as well. If the worst imbalance is not too great, then imbalance for all pairwsie comparisons will not be too great either. When the ATT is desired, a focal group must be specified (unless done so automatically for some methods), and only the treatment group comparisons that involve that focal group will be computed and displayed. 
+
+`love.plot()` allows for the display of each pairwise treatment or the range of balance across treatment pairs for each covariate. `bal.plot()` displays distributional balance for the requetsed covariate across all treatment groups. Currently, multinomial treatments are not supported with clustered or multiply imputed data.
+
+Below is an example of using `cobalt` with multinomial treatments. For this example, race will be the "treatment"; this type of analysis is not meant to be causla, but rather represents a method to examine disparities among groups accounting for covariates that might otherwise explain differences among groups. We will use `CBPS` to generate balanced groups.
+
+```{r}
+data("lalonde", package = "cobalt")
+library("CBPS")
+cov.mn <- subset(lalonde, select = -c(treat, re78, race))
+
+#Using CBPS to generate weights
+cbps.mn <- CBPS(f.build("race", cov.mn), data = lalonde)
+```
+
+First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = NULL`. The summary across all pairwise comparisons is displayed as well. See `?bal.tab.multi` for more details.
+
+```{r}
+#Assessing balance numerically
+bal.tab(cbps.mn, un = TRUE, which.treat = NULL)
+```
+
+We can also asess balance graphically. The same guidelines apply for multinomial treatments as do for binary treatments. Ideally, covariate distributions will look similar across all treatment groups. If only a subset of treatment groups are ot compared, these can be specified with an argument to `which.treat`.
+
+```{r, fig.width = 5}
+#Assessing balance graphically
+bal.plot(cbps.mn, "age", which = "both")
+
+bal.plot(cbps.mn, "married", which = "both",
+         which.treat = c("black", "white"))
+```
+
+Finally, we can use `love.plot()` to display balance across treatments. By default, `love.plot()` displays the values in the summary across pairwsie comparisons. To request individual treatment comparisons, use `which.treat = NULL` in either `bal.tab()` or `love.plot()`.
+
+```{r, fig.width = 5}
+#Summarizing balance in a Love plot
+love.plot(bal.tab(cbps.mn), threshold = .1,
+          which.treat = NULL)
 ```
 
 ## Comparing balancing methods
@@ -590,9 +652,9 @@ A key detail is that the standard deviation, no matter how it is calculated, is 
 ## Weighted Variance
 When using weighting or matching, summary values after adjustment are calculated by using weights generated from the matching or weighting process. For example, group means are computed using the standard formula for a weighted mean, incorporating the weighting or matching weights into the calculation. To estimate a weighted sample variance for use in variance ratios^[Standardized mean difference use only unweighted variance estimates; see section "Variance in Standardized Mean Differences" for details.], there are two formulas that have been proposed:
 
-1. $$\frac{\sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2}{(\sum_{i=1}^{n} w_{i}) - 1}$$
+1. $\frac{\sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2}{(\sum_{i=1}^{n} w_{i}) - 1}$
 
-2. $$\frac{\sum_{i=1}^{n} w_{i}}{(\sum_{i=1}^{n} w_{i})^2 - \sum_{i=1}^{n} w^2_{i}} \sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2$$
+2. $\frac{\sum_{i=1}^{n} w_{i}}{(\sum_{i=1}^{n} w_{i})^2 - \sum_{i=1}^{n} w^2_{i}} \sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2$
 
 The weights used in the first formula are often called "frequency weights", while the weights in the second formula are often called normalized or "reliability weights". `MatchIt`, `twang`, and `Matching` all use the first formula when calculating any weighted variance (`CBPS` does not compute a weighted variance). However, Austin (2008) and Austin & Stuart (2015) recommend the second formula when considering matching weights for k:1 matching or weights for propensity score weighting. In `cobalt`, as of version 2.0.0, the second formula is used to remain in line with recommended practice. For some applications (e.g., when all weights are either 0 or 1, as in 1:1 matching), the two formulas yield the same variance estimate. In other cases, the estimates are nearly the same.
 
@@ -709,6 +771,8 @@ Belitser, S. V., Martens, E. P., Pestman, W. R., Groenwold, R. H. H., de Boer, A
 
 Fong, C., Ratkovic, M., Hazlett, C., Yang, X., & Imai, K. (2016). CBPS: Covariate Balancing Propensity Score. R package version 0.11. https://CRAN.R-project.org/package=CBPS
 
+Greifer, N. (2017). WeightIt: Weighting for Covariate Balance in Observational Studies. R package version 0.1.0.
+
 Hainmueller, J. (2014). ebal: Entropy reweighting to create balanced samples. R package version 0.1-6. https://CRAN.R-project.org/package=ebal
   
 Hansen, B. B. (2004). Full matching in an observational study of coaching for the SAT. Journal of the American Statistical Association, 99(467), 609-618.
@@ -730,6 +794,8 @@ Keller, B., & Tipton, E. (2016). Propensity Score Analysis in R: A Software Revi
 King, G., & Nielsen, R. (2016). Why propensity scores should not be used for matching.
 
 Linden, A. (2015), Graphical displays for assessing covariate balance in matching studies. Journal of Evaluation in Clinical Practice, 21: 242–247. http://doi.org/10.1111/jep.12297
+
+Lopez, M. J., & Gutman, R. (2017). Estimation of causal effects with multiple treatments: a review and new ideas. arXiv:1701.05132 [Stat]. Retrieved from http://arxiv.org/abs/1701.05132
 
 Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R Vignette. RAND. Retrieved from https://CRAN.R-project.org/package=twang/vignettes/twang.pdf
 

@@ -31,7 +31,7 @@ bal.tab(f.build("treat", covs), data = lalonde, weights = m5$weights, method = "
 library("twang")
 ps.out <- ps(f.build("treat", covs), data = lalonde, 
    stop.method = c("ks.max", "es.max"), 
-   estimand = "ATT", verbose = FALSE)
+   estimand = "ATT", verbose = FALSE, n.trees = 1000)
 bal.tab(ps.out, disp.ks = T)
 sampw <- sample(c(1.25, 0.75), nrow(covs), TRUE, c(.5, .5))
 ps.out.s <- ps(f.build("treat", covs), data = lalonde, 
@@ -100,7 +100,7 @@ bal.tab(covs, lalonde$treat, weights = list(e = get.w(e.out, treat = lalonde$tre
                                             e.trim = get.w(e.out.trim, treat = lalonde$treat)),
         disp.ks = T, disp.v.ratio = T)
 #Continuous treatment (CBPS)
-cbps.out2 <- CBPS(f.build("re78", covs), data = lalonde)
+cbps.out2 <- CBPS(f.build("re78", covs), data = lalonde, method = "exact")
 bal.tab(cbps.out2)
 cbps.out2.e <- CBPS(f.build("re78", covs), data = lalonde,method = "exact")
 bal.tab(covs, lalonde$re78, weights = list(c = get.w(cbps.out2),
@@ -207,7 +207,7 @@ ate.ate$weights <- ate.ate$weights.q + ate.ate$weights.p
 bal.tab(covs, lalonde$treat, weights = ate.ate$weights, method = "w", estimand = "ate", disp.v.ratio = T)
 
 #Multinomial
-lalonde$treat3 <- factor(ifelse(lalonde$treat == 1, 1, sample(2:3, nrow(lalonde), T)))
+lalonde$treat3 <- factor(ifelse(lalonde$treat == 1, "A", sample(c("B", "C"), nrow(lalonde), T)))
 bal.tab(f.build("treat3", covs), data = lalonde, focal = 1, which.treat = 1:3, m.threshold = .1)
 mnps3.out <- mnps(f.build("treat3", covs), data = lalonde, 
                   stop.method = c("ks.max"), 
@@ -220,7 +220,7 @@ mnps3.att <- mnps(f.build("treat3", covs), data = lalonde,
                   treatATT = 2)
 bal.tab(mnps3.att)
 bal.plot(mnps3.att, var.name = "age")
-cbps.out3 <- npCBPS(f.build("treat3", covs), data = lalonde)
+cbps.out3 <- CBPS(f.build("treat3", covs), data = lalonde)
 bal.tab(cbps.out3)
 bal.plot(cbps.out3, var.name = "age")
 bal.plot(f.build("treat3", covs), data = lalonde, var.name = "age",
