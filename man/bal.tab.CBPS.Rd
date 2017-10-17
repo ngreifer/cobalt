@@ -54,7 +54,7 @@ a numeric value for the threshold for variance ratios. Will automatically conver
 a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
 }
   \item{r.threshold}{
-A numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
+a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
   \item{un}{
 \code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
