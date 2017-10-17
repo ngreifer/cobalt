@@ -100,7 +100,8 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
     drop.na <- setNames(rep(drop.na, length(var.name)), var.name)
     for (v in var.name) {
         drop <- character(0)
-        x <- data[, names(data) == v] <- factor(data[, names(data) == v], exclude = NULL)
+        x <- factor(data[names(data) == v][[1]], exclude = NULL)
+        data[names(data) == v][[1]] <- x
         
         skip <- FALSE
         if (nlevels(x) > 1) {
@@ -118,7 +119,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         }
         else {
             if (drop.singleton) {
-                data <- data[, names(data)!=v, drop = FALSE]
+                data <- data[names(data)!=v]
                 skip <- TRUE
             }
             else {
@@ -150,25 +151,25 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
                 dropl[!is.na(levels(x)) & levels(x) %in% drop] <- TRUE
             }
             if (drop.na[v]) dropl[is.na(levels(x))] <- TRUE
-            k <- k[, !dropl, drop = FALSE]
+            k <- k[,!dropl]
             
             if (ncol(data) == 1) {
-                data <- data.frame(k)
+                data <- data.frame(k, row.names = NULL)
             }
             else if (replace) {
                 if (match(v, names(data)) == 1){
-                    data <- data.frame(k, data[, names(data)!=v, drop = FALSE])
+                    data <- cbind(k, data[names(data)!=v], row.names = NULL)
                 }
                 else if (match(v, names(data)) == ncol(data)) {
-                    data <- data.frame(data[, names(data)!=v, drop = FALSE], k)
+                    data <- cbind(data[names(data)!=v], k, row.names = NULL)
                 }
                 else {
                     where <- match(v, names(data))
-                    data <- data.frame(data[, 1:(where-1), drop = FALSE], k, data[, (where+1):ncol(data), drop = FALSE])
+                    data <- cbind(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = NULL)
                 }
             }
             else {
-                data <- data.frame(data, k)
+                data <- cbind(data, k, row.names = NULL)
             }
             
         }
@@ -196,7 +197,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
     
     for (v in var.name) {
         dropped.level0 <- dropped.level
-        var.to.combine <- data[, startsWith(names(data), paste0(v, sep)), drop = FALSE]
+        var.to.combine <- data[startsWith(names(data), paste0(v, sep))]
         if (length(var.to.combine) == 0) {
             not.the.stem <- c(not.the.stem, paste0(v, sep))
             next
@@ -210,8 +211,8 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         if (!isTRUE(dropped.na)) {
             NA.column <- paste0(v, sep, ifelse(dropped.na == FALSE, "NA", dropped.na))
             if (NA.column %in% names(var.to.combine)) {
-                var.to.combine[var.to.combine[, NA.column] == 1,] <- NA
-                var.to.combine <- var.to.combine[, names(var.to.combine) != NA.column, drop = FALSE]
+                var.to.combine[var.to.combine[[NA.column]] == 1,] <- NA
+                var.to.combine <- var.to.combine[names(var.to.combine) != NA.column]
             }
             else {
                 stop(paste("There is no variable called", word.list(NA.column, quotes = TRUE), "to generate the NA values."), call. = FALSE)
@@ -250,7 +251,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         
         k <- rep(NA_character_, nrow(data))
         for (i in seq_along(k.levels)) {
-            k <- ifelse(var.to.combine[, i] == 1, k.levels[i], k)
+            k <- ifelse(var.to.combine[[i]] == 1, k.levels[i], k)
         }
         
         k <- factor(k, levels = k.levels)
@@ -259,9 +260,9 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         if (replace) {
             where <- which(names(data) %in% c(names(var.to.combine), NA.column))
             
-            data[, min(where)] <- k
+            data[[min(where)]] <- k
             remove.cols <- where[where!=min(where)]
-            if (length(remove.cols) > 0) data <- data[, -remove.cols, drop = FALSE]
+            if (length(remove.cols) > 0) data <- data[-remove.cols]
             names(data)[min(where)] <- v
         }
         else {
@@ -322,7 +323,7 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
         else if (estimand[p] == "ate") ps$treat/ps$ps[,s[p]] + (1-ps$treat)/(1-ps$ps[,s[p]])
         else if (estimand[p] == "atc") (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])})),
         ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
-    
+    if (ncol(w) == 1) w <- w[[1]]
     return(w)
 }
 get.w.mnps <- function(mnps, stop.method = NULL, ...) {
@@ -371,6 +372,9 @@ get.w.mnps <- function(mnps, stop.method = NULL, ...) {
             w[mnps$treatVar == i, s] <- get.w.ps(mnps$psList[[i]])[mnps$psList[[i]]$treat == TRUE, s]
         }
     }
+    
+    if (ncol(w) == 1) w <- w[[1]]
+    
     return(w)
 }
 get.w.Match <- function(M,  ...) {
@@ -388,7 +392,7 @@ get.w.Match <- function(M,  ...) {
     
     data.list <- lapply(1:4, function(x) cbind(data.frame(index=index.list[[x]]), data.frame(weights=weights.list[[x]])))
     o.data <- do.call(rbind, data.list)
-    o.data2 <- merge(unique(o.data[, is.na(match(names(o.data), "weights")), drop = FALSE]), 
+    o.data2 <- merge(unique(o.data[is.na(match(names(o.data), "weights"))]), 
                      aggregate(weights~index, data=o.data, FUN=sum), 
                      by="index")
     return(o.data2$weights)

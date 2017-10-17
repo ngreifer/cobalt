@@ -8,12 +8,12 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     
-    if (var.name %in% names(X$covs)) X$var <- X$covs[, var.name]
+    if (var.name %in% names(X$covs)) X$var <- X$covs[[var.name]]
     #else if (!is.null(args$data) && var.name %in% names(args$data)) var <- args$data[, var.name]
-    else if (!is.null(X$addl) && var.name %in% names(X$addl)) X$var <- X$addl[, var.name]
-    else if (!is.null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[, var.name]
-    else if (!is.null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[, var.name]
-    else if (!is.null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[, var.name]
+    else if (!is.null(X$addl) && var.name %in% names(X$addl)) X$var <- X$addl[[var.name]]
+    else if (!is.null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[[var.name]]
+    else if (!is.null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[[var.name]]
+    else if (!is.null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
     else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."))
     
     if (missing(which)) {
@@ -194,20 +194,20 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     if (nunique(D$treat) > 2 && is.numeric(D$treat)) { #Continuous treatments
         if ("subclass" %in% facet) {
             if (is.categorical.var) {
-                weights <- with(D, mapply(function(w, s, v) w / sum(weights[subclass==s & var==v]), w = weights, s = subclass, v = var))
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[subclass==subclass[i] & var==var[i]])))
             }
             else {
-                weights <- with(D, mapply(function(w, s) w / sum(weights[subclass==s]), w = weights, s = subclass))
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[subclass==subclass[i]])))
             }
             
             d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
         }
         else {
             if (is.categorical.var) {
-                weights <- with(D, mapply(function(w, c, i, f.which, v) w / sum(weights[cluster==c & imp==i & facet.which==f.which & var==v]), w = weights, c= cluster, i = imp, f.which = facet.which, v = var))
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[cluster==cluster[i] & imp==imp[i] & facet.which==facet.which[i] & var==var[i]])))
             }
             else {
-                weights <- with(D, mapply(function(w, c, i, f.which) w / sum(weights[cluster==c & imp==i & facet.which==f.which]), w = weights, c= cluster, i = imp, f.which = facet.which))
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[cluster==cluster[i] & imp==imp[i] & facet.which==facet.which[i]])))
             }
             d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, facet.which = D$facet.which)
             
@@ -256,20 +256,20 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         if (length(which.treat) > 0 && all(!is.na(which.treat))) D <- D[D$treat %in% which.treat,]
         
-        for (i in names(D)[sapply(D, is.factor)]) D[, i] <- factor(D[, i])
+        for (i in names(D)[sapply(D, is.factor)]) D[[i]] <- factor(D[[i]])
         
         if (length(facet) > 0) {
             if ("subclass" %in% facet) {
-                weights <- with(D, mapply(function(w, t, s) w / sum(weights[treat==t & subclass==s]), w = weights, t = treat, s = subclass))
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i] & subclass==subclass[i]])))
                 d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
             }
             else {
-                weights <- with(D, mapply(function(w, t, c, i, f.which) w / sum(weights[treat==t & cluster==c & imp==i & facet.which==f.which]), w = weights, t = treat, c= cluster, i = imp, f.which = facet.which))
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i] & cluster==cluster[i] & imp==imp[i] & facet.which==facet.which[i]])))
                 d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, facet.which = D$facet.which)
             }
         }
         else {
-            weights <- with(D, mapply(function(w, t) w / sum(weights[treat==t]), w = weights, t = treat))
+            weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i]])))
             d <- data.frame(weights = weights, treat = D$treat, var = D$var)
         }
         
@@ -298,10 +298,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 facet.formula <- f.build("imp", facet[!facet %in% "imp"])
             }
             else {
-                facets <- data.frame(facet = facet, length = sapply(facet, function(x) nlevels(d[, x])),
+                facets <- data.frame(facet = facet, length = sapply(facet, function(x) nlevels(d[[x]])),
                                      stringsAsFactors = FALSE)
                 facets <- facets[with(facets, order(length, facet, decreasing = c(FALSE, TRUE))), ]
-                facet.formula <- f.build(facets[1, "facet"], facets[-1, "facet"])
+                facet.formula <- formula(facets)
             }
         }
         else facet.formula <- f.build(".", facet)
