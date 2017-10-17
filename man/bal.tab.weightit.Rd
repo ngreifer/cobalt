@@ -9,14 +9,14 @@ Generates balance statistics for \code{weightit} objects from \pkg{WeightIt}.
 \usage{
 \method{bal.tab}{weightit}(weightit, int = FALSE, distance = NULL, addl = NULL, 
     data = NULL, continuous = c("std", "raw"), 
-    binary = c("raw", "std"), s.d.denom = c("treated", 
-    "control", "pooled"), m.threshold = NULL, 
-    v.threshold = NULL, ks.threshold = NULL, un = FALSE, 
+    binary = c("raw", "std"), s.d.denom, m.threshold = NULL, 
+    v.threshold = NULL, ks.threshold = NULL, 
+    r.threshold = NULL, un = FALSE, 
     disp.means = FALSE, disp.v.ratio = FALSE, 
     disp.ks = FALSE, disp.subclass = FALSE, 
     cluster = NULL, which.cluster = NULL, 
-    cluster.summary = TRUE, focal = NULL, which.treat = NA, 
-    multi.summary = TRUE,quick = FALSE, ...)
+    cluster.summary = TRUE, which.treat = NA, 
+    multi.summary = TRUE, quick = FALSE, ...)
 }
 
 \arguments{
@@ -53,6 +53,9 @@ a numeric value for the threshold for variance ratios. Will automatically conver
   \item{ks.threshold}{
 a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
 }
+  \item{r.threshold}{
+a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
+}
   \item{un}{
 \code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
 }
@@ -76,9 +79,6 @@ which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.
 }
   \item{cluster.summary}{
 \code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{focal}{
-ignored. With multiple categorical treatments, \code{bal.tab()} automatically assigns a focal treatment based on the \code{weightit} object. See \code{\link{bal.tab.multi}} for details.
 }
   \item{which.treat}{
 which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
@@ -152,5 +152,4 @@ w.out2 <- weightit(treat ~ age + educ + race +
                   data = lalonde, method = "entropy",
                   estimand = "ATE")
 bal.tab(w.out2)
-
 }
