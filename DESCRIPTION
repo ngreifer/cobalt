@@ -15,7 +15,7 @@ Suggests:
     Matching,
     optmatch,
     CBPS,
-    WeightIt
+    WeightIt,
     ebal,
     mice,
     knitr,
