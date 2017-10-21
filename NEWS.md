@@ -1,9 +1,14 @@
 cobalt News and Updates
 ======
+Version 3.0.1
+
+* Added support for tibbles.
+
+* Examples for `weightit` methods in documentation and vignette now work.
 
 Version 3.0.0
 
-* Added support for multinomial treatments in `bal.tab()`, including output from `CBPS` and `twang`
+* Added support for multinomial treatments in `bal.tab()`, including output from `CBPS` and `twang`.
 
 * Added support for `weightit` objects from `WeightIt`, including for multinomial treatments.
 

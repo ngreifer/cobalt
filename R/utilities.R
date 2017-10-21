@@ -318,12 +318,16 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, ...) {
         names(estimand) <- s
     }
     
-    w <- setNames(as.data.frame(lapply(seq_along(s), function(p) {
+    w <- setNames(lapply(seq_along(s), function(p) {
         if (estimand[p] == "att") ps$treat + (1-ps$treat)*ps$ps[,s[p]]/(1-ps$ps[,s[p]])
         else if (estimand[p] == "ate") ps$treat/ps$ps[,s[p]] + (1-ps$treat)/(1-ps$ps[,s[p]])
-        else if (estimand[p] == "atc") (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])})),
+        else if (estimand[p] == "atc") (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])}),
         ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
-    if (ncol(w) == 1) w <- w[[1]]
+    
+    if (length(w) == 1) w <- w[[1]]
+    else {
+        class(w) <- "data.frame"; attr(w, "row.names") <- .set_row_names(length(w[[1]]))
+    }
     return(w)
 }
 get.w.mnps <- function(mnps, stop.method = NULL, ...) {
