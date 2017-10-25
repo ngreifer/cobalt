@@ -18,8 +18,9 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, 
     which.cluster = NULL, cluster.summary = TRUE, 
     imp = NULL, which.imp = NA, imp.summary = TRUE,
-    focal = NULL, which.treat = NA, multi.summary = TRUE,
-    s.weights = NULL, estimand = NULL, quick = FALSE, ...)
+    pairwise = TRUE, focal = NULL, which.treat = NA, 
+    multi.summary = TRUE, s.weights = NULL, estimand = NULL, 
+    quick = FALSE, ...)
 
 \method{bal.tab}{formula}(formula, data, weights = NULL, distance = NULL, 
     subclass = NULL, match.strata = NULL, method, 
@@ -30,9 +31,10 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     disp.v.ratio = FALSE, disp.ks = FALSE, 
     disp.subclass = FALSE, cluster = NULL, 
     which.cluster = NULL, cluster.summary = TRUE, 
-    imp = NULL, which.imp = NA, imp.summary = TRUE, 
-    focal = NULL, which.treat = NA, multi.summary = TRUE,
-    s.weights = NULL, estimand = NULL, quick = FALSE, ...)
+    imp = NULL, which.imp = NA, imp.summary = TRUE,
+    pairwise = TRUE, focal = NULL, which.treat = NA, 
+    multi.summary = TRUE, s.weights = NULL, estimand = NULL, 
+    quick = FALSE, ...)
 }
 
 \arguments{
@@ -125,6 +127,9 @@ which imputations(s) to display if \code{imp} is specified. See \code{\link{bal.
 }
   \item{imp.summary}{
 \code{logical}; whether to display the cluster summary table if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
+}
+  \item{pairwise}{
+Whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{focal}{
 The name of the focal treatment when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.

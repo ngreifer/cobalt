@@ -283,7 +283,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
 }
 get.types <- function(C) {
     types <- sapply(colnames(C), function(x) ifelse(ifelse(is.null(attr(C, "distance.names")), 
-                                                 FALSE, x %in% attr(C, "distance.names")), 
+                                                 FALSE, any(attr(C, "distance.names") == x)), 
                                           "Distance", ifelse(nunique(C[,x]) <= 2, 
                                                              "Binary", "Contin.")))
     return(types)
@@ -1231,7 +1231,7 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
 }
 samplesize.multi <- function(bal.tab.multi.list, treat.names, focal) {
     if (length(focal) > 0) which <- c(treat.names[treat.names != focal], focal)
-    else which <- rev(treat.names)
+    else which <- treat.names
     obs <- do.call("cbind", unname(lapply(bal.tab.multi.list, function(x) x[["Observations"]])))[, which]
     attr(obs, "tag") <- attr(bal.tab.multi.list[[1]][["Observations"]], "tag")
     attr(obs, "ss.type") <- attr(bal.tab.multi.list[[1]][["Observations"]], "ss.type")

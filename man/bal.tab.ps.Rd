@@ -26,8 +26,8 @@ Generates balance statistics for \code{ps} and \code{mnps} objects from \pkg{twa
     ks.threshold = NULL, un = FALSE, disp.means = FALSE, 
     disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, 
     which.cluster = NULL, cluster.summary = TRUE, 
-    focal = NULL, which.treat = NA, multi.summary = TRUE,
-    quick = FALSE, ...)
+    pairwise = TRUE, focal = NULL, which.treat = NA, 
+    multi.summary = TRUE, quick = FALSE, ...)
 }
 
 \arguments{
@@ -90,6 +90,9 @@ which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.
 }
   \item{cluster.summary}{
 \code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
+}
+  \item{pairwise}{
+Whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{focal}{
 ignored. With multiple categorical treatments, \code{bal.tab()} automatically assigns a focal treatment based on the \code{mnps} object. See \code{\link{bal.tab.multi}} for details.

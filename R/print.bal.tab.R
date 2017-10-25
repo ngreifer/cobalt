@@ -1248,11 +1248,25 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         disp.treat.pairs <- character(0)
     }
     else {
-        if (length(which.treat) == 1) {
-            disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) any(m.balance[[x]]$print.options$treat.names %in% which.treat))]
+        if (p.ops$pairwise) {
+            if (length(which.treat) == 1) {
+                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) any(m.balance[[x]]$print.options$treat.names == which.treat))]
+            }
+            else {
+                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) all(m.balance[[x]]$print.options$treat.names %in% which.treat))]
+            }
         }
         else {
-            disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) all(m.balance[[x]]$print.options$treat.names %in% which.treat))]
+            if (length(which.treat) == 1) {
+                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) {
+                    treat.names <- m.balance[[x]]$print.options$treat.names
+                    any(treat.names[treat.names != "Others"] == which.treat)})]
+            }
+            else {
+                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) {
+                    treat.names <- m.balance[[x]]$print.options$treat.names
+                    all(treat.names[treat.names != "Others"] %in% which.treat)})]
+            }
         }
     }
     
@@ -1263,9 +1277,9 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     }
     
     if (length(disp.treat.pairs) > 0) {
-        headings <- character(length(disp.treat.pairs))
+        headings <- setNames(character(length(disp.treat.pairs)), disp.treat.pairs)
         cat("Balance by treatment pair:\n")
-        for (i in seq_along(disp.treat.pairs)) {
+        for (i in disp.treat.pairs) {
             headings[i] <- paste0("\n - - - ", m.balance[[i]]$print.options$treat.names[1]," (0) vs. ",
                                   m.balance[[i]]$print.options$treat.names[2]," (1) - - - \n")
             cat(headings[i])
