@@ -7,6 +7,7 @@
 \alias{get.w.CBPS}
 \alias{get.w.ebalance}
 \alias{get.w.optmatch}
+\alias{get.w.weightit}
 
 \title{
 Extract Weights from Preprocessing Objects
@@ -30,10 +31,13 @@ get.w(\dots)
 \method{get.w}{ebalance}(e, treat, ...)
 
 \method{get.w}{optmatch}(o, treat, ...)
+
+\method{get.w}{weightit}(W, ...)
+
 }
 
 \arguments{
-  \item{m, ps, mnps, M, c, e, o}{
+  \item{m, ps, mnps, M, c, e, o, W}{
 Output from the corresponding preprocessing packages.
 }
   \item{stop.method}{
@@ -67,15 +71,16 @@ Noah Greifer \email{noah@unc.edu}
 }
 \examples{
 data("lalonde", package = "cobalt")
-library("MatchIt"); library("CBPS")
+library("MatchIt"); library("WeightIt")
 
 m.out <- matchit(treat ~ age + educ + race, data = lalonde) 
 
-c.out <- CBPS(treat ~ age + educ + race, data = lalonde)
+w.out <- weightit(treat ~ age + educ + race, data = lalonde,
+                  estimand = "ATT")
 
 bal.tab(treat ~ age + educ + race, data = lalonde,
-        weights = data.frame(matchit = get.w(m.out),
-                             cbps = get.w(c.out)),
+        weights = data.frame(matched = get.w(m.out),
+                             weighted = get.w(w.out)),
         method = c("matching", "weighting"), 
         estimand = "ATT")
 }
