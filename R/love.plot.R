@@ -39,16 +39,24 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     cluster.names.good <- NULL
     imp.numbers.good <- NULL
     treat.names.good <- NULL; disp.treat.pairs <- NULL
-    null.cluster <- is.null(b$print.options$which.cluster) || is.na(b$print.options$which.cluster)
-    null.imp <- (is.null(b$print.options$which.imp) || is.na(b$print.options$which.imp))
-    null.treat <- is.null(b$print.options$which.treat)
-    na.treat <- !is.null(b$print.options$which.treat) && is.na(b$print.options$which.treat)
+    #NA = aggregate, NULL = individual
+    null.cluster <- length(b$print.options$which.cluster) == 0
+    na.cluster <- !null.cluster && is.na(b$print.options$which.cluster)
+    null.imp <- length(b$print.options$which.imp) == 0
+    na.imp <- !null.imp && is.na(b$print.options$which.imp)
+    null.treat <- length(b$print.options$which.treat) == 0
+    na.treat <- !null.treat && is.na(b$print.options$which.treat)
     
     if (any(class(b) == "bal.tab.imp.cluster")) {
         #Get imp.numbers.good
         imp.numbers <- seq_along(b[["Imputation.Balance"]])
-        if (null.imp) {
+        if (na.imp) {
+            config <- "agg.imp"
             imp.numbers.good <- NULL
+        }
+        else if (null.imp) {
+            config <- "agg.none"
+            imp.numbers.good <- setNames(rep(TRUE, length(imp.numbers)), imp.numbers)
         }
         else if (is.numeric(b$print.options$which.imp)) {
             imp.numbers.good <- setNames(imp.numbers %in% b$print.options$which.imp, imp.numbers)
@@ -57,8 +65,13 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         
         #Get cluster.names.good
         cluster.names <- names(b[["Cluster.Balance.Across.Imputations"]])
-        if (null.cluster) {
+        if (na.cluster) {
+            config <- "agg.cluster"
             cluster.names.good <- NULL
+        }
+        else if (null.cluster) {
+            config <- "agg.none"
+            cluster.names.good <- setNames(rep(TRUE, length(cluster.names)), cluster.names)
         }
         else if (is.character(b$print.options$which.cluster)) {
             cluster.names.good <- sapply(cluster.names, function(x) any(sapply(b$print.options$which.cluster, function(y) identical(x, y))))
@@ -181,9 +194,13 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     else if (any(class(b) == "bal.tab.imp")) {
         #Get imp.numbers.good
         imp.numbers <- seq_along(b[["Imputation.Balance"]])
-        if (null.imp) {
+        if (na.imp) {
             config <- "agg.imp"
             imp.numbers.good <- NULL
+        }
+        else if (null.imp) {
+            config <- "agg.none"
+            imp.numbers.good <- setNames(rep(TRUE, length(imp.numbers)), imp.numbers)
         }
         else if (is.numeric(b$print.options$which.imp)) {
             imp.numbers.good <- setNames(imp.numbers %in% b$print.options$which.imp, imp.numbers)
@@ -221,9 +238,13 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     else if (any(class(b) == "bal.tab.cluster")) {
         #Get cluster.names.good
         cluster.names <- names(b[["Cluster.Balance"]])
-        if (null.cluster) {
+        if (na.cluster) {
             config <- "agg.cluster"
             cluster.names.good <- NULL
+        }
+        else if (null.cluster) {
+            config <- "agg.none"
+            cluster.names.good <- setNames(rep(TRUE, length(cluster.names)), cluster.names)
         }
         else if (is.character(b$print.options$which.cluster)) {
             cluster.names.good <- sapply(cluster.names, function(x) any(sapply(b$print.options$which.cluster, function(y) identical(x, y))))
@@ -277,10 +298,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
         else if (null.treat) {
             config <- "agg.none"
-            treat.names.good <- rep(TRUE, length(b$print.options$treat.names))
+            treat.names.good <- rep(TRUE, length(treat.names))
         }
         else if (is.character(b$print.options$which.treat)) {
-            treat.names.good <- b$print.options$treat.names %in% b$print.options$which.treat
+            treat.names.good <- treat.names %in% b$print.options$which.treat
             if (any(treat.names.good)) {
                 config <- "agg.none"
             }
@@ -289,7 +310,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
         }
         else if (is.numeric(b$print.options$which.treat)) {
-            treat.names.good <- seq_along(b$print.options$treat.names) %in% b$print.options$which.treat
+            treat.names.good <- seq_along(treat.names) %in% b$print.options$which.treat
             if (any(treat.names.good)) {
                 config <- "agg.none"
             }
@@ -304,12 +325,27 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             disp.treat.pairs <- character(0)
         }
         else {
-            if (sum(treat.names.good) == 1) {
-                disp.treat.pairs <- names(b[["Pair.Balance"]])[sapply(names(b[["Pair.Balance"]]), function(x) any(b[["Pair.Balance"]][[x]]$print.options$treat.names %in% b$print.options$treat.names[treat.names.good]))]
+            if (b$print.options$pairwise) {
+                if (sum(treat.names.good) == 1) {
+                    disp.treat.pairs <- names(b[["Pair.Balance"]])[sapply(names(b[["Pair.Balance"]]), function(x) any(b[["Pair.Balance"]][[x]]$print.options$treat.names == b$print.options$treat.names[treat.names.good]))]
+                }
+                else {
+                    disp.treat.pairs <- names(b[["Pair.Balance"]])[sapply(names(b[["Pair.Balance"]]), function(x) all(b[["Pair.Balance"]][[x]]$print.options$treat.names %in% b$print.options$treat.names[treat.names.good]))]
+                }
             }
             else {
-                disp.treat.pairs <- names(b[["Pair.Balance"]])[sapply(names(b[["Pair.Balance"]]), function(x) all(b[["Pair.Balance"]][[x]]$print.options$treat.names %in% b$print.options$treat.names[treat.names.good]))]
+                if (sum(treat.names.good) == 1) {
+                    disp.treat.pairs <- names(b[["Pair.Balance"]])[sapply(names(b[["Pair.Balance"]]), function(x) {
+                        treat.names <- b[["Pair.Balance"]][[x]]$print.options$treat.namestreat.names
+                        any(treat.names[treat.names != "Others"] == b$print.options$treat.names[treat.names.good])})]
+                }
+                else {
+                    disp.treat.pairs <- names(b[["Pair.Balance"]])[sapply(names(b[["Pair.Balance"]]), function(x) {
+                        treat.names <- b[["Pair.Balance"]][[x]]$print.options$treat.namestreat.names
+                        all(treat.names[treat.names != "Others"] %in% b$print.options$treat.names[treat.names.good])})]
+                }
             }
+
         }
         
         #Get B from b
@@ -325,10 +361,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
                 if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
-                subtitle <- paste0(which.stat2, " Range Across Treatment Pairs")
+                subtitle <- paste0(which.stat2, " Range Across Treatment", ifelse(b$print.options$pairwise, " Pairs", "s"))
             }
             else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Treatment Pairs")
+                subtitle <- paste0(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), " ", which.stat2, " Across Treatment", ifelse(b$print.options$pairwise, " Pairs", "s"))
             }
             B <- cbind(b[["Balance.Across.Pairs"]],
                        var.names = rownames(b[["Balance.Across.Pairs"]]))
