@@ -343,22 +343,22 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
         return(rep(NA, ncol(mat)))
     }
 
-    diffs <- col.w.m(mat[treat == 1 & ss,], w[treat == 1 & ss]) - 
-        col.w.m(mat[treat == 0 & ss,], w[treat == 0 & ss])
+    diffs <- col.w.m(mat[treat == 1 & ss, , drop = FALSE], w[treat == 1 & ss]) - 
+        col.w.m(mat[treat == 0 & ss, , drop = FALSE], w[treat == 0 & ss])
     diffs[abs(diffs) < sqrt(.Machine$double.eps)] <- 0
     denoms <- rep(1, ncol(mat))
     denoms.to.std <- ifelse(x.types == "Binary", binary == "std", continuous == "std")
     
     if (any(denoms.to.std)) {
         if (s.d.denom == "control") {
-            denoms[denoms.to.std] <- sqrt(col.w.v(mat[treat == 0 & ss, denoms.to.std], s.weights[treat == 0 & ss]))
+            denoms[denoms.to.std] <- sqrt(col.w.v(mat[treat == 0 & ss, denoms.to.std, drop = FALSE], s.weights[treat == 0 & ss]))
         }
         else if (s.d.denom == "treated") {
-            denoms[denoms.to.std] <- sqrt(col.w.v(mat[treat == 1 & ss, denoms.to.std], s.weights[treat == 1 & ss]))
+            denoms[denoms.to.std] <- sqrt(col.w.v(mat[treat == 1 & ss, denoms.to.std, drop = FALSE], s.weights[treat == 1 & ss]))
         }
         else if (s.d.denom == "pooled") {
-            denoms[denoms.to.std] <-  sqrt(.5*(col.w.v(mat[treat == 0 & ss, denoms.to.std], s.weights[treat == 0 & ss]) +
-                                               col.w.v(mat[treat == 1 & ss, denoms.to.std], s.weights[treat == 1 & ss])))
+            denoms[denoms.to.std] <-  sqrt(.5*(col.w.v(mat[treat == 0 & ss, denoms.to.std, drop = FALSE], s.weights[treat == 0 & ss]) +
+                                               col.w.v(mat[treat == 1 & ss, denoms.to.std, drop = FALSE], s.weights[treat == 1 & ss])))
         }
     }
     
