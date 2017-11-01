@@ -43,7 +43,7 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
     }
     
     #Actions
-    if (nunique(cluster) > 0) {
+    if (nunique.gt(cluster, 1)) {
         out.names <- c("Cluster.Balance", 
                        "Cluster.Balance.Across.Subclass", 
                        "Cluster.Summary", "Observations",

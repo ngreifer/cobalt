@@ -100,7 +100,7 @@ bal.tab(covs, lalonde$treat, weights = list(e = get.w(e.out, treat = lalonde$tre
                                             e.trim = get.w(e.out.trim, treat = lalonde$treat)),
         disp.ks = T, disp.v.ratio = T)
 #Continuous treatment (CBPS)
-cbps.out2 <- CBPS(f.build("re78", covs), data = lalonde, method = "exact")
+cbps.out2 <- CBPS(f.build("re78", covs), data = lalonde)
 bal.tab(cbps.out2)
 cbps.out2.e <- CBPS(f.build("re78", covs), data = lalonde,method = "exact")
 bal.tab(covs, lalonde$re78, weights = list(c = get.w(cbps.out2),
@@ -192,7 +192,7 @@ bal.plot(f.build("treat", covs_mis), data = imp.data, weights = "match.weight",
 #sbw
 library("sbw")
 s <- sbw(splitfactor(lalonde, drop.first = F), "treat", 
-         names(splitfactor(covs, drop.first = F)), .001, target = "treated", 
+         names(splitfactor(covs, drop.first = F)), rep(0.00001, 9), bal_tols_sd = F, target = "treated", 
          solver = "quadprog")
 s$w <- s$data_frame_weights$weights; s$w[lalonde$treat==1] <- 1; s$w[s$w < 0] <- 0
 bal.tab(covs, lalonde$treat, weights = s$w, method = "w", estimand = "att", disp.v.ratio = T)

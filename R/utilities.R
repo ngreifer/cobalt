@@ -496,9 +496,9 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
 expand.grid_string <- function(..., collapse = "") {
     return(apply(expand.grid(...), 1, paste, collapse = collapse))
 }
-nunique <- function(x) {
+nunique <- function(x, nmax = NA) {
     if (is.factor(x)) return(nlevels(x))
-    else return(length(unique(x)))
+    else return(length(unique(x, nmax = nmax)))
 }
 
 #Under construction
