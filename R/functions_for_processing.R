@@ -268,16 +268,17 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     s <- !lower.tri(C.cor, diag=TRUE) & (1 - abs(C.cor) < sqrt(.Machine$double.eps))
     redundant.vars <- apply(s, 2, function(x) any(x))
     C <- C[!redundant.vars]        
+    C<- as.matrix.data.frame(C)
     
     if (!is.null(distance)) {
         
         #distance <- data.frame(.distance = distance)
         #while (names(distance) %in% names(C)) {names(distance) <- paste0(names(distance), "_")}
-        if (any(names(distance) %in% names(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
+        if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
         C <- cbind(distance, C, row.names = NULL)
         attr(C, "distance.names") <- names(distance)
     }
-    C<- as.matrix.data.frame(C)
+    
     return(C)
     
 }
