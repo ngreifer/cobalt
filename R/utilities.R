@@ -500,6 +500,10 @@ nunique <- function(x, nmax = NA) {
     if (is.factor(x)) return(nlevels(x))
     else return(length(unique(x, nmax = nmax)))
 }
+nunique.gt <- function(x, n) {
+    if (length(x) < 2000) nunique(x) > n
+    else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
+}
 
 #Under construction
 inxnoty <- function(x, y) {
