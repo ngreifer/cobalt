@@ -8,33 +8,48 @@ Balance Statistics for Data Sets
 Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a data frame or formula interface.
 }
 \usage{
-\method{bal.tab}{data.frame}(covs, treat, data = NULL, weights = NULL, 
-    distance = NULL, subclass = NULL, match.strata = NULL, 
-    method, int = FALSE, addl = NULL, continuous = c("std", 
-    "raw"), binary = c("raw", "std"), s.d.denom, 
-    m.threshold = NULL, v.threshold = NULL, 
-    ks.threshold = NULL, r.threshold = NULL, un = FALSE, 
-    disp.means = FALSE, disp.v.ratio = FALSE, 
-    disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, 
-    which.cluster = NULL, cluster.summary = TRUE, 
-    imp = NULL, which.imp = NA, imp.summary = TRUE,
-    pairwise = TRUE, focal = NULL, which.treat = NA, 
-    multi.summary = TRUE, s.weights = NULL, estimand = NULL, 
-    quick = FALSE, ...)
+\method{bal.tab}{data.frame}(covs, 
+    treat, 
+    data = NULL, 
+    weights = NULL, 
+    distance = NULL, 
+    subclass = NULL, 
+    match.strata = NULL, 
+    method, 
+    int = FALSE, 
+    addl = NULL, 
+    continuous = c("std", "raw"), 
+    binary = c("raw", "std"), 
+    s.d.denom, 
+    m.threshold = NULL, 
+    v.threshold = NULL, 
+    ks.threshold = NULL, 
+    r.threshold = NULL, 
+    imbalanced.only = FALSE, 
+    un = FALSE, 
+    disp.bal.tab = TRUE, 
+    disp.means = FALSE, 
+    disp.v.ratio = FALSE, 
+    disp.ks = FALSE, 
+    disp.subclass = FALSE, 
+    cluster = NULL, 
+    which.cluster = NULL, 
+    cluster.summary = TRUE, 
+    imp = NULL, 
+    which.imp = NA, 
+    imp.summary = TRUE,
+    pairwise = TRUE, 
+    focal = NULL, 
+    which.treat = NA, 
+    multi.summary = TRUE, 
+    s.weights = NULL, 
+    estimand = NULL, 
+    quick = FALSE, 
+    ...)
 
-\method{bal.tab}{formula}(formula, data, weights = NULL, distance = NULL, 
-    subclass = NULL, match.strata = NULL, method, 
-    int = FALSE, addl = NULL, continuous = c("std", "raw"), 
-    binary = c("raw", "std"), s.d.denom, m.threshold = NULL, 
-    v.threshold = NULL, ks.threshold = NULL, 
-    r.threshold = NULL, un = FALSE, disp.means = FALSE, 
-    disp.v.ratio = FALSE, disp.ks = FALSE, 
-    disp.subclass = FALSE, cluster = NULL, 
-    which.cluster = NULL, cluster.summary = TRUE, 
-    imp = NULL, which.imp = NA, imp.summary = TRUE,
-    pairwise = TRUE, focal = NULL, which.treat = NA, 
-    multi.summary = TRUE, s.weights = NULL, estimand = NULL, 
-    quick = FALSE, ...)
+\method{bal.tab}{formula}(formula, 
+    data, 
+    ...)
 }
 
 \arguments{
@@ -94,8 +109,14 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
   \item{r.threshold}{
 A numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
+  \item{imbalanced.only}{
+\code{logical}; whether to display only the covariates that failed to meet at least one of balance thresholds.
+}
   \item{un}{
-\code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.  If \code{weights = NULL} and \code{subclass = NULL}, \code{un} will be set to \code{TRUE}.  
+\code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
+}
+  \item{disp.bal.tab}{
+\code{logical}; whether to display the table of balance statistics.
 }
   \item{disp.means}{
 \code{logical}; whether to print the group means in balance output.
@@ -150,7 +171,7 @@ Optional; either a vector containing sampling weights for each unit or a string 
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-further arguments passed to or from other methods. They are ignored in this function.
+for \code{bal.tab.formula}, other arguments to be bassed to \code{bal.tab.data.frame}. Otherwise they are ignored in this function.
 }
 }
 \details{

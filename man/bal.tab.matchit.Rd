@@ -7,15 +7,29 @@ Balance Statistics for Matchit Objects
 Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 }
 \usage{
-\method{bal.tab}{matchit}(m, int = FALSE, distance = NULL, addl = NULL, 
-    data = NULL, continuous = c("std", "raw"), 
-    binary = c("raw", "std"), s.d.denom = c("treated", 
-    "control", "pooled"), m.threshold = NULL, 
-    v.threshold = NULL, ks.threshold = NULL, un = FALSE, 
-    disp.means = FALSE, disp.v.ratio = FALSE, 
-    disp.ks = FALSE, disp.subclass = FALSE, 
-    cluster = NULL, which.cluster = NULL, 
-    cluster.summary = TRUE, quick = FALSE, ...)
+\method{bal.tab}{matchit}(m, 
+    int = FALSE, 
+    distance = NULL, 
+    addl = NULL, 
+    data = NULL, 
+    continuous = c("std", "raw"), 
+    binary = c("raw", "std"), 
+    s.d.denom = c("treated", "control", "pooled"), 
+    m.threshold = NULL, 
+    v.threshold = NULL, 
+    ks.threshold = NULL, 
+    imbalanced.only = FALSE, 
+    un = FALSE, 
+    disp.bal.tab = TRUE, 
+    disp.means = FALSE, 
+    disp.v.ratio = FALSE, 
+    disp.ks = FALSE, 
+    disp.subclass = FALSE, 
+    cluster = NULL, 
+    which.cluster = NULL, 
+    cluster.summary = TRUE, 
+    quick = FALSE, 
+    ...)
 }
 
 \arguments{
@@ -52,8 +66,14 @@ a numeric value for the threshold for variance ratios. Will automatically conver
   \item{ks.threshold}{
 a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
 }
+  \item{imbalanced.only}{
+\code{logical}; whether to display only the covariates that failed to meet at least one of balance thresholds.
+}
   \item{un}{
 \code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
+}
+  \item{disp.bal.tab}{
+\code{logical}; whether to display the table of balance statistics.
 }
   \item{disp.means}{
 \code{logical}; whether to print the group means in balance output.

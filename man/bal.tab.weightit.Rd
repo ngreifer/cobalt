@@ -11,7 +11,7 @@ Generates balance statistics for \code{weightit} objects from \pkg{WeightIt}.
     data = NULL, continuous = c("std", "raw"), 
     binary = c("raw", "std"), s.d.denom, m.threshold = NULL, 
     v.threshold = NULL, ks.threshold = NULL, 
-    r.threshold = NULL, un = FALSE, 
+    r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE,
     disp.means = FALSE, disp.v.ratio = FALSE, 
     disp.ks = FALSE, disp.subclass = FALSE, 
     cluster = NULL, which.cluster = NULL, 
@@ -57,8 +57,14 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
   \item{r.threshold}{
 a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
+  \item{imbalanced.only}{
+\code{logical}; whether to display only the covariates that failed to meet at least one of balance thresholds.
+}
   \item{un}{
 \code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
+}
+  \item{disp.bal.tab}{
+\code{logical}; whether to display the table of balance statistics.
 }
   \item{disp.means}{
 \code{logical}; whether to print the group means in balance output.

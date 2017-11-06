@@ -1,4 +1,4 @@
-print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.bal.tab = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     balance <- x$Balance
     baltal.r <- x$Balanced.Corr
@@ -88,6 +88,26 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         baltal.ks <- NULL
         maximbal.ks <- NULL
     }
+    if (!identical(disp.bal.tab, "as.is")) {
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        p.ops$disp.bal.tab <- disp.bal.tab
+    }
+    if (p.ops$disp.bal.tab) {
+        if (!identical(imbalanced.only, "as.is")) {
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            p.ops$imbalanced.only <- imbalanced.only
+        }
+        if (p.ops$imbalanced.only) {
+            if (!any(sapply(c(p.ops$m.threshold, 
+                              p.ops$v.threshold, 
+                              p.ops$ks.threshold, 
+                              p.ops$r.threshold), length) > 0)) {
+                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                p.ops$imbalanced.only <- FALSE
+            }
+        }
+    }
+    else p.ops$imbalanced.only <- FALSE
     
     if (!is.na(match("bal.tab.cont", class(x)))) {
         keep <- as.logical(c(TRUE, 
@@ -122,9 +142,16 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         cat("\n")
     }
     
-    cat("Balance Measures:\n")
-    print.data.frame(replaceNA(round_df(balance[, keep], digits)))
-    cat("\n")
+    if (p.ops$disp.bal.tab) {
+        if (p.ops$imbalanced.only) {
+            keep.row <- rowSums(apply(balance[grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+        }
+        else keep.row <- rep(TRUE, nrow(balance))
+        
+        cat("Balance Measures:\n")
+        print.data.frame(replaceNA(round_df(balance[keep.row, keep], digits)))
+        cat("\n")
+    }
     
     if (!is.null(baltal.r)) {
         cat("Balance tally for correlations:\n")
@@ -183,7 +210,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     invisible(x)
 }
-print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.bal.tab = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     call <- x$call
     s.balance <- x$Subclass.Balance
     b.a.subclass <- x$Balance.Across.Subclass
@@ -274,6 +301,27 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         baltal.ks <- NULL
         maximbal.ks <- NULL
     }
+    if (!identical(disp.bal.tab, "as.is")) {
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        p.ops$disp.bal.tab <- disp.bal.tab
+    }
+    if (p.ops$disp.bal.tab) {
+        if (!identical(imbalanced.only, "as.is")) {
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            p.ops$imbalanced.only <- imbalanced.only
+        }
+        if (p.ops$imbalanced.only) {
+            if (!any(sapply(c(p.ops$m.threshold, 
+                              p.ops$v.threshold, 
+                              p.ops$ks.threshold, 
+                              p.ops$r.threshold), length) > 0)) {
+                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                p.ops$imbalanced.only <- FALSE
+            }
+        }
+    }
+    else p.ops$imbalanced.only <- FALSE
+    
     if (!identical(disp.subclass, "as.is")) {
         if (!is.logical(disp.subclass)) stop("disp.subclass must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.subclass <- disp.subclass
@@ -283,46 +331,54 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         cat("\nCall:", deparse(call), sep = "\n  ")
         cat("\n")
     }
-    
-    if (p.ops$disp.subclass) {
-        if (!is.na(match("bal.tab.cont", class(x)))) {
-            s.keep <- as.logical(c(TRUE, 
-                                   p.ops$disp.adj, 
-                                   !is.null(p.ops$r.threshold)))
+    if (p.ops$disp.bal.tab) {
+        if (p.ops$disp.subclass) {
+            if (!is.na(match("bal.tab.cont", class(x)))) {
+                s.keep <- as.logical(c(TRUE, 
+                                       p.ops$disp.adj, 
+                                       !is.null(p.ops$r.threshold)))
+            }
+            else {
+                s.keep <- as.logical(c(TRUE, 
+                                       p.ops$disp.means, 
+                                       p.ops$disp.means, 
+                                       p.ops$disp.adj, 
+                                       !is.null(p.ops$m.threshold), 
+                                       p.ops$disp.adj  &&  p.ops$disp.v.ratio, 
+                                       !is.null(p.ops$v.threshold), 
+                                       p.ops$disp.adj  &&  p.ops$disp.ks, 
+                                       !is.null(p.ops$ks.threshold)))
+            }
+            cat("Balance by subclass:")
+            for (i in names(s.balance)) {
+                if (p.ops$imbalanced.only) {
+                    keep.row <- rowSums(apply(s.balance[[i]][grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+                }
+                else keep.row <- rep(TRUE, nrow(s.balance[[i]]))
+                cat(paste0("\n - - - Subclass ", i, " - - - \n"))
+                print.data.frame(replaceNA(round_df(s.balance[[i]][keep.row, s.keep, drop = FALSE], digits)))
+            }
+            cat("\n")
         }
-        else {
-            s.keep <- as.logical(c(TRUE, 
-                                   p.ops$disp.means, 
-                                   p.ops$disp.means, 
-                                   p.ops$disp.adj, 
-                                   !is.null(p.ops$m.threshold), 
-                                   p.ops$disp.adj  &&  p.ops$disp.v.ratio, 
-                                   !is.null(p.ops$v.threshold), 
-                                   p.ops$disp.adj  &&  p.ops$disp.ks, 
-                                   !is.null(p.ops$ks.threshold)))
+        
+        if (!is.null(b.a.subclass)) {
+            if (p.ops$imbalanced.only) {
+                keep.row <- rowSums(apply(b.a.subclass[grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+            }
+            else keep.row <- rep(TRUE, nrow(b.a.subclass))
+            a.s.keep <- as.logical(c(TRUE, 
+                                     p.ops$un && p.ops$disp.means, 
+                                     p.ops$un && p.ops$disp.means, 
+                                     p.ops$un, 
+                                     p.ops$disp.adj && p.ops$disp.means, 
+                                     p.ops$disp.adj && p.ops$disp.means, 
+                                     p.ops$disp.adj, 
+                                     !is.null(p.ops$m.threshold)))
+            cat("Balance measures across subclasses:\n")
+            print.data.frame(replaceNA(round_df(b.a.subclass[keep.row, a.s.keep, drop = FALSE], digits)))
+            cat("\n")
         }
-        cat("Balance by subclass:")
-        for (i in names(s.balance)) {
-            cat(paste0("\n - - - Subclass ", i, " - - - \n"))
-            print.data.frame(replaceNA(round_df(s.balance[[i]][, s.keep, drop = FALSE], digits)))
-        }
-        cat("\n")
     }
-    
-    if (!is.null(b.a.subclass)) {
-        a.s.keep <- as.logical(c(TRUE, 
-                                 p.ops$un && p.ops$disp.means, 
-                                 p.ops$un && p.ops$disp.means, 
-                                 p.ops$un, 
-                                 p.ops$disp.adj && p.ops$disp.means, 
-                                 p.ops$disp.adj && p.ops$disp.means, 
-                                 p.ops$disp.adj, 
-                                 !is.null(p.ops$m.threshold)))
-        cat("Balance measures across subclasses:\n")
-        print.data.frame(replaceNA(round_df(b.a.subclass[, a.s.keep], digits)))
-        cat("\n")
-    }
-    
     if (!is.null(baltal.r.subclass)) {
         cat("Balance tally for correlations across subclasses:\n")
         print.data.frame(baltal.r.subclass)
@@ -371,7 +427,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.bal.tab = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
     #Figure out how to print bal.tab for clusters with subclassification
     call <- x$call
     c.balance <- x$Cluster.Balance
@@ -458,6 +514,27 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             p.ops$r.threshold <- NULL
         }
     }
+    if (!identical(disp.bal.tab, "as.is")) {
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        p.ops$disp.bal.tab <- disp.bal.tab
+    }
+    if (p.ops$disp.bal.tab) {
+        if (!identical(imbalanced.only, "as.is")) {
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            p.ops$imbalanced.only <- imbalanced.only
+        }
+        if (p.ops$imbalanced.only) {
+            if (!any(sapply(c(p.ops$m.threshold, 
+                              p.ops$v.threshold, 
+                              p.ops$ks.threshold, 
+                              p.ops$r.threshold), length) > 0)) {
+                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                p.ops$imbalanced.only <- FALSE
+            }
+        }
+    }
+    else p.ops$imbalanced.only <- FALSE
+    
     if (!missing(which.cluster)) {
         p.ops$which.cluster <- which.cluster
     }
@@ -542,10 +619,15 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     if (length(which.cluster)>0) {
         cat("Balance by cluster:\n")
         for (i in which.cluster) {
+            if (p.ops$imbalanced.only) {
+                keep.row <- rowSums(apply(c.balance[[i]][["Balance"]][grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+            }
+            else keep.row <- rep(TRUE, nrow(c.balance[[i]][["Balance"]]))
             cat(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - \n"))
-            cat("Balance measures:\n")
-            print.data.frame(replaceNA(round_df(c.balance[[i]][["Balance"]][, keep], digits)))
-            
+            if (p.ops$disp.bal.tab) {
+                cat("Balance measures:\n")
+                print.data.frame(replaceNA(round_df(c.balance[[i]][["Balance"]][keep.row, keep], digits)))
+            }
             for (j in rownames(c.balance[[i]][["Observations"]])) {
                 if (all(c.balance[[i]][["Observations"]][j,] == 0)) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!=j,]
             }
@@ -606,9 +688,11 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                                          p.ops$disp.adj && p.ops$disp.ks && CF["median"],
                                          p.ops$disp.adj && p.ops$disp.ks && CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
-        cat("Balance summary across all clusters:\n")
-        print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
-        cat("\n")
+        if (p.ops$disp.bal.tab) {
+            cat("Balance summary across all clusters:\n")
+            print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
+            cat("\n")
+        }
         
         if (!is.null(nn)) {
             for (i in rownames(x$Observations)) {
@@ -629,7 +713,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     
     invisible(x)
 }
-print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.bal.tab = "as.is", which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     call <- x$call
@@ -717,6 +801,32 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             p.ops$r.threshold <- NULL
         }
     }
+    if (!identical(disp.bal.tab, "as.is")) {
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        p.ops$disp.bal.tab <- disp.bal.tab
+    }
+    if (p.ops$disp.bal.tab) {
+        if (!identical(imbalanced.only, "as.is")) {
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            p.ops$imbalanced.only <- imbalanced.only
+        }
+        if (p.ops$imbalanced.only) {
+            if (!any(sapply(c(p.ops$m.threshold, 
+                              p.ops$v.threshold, 
+                              p.ops$ks.threshold, 
+                              p.ops$r.threshold), length) > 0)) {
+                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                p.ops$imbalanced.only <- FALSE
+            }
+        }
+    }
+    else p.ops$imbalanced.only <- FALSE
+    
+    # if (p.ops$imbalanced.only) {
+    #     keep.row <- rowSums(apply(balance[grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+    # }
+    # else keep.row <- rep(TRUE, nrow(balance))
+    
     if (!missing(which.imp) && which.imp != "as.is") {
         p.ops$which.imp <- which.imp
     }
@@ -818,10 +928,11 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                          p.ops$disp.adj && p.ops$disp.ks && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
-        
-        cat("Balance summary across all imputations:\n")
-        print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
-        cat("\n")
+        if (p.ops$disp.bal.tab) {
+            cat("Balance summary across all imputations:\n")
+            print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
+            cat("\n")
+        }
         
         if (!is.null(nn)) {
             for (i in rownames(x$Observations)) {
@@ -843,7 +954,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     invisible(x)
     
 }
-print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.bal.tab = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     call <- x$call
@@ -939,6 +1050,32 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         baltal.ks <- NULL
         maximbal.ks <- NULL
     }
+    if (!identical(disp.bal.tab, "as.is")) {
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        p.ops$disp.bal.tab <- disp.bal.tab
+    }
+    if (p.ops$disp.bal.tab) {
+        if (!identical(imbalanced.only, "as.is")) {
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            p.ops$imbalanced.only <- imbalanced.only
+        }
+        if (p.ops$imbalanced.only) {
+            if (!any(sapply(c(p.ops$m.threshold, 
+                              p.ops$v.threshold, 
+                              p.ops$ks.threshold, 
+                              p.ops$r.threshold), length) > 0)) {
+                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                p.ops$imbalanced.only <- FALSE
+            }
+        }
+    }
+    else p.ops$imbalanced.only <- FALSE
+     
+    # if (p.ops$imbalanced.only) {
+    #     keep.row <- rowSums(apply(balance[grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+    # }
+    # else keep.row <- rep(TRUE, nrow(balance))
+    
     if (!missing(which.imp) && which.imp != "as.is") {
         p.ops$which.imp <- which.imp
     }
@@ -1088,9 +1225,10 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             cat("Cluster balance summary across all imputations:\n")
             for (c in which.cluster) {
                 cat(paste0("\n - - - Cluster: ", names(i.balance.c.summary)[c], " - - - \n"))
-                cat("Balance summary across imputations:\n")
-                print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Balance"]][, s.keep], digits)))
-                
+                if (p.ops$disp.bal.tab) {
+                    cat("Balance summary across imputations:\n")
+                    print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Balance"]][, s.keep], digits)))
+                }
                 for (j in rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])) {
                     if (all(i.balance.c.summary[[c]][["Cluster.Observations"]][j,] == 0)) i.balance.c.summary[[c]][["Cluster.Observations"]] <- i.balance.c.summary[[c]][["Cluster.Observations"]][rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])!=j,]
                 }
@@ -1107,10 +1245,11 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             }
             cat("\n")
         }
+        if (p.ops$disp.bal.tab) {
         cat("Balance summary across all imputations and clusters:\n")
         print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
         cat("\n")
-        
+        }
         if (!is.null(nn)) {
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
@@ -1130,7 +1269,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     invisible(x)
     
 }
-print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.bal.tab = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -1213,6 +1352,32 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         baltal.ks <- NULL
         maximbal.ks <- NULL
     }
+    if (!identical(disp.bal.tab, "as.is")) {
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        p.ops$disp.bal.tab <- disp.bal.tab
+    }
+    if (p.ops$disp.bal.tab) {
+        if (!identical(imbalanced.only, "as.is")) {
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            p.ops$imbalanced.only <- imbalanced.only
+        }
+        if (p.ops$imbalanced.only) {
+            if (!any(sapply(c(p.ops$m.threshold, 
+                              p.ops$v.threshold, 
+                              p.ops$ks.threshold, 
+                              p.ops$r.threshold), length) > 0)) {
+                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                p.ops$imbalanced.only <- FALSE
+            }
+        }
+    }
+    else p.ops$imbalanced.only <- FALSE
+    
+    if (p.ops$imbalanced.only) {
+        keep.row <- rowSums(apply(m.balance.summary[grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+    }
+    else keep.row <- rep(TRUE, nrow(m.balance.summary))
+    
     if (!missing(which.treat)) {
         p.ops$which.treat <- which.treat
     }
@@ -1304,10 +1469,11 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
                                      p.ops$disp.adj && p.ops$disp.ks, 
                                      p.ops$disp.adj && !is.null(p.ops$ks.threshold)), p.ops$nweights + !p.ops$disp.adj)))
         
-        
+        if (p.ops$disp.bal.tab) {
         cat("Balance summary across all treatment pairs:\n")
-        print.data.frame(replaceNA(round_df(m.balance.summary[, s.keep], digits)))
+        print.data.frame(replaceNA(round_df(m.balance.summary[keep.row, s.keep], digits)))
         cat("\n")
+        }
         
         if (!is.null(nn)) {
             tag <- attr(x$Observations, "tag")
