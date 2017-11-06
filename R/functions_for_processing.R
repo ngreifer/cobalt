@@ -283,14 +283,11 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     
 }
 get.types <- function(C) {
-    types <- sapply(colnames(C), function(x) ifelse(ifelse(is.null(attr(C, "distance.names")), 
-                                                 FALSE, any(attr(C, "distance.names") == x)), 
-                                          "Distance", ifelse(nunique.gt(C[,x], 2), 
-                                                             "Contin.", "Binary")))
-    return(types)
-}
-nunique.gt <- function(x, n) {
-    tryCatch(nunique(x, nmax = n) > n, error = function(x) TRUE)
+    sapply(colnames(C), function(x) {
+        if (any(attr(C, "distance.names") == x)) "Distance"
+        else if (nunique.gt(C[,x], 2))  "Contin."
+        else "Binary"
+    })
 }
 
 #base.bal.tab
@@ -368,7 +365,7 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
     
     return(std.diffs)
 }
-ks <- function(x, treat, weights = NULL, var.type, no.weights = FALSE) {
+.ks <- function(x, treat, weights = NULL, var.type, no.weights = FALSE) {
     #Computes ks-statistic
     if (no.weights) weights <- rep(1, length(x))
     if (var.type != "Binary") {
@@ -384,10 +381,22 @@ ks <- function(x, treat, weights = NULL, var.type, no.weights = FALSE) {
     }
     else return(NA)
 }
-col.var.ratio <- function(mat, treat, weights, var.types, no.weights = FALSE) {
+col.ks <- function(mat, treat, weights, x.types, no.weights = FALSE) {
+    ks <- rep(NA_integer_, ncol(mat))
+    if (no.weights) weights <- rep(1, nrow(mat))
+    weights[treat == 1] <- weights[treat==1]/sum(weights[treat==1])
+    weights[treat == 0] <- -weights[treat==0]/sum(weights[treat==0])
+    ks[x.types != "Binary"] <- apply(mat[, x.types != "Binary"], 2, function(x) {
+        ordered.index <- order(x)
+        cumv <- abs(cumsum(weights[ordered.index]))[diff(x[ordered.index]) != 0]
+        return(if (length(cumv) > 0) max(cumv) else 0)
+    })
+    return(ks)
+}
+col.var.ratio <- function(mat, treat, weights, x.types, no.weights = FALSE) {
     if (no.weights) weights <- rep(1, nrow(mat))
     ratios <- rep(NA, ncol(mat))
-    non.binary <- var.types != "Binary"
+    non.binary <- x.types != "Binary"
     ratios[non.binary] <- col.w.v(mat[treat == 1, non.binary, drop = FALSE], w = weights[treat == 1]) / col.w.v(mat[treat == 0, non.binary, drop = FALSE], w = weights[treat == 0])
     return(apply(matrix(c(ratios, 1/ratios), byrow = T, nrow = 2), 2, max))
 }
@@ -610,10 +619,12 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     #KS Statistics
     if (!(!disp.ks && quick)) {
-        if (!(!un && quick)) B[["KS.Un"]] <- sapply(seq_along(varnames), function(i) ks(C[,varnames[i]], treat, s.weights, B[["Type"]][i], no.weights = TRUE))
+        #if (!(!un && quick)) B[["KS.Un"]] <- sapply(seq_along(varnames), function(i) ks(C[,varnames[i]], treat, s.weights, B[["Type"]][i], no.weights = TRUE))
+        if (!(!un && quick)) B[["KS.Un"]] <- col.ks(C, treat, s.weights, B[["Type"]], no.weights = FALSE)
         if (!no.adj) {
             for (j in seq_len(ncol(weights))) {
-                B[[paste0("KS.", weight.names[j])]] <- sapply(seq_along(varnames), function(i) ks(C[,varnames[i]], treat, weights[[j]]*s.weights, B[["Type"]][i]))
+                #B[[paste0("KS.", weight.names[j])]] <- sapply(seq_along(varnames), function(i) ks(C[,varnames[i]], treat, weights[[j]]*s.weights, B[["Type"]][i]))
+                B[[paste0("KS.", weight.names[j])]] <- col.ks(C, treat, weights[[j]]*s.weights, B[["Type"]], no.weights = FALSE)
             }
         }
     }
@@ -689,7 +700,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
         
         if (!(!disp.means && quick)) {
             SB[[i]][["M.0.Adj"]] <- colMeans(C[treat==0 & in.subclass, , drop = FALSE])
-            SB[[i]][["M.1.Adj"]] <- colmeans(C[treat==1 & in.subclass, , drop = FALSE])
+            SB[[i]][["M.1.Adj"]] <- colMeans(C[treat==1 & in.subclass, , drop = FALSE])
         }
         
         #Mean differences
@@ -699,12 +710,13 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
         #Variance ratios
         if (!(!disp.v.ratio && quick)) {
             #SB[[i]][["V.Ratio.Adj"]] <- sapply(seq_along(rownames(SB[[i]])), function(x) var.ratio(C[,rownames(SB[[i]])[x]][in.subclass], treat[in.subclass], weights=NULL, var.type=B[["Type"]][x], no.weights = TRUE))
-            SB[[i]][["V.Ratio.Adj"]] <- col.var.ratio(C[in.subclass, ], treat = treat[in.subclass], weights = NULL, var.types = B[["Type"]], no.weights = TRUE)
+            SB[[i]][["V.Ratio.Adj"]] <- col.var.ratio(C[in.subclass, ], treat = treat[in.subclass], weights = NULL, x.types = B[["Type"]], no.weights = TRUE)
         }
         
         #KS Statistics
         if (!(!disp.ks && quick)) {
-            SB[[i]][["KS.Adj"]] <- sapply(seq_along(rownames(SB[[i]])), function(x) ks(C[,rownames(SB[[i]])[x]][in.subclass], treat[in.subclass], weights=NULL, var.type=B[["Type"]][x], no.weights = TRUE))
+            #SB[[i]][["KS.Adj"]] <- sapply(seq_along(rownames(SB[[i]])), function(x) ks(C[,rownames(SB[[i]])[x]][in.subclass], treat[in.subclass], weights=NULL, var.type=B[["Type"]][x], no.weights = TRUE))
+            SB[[i]][["KS.Adj"]] <- col.ks(C[in.subclass, ], treat = treat[in.subclass], weights = NULL, x.types = B[["Type"]], no.weights = TRUE)
         }
     }
     
@@ -1182,7 +1194,7 @@ isColor <- function(x) {
 f.recode <- function(f, ...) {
     #Simplified version of forcats::fct_recode
     f <- factor(f)
-    new_levels <- unlist(list(...), use.names = FALSE)
+    new_levels <- unlist(list(...), use.names = TRUE)
     old_levels <- levels(f)
     idx <- match(new_levels, old_levels)
     
