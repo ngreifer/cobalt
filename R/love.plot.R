@@ -51,26 +51,22 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         #Get imp.numbers.good
         imp.numbers <- seq_along(b[["Imputation.Balance"]])
         if (na.imp) {
-            config <- "agg.imp"
             imp.numbers.good <- NULL
         }
         else if (null.imp) {
-            config <- "agg.none"
             imp.numbers.good <- setNames(rep(TRUE, length(imp.numbers)), imp.numbers)
         }
         else if (is.numeric(b$print.options$which.imp)) {
             imp.numbers.good <- setNames(imp.numbers %in% b$print.options$which.imp, imp.numbers)
         }
-        else stop("The argument to which.imp in bal.tab() must be NULL, NA, or the indices of imputations.", call. = FALSE)
+        else stop("The argument to which.imp must be NULL, NA, or the indices of imputations.", call. = FALSE)
         
         #Get cluster.names.good
         cluster.names <- names(b[["Cluster.Balance.Across.Imputations"]])
         if (na.cluster) {
-            config <- "agg.cluster"
             cluster.names.good <- NULL
         }
         else if (null.cluster) {
-            config <- "agg.none"
             cluster.names.good <- setNames(rep(TRUE, length(cluster.names)), cluster.names)
         }
         else if (is.character(b$print.options$which.cluster)) {
@@ -79,11 +75,11 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         else if (is.numeric(b$print.options$which.cluster)) {
             cluster.names.good <- setNames(seq_along(b$Cluster.Balance) %in% b$print.options$which.cluster, cluster.names)
         }
-        else stop("The argument to which.cluster in bal.tab() must be NULL, NA, or the names or indices of clusters.", call. = FALSE)
+        else stop("The argument to which.cluster must be NULL, NA, or the names or indices of clusters.", call. = FALSE)
         
         #Set configuration type of B using which.imp and which.cluster
-        if (null.imp) {
-            if (null.cluster) {
+        if (na.imp) { #aggregate over all imps
+            if (na.cluster) {
                 config <- "agg.all"
             }
             else { #1, #6
@@ -91,13 +87,13 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                     config <- "agg.imp"
                 }
                 else {
-                    stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+                    stop("Make sure the arguments to which.cluster are valid names or indices of clusters.", call. = FALSE)
                 }
                 
             }
         }
         else if (sum(imp.numbers.good) == 1) {
-            if (null.cluster) {
+            if (na.cluster) {
                 config <- "agg.cluster"
             }
             else { 
@@ -105,25 +101,23 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                     config <- "agg.none"
                 }
                 else {
-                    stop("Make sure the argument to which.cluster in bal.tab() is a valid name or index of a cluster.", call. = FALSE)
+                    stop("Make sure the arguments to which.cluster are valid names or indices of clusters.", call. = FALSE)
                 }
             }
         }
-        else {
-            if (any(imp.numbers.good)) {
-                if (null.cluster) {
+        else if (sum(imp.numbers.good) > 1) {
+                if (na.cluster) {
                     config <- "agg.cluster"
                 }
                 else if (sum(cluster.names.good) == 1) {
                     config <- "agg.none"
                 }
                 else {
-                    stop("At least one of which.cluster or which.imp must be NULL, NA, or of length 1.", call. = FALSE)
+                    stop("At least one of which.cluster or which.imp must be NA or of length 1.", call. = FALSE)
                 }
             }
-            else {
-                stop("Make sure the arguments to which.imp in bal.tab() are valid imputation indices.", call. = FALSE)
-            }
+        else {
+            stop("Make sure the arguments to which.imp are valid imputation indices.", call. = FALSE)
         }
         
         #Get B from b based on configuration
@@ -208,10 +202,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 config <- "agg.none"
             }
             else {
-                stop("Make sure the arguments to which.imp in bal.tab() are valid imputation indices.", call. = FALSE)
+                stop("Make sure the arguments to which.imp are valid imputation indices.", call. = FALSE)
             }
         }
-        else stop("The argument to which.imp in bal.tab() must be NULL, NA, or the indices of imputations.", call. = FALSE)
+        else stop("The argument to which.imp must be NULL, NA, or the indices of imputations.", call. = FALSE)
         
         #Get B from b
         if (config == "agg.none") {
@@ -252,7 +246,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 config <- "agg.none"
             }
             else {
-                stop("Make sure the arguments to which.cluster in bal.tab() are valid cluster names or indices.", call. = FALSE)
+                stop("Make sure the arguments to which.cluster are valid cluster names or indices.", call. = FALSE)
             }
         }
         else if (is.numeric(b$print.options$which.cluster)) {
@@ -261,10 +255,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 config <- "agg.none"
             }
             else {
-                stop("Make sure the arguments to which.cluster in bal.tab() are valid cluster names or indices.", call. = FALSE)
+                stop("Make sure the arguments to which.cluster are valid cluster names or indices.", call. = FALSE)
             }
         }
-        else stop("The argument to which.cluster in bal.tab() must be NULL, NA, or the names or indices of clusters.", call. = FALSE)
+        else stop("The argument to which.cluster must be NULL, NA, or the names or indices of clusters.", call. = FALSE)
         
         
         #Get B from b
@@ -306,7 +300,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 config <- "agg.none"
             }
             else {
-                stop("Make sure the arguments to which.treat in bal.tab() are valid treatment names or indices.", call. = FALSE)
+                stop("Make sure the arguments to which.treat are valid treatment names or indices.", call. = FALSE)
             }
         }
         else if (is.numeric(b$print.options$which.treat)) {
@@ -315,10 +309,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 config <- "agg.none"
             }
             else {
-                stop("Make sure the arguments to which.cluster in bal.tab() are valid cluster names or indices.", call. = FALSE)
+                stop("Make sure the arguments to which.cluster are valid cluster names or indices.", call. = FALSE)
             }
         }
-        else stop("The argument to which.cluster in bal.tab() must be NULL, NA, or the names or indices of clusters.", call. = FALSE)
+        else stop("The argument to which.cluster must be NULL, NA, or the names or indices of clusters.", call. = FALSE)
         
         
         if (na.treat) {
@@ -437,7 +431,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         else if (is.list(var.names)) {
             if (all(sapply(var.names, function(x) is.character(x) || is.factor(x)))) {
                 if (length(names(var.names))>0) {
-                    new.labels <- setNames(names(var.names), var.names)
+                    new.labels <- setNames(names(var.names), var.names) #already a list
                 }
                 else warning("var.names is a list, but its values are unnamed.", call. = FALSE)
             }
