@@ -12,50 +12,88 @@ Print Results of a Call to bal.tab()
 \description{
 Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
 \usage{
-\method{print}{bal.tab}(x, disp.m.threshold = "as.is", 
+\method{print}{bal.tab}(x, 
+    disp.m.threshold = "as.is", 
     disp.v.threshold = "as.is", 
     disp.ks.threshold = "as.is",
-    disp.r.threshold = "as.is", un = "as.is", 
-    disp.means = "as.is", disp.v.ratio = "as.is", 
+    disp.r.threshold = "as.is", 
+    imbalanced.only = "as.is", 
+    un = "as.is", 
+    disp.bal.tab = "as.is",
+    disp.means = "as.is", 
+    disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
-    digits = max(3, getOption("digits") - 3), ...)
+    digits = max(3, getOption("digits") - 3), 
+    ...)
 
-\method{print}{bal.tab.subclass}(x, disp.m.threshold = "as.is", 
+\method{print}{bal.tab.subclass}(x, 
+    disp.m.threshold = "as.is", 
     disp.v.threshold = "as.is", 
     disp.ks.threshold = "as.is", 
-    disp.r.threshold = "as.is", un = "as.is", 
-    disp.means = "as.is", disp.v.ratio = "as.is", 
-    disp.ks = "as.is", disp.subclass = "as.is", 
-    digits = max(3, getOption("digits") - 3), ...)
+    disp.r.threshold = "as.is", 
+    imbalanced.only = "as.is", 
+    un = "as.is", 
+    disp.bal.tab = "as.is",
+    disp.means = "as.is", 
+    disp.v.ratio = "as.is", 
+    disp.ks = "as.is", 
+    disp.subclass = "as.is", 
+    digits = max(3, getOption("digits") - 3), 
+    ...)
 
-\method{print}{bal.tab.cluster}(x, disp.m.threshold = "as.is", 
+\method{print}{bal.tab.cluster}(x, 
+    disp.m.threshold = "as.is", 
     disp.v.threshold = "as.is", 
     disp.ks.threshold = "as.is", 
-    disp.r.threshold = "as.is", un = "as.is", 
-    disp.means = "as.is", disp.v.ratio = "as.is", 
-    disp.ks = "as.is", which.cluster, 
-    cluster.summary = "as.is", cluster.fun = NULL, 
-    digits = max(3, getOption("digits") - 3), ...)
+    disp.r.threshold = "as.is", 
+    imbalanced.only = "as.is", 
+    un = "as.is", 
+    disp.bal.tab = "as.is",
+    disp.means = "as.is", 
+    disp.v.ratio = "as.is", 
+    disp.ks = "as.is", 
+    which.cluster, 
+    cluster.summary = "as.is", 
+    cluster.fun = NULL, 
+    digits = max(3, getOption("digits") - 3), 
+    ...)
 
-\method{print}{bal.tab.imp}(x, disp.m.threshold = "as.is", 
+\method{print}{bal.tab.imp}(x, 
+    disp.m.threshold = "as.is", 
     disp.v.threshold = "as.is", 
     disp.ks.threshold = "as.is", 
-    disp.r.threshold = "as.is", un = "as.is", 
-    disp.means = "as.is", disp.v.ratio = "as.is", 
-    disp.ks = "as.is", which.imp, imp.summary = "as.is", 
+    disp.r.threshold = "as.is", 
+    imbalanced.only = "as.is", 
+    un = "as.is", 
+    disp.bal.tab = "as.is",
+    disp.means = "as.is", 
+    disp.v.ratio = "as.is", 
+    disp.ks = "as.is", 
+    which.imp, 
+    imp.summary = "as.is", 
     imp.fun = NULL, 
-    digits = max(3, getOption("digits") - 3), ...)
+    digits = max(3, getOption("digits") - 3), 
+    ...)
 
-\method{print}{bal.tab.imp.cluster}(x, disp.m.threshold = "as.is", 
+\method{print}{bal.tab.imp.cluster}(x, 
+    disp.m.threshold = "as.is", 
     disp.v.threshold = "as.is", 
     disp.ks.threshold = "as.is", 
-    disp.r.threshold = "as.is", un = "as.is", 
-    disp.means = "as.is", disp.v.ratio = "as.is", 
-    disp.ks = "as.is", which.cluster, 
-    cluster.summary = "as.is", cluster.fun = NULL, 
-    which.imp, imp.summary = "as.is", 
-    imp.fun = NULL, digits = max(3, 
-    getOption("digits") - 3), ...)
+    disp.r.threshold = "as.is", 
+    imbalanced.only = "as.is", 
+    un = "as.is", 
+    disp.bal.tab = "as.is",
+    disp.means = "as.is", 
+    disp.v.ratio = "as.is", 
+    disp.ks = "as.is", 
+    which.cluster, 
+    cluster.summary = "as.is", 
+    cluster.fun = NULL, 
+    which.imp, 
+    imp.summary = "as.is", 
+    imp.fun = NULL, 
+    digits = max(3, getOption("digits") - 3), 
+    ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -73,8 +111,14 @@ whether to display output related to specifying \code{ks.threshold} in the call 
 }
   \item{disp.r.threshold}{
 whether to display output related to specifying \code{r.threshold} in the call to \code{bal.tab()} with a continuous treatment, which includes the Correlation Threshold column in the Balance table, the Correlation Balance Tally, and the variable with the Maximum Correlation Imbalance. Either \code{FALSE} or \code{"as.is"}.}
-  \item{un}{
+  \item{imbalanced.only}{
+whether to display only the covariates that failed to meet at least one of balance thresholds. Depends only on whether threshold were initial set in the call to \code{bal.tab()} and not on any arguments to \code{print()} (except \code{disp.bal.tab}).
+}
+    \item{un}{
 whether to display balance values for the unadjusted sample. Ignored (and set to \code{TRUE}) if no conditioning was performed.
+}
+  \item{disp.bal.tab}{
+whether to display the table of balance statistics. If \code{FALSE}, only other values (e.g., the call, sample sizes, balance tallies, and maximum imbalances) will be presented.
 }
   \item{disp.means}{
 whether to print the group means in balance output.

@@ -5,13 +5,13 @@ covs <- subset(lalonde, select = -c(re78, treat))
 lalonde_ <- splitfactor(lalonde, "race")
 covs_ <- subset(lalonde_, select = -c(re78, treat))
 #No Adjustment
-bal.tab(covs, treat = lalonde$treat, m.threshold = .1, v.threshold = 2)
-bal.tab(f.build("treat",covs), lalonde, ks.threshold = .1)
+bal.tab(covs, treat = lalonde$treat, m.threshold = .1, v.threshold = 2, imbalanced.only = T)
+bal.tab(f.build("treat",covs), data = lalonde, ks.threshold = .1)
 
 #MatchIt: matching w/ PS
 library("MatchIt")
 m1 <- matchit(f.build("treat", covs), data = lalonde, replace = T, ratio = 2, discard = "control")
-bal.tab(m1, int = T, quick = T, v.threshold = 2)
+bal.tab(m1, int = T, quick = T, v.threshold = 2, imbalanced.only = T)
 #MatchIt: matching w/Mahalanobis
 m2 <- matchit(f.build("treat", covs_), data = lalonde_, distance = "mahalanobis", 
               discard = "hull.control")
@@ -32,7 +32,7 @@ library("twang")
 ps.out <- ps(f.build("treat", covs), data = lalonde, 
    stop.method = c("ks.max", "es.max"), 
    estimand = "ATT", verbose = FALSE, n.trees = 1000)
-bal.tab(ps.out, disp.ks = T)
+bal.tab(ps.out, disp.ks = T, ks.threshold = .05, imbalanced.only = T)
 sampw <- sample(c(1.25, 0.75), nrow(covs), TRUE, c(.5, .5))
 ps.out.s <- ps(f.build("treat", covs), data = lalonde, 
              stop.method = c("ks.max"), 
@@ -44,7 +44,7 @@ bal.tab(covs, lalonde$treat, weights = get.w(ps.out.s), s.weights = sampw,
 #CBPS: binary
 library("CBPS")
 cbps.out <- CBPS(f.build("treat", covs), data = lalonde)
-bal.tab(cbps.out)
+bal.tab(cbps.out, disp.bal.tab = F)
 cbps.out.e <- CBPS(f.build("treat", covs), data = lalonde, method = "exact")
 bal.tab(covs, lalonde$treat, weights = list("ps" = get.w(cbps.out),
                                             "exact" = get.w(cbps.out.e)),
@@ -109,7 +109,7 @@ bal.tab(covs, lalonde$re78, weights = list(c = get.w(cbps.out2),
 #Clustering with MatchIt
 lalonde$school <- sample(LETTERS[1:4], nrow(lalonde), replace = T)
 m5 <- matchit(f.build("treat", covs), data = lalonde, exact = "school")
-bal.tab(m5, quick = T, cluster = lalonde$school, disp.v.ratio = T)
+bal.tab(m5, quick = T, cluster = lalonde$school, disp.v.ratio = T, disp.bal.tab = F)
 print(bal.tab(m5, quick = T, cluster = lalonde$school, disp.ks = T), cluster.fun = c("mean", "max"))
 #Clustering w/ continuous treatment
 bal.tab(cbps.out2.e, quick = T, cluster = lalonde$school, un = T)
@@ -158,7 +158,13 @@ bal.tab(f.build("re78", covs_mis), data = imp.data, weights = "cbps.w",
         method = "w", imp = ".imp", which.imp = NULL, cluster = "race")
 
 #love.plot
-plot(bal.tab(m1), threshold = .1, limits = c(-1, 1.5))
+v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
+                        "race_white", "married", "nodegree", "re74", "re75", "distance"),
+                new = c("Age", "Years of Education", "Black", 
+                        "Hispanic", "White", "Married", "No Degree Earned", 
+                        "Earnings 1974", "Earnings 1975", "Propensity Score"))
+plot(bal.tab(m1), threshold = .1, limits = c(-1, 1.5), var.names = v)
+
 love.plot(bal.tab(m5, cluster = lalonde$school), stat = "ks", agg.fun = "range")
 love.plot(bal.tab(cbps.out2.e), drop.distance = F, line = T, abs = T,
           var.order = "u")

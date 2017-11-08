@@ -1,7 +1,7 @@
 import(ggplot2)
 importFrom("stats", "fitted", "reformulate", "terms", "model.frame", "model.response", 
            "model.matrix", "lm", "glm", "aggregate", "var", "cor", "median", "setNames",
-           "as.formula", "relevel")
+           "as.formula", "relevel", "formula")
 importFrom("utils", "combn", "data")
 importFrom("grDevices", "col2rgb", "hcl")
 
