@@ -1,11 +1,11 @@
 ---
-title: "Using cobalt with Complicated Data"
+title: "Appendix 2: Using cobalt with Complicated Data"
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 
 vignette: >
-  %\VignetteIndexEntry{"Using cobalt with Complicated Data"}
+  %\VignetteIndexEntry{"Appendix 2: Using cobalt with Complicated Data"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
