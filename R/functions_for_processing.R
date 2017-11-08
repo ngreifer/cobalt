@@ -116,40 +116,51 @@ use.tc.fd <- function(formula, data, treat, covs) {
     }
     return(t.c)
 }
-process.val <- function(val, i, treat, covs, data) {
+process.val <- function(val, i, treat, covs, ...) {
+    
     if (is.numeric(val)) {
         val.df <- setNames(data.frame(val), i)
     }
     else if (is.character(val)) {
-        bad.ones <- character(0)
-        if ((length(data) > 0 && length(val) > ncol(data)) || length(val) == nrow(covs) || length(val) == length(treat)){
+        data.sets <- list(...)
+        data.sets <- data.sets[sapply(data.sets, function(x) length(x) > 0)]
+        if ((length(data.sets) > 0 && length(val) > max(sapply(data.sets, ncol))) || length(val) == nrow(covs) || length(val) == length(treat)){
             val.df <- setNames(data.frame(val), i)
         }
         else {
-            val <- unique(val)
-            if (length(data) > 0 && any(val %in% names(data))) {
-                val.df <- data[val[val %in% names(data)]]
-                bad.ones <- val[!val %in% names(data)]
-                if (length(bad.ones) > 0) {
-                    warning(paste("The following variable(s) named in", i, "are not in data and will be ignored: ",
-                                  paste(bad.ones)))
+            if (length(data.sets) > 0) {
+                val <- unique(val)
+                val.df <- setNames(as.data.frame(matrix(NA, ncol = length(val), nrow = max(sapply(data.sets, nrow)))),
+                                   val)
+                not.found <- setNames(rep(FALSE, length(val)), val)
+                for (v in val) {
+                    found <- FALSE
+                    k <- 1
+                    while (found == FALSE && k <= length(data.sets)) {
+                        if (v %in% names(data.sets[[k]])) {
+                            val.df[[v]] <- data.sets[[k]][[v]]
+                            found <- TRUE
+                        }
+                        else k <- k + 1
+                    }
+                    if (!found) not.found[v] <- TRUE
+                }
+                if (any(not.found)) {
+                        warning(paste("The following variable(s) named in", i, "are not in any available data sets and will be ignored: ",
+                                      paste(val[not.found])))
+                    val.df <- val.df[!not.found]
                 }
             }
             else {
-                if (length(data) == 0) {
-                    stop(paste0("Names were provided to ", i, ", but no argument to data was provided."), call. = FALSE)
-                }
-                else {
-                    stop(paste0("No names provided to ", i, " are the names of variables in data."), call. = FALSE)
-                }
+                val.df <- NULL
+                warning(paste0("Names were provided to ", i, ", but no argument to data was provided. Ignoring ", i,"."), call. = FALSE)
             }
         }
-        
     }
     else if (is.data.frame(val)) {
         val.df <- val
     }
-    else stop(paste("The argument supplied to", i, "must be a vector, a data.frame, or a list thereof."), call. = FALSE)
+    else stop(paste("The argument supplied to", i, "must be a vector, a data.frame, or the names of variables in an available data set."), call. = FALSE)
     
     return(val.df)
 }
@@ -162,38 +173,39 @@ process.val <- function(val, i, treat, covs, data) {
 #get.C controls flow and handles redunancy
 #get.types gets variables types (contin./binary)
 
-int.poly.f <- function(df, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
+int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"
     #Only to be used in base.bal.tab; for general use see int.poly()
-    #df=data frame input
-    #ex=data frame of variables to exclude in interactions and polynomials; a subset of df
+    #mat=matrix input
+    #ex=matrix of variables to exclude in interactions and polynomials; a subset of df
     #int=whether to include interactions or not; currently only 2-way are supported
     #poly=degree of polynomials to include; will also include all below poly. If 1, no polynomial will be included
     #nunder=number of underscores between variables
     
-    if (length(ex) > 0) d <- df[!names(df) %in% names(ex)]
-    else d <- df
+    if (length(ex) > 0) d <- mat[, !colnames(mat) %in% colnames(ex)]
+    else d <- mat
     nd <- ncol(d)
     nrd <- nrow(d)
     no.poly <- apply(d, 2, function(x) !nunique.gt(x, 2))
     npol <- nd - sum(no.poly)
     new <- matrix(ncol = (poly-1)*npol + .5*(nd)*(nd-1), nrow = nrd)
     nc <- ncol(new)
-    new.names <- vector("character", nc)
+    new.names <- character(nc)
     if (poly > 1 && npol != 0) {
         for (i in 2:poly) {
-            new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[!no.poly], 2, function(x) x^i)
+            new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly], 2, function(x) x^i)
             new.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], paste0(replicate(ncarrot, "_"), collapse = ""), i)
         }
     }
     if (int && nd > 1) {
         new[,(nc - .5*nd*(nd-1) + 1):nc] <- matrix(t(apply(d, 1, combn, 2, prod)), nrow = nrd)
-        new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(names(d), 2, paste, collapse=paste0(replicate(nunder, "_"), collapse = ""))
+        new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse=paste0(replicate(nunder, "_"), collapse = ""))
     }
     
     single.value <- apply(new, 2, function(x) abs(max(x) - min(x)) < sqrt(.Machine$double.eps))
-    new <- setNames(data.frame(new), new.names)[!single.value]
-    return(new)
+    colnames(new) <- new.names
+    #new <- setNames(data.frame(new), new.names)[!single.value]
+    return(new[, !single.value])
 }
 binarize <- function(variable) {
     if (length(unique(variable)) > 2) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
@@ -236,15 +248,15 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
                              drop.singleton = FALSE)
         }
     }
-    
+    C <- as.matrix(C)
     single.value <- apply(C, 2, function(x) abs(max(x) - min(x)) < sqrt(.Machine$double.eps))
-    C <- C[!single.value]
+    C <- C[, !single.value]
     
     if (int) {
         #Prevent duplicate var names with _'s
         nunder <- ncarrot <- 1
         repeat {
-            if (all(sapply(names(C), function(x) !x %in% do.call(paste, c(expand.grid(names(C), names(C)), list(sep = paste0(replicate(nunder, "_"), collapse = ""))))))) break
+            if (all(sapply(colnames(C), function(x) !x %in% do.call(paste, c(expand.grid(colnames(C), colnames(C)), list(sep = paste0(replicate(nunder, "_"), collapse = ""))))))) break
             else nunder <- nunder + 1
         }
         #Variable names don't contain carrots
@@ -267,11 +279,10 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     else suppressWarnings(C.cor <- cor(C))
     s <- !lower.tri(C.cor, diag=TRUE) & (1 - abs(C.cor) < sqrt(.Machine$double.eps))
     redundant.vars <- apply(s, 2, function(x) any(x))
-    C <- C[!redundant.vars]        
-    C<- as.matrix.data.frame(C)
+    C <- C[, !redundant.vars]        
+    #C<- as.matrix.data.frame(C)
     
     if (!is.null(distance)) {
-        
         #distance <- data.frame(.distance = distance)
         #while (names(distance) %in% names(C)) {names(distance) <- paste0(names(distance), "_")}
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
@@ -305,25 +316,26 @@ col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
     }
     return(colSums(mat*w, na.rm = na.rm)/w.sum)
 }
+w.cov.scale <- function(w) {
+    (sum(w, na.rm = TRUE)^2 - sum(w^2, na.rm = TRUE)) / sum(w, na.rm = TRUE)
+}
 w.v <- function(x, w = NULL) {
     #return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE)/(sum(w, na.rm=TRUE)-1))
-    return((sum(w, na.rm = TRUE) / (sum(w, na.rm = TRUE)^2 - sum(w^2, na.rm = TRUE)) )*sum(w*(x-w.m(x, w))^2, na.rm=TRUE))
+    return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE) / w.cov.scale(w))
 }
 col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
     if (length(w) == 0) {
-        w <- 1
-        w.sum <- nrow(mat)
+        w <- rep(1, nrow(mat))
     }
-    else {
-        w.sum <- sum(w, na.rm = na.rm)
-    }
-    return((w.sum / (w.sum^2 - sum(w^2, na.rm = na.rm))) * colSums(t((t(mat) - col.w.m(mat, w, na.rm = na.rm))^2) * w, na.rm = na.rm))
+    return(colSums(t((t(mat) - col.w.m(mat, w, na.rm = na.rm))^2) * w, na.rm = na.rm) / w.cov.scale(w))
 }
 w.cov <- function(x, y , w = NULL) {
     wmx <- w.m(x, w)
     wmy <- w.m(y, w)
-    wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = TRUE)/sum(w, na.rm = TRUE)
-    return(wcov)}
+    #wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = TRUE)/sum(w, na.rm = TRUE)
+    wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = TRUE) / w.cov.scale(w)
+    return(wcov)
+}
 col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL, x.types, continuous, binary, s.d.denom, no.weights = FALSE, s.weights = rep(1, length(treat))) {
     if (no.weights) weights <- rep(1, nrow(mat))
     w <- weights*s.weights
@@ -364,22 +376,6 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
     std.diffs[!is.finite(std.diffs)] <- NA
     
     return(std.diffs)
-}
-.ks <- function(x, treat, weights = NULL, var.type, no.weights = FALSE) {
-    #Computes ks-statistic
-    if (no.weights) weights <- rep(1, length(x))
-    if (var.type != "Binary") {
-        # if (TRUE) {
-        weights[treat == 1] <- weights[treat==1]/sum(weights[treat==1])
-        weights[treat == 0] <- -weights[treat==0]/sum(weights[treat==0])
-        
-        ordered.index <- order(x)
-        cumv <- abs(cumsum(weights[ordered.index]))[diff(x[ordered.index]) != 0]
-        ks <- ifelse(length(cumv) > 0, max(cumv), 0)
-        
-        return(ks)
-    }
-    else return(NA)
 }
 col.ks <- function(mat, treat, weights, x.types, no.weights = FALSE) {
     ks <- rep(NA_integer_, ncol(mat))

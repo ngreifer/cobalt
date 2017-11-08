@@ -448,8 +448,8 @@ get.w.ebalance.trim <- get.w.ebalance
 get.w.optmatch <- function(o, treat, ...) {
     return(match.strata2weights(o, treat = treat, covs = NULL))
 }
-get.w.weightit <- function(weightit, ...) {
-    return(weightit$weights)
+get.w.weightit <- function(W, ...) {
+    return(W$weights)
 }
 
 #For cobalt

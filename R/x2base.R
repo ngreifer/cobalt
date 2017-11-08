@@ -31,14 +31,15 @@ x2base.matchit <- function(m, ...) {
     }
     weights <- data.frame(weights = m$weights)
     treat <- m$treat
+    data <- A$data
     
     if (length(m$model$model) > 0) {
         o.data <- m$model$model #data used in the PS formula, including treatment and covs
         covs <- data.frame(o.data[, !is.na(match(names(o.data), attributes(terms(m$model))$term.labels))])
-        if (identical(o.data, data)) o.data <- NULL
+        #if (identical(o.data, data)) o.data <- NULL
     }
     else {
-        o.data <- NULL
+        #o.data <- NULL
         covs <- data.frame(m$X)
     }
     m.data <- m$model$data
@@ -66,7 +67,7 @@ x2base.matchit <- function(m, ...) {
         val.df <- NULL
         if (length(val) > 0) {
             if (is.vector(val, mode = "list")) {
-                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data, m.data))
                 val.list <- lapply(seq_along(val.list), function(x) {
                     if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                     val.list[[x]]})
@@ -78,7 +79,7 @@ x2base.matchit <- function(m, ...) {
                                    c(sapply(val.list, names)))
             }
             else {
-                val.df <- process.val(val, i, treat, covs, data)
+                val.df <- process.val(val, i, treat, covs, data, m.data)
             }
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
@@ -181,7 +182,7 @@ x2base.ps <- function(ps, ...) {
     weights <- data.frame(get.w(ps, s, estimand))
     treat <- ps$treat
     covs <- ps$data[, ps$gbm.obj$var.names, drop = FALSE]
-    
+    data <- A$data
     ps.data <- ps$data
     
     #Process cluster
@@ -207,7 +208,7 @@ x2base.ps <- function(ps, ...) {
         val.df <- NULL
         if (length(val) > 0) {
             if (is.vector(val, mode = "list")) {
-                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data, ps.data))
                 val.list <- lapply(seq_along(val.list), function(x) {
                     if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                     val.list[[x]]})
@@ -219,7 +220,7 @@ x2base.ps <- function(ps, ...) {
                                    c(sapply(val.list, names)))
             }
             else {
-                val.df <- process.val(val, i, treat, covs, data)
+                val.df <- process.val(val, i, treat, covs, data, ps.data)
             }
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
@@ -340,6 +341,7 @@ x2base.mnps <- function(mnps, ...) {
     weights <- data.frame(get.w(mnps, s))
     treat <- mnps$treatVar
     covs <- mnps$data[mnps$psList[[1]]$gbm.obj$var.names]
+    data <- A$data
     
     mnps.data <- mnps$data
     
@@ -366,7 +368,7 @@ x2base.mnps <- function(mnps, ...) {
         val.df <- NULL
         if (length(val) > 0) {
             if (is.vector(val, mode = "list")) {
-                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data, mnps.data))
                 val.list <- lapply(seq_along(val.list), function(x) {
                     if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                     val.list[[x]]})
@@ -378,7 +380,7 @@ x2base.mnps <- function(mnps, ...) {
                                    c(sapply(val.list, names)))
             }
             else {
-                val.df <- process.val(val, i, treat, covs, data)
+                val.df <- process.val(val, i, treat, covs, data, mnps.data)
             }
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
@@ -1165,6 +1167,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     treat <- cbps.fit$y
     covs <- cbps.fit$data[!is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
+    data <- A$data
     weights <- data.frame(weights = get.w(cbps.fit, 
                                           use.weights = ifelse(length(A$use.weights) == 0, TRUE,
                                                                A$use.weights)))
@@ -1217,7 +1220,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
         val.df <- NULL
         if (length(val) > 0) {
             if (is.vector(val, mode = "list")) {
-                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data, c.data))
                 val.list <- lapply(seq_along(val.list), function(x) {
                     if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                     val.list[[x]]})
@@ -1229,7 +1232,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                                    c(sapply(val.list, names)))
             }
             else {
-                val.df <- process.val(val, i, treat, covs, data)
+                val.df <- process.val(val, i, treat, covs, data, c.data)
             }
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
@@ -1536,6 +1539,7 @@ x2base.weightit <- function(weightit, ...) {
     treat <- weightit$treat
     covs <- weightit$covs
     s.weights <- weightit$s.weights
+    data <- A$data
     
     weightit.data <- weightit$data
     
@@ -1562,7 +1566,7 @@ x2base.weightit <- function(weightit, ...) {
         val.df <- NULL
         if (length(val) > 0) {
             if (is.vector(val, mode = "list")) {
-                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
+                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data, weightit.data))
                 val.list <- lapply(seq_along(val.list), function(x) {
                     if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                     val.list[[x]]})
@@ -1574,7 +1578,7 @@ x2base.weightit <- function(weightit, ...) {
                                    c(sapply(val.list, names)))
             }
             else {
-                val.df <- process.val(val, i, treat, covs, data)
+                val.df <- process.val(val, i, treat, covs, data, weightit.data)
             }
             if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                 stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}

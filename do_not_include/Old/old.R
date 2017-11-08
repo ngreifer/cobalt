@@ -115,3 +115,20 @@
     
     return(diffs)
 }  
+
+.ks <- function(x, treat, weights = NULL, var.type, no.weights = FALSE) {
+    #Computes ks-statistic
+    if (no.weights) weights <- rep(1, length(x))
+    if (var.type != "Binary") {
+        # if (TRUE) {
+        weights[treat == 1] <- weights[treat==1]/sum(weights[treat==1])
+        weights[treat == 0] <- -weights[treat==0]/sum(weights[treat==0])
+        
+        ordered.index <- order(x)
+        cumv <- abs(cumsum(weights[ordered.index]))[diff(x[ordered.index]) != 0]
+        ks <- ifelse(length(cumv) > 0, max(cumv), 0)
+        
+        return(ks)
+    }
+    else return(NA)
+}
