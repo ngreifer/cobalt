@@ -12,7 +12,9 @@ Version 3.1.0
 
 * Increased flexibility for displaying balance using `love.plot()` with clustered or multiply imputed data.
 
-* Fixes to the vignettes.
+* Added `imbalanced.only` and `disp.bal.tab` options to `bal.tab()`.
+
+* Fixes to the vignettes. Also, creation of a new vignette to simplify the main one.
 
 Version 3.0.0
 
