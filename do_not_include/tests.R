@@ -43,7 +43,7 @@ bal.tab(covs, lalonde$treat, weights = get.w(ps.out.s), s.weights = sampw,
         un = T, distance = ps.out.s$ps)
 #CBPS: binary
 library("CBPS")
-cbps.out <- CBPS(f.build("treat", covs), data = lalonde)
+cbps.out <- CBPS(f.build("treat", covs), data = lalonde, ATT = F)
 bal.tab(cbps.out, disp.bal.tab = F)
 cbps.out.e <- CBPS(f.build("treat", covs), data = lalonde, method = "exact")
 bal.tab(covs, lalonde$treat, weights = list("ps" = get.w(cbps.out),

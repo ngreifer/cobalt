@@ -63,6 +63,8 @@ Noah Greifer \email{noah@unc.edu}
 
 \code{\link{bal.tab.matchit}} for the method for objects returned by \pkg{MatchIt}.
 
+\code{\link{bal.tab.weightit}} for the method for objects returned by \pkg{WeightIt}.
+
 \code{\link{bal.tab.ps}} for the method for \code{ps} objects returned by \pkg{twang}.
 
 \code{\link{bal.tab.mnps}} for the method for \code{mnps} objects returned by \pkg{twang}.
@@ -76,5 +78,6 @@ Noah Greifer \email{noah@unc.edu}
 \code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set.
 
 \code{\link{bal.tab.ebalance}} for the method for objects returned by \pkg{ebal}.
+
 
 }

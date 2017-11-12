@@ -7,13 +7,15 @@ output:
         df_print: kable
 
 vignette: >
-%\VignetteIndexEntry{"Covariate Balance Tables and Plots: A Guide to the cobalt Package"}
+  %\VignetteIndexEntry{"Covariate Balance Tables and Plots: A Guide to the cobalt Package"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  ---
-  ```{r, include = FALSE}
+
+---
+```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE)
 ```
+
 This is an introductory guide for the use of `cobalt` in most common scenarios. Two appendices are available for its use with more complicated data scenarios.
 
 # Introduction
@@ -41,7 +43,7 @@ The rest of this guide explains how to use `cobalt` with the above packages and 
 ### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2017). cobalt: Covariate Balance Tables and Plots. R package version 3.0.0.
+Greifer, N. (2017). cobalt: Covariate Balance Tables and Plots. R package version 3.1.0.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
@@ -561,6 +563,12 @@ Because the number of computations increases both with sample size and number of
 Love plots and other similar plots that graphically display covariate balance before and after matching appear with some frequency in the applied and methodological literature (e.g., Ahmed et al., 2007; Austin, 2009; Austin & Stuart, 2015). Several of the conditioning packages implement a similar plot: `MatchIt`'s `plot(summary(..., standardize = TRUE))` and `twang`'s `plot(..., plots = "es")` present line plots showing the change in balance for each covariate. Below are examples of `twang`'s balance plot (above) and `cobalt`'s Love plot (below).
 
 ```{r, echo = FALSE, fig.show = 'hold', fig.width = 5}
+library("twang")
+data("lalonde", package = "cobalt") ##If not yet loaded
+covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+ps.out <- ps(f.build("treat", covs0), data = lalonde, 
+             stop.method = c("es.mean", "es.max"), 
+             estimand = "ATT", n.trees = 100, verbose = FALSE)
 plot(ps.out, plots = "es", subset = 1)
 love.plot(bal.tab(ps.out, full.stop.method = "es.mean.att"), threshold = .1,
           abs = TRUE, var.order = "u", color = c("red", "blue"), line = TRUE,

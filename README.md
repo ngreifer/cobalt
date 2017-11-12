@@ -3,7 +3,7 @@
 cobalt
 ======
 
-Welcome to `cobalt`, which stands for **Co**variate **Bal**ance **T**ables (and Plots). `cobalt` allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. `cobalt`'s primary function is `bal.tab()`, which stands for "balance table", and essentially repalces (or supplements) the balance assessment tools found in the R packages `twang`, `MatchIt`, `CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these packages and others, see the help file for `bal.tab()` with `?bal.tab`, which links to the methods used for each package. Each page has examples of how `bal.tab()` is used with the package. There are also two vignette detailing the use of `cobalt`, which can be accessed with `browseVignettes("cobalt")`: one for basic uses of `cobalt`, and the other for the use of `cobalt` with multiply imputed and/or clustered data. Currently, `cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, and `ebal`, as well as data not processed through these packages.
+Welcome to `cobalt`, which stands for **Co**variate **Bal**ance **T**ables (and Plots). `cobalt` allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. `cobalt`'s primary function is `bal.tab()`, which stands for "balance table", and essentially replaces (or supplements) the balance assessment tools found in the R packages `twang`, `MatchIt`, `CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these packages and others, see the help file for `bal.tab()` with `?bal.tab`, which links to the methods used for each package. Each page has examples of how `bal.tab()` is used with the package. There are also three vignette detailing the use of `cobalt`, which can be accessed with `browseVignettes("cobalt")`: one for basic uses of `cobalt`, one for the use of `cobalt` with additional packages, and another for the use of `cobalt` with multiply imputed and/or clustered data. Currently, `cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, and `WeightIt`. as well as data not processed through these packages.
 
 Why cobalt?
 ===========
@@ -23,48 +23,49 @@ library("cobalt")
 library("MatchIt")
 data("lalonde", package = "cobalt")
 
-#Nearest neighbor matching with MatchIt
-m.out <- matchit(treat ~ age + educ + race + married + nodegree +
-                     re74 + re75, data = lalonde)
+# Nearest neighbor matching with MatchIt
+m.out <- matchit(treat ~ age + educ + race + married + nodegree + re74 + re75, 
+    data = lalonde)
 
-#Checking balance before and after matching:
-bal.tab(m.out, m.threshold = .1, un = TRUE)
-#> 
-#> Call:
-#> matchit(formula = treat ~ age + educ + race + married + nodegree + 
-#>     re74 + re75, data = lalonde)
-#> 
-#> Balance Measures:
-#>                 Type Diff.Un Diff.Adj        M.Threshold
-#> distance    Distance  1.7941   0.9739                   
-#> age          Contin. -0.3094   0.0718     Balanced, <0.1
-#> educ         Contin.  0.0550  -0.1290 Not Balanced, >0.1
-#> race_black    Binary  0.6404   0.3730 Not Balanced, >0.1
-#> race_hispan   Binary -0.0827  -0.1568 Not Balanced, >0.1
-#> race_white    Binary -0.5577  -0.2162 Not Balanced, >0.1
-#> married       Binary -0.3236  -0.0216     Balanced, <0.1
-#> nodegree      Binary  0.1114   0.0703     Balanced, <0.1
-#> re74         Contin. -0.7211  -0.0505     Balanced, <0.1
-#> re75         Contin. -0.2903  -0.0257     Balanced, <0.1
-#> 
-#> Balance tally for mean differences:
-#>                    count
-#> Balanced, <0.1         5
-#> Not Balanced, >0.1     4
-#> 
-#> Variable with the greatest mean difference:
-#>            Diff.Adj        M.Threshold
-#> race_black    0.373 Not Balanced, >0.1
-#> 
-#> Sample sizes:
-#>           Control Treated
-#> All           429     185
-#> Matched       185     185
-#> Unmatched     244       0
+# Checking balance before and after matching:
+bal.tab(m.out, m.threshold = 0.1, un = TRUE)
 ```
 
+    #> 
+    #> Call:
+    #>   matchit(formula = treat ~ age + educ + race + married + nodegree + 
+    #>       re74 + re75, data = lalonde)
+    #> 
+    #> Balance Measures:
+    #>                 Type Diff.Un Diff.Adj        M.Threshold
+    #> distance    Distance  1.7941   0.9739                   
+    #> age          Contin. -0.3094   0.0718     Balanced, <0.1
+    #> educ         Contin.  0.0550  -0.1290 Not Balanced, >0.1
+    #> race_black    Binary  0.6404   0.3730 Not Balanced, >0.1
+    #> race_hispan   Binary -0.0827  -0.1568 Not Balanced, >0.1
+    #> race_white    Binary -0.5577  -0.2162 Not Balanced, >0.1
+    #> married       Binary -0.3236  -0.0216     Balanced, <0.1
+    #> nodegree      Binary  0.1114   0.0703     Balanced, <0.1
+    #> re74         Contin. -0.7211  -0.0505     Balanced, <0.1
+    #> re75         Contin. -0.2903  -0.0257     Balanced, <0.1
+    #> 
+    #> Balance tally for mean differences:
+    #>                    count
+    #> Balanced, <0.1         5
+    #> Not Balanced, >0.1     4
+    #> 
+    #> Variable with the greatest mean difference:
+    #>            Diff.Adj        M.Threshold
+    #> race_black    0.373 Not Balanced, >0.1
+    #> 
+    #> Sample sizes:
+    #>           Control Treated
+    #> All           429     185
+    #> Matched       185     185
+    #> Unmatched     244       0
+
 ``` r
-#Examining distributional balance with plots:
+# Examining distributional balance with plots:
 bal.plot(m.out, var.name = "educ")
 bal.plot(m.out, var.name = "race")
 ```
@@ -72,8 +73,8 @@ bal.plot(m.out, var.name = "race")
 <img src="inst/figures/README-unnamed-chunk-3-1.png" display="inline" /> <img src="inst/figures/README-unnamed-chunk-3-2.png" display="inline" />
 
 ``` r
-#Generating a Love plot to report balance:
-love.plot(bal.tab(m.out), threshold = .1, abs = TRUE, var.order = "unadjusted")
+# Generating a Love plot to report balance:
+love.plot(bal.tab(m.out), threshold = 0.1, abs = TRUE, var.order = "unadjusted")
 ```
 
 <img src="inst/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
