@@ -1219,14 +1219,41 @@ gg_color_hue <- function(n) {
 }
 
 #print.bal.tab
-round_df <- function(df, digits) {
+.round_df <- function(df, digits) {
     nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
     df[, nums] <- round(df[, nums], digits = digits)
     return(df)
 }
-replaceNA <- function(x) {
+.replaceNA <- function(x) {
     x[is.na(x)] <- ""
     return(x)
+}
+round_df_char <- function(df, digits) {
+    rn <- rownames(df)
+    nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+    df[, nums] <- round(df[, nums], digits = digits)
+    nas <- is.na(df)
+    df[nas] <- ""
+    #check.rounding <- apply(nas, 2, any)
+    df <- as.data.frame(sapply(df, as.character), stringsAsFactors = FALSE)
+    for (i in which(nums)) {
+        if (any(grepl(".", df[[i]], fixed = TRUE))) {
+            s <- strsplit(df[[i]], ".", fixed = TRUE)
+            lengths <- sapply(s, length)
+            digits.r.of.. <- sapply(seq_along(s), function(x) {
+                if (lengths[x] > 1) nchar(s[[x]][lengths[x]])
+                else 0 })
+            df[[i]] <- sapply(seq_along(df[[i]]), function(x) {
+                if (nas[x, i]) ""
+                else if (lengths[x] <= 1) paste0(c(df[[i]][x], ".", rep("0", max(digits.r.of..) - digits.r.of..[x])),
+                                              collapse = "")
+                else paste0(c(df[[i]][x], rep("0", max(digits.r.of..) - digits.r.of..[x])),
+                            collapse = "")
+            })
+        }
+    }
+    rownames(df) <- rn
+    return(df)
 }
 
 #To pass CRAN checks:

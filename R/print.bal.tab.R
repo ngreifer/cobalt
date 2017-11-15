@@ -149,7 +149,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         else keep.row <- rep(TRUE, nrow(balance))
         
         cat("Balance Measures:\n")
-        print.data.frame(replaceNA(round_df(balance[keep.row, keep], digits)))
+        print.data.frame(round_df_char(balance[keep.row, keep], digits))
         cat("\n")
     }
     
@@ -626,7 +626,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             cat(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - \n"))
             if (p.ops$disp.bal.tab) {
                 cat("Balance measures:\n")
-                print.data.frame(replaceNA(round_df(c.balance[[i]][["Balance"]][keep.row, keep], digits)))
+                print.data.frame(round_df_char(c.balance[[i]][["Balance"]][keep.row, keep], digits))
             }
             for (j in rownames(c.balance[[i]][["Observations"]])) {
                 if (all(c.balance[[i]][["Observations"]][j,] == 0)) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!=j,]
@@ -639,7 +639,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
                 xc.balance[[i]][["Observations"]] <- setNames(cbind(c.balance[[i]][["Observations"]], ess), c(names(c.balance[[i]][["Observations"]]), ""))
                 print.warning <- TRUE
             }
-            print.data.frame(replaceNA(round_df(c.balance[[i]][["Observations"]], digits)))
+            print.data.frame(round_df_char(c.balance[[i]][["Observations"]], digits))
             if (print.warning) cat("* indicates effective sample size")
             
         }
@@ -690,7 +690,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         }
         if (p.ops$disp.bal.tab) {
             cat("Balance summary across all clusters:\n")
-            print.data.frame(replaceNA(round_df(c.balance.summary[, s.keep], digits)))
+            print.data.frame(round_df_char(c.balance.summary[, s.keep], digits))
             cat("\n")
         }
         
@@ -930,7 +930,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         
         if (p.ops$disp.bal.tab) {
             cat("Balance summary across all imputations:\n")
-            print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
+            print.data.frame(round_df_char(i.balance.summary[, s.keep], digits))
             cat("\n")
         }
         
@@ -1227,7 +1227,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                 cat(paste0("\n - - - Cluster: ", names(i.balance.c.summary)[c], " - - - \n"))
                 if (p.ops$disp.bal.tab) {
                     cat("Balance summary across imputations:\n")
-                    print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Balance"]][, s.keep], digits)))
+                    print.data.frame(round_df_char(i.balance.c.summary[[c]][["Cluster.Balance"]][, s.keep], digits))
                 }
                 for (j in rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])) {
                     if (all(i.balance.c.summary[[c]][["Cluster.Observations"]][j,] == 0)) i.balance.c.summary[[c]][["Cluster.Observations"]] <- i.balance.c.summary[[c]][["Cluster.Observations"]][rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])!=j,]
@@ -1240,14 +1240,14 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                     i.balance.c.summary[[c]][["Cluster.Observations"]] <- setNames(cbind(i.balance.c.summary[[c]][["Cluster.Observations"]], ess), c(names(i.balance.c.summary[[c]][["Cluster.Observations"]]), ""))
                     print.warning <- TRUE
                 }
-                print.data.frame(replaceNA(round_df(i.balance.c.summary[[c]][["Cluster.Observations"]], digits)))
+                print.data.frame(round_df_char(i.balance.c.summary[[c]][["Cluster.Observations"]], digits))
                 if (print.warning) cat("* indicates effective sample size")
             }
             cat("\n")
         }
         if (p.ops$disp.bal.tab) {
         cat("Balance summary across all imputations and clusters:\n")
-        print.data.frame(replaceNA(round_df(i.balance.summary[, s.keep], digits)))
+        print.data.frame(round_df_char(i.balance.summary[, s.keep], digits))
         cat("\n")
         }
         if (!is.null(nn)) {
@@ -1471,7 +1471,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         
         if (p.ops$disp.bal.tab) {
         cat("Balance summary across all treatment pairs:\n")
-        print.data.frame(replaceNA(round_df(m.balance.summary[keep.row, s.keep], digits)))
+        print.data.frame(round_df_char(m.balance.summary[keep.row, s.keep], digits))
         cat("\n")
         }
         
