@@ -8,10 +8,17 @@ Generate Univariate Balance Plots
 Generates density plots, bar graphs, or scatterplots displaying distributional balance between treatment and covariates using \pkg{ggplot2}.
 }
 \usage{
-bal.plot(obj, var.name, ..., which, which.sub = NULL, 
-         cluster = NULL, which.cluster = NULL, imp = NULL, 
-         which.imp = NULL, which.treat = NULL,
-         size.weight = FALSE)
+bal.plot(obj, 
+    var.name, 
+    ..., 
+    which, 
+    which.sub = NULL, 
+    cluster = NULL, 
+    which.cluster = NULL, 
+    imp = NULL, 
+    which.imp = NULL, 
+    which.treat = NULL,
+    size.weight = FALSE)
 }
 \arguments{
   \item{obj}{
@@ -21,7 +28,7 @@ the object for which balance is to be assessed; can be a \code{matchit} object f
 \code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate data frame from \code{obj}, followed by \code{addl}, and then \code{distance}, if any.
 }
   \item{\dots}{
-other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments.
+other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments. Can also be used to supply the \code{bw}, \code{adjust}, \code{kernel}, and \code{n} arguments for \code{\link[ggplot2]{stat_density}}.
 }
   \item{which}{
   whether to display distributional balance for the adjusted (\code{"adjusted"}) or unadjusted sample (\code{"unadjusted"}) or both at the same time (\code{"both"}). The default is to display balance for the adjusted sample only unless no weights, subclasses, or matching strata are specified. Abbreviations allowed.

@@ -16,6 +16,12 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     else if (!is.null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
     else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."))
     
+    #Density arguments supplied through ...
+    if (length(args$bw) > 0) bw <- args$bw else bw <- "nrd0"
+    if (length(args$adjust) > 0) adjust <- args$adjust else adjust <- 1
+    if (length(args$kernel) > 0) kernel <- args$kernel else kernel <- "gaussian"
+    if (length(args$n) > 0) n <- args$n else n <- 512
+
     if (missing(which)) {
         if (length(args$un) > 0) {
             message("Note: \'un\' is deprecated; please use \'which\' for the same and added functionality.")
@@ -216,7 +222,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (is.categorical.var) { #Categorical vars
             d$var <- factor(d$var)
             bp <- ggplot(d, mapping = aes(treat, fill = var, weight = weights)) + 
-                geom_density(alpha = .4) + 
+                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n) + 
                 labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle)
         }
         else { #Continuous vars
@@ -282,7 +288,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         else { #Continuous vars
             bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
-                geom_density(alpha = .4) + 
+                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n) + 
                 labs(x = var.name, y = "Density", fill = "Treat", title = title, subtitle = subtitle)
         }
     }

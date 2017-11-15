@@ -1,5 +1,13 @@
 cobalt News and Updates
 ======
+Version X
+
+* Fixed bug when only one non-binary variable was present.
+
+* Corrections to help files.
+
+* Added ability to change density options in `bal.plot`.
+
 Version 3.1.0
 
 * Added full support for tibbles.
