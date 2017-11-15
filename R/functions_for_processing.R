@@ -382,7 +382,8 @@ col.ks <- function(mat, treat, weights, x.types, no.weights = FALSE) {
     if (no.weights) weights <- rep(1, nrow(mat))
     weights[treat == 1] <- weights[treat==1]/sum(weights[treat==1])
     weights[treat == 0] <- -weights[treat==0]/sum(weights[treat==0])
-    ks[x.types != "Binary"] <- apply(mat[, x.types != "Binary"], 2, function(x) {
+    non.binary <- x.types != "Binary"
+    ks[non.binary] <- apply(mat[, non.binary, drop = FALSE], 2, function(x) {
         ordered.index <- order(x)
         cumv <- abs(cumsum(weights[ordered.index]))[diff(x[ordered.index]) != 0]
         return(if (length(cumv) > 0) max(cumv) else 0)
