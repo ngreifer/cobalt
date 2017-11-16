@@ -14,6 +14,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     #adj.color (deprecated)
     #title
     #subtitle
+    #sample.names
     #limits
     #cluster.fun (deprecated)
     
@@ -645,7 +646,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     else {
         #check shapes
         if (!shapes.ok(shapes, ntypes)) {
-            warning("The argument to shape must numbers between 1 and 25. \nUsing default shapes instead.", call. = FALSE)
+            warning(paste("The argument to shape must be", ntypes, "numbers between 1 and 25. \nUsing default shapes instead."), call. = FALSE)
             shapes <- assign.shapes(colors)
         }
         else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
@@ -721,7 +722,23 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             apply.limits <- TRUE
         }
     }
-    
+    if (length(args$sample.names) > 0) {
+        if (!all(is.character(args$sample.names))) {
+            warning("The argument to sample.names must be a character vector. Ignoring sample.names.", call. = FALSE)
+        }
+        else {
+            if (length(args$sample.names) == ntypes - 1) {
+                levels(SS$Sample)[-1] <- args$sample.names
+            }
+            else if (length(args$sample.names) == ntypes) {
+                levels(SS$Sample) <- args$sample.names
+            }
+            else {
+                warning("The argument to sample.names must contain as many names as there are sample types, or one fewer. Ignoring sample.names.", call. = FALSE)
+            }
+        }
+
+    }
 
     lp <- ggplot(data = SS, aes(y = var, x = stat, group = Sample)) + 
         theme(panel.grid.major = element_line(color = "gray87"),
