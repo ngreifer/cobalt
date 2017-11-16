@@ -1222,12 +1222,12 @@ gg_color_hue <- function(n) {
 }
 
 #print.bal.tab
-.round_df <- function(df, digits) {
+round_df <- function(df, digits) {
     nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
     df[, nums] <- round(df[, nums], digits = digits)
     return(df)
 }
-.replaceNA <- function(x) {
+replaceNA <- function(x) {
     x[is.na(x)] <- ""
     return(x)
 }
