@@ -160,7 +160,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     if (!is.null(maximbal.r)) {
         cat("Variable with the greatest treatment correlation:\n")
-        print.data.frame(round_df(x$Max.Imbalance.Corr, digits))
+        print.data.frame(round_df(x$Max.Imbalance.Corr, digits), row.names = FALSE)
         cat("\n")
     }
     if (!is.null(baltal.m)) {
@@ -170,7 +170,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     if (!is.null(maximbal.m)) {
         cat("Variable with the greatest mean difference:\n")
-        print.data.frame(round_df(x$Max.Imbalance.Means, digits))
+        print.data.frame(round_df(x$Max.Imbalance.Means, digits), row.names = FALSE)
         cat("\n")
     }
     if (!is.null(baltal.v)) {
@@ -180,7 +180,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     if (!is.null(maximbal.v)) {
         cat("Variable with the greatest variance ratio:\n")
-        print.data.frame(round_df(x$Max.Imbalance.Variances, digits))
+        print.data.frame(round_df(x$Max.Imbalance.Variances, digits), row.names = FALSE)
         cat("\n")
     }
     if (!is.null(baltal.ks)) {
@@ -190,7 +190,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     if (!is.null(maximbal.ks)) {
         cat("Variable with the greatest KS statistic:\n")
-        print.data.frame(round_df(x$Max.Imbalance.KS, digits))
+        print.data.frame(round_df(x$Max.Imbalance.KS, digits), row.names = FALSE)
         cat("\n")
     }
     if (!is.null(nn)) {
@@ -386,7 +386,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     }
     if (!is.null(maximbal.r.subclass)) {
         cat("Variable with the greatest treatment correlation across subclasses:\n")
-        print.data.frame(round_df(maximbal.r.subclass, digits))
+        print.data.frame(round_df(maximbal.r.subclass, digits), row.names = FALSE)
         cat("\n")
     }
     if (!is.null(baltal.m.subclass)) {
@@ -396,7 +396,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     }
     if (!is.null(maximbal.m.subclass)) {
         cat("Variable with the greatest mean difference across subclasses:\n")
-        print.data.frame(round_df(maximbal.m.subclass, digits))
+        print.data.frame(round_df(maximbal.m.subclass, digits), row.names = FALSE)
         cat("\n")
     }
     if (!is.null(baltal.v.subclass)) {
@@ -406,7 +406,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     }
     if (!is.null(maximbal.v.subclass)) {
         cat("Variable with the greatest variance ratios across subclasses:\n")
-        print.data.frame(round_df(maximbal.v.subclass, digits))
+        print.data.frame(round_df(maximbal.v.subclass, digits), row.names = FALSE)
         cat("\n")
     }
     if (!is.null(baltal.ks.subclass)) {
@@ -416,7 +416,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     }
     if (!is.null(maximbal.ks.subclass)) {
         cat("Variable with the greatest KS statistc across subclasses:\n")
-        print.data.frame(round_df(maximbal.ks.subclass, digits))
+        print.data.frame(round_df(maximbal.ks.subclass, digits), row.names = FALSE)
         cat("\n")
     }
     
