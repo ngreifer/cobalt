@@ -198,8 +198,8 @@ x2base.ps <- function(ps, ...) {
             else if (any(names(ps.data) == cluster)) {
                 cluster <- ps.data[[cluster]]
             }
+            else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
         }
-        else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
     }
     
     #Process addl and distance
@@ -882,7 +882,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("treat", "subclass", "match.strata", "cluster")
+    vectors <- c("treat", "subclass", "match.strata", "cluster", "s.weights")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(sapply(vectors, 
@@ -1507,8 +1507,6 @@ x2base.optmatch <- function(optmatch, ...) {
     
 }
 x2base.weightit <- function(weightit, ...) {
-    #stop.method
-    #s.d.denom
     A <- list(...)
     
     X <- list(covs=NA,
@@ -1519,6 +1517,7 @@ x2base.weightit <- function(weightit, ...) {
               s.d.denom=NA,
               call=NA,
               cluster = NA,
+              imp = NA,
               s.weights = NA)
     
     #Initializing variables
@@ -1540,11 +1539,15 @@ x2base.weightit <- function(weightit, ...) {
     covs <- weightit$covs
     s.weights <- weightit$s.weights
     data <- A$data
+    imp <- A$imp
     
     weightit.data <- weightit$data
     
     #Process cluster
     cluster <- A$cluster
+    if (length(cluster) > 0 && !is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
+        stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
+    }
     if (length(cluster) > 0) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -1556,8 +1559,13 @@ x2base.weightit <- function(weightit, ...) {
             else if (any(names(weightit.data) == cluster)) {
                 cluster <- weightit.data[[cluster]]
             }
+            else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
         }
-        else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+    }
+    
+    #Process imp
+    if (length(imp) > 0 && !is.character(imp) && !is.numeric(imp) && !is.factor(imp)) {
+        stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
     }
     
     #Process addl and distance
@@ -1592,7 +1600,7 @@ x2base.weightit <- function(weightit, ...) {
     else distance <- NULL
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster", "s.weights")
+    vectors <- c("s.weights", "cluster")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(sapply(vectors, 
@@ -1600,6 +1608,66 @@ x2base.weightit <- function(weightit, ...) {
                           sapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
+    #Process imp
+    if (length(imp) > 0) {
+        if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
+            imp <- imp
+        }
+        else if (is.character(imp) && length(imp)==1 && any(names(data) == imp)) {
+            imp <- data[[imp]]
+        }
+        else if (is.character(imp) && length(imp)==1 && any(names(weightit.data) == imp)) {
+            imp <- weightit.data[[imp]]
+        }
+        else stop("The name supplied to imp is not the name of a variable in data.", call. = FALSE)
+        
+        imp.lengths <- sapply(unique(imp), function(i) sum(imp == i))
+        
+        if (abs(max(imp.lengths) - min(imp.lengths)) < sqrt(.Machine$double.eps)) { #all the same
+            for (i in vectors) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) { 
+                    if (lengths[i] == imp.lengths[1]) {
+                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               order2 = seq_along(imp))
+                        
+                        temp.var <- data.frame(sort(imp), rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               get(i)[rep(seq_len(lengths[i]), length(imp.lengths))]
+                        )
+                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
+                                            by.y = 1:2, sort = FALSE)
+                        assign(i, temp.merge[[-c(1:3)]][order(temp.merge[[3]])])
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+            for (i in data.frames) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (lengths[i] == imp.lengths[1]) {
+                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               order2 = seq_along(imp))
+                        temp.var <- data.frame(sort(imp),rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               get(i)[rep(seq_len(lengths[i]), length(imp.lengths)), , drop = FALSE]
+                        )
+                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
+                                            by.y = 1:2, sort = FALSE)
+                        assign(i, setNames(temp.merge[[-c(1:3)]][order(temp.merge[[3]])], names(get(i))))
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+        }
+        else {
+            problematic <- lengths > 0 & lengths != length(imp)
+        }
+        if (any(problematic)) {
+            stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
+        }
+        else ensure.equal.lengths <- FALSE
+    }
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -1610,7 +1678,7 @@ x2base.weightit <- function(weightit, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
     }
 
     X$weights <- weights
@@ -1620,6 +1688,7 @@ x2base.weightit <- function(weightit, ...) {
     X$covs <- covs
     X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
+    X$imp <- factor(imp)
     X$s.weights <- weightit$s.weights
     X$discarded <- weightit$discarded
     X$focal <- weightit$focal

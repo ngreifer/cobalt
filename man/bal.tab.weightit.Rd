@@ -29,6 +29,9 @@ Generates balance statistics for \code{weightit} objects from \pkg{WeightIt}.
     cluster = NULL, 
     which.cluster = NULL, 
     cluster.summary = TRUE, 
+    imp = NULL, 
+    which.imp = NA, 
+    imp.summary = TRUE, 
     which.treat = NA, 
     pairwise = TRUE, 
     focal = NULL, 
@@ -102,6 +105,16 @@ which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.
 }
   \item{cluster.summary}{
 \code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
+}
+  \item{imp}{
+either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{weightit()}. See \code{\link{bal.tab.imp}} for details.
+}
+  \item{which.imp}{
+which imputations(s) to display if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
+
+}
+  \item{imp.summary}{
+\code{logical}; whether to display the cluster summary table if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
 }
   \item{which.treat}{
 which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
