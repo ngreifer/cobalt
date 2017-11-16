@@ -8,12 +8,20 @@ Generate Balance Plots for Publication
 Generates a "Love" plot graphically displaying covariate balance before and after adjusting.
 }
 \usage{
-love.plot(x, stat = c("mean.diffs", "variance.ratios",
-    "ks.statistics"), threshold = NULL, abs = FALSE, 
-    var.order = NULL, no.missing = TRUE, 
-    var.names = NULL, drop.distance = FALSE, 
+love.plot(x, 
+    stat = c("mean.diffs", "variance.ratios", 
+             "ks.statistics"), 
+    threshold = NULL, 
+    abs = FALSE, 
+    var.order = NULL, 
+    no.missing = TRUE, 
+    var.names = NULL, 
+    drop.distance = FALSE, 
     agg.fun = c("mean", "median", "max", "range"), 
-    colors = NULL, shapes = NULL, line = FALSE, ...)
+    colors = NULL, 
+    shapes = NULL, 
+    line = FALSE, 
+    ...)
 }
 
 \arguments{
@@ -60,6 +68,7 @@ Options for display of the plot. The following arguments are currently accepted:
     }
     \item{\code{title}}{\code{character}; the title of the plot.}
     \item{\code{subtitle}}{\code{character}; the subtitle of the plot.}
+    \item{\code{sample.names}}{\code{character}; new names to be given to the samples (i.e., in place of "Unadjusted" and "Adjusted").}
     \item{\code{limits}}{\code{numeric}; the bounds for the x-axis of the plot. Must a vector of length 2 in ascending order.}
     \item{\code{which.cluster}}{which clusters to display. Overrides the \code{which.cluster} option in the original \code{bal.tab} object.}
     \item{\code{which.imp}}{which imputations to display. Overrides the \code{which.imp} option in the original \code{bal.tab} object.}
