@@ -147,13 +147,14 @@ process.val <- function(val, i, treat, covs, ...) {
                 }
                 if (any(not.found)) {
                         warning(paste("The following variable(s) named in", i, "are not in any available data sets and will be ignored: ",
-                                      paste(val[not.found])))
+                                      paste(val[not.found])), call. = FALSE)
                     val.df <- val.df[!not.found]
                 }
             }
             else {
                 val.df <- NULL
-                warning(paste0("Names were provided to ", i, ", but no argument to data was provided. Ignoring ", i,"."), call. = FALSE)
+                warning(paste0("Names were provided to ", i, ", but no argument to data was provided. Ignoring ", i,"."), 
+                        call. = FALSE)
             }
         }
     }
@@ -547,7 +548,9 @@ samplesize.across.clusters <- function(samplesize.list) {
 }
 max.imbal <- function(balance.table, col.name, thresh.col.name) {
     balance.table.clean <- balance.table[balance.table$Type != "Distance" & is.finite(balance.table[, col.name]),]
-    return(balance.table.clean[which.max(abs(balance.table.clean[, col.name])), match(c(col.name, thresh.col.name), names(balance.table.clean))])
+    maxed <- balance.table.clean[which.max(abs(balance.table.clean[, col.name])), match(c(col.name, thresh.col.name), names(balance.table.clean))]
+    maxed <- data.frame(Variable = rownames(maxed), maxed)
+    return(maxed)
     # return(balance.table[which.max(abs(balance.table[balance.table$Type != "Distance", col.name])), match(c(col.name, thresh.col.name), names(balance.table))])
 }
 balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, s.weights = rep(1, length(treat)), no.adj = FALSE, types = NULL, quick = FALSE) {
