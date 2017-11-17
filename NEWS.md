@@ -2,11 +2,15 @@ cobalt News and Updates
 ======
 Version X
 
-* Fixed bug when only one non-binary variable was present.
-
 * Corrections to help files.
 
 * Added ability to change density options in `bal.plot`.
+
+* Added support for `imp` in `bal.tab()` for `weightit` objects.
+
+* Fixed bug when only one non-binary variable was present.
+
+* Fixed bug with multiple methods when weights were entered as a list.
 
 Version 3.1.0
 
