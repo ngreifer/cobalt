@@ -771,9 +771,6 @@ x2base.data.frame <- function(covs, ...) {
             warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
             X$method <- "matching"
         }
-        else if (length(specified.method) != ncol(weights)) {
-            stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-        }
         else {
             #Matching and/or weighting with various weights
             X$method <- specified.method
@@ -974,6 +971,9 @@ x2base.data.frame <- function(covs, ...) {
         }
         if (length(X$method) == 1) {
             X$method <- rep(X$method, ncol(weights))
+        }
+        else if (length(X$method) != ncol(weights)) {
+            stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
         }
         
     }
