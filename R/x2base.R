@@ -1522,18 +1522,19 @@ x2base.weightit <- function(weightit, ...) {
     
     #Initializing variables
     estimand <- weightit$estimand
-    
-    if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
+    if (weightit$treat.type != "continuous") {
+        if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
+            X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                    error = function(cond) {
+                                        new.s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
+                                        message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                        return(new.s.d.denom)})
+        }
+        else {
+            X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
+        }
     }
-    else {
-        X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
-    }
-    
+
     weights <- data.frame(weights = get.w(weightit))
     treat <- weightit$treat
     covs <- weightit$covs
