@@ -381,6 +381,39 @@ get.w.mnps <- function(mnps, stop.method = NULL, ...) {
     
     return(w)
 }
+get.w.iptw <- function(iptw, stop.method = NULL, ...) {
+    if (length(stop.method) > 0) {
+        if (any(is.character(stop.method))) {
+            rule1 <- names(iptw$psList[[1]]$ps)[sapply(names(iptw$psList[[1]]$ps), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
+            if (length(rule1) == 0) {
+                message(paste0("Warning: stop.method should be ", word.list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                rule1 <- names(iptw$psList[[1]]$ps)
+            }
+        }
+        else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(iptw$psList[[1]]$ps)))) {
+            if (any(!stop.method %in% seq_along(names(iptw$psList[[1]]$ps)))) {
+                message(paste0("Warning: There are ", length(names(iptw$psList[[1]]$ps)), " stop methods available, but you requested ", 
+                               word.list(stop.method[!stop.method %in% seq_along(names(iptw$psList[[1]]$ps))], and.or = "and"),"."))
+            }
+            rule1 <- names(iptw$psList[[1]]$ps)[stop.method %in% seq_along(names(iptw$psList[[1]]$ps))]
+        }
+        else {
+            warning("stop.method should be ", word.list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            rule1 <- names(iptw$psList[[1]]$ps)
+        }
+    }
+    else {
+        rule1 <- names(iptw$psList[[1]]$ps)
+    }
+    
+    w <- setNames(as.data.frame(matrix(NA, nrow = nrow(iptw$psList[[1]]$ps),
+                                       ncol = length(rule1))),
+                  rule1)
+    for (i in rule1) {
+        w[i] <- Reduce("*", lapply(iptw$psList, function(x) get.w.ps(x, stop.method = i)))
+    }
+    return(w)
+}
 get.w.Match <- function(M,  ...) {
     nobs <- M$orig.nobs
     weights.list <- index.list <- setNames(vector("list", 4), c("control", "treated", "unmatched", "dropped"))

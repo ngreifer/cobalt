@@ -251,7 +251,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     }
     C <- as.matrix(C)
     single.value <- apply(C, 2, function(x) abs(max(x) - min(x)) < sqrt(.Machine$double.eps))
-    C <- C[, !single.value]
+    C <- C[, !single.value, drop = FALSE]
     
     if (int) {
         #Prevent duplicate var names with _'s
@@ -280,7 +280,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     else suppressWarnings(C.cor <- cor(C))
     s <- !lower.tri(C.cor, diag=TRUE) & (1 - abs(C.cor) < sqrt(.Machine$double.eps))
     redundant.vars <- apply(s, 2, function(x) any(x))
-    C <- C[, !redundant.vars]        
+    C <- C[, !redundant.vars, drop = FALSE]        
     #C<- as.matrix.data.frame(C)
     
     if (!is.null(distance)) {
@@ -1186,6 +1186,107 @@ samplesize.multi <- function(bal.tab.multi.list, treat.names, focal) {
     return(obs)
 }
 
+#base.bal.tab.msm
+balance.table.msm.summary <- function(bal.tab.msm.list, weight.names = NULL, no.adj = FALSE, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, quick = FALSE, types = NULL) {
+    if (!is.na(match("bal.tab", unique(do.call("c", lapply(bal.tab.msm.list, class)))))) {
+        bal.tab.msm.list <- lapply(bal.tab.msm.list, function(x) x[["Balance"]])}
+    cont.treat <- !is.na(match("Corr.Un", unique(do.call("c", lapply(bal.tab.msm.list, names)))))
+    if (length(weight.names) <= 1) weight.names <- "Adj"
+    
+    Brownames <- unique(do.call("c", lapply(bal.tab.msm.list, rownames)))
+    Brownames.appear <- sapply(Brownames, function(x) paste(seq_along(bal.tab.msm.list)[sapply(bal.tab.msm.list, function(y) x %in% rownames(y))], collapse = ", "))
+    if (cont.treat) {
+        Bcolnames <- c("Type", expand.grid_string(c("Max.Corr", "R.Threshold"), 
+                                                  c("Un", weight.names), collapse = "."))
+    }
+    else {
+        Bcolnames <- c("Type", expand.grid_string(c("Max.Diff", "M.Threshold", "Max.V.Ratio", "V.Threshold", "Max.KS", "KS.Threshold"), 
+                                                  c("Un", weight.names), collapse = "."))
+    }
+    
+    B <- as.data.frame(matrix(NA, nrow = length(Brownames), ncol = 1 + length(Bcolnames)), row.names = Brownames)
+    names(B) <- c("Times", Bcolnames)
+
+    if (length(types) > 0) B[["Type"]] <- types
+    else B[["Type"]] <- unlist(sapply(Brownames, function(x) {u <- unique(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA)); return(u[!is.na(u)])}), use.names = FALSE)
+    
+    B[["Times"]] <- Brownames.appear[Brownames]
+    
+    max_ <- function(x, na.rm = TRUE) {
+        if (!any(is.finite(x))) NA
+        else max(x, na.rm = na.rm)
+    }
+    for (sample in c("Un", weight.names)) {
+        if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
+            if (cont.treat) {
+                B[[paste("Max", "Corr", sample, sep = ".")]] <- sapply(Brownames, function(x) max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) abs(y[[x, paste0("Corr.", sample)]]) else NA), na.rm = TRUE))
+            }
+            else {
+                B[[paste("Max", "Diff", sample, sep = ".")]] <- sapply(Brownames, function(x) max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) abs(y[[x, paste0("Diff.", sample)]]) else NA), na.rm = TRUE))
+                B[[paste("Max", "V.Ratio", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, paste0("V.Ratio.", sample)]] else NA), na.rm = TRUE))
+                B[[paste("Max", "KS", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, paste0("KS.", sample)]] else NA), na.rm = TRUE))
+            }
+        }
+    }
+    
+    if (length(m.threshold) > 0) {
+        if (no.adj) {
+            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.Diff.Un"]]), paste0(ifelse(abs(B[["Max.Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+        }
+        else {
+            for (i in weight.names) {
+                B[[paste0("M.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("Max.Diff.", i)]]), paste0(ifelse(abs(B[[paste0("Max.Diff.", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+            }
+        }
+    }
+    if (no.adj || length(weight.names) <= 1) names(B)[names(B) == "M.Threshold.Adj"] <- "M.Threshold"
+    
+    if (length(v.threshold) > 0) {
+        if (no.adj) {
+            B[["V.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.V.Ratio.Un"]]), paste0(ifelse(B[, "Max.V.Ratio.Un"] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
+        }
+        else {
+            for (i in weight.names) {
+                B[[paste0("V.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("Max.V.Ratio.", i)]]), paste0(ifelse(B[[paste0("Max.V.Ratio.", i)]] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
+            }
+        }
+    }
+    if (no.adj || length(weight.names) <= 1) names(B)[names(B) == "V.Threshold.Adj"] <- "V.Threshold"
+    
+    if (length(ks.threshold) > 0) {
+        if (no.adj) {
+            B[["KS.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.KS.Un"]]), paste0(ifelse(B[["Max.KS.Un"]] < ks.threshold, "Balanced, <", "Not Balanced, >"), ks.threshold), "")
+        }
+        else {
+            for (i in weight.names) {
+                B[[paste0("KS.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("Max.KS.", i)]]), paste0(ifelse(B[[paste0("Max.KS.", i)]] < ks.threshold, "Balanced, <", "Not Balanced, >"), ks.threshold), "")
+            }
+        }
+    }
+    if (no.adj || length(weight.names) <= 1) names(B)[names(B) == "KS.Threshold.Adj"] <- "KS.Threshold"
+    
+    if (length(r.threshold) > 0) {
+        if (no.adj) {
+            B[["R.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.Corr.Un"]]), paste0(ifelse(B[["Max.Corr.Un"]] < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold), "")
+        }
+        else {
+            for (i in weight.names) {
+                B[[paste0("R.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("Max.Corr.", i)]]), paste0(ifelse(B[[paste0("Max.KCorr.", i)]] < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold), "")
+            }
+        }
+    }
+    if (no.adj || length(weight.names) <= 1) names(B)[names(B) == "R.Threshold.Adj"] <- "R.Threshold"
+    
+    
+    return(B)
+}
+samplesize.msm<- function(bal.tab.msm.list) {
+    obs <- do.call("cbind", lapply(bal.tab.msm.list, function(x) x[["Observations"]]))
+    attr(obs, "tag") <- attr(bal.tab.msm.list[[1]][["Observations"]], "tag")
+    attr(obs, "ss.type") <- attr(bal.tab.msm.list[[1]][["Observations"]], "ss.type")
+    return(obs)
+}
+
 #love.plot
 isColor <- function(x) {
     tryCatch(is.matrix(col2rgb(x)), 
@@ -1234,11 +1335,12 @@ replaceNA <- function(x) {
 round_df_char <- function(df, digits) {
     rn <- rownames(df)
     nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-    df[, nums] <- round(df[, nums], digits = digits)
+    df[nums] <- round(df[nums], digits = digits)
     nas <- is.na(df)
     df[nas] <- ""
     #check.rounding <- apply(nas, 2, any)
     df <- as.data.frame(sapply(df, as.character), stringsAsFactors = FALSE)
+
     for (i in which(nums)) {
         if (any(grepl(".", df[[i]], fixed = TRUE))) {
             s <- strsplit(df[[i]], ".", fixed = TRUE)
@@ -1255,6 +1357,7 @@ round_df_char <- function(df, digits) {
             })
         }
     }
+
     rownames(df) <- rn
     return(df)
 }
