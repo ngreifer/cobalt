@@ -443,32 +443,32 @@ x2base.iptw <- function(iptw, ...) {
     
     if (length(A) > 0 && names(A)[1]=="" && length(A$stop.method)==0) A$stop.method <- A[[1]] #for bal.plot
     if (length(A$stop.method) == 0 && length(A$full.stop.method) > 0) A$stop.method <- A$full.stop.method
-    
+    available.stop.methods <- names(iptw$psList[[1]]$ps)
     if (length(A$stop.method) > 0) {
         if (any(is.character(A$stop.method))) {
-            rule1 <- iptw$stopMethods[sapply(iptw$stopMethods, function(x) any(startsWith(tolower(x), tolower(A$stop.method))))]
+            rule1 <- available.stop.methods[sapply(available.stop.methods, function(x) any(startsWith(tolower(x), tolower(A$stop.method))))]
             if (length(rule1) == 0) {
-                message(paste0("Warning: stop.method should be ", word.list(iptw$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
-                rule1 <- iptw$stopMethods
+                message(paste0("Warning: stop.method should be ", word.list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                rule1 <- available.stop.methods
             }
         }
-        else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(iptw$stopMethods))) {
-            if (any(!A$stop.method %in% seq_along(iptw$stopMethods))) {
-                message(paste0("Warning: There are ", length(iptw$stopMethods), " stop methods available, but you requested ", 
-                               word.list(A$stop.method[!A$stop.method %in% seq_along(iptw$stopMethods)], and.or = "and"),"."))
+        else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(available.stop.methods))) {
+            if (any(!A$stop.method %in% seq_along(available.stop.methods))) {
+                message(paste0("Warning: There are ", length(available.stop.methods), " stop methods available, but you requested ", 
+                               word.list(A$stop.method[!A$stop.method %in% seq_along(available.stop.methods)], and.or = "and"),"."))
             }
-            rule1 <- iptw$stopMethods[A$stop.method %in% seq_along(iptw$stopMethods)]
+            rule1 <- available.stop.methods[A$stop.method %in% seq_along(available.stop.methods)]
         }
         else {
-            warning("stop.method should be ", word.list(iptw$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
-            rule1 <- iptw$stopMethods
+            warning("stop.method should be ", word.list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            rule1 <- available.stop.methods
         }
     }
     else {
-        rule1 <- iptw$stopMethods
+        rule1 <- available.stop.methods
     }
     
-    s <- iptw$stopMethods[match(tolower(rule1), tolower(iptw$stopMethods))]
+    s <- available.stop.methods[match(tolower(rule1), tolower(available.stop.methods))]
     estimand <- substr(tolower(s), nchar(s)-2, nchar(s))
     
     if (length(A$s.d.denom>0) && is.character(A$s.d.denom)) {
@@ -558,15 +558,16 @@ x2base.iptw <- function(iptw, ...) {
     if (length(distance.list) > 0) {
         for (ti in seq_along(distance.list)) {
             if (length(s) == 1) {
-                distance.list[[ti]] <- cbind(distance[[ti]], prop.score = iptw$psList[[ti]]$ps[[s]])
+                distance.list[[ti]] <- data.frame(distance[[ti]], prop.score = iptw$psList[[ti]]$ps[[s]])
             }
             else {
-                distance.list[[ti]] <- cbind(distance[[ti]], prop.score = iptw$psList[[ti]]$ps[s])
+                distance.list[[ti]] <- data.frame(distance[[ti]], prop.score = iptw$psList[[ti]]$ps[s])
             }
         }
 
     }
     else {
+        distance.list <- vector("list", ntimes)
         for (ti in seq_along(distance.list)) {
             if (length(s) == 1) {
                 distance.list[[ti]] <- data.frame(prop.score = iptw$psList[[ti]]$ps[[s]])
@@ -1893,7 +1894,6 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
               s.d.denom=NA,
               call=NA,
               cluster = NA,
-              imp = NA,
               s.weights = NA)
     
     #Initializing variables
@@ -1990,8 +1990,8 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         assign(i, val.List)
     }
     
-    if (length(distance.list) > 0) distance.list <- lapply(seq_along(distance.list), function(x) cbind(distance.list[[x]], prop.score = weightitMSM$ps.list[[x]]))
-    else if (length(weightitMSM$ps.list) > 0) distance.list <- lapply(seq_along(weightitMSM$ps.list), function(x) cbind(prop.score = weightitMSM$ps.list[[x]]))
+    if (length(distance.list) > 0) distance.list <- lapply(seq_along(distance.list), function(x) data.frame(distance.list[[x]], prop.score = weightitMSM$ps.list[[x]]))
+    else if (length(weightitMSM$ps.list) > 0) distance.list <- lapply(seq_along(weightitMSM$ps.list), function(x) data.frame(prop.score = weightitMSM$ps.list[[x]]))
     else distance.list <- NULL
     
     ensure.equal.lengths <- TRUE

@@ -1558,7 +1558,6 @@ bal.tab.weightitMSM <- function(weightitMSM, int = FALSE, distance.list = NULL, 
                      addl.list = addl.list,
                      cluster = cluster,
                      ...)
-    
     out <- base.bal.tab.msm(weights=X$weights, 
                             treat.list=X$treat.list, 
                             distance.list=X$distance.list, 
