@@ -1882,3 +1882,154 @@ x2base.weightit <- function(weightit, ...) {
     
     return(X)
 }
+x2base.weightitMSM <- function(weightitMSM, ...) {
+    A <- list(...)
+    
+    X <- list(covs.list=NA,
+              treat.list=NA,
+              weights=NA,
+              distance.list=NA,
+              addl.list=NA,
+              s.d.denom=NA,
+              call=NA,
+              cluster = NA,
+              imp = NA,
+              s.weights = NA)
+    
+    #Initializing variables
+    estimand <- weightitMSM$estimand
+    if (weightitMSM$treat.type != "continuous") {
+        if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
+            X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                    error = function(cond) {
+                                        new.s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
+                                        message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                        return(new.s.d.denom)})
+        }
+        else {
+            X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
+        }
+    }
+    
+    weights <- data.frame(weights = get.w(weightitMSM))
+    treat.list <- weightitMSM$treat.list
+    covs.list <- weightitMSM$covs.list
+    s.weights <- weightitMSM$s.weights
+    data <- A$data
+    
+    weightitMSM.data <- weightitMSM$data
+    
+    #Process cluster
+    cluster <- A$cluster
+    if (length(cluster) > 0 && !is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
+        stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
+    }
+    if (length(cluster) > 0) {
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+            cluster <- cluster
+        }
+        else if (is.character(cluster) && length(cluster)==1) {
+            if (any(names(data) == cluster)) {
+                cluster <- data[[cluster]]
+            }
+            else if (any(names(weightitMSM.data) == cluster)) {
+                cluster <- weightitMSM.data[[cluster]]
+            }
+            else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+        }
+    }
+    
+    #Process addl and distance
+    
+    for (i in c("addl.list", "distance.list")) {
+        val.List <- A[[i]]
+        if (length(val.List) > 0) {
+            if (class(val)[1] != "list") {
+                val.List <- list(val)
+            }
+            if (length(val) == 1) {
+                val.List <- replicate(ntimes, val.List)
+            }
+            else if (length(val) == ntimes) {
+                
+            }
+            else {
+                stop(paste("The argument to", i, "must be a list of the same length as the number of time points in the original call to weightitMSM()."), call. = FALSE)
+            }
+            for (ti in seq_along(val.List)) {
+                val <- val.List[[ti]]
+                val.df <- NULL
+                if (length(val) > 0) {
+                    if (is.vector(val, mode = "list")) {
+                        val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data, weightitMSM.data))
+                        val.list <- lapply(seq_along(val.list), function(x) {
+                            if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                            val.list[[x]]})
+                        if (length(unique(sapply(val.list, nrow))) > 1) {
+                            stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
+                        }
+                        
+                        val.df <- setNames(do.call("cbind", val.list),
+                                           c(sapply(val.list, names)))
+                    }
+                    else {
+                        val.df <- process.val(val, i, treat, covs, data, weightitMSM.data)
+                    }
+                    if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                        stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+                    }
+                }
+                val.List[[ti]] <- val.df
+                
+            }
+            val.df.lengths <- sapply(val.List, nrow)
+            if (max(val.df.lengths) != min(val.df.lengths)) {
+                stop(paste("All columns in", i, "need to have the same number of rows."), call. = FALSE)
+            }
+        }
+        assign(i, val.List)
+    }
+    
+    if (length(distance.list) > 0) distance.list <- lapply(seq_along(distance.list), function(x) cbind(distance.list[[x]], prop.score = weightitMSM$ps.list[[x]]))
+    else if (length(weightitMSM$ps.list) > 0) distance.list <- lapply(seq_along(weightitMSM$ps.list), function(x) cbind(prop.score = weightitMSM$ps.list[[x]]))
+    else distance.list <- NULL
+    
+    ensure.equal.lengths <- TRUE
+    vectors <- c("cluster")
+    data.frames <- c("weights")
+    lists <- c("distance.list", "addl.list", "covs.list")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
+                                 }),
+                          sapply(lists, function(x) {
+                              if (is.null(get0(x))) 0 
+                              else max(sapply(get(x), nrow))
+                          })), c(vectors, data.frames, lists))
+    
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames, lists)) {
+            if (lengths[i] > 0 && lengths[i] != lengths["covs.list"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to iptw()."), call. = FALSE)
+    }
+    
+    X$weights <- weights
+    X$treat.list <- treat.list
+    X$distance.list <- distance.list
+    X$addl.list <- addl.list
+    X$covs.list <- covs.list
+    X$call <- NULL
+    X$cluster <- factor(cluster)
+    X$method <- rep("weighting", ncol(weights))
+    X$s.weights <- s.weights
+    
+    return(X)
+}

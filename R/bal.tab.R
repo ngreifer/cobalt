@@ -697,7 +697,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         if (length(weights) > 0 && ncol(weights) == 1) names(weights) <- "Adj"
     }
     if (length(s.weights) == 0) {
-        s.weights <- rep(1, length(treat))
+        s.weights <- rep(1, length(treat.list[[1]]))
     }
 
     #Setup output object
@@ -1534,5 +1534,58 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                                  cluster.summary = cluster.summary, s.weights = X$s.weights, 
                                  quick = quick)
     }
+    return(out)
+}
+bal.tab.weightitMSM <- function(weightitMSM, int = FALSE, distance.list = NULL, addl.list = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, which.time = NULL, msm.summary = TRUE, quick = FALSE, ...) {
+    args <- as.list(environment())[-1]
+    #Adjustments to arguments
+    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
+    
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
+                assign(arg.name, NULL)
+            }
+        }
+    }
+    
+    #Initializing variables
+    X <- x2base.weightitMSM(weightitMSM, 
+                     s.d.denom = s.d.denom, 
+                     distance.list = distance.list,
+                     addl.list = addl.list,
+                     cluster = cluster,
+                     ...)
+    
+    out <- base.bal.tab.msm(weights=X$weights, 
+                            treat.list=X$treat.list, 
+                            distance.list=X$distance.list, 
+                            covs.list=X$covs.list, 
+                            call=X$call, 
+                            int=int, 
+                            addl.list=X$addl.list, 
+                            continuous=continuous, 
+                            binary=binary, 
+                            s.d.denom=X$s.d.denom, 
+                            m.threshold=m.threshold, 
+                            v.threshold=v.threshold, 
+                            ks.threshold=ks.threshold, 
+                            imbalanced.only = imbalanced.only,
+                            un=un, 
+                            disp.means=disp.means, 
+                            disp.v.ratio=disp.v.ratio, 
+                            disp.ks=disp.ks, 
+                            disp.bal.tab = disp.bal.tab,
+                            method=X$method, 
+                            cluster = X$cluster, 
+                            which.cluster = which.cluster, 
+                            cluster.summary = cluster.summary, 
+                            s.weights = X$s.weights, 
+                            which.time = which.time, 
+                            msm.summary = msm.summary,
+                            quick = quick, 
+                            ...)
     return(out)
 }
