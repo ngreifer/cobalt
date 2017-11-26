@@ -580,16 +580,20 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 }
             }
             else if (var.order == "alphabetical") {
-                stop("Not ready yet.")
-                covnames <- as.character(unique(SS[["var"]]))
-                if ("times" %in% facet) {
-                    covnames0 <- vector("list", length(unique(SS[["times"]])))
-                    covnames0[[1]] <- sort(unique(SS[["var"]][!is.na(SS[["stat"]]) && SS[["time"]] == 1]))
+                if ("time" %in% facet) {
+                    covnames0 <- vector("list", length(unique(SS[["time"]])))
+                    for (i in seq_along(covnames0)) {
+                        if (i == 1) {
+                            covnames0[[i]] <- sort(as.character(unique(SS[["var"]][SS[["time"]] == i])))
+                        }
+                        else {
+                            covnames0[[i]] <- sort(setdiff(as.character(unique(SS[["var"]][SS[["time"]] == i])), unlist(covnames0[seq_along(covnames0) < i])))
+                        }
+                    }
+                    covnames <- unlist(covnames0)
                 }
-                
+                else covnames <- sort(SS[["var"]])
                 SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
-                
-                SS[["var"]] <- factor(SS[["var"]], levels = c(sort(as.character(unique(SS[["var"]][is.na(match(SS$var, distance.names))])), decreasing = TRUE), sort(distance.names, decreasing = TRUE)))
             }
         }
         if (length(var.order)==0) {
@@ -661,6 +665,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                     }
                     covnames <- unlist(covnames0)
                 }
+                else covnames <- sort(SS[["var"]])
                 SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
             }
             else if (var.order %in% ua) {
