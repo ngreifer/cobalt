@@ -283,7 +283,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     C <- C[, !redundant.vars, drop = FALSE]        
     #C<- as.matrix.data.frame(C)
     
-    if (!is.null(distance)) {
+    if (length(distance) > 0) {
         #distance <- data.frame(.distance = distance)
         #while (names(distance) %in% names(C)) {names(distance) <- paste0(names(distance), "_")}
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
@@ -1320,6 +1320,15 @@ shapes.ok <- function(shapes, nshapes) {
 gg_color_hue <- function(n) {
     hues = seq(15, 375, length = n + 1)
     hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
+#bal.plot
+get.var.from.list.with.time <- function(var.name, covs.list) {
+    var.name.in.covs <- sapply(covs.list, function(x) !is.na(match(var.name, names(x))))
+    n.times.appeared <- sum(var.name.in.covs)
+    var <- unlist(lapply(covs.list[var.name.in.covs], function(x) x[[var.name]]))
+    times <- rep(var.name.in.covs, each = ncol(covs.list[[1]]))
+    return(list(var = var, times = times))
 }
 
 #print.bal.tab
