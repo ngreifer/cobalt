@@ -1,4 +1,4 @@
-bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, size.weight = FALSE) {
+bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE) {
     
     args <- list(...)
     
@@ -8,13 +8,31 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     
-    if (var.name %in% names(X$covs)) X$var <- X$covs[[var.name]]
-    #else if (!is.null(args$data) && var.name %in% names(args$data)) var <- args$data[, var.name]
-    else if (!is.null(X$addl) && var.name %in% names(X$addl)) X$var <- X$addl[[var.name]]
-    else if (!is.null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[[var.name]]
-    else if (!is.null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[[var.name]]
-    else if (!is.null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
-    else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."))
+    if (length(X$covs.list) > 0) {
+        var.list <- vector("list", length(X$covs.list))
+        appears.in.time <- rep(TRUE, length(X$covs.list))
+        for (i in seq_along(X$covs.list)) {
+            if (var.name %in% names(X$covs.list[[i]])) var.list[[i]] <- X$covs.list[[i]][[var.name]]
+            else if (!is.null(X$addl.list) && var.name %in% names(X$addl.list[[i]])) var.list[[i]] <- X$addl[[var.name]]
+            else if (!is.null(X$distance.list) && var.name %in% names(X$distance.list[[i]])) var.list[[i]] <- X$distance.list[[i]][[var.name]]
+            else appears.in.time[i] <- FALSE
+        }
+        if (all(sapply(var.list, function(x) length(x) == 0))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
+        X$var <- unlist(var.list[appears.in.time])
+        X$time <- rep(seq_along(covs.list)[appears.in.time], each = nrow(X$covs.list[[1]]))
+        X$treat <- unlist(X$treat.list[appears.in.time])
+        if (length(names(X$treat.list)) > 0) treat.names <- names(X$treat.list)
+        else treat.names <- seq_along(X$treat.list)
+        if (length(X$weights) > 0) X$weights <- do.call("rbind", replicate(sum(appears.in.time), list(X$weights)))
+    }
+    else {
+        if (var.name %in% names(X$covs)) X$var <- X$covs[[var.name]]
+        else if (!is.null(X$addl) && var.name %in% names(X$addl)) X$var <- X$addl[[var.name]]
+        else if (!is.null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[[var.name]]
+        else if (!is.null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[[var.name]]
+        else if (!is.null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
+        else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FA:SE)
+    }
     
     #Density arguments supplied through ...
     if (length(args$bw) > 0) bw <- args$bw else bw <- "nrd0"
@@ -115,8 +133,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         weight.names <- names(X$weights)
         
         #NULL: all; NA: none
-        in.imp <- rep(TRUE, length(X$treat))
-        #in.imp <- NULL
+        in.imp <- rep(TRUE, length(X$var))
         if (length(X$imp) > 0) {
             if (length(which.imp) == 0 || all(is.na(which.imp))) {
                 in.imp <- !is.na(X$imp)
@@ -138,8 +155,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             warning("which.imp was specified but no imp values were supplied. Ignoring which.imp.", call. = FALSE)
         }
         
-        in.cluster <- rep(TRUE, length(X$treat))
-        #in.cluster <- NULL
+        in.cluster <- rep(TRUE, length(X$var))
         if (length(X$cluster) > 0) {
             if (length(which.cluster) == 0 || all(is.na(which.cluster))) {
                 in.cluster <- !is.na(X$cluster)
@@ -169,27 +185,86 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             warning("which.cluster was specified but no cluster values were supplied. Ignoring which.cluster.", call. = FALSE)
         }
         
-        nobs <- sum(in.imp & in.cluster)
+        in.time <- rep(TRUE, length(X$var))
+        if (length(X$time) > 0) {
+            if (length(which.time) == 0 || all(is.na(which.time))) {
+                in.time <- !is.na(X$time)
+            }
+            else {
+                if (is.numeric(which.time)) {
+                    if (all(which.time %in% seq_along(covs.list))) {
+                        if (all(which.time %in% seq_along(covs.list)[appears.in.time])) {
+                            #nothing; which.time is good
+                        }
+                        else if (any(which.time %in% seq_along(covs.list)[appears.in.time])) {
+                            warning(paste0(var.name, " does not appear in time period ", word.list(which.time[!which.time %in% seq_along(covs.list)[appears.in.time]], "or"), "."), call. = FALSE)
+                            which.time <- which.time[which.time %in% seq_along(covs.list)[appears.in.time]]
+                        }
+                        else {
+                            stop(paste0(var.name, " does not appear in time period ", word.list(which.time, "or"), "."), call. = FALSE)
+                        }
+                        in.time <- !is.na(X$time) & X$time %in% which.time
+                    }
+                    else {
+                        stop(paste0("The following inputs to which.time do not correspond to given time periods:\n\t", word.list(which.time[!which.time %in% seq_along(covs.list)])), call. = FALSE)
+                    }
+                }
+                else if (is.character(which.time)) {
+                    if (all(which.time %in% treat.names)) {
+                        if (all(which.time %in% treat.names[appears.in.time])) {
+                            #nothing; which.time is good
+                        }
+                        else if (any(which.time %in% treat.names[appears.in.time])) {
+                            time.periods <- word.list(which.time[!which.time %in% treat.names[appears.in.time]], "and")
+                            warning(paste0(var.name, " does not appear in the time period", ifelse(attr(time.periods, "plural"), "s ", " "),
+                                           "corresponding to treatment", ifelse(attr(time.periods, "plural"), "s ", " "),
+                                           time.periods, "."), call. = FALSE)
+                            which.time <- which.time[which.time %in% treat.names[appears.in.time]]
+                        }
+                        else {
+                            time.periods <- word.list(which.time, "and")
+                            stop(paste0(var.name, " does not appear in the time period", ifelse(attr(time.periods, "plural"), "s ", " "),
+                                        "corresponding to treatment", ifelse(attr(time.periods, "plural"), "s ", " "),
+                                        time.periods, "."), call. = FALSE)
+                        }
+                        in.time <- !is.na(X$time) & treat.names[X$time] %in% which.time
+                        
+                    }
+                    else {
+                        stop(paste0("The following inputs to which.time do not correspond to given time periods:\n\t", word.list(which.time[!which.time %in% treat.names])), call. = FALSE)
+                    }
+                }
+                else stop("The argument to which.time must be the names or indices corresponding to the time periods for which distributions are to be displayed.", call. = FALSE)
+            }
+            facet <- c("time", facet)
+        }
+        else if (length(which.time) > 0) {
+            warning("which.time was specified but a point treatment was supplied. Ignoring which.time.", call. = FALSE)
+        }
+        
+        nobs <- sum(in.imp & in.cluster & in.time)
+        if (nobs == 0) stop("No observations to display.", call. = FALSE)
         
         Q <- setNames(vector("list", nweights), weight.names)
         for (i in weight.names) {
-            Q[[i]] <- setNames(as.data.frame(matrix(0, ncol = 6, nrow = nobs)),
-                               c("imp", "cluster", "treat", "var", "weights", "facet.which"))
-            Q[[i]]$imp <- Q[[i]]$cluster <- character(nobs)
-            Q[[i]]$treat <- X$treat[in.imp & in.cluster]
-            Q[[i]]$var <- X$var[in.imp & in.cluster]
-            Q[[i]]$weights <-  X$weights[in.imp & in.cluster, i]
+            Q[[i]] <- setNames(as.data.frame(matrix(0, ncol = 7, nrow = nobs)),
+                               c("imp", "cluster", "time", "treat", "var", "weights", "facet.which"))
+            Q[[i]]$imp <- Q[[i]]$cluster <- Q[[i]]$time <- character(nobs)
+            Q[[i]]$treat <- X$treat[in.imp & in.cluster & in.time]
+            Q[[i]]$var <- X$var[in.imp & in.cluster & in.time]
+            Q[[i]]$weights <-  X$weights[in.imp & in.cluster & in.time, i]
             Q[[i]]$facet.which <- rep(i, nobs)
             
-            if ("imp" %in% facet) Q[[i]]$imp <- paste("Imputation", X$imp[in.imp & in.cluster])
-            if ("cluster" %in% facet) Q[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster])
+            if ("imp" %in% facet) Q[[i]]$imp <- paste("Imputation", X$imp[in.imp & in.cluster & in.time])
+            if ("cluster" %in% facet) Q[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time])
+            if ("time" %in% facet) Q[[i]]$time <- paste("Time", X$time[in.imp & in.cluster & in.time])
         }
         D <- do.call("rbind", Q)
         D$facet.which <- factor(D$facet.which, levels = c(weight.names[weight.names == "Unadjusted Sample"],
                                                           weight.names[weight.names != "Unadjusted Sample"]))
         
     }
-    
+   
     if ("facet.which" %in% facet) {
         if (nlevels(D$facet.which) == 1) {
             subtitle <- levels(D$facet.which)[1]
@@ -210,12 +285,12 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         else {
             if (is.categorical.var) {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[cluster==cluster[i] & imp==imp[i] & facet.which==facet.which[i] & var==var[i]])))
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[cluster==cluster[i] & imp==imp[i] & time==time[i] & facet.which==facet.which[i] & var==var[i]])))
             }
             else {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[cluster==cluster[i] & imp==imp[i] & facet.which==facet.which[i]])))
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[cluster==cluster[i] & imp==imp[i] & time==time[i] & facet.which==facet.which[i]])))
             }
-            d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, facet.which = D$facet.which)
+            d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, time = D$time, facet.which = D$facet.which)
             
         }
 
@@ -270,8 +345,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
             }
             else {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i] & cluster==cluster[i] & imp==imp[i] & facet.which==facet.which[i]])))
-                d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, facet.which = D$facet.which)
+                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i] & cluster==cluster[i] & imp==imp[i] & time==time[i] & facet.which==facet.which[i]])))
+                d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, time = D$time, facet.which = D$facet.which)
             }
         }
         else {
@@ -293,8 +368,6 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
     }
     
-    
-    
     if (length(facet) > 0) {
         if (length(facet) >= 2) {
             if ("facet.which" %in% facet) {
@@ -313,6 +386,5 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         else facet.formula <- f.build(".", facet)
         bp <- bp + facet_grid(facet.formula, drop = FALSE, scales = ifelse("subclass" %in% facet, "free_x", "fixed"))
     }
-    
     return(bp)
 }

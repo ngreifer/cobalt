@@ -1625,7 +1625,13 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             which.time <- integer(0)
         }
     }
-    
+    else if (is.character(p.ops$which.time)) {
+        which.time <- seq_along(msm.balance)[names(msm.balance) %in% p.ops$which.time]
+        if (length(which.time) == 0) {
+            warning("No names in which.time are treatment names. Displaying all time points instead.", call. = FALSE)
+            which.time <- seq_along(msm.balance)
+        }
+    }
     else if (is.na(p.ops$which.time)) {
         which.time <- integer(0)
         p.ops$msm.summary <- TRUE

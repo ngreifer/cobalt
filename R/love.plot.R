@@ -18,7 +18,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     #limits
     #cluster.fun (deprecated)
     
-    p.ops <- c("which.cluster", "which.imp", "which.treat")
+    p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time")
     for (i in p.ops) {
         if (i %in% names(args)) b$print.options[[i]] <- args[[i]]
     }
@@ -47,8 +47,65 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     na.imp <- !null.imp && is.na(b$print.options$which.imp)
     null.treat <- length(b$print.options$which.treat) == 0
     na.treat <- !null.treat && is.na(b$print.options$which.treat)
+    null.time <- length(b$print.options$which.time) == 0
+    na.time <- !null.time && is.na(b$print.options$which.time)
     
-    if (any(class(b) == "bal.tab.imp.cluster")) {
+    if (any(class(b) == "bal.tab.msm")) {
+        #Get time.names.good
+        time.names <- names(b[["Time.Balance"]])
+        if (na.time) {
+            config <- "agg.time"
+            time.names.good <- NULL
+        }
+        else if (null.time) {
+            config <- "agg.none"
+            time.names.good <- setNames(rep(TRUE, length(time.names)), time.names)
+        }
+        else if (is.character(b$print.options$which.time)) {
+            time.names.good <- sapply(time.names, function(x) any(sapply(b$print.options$which.time, function(y) identical(x, y))))
+            if (any(time.names.good)) {
+                config <- "agg.none"
+            }
+            else {
+                stop("Make sure the arguments to which.time are valid treatment names or time point indices.", call. = FALSE)
+            }
+        }
+        else if (is.numeric(b$print.options$which.time)) {
+            time.names.good <- setNames(seq_along(b$Time.Balance) %in% b$print.options$which.time, time.names)
+            if (any(time.names.good)) {
+                config <- "agg.none"
+            }
+            else {
+                stop("Make sure the arguments to which.time are valid treatment names or time point indices.", call. = FALSE)
+            }
+        }
+        else stop("The argument to which.time must be NULL, NA, or the names of treatments or indices of time points.", call. = FALSE)
+        
+        
+        #Get B from b
+        if (config == "agg.none") {
+            B <- do.call("rbind", lapply(names(b[["Time.Balance"]])[time.names.good], 
+                                         function(x) cbind(b[["Time.Balance"]][[x]][["Balance"]],
+                                                           time = x,
+                                                           var.names = rownames(b[["Time.Balance"]][[x]][["Balance"]]))))
+            facet <- "time"
+        }
+        else if (config == "agg.time") {
+            #Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            Agg.Fun <- "Max"
+            if (Agg.Fun == "Range") {
+                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
+                subtitle <- paste0(which.stat2, " Range Across Time Points")
+            }
+            else {
+                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Time Points")
+            }
+            B <- cbind(b[["Balance.Across.Times"]],
+                       var.names = rownames(b[["Balance.Across.Times"]]))
+            abs <- TRUE
+        }
+    }
+    else if (any(class(b) == "bal.tab.imp.cluster")) {
         #Get imp.numbers.good
         imp.numbers <- seq_along(b[["Imputation.Balance"]])
         if (na.imp) {
@@ -404,7 +461,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
     }
     
-    if (!is.null(var.names)) {
+    if (length(var.names) > 0) {
         if (is.data.frame(var.names)) {
             if (ncol(var.names)==1) {
                 if (length(row.names(var.names)) > 0) {
@@ -450,22 +507,22 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     
     if (length(var.order) > 0) {
         if (b$print.options$nweights == 0) {
-            ua <- c("Unadjusted")
-            names(ua) <- c("unadjusted")
+            ua <- c("Unadjusted", "Alphabetical")
+            names(ua) <- c("unadjusted", "alphabetical")
         }
         else if (b$print.options$nweights == 1) {
-            ua <- c("Adjusted", "Unadjusted", b$print.options$weight.names)
-            names(ua) <- c("adjusted", "unadjusted", b$print.options$weight.names)
+            ua <- c("Adjusted", "Unadjusted", "Alphabetical")
+            names(ua) <- c("adjusted", "unadjusted", "alphabetical")
         }
         else {
-            ua <- c("Unadjusted", b$print.options$weight.names)
-            names(ua) <- c("unadjusted", b$print.options$weight.names)
+            ua <- c("Unadjusted", b$print.options$weight.names, "Alphabetical")
+            names(ua) <- c("unadjusted", b$print.options$weight.names, "alphabetical")
         }
-        var.order <- ua[match.arg(var.order, c(tolower(ua), "alphabetical"))]
+        var.order <- ua[match.arg(var.order, tolower(ua))]
     }
-    
+
     if (length(facet) > 0) {
-        if (length(var.order) > 0 && var.order != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1)) {
+        if (length(var.order) > 0 && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
             warning("var.order cannot be set with multiple plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
             var.order <- NULL
         }
@@ -523,11 +580,21 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 }
             }
             else if (var.order == "alphabetical") {
+                stop("Not ready yet.")
+                covnames <- as.character(unique(SS[["var"]]))
+                if ("times" %in% facet) {
+                    covnames0 <- vector("list", length(unique(SS[["times"]])))
+                    covnames0[[1]] <- sort(unique(SS[["var"]][!is.na(SS[["stat"]]) && SS[["time"]] == 1]))
+                }
+                
+                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
+                
                 SS[["var"]] <- factor(SS[["var"]], levels = c(sort(as.character(unique(SS[["var"]][is.na(match(SS$var, distance.names))])), decreasing = TRUE), sort(distance.names, decreasing = TRUE)))
             }
         }
         if (length(var.order)==0) {
-            SS[["var"]] <- factor(SS[["var"]], levels = c(as.character(unique(SS[["var"]][is.na(match(SS$var, distance.names))])[order(unique(SS[["var"]][is.na(match(SS$var, distance.names))]), decreasing = TRUE)]), sort(distance.names, decreasing = TRUE)))
+            covnames <- as.character(unique(SS[["var"]]))
+            SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
         }
         # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
         SS[["Sample"]] <- factor(SS[["Sample"]])
@@ -543,16 +610,26 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                                                              Sample = ifelse(x == "Un", "Unadjusted", 
                                                                              ifelse(x == "Adj", "Adjusted", x)))))
         
-
-        if (length(facet) > 0 && "cluster" %in% facet) {
-            SS$cluster <- rep(B[["cluster"]], 1 + b$print.options$nweights)
+        if (length(facet) > 0) {
+            for (i in c("cluster", "imp", "treat.pair", "time")) {
+                if (i %in% facet) {
+                    SS[[i]] <- rep(B[[i]], 1 + b$print.options$nweights)
+                }
+            }
         }
-        if (length(facet) > 0 && "imp" %in% facet) {
-            SS$imp <- rep(B[["imp"]], 1 + b$print.options$nweights)
-        }
-        if (length(facet) > 0 && "treat.pair" %in% facet) {
-            SS$treat.pair <- rep(B[["treat.pair"]], 1 + b$print.options$nweights)
-        }
+        
+        # if (length(facet) > 0 && "cluster" %in% facet) {
+        #     SS$cluster <- rep(B[["cluster"]], 1 + b$print.options$nweights)
+        # }
+        # if (length(facet) > 0 && "imp" %in% facet) {
+        #     SS$imp <- rep(B[["imp"]], 1 + b$print.options$nweights)
+        # }
+        # if (length(facet) > 0 && "treat.pair" %in% facet) {
+        #     SS$treat.pair <- rep(B[["treat.pair"]], 1 + b$print.options$nweights)
+        # }
+        # if (length(facet) > 0 && "time" %in% facet) {
+        #     SS$time <- rep(B[["time"]], 1 + b$print.options$nweights)
+        # }
         
         if (all(is.na(SS[["stat"]]))) stop("No balance statistics to display.", call. = FALSE)
         gone <- character(0)
@@ -571,7 +648,22 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         else dec <- FALSE
         
         if (length(var.order)>0) {
-            if (var.order %in% ua) {
+            if (tolower(var.order) == "alphabetical") {
+                if ("time" %in% facet) {
+                    covnames0 <- vector("list", length(unique(SS[["time"]])))
+                    for (i in seq_along(covnames0)) {
+                        if (i == 1) {
+                            covnames0[[i]] <- sort(as.character(unique(SS[["var"]][SS[["time"]] == i])))
+                        }
+                        else {
+                            covnames0[[i]] <- sort(setdiff(as.character(unique(SS[["var"]][SS[["time"]] == i])), unlist(covnames0[seq_along(covnames0) < i])))
+                        }
+                    }
+                    covnames <- unlist(covnames0)
+                }
+                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
+            }
+            else if (var.order %in% ua) {
                 if (var.order %in% gone) {
                     warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
                     var.order <- character(0)
@@ -583,12 +675,11 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                                                    sort(distance.names, decreasing = TRUE)))
                 }
             }
-            else if (var.order == "alphabetical") {
-                SS[["var"]] <- factor(SS[["var"]], levels = c(sort(as.character(unique(SS[["var"]][is.na(match(SS[["var"]], distance.names))])), decreasing = TRUE), sort(distance.names, decreasing = TRUE)))
-            }
+            
         }
         if (length(var.order)==0) {
-            SS[["var"]] <- factor(SS[["var"]], levels = c(as.character(unique(SS[["var"]][is.na(match(SS[["var"]], distance.names))])[order(unique(SS[["var"]][is.na(match(SS[["var"]], distance.names))]), decreasing = TRUE)]), sort(distance.names, decreasing = TRUE)))
+            covnames <- as.character(unique(SS[["var"]]))
+            SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
         }
         SS[["Sample"]] <- factor(SS[["Sample"]])
         if (which.stat == "Diff" && any(abs(SS[["stat"]]) > 5)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
