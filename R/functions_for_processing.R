@@ -271,7 +271,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     #If many rows, select subset to test redundancy
     if (nrow(C) > 1500) {
         repeat {
-            mini.C <- C[sample(seq_len(nrow(C)), 1000),]
+            mini.C <- C[sample(seq_len(nrow(C)), 1000),,drop=FALSE]
             single.value <- apply(mini.C, 2, function(x) abs(max(x) - min(x)) < sqrt(.Machine$double.eps))
             if (all(!single.value)) break
         }
@@ -1348,7 +1348,7 @@ round_df_char <- function(df, digits) {
     nas <- is.na(df)
     df[nas] <- ""
     #check.rounding <- apply(nas, 2, any)
-    df <- as.data.frame(sapply(df, as.character), stringsAsFactors = FALSE)
+    df <- as.data.frame(sapply(df, as.character,simplify=FALSE), stringsAsFactors = FALSE)
 
     for (i in which(nums)) {
         if (any(grepl(".", df[[i]], fixed = TRUE))) {
