@@ -466,6 +466,9 @@ get.w.CBPS <- function(c, estimand = NULL, ...) {
 get.w.npCBPS <- function(c, estimand = NULL, ...) {
     return(c$weights)
 }
+get.w.CBMSM <- function(c, ...) {
+    return(c$weights)
+}
 get.w.ebalance <- function(e, treat, ...) {
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     
@@ -536,6 +539,14 @@ nunique <- function(x, nmax = NA) {
 nunique.gt <- function(x, n) {
     if (length(x) < 2000) nunique(x) > n
     else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
+}
+is.formula <- function(f, sides = NULL) {
+    res <- is.name(f[[1]])  && deparse(f[[1]]) %in% c( '~', '!') &&
+        length(f) >= 2
+    if (length(sides) > 0 && is.numeric(sides) && sides %in% c(1,2)) {
+        res <- res && length(f) == sides + 1
+    }
+    return(res)
 }
 
 #Under construction
