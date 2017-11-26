@@ -18,11 +18,12 @@ bal.plot(obj,
     imp = NULL, 
     which.imp = NULL, 
     which.treat = NULL,
+    which.time = NULL,
     size.weight = FALSE)
 }
 \arguments{
   \item{obj}{
-the object for which balance is to be assessed; can be a \code{matchit} object from \pkg{MatchIt}, a \code{ps} object from \pkg{twang}, a \code{Match} object from \pkg{Matching}, an \code{optmatch} object from \pkg{optmatch}, a \code{CBPS} or \code{CBPSContinuous} object from \pkg{CBPS}, an \code{ebalance} object from \pkg{ebal}, or a \code{formula} or data frame containing covariate information.
+the object for which balance is to be assessed; can be a \code{matchit} object from \pkg{MatchIt}, a \code{weightit} object from \pkg{WeightIt}, a \code{ps} object from \pkg{twang}, a \code{Match} object from \pkg{Matching}, an \code{optmatch} object from \pkg{optmatch}, a \code{CBPS} or \code{CBPSContinuous} object from \pkg{CBPS}, an \code{ebalance} object from \pkg{ebal}, or a \code{formula} or data frame containing covariate information.
 }
   \item{var.name}{
 \code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate data frame from \code{obj}, followed by \code{addl}, and then \code{distance}, if any.
@@ -49,7 +50,10 @@ optional; a vector of imputation indices, or the name of a variable in an availa
 if imputations are used, which imputations(s) to display. Must be numerical indices for which to display balance. If \code{NULL} (the default) or \code{NA}, all imputations are displayed.
 }
   \item{which.treat}{
-Which treatment groups to display. If \code{NULL} (the default) or \code{NA}, all imputations are displayed.
+which treatment groups to display. If \code{NULL} (the default) or \code{NA}, all treatment groups are displayed.
+}
+  \item{which.time}{
+for longitudinal treatments, which time points to display. Can be treatment names or time period indices. If \code{NULL} (the default) or \code{NA}, all time points are displayed.
 }
   \item{size.weight}{
 \code{logical}; if both the treatment and the covariate are continuous, whether points should be sized according to their weight. 
@@ -60,7 +64,11 @@ Which treatment groups to display. If \code{NULL} (the default) or \code{NA}, al
 
 For \code{matchit} objects: None
 
+For \code{weightit} objects: None
+
 For \code{ps} and \code{mnps} objects: (\code{stop.method}; see \link[=bal.tab.ps]{defaults}).
+
+For \code{iptw} objects: None
 
 For \code{Match} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
@@ -79,7 +87,7 @@ For data frames: \code{treat}, (\code{data}), \code{weights}, (\code{distance}),
 
 For continuous treatments with continuous covariates, three additional lines are presented for aid in balance assessment. The dashed blue line is the linear fit line. The solid blue line is a Loess fit curve generated with \pkg{ggplot2}'s \code{geom_smooth(method = "loess")}. The solid black line is a horizontal reference line intercepting the (weighted) treatment mean. Proximity of the fit lines to the reference line is indicative of independence between the covariate and treatment variable.
 
-When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance or when multiple sets of weights are provided or \code{which = "both"}), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{facet_grid()}. Subclassification cannot be used with clusters or multiply imputed data.
+When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or \code{which = "both"}, or when treatment is longitudinal), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{facet_grid()}. Subclassification cannot be used with clusters or multiply imputed data.
 }
 \value{
 A \code{"ggplot"} object, returned invisbly.

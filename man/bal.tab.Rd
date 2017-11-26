@@ -19,7 +19,7 @@ arguments passed to other methods. These arguments may be data-related, computat
 \details{
 \code{bal.tab()} performs various calculations on the the data objects given, and some of these calculations are not transparent on the help pages of the individual methods. This page details the calculations that are used across \code{bal.tab} methods.
 
-\strong{With Binary Treatments}
+\strong{With Binary Point Treatments}
 
 Prior to computation, all variables are checked for variable type, which allows users to differentiate balance statistic calculations based on type using the arguments to \code{continuous} and \code{binary}. First, if a given covariate is numeric and has only 2 levels, it is converted into a binary (0,1) variable. If 0 is a value in the original variable, it retains its value and the other value is converted to 1; otherwise, the lower value is converted to 0 and the other to 1. Next, if the covariate is not numeric or logical (i.e., is a character or factor variable), it will be split into new binary variables, named with the original variable and the value, seperated by an underscore. Otherwise, the covariate will be used as is and treated as a continuous variable.
 
@@ -35,13 +35,21 @@ When matching is used for conditioning, the presented sample sizes are calculate
 
 When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass},  the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See \code{\link{bal.tab.subclass}} for more details.
 
-\strong{With Continuous Treatments}
+\strong{With Continuous Point Treatments}
 
 When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The calculated correlation after adjustment is weighted by the generated weights.
 
-\strong{With Multinomial Treatments}
+\strong{With Multinomial Point Treatments}
 
 For information on using \code{bal.tab()} with multiple categorical treatments, see \code{\link{bal.tab.multi}}. Essentially, \code{bal.tab()} compares pairs of treatment groups in a standard way.
+
+\strong{With Longitudinal Treatments}
+
+For information on using \code{bal.tab()} with longitudinal treatments, see \code{\link{bal.tab.msm}}. Essentially, \code{bal.tab()} summarizes balance at each time point and summarizes across time points.
+
+\strong{With Clustered or Multiply Imputed Data}
+
+For information on using \code{bal.tab()} with clustered data, see \code{\link{bal.tab.cluster}}. For information on using \code{bal.tab()} with multiply imputed data, see \code{\link{bal.tab.imp}}. 
 
 \strong{Quick}
 
@@ -49,7 +57,43 @@ Calculations can take some time, especially when there are many variables, inter
 }
 \value{
 An object of class \code{"bal.tab"}. The use of continuous treatments, subclasses, clusters, and/or imputations will also cause the object to inherit other classes. The class \code{"bal.tab"} has its own \code{\link{print}} method (\code{\link{print.bal.tab}}), which formats the output nicely and in accordance with print-related options given in the call to \code{bal.tab()}, and which can be called with its own options. Each inherited class also has its own \code{print} method.
+
+For scenarios with binary point treatments and no subclasses, imputations, or clusters, the following are the elements of the \code{bal.tab} object:
+
+\item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
+\itemize{
+\item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
+\item{\code{M.C.Un}: The mean of the control group prior to adjusting.}
+\item{\code{M.T.Un}: The mean of the treated group prior to adjusting.}
+\item{\code{Diff.Un}: The (standardized) difference in means between the two groups prior to adjusting.}
+\item{\code{V.Ratio.Un}: The ratio of the variances of the two groups prior to adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
+\item{\code{KS.Un}: The KS statistic of the two groups prior to adjusting.  \code{NA} for binary variables.}
+\item{\code{M.C.Adj}: The mean of the control group after adjusting.}
+\item{\code{M.T.Adj}: The mean of the treated group after adjusting.}
+\item{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting.}
+\item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{m.threshold}.  If \code{m.threshold} is \code{NULL}, this column will be \code{NA}.}
+\item{\code{V.Ratio.Adj}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
+\item{\code{V.Threshold}: Whether or not the calculated variance ratio after adjusting exceeds or is within the threshold given by \code{v.threshold} for continuous variables.  If \code{v.threshold} is \code{NULL}, this column will be \code{NA}.}
+\item{\code{KS.Adj}: The KS statistic of the two groups after adjusting.  \code{NA} for binary variables.}
+\item{\code{KS.Threshold}: Whether or not the calculated KS statistic after adjusting exceeds or is within the threshold given by \code{ks.threshold} for continuous variables.  If \code{ks.threshold} is \code{NULL}, this column will be \code{NA}.}
+}}
+\item{Balanced.Means}{If \code{m.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for mean differences.}
+\item{Max.Imbalance.Means}{If \code{m.threshold} is specified, a table displaying the variable with the greatest absolute mean difference.}
+\item{Balanced.Variances}{If \code{v.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for variance ratios.}
+\item{Max.Imbalance.Variance}{If \code{v.threshold} is specified, a table displaying the variable with the greatest variance ratio.}
+\item{Balanced.KS}{If \code{ks.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for KS statistcs.}
+\item{Max.Imbalance.KS}{If \code{ks.threshold} is specified, a table displaying the variable with the greatest KS statistic.}
+\item{Observations}{A table displaying the sample sizes before and after adjusting.}
+\item{call}{The original function call, if adjustment was performed by a function in another package.}
+\item{print.options}{A list of print options passed to \code{print.bal.tab}.}
+
+If the treatment is continuous, instead of mean differences, variance ratios, and KS statistics, \code{bal.tab()} will produce correlations between the covariates and the treatment. The corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.threshold" (and accordingly for the balance tally and maximum imbalance tables).
+
+If multiple weights are supplied, \code{"Adj"} in \code{Balance} will be replaced by the provided names of the sets of weights, and extra columns will be added for each set of weights. Additional columns and rows for other items in the output will be created as well.
+
+For \code{bal.tab} output with subclassification, see \code{\link{bal.tab.subclass}}.
 }
+
 \references{
 Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R vignette. RAND.
 

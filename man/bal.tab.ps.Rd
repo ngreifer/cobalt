@@ -154,29 +154,7 @@ All balance statistics are calculated whether they are displayed by \code{print}
 
 }
 \value{
-If clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{ps} object. The following are the elements of \code{bal.tab}:
-
-\item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
-\itemize{
-\item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
-\item{\code{M.C.Un}: The mean of the control group prior to adjusting.}
-\item{\code{M.T.Un}: The mean of the treated group prior to adjusting.}
-\item{\code{Diff.Un}: The (standardized) difference in means between the two groups prior to adjusting.}
-\item{\code{V.Ratio.Un}: The ratio of the variances of the two groups prior to adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
-\item{\code{M.C.Adj}: The mean of the control group after adjusting.}
-\item{\code{M.T.Adj}: The mean of the treated group after adjusting.}
-\item{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting.}
-\item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{m.threshold}.  If \code{m.threshold} is \code{NULL}, this column will be \code{NA}.}
-\item{\code{V.Ratio.Adj}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
-\item{\code{V.Threshold}: Whether or not the calculated variance ratio after adjusting exceeds or is within the threshold given by \code{v.threshold} for continuous variables.  If \code{v.threshold} is \code{NULL}, this column will be \code{NA}.}
-}}
-\item{Balanced.Means}{If \code{m.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for mean differences.}
-\item{Max.Imbalance.Means}{If \code{m.threshold} is specified, a table displaying the variable with the greatest absolute mean difference.}
-\item{Balanced.Variances}{If \code{v.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for variance ratios.}
-\item{Max.Imbalance.Variance}{If \code{v.threshold} is specified, a table displaying the variable with the greatest variance ratio.}
-\item{Observations}{A table displaying the sample sizes before and after adjusting.}
-\item{call}{The original \code{ps()} call.}
-\item{print.options}{A list of print options passed to \code{print.bal.tab}.}
+For binary point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{ps} object. See \code{\link{bal.tab}} for details.
 
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
 
