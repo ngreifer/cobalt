@@ -1365,7 +1365,7 @@ X2base.data.frame.list <- function(covs.list, ...) {
     if (length(method) == 0) {
         if (specified["weights"]) {
             
-            message("Assuming \"weighting\". If not, specify with an argument to method.")
+            #message("Assuming \"weighting\". If not, specify with an argument to method.")
             
             X$method <- "weighting"
         }
@@ -1419,6 +1419,10 @@ X2base.data.frame.list <- function(covs.list, ...) {
     if (length(imp) > 0 && !is.character(imp) && !is.numeric(imp) && !is.factor(imp)) {
         stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
     }
+    
+    #Order covs.list
+    all.covs <- unique(unlist(lapply(covs.list, names)))
+    covs.list <- lapply(covs.list, function(x) x[all.covs[all.covs %in% names(x)]])
     
     #Process treat
     if (length(treat.list) == 0) stop("treat.list must be specified.", call. = FALSE)
@@ -1588,7 +1592,7 @@ X2base.data.frame.list <- function(covs.list, ...) {
     }
     
     #Get s.d.denom
-    X$s.d.denom <- "pooled"
+    X$s.d.denom <- rep("pooled", ncol(weights))
     
     X$covs.list <- covs.list
     X$weights <- weights
