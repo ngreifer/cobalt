@@ -1348,12 +1348,12 @@ round_df_char <- function(df, digits) {
     nas <- is.na(df)
     df[nas] <- ""
     #check.rounding <- apply(nas, 2, any)
-    df <- as.data.frame(sapply(df, as.character,simplify=FALSE), stringsAsFactors = FALSE)
+    df <- as.data.frame(lapply(df, as.character), stringsAsFactors = FALSE)
 
     for (i in which(nums)) {
         if (any(grepl(".", df[[i]], fixed = TRUE))) {
             s <- strsplit(df[[i]], ".", fixed = TRUE)
-            lengths <- sapply(s, length)
+            lengths <- lengths(s)
             digits.r.of.. <- sapply(seq_along(s), function(x) {
                 if (lengths[x] > 1) nchar(s[[x]][lengths[x]])
                 else 0 })
