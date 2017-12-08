@@ -6,6 +6,12 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         stop("An argument for var.name must be specified.", call. = FALSE)
     }
     
+    if (all(class(obj) == "list")) {
+        if (all(sapply(obj, is.formula))) class(obj) <- "formula.list"
+        else if (all(sapply(obj, is.data.frame))) class(obj) <- "data.frame.list"
+        else stop("If obj is a list, it must be a list of formulas specifying the treatment/covariate relationships at each time point or a list of data frames containing covariates to be assessed at each time point.", call. = FALSE)
+
+    }
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     
     if (length(X$covs.list) > 0) {
@@ -19,7 +25,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         if (all(sapply(var.list, function(x) length(x) == 0))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
         X$var <- unlist(var.list[appears.in.time])
-        X$time <- rep(seq_along(covs.list)[appears.in.time], each = nrow(X$covs.list[[1]]))
+        X$time <- rep(seq_along(X$covs.list)[appears.in.time], each = nrow(X$covs.list[[1]]))
         X$treat <- unlist(X$treat.list[appears.in.time])
         if (length(names(X$treat.list)) > 0) treat.names <- names(X$treat.list)
         else treat.names <- seq_along(X$treat.list)
@@ -192,13 +198,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             else {
                 if (is.numeric(which.time)) {
-                    if (all(which.time %in% seq_along(covs.list))) {
-                        if (all(which.time %in% seq_along(covs.list)[appears.in.time])) {
+                    if (all(which.time %in% seq_along(X$covs.list))) {
+                        if (all(which.time %in% seq_along(X$covs.list)[appears.in.time])) {
                             #nothing; which.time is good
                         }
-                        else if (any(which.time %in% seq_along(covs.list)[appears.in.time])) {
-                            warning(paste0(var.name, " does not appear in time period ", word.list(which.time[!which.time %in% seq_along(covs.list)[appears.in.time]], "or"), "."), call. = FALSE)
-                            which.time <- which.time[which.time %in% seq_along(covs.list)[appears.in.time]]
+                        else if (any(which.time %in% seq_along(X$covs.list)[appears.in.time])) {
+                            warning(paste0(var.name, " does not appear in time period ", word.list(which.time[!which.time %in% seq_along(X$covs.list)[appears.in.time]], "or"), "."), call. = FALSE)
+                            which.time <- which.time[which.time %in% seq_along(X$covs.list)[appears.in.time]]
                         }
                         else {
                             stop(paste0(var.name, " does not appear in time period ", word.list(which.time, "or"), "."), call. = FALSE)
@@ -206,7 +212,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                         in.time <- !is.na(X$time) & X$time %in% which.time
                     }
                     else {
-                        stop(paste0("The following inputs to which.time do not correspond to given time periods:\n\t", word.list(which.time[!which.time %in% seq_along(covs.list)])), call. = FALSE)
+                        stop(paste0("The following inputs to which.time do not correspond to given time periods:\n\t", word.list(which.time[!which.time %in% seq_along(X$covs.list)])), call. = FALSE)
                     }
                 }
                 else if (is.character(which.time)) {
