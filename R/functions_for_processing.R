@@ -117,7 +117,6 @@ use.tc.fd <- function(formula, data, treat, covs) {
     return(t.c)
 }
 process.val <- function(val, i, treat, covs, ...) {
-    
     if (is.numeric(val)) {
         val.df <- setNames(data.frame(val), i)
     }
@@ -164,6 +163,79 @@ process.val <- function(val, i, treat, covs, ...) {
     else stop(paste("The argument supplied to", i, "must be a vector, a data.frame, or the names of variables in an available data set."), call. = FALSE)
     
     return(val.df)
+}
+data.frame.process <- function(i, df, treat, covs, ...) {
+    val <- df
+    val.df <- NULL
+    if (length(val) > 0) {
+        if (is.vector(val, mode = "list")) {
+            val.list <- lapply(val, function(x) process.val(x, i, treat, covs, ...))
+            val.list <- lapply(seq_along(val.list), function(x) {
+                if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                val.list[[x]]})
+            if (length(unique(sapply(val.list, nrow))) > 1) {
+                stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
+            }
+            
+            val.df <- setNames(do.call("cbind", val.list),
+                               c(sapply(val.list, names)))
+        }
+        else {
+            val.df <- process.val(val, i, treat, covs, ...)
+        }
+        if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+            stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+        }
+    }
+    return(val.df)
+}
+list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ...) {
+    val.List <- List
+    if (length(val.List) > 0) {
+        if (class(val.List)[1] != "list") {
+            val.List <- list(val)
+        }
+        if (length(val.List) == 1) {
+            val.List <- replicate(ntimes, val.List)
+        }
+        else if (length(val.List) == ntimes) {
+            
+        }
+        else {
+            stop(paste0("The argument to ", i, " must be a list of the same length as the number of time points in ",  call.phrase, "."), call. = FALSE)
+        }
+        for (ti in seq_along(val.List)) {
+            val <- val.List[[ti]]
+            val.df <- NULL
+            if (length(val) > 0) {
+                if (is.vector(val, mode = "list")) {
+                    val.list <- lapply(val, function(x) process.val(x, i, treat.list[[ti]], covs.list[[ti]], ...))
+                    val.list <- lapply(seq_along(val.list), function(x) {
+                        if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+                        val.list[[x]]})
+                    if (length(unique(sapply(val.list, nrow))) > 1) {
+                        stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
+                    }
+                    
+                    val.df <- setNames(do.call("cbind", val.list),
+                                       c(sapply(val.list, names)))
+                }
+                else {
+                    val.df <- process.val(val, i, treat.list[[ti]], covs.list[[ti]], ...)
+                }
+                if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
+                    stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
+                }
+                val.List[[ti]] <- val.df
+            }
+            
+        }
+        val.df.lengths <- sapply(val.List[lengths(val.List) > 0], nrow)
+        if (max(val.df.lengths) != min(val.df.lengths)) {
+            stop(paste("All columns in", i, "need to have the same number of rows."), call. = FALSE)
+        }
+    }
+    return(val.List)
 }
 
 #get.C
