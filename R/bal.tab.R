@@ -1625,7 +1625,7 @@ bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = F
                                     estimand = estimand)
     }
     else {
-        stop("The first argument must be a list of formulas specifying the treatment/covariate relationships at each time point or a list of data frames containing covariates to be assessed at each time point.", call. = FALSE)
+        stop("If the first argument is a list, it must be a list of formulas specifying the treatment/covariate relationships at each time point or a list of data frames containing covariates to be assessed at each time point.", call. = FALSE)
     }
     
     out <- base.bal.tab.msm(weights=X$weights, 
