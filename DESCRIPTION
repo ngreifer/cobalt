@@ -25,3 +25,5 @@ Encoding: UTF-8
 LazyData: true
 Date: XXXX-XX-XX
 VignetteBuilder: knitr
+URL: https://github.com/ngreifer/cobalt
+BugReports: https://github.com/ngreifer/cobalt/issues
