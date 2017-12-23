@@ -1499,6 +1499,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
 }
 print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     args <- c(as.list(environment()), list(...))[-1]
+    args <- args[!sapply(args, function(x) identical(x, quote(expr =)))]
     
     call <- x$call
     msm.balance <- x[["Time.Balance"]]
@@ -1606,10 +1607,12 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     }
     else p.ops$imbalanced.only <- FALSE
     
-    if (p.ops$imbalanced.only) {
-        keep.row <- rowSums(apply(msm.balance.summary[grepl(".Threshold", names(msm.balance.summary), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+    if (length(msm.balance.summary) > 0) {
+        if (p.ops$imbalanced.only) {
+            keep.row <- rowSums(apply(msm.balance.summary[grepl(".Threshold", names(msm.balance.summary), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+        }
+        else keep.row <- rep(TRUE, nrow(msm.balance.summary))
     }
-    else keep.row <- rep(TRUE, nrow(msm.balance.summary))
     
     if (!missing(which.time) && which.time != "as.is") {
         p.ops$which.time <- which.time
@@ -1652,7 +1655,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         cat("Balance by Time Point:\n")
         for (i in which.time) {
             cat(paste0("\n - - - Time: ", i, " - - - \n"))
-            do.call(print, c(list(msm.balance[[i]]), args))
+            do.call(print, c(list(x = msm.balance[[i]]), args))
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Time: ", i, " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -1685,7 +1688,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                          p.ops$disp.adj && !is.null(p.ops$ks.threshold)), p.ops$nweights + !p.ops$disp.adj)))
         }
         
-        if (p.ops$disp.bal.tab) {
+        if (p.ops$disp.bal.tab && length(msm.balance.summary) > 0) {
             cat("Balance summary across all time points:\n")
             print.data.frame(round_df_char(msm.balance.summary[keep.row, s.keep, drop = FALSE], digits))
             cat("\n")
