@@ -87,7 +87,7 @@ use.tc.fd <- function(formula, data, treat, covs) {
         mf<- tryCatch(model.frame(tt, d),
                       error = function(cond) stop(paste0(c("All right hand side variables of formula must be variables in data.\nVariables not in data: ",
                                                            paste(attr(tt, "term.labels")[which(!attr(tt, "term.labels") %in% names(d))], collapse=", "))), call. = FALSE))
-        out.list$treat <- model.response(mf) #treat
+        out.list$treat <- setNames(model.response(mf), rownames(d)) #treat
         out.list$covs <- d[attr(tt, "term.labels")] #covs
         attr(out.list, "which") <- "fd"
         return(out.list)
@@ -95,7 +95,7 @@ use.tc.fd <- function(formula, data, treat, covs) {
     use.tc <- function(t, c) {
         if (length(t)!=nrow(c)) {
             stop("treat must be the same length as covs.", call. = FALSE)}
-        out.list <- list(treat=t, covs=c)
+        out.list <- list(treat=setNames(t, rownames(c)), covs=c)
         attr(out.list, "which") <- "tc"
         return(out.list)
     }
@@ -193,7 +193,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
     val.List <- List
     if (length(val.List) > 0) {
         if (class(val.List)[1] != "list") {
-            val.List <- list(val)
+            val.List <- list(val.List)
         }
         if (length(val.List) == 1) {
             val.List <- replicate(ntimes, val.List)
@@ -209,7 +209,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
             val.df <- NULL
             if (length(val) > 0) {
                 if (is.vector(val, mode = "list")) {
-                    val.list <- lapply(val, function(x) process.val(x, i, treat.list[[ti]], covs.list[[ti]], ...))
+                    val.list <- lapply(val, function(x) process.val(x, strsplit(i, ".list")[[1]], treat.list[[ti]], covs.list[[ti]], ...))
                     val.list <- lapply(seq_along(val.list), function(x) {
                         if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                         val.list[[x]]})
@@ -221,7 +221,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
                                        c(sapply(val.list, names)))
                 }
                 else {
-                    val.df <- process.val(val, i, treat.list[[ti]], covs.list[[ti]], ...)
+                    val.df <- process.val(val, strsplit(i, ".list")[[1]], treat.list[[ti]], covs.list[[ti]], ...)
                 }
                 if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
                     stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
@@ -286,8 +286,8 @@ binarize <- function(variable) {
     if (!is.na(match(0, unique(variable.numeric)))) zero <- 0
     #else if (1 %in% unique(as.numeric(variable))) zero <- unique(as.numeric(variable))[unique(as.numeric(variable)) != 1]
     else zero <- min(unique(variable.numeric))
-    variable <- ifelse(variable.numeric==zero, 0, 1)
-    return(variable)
+    newvar <- setNames(ifelse(variable.numeric==zero, 0, 1), names(variable))
+    return(newvar)
 }
 get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
@@ -487,7 +487,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
     
     if (nlevels(cluster) > 0 && length(which.cluster) > 0) in.cluster <- cluster == which.cluster
     else in.cluster <- rep(TRUE, length(treat))
-    #if (length(s.weights) == 0) s.weights <- rep(1, length(treat))
+    if (length(s.weights) == 0) s.weights <- rep(1, length(treat))
     if (length(discarded) == 0) discarded <- rep(0, length(treat))
     
     if (length(method) == 1 && method == "subclassification") {
@@ -1413,15 +1413,24 @@ replaceNA <- function(x) {
     x[is.na(x)] <- ""
     return(x)
 }
-round_df_char <- function(df, digits) {
+round_df_char <- function(df, digits, pad = "0") {
+    nas <- is.na(df)
+    if (!is.data.frame(df)) df <- as.data.frame(df, stringsAsFactors = FALSE)
     rn <- rownames(df)
+    cn <- colnames(df)
+    df <- as.data.frame(lapply(df, function(col) {
+        if (suppressWarnings(all(!is.na(as.numeric(as.character(col)))))) {
+            as.numeric(as.character(col))
+        } else {
+            col
+        }
+    }), stringsAsFactors = FALSE)
     nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
     df[nums] <- round(df[nums], digits = digits)
-    nas <- is.na(df)
     df[nas] <- ""
-    #check.rounding <- apply(nas, 2, any)
+    
     df <- as.data.frame(lapply(df, as.character), stringsAsFactors = FALSE)
-
+    
     for (i in which(nums)) {
         if (any(grepl(".", df[[i]], fixed = TRUE))) {
             s <- strsplit(df[[i]], ".", fixed = TRUE)
@@ -1430,16 +1439,20 @@ round_df_char <- function(df, digits) {
                 if (lengths[x] > 1) nchar(s[[x]][lengths[x]])
                 else 0 })
             df[[i]] <- sapply(seq_along(df[[i]]), function(x) {
-                if (nas[x, i]) ""
-                else if (lengths[x] <= 1) paste0(c(df[[i]][x], ".", rep("0", max(digits.r.of..) - digits.r.of..[x])),
-                                              collapse = "")
-                else paste0(c(df[[i]][x], rep("0", max(digits.r.of..) - digits.r.of..[x])),
+                if (df[[i]][x] == "") ""
+                else if (lengths[x] <= 1) {
+                    paste0(c(df[[i]][x], rep(".", pad == 0), rep(pad, max(digits.r.of..) - digits.r.of..[x] + as.numeric(pad != 0))),
+                           collapse = "")
+                }
+                else paste0(c(df[[i]][x], rep(pad, max(digits.r.of..) - digits.r.of..[x])),
                             collapse = "")
             })
         }
     }
-
-    rownames(df) <- rn
+    
+    if (length(rn) > 0) rownames(df) <- rn
+    if (length(cn) > 0) names(df) <- cn
+    
     return(df)
 }
 
