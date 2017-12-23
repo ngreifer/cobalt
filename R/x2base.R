@@ -1251,7 +1251,7 @@ x2base.optmatch <- function(optmatch, ...) {
         stop("Missing values exist in the covariates.", call. = FALSE)
     
     #Initializing variables
-    treat <- t.c$treat
+    treat <- binarize(t.c$treat)
     covs  <- t.c$covs
     distance <- A$distance
     
@@ -1259,7 +1259,11 @@ x2base.optmatch <- function(optmatch, ...) {
     if (length(optmatch) != length(treat) || length(optmatch) != nrow(covs)) {
         stop(paste0("The optmatch object must have the same length as ", ifelse(attr(t.c, "which")=="fd", "data", "covs"), "."), call. = FALSE)
     }
-    weights <- data.frame(weights = get.w(optmatch, treat = treat))
+    a <- attributes(optmatch)
+    
+    d.reordered <- setNames(seq_len(nrow(covs)), rownames(covs))[a$names]
+    
+    weights <- data.frame(weights = get.w(optmatch))
     
     #Process cluster
     cluster <- A$cluster
@@ -1300,14 +1304,14 @@ x2base.optmatch <- function(optmatch, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to optmatch()."), call. = FALSE)
     }
     
-    X$treat <- treat
-    X$distance <- distance
-    X$covs <- covs
+    X$treat <- treat[d.reordered]
+    X$distance <- distance[d.reordered, , drop = FALSE]
+    X$covs <- covs[d.reordered, , drop = FALSE]
     X$weights <- weights
-    X$addl <- addl
-    X$call <- NULL
+    X$addl <- addl[d.reordered, , drop = FALSE]
+    X$call <- attr(optmatch, "call")
     X$method <- "matching"
-    X$cluster <- factor(cluster)
+    X$cluster <- factor(cluster)[d.reordered]
     
     return(X)
     
@@ -1880,7 +1884,7 @@ X2base.data.frame.list <- function(covs.list, ...) {
     }
     
     #Get s.d.denom
-    X$s.d.denom <- rep("pooled", ncol(weights))
+    X$s.d.denom <- rep("pooled", max(1, ncol(weights)))
     
     X$covs.list <- covs.list
     X$weights <- weights
@@ -2050,7 +2054,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Initializing variables
     estimand <- weightitMSM$estimand
-    if (weightitMSM$treat.type != "continuous") {
+    if (any(weightitMSM$treat.type != "continuous")) {
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {

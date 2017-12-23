@@ -481,7 +481,8 @@ get.w.ebalance <- function(e, treat, ...) {
     return(weights)
 }
 get.w.ebalance.trim <- get.w.ebalance
-get.w.optmatch <- function(o, treat, ...) {
+get.w.optmatch <- function(o, ...) {
+    treat <- as.numeric(attr(o, "contrast.group"))
     return(match.strata2weights(o, treat = treat, covs = NULL))
 }
 get.w.weightit <- function(W, ...) {
