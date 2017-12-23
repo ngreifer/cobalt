@@ -1,0 +1,129 @@
+---
+title: 'Appendix 3: Using cobalt with Longitudinal Treatments'
+author: "Noah Greifer"
+date: "`r Sys.Date()`"
+output: 
+    html_vignette:
+        df_print: kable
+        toc: false
+
+vignette: >
+  %\VignetteIndexEntry{"Appendix 3: Using cobalt with Longitudinal Treatments"}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(message = FALSE, fig.width=5)
+library("cobalt")
+```
+
+This is an introduction to the use of `cobalt` with longitudinal treatments. These occur when there are multiple treatment periods spaced over time, with the potential for time-dependant confounding to occur. A common way to estimate treatment effects in these scenarios is to use marginal structural models (MSM), weighted by balancing weights. The goal of applying weights is to simulate a sequential randomization design, where the probability of being assigned to treatment at each time point is independent of each unit's prior covariate and treatment history. For introduction to MSMs in general, see Thoemmes & Ong (2016), VanderWeele, Jackson, & Li (2016), Cole & Hernán (2008), or Robins, Hernán, & Brumback (2000). The key issue addresed by this guide and `cobalt` in general is assessing balance before each treatment period to ensure the removal of confounding.
+
+In preprocessing for MSMs, three types of variables are relevant: baseline covariates, treatments, and intermediate outcomes/time-varying covariates. The goal of balance assessment is to assess whether after preprocessing, the resulting sample is one in which each treatment is independent of baseline covariates, treatment history, and time-varying covariates. The tools in `cobalt` have been developed to satisfy these goals.
+
+The next section describe how to use `cobalt`'s tools to assess balance with longitudinal treatments. First, we'll examine an example data set and identify some tools that can be used to generate weights for MSMs. Next we'll use `bal.tab()`, `bal.plot()`, and `love.plot()` to assess and present balance.
+
+##Setup
+
+We're going to use the `iptwExWide` data set in the `twang` package.
+
+```{r}
+library("cobalt")
+library("twang")
+data("iptwExWide", package = "twang")
+head(iptwExWide)
+```
+
+We have the variables `outcome`, which is the outcome, `gender`, `age`, and `use0`, which are the baseline covariates, `use1` and `use2`, which are time-varying covariates measured after treatment periods 1 and 2, and `tx1`, `tx2`, and `tx3`, which are the treatments at each of the three treatment periods.
+
+The goal of balance assessment in this scenario is to ensure the following:
+
+1) `tx1` is independent from `gender`, `age`, and `use0`
+2) `tx2` is independent from `gender`, `age`, `use0`, `tx1`, and `use1`
+3) `tx3` is independent from `gender`, `age`, `use0`, `tx1`, `use1`, `tx2`, and `use2`
+
+To estimate the weights, we'll use `WeightIt` to fit a series of logistic regressions that generate the weights. See the `WeightIt` documentation for more information on how to use `WeightIt` with longitudinal treatments.
+
+```{r}
+library("WeightIt")
+Wmsm <- weightitMSM(list(tx1 ~ use0 + gender + age,
+                         tx2 ~ use1 + use0 + tx1 + gender + age,
+                         tx3 ~ use2 + use1 + use0 + tx2 + tx1 + gender + age),
+                    data = iptwExWide,
+                    method = "ps")
+```
+
+Next we'll use `bal.tab()` to examine balance before and after applying the weights.
+
+##`bal.tab()`
+
+To examine balance on the original data, we can specify the treatment-covariate relationship we want to assess by using either the formula or data frame interfaces to `bal.tab()`. The formula interface requires a list of formulas, one for each treatment, and a data set containing the relevant variables. The data set must be in the "wide" setup, where each time point receives its own columns and each unit has exactly one row of data. The formula interface is similar to the `WeightIt` input seen above. The data frame interface requires a list of treatment values for each time period and a data frame or list of covariates for each time period. We'll use the data frame interface here.
+
+```{r}
+bal.tab(list(iptwExWide[c("use0", "gender", "age")],
+             iptwExWide[c("use0", "gender", "age", "tx1", "use1")],
+             iptwExWide[c("use0", "gender", "age", "tx1", "use1", "tx2", "use2")]),
+        treat.list = iptwExWide[c("tx1", "tx2", "tx3")])
+```
+
+First we see balance by time point. At each time point, a `bal.tab` object is produced for that time point. These function just like regular `bal.tab` objects. Next, we see a balance summary across all time points. This displays each variable, how many times it appears in balance tables, its type, and the greatest imbalance for that variable across all time points. Below this is a summary of sample sizes across time points.
+
+This output will appear no matter what the treatment types are (i.e., binary, continuous, multinomial), but for multinomial treatments or when the treatment types vary, no balance summary will be computed or displayed.
+
+We can use `bal.tab()` with the `weightitMSM` object generated above. Setting `un = TRUE` would produce balance statistic before adjustment, like we did before.
+
+```{r}
+bal.tab(Wmsm, un = TRUE)
+```
+
+We can use `which.time` and `msm.summary` to focus in on specific time points. `which.time` controls which time periods are displayed; one or more time periods can be entered. `NA` will not display any time periods (so only the summary will be displayed), and `NULL`, the default, will display all time periods. Setting `msm.summary` to `FALSE` will hide the summary across time points.
+
+```{r}
+bal.tab(Wmsm, which.time = 1:2, msm.summary = FALSE)
+```
+
+Note that to add covariates, we must use `addl.list` (which can be abbreviated as `addl`), which functions like `addl` in point treatments. The input to `addl.list` must be a list of covariates for each time point, or a single data data frame of variables to be assessed at all time points. The same goes for adding distance variables, which must be done with `distance.list` (which can be abbreviated as `distance`).
+
+Next we'll use `bal.plot()` to more finely examine covariate balance.
+
+##`bal.plot()`
+
+We can compare distributions of covariates across treatment groups for each time point using `bal.plot()`, just as we could with point treatments.
+
+```{r, fig.height=4}
+bal.plot(Wmsm, var.name = "age", which = "both")
+```
+
+balance for variables that only appear in certain time points will only be displayed at those time points:
+
+```{r, fig.height=4}
+bal.plot(Wmsm, var.name = "tx1", which = "both")
+```
+
+As with `bal.tab()`, `which.time` can be specified to limit output to chosen time periods.
+
+Finally, we'll examine using `love.plot()` with longitudinal treatments to display balance for presentation.
+
+##`love.plot()`
+
+`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display seperate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `NA`, the summary across time points is displayed. The `agg.fun` argument is automatically set to `"max"` and cannot be changed.
+
+```{r}
+love.plot(bal.tab(Wmsm), abs = TRUE)
+```
+```{r, fig.width=4}
+love.plot(bal.tab(Wmsm), which.time = NA)
+```
+
+##Other Packages
+
+Here we used `WeightIt` to generate our MSM weights, but `cobalt` is compatible with other packages for longitudinal treatments as well. `CBMSM` objects from the `CBPS` package and `iptw` objects from the `twang` package can be used in place of the `weightitMSM` object in the above examples. In addition, users who have generated balancing weights outside any of these package can simply specify an argument to `weights` in `bal.tab()` with the formula or data frame methods to assess balance using those weights.
+
+Note that `CBPS` estimates and assess balance on MSM weights differently than `twang` and `cobalt`. Its focus is on ensuring balance across all treatment history permutations, whereas `cobalt` focuses on evaluating the possibility of sequential randomization. For this reason, it may appear that `CBMSM` objects have different balance qualities as measured by the two packages.
+
+##References
+Cole, S. R., & Hernan, M. Á. (2008). Constructing Inverse Probability Weights for Marginal Structural Models. American Journal of Epidemiology, 168(6), 656–664. https://doi.org/10.1093/aje/kwn164
+Robins, J. M., Hernán, M. Á., & Brumback, B. (2000). Marginal Structural Models and Causal Inference in Epidemiology. Epidemiology, 11(5), 550–560. https://doi.org/10.2307/3703997
+Thoemmes, F., & Ong, A. D. (2016). A Primer on Inverse Probability of Treatment Weighting and Marginal Structural Models. Emerging Adulthood, 4(1), 40–59. https://doi.org/10.1177/2167696815621645
+VanderWeele, T. J., Jackson, J. W., & Li, S. (2016). Causal inference and longitudinal data: a case study of religion and mental health. Social Psychiatry and Psychiatric Epidemiology, 51(11), 1457–1466. https://doi.org/10.1007/s00127-016-1281-9
