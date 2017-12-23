@@ -37,7 +37,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         else if (!is.null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[[var.name]]
         else if (!is.null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[[var.name]]
         else if (!is.null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
-        else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FA:SE)
+        else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
     }
     
     #Density arguments supplied through ...
