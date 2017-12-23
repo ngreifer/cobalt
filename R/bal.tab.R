@@ -280,7 +280,13 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
 base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.subclass = FALSE, disp.bal.tab = TRUE, method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, s.weights = NULL, discarded = NULL, quick = FALSE, ...) {
     
     #Preparations
-    if (length(r.threshold) > 0) r.threshold <- abs(r.threshold)
+    if (length(r.threshold) > 0) {
+        r.threshold <- abs(r.threshold)
+        if (r.threshold > 1) {
+            warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
+            r.threshold <- NULL
+        }
+    }
     if (length(weights) == 0 && length(subclass) == 0) {
         un <- TRUE
         no.adj <- TRUE
@@ -448,7 +454,13 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
         }
         else disp.ks <- TRUE
     }
-    if (length(r.threshold) > 0) r.threshold <- abs(r.threshold)
+    if (length(r.threshold) > 0) {
+        r.threshold <- abs(r.threshold)
+        if (r.threshold > 1) {
+            warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
+            r.threshold <- NULL
+        }
+    }
     if (length(weights) == 0) {
         un <- TRUE
         no.adj <- TRUE
@@ -662,7 +674,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
     return(out)
     
 }
-base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass = NULL, covs.list, call = NULL, int = FALSE, addl.list = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, disp.bal.tab = TRUE, method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, discarded = NULL, quick = FALSE, ...) {
+base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass = NULL, covs.list, call = NULL, int = FALSE, addl.list = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, disp.bal.tab = TRUE, method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, discarded = NULL, quick = FALSE, ...) {
     #One vector of weights
     #treat.list should be a df/list of treatment vectors, one for each time period
     #cov.list should be a list of covariate data.frames, one for each time period; 
@@ -686,8 +698,13 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         }
         else disp.ks <- TRUE
     }
-    if (length(r.threshold) > 0) r.threshold <- abs(r.threshold)
-    
+    if (length(r.threshold) > 0) {
+        r.threshold <- abs(r.threshold)
+        if (r.threshold > 1) {
+            warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
+            r.threshold <- NULL
+        }
+    }
     if (length(weights) == 0 && length(subclass) == 0) {
         un <- TRUE
         no.adj <- TRUE
@@ -714,19 +731,51 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         
         out[["Time.Balance"]] <- vector("list", length(covs.list))
         
+        treat.type <- sapply(treat.list, function(x) {
+            if (nunique.gt(x, 2)) {
+                 if (is.numeric(x)) "continuous"
+                else if (is.factor(x) || is.character(x)) "multinomial"
+            }
+            else if (nunique.gt(x, 1)) {
+                "binary"
+            }
+            else {
+                stop("All treatments must have at least 2 unique values.", call. = FALSE)
+            }
+        })
+
         #Get list of bal.tabs for each time period
-        for (ti in seq_along(out[["Time.Balance"]])) {
-            if (length(unique(treat.list[[ti]])) > 2 && is.numeric(treat.list[[ti]])) {#if continuous treatment
-                out[["Time.Balance"]][[ti]] <-  base.bal.tab.cont(weights = weights, treat = treat.list[[ti]], distance = distance.list[[ti]], subclass = NULL, covs = covs.list[[ti]], call = NULL, int = int, addl = addl.list[[ti]], r.threshold = r.threshold, imbalanced.only = imbalanced.only, un = un, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster, which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights, discarded = discarded, quick = quick, ...)
+        out[["Time.Balance"]] <- lapply(seq_along(treat.list), function(ti) {
+            if (treat.type[ti] == "continuous") {
+                out_ <- base.bal.tab.cont(weights = weights, treat = treat.list[[ti]], distance = distance.list[[ti]], subclass = NULL, covs = covs.list[[ti]], call = NULL, int = int, addl = addl.list[[ti]], r.threshold = r.threshold, imbalanced.only = imbalanced.only, un = un, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster, which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights, discarded = discarded, quick = quick, ...)
             }
-            else if (length(unique(treat.list[[ti]])) > 2 && (is.factor(treat.list[[ti]]) || is.character(treat.list[[ti]]))) {
-                stop("Multiple categorical treatments are not yet supported with longitudinal treatments.", call. = FALSE)
+            else if (treat.type[ti] == "multinomial") {
+                #stop("Multiple categorical treatments are not yet supported with longitudinal treatments.", call. = FALSE)
+                out_ <- base.bal.tab.multi(weights = weights, treat = treat.list[[ti]], distance=distance.list[[ti]], 
+                                          covs=covs.list[[ti]], call=NULL, int=int, addl=addl.list[[ti]], 
+                                          continuous=continuous, binary=binary, s.d.denom=s.d.denom, 
+                                          m.threshold=m.threshold, v.threshold=v.threshold, 
+                                          ks.threshold=ks.threshold, 
+                                          imbalanced.only = imbalanced.only,
+                                          un=un, 
+                                          disp.bal.tab = disp.bal.tab, 
+                                          disp.means=disp.means,
+                                          disp.v.ratio=disp.v.ratio, 
+                                          disp.ks=disp.ks, 
+                                          method=method, 
+                                          cluster = cluster, which.cluster = which.cluster, 
+                                          cluster.summary = cluster.summary, pairwise = pairwise, focal = NULL,
+                                          which.treat = which.treat, multi.summary = multi.summary,
+                                          s.weights = s.weights, quick = quick)
             }
-            else {#if binary treatment
-                out[["Time.Balance"]][[ti]] <- base.bal.tab(weights = weights, treat = treat.list[[ti]], distance = distance.list[[ti]], subclass = NULL, covs = covs.list[[ti]], call = NULL, int = int, addl = addl.list[[ti]], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, ks.threshold = ks.threshold, imbalanced.only = imbalanced.only, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, disp.ks = disp.ks, disp.subclass = disp.subclass, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster, which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights, discarded = discarded, quick = quick, ...)
+            else if (treat.type[ti] == "binary") {
+                out_ <- base.bal.tab(weights = weights, treat = treat.list[[ti]], distance = distance.list[[ti]], subclass = NULL, covs = covs.list[[ti]], call = NULL, int = int, addl = addl.list[[ti]], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, ks.threshold = ks.threshold, imbalanced.only = imbalanced.only, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, disp.ks = disp.ks, disp.subclass = disp.subclass, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster, which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights, discarded = discarded, quick = quick, ...)
             }
-        }
-        
+            else stop("Each treatment must be binary, multinomial, or continuous.", call. = FALSE)
+            
+            return(out_)
+        })
+
         if (length(names(treat.list)) == length(treat.list)) {
             names(out[["Time.Balance"]]) <- names(treat.list)
         }
@@ -734,7 +783,8 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         
         out[["Observations"]] <- lapply(out[["Time.Balance"]], function(x) x$Observations)
         
-        out[["Balance.Across.Times"]] <- balance.table.msm.summary(out[["Time.Balance"]],
+        if (!(quick && !msm.summary) && !nunique.gt(treat.type, 1) && !any(treat.type == "multinomial")) {
+            out[["Balance.Across.Times"]] <- balance.table.msm.summary(out[["Time.Balance"]],
                                                                    weight.names = names(weights),
                                                                    no.adj = no.adj,
                                                                    m.threshold = m.threshold, 
@@ -743,6 +793,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
                                                                    r.threshold = r.threshold, 
                                                                    quick = quick, 
                                                                    types = NULL)
+        }
         
         out[["call"]] <- call
         
@@ -1225,6 +1276,10 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                                 cluster = X$cluster, 
                                 which.cluster = which.cluster, 
                                 cluster.summary = cluster.summary, 
+                                pairwise = pairwise, 
+                                focal = focal, 
+                                which.treat = which.treat, 
+                                multi.summary = multi.summary, 
                                 s.weights = X$s.weights, 
                                 which.time = which.time, 
                                 msm.summary = msm.summary,
@@ -1280,7 +1335,8 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                                       cluster = X$cluster, 
                                       which.cluster = which.cluster, 
                                       cluster.summary = cluster.summary, 
-                                      pairwise = pairwise, focal = X$focal, #NULL
+                                      pairwise = pairwise, 
+                                      focal = X$focal, #NULL
                                       which.treat = which.treat,
                                       multi.summary = multi.summary,
                                       s.weights = X$s.weights, #NULL
@@ -1436,6 +1492,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
     if (any(class(weightit) == "weightitMSM")) {
         if (length(cluster) > 0) stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
         if (length(imp) > 0) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
+        if (length(args$addl.list) > 0) addl <- addl.list
         
         #Initializing variables
         X <- x2base.weightitMSM(weightit, 
@@ -1458,6 +1515,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                                 m.threshold=m.threshold, 
                                 v.threshold=v.threshold, 
                                 ks.threshold=ks.threshold, 
+                                r.threshold=r.threshold,
                                 imbalanced.only = imbalanced.only,
                                 un=un, 
                                 disp.means=disp.means, 
@@ -1468,6 +1526,10 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                                 cluster = X$cluster, 
                                 which.cluster = which.cluster, 
                                 cluster.summary = cluster.summary, 
+                                pairwise = pairwise, 
+                                focal = focal, 
+                                which.treat = which.treat, 
+                                multi.summary = multi.summary, 
                                 s.weights = X$s.weights, 
                                 which.time = which.time, 
                                 msm.summary = msm.summary,
@@ -1579,7 +1641,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
 }
 
 #MSMs wth multiple time points
-bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = FALSE, distance.list = NULL, addl.list = NULL, method, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, imp = NULL, which.imp = NA, imp.summary = TRUE, pairwise = TRUE, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, estimand = NULL, quick = FALSE, ...) {
+bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = FALSE, distance.list = NULL, addl.list = NULL, method, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, imp = NULL, which.imp = NA, imp.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, estimand = NULL, quick = FALSE, ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
@@ -1652,6 +1714,10 @@ bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = F
                             cluster = X$cluster, 
                             which.cluster = which.cluster, 
                             cluster.summary = cluster.summary, 
+                            pairwise = pairwise, 
+                            focal = focal, 
+                            which.treat = which.treat, 
+                            multi.summary = multi.summary, 
                             s.weights = X$s.weights, 
                             which.time = which.time, 
                             msm.summary = msm.summary,
@@ -1659,7 +1725,7 @@ bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = F
                             ...)
     return(out)
 }
-bal.tab.iptw <- function(iptw, stop.method, int = FALSE, distance.list = NULL, addl.list = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, which.time = NULL, msm.summary = TRUE, quick = FALSE, ...) {
+bal.tab.iptw <- function(iptw, stop.method, int = FALSE, distance.list = NULL, addl.list = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, quick = FALSE, ...) {
     args <- as.list(environment())[-1]
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
@@ -1708,6 +1774,10 @@ bal.tab.iptw <- function(iptw, stop.method, int = FALSE, distance.list = NULL, a
                             cluster = X$cluster, 
                             which.cluster = which.cluster, 
                             cluster.summary = cluster.summary, 
+                            pairwise = pairwise, 
+                            focal = focal, 
+                            which.treat = which.treat, 
+                            multi.summary = multi.summary, 
                             s.weights = X$s.weights, 
                             which.time = which.time, 
                             msm.summary = msm.summary,
