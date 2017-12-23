@@ -102,6 +102,8 @@ The other arguments to `bal.tab()` when using it with `twang` have the same form
 
 If sampling weights are used in the call to `ps()`, they will be automatically incorporated into the `bal.tab()` calculations for both the adjusted and unadjusted samples, just as `twang` does.
 
+`mnps` objects resulting from fitting models in `twang` with multinomial treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multinomial treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitduinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette.
+
 ### Using `bal.tab()` with `Matching`
 
 The `Matching` package is used for propensity score matching, and was also the first package to implement genetic matching. `MatchIt` calls `Matching` to use genetic matching and can accomplish many of the matching methods `Matching` can, but `Matching` is still a widely used package with its own strengths. `bal.tab()` functions similarly to `Matching`'s `MatchBalance()` command, which yields a thorough presentation of balance, and makes `Matching` the only package of those integrated with `cobalt` to display variance ratios by default. Below is a simple example of the use of `bal.tab()` with `Matching`:
@@ -167,6 +169,8 @@ First is the original call to `CBPS()`. Next is the balance table containing mea
 The other arguments to `bal.tab()` when using it with `CBPS` have the same form and function as those given when using it without a conditioning package, except for `s.d.denom`. If the estimand of the original call to `CBPS()` is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable.
 
 When using `CBPS` and `bal.tab()` with continuous treatments, the same guidelines apply as when using `bal.tab()` with continuous treatments without a conditioning package. See the section "Using cobalt with continuous treatments" in the main vignette for more details.
+
+`CBPSContinuous` objects resulting from fitting models in `CBPS` with continuous treatments are also compatible with `cobalt`. See the section "Using `cobalt` with continuous treatments" in the main vignette. `CBPS` objects resulting from fitting models in `CBPS` with multinomial treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multinomial treatments" in the main vignette. `CBMSM` objects resulting from fitting models in `CBPS` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette.
 
 ### Using `bal.tab()` with `ebal`
 

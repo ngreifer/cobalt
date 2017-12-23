@@ -155,7 +155,7 @@ Next is `disp.v.ratio`, which controls whether variance ratios are displayed, in
 
 Next is `disp.ks`, which controls whether Kolmogorov-Smirnov (KS) statistics are displayed. KS statistics measure the greatest distance between the emiprical cumulative dsitribution functions (ECDFs) for each variable between two groups. The statistic is bounded at 0 and 1, with 0 indicting perfectly identical distributions and 1 indicating perfect seperation between the distributions (i.e., no overlap at all); values close to 0 are thus indicative of balance. The use of the KS statistic to formally assess balance is debated. Intutively, it makes sense to use it to diagnose balance because the interpretation and computation of the statistics are directly related to balance. Austin & Stuart (2015) recommend its use, and it or a variant appears as a default balance statistic in `MatchIt`, `twang`, and `Matching`. On the other hand, Belitser et al. (2011), Stuart et al. (2013), and Ali et al. (2014) all found that global balance assessments using the KS statistic performed uniformly worse than standardized mean differences, esepcially at sample sizes less than 1000 in their simulations.
 
-Next is `un`, which controls whether the statistics to be displayed should be displayed for the unadjusted group as well. This can be useful the first time balance is assessed to see the initial group imbalance. All of the packages named above display unadjusted group statistics in their balance assessment functions. Setting `un = FALSE`, which is the default, can declutter the output to maintain the spotlight on the group balance after adjustment.
+Next is `un`, which controls whether the statistics to be displayed should be displayed for the unadjusted group as well. This can be useful the first time balance is assessed to see the initial group imbalance. Setting `un = FALSE`, which is the default, can declutter the output to maintain the spotlight on the group balance after adjustment.
 
 ```{r}
 # Balance tables with variance ratios and statistics for the unadjusted sample
@@ -169,13 +169,15 @@ When `m.threshold` is specified, a few components are added to the balance outpu
 
 The argument to `v.threshold` determines the threshold for variance ratios that are acceptable for balance. Variance ratios are calculated in `cobalt` such that the greater variance is in the numerator, so they will always be greater than or equal to 1. Variance ratios close to 1 are indicative of good balance, but ratios as large as 2 may be acceptable (Rubin, 2001). When `v.threshold` is specified,  the same additional output is created as above, except in evaluation of variance ratios. Because variance ratios are not displayed in the balance table by default, specifying `v.threshold` will also display variance ratios in the table.
 
-When `ks.threshold` is specified, the same additional output is created as above, except in evaluation of KS statistics. Because KS statistics are not displayed in the balance table by default, specifying `ks.threshold` will also display KS statistics in the table. The value provided to `ks.threshold` should be between 0 and 1. Though no research has been done on acceptible thresholds for the KS statistics, we recommend seeking values less than 0.05 for continuous variables, which roughly corresponds to the KS statistic computed for two normally distributed samples wih a standardized mean difference of 0.1. For binary variables, the KS statistic is equal to the raw difference in proportion.
+When `ks.threshold` is specified, the same additional output is created as above, except in evaluation of KS statistics. Because KS statistics are not displayed in the balance table by default, specifying `ks.threshold` will also display KS statistics in the table. The value provided to `ks.threshold` should be between 0 and 1. Though no research has been done on acceptible thresholds for the KS statistics, we recommend seeking values less than 0.05 for continuous variables, which roughly corresponds to the KS statistic computed for two normally distributed samples wih a standardized mean difference of 0.1. For binary variables, KS statistics are not produced because they are equal to the raw difference in proportion.
 
 ```{r}
 # Balance tables with thresholds for mean differences and variance ratios
 bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
         method = "weighting", m.threshold = .1, v.threshold = 2)
 ```
+
+To simplify output when many covariates are included or when `int = TRUE` is specified, `imbalanced.only` can be set to `TRUE`, which will only reveal imbalanced covariates in the output. These rae covariates that have failed to meet any of the balance thresholds set. In addition, `disp.bal.tab` can be set `TRUE`, which will hide the balance table (revealing only the balance summaries accompanying the threshold).
 
 If sampling weights are used and are to be applied to both the adjusted and unadjusted groups, they can be specified with an argument to `s.weights`, which can be specified either by providing a vector of sampling weights for each unit or by providing the name of a variable in `data` containing the sampling weights. The adjusted and unadjusted samples will each be weighted by the sampling weights by multiplying the adjustment weights (if any) by the sampling weights.
 
@@ -231,11 +233,11 @@ bal.tab(m.out)
 
 The output looks very similar to `MatchIt`'s `summary()` function: at the top is the original `matchit()` call; next is the balance table, and finally is a summary of the sample size before and after adjustment.
 
-Setting `binary = "std"` in `bal.tab()` will produce identical calculations to those in `MatchIt`'s `summary(m.out, standardize = TRUE)`, which produces standardized differences for binary variables as well as continuous variables. The other arguments to `bal.tab()` when using it with `MatchIt` have the same form and function as those given when using it without a conditioning package. 
+Setting `binary = "std"` in `bal.tab()` will produce identical calculations to those in `MatchIt`'s `summary(m.out, standardize = TRUE)`, which produces standardized differences for binary variables as well as continuous variables. The other arguments to `bal.tab()` when using it with `MatchIt` have the same form and function as those given when using it without a conditioning package. The output when using `MatchIt` for subclassification is the same as that displayed previously.
 
 ### Using `bal.tab()` with `WeightIt`
 
-The `WeightIt` package is a convenient wrapper for the weighting functions of several packages, including `twang`, `CBPS`, `ebal`, and `ATE`, and allows for the estimation weights for binary, multinomial, and categorical treatments. It was designed to work seamlessly with `cobalt`, so using it with `cobalt` is very straightforward. Below is a simple example of using `bal.tab()` with `WeightIt`:
+The `WeightIt` package is a convenient wrapper for the weighting functions of several packages, including `twang`, `CBPS`, `ebal`, `sbw`, and `ATE`, and allows for the estimation weights for binary, multinomial, and categorical treatments and both point and longitudinal treatments. It was designed to work seamlessly with `cobalt`, so using it with `cobalt` is very straightforward. Below is a simple example of using `bal.tab()` with `WeightIt`:
 
 ```{r}
 #Note: this code will not work until WeightIt is on CRAN
@@ -268,12 +270,11 @@ The user can also specify whether distributional balance is to be shown before o
 
 The output of `bal.plot()` is a density plot for the two groups on the given covariate. For categorical or binary variables, a bar graph is displayed instead. The x-axis is the value of the variable, and the y-axis is the proportion density or proportion of the variable in the given group. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, which splits the variable into several binary variables. The degree to which the density plots for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.
 
-Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like `MatchIt`'s `plot(..., type = "hist")` or `twang`'s `plot(..., plots = "boxplot")`. To examine the distributions of the distance measure, the input to `var.name` must be `".distance"` (noting the "`.`" at the beginning). If the data input object doesn't already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to `bal.plot()` through `distance`, in addition to being called through `var.name`. Below is an example using the formula input to `bal.plot()` to display the distributions of propensity scores before and after weighting adjustment:
+Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like `MatchIt`'s `plot(..., type = "hist")` or `twang`'s `plot(..., plots = "boxplot")`. To examine the distributions of the distance measure, the input to `var.name` must be the name of the distance variable. If the data input object doesn't already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to `bal.plot()` through `distance`, in addition to being called through `var.name`. Below is an example using the formula input to `bal.plot()` to display the distributions of propensity scores before and after weighting adjustment:
 
 ```{r, fig.width = 5}
 #Before and after weighting; which = "both"
 bal.plot(W.out, var.name = "prop.score", which = "both")
-
 ```
 
 It is generally not a useful assessment of balance to examine the overlap of the distance measure distributions after adjustment, as most conditioning methods will yield good distributional overlap on the distance measure whether or not balance is achieved on the covariates (Stuart et al., 2013). However, it may be useful to see the new range of the distance measure if calipers or common support pruning are used.
@@ -282,11 +283,9 @@ The output plot is made using `ggplot2`, which means that users familiar with `g
 
 When the treatment variable is continuous, users can use `bal.plot()` to examine and assess dependence between the covariate and treatment. The arguments given to `bal.plot()` are the same as in the binary treatment case, but the resulting plots are different. If the covariate is continuous, a scatterplot between the covariate and the treatment variable will be displayed, along with a linear fit line, a Loess curve, and a reference line indicating linear independence. Used together, these lines can help diagnose departurses from independence beyond the simple correlation coefficient. Proximity of the fit lines to the reference line is suggestive of independence between the covariate and treatment variable. If the covariate is categorical (including binary), density plots of the treatment variable for each category will be displayed. Densities that overlap completely are indicative of independence between the covariate and treatment. See the section "Using cobalt with continuous treatments" for more details and an example. 
 
-`bal.plot()` can also be used with multi-valued categorical treatments, and is currently the only function in cobalt for which this is so. The treatment variable must a factor variable; otherwise, all commands are the same as with binary treatments. Multi-valued treatments analyzed using twang's `mnps()` function are not supported, but those analyzed using `CBPS()` are.
-
 ## `love.plot()`
 
-The Love plot is a summary plot of covariate balance before and after conditioning popularized by Dr. Thomas E. Love. In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielsen, 2016). Although Love plots are used with some frequency and there are tools to generate them, none of the packages used for conditioning include a function for quickly and easily generating them. `love.plot()` does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:
+The Love plot is a summary plot of covariate balance before and after conditioning popularized by Dr. Thomas E. Love. In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielsen, 2016). `love.plot()` does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:
 
 ```{r, fig.width = 5}
 data("lalonde", package = "cobalt")
@@ -327,7 +326,7 @@ love.plot(bal.tab(m.out), stat = "mean.diffs", threshold = .1,
 
 This plot shows that balance was improved on almost all variables after adjustment, bringing all but one below the threshold of .1 for absolute mean differences.
 
-When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stat` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations. Continuous treatments can be used with clusters as well.
+When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stat` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations.
 
 Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to some extent for presentation or publication. Several aspects of the appearance of the plot can be customized using the `love.plot()` syntax, including the size, shape, and color of the points, the title and subtitle of the plot, and whether to display lines connecting the points. See `?love.plot` for details. It may be challenging to make adjustments to these aspects using `ggplot2` syntax, so these arguments allow for some simple adjustments.
 
@@ -339,7 +338,7 @@ Bia & Mattei (2008) describe the use of the `gpscore` function in Stata, which a
 
 In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS`, but not that described in Hirano & Imbens (2004) or implemented in `gpscore` (Bia & Mattei, 2008), which involves stratifying on both the treatment variable and the propensity score and calculating mean differences.
 
-Below is an example of the workflow for using propensity scores for continuous treatments in the `CBPS` package. To demonstrate, we use the `lalonde` package included in `cobalt`, using an arbitrary continuous variable as the treatment, though substantively this analysis makes little sense.
+Below is an example of the workflow for using propensity scores for continuous treatments in the `WeightIt` package. To demonstrate, we use the `lalonde` package included in `cobalt`, using an arbitrary continuous variable as the treatment, though substantively this analysis makes little sense.
 
 ```{r}
 data("lalonde", package = "cobalt")
@@ -383,7 +382,7 @@ In `cobalt`, users can assess and present balance for multinomial treatments usi
 
 `love.plot()` allows for the display of each pairwise treatment or the range of balance across treatment pairs for each covariate. `bal.plot()` displays distributional balance for the requetsed covariate across all treatment groups. Currently, multinomial treatments are not supported with clustered or multiply imputed data.
 
-Below is an example of using `cobalt` with multinomial treatments. For this example, race will be the "treatment"; this type of analysis is not meant to be causla, but rather represents a method to examine disparities among groups accounting for covariates that might otherwise explain differences among groups. We will use `CBPS` to generate balanced groups.
+Below is an example of using `cobalt` with multinomial treatments. For this example, race will be the "treatment"; this type of analysis is not meant to be causal, but rather represents a method to examine disparities among groups accounting for covariates that might otherwise explain differences among groups. We will use `WeightIt` to generate balanced groups by estimating propensity score weights with multinomial logistic regression.
 
 ```{r}
 data("lalonde", package = "cobalt")
@@ -419,7 +418,7 @@ bal.plot(W.out.mn, "married", which = "both",
 
 Finally, we can use `love.plot()` to display balance across treatments. By default, `love.plot()` displays the values in the summary across pairwsie comparisons. To request individual treatment comparisons, use `which.treat = NULL` in either `bal.tab()` or `love.plot()`.
 
-```{r, fig.width = 5}
+```{r, fig.width = 7}
 #Summarizing balance in a Love plot
 love.plot(bal.tab(W.out.mn), threshold = .1,
           which.treat = NULL)
@@ -595,7 +594,7 @@ If you develop a new balance assessment tool, this may also be able to be integr
 
 # Acknowledgments
 
-I thank Kirsten Kainz and Elizabeth Stuart for their support and advice on `cobalt`'s creation. I thank Zachary Fisher for his advice on developing an R package.
+I thank Kirsten Kainz and Elizabeth Stuart for their support and advice on `cobalt`'s creation. I thank Zachary Fisher and Brian Barkley for their advice on developing an R package.
 
 # References
 
