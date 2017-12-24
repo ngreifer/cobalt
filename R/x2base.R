@@ -1664,6 +1664,7 @@ X2base.data.frame.list <- function(covs.list, ...) {
     imp <- A$imp
     s.weights <- A$s.weights
     focal <- A$focal
+    ntimes <- length(covs.list)
     
     #Checks
     if (length(covs.list) == 0) {
@@ -1759,11 +1760,16 @@ X2base.data.frame.list <- function(covs.list, ...) {
     
     #Process treat
     if (length(treat.list) == 0) stop("treat.list must be specified.", call. = FALSE)
-    if (!is.list(treat.list)) stop("treat.list must be a list of treatment statuses at each time point.", call. = FALSE)
+    if (!is.list(treat.list)) {
+        treat.list <- as.list(treat.list)
+    }
+    if (length(treat.list) != length(covs.list)) {
+        stop("treat.list must be a list of treatment statuses at each time point.", call. = FALSE)
+    }
     
     for (ti in seq_along(treat.list)) {
         if (is.numeric(treat.list[[ti]]) || is.factor(treat.list[[ti]]) || (is.character(treat.list[[ti]]) && length(treat.list[[ti]]) > 1)) {
-            treat.list[[ti]] <- treat.list[[ti]]
+            #treat.list[[ti]] <- treat.list[[ti]]
         }
         else if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1 && any(names(data) == treat.list[[ti]])) {
             names(treat.list)[ti] <- treat.list[[ti]]
@@ -1784,29 +1790,7 @@ X2base.data.frame.list <- function(covs.list, ...) {
     
     #Process weights
     for (i in c("weights")) {
-        val <- A[[i]]
-        val.df <- NULL
-        if (length(val) > 0) {
-            if (is.vector(val, mode = "list")) {
-                val.list <- lapply(val, function(x) process.val(x, i, treat, covs, data))
-                val.list <- lapply(seq_along(val.list), function(x) {
-                    if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
-                    val.list[[x]]})
-                if (length(unique(sapply(val.list, nrow))) > 1) {
-                    stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
-                }
-                
-                val.df <- setNames(do.call("cbind", val.list),
-                                   c(sapply(val.list, names)))
-            }
-            else {
-                val.df <- process.val(val, i, treat, covs, data)
-            }
-            if (length(val.df) > 0) { if (sum(is.na(val.df)) > 0) {
-                stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
-            }
-        }
-        assign(i, val.df)
+        assign(i, data.frame.process(i, A[[i]], do.call("cbind", treat.list), do.call("cbind", covs.list), data))
     }
     
     #Process addl and distance
@@ -1847,7 +1831,7 @@ X2base.data.frame.list <- function(covs.list, ...) {
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster")
     data.frames <- c("weights")
-    lists <- c("distance.list", "addl.list", "covs.list")
+    lists <- c("distance.list", "addl.list", "covs.list", "treat.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
                           sapply(data.frames, 
@@ -1855,7 +1839,11 @@ X2base.data.frame.list <- function(covs.list, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
-                              else max(sapply(get(x), function(y) if (length(y) > 0) nrow(y) else 0))
+                              else max(sapply(get(x), function(y) if (length(y) > 0) {
+                                  if (is.data.frame(y) || is.matrix(y)) nrow(y)
+                                  else length(y)
+                                  }
+                                  else 0))
                           })), c(vectors, data.frames, lists))
     
     #Ensure all input lengths are the same.
@@ -1871,7 +1859,7 @@ X2base.data.frame.list <- function(covs.list, ...) {
     }
     
     if (length(weights) > 0) {
-        if (any(sapply(weights, function(x) !is.numeric(x)))) {
+        if (any(sapply(weights, function(x) !is.finite(x)))) {
             stop("All weights must be numeric.", call. = FALSE)
         }
         if (length(X$method) == 1) {
@@ -1946,9 +1934,10 @@ x2base.CBMSM <- function(cbmsm, ...) {
     #treat.list <- as.list(as.data.frame(cbmsm$treat.hist[ID, , drop = FALSE])) 
     treat.list <- lapply(times, function(x) cbmsm$treat.hist[ID, x]) 
     covs <- cbmsm$data[!is.na(match(names(cbmsm$data), attributes(terms(cbmsm$model))$term.labels))]
-    covs.list <- vector("list", length(treat.list))
     weights <- data.frame(weights = get.w(cbmsm)[ID])
+    ntimes <- length(times)
     
+    covs.list <- vector("list", ntimes)
     for (ti in times) {
         if (ti == 1) {
             covs.list[[ti]] <- setNames(data.frame(covs[cbmsm$time == ti, , drop = FALSE][ID, , drop = FALSE]),
@@ -1963,7 +1952,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     }
     
     data <- A$data
-    
+
     cbmsm.data <- cbmsm$data[ID, , drop = FALSE][cbmsm$time == 1, , drop = FALSE]
     
     #Process cluster
@@ -1979,7 +1968,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
             if (any(names(data) == cluster)) {
                 cluster <- data[[cluster]]
             }
-            else if (any(names(weightitMSM.data) == cluster)) {
+            else if (any(names(cbmsm.data) == cluster)) {
                 cluster <- cbmsm.data[[cluster]]
             }
             else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
