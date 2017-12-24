@@ -1457,5 +1457,5 @@ round_df_char <- function(df, digits, pad = "0") {
 }
 
 #To pass CRAN checks:
-utils::globalVariables(c("distance", "addl", "quick", "treat", "Sample", "min.stat",
+utils::globalVariables(c("distance", "addl", "addl.list", "distance.list", "quick", "treat", "Sample", "min.stat",
                          "max.stat", "mean.stat"))
