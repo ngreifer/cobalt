@@ -5,6 +5,7 @@
 \alias{print.bal.tab.imp}
 \alias{print.bal.tab.imp.cluster}
 \alias{print.bal.tab.multi}
+\alias{print.bal.tab.msm}
 
 \title{
 Print Results of a Call to bal.tab()
@@ -94,6 +95,40 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     imp.fun = NULL, 
     digits = max(3, getOption("digits") - 3), 
     ...)
+    
+    \method{print}{bal.tab.multi}(x, 
+    disp.m.threshold = "as.is", 
+    disp.v.threshold = "as.is", 
+    disp.ks.threshold = "as.is", 
+    imbalanced.only = "as.is", 
+    un = "as.is", 
+    disp.bal.tab = "as.is", 
+    disp.means = "as.is", 
+    disp.v.ratio = "as.is", 
+    disp.ks = "as.is", 
+    which.treat, 
+    multi.summary = "as.is", 
+    digits = max(3, getOption("digits") - 3), 
+    ...)
+    
+    \method{print}{bal.tab.msm}(x, 
+    disp.m.threshold = "as.is", 
+    disp.v.threshold = "as.is", 
+    disp.ks.threshold = "as.is", 
+    disp.r.threshold = "as.is", 
+    imbalanced.only = "as.is", 
+    un = "as.is", 
+    disp.bal.tab = "as.is", 
+    disp.means = "as.is", 
+    disp.v.ratio = "as.is", 
+    disp.ks = "as.is", 
+    which.cluster, 
+    cluster.summary = "as.is", 
+    cluster.fun = NULL, 
+    which.time, 
+    msm.summary = "as.is", 
+    digits = max(3, getOption("digits") - 3), 
+    ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -153,6 +188,18 @@ whether to display the imputation summary table. If \code{which.imp} is \code{NA
   \item{imp.fun}{
 a character vector of functions of balance statistics to display when dislaying balance across imputations. Can be "mean", "median", "min", or "max". More than one are allowed. "min" cannot be used if \code{quick = TRUE} in the original \code{bal.tab()} call.
 }
+  \item{which.treat}{
+which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
+}
+ \item{multi.summary}{
+\code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
+}
+  \item{which.time}{
+which time periods to display if longutdinal treatments are used. See \code{\link{bal.tab.msm}} for details.
+}
+  \item{msm.summary}{
+\code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
+}
   \item{\dots}{
 further arguments passed to or from other methods.
 }
@@ -172,7 +219,7 @@ Any paramater used in \code{bal.tab()} for calculations, such as \code{int}, \co
 If \code{quick = TRUE} in the original call to \code{bal.tab()}, some values may not be calculated, in which case using \code{print()} will not display these values even when requested. For example, if \code{disp.means = FALSE} and \code{quick = TRUE} in the original call to \code{bal.tab()}, setting \code{disp.means = TRUE} in \code{print()} will not print the covariate means because they were not calculated.
 }
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 \seealso{

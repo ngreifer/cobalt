@@ -163,7 +163,7 @@ If \code{mnps()} is used with multiple categorical treatments, an object of clas
 }
 
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 \seealso{

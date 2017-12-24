@@ -43,7 +43,7 @@ The output is a \code{bal.tab.subclass} object, which inherits from \code{bal.ta
 }
 
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 \seealso{

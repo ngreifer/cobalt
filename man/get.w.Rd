@@ -30,7 +30,7 @@ get.w(\dots)
 
 \method{get.w}{ebalance}(e, treat, ...)
 
-\method{get.w}{optmatch}(o, treat, ...)
+\method{get.w}{optmatch}(o, ...)
 
 \method{get.w}{weightit}(W, ...)
 
@@ -63,7 +63,7 @@ A vector or data.frame of weights for each unit. These may be matching weights o
 }
 
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 \seealso{

@@ -100,7 +100,7 @@ Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). 
 Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1-21. http://doi.org/10.1214/09-STS313
 }
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 \seealso{

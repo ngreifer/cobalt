@@ -116,7 +116,7 @@ If clusters are specified, an object of class \code{"bal.tab.cluster"} containin
 }
 
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 \seealso{

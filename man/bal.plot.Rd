@@ -94,7 +94,7 @@ A \code{"ggplot"} object, returned invisbly.
 }
 
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 

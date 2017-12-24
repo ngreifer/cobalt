@@ -28,7 +28,7 @@ As with other methods, multiple weights can be specified, and values for all wei
 }
 
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 \seealso{

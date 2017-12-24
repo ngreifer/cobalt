@@ -51,7 +51,6 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     data, 
     ...)
 }
-
 \arguments{
   \item{covs}{
 A data frame containing covariate values for each unit.
@@ -204,7 +203,7 @@ If multiple categorical treatments are used, an object of class \code{"bal.tab.m
 
 
 \author{
-Noah Greifer \email{noah@unc.edu}
+Noah Greifer 
 }
 
 \seealso{
