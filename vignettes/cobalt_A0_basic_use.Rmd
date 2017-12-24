@@ -43,11 +43,11 @@ The rest of this guide explains how to use `cobalt` with the above packages and 
 ### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2017). cobalt: Covariate Balance Tables and Plots. R package version 3.1.0.
+Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.2.0.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
-> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2017), both in R (R Core Team, 2017).
+> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2018), both in R (R Core Team, 2017).
 
 # Why `cobalt`?
 
@@ -240,8 +240,6 @@ Setting `binary = "std"` in `bal.tab()` will produce identical calculations to t
 The `WeightIt` package is a convenient wrapper for the weighting functions of several packages, including `twang`, `CBPS`, `ebal`, `sbw`, and `ATE`, and allows for the estimation weights for binary, multinomial, and categorical treatments and both point and longitudinal treatments. It was designed to work seamlessly with `cobalt`, so using it with `cobalt` is very straightforward. Below is a simple example of using `bal.tab()` with `WeightIt`:
 
 ```{r}
-#Note: this code will not work until WeightIt is on CRAN
-
 library("WeightIt")
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
