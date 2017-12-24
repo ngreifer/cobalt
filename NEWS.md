@@ -4,6 +4,8 @@ Version 3.2.0
 
 * Added support for longtudinal treatments in `bal.tab()`, `bal.plot()`, and `love.plot()`, including outut from `iptw()` in `twang`, `CBMSM()` from `CBPS`, and `weightitMSM()` from `WeightIt`.
 
+* Added a vignette to explain use with longitudinal treatments.
+
 * Edits to help files.
 
 * Added ability to change density options in `bal.plot`.
