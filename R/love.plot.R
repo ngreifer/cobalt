@@ -2,7 +2,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                       abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
                       drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
                       colors = NULL, shapes = NULL, line = FALSE, ...) {
-    b <- x
+    b <- x; rm(x)
     if (!"bal.tab" %in% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
     else stat <- match.arg(stat)
@@ -40,6 +40,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     cluster.names.good <- NULL
     imp.numbers.good <- NULL
     treat.names.good <- NULL; disp.treat.pairs <- NULL
+    time.names.good <- NULL
+    
     #NA = aggregate, NULL = individual
     null.cluster <- length(b$print.options$which.cluster) == 0
     na.cluster <- !null.cluster && is.na(b$print.options$which.cluster)
@@ -91,6 +93,9 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "time"
         }
         else if (config == "agg.time") {
+            if (length(b[["Balance.Across.Times"]]) == 0) {
+                stop("Cannot aggregate across time periods without a balance summary across time periods.\nThis may be because multinomial treatments were used, multiple treatment types were used,\n or quick was set to TRUE and msm.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
+            }
             #Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
