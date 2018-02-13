@@ -149,5 +149,4 @@ bal.tab(Match.out, treat ~ age + educ + race +
 ## Using treat and covs
 covariates <- subset(lalonde, select=-c(treat, re78))
 bal.tab(Match.out, treat = lalonde$treat, covs = covariates)
-
 }

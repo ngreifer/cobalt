@@ -15,6 +15,8 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE, fig.width=5)
+if (!requireNamespace("WeightIt") || 
+    !requireNamespace("twang")) knitr::opts_chunk$set(eval = FALSE)
 library("cobalt")
 ```
 
@@ -124,7 +126,7 @@ Note that `CBPS` estimates and assess balance on MSM weights differently than `t
 ##References
 Cole, S. R., & Hernan, M. Á. (2008). Constructing Inverse Probability Weights for Marginal Structural Models. American Journal of Epidemiology, 168(6), 656–664. https://doi.org/10.1093/aje/kwn164
 
-Robins, J. M., Hernán, M. Á., & Brumback, B. (2000). Marginal Structural Models and Causal Inference in Epidemiology. Epidemiology, 11(5), 550–560. https://doi.org/10.2307/3703997
+Robins, J. M., Hernán, M. Á., & Brumback, B. (2000). Marginal Structural Models and Causal Inference in Epidemiology. Epidemiology, 11(5), 550–560.
 
 Thoemmes, F., & Ong, A. D. (2016). A Primer on Inverse Probability of Treatment Weighting and Marginal Structural Models. Emerging Adulthood, 4(1), 40–59. https://doi.org/10.1177/2167696815621645
 

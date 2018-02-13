@@ -134,7 +134,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{
+\examples{\dontrun{
 library("ebal"); data("lalonde", package = "cobalt")
 
 covariates <- subset(lalonde, select = -c(re78, treat, race))
@@ -146,5 +146,4 @@ bal.tab(e.out, treat ~ age + educ + race +
 
 ## Using treat and covs
 bal.tab(e.out, treat = lalonde$treat, covs = covariates)
-
-}
+}}

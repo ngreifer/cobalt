@@ -70,6 +70,7 @@ Noah Greifer
 \code{\link[twang]{get.weights}} in \pkg{twang}.
 }
 \examples{
+\dontrun{
 data("lalonde", package = "cobalt")
 library("MatchIt"); library("WeightIt")
 
@@ -83,4 +84,5 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
                              weighted = get.w(w.out)),
         method = c("matching", "weighting"), 
         estimand = "ATT")
+}
 }

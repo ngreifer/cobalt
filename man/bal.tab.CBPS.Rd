@@ -35,6 +35,7 @@ Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package
     multi.summary = TRUE, 
     which.time = NULL,
     msm.summary = TRUE, 
+    s.weights = NULL,
     quick = FALSE, 
     ...)
 }
@@ -121,6 +122,9 @@ which time periods to display if longutdinal treatments are used. See \code{\lin
   \item{msm.summary}{
 \code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
 }
+  \item{s.weights}{
+Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data} or the CBPS object. If the original call to \code{CBPS()} included sampling weights, they should be specified again here to ensure correct computation of balance statistics and unadjusted values. See Details below.
+}
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
@@ -132,6 +136,8 @@ further arguments passed to or from other methods. They are ignored in this func
 \code{bal.tab.CBPS} generates a list of balance summaries for the \code{CBPS} object given, and functions similarly to \code{balance()} in \pkg{CBPS}.
 
 All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}), and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+
+The \code{CBPS} object does not return sampling weights even if they are used; rather, the weights returned already have the sampling weights combined within them. Because some of the checks and defaults in \code{bal.tab()} rely on patterns in these weights, using sampling weights in \code{CBPS()} without specifying them in \code{bal.tab()} can lead to incorrect results. If sampling weights are used in \code{CBPS()}, it is important that they are specified in \code{bal.tab()} as well. Unlike other uses of the \code{s.weights} argument in \code{bal.tab()}, which typically multiplies the provided balancing weights by the sampling weights, here the balancing weights are left alone because they already include the sampling weights. Note that this stands in contrast to \code{WeightIt} objects, which seperate balancing weights and sampling weights.
 
 }
 \value{
@@ -159,7 +165,7 @@ Noah Greifer
 \code{\link{bal.tab.multi}} for more information on multiple categorical treatments.
 \code{\link{bal.tab.msm}} for more information on longitudinal treatments.
 }
-\examples{
+\examples{\dontrun{
 library(CBPS); data("lalonde", package = "cobalt")
 
 ## Using CBPS() for generating covariate balancing 
@@ -167,5 +173,4 @@ library(CBPS); data("lalonde", package = "cobalt")
 cbps.out <- CBPS(treat ~ age + educ + married + race +
              nodegree + re74 + re75, data = lalonde)
 bal.tab(cbps.out)
-
-}
+}}

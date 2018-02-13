@@ -19,7 +19,7 @@ arguments passed to other methods. These arguments may be data-related, computat
 \details{
 \code{bal.tab()} performs various calculations on the the data objects given, and some of these calculations are not transparent on the help pages of the individual methods. This page details the calculations that are used across \code{bal.tab} methods.
 
-\strong{With Binary Point Treatments}
+\subsection{With Binary Point Treatments}{
 
 Prior to computation, all variables are checked for variable type, which allows users to differentiate balance statistic calculations based on type using the arguments to \code{continuous} and \code{binary}. First, if a given covariate is numeric and has only 2 levels, it is converted into a binary (0,1) variable. If 0 is a value in the original variable, it retains its value and the other value is converted to 1; otherwise, the lower value is converted to 0 and the other to 1. Next, if the covariate is not numeric or logical (i.e., is a character or factor variable), it will be split into new binary variables, named with the original variable and the value, seperated by an underscore. Otherwise, the covariate will be used as is and treated as a continuous variable.
 
@@ -33,27 +33,28 @@ Variance ratios are computed within-sample, with the larger of the two variances
 
 When matching is used for conditioning, the presented sample sizes are calculated simply by summing the number of observations in each group with matching weights greater than 0. When weighting is used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}, as is used in \pkg{twang}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being discarded.
 
-When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass},  the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See \code{\link{bal.tab.subclass}} for more details.
+When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass},  the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See \code{\link{bal.tab.subclass}} for more details.}
 
-\strong{With Continuous Point Treatments}
+\subsection{With Continuous Point Treatments}{
 
 When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The calculated correlation after adjustment is weighted by the generated weights.
-
-\strong{With Multinomial Point Treatments}
+}
+\subsection{With Multinomial Point Treatments}{
 
 For information on using \code{bal.tab()} with multiple categorical treatments, see \code{\link{bal.tab.multi}}. Essentially, \code{bal.tab()} compares pairs of treatment groups in a standard way.
-
-\strong{With Longitudinal Treatments}
+}
+\subsection{With Longitudinal Treatments}{
 
 For information on using \code{bal.tab()} with longitudinal treatments, see \code{\link{bal.tab.msm}}. Essentially, \code{bal.tab()} summarizes balance at each time point and summarizes across time points.
-
-\strong{With Clustered or Multiply Imputed Data}
+}
+\subsection{With Clustered or Multiply Imputed Data}{
 
 For information on using \code{bal.tab()} with clustered data, see \code{\link{bal.tab.cluster}}. For information on using \code{bal.tab()} with multiply imputed data, see \code{\link{bal.tab.imp}}. 
-
-\strong{Quick}
+}
+\subsection{Quick}{
 
 Calculations can take some time, especially when there are many variables, interactions, or clusters. One reason for this is that \code{bal.tab()} computes all values that it can, even if they are not requested by the user. For example, even if \code{un = FALSE}, which is the default, values for the unadjusted samples are still calculated. This can be useful if the output is to be further examined with \code{print()} or \code{love.plot()} or is to be used in some other way after the original call to \code{bal.tab()}. To avoid these extra calculations if they are not needed, users can set \code{quick = TRUE}, which will often quite dramatically speed up calculation and still display all statistics the user requests. For simple and quick model comparisons, it may be quite useful to do so, but for model reporting and graphical displays, it may be more useful to leave \code{quick = FALSE}, which is the default.
+}
 }
 \value{
 An object of class \code{"bal.tab"}. The use of continuous treatments, subclasses, clusters, and/or imputations will also cause the object to inherit other classes. The class \code{"bal.tab"} has its own \code{\link{print}} method (\code{\link{print.bal.tab}}), which formats the output nicely and in accordance with print-related options given in the call to \code{bal.tab()}, and which can be called with its own options. Each inherited class also has its own \code{print} method.

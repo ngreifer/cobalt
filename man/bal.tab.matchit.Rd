@@ -122,8 +122,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{
-library(MatchIt); data("lalonde", package = "cobalt")
+\examples{library(MatchIt); data("lalonde", package = "cobalt")
 
 ## Nearest Neighbor matching
 m.out1 <- matchit(treat ~ age + educ + race + 
@@ -137,5 +136,4 @@ m.out2 <- matchit(treat ~ age + educ + race +
                   married + nodegree + re74 + re75, 
                   data = lalonde, method = "subclass")
 bal.tab(m.out2, disp.subclass = TRUE)
-
 }

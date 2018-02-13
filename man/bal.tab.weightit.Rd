@@ -167,7 +167,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{
+\examples{\dontrun{
 library(WeightIt); data("lalonde", package = "cobalt")
 
 ## Basic propensity score weighting
@@ -183,4 +183,4 @@ w.out2 <- weightit(treat ~ age + educ + race +
                   data = lalonde, method = "entropy",
                   estimand = "ATE")
 bal.tab(w.out2)
-}
+}}

@@ -227,7 +227,6 @@ Noah Greifer
 }
 \examples{
 \dontrun{
-## Assuming x was generated with matchit(), ps(), or CBPS():
 b <- bal.tab(x, un = TRUE, v.threshold = 2)
 print(b, un = FALSE, disp.v.threshold = FALSE)
 }

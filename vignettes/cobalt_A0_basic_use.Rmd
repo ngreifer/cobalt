@@ -14,9 +14,11 @@ vignette: >
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE)
+if (!requireNamespace("WeightIt") || !requireNamespace("MatchIt") || 
+    !requireNamespace("twang")) knitr::opts_chunk$set(eval = FALSE)
 ```
 
-This is an introductory guide for the use of `cobalt` in most common scenarios. Two appendices are available for its use with more complicated data scenarios.
+This is an introductory guide for the use of `cobalt` in most common scenarios. Two appendices are available for its use with more complicated data scenarios.^[If none of the examples are working, this may be because `MatchIt`, `twang`, or `WeightIt` is missing. Such issues should be fixed soon.]
 
 # Introduction
 
@@ -84,7 +86,7 @@ There are unique features in `cobalt` that do not exist in any other package. Th
 There are three main functions for use in `cobalt`: `bal.tab()`, `bal.plot()`, and `love.plot()`. There are also several utility functions which can be used to ease the use of `cobalt` and other packages. The next sections describe how to use each, complete with example code and output. To start, install and load `cobalt` with the following code:
 
 ```{r, eval = 2}
-#install.packages("cobalt")
+install.packages("cobalt")
 library("cobalt")
 ```
 ###Utilities
@@ -250,6 +252,7 @@ W.out <- weightit(f.build("treat", covs0), data = lalonde,
 
 bal.tab(W.out)
 ```
+
 
 ## `bal.plot()`
 

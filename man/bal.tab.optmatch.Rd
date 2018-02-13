@@ -134,7 +134,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{
+\examples{\dontrun{
 library("optmatch"); data("lalonde", package = "cobalt")
 
 lalonde$prop.score <- glm(treat ~ age + educ + race + 
@@ -149,7 +149,4 @@ bal.tab(pm, treat ~ age + educ + race +
 ## Using treat and covs
 covariates <- subset(lalonde, select=-c(treat, re78, prop.score))
 bal.tab(pm, treat = lalonde$treat, covs = covariates)
-
-}
-\keyword{design}
-
+}}
