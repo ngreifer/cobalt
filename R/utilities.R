@@ -434,33 +434,39 @@ get.w.Match <- function(M,  ...) {
                      by="index")
     return(o.data2$weights)
 }
-get.w.CBPS <- function(c, estimand = NULL, ...) {
+get.w.CBPS <- function(c, estimand = NULL, use.weights = TRUE, ...) {
     estimand <- tolower(estimand)
     if ("CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
         return(c$weights)
     }
     else {
-        ps <- c$fitted.values
-        t <- c$y 
-        if (length(estimand) == 0) {
-            if (abs(max(c$weights[t == 1], na.rm = TRUE) - 
-                    min(c$weights[t == 1], na.rm = TRUE)) < 
-                sqrt(.Machine$double.eps)) {
-                estimand <- "att"
+        if (!use.weights) {
+            ps <- c$fitted.values
+            t <- c$y 
+            if (length(estimand) == 0) {
+                if (abs(max(c$weights[t == 1], na.rm = TRUE) - 
+                        min(c$weights[t == 1], na.rm = TRUE)) < 
+                    sqrt(.Machine$double.eps)) {
+                    estimand <- "att"
+                }
+                else estimand <- "ate"
             }
-            else estimand <- "ate"
+            
+            estimand <- match.arg(tolower(estimand), c("att", "atc", "ate"))
+            if (estimand == "att") {
+                return(ifelse(t == 1, 1, ps/(1-ps)))
+            }
+            if (estimand == "atc") {
+                return(ifelse(t == 1, (1-ps)/ps, 1))
+            }
+            else if (estimand == "ate") {
+                return(ifelse(t == 1, 1/ps, 1/(1-ps)))
+            }
+        }
+        else {
+            return(c$weights)
         }
         
-        estimand <- match.arg(tolower(estimand), c("att", "atc", "ate"))
-        if (estimand == "att") {
-            return(ifelse(t == 1, 1, ps/(1-ps)))
-        }
-        if (estimand == "atc") {
-            return(ifelse(t == 1, (1-ps)/ps, 1))
-        }
-        else if (estimand == "ate") {
-            return(ifelse(t == 1, 1/ps, 1/(1-ps)))
-        }
     }
 }
 get.w.npCBPS <- function(c, estimand = NULL, ...) {
