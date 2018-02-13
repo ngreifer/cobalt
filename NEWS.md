@@ -1,5 +1,12 @@
 cobalt News and Updates
 ======
+
+Version 3.2.1
+
+* Ensured conditional evaluation of certain functions to protect against missing packages. Some vignette items may not display if packages are (temporarily) unavailable.
+
+* Fixed issue with sampling weights in `CBPS` objects. Thanks to @kkranker.
+
 Version 3.2.0
 
 * Added support for longitudinal treatments in `bal.tab()`, `bal.plot()`, and `love.plot()`, including outut from `iptw()` in `twang`, `CBMSM()` from `CBPS`, and `weightitMSM()` from `WeightIt`.
@@ -12,7 +19,7 @@ Version 3.2.0
 
 * Added support for `imp` in `bal.tab()` for `weightit` objects.
 
-* Fixed bug when limited variables were present. (One found and fixed by sumtxt.)
+* Fixed bug when limited variables were present. (One found and fixed by @sumtxt.)
 
 * Fixed bug with multiple methods when weights were entered as a list.
 
