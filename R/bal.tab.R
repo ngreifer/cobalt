@@ -51,8 +51,6 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
         out <- vector("list", length(out.names))
         names(out) <- out.names
         
-        # out[["Cluster.Balance"]] <- vector("list", length(levels(cluster)))
-        # names(out[["Cluster.Balance"]]) <- levels(cluster)
         C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster)
         C.list <- setNames(lapply(levels(cluster), function(x) C[cluster == x, , drop = FALSE]), 
                            levels(cluster))
@@ -1227,7 +1225,7 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
     }
     return(out)
 }
-bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, quick = FALSE, ...) {
+bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, quick = FALSE, ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
@@ -1252,6 +1250,7 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                           distance.list = distance,
                           addl.list = addl,
                           cluster = cluster,
+                          s.weights = s.weights,
                           ...)
         out <- base.bal.tab.msm(weights=X$weights, 
                                 treat.list=X$treat.list, 
@@ -1290,7 +1289,8 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                          distance = distance,
                          addl = addl,
                          cluster = cluster, 
-                         use.weights = args$use.weights)
+                         use.weights = args$use.weights,
+                         s.weights = s.weights)
         if (any(class(cbps) == "CBPSContinuous")) {
             out <- base.bal.tab.cont(weights=X$weights, 
                                      treat = X$treat, 
@@ -1306,6 +1306,7 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                                      cluster = X$cluster, 
                                      which.cluster = which.cluster, 
                                      cluster.summary = cluster.summary, 
+                                     s.weights = X$s.weights,
                                      quick = quick)
         }
         else if (length(unique(X$treat)) > 2) {
@@ -1336,7 +1337,7 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                                       focal = X$focal, #NULL
                                       which.treat = which.treat,
                                       multi.summary = multi.summary,
-                                      s.weights = X$s.weights, #NULL
+                                      s.weights = X$s.weights,
                                       quick = quick)
         }
         else out <- base.bal.tab(weights=X$weights, 
@@ -1361,7 +1362,8 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                                  method="weighting", 
                                  cluster = X$cluster, 
                                  which.cluster = which.cluster, 
-                                 cluster.summary = cluster.summary, 
+                                 cluster.summary = cluster.summary,
+                                 s.weights = s.weights, 
                                  quick = quick)
     }
     return(out)

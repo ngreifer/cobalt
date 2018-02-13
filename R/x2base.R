@@ -1048,9 +1048,28 @@ x2base.CBPS <- function(cbps.fit, ...) {
     treat <- cbps.fit$y
     covs <- cbps.fit$data[!is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
     data <- A$data
+    s.weights <- A$s.weights
     weights <- data.frame(weights = get.w(cbps.fit, 
                                           use.weights = ifelse(length(A$use.weights) == 0, TRUE,
                                                                A$use.weights)))
+    #Process sampling weights
+    if (length(s.weights) > 0) {
+        if (!(is.character(s.weights) && length(s.weights) == 1) && !is.numeric(s.weights)) {
+            stop("The argument to s.weights must be a vector or data frame of sampling weights or the (quoted) names of variables in data that contain sampling weights.", call. = FALSE)
+        }
+        if (is.character(s.weights) && length(s.weights)==1) {
+            if (any(names(data) == s.weights)) {
+                s.weights <- data[[s.weights]]
+            }
+            else if (any(names(c.data) == s.weights)) {
+                s.weights <- data[[c.weights]]
+            }
+            else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
+        }
+    }
+    else s.weights <- rep(1, length(treat))
+    
+    weights <- weights/s.weights #Because CBPS weights contain s.weights in them
     
     if (!(any(class(cbps.fit) == "CBPSContinuous") || nunique(treat) > 2)) {
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
@@ -1119,7 +1138,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     }
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster")
+    vectors <- c("cluster", "s.weights")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
@@ -1145,6 +1164,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     X$covs <- covs
     X$cluster <- factor(cluster)
     X$call <- cbps.fit$call
+    X$s.weights <- s.weights
     
     return(X)
 }
