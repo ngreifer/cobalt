@@ -390,7 +390,7 @@ data("lalonde", package = "cobalt")
 library("WeightIt")
 cov.mn <- subset(lalonde, select = -c(treat, re78, race))
 
-#Using CBPS to generate weights
+#Using WeightIt to generate weights
 W.out.mn <- weightit(f.build("race", cov.mn), data = lalonde,
                      method = "ps")
 ```

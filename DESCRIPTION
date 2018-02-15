@@ -14,8 +14,6 @@ Suggests:
     twang,
     Matching,
     optmatch,
-    CBPS,
-    WeightIt (>= 0.3.0),
     ebal,
     mice,
     knitr,
