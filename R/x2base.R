@@ -1049,9 +1049,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     covs <- cbps.fit$data[!is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
     data <- A$data
     s.weights <- A$s.weights
-    weights <- data.frame(weights = get.w(cbps.fit, 
-                                          use.weights = ifelse(length(A$use.weights) == 0, TRUE,
-                                                               A$use.weights)))
+    weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights))
     #Process sampling weights
     if (length(s.weights) > 0) {
         if (!(is.character(s.weights) && length(s.weights) == 1) && !is.numeric(s.weights)) {
@@ -1062,7 +1060,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                 s.weights <- data[[s.weights]]
             }
             else if (any(names(c.data) == s.weights)) {
-                s.weights <- data[[c.weights]]
+                s.weights <- data[[s.weights]]
             }
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }

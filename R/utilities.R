@@ -434,8 +434,13 @@ get.w.Match <- function(M,  ...) {
                      by="index")
     return(o.data2$weights)
 }
-get.w.CBPS <- function(c, estimand = NULL, use.weights = TRUE, ...) {
+get.w.CBPS <- function(c, estimand = NULL, ...) {
+    A <- list(...)
+    if (length(A$use.weights) == 0) use.weights <- TRUE
+    else use.weights <- A$use.weights
+    
     estimand <- tolower(estimand)
+    
     if ("CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
         return(c$weights)
     }
