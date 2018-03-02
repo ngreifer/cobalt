@@ -137,7 +137,7 @@ further arguments passed to or from other methods. They are ignored in this func
 
 All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}), and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
-The \code{CBPS} object does not return sampling weights even if they are used; rather, the weights returned already have the sampling weights combined within them. Because some of the checks and defaults in \code{bal.tab()} rely on patterns in these weights, using sampling weights in \code{CBPS()} without specifying them in \code{bal.tab()} can lead to incorrect results. If sampling weights are used in \code{CBPS()}, it is important that they are specified in \code{bal.tab()} as well. Unlike other uses of the \code{s.weights} argument in \code{bal.tab()}, which typically multiplies the provided balancing weights by the sampling weights, here the balancing weights are left alone because they already include the sampling weights. Note that this stands in contrast to \code{WeightIt} objects, which seperate balancing weights and sampling weights.
+The \code{CBPS} object does not return sampling weights even if they are used; rather, the weights returned already have the sampling weights combined within them. Because some of the checks and defaults in \code{bal.tab()} rely on patterns in these weights, using sampling weights in \code{CBPS()} without specifying them in \code{bal.tab()} can lead to incorrect results. If sampling weights are used in \code{CBPS()}, it is important that they are specified in \code{bal.tab()} as well.
 
 }
 \value{
@@ -152,6 +152,7 @@ If multiple categorical treatments are used, an object of class \code{"bal.tab.m
 If \code{CBPS()} is used with multiple categorical treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
 If \code{CBMSM()} is used for longitudinal treatments, an object of class \code{"bal.tab.msm"} containing balance summaries for each time period and a summary of balance across tme periods. See \code{\link{bal.tab.msm}} for details.
+
 }
 
 \author{

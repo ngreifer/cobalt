@@ -135,7 +135,7 @@ Ignored.
 }
 }
 \details{
-\code{bal.tab.list()} generates a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the \code{\link[WeightIt]{weightitMSM}} documentation for an example of how to transform long data into wide data using \code{\link{reshape}}. 
+\code{bal.tab.list()} generates a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the \code{weightitMSM} documentation for an example of how to transform long data into wide data using \code{\link{reshape}}. 
 
 All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}.  The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold.  Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.  When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 
