@@ -326,6 +326,15 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     single.value <- apply(C, 2, function(x) abs(max(x, na.rm = TRUE) - min(x, na.rm = TRUE)) < sqrt(.Machine$double.eps))
     C <- C[, !single.value, drop = FALSE]
     
+    #Process int
+    if (!is.finite(int)  || length(int) != 1L || !(is.logical(int) || is.numeric(int))) {
+        stop("int must be TRUE, FALSE, or a numeric value of length 1.", call. = FALSE)
+    }
+    int <- as.integer(round(int))
+    if (int < 0) {
+        stop("int must be TRUE, FALSE, or a numeric (integer) value greater than 1.", call. = FALSE)
+    }
+    
     if (int) {
         #Prevent duplicate var names with _'s
         nunder <- ncarrot <- 1
@@ -338,7 +347,9 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         #     if (all(sapply(names(C), function(x) !x %in% paste0(names(C), paste0(replicate(nunder, "_"), collapse = ""), "2")))) break
         #     else ncarrot <- ncarrot + 1
         # }
-        C <- cbind(C, int.poly.f(C, int = TRUE, poly = 2, nunder = nunder, ncarrot = ncarrot))
+        if (as.numeric(int) %in% c(1, 2)) poly <- 2
+        else poly <- int
+        C <- cbind(C, int.poly.f(C, int = TRUE, poly = poly, nunder = nunder, ncarrot = ncarrot))
     }
     #Remove duplicate & redundant variables
     #If many rows, select subset to test redundancy
