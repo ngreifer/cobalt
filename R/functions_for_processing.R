@@ -350,6 +350,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         if (as.numeric(int) %in% c(1, 2)) poly <- 2
         else poly <- int
         C <- cbind(C, int.poly.f(C, int = TRUE, poly = poly, nunder = nunder, ncarrot = ncarrot))
+
     }
     #Remove duplicate & redundant variables
     #If many rows, select subset to test redundancy
