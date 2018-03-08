@@ -255,7 +255,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     #poly=degree of polynomials to include; will also include all below poly. If 1, no polynomial will be included
     #nunder=number of underscores between variables
     
-    if (length(ex) > 0) d <- mat[, !colnames(mat) %in% colnames(ex)]
+    if (length(ex) > 0) d <- mat[, !colnames(mat) %in% colnames(ex), drop = FALSE]
     else d <- mat
     nd <- ncol(d)
     nrd <- nrow(d)
@@ -266,7 +266,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     new.names <- character(nc)
     if (poly > 1 && npol != 0) {
         for (i in 2:poly) {
-            new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly], 2, function(x) x^i)
+            new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
             new.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], paste0(replicate(ncarrot, "_"), collapse = ""), i)
         }
     }
@@ -278,7 +278,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     single.value <- apply(new, 2, function(x) abs(max(x) - min(x)) < sqrt(.Machine$double.eps))
     colnames(new) <- new.names
     #new <- setNames(data.frame(new), new.names)[!single.value]
-    return(new[, !single.value])
+    return(new[, !single.value, drop = FALSE])
 }
 binarize <- function(variable) {
     if (length(unique(variable)) > 2) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
