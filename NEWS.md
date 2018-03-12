@@ -7,7 +7,15 @@ Version 3.2.2
 
 * Fixed a bug when using `bal.tab()` with `twang` objects that contained missing covariate values.
 
+* Fixed a bug when using `int = TRUE` in `bal.tab()` with few covariates.
+
+* Fixed a bug when variable names had special characters.
+
+* Added ablity to check higher order polynomials by setting `int` to a number.
+
 * Changed behavior of `bal.tab()` with multinomial treatments and `s.d.denom = "pooled"` to use the pooled standard deviation from the entire sample, not just the paired treatments.
+
+* Restored some vignettes that required `WeightIt`.
 
 Version 3.2.1
 
