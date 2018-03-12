@@ -261,7 +261,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     nrd <- nrow(d)
     no.poly <- apply(d, 2, function(x) !nunique.gt(x, 2))
     npol <- nd - sum(no.poly)
-    new <- matrix(ncol = (poly-1)*npol + .5*(nd)*(nd-1), nrow = nrd)
+    new <- matrix(0, ncol = (poly-1)*npol + int*(.5*(nd)*(nd-1)), nrow = nrd)
     nc <- ncol(new)
     new.names <- character(nc)
     if (poly > 1 && npol != 0) {
