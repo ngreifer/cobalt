@@ -105,7 +105,8 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         
         skip <- FALSE
         if (nlevels(x) > 1) {
-            k <- model.matrix(as.formula(paste0("~", v, "- 1")), data = data)
+            k <- model.matrix(as.formula(paste0("~`", v, "`- 1")), data = data)
+            colnames(k) <- gsub("`", colnames(k), replacement = "")
             
             if (any(is.na(levels(x)))) {
                 
