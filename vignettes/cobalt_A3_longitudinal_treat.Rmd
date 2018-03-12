@@ -15,8 +15,6 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE, fig.width=5)
-#WeightIt unavailable
-knitr::opts_chunk$set(eval = FALSE)
 ```
 
 This is an introduction to the use of `cobalt` with longitudinal treatments. These occur when there are multiple treatment periods spaced over time, with the potential for time-dependant confounding to occur. A common way to estimate treatment effects in these scenarios is to use marginal structural models (MSM), weighted by balancing weights. The goal of applying weights is to simulate a sequential randomization design, where the probability of being assigned to treatment at each time point is independent of each unit's prior covariate and treatment history. For introduction to MSMs in general, see Thoemmes & Ong (2016), VanderWeele, Jackson, & Li (2016), Cole & Hernán (2008), or Robins, Hernán, & Brumback (2000). The key issue addresed by this guide and `cobalt` in general is assessing balance before each treatment period to ensure the removal of confounding.

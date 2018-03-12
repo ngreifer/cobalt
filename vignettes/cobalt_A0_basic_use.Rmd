@@ -14,8 +14,6 @@ vignette: >
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE)
-#WeightIt unavailable:
-knitr::opts_chunk$set(eval = FALSE)
 ```
 
 This is an introductory guide for the use of `cobalt` in most common scenarios. Two appendices are available for its use with more complicated data scenarios.^[If none of the examples are working, this may be because `MatchIt`, `twang`, or `WeightIt` is missing. Such issues should be fixed soon.]
