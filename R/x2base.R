@@ -538,13 +538,13 @@ x2base.data.frame <- function(covs, ...) {
         stop("covs dataframe must be specified.", call. = FALSE)
     }
     if (!is.data.frame(covs)) {
-        stop("covs must be a dataframe.", call. = FALSE)
+        stop("covs must be a data.frame.", call. = FALSE)
     }
     if (any(is.na(covs))) {
         stop("Missing values exist in the covariates.", call. = FALSE)
     }
     if (length(data) > 0 && !is.data.frame(data)) {
-        warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execuction will halt.")
+        warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
         data <- NULL
     }
     # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
