@@ -1367,7 +1367,7 @@ x2base.weightit <- function(weightit, ...) {
                                         return(new.s.d.denom)})
         }
         else {
-            X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
+            X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", "pooled")
         }
     }
     
