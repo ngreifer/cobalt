@@ -1,5 +1,12 @@
 cobalt News and Updates
 ======
+Version 3.2.3
+
+* Fixed a bug when displaying maximum imbalances with subclassification.
+
+* Fixed a bug where the unadjusted statistics were not displayed when using `love.plot()` with subclasses. (Thanks to Megha Joshi.)
+
+* Add the ability to display individual subclass balance using `love.plot()` with subclasses.
 
 Version 3.2.2
 
@@ -21,7 +28,7 @@ Version 3.2.1
 
 * Edits to vignettes and help files to respond to missing packages. Some vignette items may not display if packages are (temporarily) unavailable.
 
-* Fixed issue with sampling weights in `CBPS` objects. Thanks to @kkranker on Github.
+* Fixed issue with sampling weights in `CBPS` objects. (Thanks to @kkranker on Github.)
 
 * Added more support for sampling weights in `get.w()` and help files.
 
@@ -37,7 +44,7 @@ Version 3.2.0
 
 * Added support for `imp` in `bal.tab()` for `weightit` objects.
 
-* Fixed bug when limited variables were present. (One found and fixed by @sumtxt on Github.)
+* Fixed bugs when limited variables were present. (One found and fixed by @sumtxt on Github.)
 
 * Fixed bug with multiple methods when weights were entered as a list.
 
