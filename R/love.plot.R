@@ -18,7 +18,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     #limits
     #cluster.fun (deprecated)
     
-    p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time")
+    p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time", "disp.subclass")
     for (i in p.ops) {
         if (i %in% names(args)) b$print.options[[i]] <- args[[i]]
     }
@@ -41,6 +41,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     imp.numbers.good <- NULL
     treat.names.good <- NULL; disp.treat.pairs <- NULL
     time.names.good <- NULL
+    subclass.names <- NULL
     
     #NA = aggregate, NULL = individual
     null.cluster <- length(b$print.options$which.cluster) == 0
@@ -432,7 +433,15 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (which.stat=="V.Ratio") stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
         if (which.stat=="KS") stop("KS statistics not currently supported for subclassification.", call. = FALSE)
         if (any(class(b) == "bal.tab.cont")) stop("Continuous treatments not currently supported for subclassification.", call. = FALSE)
-        B <- cbind(b[["Balance.Across.Subclass"]], var.names = row.names(b[["Balance.Across.Subclass"]]))
+        subclass.names <- names(b[["Subclass.Balance"]])
+        sub.B <- do.call("cbind", lapply(subclass.names, function(x) {
+            sub <- b[["Subclass.Balance"]][[x]]
+            sub.B0 <- setNames(sub[endsWith(names(sub), ".Adj")],
+                               gsub(".Adj", paste0(".Subclass ", x), names(sub)[endsWith(names(sub), ".Adj")]))
+            return(sub.B0) }))
+        B <- cbind(b[["Balance.Across.Subclass"]], sub.B, var.names = row.names(b[["Balance.Across.Subclass"]]))
+        if (b$print.options$disp.subclass) b$print.options$weight.names <- c("Adj", paste("Subclass", subclass.names))
+        else b$print.options$weight.names <- "Adj"
         subtitle <- "Across Subclasses"
     }
     else {
@@ -627,19 +636,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
         }
         
-        # if (length(facet) > 0 && "cluster" %in% facet) {
-        #     SS$cluster <- rep(B[["cluster"]], 1 + b$print.options$nweights)
-        # }
-        # if (length(facet) > 0 && "imp" %in% facet) {
-        #     SS$imp <- rep(B[["imp"]], 1 + b$print.options$nweights)
-        # }
-        # if (length(facet) > 0 && "treat.pair" %in% facet) {
-        #     SS$treat.pair <- rep(B[["treat.pair"]], 1 + b$print.options$nweights)
-        # }
-        # if (length(facet) > 0 && "time" %in% facet) {
-        #     SS$time <- rep(B[["time"]], 1 + b$print.options$nweights)
-        # }
-        
         if (all(is.na(SS[["stat"]]))) stop("No balance statistics to display.", call. = FALSE)
         gone <- character(0)
         for (i in levels(SS$Sample)) {
@@ -712,7 +708,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     stroke <- .8*size
     
     #Color
-    ntypes <- nlevels(SS$Sample)
+    ntypes <- if (length(subclass.names) == 0) nlevels(SS$Sample) else 2
     if (length(args$colours) > 0) colors <- args$colours
     
     if (length(colors) == 0) {
@@ -872,13 +868,31 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             labs(title = title, y = "")
     }
     else {
-        if (line == TRUE) { #Add line except to distance
-            f <- function(x) {x[["stat"]][x$var %in% distance.names] <- NA; x}
-            lp <- lp + ggplot2::layer(geom = "path", data = f, position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+        
+        if (length(subclass.names) == 0 || !b$print.options$disp.subclass) {
+            if (line == TRUE) { #Add line except to distance
+                f <- function(x) {x[["stat"]][x$var %in% distance.names] <- NA; x}
+                lp <- lp + ggplot2::layer(geom = "path", data = f(SS), position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+            }
+            lp <- lp + geom_point(data = SS, aes(shape = Sample,
+                                                 color = Sample), 
+                                  size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE) 
         }
-        lp <- lp + geom_point(data = SS, aes(shape = Sample,
-                                             color = Sample), 
-                              size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE) 
+        else {
+            SS.u.a <- SS[SS$Sample %in% c("Unadjusted", "Adjusted"),]
+            SS.u.a$Sample <- factor(SS.u.a$Sample)
+            if (line == TRUE) { #Add line except to distance
+                f <- function(x) {x[["stat"]][x$var %in% distance.names] <- NA; x}
+                lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a), position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+            }
+            lp <- lp + geom_point(data = SS.u.a, 
+                                  aes(shape = Sample, color = Sample), 
+                                  size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE) 
+            lp <- lp + geom_text(data = SS[!SS$Sample %in% c("Unadjusted", "Adjusted"),], 
+                                 aes(label = gsub("Subclass ", "", Sample)), 
+                                 size = 2*size, na.rm = TRUE) 
+        }
+        
         
     }
 
