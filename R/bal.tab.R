@@ -613,7 +613,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         out <- vector("list", length(out.names))
         names(out) <- out.names
         
-        if (s.d.denom == "pooled") {
+        if (any(s.d.denom == "pooled")) {
             C <- get.C(covs = covs, int = int, addl = addl, distance = distance)
             pooled.sds <- rowMeans(sapply(levels(treat), function(t) sqrt(col.w.v(C[treat == t, , drop = FALSE], 
                                                            s.weights[treat == t]))))
@@ -1542,7 +1542,13 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
     }
     else {
         #Initializing variables
-        X <- x2base.weightit(weightit, data = data, distance = distance, addl = addl, cluster = cluster, imp = imp)
+        X <- x2base.weightit(weightit, 
+                             data = data, 
+                             s.d.denom = s.d.denom,
+                             distance = distance, 
+                             addl = addl, 
+                             cluster = cluster, 
+                             imp = imp)
         
         if (length(X$imp) > 0) {
             out <- base.bal.tab.imp(weights=X$weights, 
