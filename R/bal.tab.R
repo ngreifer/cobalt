@@ -615,8 +615,8 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         
         if (any(s.d.denom == "pooled")) {
             C <- get.C(covs = covs, int = int, addl = addl, distance = distance)
-            pooled.sds <- rowMeans(sapply(levels(treat), function(t) sqrt(col.w.v(C[treat == t, , drop = FALSE], 
-                                                           s.weights[treat == t]))))
+            pooled.sds <- rowMeans(do.call("cbind", lapply(levels(treat), function(t) sqrt(col.w.v(C[treat == t, , drop = FALSE], 
+                                                                                                   s.weights[treat == t])))))
             #pooled.sds <- sqrt(col.w.v(C, s.weights)) #How twang does it
         }
         else pooled.sds <- NULL
