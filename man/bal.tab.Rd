@@ -55,6 +55,10 @@ For information on using \code{bal.tab()} with clustered data, see \code{\link{b
 
 Calculations can take some time, especially when there are many variables, interactions, or clusters. One reason for this is that \code{bal.tab()} computes all values that it can, even if they are not requested by the user. For example, even if \code{un = FALSE}, which is the default, values for the unadjusted samples are still calculated. This can be useful if the output is to be further examined with \code{print()} or \code{love.plot()} or is to be used in some other way after the original call to \code{bal.tab()}. To avoid these extra calculations if they are not needed, users can set \code{quick = TRUE}, which will often quite dramatically speed up calculation and still display all statistics the user requests. For simple and quick model comparisons, it may be quite useful to do so, but for model reporting and graphical displays, it may be more useful to leave \code{quick = FALSE}, which is the default.
 }
+\subsection{Missing Data}{
+
+If there is missing data in the covariates (i.e., \code{NA}s in the covariates provided to \code{bal.tab()}), a few additional things happen. A warning will appear mentioning that missing values were present in the data set. The computed balance summaries will be for the variables ignoring the missing values. New variables will be created representing missingness indicators for each variable, named \code{var:<NA>} (with \code{var} replaced by the actual name of the variable). If \code{int = TRUE}, balance for the pairwise interactions between the missingness indicators will also be computed. These variables are treated like regular variables once created.
+}
 }
 \value{
 An object of class \code{"bal.tab"}. The use of continuous treatments, subclasses, clusters, and/or imputations will also cause the object to inherit other classes. The class \code{"bal.tab"} has its own \code{\link{print}} method (\code{\link{print.bal.tab}}), which formats the output nicely and in accordance with print-related options given in the call to \code{bal.tab()}, and which can be called with its own options. Each inherited class also has its own \code{print} method.
@@ -98,7 +102,7 @@ For \code{bal.tab} output with subclassification, see \code{\link{bal.tab.subcla
 \references{
 Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R vignette. RAND.
 
-Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1-21. http://doi.org/10.1214/09-STS313
+Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1-21. \doi{10.1214/09-STS313}
 }
 \author{
 Noah Greifer 
