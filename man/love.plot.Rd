@@ -73,7 +73,7 @@ Options for display of the plot. The following arguments are currently accepted:
     \item{\code{which.cluster}}{which clusters to display. Overrides the \code{which.cluster} option in the original \code{bal.tab} object.}
     \item{\code{which.imp}}{which imputations to display. Overrides the \code{which.imp} option in the original \code{bal.tab} object.}
     \item{\code{which.treat}}{which treatment groups to display. Overrides the \code{which.treat} option in the original \code{bal.tab} object.}
-
+    \item{\code{disp.subclass}}{whether to display individual subclasses. Overrides the \code{disp.subclass} option in the original \code{bal.tab} object.}
   }
 }
 }
@@ -85,6 +85,8 @@ The default in \code{love.plot()} is to present variables as they are named in t
 There are several ways to specify alternate names for presentation in the displayed plot using the \code{var.names} argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the \code{names} of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from \code{bal.tab()} is not provided in the list of old variable names, \code{love.plot()} will use the original old variable name.
 
 \code{love.plot()} can be used with clusters, imuputations, or both as well. The cluster or imputation arguments must be specified in the call to \code{bal.tab()}. Several types of plots can be requested: a plot aggregating over all imputations across all clusters, a plot displaying individual clusters aggregating over imputations (if any), a plot displaying individual imputations across clusters, or a plot displaying individual clusters within one imputation (if any) or individual imputations for one cluster. The choice of these displays is controlled by the arguments to \code{which.cluster} and \code{which.imp}. If either of them are \code{NA}, the plot will aggregate over that collection. If either are individual values, the plot will display the values for those specific clusters or imputations. If either of them are \code{NULL}, the plot will display the values for all clusters or imputations. If both clusters and imputations are specified, at least one of \code{which.cluster} or \code{which.imp} must be a single value, or \code{NA}. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, median, or maximum ("max") balance statistic or range ("range") of balance statistics for each covariate should be presented in the plot. In order to use "range", \code{quick} in \code{bal.tab()} must be set to \code{FALSE}, because setting it to \code{TRUE} suppresses calculation of non-displayed values, and the minimum statistic across clusters or imputations, required for displaying the range, is not normally displayed.
+
+With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If \code{disp.subclass} is \code{TRUE}, each subclass will be displayed additionally as a number on the plot. 
 }
 \value{
 A \code{"ggplot"} object, returned invisbly.
