@@ -281,12 +281,14 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     return(new[, !single.value, drop = FALSE])
 }
 binarize <- function(variable) {
-    if (length(unique(variable)) > 2) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
+    nas <- is.na(variable)
+    if (nunique.gt(variable[!nas], 2)) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
     variable.numeric <- as.numeric(variable)
     if (!is.na(match(0, unique(variable.numeric)))) zero <- 0
     #else if (1 %in% unique(as.numeric(variable))) zero <- unique(as.numeric(variable))[unique(as.numeric(variable)) != 1]
-    else zero <- min(unique(variable.numeric))
-    newvar <- setNames(ifelse(variable.numeric==zero, 0, 1), names(variable))
+    else zero <- min(unique(variable.numeric), na.rm = TRUE)
+    newvar <- setNames(ifelse(!nas & variable.numeric==zero, 0, 1), names(variable))
+    newvar[nas] <- NA
     return(newvar)
 }
 get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL) {
@@ -308,25 +310,35 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         }
     } 
     
+    vars.w.missing <- data.frame(placed.after = names(C),
+                                 has.missing = FALSE, row.names = names(C),
+                                 stringsAsFactors = FALSE)
     for (i in names(C)) {
         if (is.character(C[[i]])) C[[i]] <- factor(C[[i]])
-        else if (!nunique.gt(C[[i]], 2)) {
+        else if (!nunique.gt(C[[i]][!is.na(C[[i]])], 2)) {
             if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
             else if (is.numeric(C[[i]])) C[[i]] <- binarize(C[[i]])
         }
         
-        if (nlevels(cluster) > 0 && qr(matrix(c(C[[i]], as.numeric(cluster)), ncol = 2))$rank == 1) C <- C[names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
-        else if (!is.numeric(C[[i]])) {
-            C <- splitfactor(C, i, replace = TRUE, sep = "_", drop.first = FALSE, 
-                             drop.singleton = FALSE)
+        if (nlevels(cluster) > 0 && qr(matrix(c(C[[i]], as.numeric(cluster)), ncol = 2))$rank == 1) {
+            C <- C[names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
+        }
+        else {
+            if (any(is.na(C[[i]]))) vars.w.missing[i, "has.missing"] <- TRUE
+            if (!is.numeric(C[[i]])) {
+                old.C.names <- names(C)
+                C <- splitfactor(C, i, replace = TRUE, sep = "_", drop.first = FALSE, 
+                                 drop.singleton = FALSE)
+                newly.added.names <- names(C)[!names(C) %in% old.C.names]
+                vars.w.missing[i, "placed.after"] <- newly.added.names[length(newly.added.names)]
+            }
         }
     }
-    
+    #Make sure categorical variable have missingness indicators done correctly
     C <- as.matrix(C)
     single.value <- apply(C, 2, function(x) abs(max(x, na.rm = TRUE) - min(x, na.rm = TRUE)) < sqrt(.Machine$double.eps))
     C <- C[, !single.value, drop = FALSE]
-    vars.w.missing <- colnames(C)[apply(C, 2, function(x) any(is.na(x)))]
-    
+
     #Process int
     if (!is.finite(int)  || length(int) != 1L || !(is.logical(int) || is.numeric(int))) {
         stop("int must be TRUE, FALSE, or a numeric value of length 1.", call. = FALSE)
@@ -366,25 +378,23 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     else suppressWarnings(C.cor <- cor(C, use = "pairwise.complete.obs"))
     
     s <- !lower.tri(C.cor, diag=TRUE) & (1 - abs(C.cor) < sqrt(.Machine$double.eps))
-    redundant.vars <- apply(s, 2, function(x) any(x))
+    redundant.vars <- apply(s, 2, any)
     C <- C[, !redundant.vars, drop = FALSE]        
-    #C<- as.matrix.data.frame(C)
-    
+
     #Add missingness indicators
-    vars.w.missing <- vars.w.missing[vars.w.missing %in% colnames(C)]
-    if (length(vars.w.missing) > 0) {
+    vars.w.missing <- vars.w.missing[vars.w.missing$placed.after %in% colnames(C) & vars.w.missing$has.missing, , drop = FALSE]
+    if (nrow(vars.w.missing) > 0) {
         original.var.order <- setNames(seq_len(ncol(C)), colnames(C))
-        new.var.order <- original.var.order + cumsum(c(0,(colnames(C) %in% vars.w.missing)[-ncol(C)]))
-        missing.ind <- apply(C[,vars.w.missing, drop = FALSE], 2, is.na)
-        colnames(missing.ind) <- paste0(vars.w.missing, ":<NA>")
-        new.C <- matrix(NA, nrow = nrow(C), ncol = ncol(C) + length(vars.w.missing),
-                        dimnames = list(rownames(C), seq_len(ncol(C) + length(vars.w.missing))))
+        new.var.order <- original.var.order + cumsum(c(0,(colnames(C) %in% vars.w.missing$placed.after)[-ncol(C)]))
+        missing.ind <- apply(C[,colnames(C) %in% vars.w.missing$placed.after, drop = FALSE], 2, function(x) as.numeric(is.na(x)))
+        colnames(missing.ind) <- paste0(rownames(vars.w.missing), ":<NA>")
+        new.C <- matrix(NA, nrow = nrow(C), ncol = ncol(C) + ncol(missing.ind),
+                        dimnames = list(rownames(C), seq_len(ncol(C) + ncol(missing.ind))))
         new.C[, new.var.order] <- C
         new.C[, -new.var.order] <- missing.ind
         colnames(new.C)[new.var.order] <- colnames(C)
         colnames(new.C)[-new.var.order] <- colnames(missing.ind)
         C <- new.C
-        
         if (int) {
             C <- cbind(C, int.poly.f(missing.ind, int = TRUE, poly = 1, nunder = 1, ncarrot = 1))
         }
@@ -402,14 +412,14 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
 get.types <- function(C) {
     sapply(colnames(C), function(x) {
         if (any(attr(C, "distance.names") == x)) "Distance"
-        else if (nunique.gt(C[,x], 2))  "Contin."
+        else if (nunique.gt(C[!is.na(C[,x]),x], 2))  "Contin."
         else "Binary"
     })
 }
 
 #base.bal.tab
 w.m <- function(x, w = NULL, na.rm = TRUE) {
-    if (length(w) == 0) w <- rep(1, length(x))
+    if (length(w) == 0) w <- as.numeric(!is.na(x))
     return(sum(x*w, na.rm=na.rm)/sum(w, na.rm=na.rm))
 }
 col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
@@ -494,7 +504,8 @@ col.ks <- function(mat, treat, weights, x.types, no.weights = FALSE) {
     weights[treat == 1] <- weights[treat==1]/sum(weights[treat==1])
     weights[treat == 0] <- -weights[treat==0]/sum(weights[treat==0])
     non.binary <- x.types != "Binary"
-    ks[non.binary] <- apply(mat[, non.binary, drop = FALSE], 2, function(x) {
+    ks[non.binary] <- apply(mat[, non.binary, drop = FALSE], 2, function(x_) {
+        x <- x_[!is.na(x_)]
         ordered.index <- order(x)
         cumv <- abs(cumsum(weights[ordered.index]))[diff(x[ordered.index]) != 0]
         return(if (length(cumv) > 0) max(cumv) else 0)
@@ -506,7 +517,7 @@ col.var.ratio <- function(mat, treat, weights, x.types, no.weights = FALSE) {
     ratios <- rep(NA, ncol(mat))
     non.binary <- x.types != "Binary"
     ratios[non.binary] <- col.w.v(mat[treat == 1, non.binary, drop = FALSE], w = weights[treat == 1]) / col.w.v(mat[treat == 0, non.binary, drop = FALSE], w = weights[treat == 0])
-    return(apply(matrix(c(ratios, 1/ratios), byrow = T, nrow = 2), 2, max))
+    return(pmax(ratios, 1/ratios))
 }
 baltal <- function(threshold) {
     #threshold: vector of threshold values (i.e., "Balanced"/"Not Balanced")
