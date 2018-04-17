@@ -275,7 +275,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
         new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse=paste0(replicate(nunder, "_"), collapse = ""))
     }
     
-    single.value <- apply(new, 2, function(x) abs(max(x) - min(x)) < sqrt(.Machine$double.eps))
+    single.value <- apply(new, 2, function(x) all(is.na(x)) || abs(max(x, na.rm = TRUE) - min(x, na.rm = TRUE)) < sqrt(.Machine$double.eps))
     colnames(new) <- new.names
     #new <- setNames(data.frame(new), new.names)[!single.value]
     return(new[, !single.value, drop = FALSE])
@@ -325,6 +325,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     C <- as.matrix(C)
     single.value <- apply(C, 2, function(x) abs(max(x, na.rm = TRUE) - min(x, na.rm = TRUE)) < sqrt(.Machine$double.eps))
     C <- C[, !single.value, drop = FALSE]
+    vars.w.missing <- colnames(C)[apply(C, 2, function(x) any(is.na(x)))]
     
     #Process int
     if (!is.finite(int)  || length(int) != 1L || !(is.logical(int) || is.numeric(int))) {
@@ -369,9 +370,27 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     C <- C[, !redundant.vars, drop = FALSE]        
     #C<- as.matrix.data.frame(C)
     
+    #Add missingness indicators
+    vars.w.missing <- vars.w.missing[vars.w.missing %in% colnames(C)]
+    if (length(vars.w.missing) > 0) {
+        original.var.order <- setNames(seq_len(ncol(C)), colnames(C))
+        new.var.order <- original.var.order + cumsum(c(0,(colnames(C) %in% vars.w.missing)[-ncol(C)]))
+        missing.ind <- apply(C[,vars.w.missing, drop = FALSE], 2, is.na)
+        colnames(missing.ind) <- paste0(vars.w.missing, ":<NA>")
+        new.C <- matrix(NA, nrow = nrow(C), ncol = ncol(C) + length(vars.w.missing),
+                        dimnames = list(rownames(C), seq_len(ncol(C) + length(vars.w.missing))))
+        new.C[, new.var.order] <- C
+        new.C[, -new.var.order] <- missing.ind
+        colnames(new.C)[new.var.order] <- colnames(C)
+        colnames(new.C)[-new.var.order] <- colnames(missing.ind)
+        C <- new.C
+        
+        if (int) {
+            C <- cbind(C, int.poly.f(missing.ind, int = TRUE, poly = 1, nunder = 1, ncarrot = 1))
+        }
+    }
+    
     if (length(distance) > 0) {
-        #distance <- data.frame(.distance = distance)
-        #while (names(distance) %in% names(C)) {names(distance) <- paste0(names(distance), "_")}
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
         C <- cbind(distance, C, row.names = NULL)
         attr(C, "distance.names") <- names(distance)
@@ -396,10 +415,10 @@ w.m <- function(x, w = NULL, na.rm = TRUE) {
 col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
     if (length(w) == 0) {
         w <- 1
-        w.sum <- nrow(mat)
+        w.sum <- apply(mat, 2, function(x) sum(!is.na(x)))
     }
     else {
-        w.sum <- sum(w, na.rm = na.rm)
+        w.sum <- apply(mat, 2, function(x) sum(w[!is.na(x)], na.rm = na.rm))
     }
     return(colSums(mat*w, na.rm = na.rm)/w.sum)
 }
@@ -653,11 +672,6 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     #B=Balance frame
     Bnames <- c("Type", 
-                # "M.0.Un", 
-                # "M.1.Un", 
-                # "Diff.Un", 
-                # "V.Ratio.Un",  
-                # "KS.Un",
                 apply(expand.grid(c("M.0", "M.1", "Diff", "M.Threshold", "V.Ratio", "V.Threshold", "KS", "KS.Threshold"),
                                   c("Un", weight.names)), 1, paste, collapse = "."))
     B <- as.data.frame(matrix(nrow = ncol(C), ncol = length(Bnames)))
@@ -669,15 +683,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     else B[,"Type"] <- get.types(C)
     
     if (!((!un || !disp.means) && quick)) {
-        # B[,"M.0.Un"] <- apply(C[treat==0, , drop = FALSE], 2, w.m, w = s.weights[treat==0])
-        # B[,"M.1.Un"] <- apply(C[treat==1, , drop = FALSE], 2, w.m, w = s.weights[treat==1])
         B[,"M.0.Un"] <- col.w.m(C[treat == 0, , drop = FALSE], w = s.weights[treat==0])
         B[,"M.1.Un"] <- col.w.m(C[treat == 1, , drop = FALSE], w = s.weights[treat==1])
     }
     if (!no.adj && !(!disp.means && quick)) {
         for (i in weight.names) {
-            # B[[paste0("M.0.", i)]] <- apply(C[treat==0, , drop = FALSE], 2, w.m, w = weights[[i]][treat==0]*s.weights[treat==0])
-            # B[[paste0("M.1.", i)]] <- apply(C[treat==1, , drop = FALSE], 2, w.m, w = weights[[i]][treat==1]*s.weights[treat==1])
             B[[paste0("M.0.", i)]] <- col.w.m(C[treat == 0, , drop = FALSE], w = weights[[i]][treat==0]*s.weights[treat==0])
             B[[paste0("M.1.", i)]] <- col.w.m(C[treat == 1, , drop = FALSE], w = weights[[i]][treat==1]*s.weights[treat==1])
         }
@@ -685,24 +695,18 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     }
     
     #Mean differences
-    #if (!(!un && quick)) B[["Diff.Un"]] <- sapply(seq_along(varnames), function(i) diff.selector(x=C[,varnames[i]], treat=treat, weights=NULL, x.type=B[["Type"]][i], continuous=continuous, binary=binary, s.d.denom=s.d.denom[1], no.weights = TRUE, s.weights = s.weights))
-    #if (!(!un && quick)) B[["Diff.Un"]] <- col.diff.selector(C, treat = treat, weights = NULL, x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[1], no.weights = TRUE, s.weights = s.weights)
     if (!(!un && quick)) B[["Diff.Un"]] <- col.std.diff(C, treat = treat, weights = NULL, x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[1], no.weights = TRUE, s.weights = s.weights, pooled.sds = pooled.sds)
     if (!no.adj) {
         for (j in seq_len(ncol(weights))) {
-            #B[[paste0("Diff.", weight.names[j])]] <- sapply(seq_along(varnames), function(i) diff.selector(x=C[,varnames[i]], treat=treat, weights=weights[[j]], x.type=B[["Type"]][i], continuous=continuous, binary=binary, s.d.denom=s.d.denom[j], s.weights = s.weights))
-            #B[[paste0("Diff.", weight.names[j])]] <- col.diff.selector(C, treat = treat, weights = weights[[j]], x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[j], s.weights = s.weights)
             B[[paste0("Diff.", weight.names[j])]] <- col.std.diff(C, treat = treat, weights = weights[[j]], x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[j], s.weights = s.weights, pooled.sds = pooled.sds)
         }
     }
     
     #Variance ratios
     if (!(!disp.v.ratio && quick)) {
-        # if (!(!un && quick)) B[["V.Ratio.Un"]] <- sapply(seq_along(varnames), function(i) var.ratio(C[,varnames[i]], treat, s.weights, B[["Type"]][i], no.weights = FALSE))
         if (!(!un && quick)) B[["V.Ratio.Un"]] <- col.var.ratio(C, treat, s.weights, B[["Type"]], no.weights = FALSE)
         if (!no.adj) {
             for (j in seq_len(ncol(weights))) {
-                # B[[paste0("V.Ratio.", weight.names[j])]] <- sapply(seq_along(varnames), function(i) var.ratio(C[,varnames[i]], treat, weights[[j]]*s.weights, B[["Type"]][i]))
                 B[[paste0("V.Ratio.", weight.names[j])]] <- col.var.ratio(C, treat, weights[[j]]*s.weights, B[["Type"]], no.weights = FALSE)
             }
         }
@@ -711,11 +715,9 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     #KS Statistics
     if (!(!disp.ks && quick)) {
-        #if (!(!un && quick)) B[["KS.Un"]] <- sapply(seq_along(varnames), function(i) ks(C[,varnames[i]], treat, s.weights, B[["Type"]][i], no.weights = TRUE))
         if (!(!un && quick)) B[["KS.Un"]] <- col.ks(C, treat, s.weights, B[["Type"]], no.weights = FALSE)
         if (!no.adj) {
             for (j in seq_len(ncol(weights))) {
-                #B[[paste0("KS.", weight.names[j])]] <- sapply(seq_along(varnames), function(i) ks(C[,varnames[i]], treat, weights[[j]]*s.weights, B[["Type"]][i]))
                 B[[paste0("KS.", weight.names[j])]] <- col.ks(C, treat, weights[[j]]*s.weights, B[["Type"]], no.weights = FALSE)
             }
         }
