@@ -541,7 +541,7 @@ x2base.data.frame <- function(covs, ...) {
         stop("covs must be a data.frame.", call. = FALSE)
     }
     if (any(is.na(covs))) {
-        stop("Missing values exist in the covariates.", call. = FALSE)
+        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     if (length(data) > 0 && !is.data.frame(data)) {
         warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
@@ -1380,6 +1380,10 @@ x2base.weightit <- function(weightit, ...) {
     
     weightit.data <- weightit$data
     
+    if (any(is.na(covs))) {
+        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+    }
+    
     #Process cluster
     cluster <- A$cluster
     if (length(cluster) > 0 && !is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
@@ -1703,13 +1707,11 @@ X2base.data.frame.list <- function(covs.list, ...) {
     if (!is.list(covs.list)) {
         stop("covs.list must be a list of covariates for which balanced is to be assessed at each time point.", call. = FALSE)
     }
-    for (ti in seq_along(covs.list)) {
-        if (!is.data.frame(covs.list[[ti]])) {
-            stop("Each item in covs.list must be a data frame.", call. = FALSE)
-        }
-        if (sum(is.na(covs.list[[ti]])) > 0) {
-            stop("Missing values exist in the covariates in covs.list.", call. = FALSE)
-        }
+    if (any(!sapply(covs.list, function(x) is.data.frame(x)))) {
+        stop("Each item in covs.list must be a data frame.", call. = FALSE)
+    }
+    if (any(sapply(covs.list, function(x) any(is.na(x))))) {
+        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
     if (length(data) > 0 && !is.data.frame(data)) {
@@ -2094,6 +2096,10 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     ntimes <- length(treat.list)
     
     weightitMSM.data <- weightitMSM$data
+    
+    if (any(sapply(covs.list, function(x) any(is.na(x))))) {
+        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+    }
     
     #Order covs.list
     all.covs <- unique(unlist(lapply(covs.list, names)))
