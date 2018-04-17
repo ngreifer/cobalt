@@ -15,8 +15,6 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE)
-#CBPS unavailable
-knitr::opts_chunk$set(eval = FALSE)
 library("cobalt")
 ```
 
