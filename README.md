@@ -1,22 +1,69 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-cobalt
-======
 
-Welcome to `cobalt`, which stands for **Co**variate **Bal**ance **T**ables (and Plots). `cobalt` allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. `cobalt`'s primary function is `bal.tab()`, which stands for "balance table", and essentially replaces (or supplements) the balance assessment tools found in the R packages `twang`, `MatchIt`, `CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these packages and others, see the help file for `bal.tab()` with `?bal.tab`, which links to the methods used for each package. Each page has examples of how `bal.tab()` is used with the package. There are also three vignette detailing the use of `cobalt`, which can be accessed with `browseVignettes("cobalt")`: one for basic uses of `cobalt`, one for the use of `cobalt` with additional packages, and another for the use of `cobalt` with multiply imputed and/or clustered data. Currently, `cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, and `WeightIt`. as well as data not processed through these packages.
+# cobalt
 
-Why cobalt?
-===========
+[![CRAN\_Status\_Badge](http://r-pkg.org/badges/version-last-release/cobalt?color=0047ab)](https://cran.r-project.org/package=cobalt)
+[![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/cobalt?color=0047ab)](https://cran.r-project.org/package=cobalt)
 
-Most of the major conditioning packages contain functions to assess balance; so why use `cobalt` at all? `cobalt` arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. In addition, `cobalt` has unique plotting capabilities that make use of `ggplot2` in R for balance assessment and reporting.
+Welcome to `cobalt`, which stands for **Co**variate **Bal**ance
+**T**ables (and Plots). `cobalt` allows users to assess balance on
+covariate distributions in preprocessed groups generated through
+weighting, matching, or subclassification, such as by using the
+propensity score. `cobalt`’s primary function is `bal.tab()`, which
+stands for “balance table”, and essentially replaces (or supplements)
+the balance assessment tools found in the R packages `twang`, `MatchIt`,
+`CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these
+packages and others, see the help file for `bal.tab()` with `?bal.tab`,
+which links to the methods used for each package. Each page has examples
+of how `bal.tab()` is used with the package. There are also three
+vignette detailing the use of `cobalt`, which can be accessed with
+`browseVignettes("cobalt")`: one for basic uses of `cobalt`, one for the
+use of `cobalt` with additional packages, and another for the use of
+`cobalt` with multiply imputed and/or clustered data. Currently,
+`cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`,
+`optmatch`, `CBPS`, `ebal`, and `WeightIt`. as well as data not
+processed through these packages.
 
-Because conditioning methods are spread across several packages which each have their idiosyncrasies in how they report balance (if at all), comparing the resulting balance from various conditioning methods can be a challenge. `cobalt` unites these packages by providing a single, flexible tool that intelligently processes output from any of the conditioning packages and provides the user with both useful defaults and customizable options for display and calculation. `cobalt` also allows for balance assessment on data not generated through any of the conditioning packages. In addition, `cobalt` has tools for assessing and reporting balance for clustered data sets, data sets generated through multiple imputation, and data sets with a continuous treatment variable, all features that exist in very limited capacities or not at all in other packages.
+# Why cobalt?
 
-A large focus in devloping `cobalt` was to streamline output so that only the most useful, non-redundant, and complete information is displayed, all at the user's choice. Balance statistics are intuitive, methodological informed, and simple to interpret. Visual displays of balance reflect the goals of balance assessment rather than being steps removed. While other packages have focused their efforts on processing data, `cobalt` only assesses balance, and does so particularly well.
+Most of the major conditioning packages contain functions to assess
+balance; so why use `cobalt` at all? `cobalt` arose out of several
+desiderata when using these packages: to have standardized measures that
+were consistent across all conditioning packages, to allow for
+flexibility in the calculation and display of balance measures, and to
+incorporate recent methodological recommendations in the assessment of
+balance. In addition, `cobalt` has unique plotting capabilities that
+make use of `ggplot2` in R for balance assessment and reporting.
 
-New features are being added all the time, following the cutting edge of methodolgocial work on balance assessment. As new packages and methods are developed, `cobalt` will be ready to integrate them to further our goal of simple, unified balance assessment.
+Because conditioning methods are spread across several packages which
+each have their idiosyncrasies in how they report balance (if at all),
+comparing the resulting balance from various conditioning methods can be
+a challenge. `cobalt` unites these packages by providing a single,
+flexible tool that intelligently processes output from any of the
+conditioning packages and provides the user with both useful defaults
+and customizable options for display and calculation. `cobalt` also
+allows for balance assessment on data not generated through any of the
+conditioning packages. In addition, `cobalt` has tools for assessing and
+reporting balance for clustered data sets, data sets generated through
+multiple imputation, and data sets with a continuous treatment variable,
+all features that exist in very limited capacities or not at all in
+other packages.
 
-Below are examples of `cobalt`'s primary functions:
+A large focus in devloping `cobalt` was to streamline output so that
+only the most useful, non-redundant, and complete information is
+displayed, all at the user’s choice. Balance statistics are intuitive,
+methodological informed, and simple to interpret. Visual displays of
+balance reflect the goals of balance assessment rather than being steps
+removed. While other packages have focused their efforts on processing
+data, `cobalt` only assesses balance, and does so particularly well.
+
+New features are being added all the time, following the cutting edge of
+methodolgocial work on balance assessment. As new packages and methods
+are developed, `cobalt` will be ready to integrate them to further our
+goal of simple, unified balance assessment.
+
+Below are examples of `cobalt`’s primary functions:
 
 ``` r
 library("cobalt")
@@ -55,8 +102,8 @@ bal.tab(m.out, m.threshold = 0.1, un = TRUE)
     #> Not Balanced, >0.1     4
     #> 
     #> Variable with the greatest mean difference:
-    #>            Diff.Adj        M.Threshold
-    #> race_black    0.373 Not Balanced, >0.1
+    #>    Variable Diff.Adj        M.Threshold
+    #>  race_black    0.373 Not Balanced, >0.1
     #> 
     #> Sample sizes:
     #>           Control Treated
@@ -70,7 +117,8 @@ bal.plot(m.out, var.name = "educ")
 bal.plot(m.out, var.name = "race")
 ```
 
-<img src="inst/figures/README-unnamed-chunk-3-1.png" display="inline" /> <img src="inst/figures/README-unnamed-chunk-3-2.png" display="inline" />
+![](inst/figures/README-unnamed-chunk-3-1.png)
+![](inst/figures/README-unnamed-chunk-3-2.png)
 
 ``` r
 # Generating a Love plot to report balance:
@@ -79,4 +127,8 @@ love.plot(bal.tab(m.out), threshold = 0.1, abs = TRUE, var.order = "unadjusted")
 
 <img src="inst/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 
-Please remember to cite this package when using it to analyze data. For example, in a manuscript, write: "Matching was performed using Matching (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2017) in R (R Core team, 2017)." Use `citation("cobalt")` to generate a bibliographic reference for the `cobalt` package.
+Please remember to cite this package when using it to analyze data. For
+example, in a manuscript, write: “Matching was performed using Matching
+(Sekhon, 2011), and covariate balance was assessed using cobalt
+(Greifer, 2017) in R (R Core team, 2017).” Use `citation("cobalt")` to
+generate a bibliographic reference for the `cobalt` package.
