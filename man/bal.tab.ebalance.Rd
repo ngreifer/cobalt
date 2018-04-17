@@ -52,7 +52,7 @@ a vector of treatment statuses. See Details.
 a data frame of covariate values for which to check balance. See Details.
 }
   \item{int}{
-\code{logical}; whether or not to include squares and 2-way interactions of covariates included in \code{formula} or \code{covs} and in \code{addl}.
+\code{logical} or \code{numeric}; whether or not to include powers and 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric} and equal to \code{1} or \code{2}, squares of each covariate will be displayed; greater numbers will display corresponding powers up to the provided input (e.g., \code{3} will display squares and cubes of each covariate). 
 }
   \item{distance}{
 Optional; either a vector or data.frame containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
