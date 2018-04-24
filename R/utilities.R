@@ -343,9 +343,6 @@ get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
                 message(paste0("Warning: stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- mnps$stopMethods
             }
-            # rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
-            #                   error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
-            #                       return(names(ps$w))})
         }
         else if (is.numeric(stop.method) && any(stop.method %in% seq_along(mnps$stopMethods))) {
             if (any(!stop.method %in% seq_along(mnps$stopMethods))) {
