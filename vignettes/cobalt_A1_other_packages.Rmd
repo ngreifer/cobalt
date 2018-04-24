@@ -8,7 +8,7 @@ output:
         toc: true
 
 vignette: >
-  %\VignetteIndexEntry{"Appendix 1: Using cobalt with Other Preprocessing Packages"}
+  %\VignetteIndexEntry{Appendix 1: Using cobalt with Other Preprocessing Packages}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

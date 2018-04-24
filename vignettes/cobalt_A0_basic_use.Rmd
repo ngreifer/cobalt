@@ -7,7 +7,7 @@ output:
         df_print: kable
 
 vignette: >
-  %\VignetteIndexEntry{"Covariate Balance Tables and Plots: A Guide to the cobalt Package"}
+  %\VignetteIndexEntry{Covariate Balance Tables and Plots: A Guide to the cobalt Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 
@@ -22,7 +22,7 @@ This is an introductory guide for the use of `cobalt` in most common scenarios. 
 
 Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
-Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), `ebal`  (Hainmueller, 2014) and `WeightIt` (Greifer, 2017); these together provide a near complete set of preprocessing tools in R to date.
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), `ebal` (Hainmueller, 2014) and `WeightIt` (Greifer, 2018); these together provide a near complete set of preprocessing tools in R to date.
 
 The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
 
@@ -43,11 +43,11 @@ The rest of this guide explains how to use `cobalt` with the above packages and 
 ### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.2.0.
+Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.2.3.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
-> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2018), both in R (R Core Team, 2017).
+> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2018), both in R (R Core Team, 2018).
 
 # Why `cobalt`?
 

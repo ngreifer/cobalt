@@ -8,7 +8,7 @@ output:
         toc: false
 
 vignette: >
-  %\VignetteIndexEntry{"Appendix 3: Using cobalt with Longitudinal Treatments"}
+  %\VignetteIndexEntry{Appendix 3: Using cobalt with Longitudinal Treatments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,7 +23,7 @@ In preprocessing for MSMs, three types of variables are relevant: baseline covar
 
 The next section describe how to use `cobalt`'s tools to assess balance with longitudinal treatments. First, we'll examine an example data set and identify some tools that can be used to generate weights for MSMs. Next we'll use `bal.tab()`, `bal.plot()`, and `love.plot()` to assess and present balance.
 
-##Setup
+## Setup
 
 We're going to use the `iptwExWide` data set in the `twang` package.
 
@@ -54,7 +54,7 @@ Wmsm <- weightitMSM(list(tx1 ~ use0 + gender + age,
 
 Next we'll use `bal.tab()` to examine balance before and after applying the weights.
 
-##`bal.tab()`
+## `bal.tab()`
 
 To examine balance on the original data, we can specify the treatment-covariate relationship we want to assess by using either the formula or data frame interfaces to `bal.tab()`. The formula interface requires a list of formulas, one for each treatment, and a data set containing the relevant variables. The data set must be in the "wide" setup, where each time point receives its own columns and each unit has exactly one row of data. The formula interface is similar to the `WeightIt` input seen above. The data frame interface requires a list of treatment values for each time period and a data frame or list of covariates for each time period. We'll use the data frame interface here.
 
@@ -85,7 +85,7 @@ Note that to add covariates, we must use `addl.list` (which can be abbreviated a
 
 Next we'll use `bal.plot()` to more finely examine covariate balance.
 
-##`bal.plot()`
+## `bal.plot()`
 
 We can compare distributions of covariates across treatment groups for each time point using `bal.plot()`, just as we could with point treatments.
 
@@ -103,7 +103,7 @@ As with `bal.tab()`, `which.time` can be specified to limit output to chosen tim
 
 Finally, we'll examine using `love.plot()` with longitudinal treatments to display balance for presentation.
 
-##`love.plot()`
+## `love.plot()`
 
 `love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display seperate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `NA`, the summary across time points is displayed. The `agg.fun` argument is automatically set to `"max"` and cannot be changed.
 
@@ -114,13 +114,13 @@ love.plot(bal.tab(Wmsm), abs = TRUE)
 love.plot(bal.tab(Wmsm), which.time = NA)
 ```
 
-##Other Packages
+## Other Packages
 
 Here we used `WeightIt` to generate our MSM weights, but `cobalt` is compatible with other packages for longitudinal treatments as well. `CBMSM` objects from the `CBPS` package and `iptw` objects from the `twang` package can be used in place of the `weightitMSM` object in the above examples. In addition, users who have generated balancing weights outside any of these package can simply specify an argument to `weights` in `bal.tab()` with the formula or data frame methods to assess balance using those weights.
 
 Note that `CBPS` estimates and assess balance on MSM weights differently than `twang` and `cobalt`. Its focus is on ensuring balance across all treatment history permutations, whereas `cobalt` focuses on evaluating the possibility of sequential randomization. For this reason, it may appear that `CBMSM` objects have different balance qualities as measured by the two packages.
 
-##References
+## References
 Cole, S. R., & Hernan, M. Á. (2008). Constructing Inverse Probability Weights for Marginal Structural Models. American Journal of Epidemiology, 168(6), 656–664. https://doi.org/10.1093/aje/kwn164
 
 Robins, J. M., Hernán, M. Á., & Brumback, B. (2000). Marginal Structural Models and Causal Inference in Epidemiology. Epidemiology, 11(5), 550–560.

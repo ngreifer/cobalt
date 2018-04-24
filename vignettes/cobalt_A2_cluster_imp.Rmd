@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 
 vignette: >
-  %\VignetteIndexEntry{"Appendix 2: Using cobalt with Complicated Data"}
+  %\VignetteIndexEntry{Appendix 2: Using cobalt with Complicated Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ vignette: >
 
 This is a guide for the use of `cobalt` with more complicated data than is typical in studies using propensity scores and similar methods. In particular, this guide will explain `cobalt`'s features for handling multilevel or grouped data and data arising from multiple imputation. The features described here set `cobalt` apart from other packages that assess balance because they exist only in `cobalt`. It will be assumed that the basic functions of `cobalt` are understood; this guide will only address issues that are unique to these data scenarios.
 
-#`cobalt` and Complicated Data
+# `cobalt` and Complicated Data
 
 First, let's understand multilevel or grouped data and data arising from multiple imputation.
 
@@ -30,7 +30,7 @@ Multiply imputed data occurs when some values of the covariates are missing, and
 
 Each of `cobalt`'s primary functions (`bal.tab()`, `bal.plot()`, and `love.plot()`) have features to handle clustered and multiply imputed data sets, including data sets that are both clustered and multiply imputed (as occured in Hughes, Chen, Thoemmes, & Kwok, 2010). The following sections describe for each data scenario the relevant features of each function. It should be noted that all examples and descriptions will be for data with binary treatments, but all the methods for continuous treatments also work in exactly the same way. Additionally, all examples use matching, either by specifying a `matchit` object or by specifying weights extracted from a `matchit` object; these methods are also applicable to weighting and matching strata as well, but not to subclassification. Subclassification is not yet supported for clustered or multiply imputed data.
 
-#Clustered Data
+# Clustered Data
 
 In clustered data, the data set must contain a variable denoting the group each individual belongs to. Again, this may be a group considered a nuissance that must be accounted for to eliminate confounding (e.g., hospitals in a medical treatment study), or a group of concern for effect moderation (e.g., race or gender). In the examples below, we will imagine that we are interested in the effect of `treat` on `re78` stratified by `race`. Thus, we will condition on the propensity score within each cluster.
 
@@ -45,7 +45,7 @@ m.out <- matchit(treat ~ race*(age + educ + married + nodegree + re74 + re75),
                  replace = TRUE, ratio = 2)
 ```
 
-##`bal.tab()`
+## `bal.tab()`
 
 The output produced by `bal.tab()` with clustered data contains balance tables for each cluster and a summary of balance across clusters. To use `bal.tab()` with groups, there are three arguments that must be considered. These are `cluster`, `which.cluster`, and `cluster.summary`. 
 
@@ -79,7 +79,7 @@ bal.tab(m.out, cluster = "race", which.cluster = NA)
 
 It should be noted that `which.cluster` and `cluster.summary` affect display only, and so all output is generated even when some is not requested to be seen^[Except when `quick = TRUE`. In this case, if `cluster.summary = FALSE`, it will not be computed, though balance for all individual groups will be computed even if not requested.] ^[If some outputs are suppressed, they can still be displayed later with the `print()` command, which allows you to respecify display options for printing saved `bal.tab` objects. `print()` also allows you to limit which function of the balance statistics (i.e., mean, median, maximum) you want to display, and even has an additional one, the minimum, which is computed for use in `love.plot()`. Thus, if balance is to be checked on the same data set multiple times in different ways, it is advisable to save the output of `bal.tab()` to a variable and then use `print()` on that variable with the desired dislay options. Note that if `quick = TRUE`, not all display options will be available with this method.].
 
-##`bal.plot()`
+## `bal.plot()`
 
 `bal.plot()` functions as it does with non-clustered data, except that multiple plots can be produced at the same time displaying balance for each cluster. The arguments to `bal.plot()` are the same as those for `bal.tab()`, except that `cluster.summary` is absent. Below is an example of the use of `bal.plot()` with clustered data:
 
@@ -89,7 +89,7 @@ bal.plot(m.out, cluster = "race", var.name = "age")
 
 Balance plots for each cluster are displayed next to each other. You can specify `which.cluster` as with `bal.tab()` to restrict plotting to a subset of clusters.
 
-##`love.plot()`
+## `love.plot()`
 
 `love.plot()` shines with clustered data because there are several options that are unique to `cobalt` and help with the visual display of balance. First, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean, median, or maximum) of the balance statistic for each covariate across clusters. To change which aggregate function is displayed, use the argument to `agg.fun`, which may be "mean", "median", or "max" ("mean" is the default). Below is an example:
 
@@ -113,7 +113,7 @@ love.plot(bal.tab(m.out, cluster = "race"), which.cluster = NULL)
 
 These plots function like those from using `love.plot()` with non-clustered data, except that they cannot be sorted based on the values of the balance statistics (they can still be sorted alphabetically, though). This is to ensure that the covariates line up across the plots. The same axis limits will apply to all plots.
 
-#Multiply Imputed Data
+# Multiply Imputed Data
 
 Multiply imputed data works in a very similar way to clustered data, except the "grouping" variable refers to imputations rather than clusters. Thus, each row belongs to one imputation (i.e., the data set should be in "long" format). The data set used should only include the imputated data sets and not the original data set with missing values (unlike Stata's `mi` commands, which do require the original data set as well). The imputated data sets can be of different sizes (i.e., because matching reduced the size of each differently), but it is preferred that they are the same size and weights are used to indicate which units belong to the sample and which do not.
 
@@ -146,7 +146,7 @@ for (i in levels(imp.data$.imp)) {
 
 The object `imp.data` contains all the imputed data sets, stacked vertically, with an imputation number for each, as well as propensity scores and matching weights for each unit.
 
-##`bal.tab()`
+## `bal.tab()`
 
 To use `bal.tab()` with our imputed data sets, we need to use the `data.frame` or `formula` methods. We provide the treatment variable, the covariates, the weights, and the imputation number. In many respects, this looks very similar to the use of `bal.tab()` with clustered data. There are three arguments that are relevant to imputed data:
 
@@ -202,7 +202,7 @@ bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
 
 For some variables, the mean, median, and maximum balance statistic will be the same. This will be the case for any variables that are not imputed, i.e., are the same across imputed data sets.
 
-##`bal.plot()`
+## `bal.plot()`
 
 `bal.plot()` works with imputed data as it does with non-imputed data, except that multiple plots can be produced displaying balance for multiple imputations at a time. The arguments to `bal.plot()` are the same as those for `bal.tab()`, except that `imp.summary` is absent. Below is an example of the use of `bal.plot()` with imputated data, examining balance in the first imputation:
 
@@ -214,7 +214,7 @@ bal.plot(treat ~ age + educ + race + married + nodegree + re74 + re75,
 
 When many imputations are generated, it is recommended not to plot all at the same time by specifying an argument to `which.imp`, as done above.
 
-##`love.plot()`
+## `love.plot()`
 
 `love.plot()` functions with imputed data as it does with clustered data. It is not recommended to display balance for multiple imputations at a time, and rather to display balance for just one representative imputation or to summarize balance across imputations. Below is an example of displaying balance for one imputation:
 
@@ -236,7 +236,7 @@ love.plot(bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
 
 Often these ranges will be small if the imputed data sets are very similar to each other, but the more imputations are generated, the wider the ranges tend to be.
 
-#Multiply Imputed, Clustered Data
+# Multiply Imputed, Clustered Data
 
 There are cases when data is both clustered and has been multiply imputed. See Enders, Mistler, & Keller (2016) for a discussion of multiply imputed, multilevel data. You can assess balance on this type of data with `cobalt` as well, though there may a lot to sift through (e.g., balance tables for each cluster for each imputation). Essentially, you can combine the syntax for clustered data and for imputed data to assess balance within and across clusters and imputations. For example, you may want to assess balance for each cluster but aggregating across imputations, or you may want to assess balance for each cluster within one imputation. Because there are many possible combinations, we will not describe them all here, but you should experiment with them as you see fit. In general, we recommend assessing balance aggregating across imputations, either within each cluster (e.g., for grouped data) or also aggregating across clusters (e.g., for multilevel data with many clusters), when possible.
 
@@ -264,7 +264,7 @@ for (i in levels(imp.data$.imp)) {
 
 The object `imp.data` contains our data set, which is grouped by both imputation and race. Note above that within each imputation, we performed the same analysis as we did with non-imputed clustered data. There are other ways to do this, such as by creating groupings for each imputation and each cluster.
 
-##`bal.tab()`
+## `bal.tab()`
 
 As mentioned above, there are many ways to examine balance in combiations of clusters and imputations. You will need to specify arguments to both `imp` and `cluster`, as well as to `which.imp`, `which.cluster`, `imp.summary`, and `cluster.summary`, if desired. The default is to display balance within each cluster aggregating over imputations and aggregating over imputations and clusters.
 
@@ -290,7 +290,7 @@ There are essentially 9 combinations of `which.imp` and `which.cluster` to use t
 
 As mentioned above, in general, you may be most interested in (4) if individual imputations are not of interest or (7) if one imputation is to be used as an example. The default is to produce (4).
 
-##`bal.plot()`
+## `bal.plot()`
 
 As in other cases, `bal.plot()` can display dsitributional balance for one variable at a time in either multiple clusters or multiple imputations (bot not both). The syntax for `bal.plot()` is similar to that of `bal.tab()`, except that `imp.summary` and `cluster.summary` are ignored. Below is an example of examining balance for all clusters in one imputation:
 
@@ -303,7 +303,7 @@ bal.plot(treat ~ age + educ + married + nodegree + re74 + re75,
 
 In `bal.plot()`, `NULL` and `NA` mean the same thing when used as arguments to `which.imp` and `which.cluster`.
 
-##`love.plot()`
+## `love.plot()`
 
 As in other cases, `love.plot()` can display balance for individual groupings or aggregated across groupings, but with clustered and multiply imputed data, it is possible to display balance for each cluster aggregated across imputations or for each imputation aggregated across clusters. There are 9 ways of producing a plot based on the arguments to `bal.tab()` or `love.plot()`:
 
@@ -336,11 +336,11 @@ love.plot(bal.tab(treat ~ age + educ + married + nodegree + re74 + re75,
 
 All configurations other than (3), (6), (7), and (9) involve aggregating, and so an argument to `agg.fun` should be specified (unless its default,`"mean"`, is desired); we recommend `"range"` in most cases.
 
-#Concluding Remarks
+# Concluding Remarks
 
 We have demonstrated the use of `cobalt` with clustered data, multiply imputed, and multiply imputed clustered data. Though there are no published recommendations for the display of balance in these cases, we believe these tools may encourage development in this area. In general, we believe in displaying the most relevant information as compactly as possible, and thus recommend using `love.plot()` with some degree of aggregation for inclusion in published work. 
 
-#References
+# References
 
 Arpino, B., & Mealli, F. (2011). The specification of the propensity score in multilevel observational studies. Computational Statistics & Data Analysis, 55(4), 1770–1780. https://doi.org/10.1016/j.csda.2010.11.008
 
