@@ -567,14 +567,23 @@ expand.grid_string <- function(..., collapse = "") {
     return(apply(expand.grid(...), 1, paste, collapse = collapse))
 }
 nunique <- function(x, nmax = NA, na.rm = TRUE) {
-    if (na.rm) x <- x[!is.na(x)]
-    if (is.factor(x)) return(nlevels(x))
-    else return(length(unique(x, nmax = nmax)))
+    if (length(x) == 0) return(0)
+    else {
+        if (na.rm) x <- x[!is.na(x)]
+        if (is.factor(x)) return(nlevels(x))
+        else return(length(unique(x, nmax = nmax)))
+    }
+    
 }
 nunique.gt <- function(x, n, na.rm = TRUE) {
-    if (na.rm) x <- x[!is.na(x)]
-    if (length(x) < 2000) nunique(x) > n
-    else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
+    if (n < 0) stop("n must be non-negative.", call. = FALSE)
+    if (length(x) == 0) FALSE
+    else {
+        if (na.rm) x <- x[!is.na(x)]
+        if (length(x) < 2000) nunique(x) > n
+        else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)        
+    }
+
 }
 is.formula <- function(f, sides = NULL) {
     res <- is.name(f[[1]])  && deparse(f[[1]]) %in% c( '~', '!') &&
