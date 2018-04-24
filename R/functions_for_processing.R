@@ -366,20 +366,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
 
     }
     #Remove duplicate & redundant variables
-    #If many rows, select subset to test redundancy
-    if (nrow(C) > 1500) {
-        repeat {
-            mini.C <- C[sample(seq_len(nrow(C)), 1000),,drop=FALSE]
-            single.value <- apply(mini.C, 2, function(x) abs(max(x, na.rm = TRUE) - min(x, na.rm = TRUE)) < sqrt(.Machine$double.eps))
-            if (all(!single.value)) break
-        }
-        suppressWarnings(C.cor <- cor(mini.C, use = "pairwise.complete.obs"))
-    }
-    else suppressWarnings(C.cor <- cor(C, use = "pairwise.complete.obs"))
-    
-    s <- !lower.tri(C.cor, diag=TRUE) & (1 - abs(C.cor) < sqrt(.Machine$double.eps))
-    redundant.vars <- apply(s, 2, any)
-    C <- C[, !redundant.vars, drop = FALSE]        
+    C <- remove.perfect.col(C)    
 
     #Add missingness indicators
     vars.w.missing <- vars.w.missing[vars.w.missing$placed.after %in% colnames(C) & vars.w.missing$has.missing, , drop = FALSE]
@@ -388,6 +375,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         new.var.order <- original.var.order + cumsum(c(0,(colnames(C) %in% vars.w.missing$placed.after)[-ncol(C)]))
         missing.ind <- apply(C[,colnames(C) %in% vars.w.missing$placed.after, drop = FALSE], 2, function(x) as.numeric(is.na(x)))
         colnames(missing.ind) <- paste0(rownames(vars.w.missing), ":<NA>")
+        missing.ind <- remove.perfect.col(missing.ind) 
         new.C <- matrix(NA, nrow = nrow(C), ncol = ncol(C) + ncol(missing.ind),
                         dimnames = list(rownames(C), seq_len(ncol(C) + ncol(missing.ind))))
         new.C[, new.var.order] <- C
@@ -415,6 +403,23 @@ get.types <- function(C) {
         else if (nunique.gt(C[!is.na(C[,x]),x], 2))  "Contin."
         else "Binary"
     })
+}
+remove.perfect.col <- function(C) {
+    #If many rows, select subset to test redundancy
+    if (nrow(C) > 1500) {
+        repeat {
+            mini.C <- C[sample(seq_len(nrow(C)), 1000),,drop=FALSE]
+            single.value <- apply(mini.C, 2, function(x) abs(max(x, na.rm = TRUE) - min(x, na.rm = TRUE)) < sqrt(.Machine$double.eps))
+            if (all(!single.value)) break
+        }
+        suppressWarnings(C.cor <- cor(mini.C, use = "pairwise.complete.obs"))
+    }
+    else suppressWarnings(C.cor <- cor(C, use = "pairwise.complete.obs"))
+    
+    s <- !lower.tri(C.cor, diag=TRUE) & (1 - abs(C.cor) < sqrt(.Machine$double.eps))
+    redundant.vars <- apply(s, 2, any)
+    C <- C[, !redundant.vars, drop = FALSE] 
+    return(C)
 }
 
 #base.bal.tab
