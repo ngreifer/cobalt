@@ -1053,11 +1053,12 @@ x2base.CBPS <- function(cbps.fit, ...) {
               cluster=NA)
     #Checks
     
-    treat <- cbps.fit$y
+    treat <- model.response(model.frame(cbps.fit$terms, cbps.fit$data))
     covs <- cbps.fit$data[!is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
     data <- A$data
     s.weights <- A$s.weights
     weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights))
+    
     #Process sampling weights
     if (length(s.weights) > 0) {
         if (!(is.character(s.weights) && length(s.weights) == 1) && !is.numeric(s.weights)) {
@@ -1077,7 +1078,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     weights <- weights/s.weights #Because CBPS weights contain s.weights in them
     
-    if (!(any(class(cbps.fit) == "CBPSContinuous") || nunique(treat) > 2)) {
+    if (!any(class(cbps.fit) == "CBPSContinuous") && !nunique.gt(treat, 2)) {
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
@@ -1091,12 +1092,17 @@ x2base.CBPS <- function(cbps.fit, ...) {
                 sqrt(.Machine$double.eps)) {
                 X$s.d.denom <- "treated"
             }
+            else if (abs(max(weights[treat == 0,], na.rm = TRUE) - 
+                         min(weights[treat == 0,], na.rm = TRUE)) < 
+                     sqrt(.Machine$double.eps)) {
+                X$s.d.denom <- "control"
+            }
             else {
                 X$s.d.denom <- "pooled"
             }
         }
     }
-    else if (nunique(treat) > 2) {
+    else if (nunique.gt(treat, 2)) {
         X$s.d.denom <- "pooled"
     }
     
@@ -1358,7 +1364,31 @@ x2base.weightit <- function(weightit, ...) {
     
     #Initializing variables
     estimand <- weightit$estimand
-    if (weightit$treat.type != "continuous") {
+    weights <- data.frame(weights = get.w(weightit))
+    treat <- weightit$treat
+    covs <- weightit$covs
+    s.weights <- weightit$s.weights
+    data <- A$data
+    imp <- A$imp
+    
+    weightit.data <- weightit$data
+    
+    if (length(attr(treat, "treat.type")) > 0) {
+        treat.type <- attr(treat, "treat.type")
+    }
+    else if (length(weightit$treat.type) > 0) {
+        treat.type <- weightit$treat.type
+    }
+    else {
+        if (!is.factor(treat) && nunique.gt(treat, 2)) {
+            treat.type <- "continuous"
+        }
+        else {
+            treat.type <- "not continuous"
+        }
+    }
+    
+    if (treat.type != "continuous") {
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
@@ -1370,15 +1400,7 @@ x2base.weightit <- function(weightit, ...) {
             X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", "pooled")
         }
     }
-    
-    weights <- data.frame(weights = get.w(weightit))
-    treat <- weightit$treat
-    covs <- weightit$covs
-    s.weights <- weightit$s.weights
-    data <- A$data
-    imp <- A$imp
-    
-    weightit.data <- weightit$data
+
     
     if (any(is.na(covs))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -2075,7 +2097,33 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Initializing variables
     estimand <- weightitMSM$estimand
-    if (any(weightitMSM$treat.type != "continuous")) {
+    weights <- data.frame(weights = get.w(weightitMSM))
+    treat.list <- weightitMSM$treat.list
+    covs.list <- weightitMSM$covs.list
+    s.weights <- weightitMSM$s.weights
+    data <- A$data
+    ntimes <- length(treat.list)
+    
+    weightitMSM.data <- weightitMSM$data
+    
+    if (all(sapply(treat.list, function(x) length(attr(x, "treat.type")) > 0))) {
+        treat.type <- attr(treat, "treat.type")
+    }
+    else if (length(weightitMSM$treat.type) == length(treat.list)) {
+        treat.type <- weightitMSM$treat.type
+    }
+    else {
+        treat.type <- sapply(treat.list, function(treat) {
+            if (!is.factor(treat) && nunique.gt(treat, 2)) {
+                return("continuous")
+            }
+            else {
+                return("not continuous")
+            }
+        })
+    } 
+    
+    if (any(treat.type != "continuous")) {
         if (length(A$s.d.denom > 0) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
@@ -2087,15 +2135,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
             X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
         }
     }
-    
-    weights <- data.frame(weights = get.w(weightitMSM))
-    treat.list <- weightitMSM$treat.list
-    covs.list <- weightitMSM$covs.list
-    s.weights <- weightitMSM$s.weights
-    data <- A$data
-    ntimes <- length(treat.list)
-    
-    weightitMSM.data <- weightitMSM$data
+
     
     if (any(sapply(covs.list, function(x) any(is.na(x))))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
