@@ -1443,7 +1443,8 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     
     if (length(disp.treat.pairs) > 0) {
         headings <- setNames(character(length(disp.treat.pairs)), disp.treat.pairs)
-        cat("Balance by treatment pair:\n")
+        if (p.ops$pairwise) cat("Balance by treatment pair:\n")
+        else cat("Balance by treatment group:\n")
         for (i in disp.treat.pairs) {
             headings[i] <- paste0("\n - - - ", m.balance[[i]]$print.options$treat.names[1]," (0) vs. ",
                                   m.balance[[i]]$print.options$treat.names[2]," (1) - - - \n")
