@@ -2,11 +2,15 @@ cobalt News and Updates
 ======
 Version 3.2.3
 
+* Added support for data with missing covariates. `bal.tab()` will produce balanace statistics for the non-missing values and will automatically create a new variable indicating whether the variable is missing or not and produce balance statistics on this variable as well. 
+
 * Fixed a bug when displaying maximum imbalances with subclassification.
 
 * Fixed a bug where the unadjusted statistics were not displayed when using `love.plot()` with subclasses. (Thanks to Megha Joshi.)
 
 * Add the ability to display individual subclass balance using `love.plot()` with subclasses.
+
+* Under-the-hood changes to how `weightit` objects are handled.
 
 Version 3.2.2
 
@@ -34,7 +38,7 @@ Version 3.2.1
 
 Version 3.2.0
 
-* Added support for longitudinal treatments in `bal.tab()`, `bal.plot()`, and `love.plot()`, including outut from `iptw()` in `twang`, `CBMSM()` from `CBPS`, and `weightitMSM()` from `WeightIt`.
+* Added support for longitudinal treatments in `bal.tab()`, `bal.plot()`, and `love.plot()`, including output from `iptw()` in `twang`, `CBMSM()` from `CBPS`, and `weightitMSM()` from `WeightIt`.
 
 * Added a vignette to explain use with longitudinal treatments.
 
