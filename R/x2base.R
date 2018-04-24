@@ -2107,7 +2107,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     weightitMSM.data <- weightitMSM$data
     
     if (all(sapply(treat.list, function(x) length(attr(x, "treat.type")) > 0))) {
-        treat.type <- attr(treat, "treat.type")
+        treat.type <- sapply(treat.list, function(x) attr(x, "treat.type"))
     }
     else if (length(weightitMSM$treat.type) == length(treat.list)) {
         treat.type <- weightitMSM$treat.type
