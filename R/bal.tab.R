@@ -475,12 +475,13 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
                    "call", "print.options")
     out <- vector("list", length(out.names))
     names(out) <- out.names
+    
     #Get list of bal.tabs for each imputation
-    if (length(unique(treat)) > 2 && is.numeric(treat)) {#if continuous treatment
+    if (isTRUE(attr(treat, "treat.type") == "continuous") || (is.numeric(treat) && nunique.gt(treat, 2))) {#if continuous treatment
         out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab.cont(weights = weights[imp==i, , drop  = FALSE], treat = treat[imp==i], distance = distance[imp==i, , drop = FALSE], subclass = subclass[imp==i], covs = covs[imp == i, , drop = FALSE], call = call, int = int, addl = addl[imp = i, , drop = FALSE], r.threshold = r.threshold, imbalanced.only = imbalanced.only, un = un, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights[imp==i], discarded = discarded[imp==i], quick = quick, ...))
     }
-    else if (length(unique(treat)) > 2 && (is.factor(treat) || is.character(treat))) {
-        stop("Multiple categorical treaments are not yet supported with multiply imputed data.", call. = FALSE)
+    else if (isTRUE(attr(treat, "treat.type") == "multinomial") || ((is.factor(treat) || is.character(treat)) && nunique.gt(treat, 2))) {
+        stop("Multinomial treaments are not yet supported with multiply imputed data.", call. = FALSE)
     }
     else {#if binary treatment
         out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab(weights = weights[imp==i, , drop = FALSE], treat = treat[imp==i], distance = distance[imp==i, , drop = FALSE], subclass = subclass[imp==i], covs = covs[imp==i, , drop = FALSE], call = call, int = int, addl = addl[imp==i, , drop = FALSE], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, ks.threshold = ks.threshold, imbalanced.only = imbalanced.only, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, disp.ks = disp.ks, disp.subclass = disp.subclass, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights[imp==i], discarded = discarded[imp==i], quick = quick, ...))
@@ -735,7 +736,10 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         out[["Time.Balance"]] <- vector("list", length(covs.list))
         
         treat.type <- sapply(treat.list, function(x) {
-            if (nunique.gt(x, 2)) {
+            if (isTRUE(attr(x, "treat.type") %in% c("binary", "multinomial", "continuous"))) {
+                attr(x, "treat.type")
+            }
+            else if (nunique.gt(x, 2)) {
                  if (is.numeric(x)) "continuous"
                 else if (is.factor(x) || is.character(x)) "multinomial"
             }
@@ -753,7 +757,6 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
                 out_ <- base.bal.tab.cont(weights = weights, treat = treat.list[[ti]], distance = distance.list[[ti]], subclass = NULL, covs = covs.list[[ti]], call = NULL, int = int, addl = addl.list[[ti]], r.threshold = r.threshold, imbalanced.only = imbalanced.only, un = un, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster, which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights, discarded = discarded, quick = quick, ...)
             }
             else if (treat.type[ti] == "multinomial") {
-                #stop("Multiple categorical treatments are not yet supported with longitudinal treatments.", call. = FALSE)
                 out_ <- base.bal.tab.multi(weights = weights, treat = treat.list[[ti]], distance=distance.list[[ti]], 
                                           covs=covs.list[[ti]], call=NULL, int=int, addl=addl.list[[ti]], 
                                           continuous=continuous, binary=binary, s.d.denom=s.d.denom, 
@@ -1585,7 +1588,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                                     quick = quick,
                                     ...)
         }
-        else if (weightit$treat.type == "binary") {
+        else if (isTRUE(weightit$treat.type == "binary") || isTRUE(attr(weightit$treat, "treat.type") == "binary")) {
             out <- base.bal.tab(weights=X$weights, 
                                 treat=X$treat, 
                                 distance=X$distance, 
@@ -1615,7 +1618,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                                 discarded = X$discarded, 
                                 quick = quick)
         }
-        else if (weightit$treat.type == "multinomial") {
+        else if (isTRUE(weightit$treat.type == "multinomial") || isTRUE(attr(weightit$treat, "multinomial") == "binary")) {
             out <- base.bal.tab.multi(weights=X$weights, treat=X$treat, distance=X$distance, 
                                       covs=X$covs, call=X$call, int=int, addl=X$addl, 
                                       continuous=continuous, binary=binary, s.d.denom=X$s.d.denom, 
@@ -1633,7 +1636,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                                       which.treat = which.treat, multi.summary = multi.summary,
                                       s.weights = X$s.weights, quick = quick)
         }
-        else if (weightit$treat.type == "continuous") {
+        else if (isTRUE(weightit$treat.type == "continuous") || isTRUE(attr(weightit$treat, "treat.type") == "continuous")) {
             out <- base.bal.tab.cont(weights=X$weights, treat = X$treat, distance = X$distance, 
                                      covs=X$covs, call=X$call, int=int, addl = X$addl, 
                                      r.threshold = r.threshold, 
@@ -1645,6 +1648,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
                                      cluster.summary = cluster.summary, s.weights = X$s.weights, 
                                      quick = quick)
         }
+        else stop("Something went wrong. Contact the maintainer.", call. = FALSE)
     }
     
     return(out)
