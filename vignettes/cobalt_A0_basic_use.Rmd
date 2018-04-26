@@ -124,18 +124,18 @@ There are several ways to specify input to `bal.tab()` when using data outside a
 Another way to specify input to `bal.tab()` is to use the formula interface. Below is an example of its use:
 
 ```{r}
-bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
         distance = "p.score", method = "weighting")
 ```
 
-To use the formula interface, the user must specify a formula relating treatment to the covariates for which balance is to be assessed **and** the data set where the elements of the formula can be found. Here, `f.build()` was used for simplicity, but the traditional formula input of `treat ~ v1 + v2 + v3 + ...` is also acceptible. As above, the arguments to `weights`, `distance`, `subclass`, and others can be specified either as vectors or data frames containing the values or as names of the variables in the argument to `data` containing the values. In the above example, an argument to `distance` was specified, and balance measures for the propensity score now appear in the balance table.
+To use the formula interface, the user must specify a formula relating treatment to the covariates for which balance is to be assessed. If any of these variables exist in a data set, it must be supplied to `data`. Here, the `cov0` data frame was used for simplicity, but using `f.build()` or the traditional formula input of `treat ~ v1 + v2 + v3 + ...` is also acceptible. As above, the arguments to `weights`, `distance`, `subclass`, and others can be specified either as vectors or data frames containing the values or as names of the variables in the argument to `data` containing the values. In the above example, an argument to `distance` was specified, and balance measures for the propensity score now appear in the balance table.
 
 An argument to `method` must be specified for `bal.tab()` to process the data correctly. If left empty, weighting will be assumed, but a warning will appear. `"matching"` and `"subclassification"` are also allowed, and can be abbreviated. If no weights or subclasses are provided (i.e., to examine balance without preprocessing), no argument to `method` is required.
 
 By default, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab` or "Details on Calculations" below. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` and/or `continuous` to `"raw"` or `"std"`. 
 
 ```{r}
-bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
         method = "weighting", binary = "std", continuous = "std")
 ```
 
@@ -143,7 +143,7 @@ Users can specify additional variables for which to display balance using the ar
 
 ```{r}
 # Balance on all covariates in data set, including interactions and squares
-bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
         method = "weighting", addl = c("nodegree", "married"), int = TRUE)
 ```
 
@@ -159,7 +159,7 @@ Next is `un`, which controls whether the statistics to be displayed should be di
 
 ```{r}
 # Balance tables with variance ratios and statistics for the unadjusted sample
-bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
         method = "weighting", disp.v.ratio = TRUE, un = TRUE)
 ```
 
@@ -173,7 +173,7 @@ When `ks.threshold` is specified, the same additional output is created as above
 
 ```{r}
 # Balance tables with thresholds for mean differences and variance ratios
-bal.tab(f.build("treat", covs0), data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
         method = "weighting", m.threshold = .1, v.threshold = 2)
 ```
 
@@ -189,7 +189,7 @@ lalonde$p.score2 <- glm(treat ~ age + I(age^2) + race + educ + re74,
                         data = lalonde, family = "binomial")$fitted.values
 lalonde$att.weights2 <- with(lalonde, treat + (1-treat)*p.score2/(1-p.score2))
 
-bal.tab(f.build("treat", covs0), data = lalonde, weights = c("att.weights", "att.weights2"),
+bal.tab(treat ~ covs0, data = lalonde, weights = c("att.weights", "att.weights2"),
         method = "weighting", estimand = "ATT")
 ```
 
@@ -207,7 +207,7 @@ lalonde$subclass <- findInterval(lalonde$p.score,
                                           seq(0, 1, length.out = nsub + 1)), 
                                  all.inside = T)
 
-bal.tab(f.build("treat", covs0), data = lalonde, subclass = "subclass", 
+bal.tab(treat ~ covs0, data = lalonde, subclass = "subclass", 
         method = "subclassification", disp.subclass = TRUE)
 ```
 
@@ -344,7 +344,6 @@ Below is an example of the workflow for using propensity scores for continuous t
 ```{r}
 data("lalonde", package = "cobalt")
 library("WeightIt")
-cov.c <- subset(lalonde, select = -c(treat, re78, re75))
 
 #Generating weights with re75 as the continuous treatment
 W.out.c <- weightit(re75 ~ age + educ + race + married + nodegree + 
@@ -392,7 +391,7 @@ cov.mn <- subset(lalonde, select = -c(treat, re78, race))
 
 #Using WeightIt to generate weights with multinomial
 #logistic regression
-W.out.mn <- weightit(f.build("race", cov.mn), data = lalonde,
+W.out.mn <- weightit(race ~ cov.mn, data = lalonde,
                      method = "ps")
 ```
 
@@ -430,7 +429,7 @@ love.plot(bal.tab(W.out.mn), threshold = .1,
 It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. Do do so, weights generated from each balancing mehtod need to be supplid together in each call. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
 
 ```{r}
-bal.tab(f.build("treat", covs0), data = lalonde, 
+bal.tab(treat ~ covs0, data = lalonde, 
         weights = data.frame(Matched = get.w(m.out),
                              IPW = get.w(W.out)),
         method = c("matching", "weighting"), 
@@ -440,7 +439,7 @@ bal.tab(f.build("treat", covs0), data = lalonde,
 To use `bal.plot()`, the same syntax can be used:
 
 ```{r, fig.width=7}
-bal.plot(f.build("treat", covs0), data = lalonde, 
+bal.plot(treat ~ covs0, data = lalonde, 
          weights = data.frame(Matched = get.w(m.out),
                               IPW = get.w(W.out)),
          method = c("matching", "weighting"), 
@@ -450,7 +449,7 @@ bal.plot(f.build("treat", covs0), data = lalonde,
 With `love.plot()`, `var.order` can be `"unadjusted"`, `"alphabetical"`, or one of the names of the weights to order the variables. Also, `colors` and `shapes` should have the same length as the number of weights or have length 1.
 
 ```{r, fig.width=5}
-love.plot(bal.tab(f.build("treat", covs0), data = lalonde, 
+love.plot(bal.tab(treat ~ covs0, data = lalonde, 
                   weights = data.frame(Matched = get.w(m.out),
                                        IPW = get.w(W.out)),
                   method = c("matching", "weighting")), var.order = "unadjusted",
