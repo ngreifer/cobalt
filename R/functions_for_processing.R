@@ -45,7 +45,7 @@ match.strata2weights <- function(match.strata, treat, covs = NULL) {
         stop("No control units were matched", call. = FALSE)
     return(weights)
 }
-use.tc.fd <- function(formula, data, treat, covs) {
+.use.tc.fd <- function(formula, data, treat, covs) {
     useWhich <- function(f, d, t, c) {
         #output: tc, fd, both
         good <- c(formula=0, data=0, covs=0, treat=0)
@@ -114,6 +114,20 @@ use.tc.fd <- function(formula, data, treat, covs) {
         else {
             message("Formula, data, treat, and covs all supplied; ignoring treat and covs.")}
     }
+    return(t.c)
+}
+use.tc.fd <- function(formula, data, treat, covs) {
+    if (length(formula) > 0 && class(formula)=="formula") {
+        D <- NULL
+        if (length(data) > 0) D <- data
+        if (length(covs) > 0) if (length(D) > 0) D <- cbind(D, covs) else D <- covs
+        t.c <- get.covs.and.treat.from.formula(formula, D, treat = treat)
+    }
+    else t.c <- list(treat = treat, covs = covs)
+    
+    if (length(t.c[["covs"]]) == 0) stop("No covariates were specified.", call. = FALSE)
+    if (length(t.c[["treat"]]) == 0) stop("No treatment variable was specified.", call. = FALSE)
+    
     return(t.c)
 }
 process.val <- function(val, i, treat, covs, ...) {
@@ -237,9 +251,13 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
     }
     return(val.List)
 }
-get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv) {
-    tt <- terms(f)
+get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv, ...) {
+    A <- list(...)
+
+    tt <- terms(f, data = data)
     attr(tt, "intercept") <- 0
+    
+    null.or.error <- function(x) {length(x) == 0 || class(x) == "try-error"}
     
     #Check if data exists
     if (length(data) > 0 && is.data.frame(data)) {
@@ -248,20 +266,39 @@ get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv) {
     else data.specified <- FALSE
     
     #Check if response exists
-    mf.treat <- quote(stats::model.frame(terms(update(tt, . ~ 1)), data))
-    tryCatch({mf.treat <- eval(mf.treat, c(data, env))}, error = function(e) {
-        stop(paste0("The given response variable, \"", as.character(tt)[2], "\", is not a variable in ", word.list(c("data", "the global environment")[c(data.specified, TRUE)], "or"), "."), call. = FALSE)})
-    
+    resp.vars.mentioned <- as.character(tt)[2]
+    resp.vars.failed <- sapply(resp.vars.mentioned, function(v) {
+        null.or.error(try(eval(parse(text = v), c(data, env)), silent = TRUE))
+    })
+   
+    if (any(resp.vars.failed)) {
+        if (length(A[["treat"]]) == 0) stop(paste0("The given response variable, \"", as.character(tt)[2], "\", is not a variable in ", word.list(c("data", "the global environment")[c(data.specified, TRUE)], "or"), "."), call. = FALSE)
+        tt <- delete.response(tt)
+    }
+
     #Check if RHS variables exist
     rhs.vars.mentioned <- attr(tt, "term.labels")
     null.or.error <- function(x) {length(x) == 0 || class(x) == "try-error"}
     rhs.vars.failed <- sapply(rhs.vars.mentioned, function(v) {
         null.or.error(try(eval(parse(text = v), c(data, env)), silent = TRUE))
     })
+
     if (any(rhs.vars.failed)) {
         stop(paste0(c("All variables in formula must be variables in data or objects in the global environment.\nMissing variables: ",
                       paste(rhs.vars.mentioned[rhs.vars.failed], collapse=", "))), call. = FALSE)
         
+    }
+    
+    rhs.df <- sapply(rhs.vars.mentioned, function(v) {
+        is.data.frame(try(eval(parse(text = v), c(data, env)), silent = TRUE))
+    })
+    if (any(rhs.df)) {
+        addl.dfs <- lapply(rhs.vars.mentioned[rhs.df], function(x) {eval(parse(text = x), env)})
+        new.form <- paste0("~ . - ", 
+                          paste(rhs.vars.mentioned[rhs.df], collapse = " - "), " + ",
+                          paste(unlist(sapply(addl.dfs, names)), collapse = " + "))
+        tt <- update(tt, as.formula(new.form))
+        data <- do.call("cbind", c(addl.dfs, data))
     }
     
     #Get model.frame, report error
@@ -269,10 +306,10 @@ get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv) {
                                    drop.unused.levels = TRUE,
                                    na.action = "na.pass"))
     tryCatch({mf <- eval(mf, c(data, env))}, 
-             error = function(e) {stop(geterrmessage(), call. = FALSE)})
+             error = function(e) {stop(conditionMessage(e), call. = FALSE)})
     
     return(list(covs = mf[,-1, drop = FALSE],
-           treat = model.response(mf),
+           treat = if (any(resp.vars.failed)) A[["treat"]] else model.response(mf),
            treat.name = as.character(tt)[2]))
 }
 

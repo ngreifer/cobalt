@@ -1038,7 +1038,7 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
                         quick = quick)
     return(out)
 }
-bal.tab.formula <- function(formula, data, ...) {
+bal.tab.formula <- function(formula, data = NULL, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     args[["covs"]] <- NULL

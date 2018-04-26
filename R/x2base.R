@@ -1169,8 +1169,8 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Initializing variables
     
-    treat <- t.c$treat
-    covs  <- t.c$covs
+    treat <- t.c[["treat"]]
+    covs  <- t.c[["covs"]]
     
     weights <- data.frame(weights = get.w(ebalance, treat))
     
