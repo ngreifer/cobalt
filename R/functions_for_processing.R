@@ -237,6 +237,44 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
     }
     return(val.List)
 }
+get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv) {
+    tt <- terms(f)
+    attr(tt, "intercept") <- 0
+    
+    #Check if data exists
+    if (length(data) > 0 && is.data.frame(data)) {
+        data.specified <- TRUE
+    }
+    else data.specified <- FALSE
+    
+    #Check if response exists
+    mf.treat <- quote(stats::model.frame(terms(update(tt, . ~ 1)), data))
+    tryCatch({mf.treat <- eval(mf.treat, c(data, env))}, error = function(e) {
+        stop(paste0("The given response variable, \"", as.character(tt)[2], "\", is not a variable in ", word.list(c("data", "the global environment")[c(data.specified, TRUE)], "or"), "."), call. = FALSE)})
+    
+    #Check if RHS variables exist
+    rhs.vars.mentioned <- attr(tt, "term.labels")
+    null.or.error <- function(x) {length(x) == 0 || class(x) == "try-error"}
+    rhs.vars.failed <- sapply(rhs.vars.mentioned, function(v) {
+        null.or.error(try(eval(parse(text = v), c(data, env)), silent = TRUE))
+    })
+    if (any(rhs.vars.failed)) {
+        stop(paste0(c("All variables in formula must be variables in data or objects in the global environment.\nMissing variables: ",
+                      paste(rhs.vars.mentioned[rhs.vars.failed], collapse=", "))), call. = FALSE)
+        
+    }
+    
+    #Get model.frame, report error
+    mf <- quote(stats::model.frame(tt, data, 
+                                   drop.unused.levels = TRUE,
+                                   na.action = "na.pass"))
+    tryCatch({mf <- eval(mf, c(data, env))}, 
+             error = function(e) {stop(geterrmessage(), call. = FALSE)})
+    
+    return(list(covs = mf[,-1, drop = FALSE],
+           treat = model.response(mf),
+           treat.name = as.character(tt)[2]))
+}
 
 #get.C
 #Functions to turn input covariates into usable form
@@ -293,6 +331,7 @@ binarize <- function(variable) {
 }
 get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
+    
     C <- covs
     if (!is.null(addl)) {
         if (!is.data.frame(addl)) {
@@ -310,8 +349,17 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         }
     } 
     
+    covs.with.inf <- unlist(sapply(C, function(x) any(!is.finite(x) & !is.na(x))))
+    if (any(covs.with.inf)) {
+        s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
+        stop(paste0("The variable", s[1], " ", word.list(names(covs)[covs.with.inf], quotes = TRUE), 
+                    " contain", s[2], " non-finite values, which are not allowed."), call. = FALSE)
+    }
+    
     vars.w.missing <- data.frame(placed.after = names(C),
-                                 has.missing = FALSE, row.names = names(C),
+                                 has.missing = FALSE, 
+                                 has.Inf = FALSE,
+                                 row.names = names(C),
                                  stringsAsFactors = FALSE)
     for (i in names(C)) {
         if (is.character(C[[i]])) C[[i]] <- factor(C[[i]])
@@ -682,7 +730,7 @@ max.imbal <- function(balance.table, col.name, thresh.col.name) {
 balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
                           s.weights = rep(1, length(treat)), no.adj = FALSE, types = NULL, pooled.sds = NULL, quick = FALSE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
-    
+
     if (no.adj) weight.names <- "Adj"
     else weight.names <- names(weights)
     

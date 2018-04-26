@@ -1041,6 +1041,8 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
 bal.tab.formula <- function(formula, data, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
+    args[["covs"]] <- NULL
+    args[["treat"]] <- NULL
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
@@ -1054,27 +1056,12 @@ bal.tab.formula <- function(formula, data, ...) {
             }
         }
     }
-    
-    #Checks
-    if (length(data) == 0) {
-        stop("Data must be specified.", call. = FALSE)}
-    if (!is.data.frame(data)) {
-        stop("Data must be a data.frame.", call. = FALSE)}
-    
+
     #Initializing variables
-    tt <- terms(formula)
-    attr(tt, "intercept") <- 0
-    if (is.na(match(rownames(attr(tt, "factors"))[1], names(data)))) {
-        stop(paste0("The given response variable, \"", rownames(attr(tt, "factors"))[1], "\", is not a variable in data."), call. = FALSE)
-    }
-    mf <- tryCatch(model.frame(tt, data), error = function(e) {
-        stop(paste0(c("All variables of formula must be variables in data.\nVariables not in data: ",
-                      paste(attr(tt, "term.labels")[is.na(match(attr(tt, "term.labels"), names(data)))], collapse=", "))), call. = FALSE)}
-    )
-    
-    treat <- model.response(mf)
-    covs <- data[!is.na(match(names(data), attr(tt, "term.labels")))]
-    
+    t.c <- get.covs.and.treat.from.formula(formula, data)
+    covs <- t.c[["covs"]]
+    treat <- t.c[["treat"]]
+ 
     out <- do.call(bal.tab.data.frame, c(list(covs = covs, treat = treat), args))
     
     return(out)

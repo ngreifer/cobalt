@@ -12,6 +12,8 @@ Version 3.2.3
 
 * Under-the-hood changes to how `weightit` objects are handled.
 
+* Objects in the environment are now handled better by `bal.tab()` with the formula interface. The `data` argument is now optional if all variables in the formula exist in the environment.
+
 Version 3.2.2
 
 * Fixed a bug when using `get.w()` (and `bal.tab()`) with `mnps` objects from `twang` with only one stop method.

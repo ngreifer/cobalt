@@ -1004,41 +1004,6 @@ x2base.data.frame <- function(covs, ...) {
     
     return(X)
 }
-x2base.formula <- function(formula, ...) {
-    #data
-    #weights
-    #distance
-    #subclass
-    #match.strata
-    #addl
-    #s.d.denom
-    #method
-    #cluster
-    #estimand
-    
-    A <- list(...)
-    
-    #Checks
-    if (length(A$data) == 0) {
-        stop("Data must be specified.", call. = FALSE)}
-    if (!is.data.frame(A$data)) {
-        stop("Data must be a data.frame.", call. = FALSE)}
-    
-    #Initializing variables
-    tt <- terms(formula)
-    attr(tt, "intercept") <- 0
-    if (is.na(match(rownames(attr(tt, "factors"))[1], names(A$data)))) {
-        stop(paste0("The given response variable, \"", rownames(attr(tt, "factors"))[1], "\", is not a variable in data."))
-    }
-    m.try <- try({mf <- model.frame(tt, A$data)}, TRUE)
-    if (class(m.try) == "try-error") {
-        stop(paste0(c("All variables of formula must be variables in data.\nVariables not in data: ",
-                      paste(attr(tt, "term.labels")[is.na(match(attr(tt, "term.labels"), names(A$data)))], collapse=", "))), call. = FALSE)}
-    treat <- model.response(mf)
-    covs <- A$data[!is.na(match(names(A$data), attr(tt, "term.labels")))]
-    X <- x2base.data.frame(covs, treat = treat, ...)
-    return(X)
-}
 x2base.CBPS <- function(cbps.fit, ...) {
     #s.d.denom
     #cluster
@@ -1942,30 +1907,15 @@ X2base.data.frame.list <- function(covs.list, ...) {
 }
 X2base.formula.list <- function(formula.list, ...) {
     A <- list(...)
-    
-    #Checks
-    if (length(A$data) == 0) {
-        stop("Data must be specified.", call. = FALSE)}
-    if (!is.data.frame(A$data)) {
-        stop("Data must be a data.frame.", call. = FALSE)}
-    data <- A$data
+    A[["covs.list"]] <- NULL
+    A[["treat.list"]] <- NULL
     
     treat.list <- covs.list <- vector("list", length(formula.list))
     for (i in seq_along(formula.list)) {
-        #Initializing variables
-        tt <- terms(formula.list[[i]])
-        attr(tt, "intercept") <- 0
-        if (is.na(match(all.vars(tt[[2]]), names(data)))) {
-            stop(paste0("The response variable \"", all.vars(tt[[2]]), "\" is not a variable in data."))
-        }
-        vars.mentioned <- all.vars(tt)
-        tryCatch({mf <- model.frame(tt, data)}, error = function(e) {
-            stop(paste0(c("All variables of formula ", i, " in formula.list must be variables in data.\nVariables not in data: ",
-                          paste(vars.mentioned[is.na(match(vars.mentioned, names(data)))], collapse=", "))), call. = FALSE)})
-        
-        treat.list[[i]] <- model.response(mf)
-        names(treat.list)[i] <- all.vars(tt[[2]])
-        covs.list[[i]] <- data[!is.na(match(names(data), vars.mentioned[vars.mentioned != all.vars(tt[[2]])]))]
+        t.c <- get.covs.and.treat.from.formula(formula.list[[i]], A$data)
+        covs.list[[i]] <- t.c[["covs"]]
+        treat.list[[i]] <- t.c[["treat"]]
+        names(treat.list)[i] <- t.c.[["treat.name"]]
     }
     
     X <- X2base.data.frame.list(covs.list, treat.list = treat.list, ...)
