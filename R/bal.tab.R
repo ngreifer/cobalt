@@ -1062,7 +1062,7 @@ bal.tab.formula <- function(formula, data = NULL, ...) {
     covs <- t.c[["covs"]]
     treat <- t.c[["treat"]]
  
-    out <- do.call(bal.tab.data.frame, c(list(covs = covs, treat = treat), args))
+    out <- do.call("bal.tab.data.frame", c(list(covs = covs, treat = treat), args))
     
     return(out)
 }
@@ -1662,7 +1662,7 @@ bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = F
     if (length(args$imp) > 0) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
     
     if (all(sapply(list_, is.formula))) {
-        X <- X2base.formula.list(formula.list = list_, 
+        X <- x2base.formula.list(formula.list = list_, 
                                  data = data,
                                  weights = weights,
                                  distance.list = distance.list,
@@ -1673,7 +1673,7 @@ bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = F
                                  estimand = estimand)
     }
     else if (all(sapply(list_, is.data.frame))) {
-        X <- X2base.data.frame.list(covs.list = list_, 
+        X <- x2base.data.frame.list(covs.list = list_, 
                                     treat.list = treat.list,
                                     data = data,
                                     weights = weights,

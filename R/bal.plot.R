@@ -10,7 +10,6 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (all(sapply(obj, is.formula))) class(obj) <- "formula.list"
         else if (all(sapply(obj, is.data.frame))) class(obj) <- "data.frame.list"
         else stop("If obj is a list, it must be a list of formulas specifying the treatment/covariate relationships at each time point or a list of data frames containing covariates to be assessed at each time point.", call. = FALSE)
-
     }
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     

@@ -505,7 +505,7 @@ get.w.ebalance <- function(e, treat, ...) {
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     
     weights <- rep(1, length(treat))
-    
+
     if (length(e$w) != sum(treat == 0)) {
         stop("There are more control units in treat than weights in the ebalance object.", call. = FALSE)
     }
@@ -551,7 +551,7 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
                 out <- paste(word.list, collapse = paste0(" ", and.or," "))
             }
             else {
-                out <- paste(paste(word.list[seq_len(L-1)], collapse = ", "), 
+                out <- paste(paste(word.list[seq_len(L-1)], collapse = ", "),
                              word.list[L], sep = paste0(", ", and.or," "))
                 
             }
@@ -583,7 +583,6 @@ nunique.gt <- function(x, n, na.rm = TRUE) {
         if (length(x) < 2000) nunique(x) > n
         else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)        
     }
-
 }
 is.formula <- function(f, sides = NULL) {
     res <- is.name(f[[1]])  && deparse(f[[1]]) %in% c( '~', '!') &&
@@ -592,20 +591,4 @@ is.formula <- function(f, sides = NULL) {
         res <- res && length(f) == sides + 1
     }
     return(res)
-}
-
-#Under construction
-inxnoty <- function(x, y) {
-    #Creates a list or data frame of names in x that are not in y.
-    #Useful for subsetting data sets into two groups of variables.
-    
-    if (!(is.character(x) || is.data.frame(x) || is.matrix(x)) || !(is.character(y) || is.data.frame(y) || is.matrix(y))) {
-        stop("Inputs to x and y must be either strings containing variable names or data frames or matrices with named columns.", call. = FALSE)
-    }
-    if (is.character(x)) X <- x else X <- colnames(x)
-    if (is.character(y)) Y <- y else Y <- colnames(y)
-    
-    if(is.character(x)) out <- x[is.na(match(X, Y))]
-    else out <- x[, is.na(match(X, Y))]
-    return(out)
 }

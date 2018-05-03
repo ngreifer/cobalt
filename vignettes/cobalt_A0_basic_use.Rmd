@@ -16,7 +16,7 @@ vignette: >
 knitr::opts_chunk$set(message = FALSE)
 ```
 
-This is an introductory guide for the use of `cobalt` in most common scenarios. Three appendices are available for its use with more complicated data scenarios and packages not demonstrated here.^[If none of the examples are working, this may be because `MatchIt`, `twang`, or `WeightIt` is missing. Such issues should be fixed soon.]
+This is an introductory guide for the use of `cobalt` in most common scenarios. Three appendices are available for its use with more complicated data scenarios and packages not demonstrated here.^[If none of the examples are working, this may be because `MatchIt`, `twang`, or `WeightIt` are missing. Such issues should be fixed soon.]
 
 ## Introduction
 
