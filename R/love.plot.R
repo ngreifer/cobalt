@@ -28,7 +28,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (!is.numeric(threshold) || length(threshold) > 1) stop("threshold must be a single number.", call. = FALSE)
     }
     
-    if (length(args$cluster.fun) > 0) agg.fun <- args$cluster.fun
+    if (is_not_null(args$cluster.fun)) agg.fun <- args$cluster.fun
     which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlation = "Corr")
     which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", ks.statistics = "Kolmogorov-Smirnov Statistic", correlation = "Correlation")
     Agg.Fun <- NULL
@@ -44,13 +44,13 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     subclass.names <- NULL
     
     #NA = aggregate, NULL = individual
-    null.cluster <- length(b$print.options$which.cluster) == 0
+    null.cluster <- is_null(b$print.options$which.cluster)
     na.cluster <- !null.cluster && is.na(b$print.options$which.cluster)
-    null.imp <- length(b$print.options$which.imp) == 0
+    null.imp <- is_null(b$print.options$which.imp)
     na.imp <- !null.imp && is.na(b$print.options$which.imp)
-    null.treat <- length(b$print.options$which.treat) == 0
+    null.treat <- is_null(b$print.options$which.treat)
     na.treat <- !null.treat && is.na(b$print.options$which.treat)
-    null.time <- length(b$print.options$which.time) == 0
+    null.time <- is_null(b$print.options$which.time)
     na.time <- !null.time && is.na(b$print.options$which.time)
     
     if (any(class(b) == "bal.tab.msm")) {
@@ -94,7 +94,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "time"
         }
         else if (config == "agg.time") {
-            if (length(b[["Balance.Across.Times"]]) == 0) {
+            if (is_null(b[["Balance.Across.Times"]])) {
                 stop("Cannot aggregate across time periods without a balance summary across time periods.\nThis may be because multinomial treatments were used, multiple treatment types were used,\n or quick was set to TRUE and msm.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
             #Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
@@ -475,10 +475,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
     }
     
-    if (length(var.names) > 0) {
+    if (is_not_null(var.names)) {
         if (is.data.frame(var.names)) {
             if (ncol(var.names)==1) {
-                if (length(row.names(var.names)) > 0) {
+                if (is_not_null(row.names(var.names))) {
                     new.labels <- setNames(as.list(as.character(rownames(var.names))), var.names[,1])
                 }
                 else warning("var.names is a data.frame, but its rows are unnamed.", call. = FALSE)
@@ -495,14 +495,14 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             } 
         }
         else if (is.character(var.names) || is.factor(var.names)) {
-            if (length(names(var.names))>0) {
+            if (is_not_null(names(var.names))) {
                 new.labels <- setNames(as.list(names(var.names)), var.names)
             }
             else warning("var.names is a vector, but its values are unnamed.", call. = FALSE)
         }
         else if (is.list(var.names)) {
             if (all(sapply(var.names, function(x) is.character(x) || is.factor(x)))) {
-                if (length(names(var.names))>0) {
+                if (is_not_null(names(var.names))) {
                     new.labels <- setNames(names(var.names), var.names) #already a list
                 }
                 else warning("var.names is a list, but its values are unnamed.", call. = FALSE)
@@ -519,7 +519,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         B <- B[is.na(match(B[["var.names"]], distance.names)),]
     }
     
-    if (length(var.order) > 0) {
+    if (is_not_null(var.order)) {
         if (b$print.options$nweights == 0) {
             ua <- c("Unadjusted", "Alphabetical")
             names(ua) <- c("unadjusted", "alphabetical")
@@ -535,15 +535,15 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         var.order <- ua[match.arg(var.order, tolower(ua))]
     }
 
-    if (length(facet) > 0) {
-        if (length(var.order) > 0 && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
+    if (is_not_null(facet)) {
+        if (is_not_null(var.order) && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
             warning("var.order cannot be set with multiple plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
             var.order <- NULL
         }
     }
     
     #Sample <- min.stat <- max.stat <- mean.stat <- NULL #To avoid CRAN checks
-    if (length(Agg.Fun) > 0 && Agg.Fun == "Range") {
+    if (is_not_null(Agg.Fun) && Agg.Fun == "Range") {
         agg.range <- TRUE
     }
     else agg.range <- FALSE
@@ -557,14 +557,16 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                                                              Sample = ifelse(x == "Un", "Unadjusted", 
                                                                              ifelse(x == "Adj", "Adjusted", x)))))
 
-        if (length(facet) > 0 && "cluster" %in% facet) {
-            SS$cluster <- rep(B[["cluster"]], 1 + b$print.options$nweights)
-        }
-        if (length(facet) > 0 && "imp" %in% facet) {
-            SS$imp <- rep(B[["imp"]], 1 + b$print.options$nweights)
-        }
-        if (length(facet) > 0 && "treat.pair" %in% facet) {
-            SS$treat.pair <- rep(B[["treat.pair"]], 1 + b$print.options$nweights)
+        if (is_not_null(facet)) {
+            if ("cluster" %in% facet) {
+                SS$cluster <- rep(B[["cluster"]], 1 + b$print.options$nweights)
+            }
+            if ("imp" %in% facet) {
+                SS$imp <- rep(B[["imp"]], 1 + b$print.options$nweights)
+            }
+            if ("treat.pair" %in% facet) {
+                SS$treat.pair <- rep(B[["treat.pair"]], 1 + b$print.options$nweights)
+            }
         }
         
         if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) stop("No balance statistics to display.", call. = FALSE)
@@ -580,7 +582,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (abs) dec <- FALSE
         else dec <- FALSE
         
-        if (length(var.order)>0) {
+        if (is_not_null(var.order)) {
             if (var.order %in% ua) {
                 if (var.order %in% gone) {
                     warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
@@ -610,7 +612,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
             }
         }
-        if (length(var.order)==0) {
+        if (is_null(var.order)) {
             covnames <- as.character(unique(SS[["var"]]))
             SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
         }
@@ -623,12 +625,12 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     else {
         SS <- do.call("rbind", lapply(c("Un", b$print.options$weight.names),
                                       function(x) data.frame(var = B[["var.names"]],
-                                                             stat = B[[ifelse(length(Agg.Fun) == 0, paste(which.stat, x, sep = "."),
+                                                             stat = B[[ifelse(is_null(Agg.Fun), paste(which.stat, x, sep = "."),
                                                                                paste(Agg.Fun, which.stat, x, sep = "."))]],
                                                              Sample = ifelse(x == "Un", "Unadjusted", 
                                                                              ifelse(x == "Adj", "Adjusted", x)))))
         
-        if (length(facet) > 0) {
+        if (is_not_null(facet)) {
             for (i in c("cluster", "imp", "treat.pair", "time")) {
                 if (i %in% facet) {
                     SS[[i]] <- rep(B[[i]], 1 + b$print.options$nweights)
@@ -652,7 +654,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
         else dec <- FALSE
         
-        if (length(var.order)>0) {
+        if (is_not_null(var.order)) {
             if (tolower(var.order) == "alphabetical") {
                 if ("time" %in% facet) {
                     covnames0 <- vector("list", length(unique(SS[["time"]])))
@@ -683,7 +685,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
             
         }
-        if (length(var.order)==0) {
+        if (is_null(var.order)) {
             covnames <- as.character(unique(SS[["var"]]))
             SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
         }
@@ -708,10 +710,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     stroke <- .8*size
     
     #Color
-    ntypes <- if (length(subclass.names) == 0) nlevels(SS$Sample) else 2
-    if (length(args$colours) > 0) colors <- args$colours
+    ntypes <- if (is_null(subclass.names)) nlevels(SS$Sample) else 2
+    if (is_not_null(args$colours)) colors <- args$colours
     
-    if (length(colors) == 0) {
+    if (is_null(colors)) {
         if (shapes.ok(shapes, ntypes) && length(shapes) == ntypes) {
             colors <- rep("black", ntypes)
         }
@@ -788,7 +790,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     }
     
     apply.limits <- FALSE
-    if (length(args$limits) > 0) {
+    if (is_not_null(args$limits)) {
         limits <- args$limits
         if (length(limits) != 2 || !is.numeric(limits)) {
             warning("limits must be a numeric vector of length 2. Ignoring limits.", call. = FALSE)
@@ -819,7 +821,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             apply.limits <- TRUE
         }
     }
-    if (length(args$sample.names) > 0) {
+    if (is_not_null(args$sample.names)) {
         if (!all(is.character(args$sample.names))) {
             warning("The argument to sample.names must be a character vector. Ignoring sample.names.", call. = FALSE)
         }
@@ -869,7 +871,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     }
     else {
         
-        if (length(subclass.names) == 0 || !b$print.options$disp.subclass) {
+        if (is_null(subclass.names) || !b$print.options$disp.subclass) {
             if (line == TRUE) { #Add line except to distance
                 f <- function(x) {x[["stat"]][x$var %in% distance.names] <- NA; x}
                 lp <- lp + ggplot2::layer(geom = "path", data = f(SS), position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
@@ -896,14 +898,14 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         
     }
 
-    if (!drop.distance && length(distance.names) > 0) {
+    if (!drop.distance && is_not_null(distance.names)) {
         lp <- lp + geom_hline(linetype = 1, color = "black", 
                               yintercept = nunique(SS[["var"]]) - length(distance.names) + .5)
     }
     if (apply.limits) {
         lp <- lp + scale_x_continuous(limits = limits, expand = c(0, 0))
     }
-    if (length(facet) > 0) {
+    if (is_not_null(facet)) {
         lp <- lp + facet_grid(f.build(".", facet), drop = FALSE)
     }
 

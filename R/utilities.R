@@ -1,8 +1,8 @@
 #Utility functions
 f.build <- function(y, rhs) {
-    if ((is.data.frame(rhs) || is.matrix(rhs)) && length(colnames(rhs)) > 0)
+    if ((is.data.frame(rhs) || is.matrix(rhs)) && is_not_null(colnames(rhs)))
         vars <- colnames(rhs)
-    else if (is.character(rhs) && length(rhs) > 0)
+    else if (is.character(rhs) && is_not_null(rhs))
         vars <- rhs
     else stop("Right hand side argument to f.build() must be a vector of variable names or a data set with named variables.", call. = FALSE)
     if (!(is.character(y) && length(y) == 1)) stop ("Response argument to f.build() must be the quoted name of the response variable.", call. = FALSE)
@@ -41,7 +41,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             else {
                 stop("var.name must be a character vector of the name(s) of factor variable(s) in data.", call. = FALSE)
             }
-            if (length(factor.names) == 0) {
+            if (is_null(factor.names)) {
                 stop("There are no factor variables to split in data.", call. = FALSE)
             }
         }
@@ -73,7 +73,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             names(data) <- dep
         }
         else if (is.vector(var.name) && (is.atomic(var.name) || is.factor(var.name))) {
-            if (length(var.name) == 0) {
+            if (is_null(var.name)) {
                 names(data) <- dep
             }
             else if (length(var.name) == 1) {
@@ -93,7 +93,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         stop("data must a be a data.frame or an atomic vector.", call. = FALSE)
     }
     
-    if (length(drop.level) > 0 && length(var.name) > 1) {
+    if (is_not_null(drop.level) && length(var.name) > 1) {
         warning("drop.level cannot be used with multiple entries to var.name. Ignoring drop.level.", call. = FALSE)
         drop.level <- NULL
     }
@@ -132,7 +132,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         if (!skip) {
             colnames(k) <- paste(v, sapply(strsplit(colnames(k), v, fixed = TRUE), function(n) paste(n, collapse = "")), sep = sep)
             
-            if (length(drop.level) > 0) {
+            if (is_not_null(drop.level)) {
                 if (is.character(drop.level) && length(drop.level) == 1 && drop.level %in% levels(x)) {
                     drop <- drop.level
                 }
@@ -148,7 +148,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             }
             
             dropl <- rep(FALSE, ncol(k))
-            if (length(drop) > 0) {
+            if (is_not_null(drop)) {
                 dropl[!is.na(levels(x)) & levels(x) %in% drop] <- TRUE
             }
             if (drop.na[v]) dropl[is.na(levels(x))] <- TRUE
@@ -183,7 +183,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
     
     if (!is.data.frame(data)) stop("data must be a data.frame containing the variables to unsplit.", call = FALSE)
     if (!is.character(var.name)) stop("var.name must be a string containing the name of the variables to unsplit.", call. = FALSE)
-    if (length(dropped.level) > 0 && length(var.name) > 1) {
+    if (is_not_null(dropped.level) && length(var.name) > 1) {
         warning("dropped.level cannot be used with multiple var.names and will be ignored.", call. = FALSE, immediate. = TRUE)
         dropped.level <- NULL
     }
@@ -199,7 +199,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
     for (v in var.name) {
         dropped.level0 <- dropped.level
         var.to.combine <- data[startsWith(names(data), paste0(v, sep))]
-        if (length(var.to.combine) == 0) {
+        if (is_null(var.to.combine)) {
             not.the.stem <- c(not.the.stem, paste0(v, sep))
             next
         }
@@ -226,7 +226,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         else if (isTRUE(all.equal(sort(unique(var.sum)), c(0, 1)))) {
             #Missing category
             
-            if (length(dropped.level) == 0) {
+            if (is_null(dropped.level)) {
                 k.levels0 <- sapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep))[[1]][2])
                 
                 if (suppressWarnings(all(!is.na(as.numeric(k.levels0))))) {
@@ -263,7 +263,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
             
             data[[min(where)]] <- k
             remove.cols <- where[where!=min(where)]
-            if (length(remove.cols) > 0) data <- data[-remove.cols]
+            if (is_not_null(remove.cols)) data <- data[-remove.cols]
             names(data)[min(where)] <- v
         }
         else {
@@ -271,7 +271,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         }
     }
     
-    if (length(not.the.stem) > 0) warning(paste0(word.list(not.the.stem, is.are = TRUE, quotes = TRUE), " not the stem of any variables in data and will be ignored. Ensure var.name and sep are correct."), call. = FALSE)
+    if (is_not_null(not.the.stem)) warning(paste0(word.list(not.the.stem, is.are = TRUE, quotes = TRUE), " not the stem of any variables in data and will be ignored. Ensure var.name and sep are correct."), call. = FALSE)
     
     return(data)
 }
@@ -282,10 +282,10 @@ get.w.matchit <- function(m,...) {
 }
 get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE, ...) {
     estimand <- tolower(estimand)
-    if (length(stop.method) > 0) {
+    if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
             rule1 <- names(ps$w)[sapply(names(ps$w), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
-            if (length(rule1) == 0) {
+            if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps$w)
             }
@@ -311,7 +311,7 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE,
     
     s <- names(ps$w)[match(tolower(rule1), tolower(names(ps$w)))]
     
-    if (length(estimand) == 0) estimand <- setNames(substr(tolower(s), nchar(s)-2, nchar(s)), s)
+    if (is_null(estimand)) estimand <- setNames(substr(tolower(s), nchar(s)-2, nchar(s)), s)
     else if (!all(tolower(estimand) %in% c("att", "ate", "atc"))) {
         stop('estimand must be "ATT", "ATE", or "ATC".', call. = FALSE)
     }
@@ -336,10 +336,10 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE,
     return(w)
 }
 get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
-    if (length(stop.method) > 0) {
+    if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
             rule1 <- mnps$stopMethods[sapply(t(sapply(tolower(stop.method), function(x) startsWith(tolower(mnps$stopMethods), x))), any)]
-            if (length(rule1) == 0) {
+            if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- mnps$stopMethods
             }
@@ -398,10 +398,10 @@ get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
     return(w)
 }
 get.w.iptw <- function(iptw, stop.method = NULL, s.weights = FALSE, ...) {
-    if (length(stop.method) > 0) {
+    if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
             rule1 <- names(iptw$psList[[1]]$ps)[sapply(names(iptw$psList[[1]]$ps), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
-            if (length(rule1) == 0) {
+            if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(iptw$psList[[1]]$ps)
             }
@@ -457,7 +457,7 @@ get.w.Match <- function(M,  ...) {
 }
 get.w.CBPS <- function(c, estimand = NULL, ...) {
     A <- list(...)
-    if (length(A$use.weights) == 0) use.weights <- TRUE
+    if (is_null(A$use.weights)) use.weights <- TRUE
     else use.weights <- A$use.weights
     
     estimand <- tolower(estimand)
@@ -469,13 +469,11 @@ get.w.CBPS <- function(c, estimand = NULL, ...) {
         if (!use.weights) {
             ps <- c$fitted.values
             t <- c$y 
-            if (length(estimand) == 0) {
-                if (abs(max(c$weights[t == 1], na.rm = TRUE) - 
-                        min(c$weights[t == 1], na.rm = TRUE)) < 
-                    sqrt(.Machine$double.eps)) {
-                    estimand <- "att"
+            if (is_null(estimand)) {
+                if (nunique.gt(c$weights[t == 1], 1)) {
+                    estimand <- "ate"
                 }
-                else estimand <- "ate"
+                else estimand <- "att"
             }
             
             estimand <- match.arg(tolower(estimand), c("att", "atc", "ate"))
@@ -567,7 +565,7 @@ expand.grid_string <- function(..., collapse = "") {
     return(apply(expand.grid(...), 1, paste, collapse = collapse))
 }
 nunique <- function(x, nmax = NA, na.rm = TRUE) {
-    if (length(x) == 0) return(0)
+    if (is_null(x)) return(0)
     else {
         if (na.rm) x <- x[!is.na(x)]
         if (is.factor(x)) return(nlevels(x))
@@ -577,13 +575,15 @@ nunique <- function(x, nmax = NA, na.rm = TRUE) {
 }
 nunique.gt <- function(x, n, na.rm = TRUE) {
     if (n < 0) stop("n must be non-negative.", call. = FALSE)
-    if (length(x) == 0) FALSE
+    if (is_null(x)) FALSE
     else {
         if (na.rm) x <- x[!is.na(x)]
+        if (n == 1 && is.numeric(x)) !check_if_zero(max(x) - min(x))
         if (length(x) < 2000) nunique(x) > n
-        else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)        
+        else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
     }
 }
+all_the_same <- function(x) !nunique.gt(x, 1)
 is.formula <- function(f, sides = NULL) {
     res <- is.name(f[[1]])  && deparse(f[[1]]) %in% c( '~', '!') &&
         length(f) >= 2
@@ -592,3 +592,15 @@ is.formula <- function(f, sides = NULL) {
     }
     return(res)
 }
+check_if_zero_base <- function(x) {
+    # this is the default tolerance used in all.equal
+    tolerance <- .Machine$double.eps^0.5
+    # If the absolute deviation between the number and zero is less than
+    # the tolerance of the floating point arithmetic, then return TRUE.
+    # This means, to me, that I can treat the number as 0 rather than
+    # -3.20469e-16 or some such.
+    abs(x - 0) < tolerance
+}
+check_if_zero <- Vectorize(check_if_zero_base)
+is_null <- function(x) length(x) == 0L
+is_not_null <- function(x) !is_null(x)

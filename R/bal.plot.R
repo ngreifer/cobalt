@@ -13,7 +13,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     }
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     
-    if (length(X$covs.list) > 0) {
+    if (is_not_null(X$covs.list)) {
         var.list <- vector("list", length(X$covs.list))
         appears.in.time <- rep(TRUE, length(X$covs.list))
         for (i in seq_along(X$covs.list)) {
@@ -22,13 +22,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             else if (!is.null(X$distance.list) && var.name %in% names(X$distance.list[[i]])) var.list[[i]] <- X$distance.list[[i]][[var.name]]
             else appears.in.time[i] <- FALSE
         }
-        if (all(sapply(var.list, function(x) length(x) == 0))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
+        if (all(sapply(var.list, is_null))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
         X$var <- unlist(var.list[appears.in.time])
         X$time <- rep(seq_along(X$covs.list)[appears.in.time], each = nrow(X$covs.list[[1]]))
         X$treat <- unlist(X$treat.list[appears.in.time])
-        if (length(names(X$treat.list)) > 0) treat.names <- names(X$treat.list)
+        if (is_not_null(names(X$treat.list))) treat.names <- names(X$treat.list)
         else treat.names <- seq_along(X$treat.list)
-        if (length(X$weights) > 0) X$weights <- do.call("rbind", replicate(sum(appears.in.time), list(X$weights)))
+        if (is_not_null(X$weights)) X$weights <- do.call("rbind", replicate(sum(appears.in.time), list(X$weights)))
     }
     else {
         if (var.name %in% names(X$covs)) X$var <- X$covs[[var.name]]
@@ -40,13 +40,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     }
     
     #Density arguments supplied through ...
-    if (length(args$bw) > 0) bw <- args$bw else bw <- "nrd0"
-    if (length(args$adjust) > 0) adjust <- args$adjust else adjust <- 1
-    if (length(args$kernel) > 0) kernel <- args$kernel else kernel <- "gaussian"
-    if (length(args$n) > 0) n <- args$n else n <- 512
+    if (is_not_null(args$bw)) bw <- args$bw else bw <- "nrd0"
+    if (is_not_null(args$adjust)) adjust <- args$adjust else adjust <- 1
+    if (is_not_null(args$kernel)) kernel <- args$kernel else kernel <- "gaussian"
+    if (is_not_null(args$n)) n <- args$n else n <- 512
 
     if (missing(which)) {
-        if (length(args$un) > 0) {
+        if (is_not_null(args$un)) {
             message("Note: \'un\' is deprecated; please use \'which\' for the same and added functionality.")
             if (args$un) which <- "unadjusted"
             else which <- "adjusted"
@@ -56,7 +56,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
     }
     else {
-        if (length(X$weights) == 0 && length(X$subclass) == 0) which <- "unadjusted"
+        if (is_null(X$weights) && is_null(X$subclass)) which <- "unadjusted"
         else {
             which <- tryCatch(match.arg(tolower(which), c("adjusted", "unadjusted", "both")),
                               error = function(cond) stop(paste("The argument to 'which' should be one of", word.list(c("adjusted", "unadjusted", "both"), "or", quotes = TRUE)), call. = FALSE))
@@ -67,13 +67,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     subtitle <- NULL
     
     facet <- NULL
-    is.categorical.var <- length(unique(X$var)) <= 2 || is.factor(X$var) || is.character(X$var)
+    is.categorical.var <- !nunique.gt(X$var, 2) || is.factor(X$var) || is.character(X$var)
     
-    if (length(X$subclass) > 0) {
+    if (is_not_null(X$subclass)) {
         if (which %in% c("adjusted", "both")) {
-            if (length(X$cluster) > 0) stop("Subclasses are not supported with clusters.", call. = FALSE)
-            if (length(X$imp) > 0) stop("Subclasses are not supported with multiple imputations.", call. = FALSE)
-            if (is.null(which.sub)) { 
+            if (is_not_null(X$cluster)) stop("Subclasses are not supported with clusters.", call. = FALSE)
+            if (is_not_null(X$imp)) stop("Subclasses are not supported with multiple imputations.", call. = FALSE)
+            if (is_null(which.sub)) { 
                 which.sub <- levels(X$subclass)
             }
             if (is.numeric(which.sub) && any(which.sub %in% levels(X$subclass))) {
@@ -108,10 +108,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         
     }
-    else if (length(X$subclass) == 0 && length(which.sub) > 0) {
+    else if (is_null(X$subclass) && is_not_null(which.sub)) {
         warning("which.sub was specified but no subclasses were supplied. Ignoring which.sub.", call. = FALSE)
     }
-    else if (which == "unadjusted" && length(which.sub) > 0) {
+    else if (which == "unadjusted" && is_not_null(which.sub)) {
         warning("which.sub was specified but the unadjusted sample was requested. Ignoring which.sub.", call. = FALSE)
     }
     
@@ -119,7 +119,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         facet <- "facet.which"
         
-        if (length(X$weights) == 0 || which == "unadjusted") {
+        if (is_null(X$weights) || which == "unadjusted") {
             X$weights <- data.frame(rep(1, length(X$treat)))
             names(X$weights) <- "Unadjusted Sample"
             #nweights <- 1
@@ -139,8 +139,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         #NULL: all; NA: none
         in.imp <- rep(TRUE, length(X$var))
-        if (length(X$imp) > 0) {
-            if (length(which.imp) == 0 || all(is.na(which.imp))) {
+        if (is_not_null(X$imp)) {
+            if (is_null(which.imp) || all(is.na(which.imp))) {
                 in.imp <- !is.na(X$imp)
             }
             else {
@@ -156,13 +156,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             facet <- c("imp", facet)
         }
-        else if (length(which.imp) > 0) {
+        else if (is_not_null(which.imp)) {
             warning("which.imp was specified but no imp values were supplied. Ignoring which.imp.", call. = FALSE)
         }
         
         in.cluster <- rep(TRUE, length(X$var))
-        if (length(X$cluster) > 0) {
-            if (length(which.cluster) == 0 || all(is.na(which.cluster))) {
+        if (is_not_null(X$cluster)) {
+            if (is_null(which.cluster)|| all(is.na(which.cluster))) {
                 in.cluster <- !is.na(X$cluster)
             }
             else {
@@ -186,13 +186,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             facet <- c("cluster", facet)
         }
-        else if (length(which.cluster) > 0) {
+        else if (is_not_null(which.cluster)) {
             warning("which.cluster was specified but no cluster values were supplied. Ignoring which.cluster.", call. = FALSE)
         }
         
         in.time <- rep(TRUE, length(X$var))
-        if (length(X$time) > 0) {
-            if (length(which.time) == 0 || all(is.na(which.time))) {
+        if (is_not_null(X$time)) {
+            if (is_null(which.time) || all(is.na(which.time))) {
                 in.time <- !is.na(X$time)
             }
             else {
@@ -243,7 +243,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             facet <- c("time", facet)
         }
-        else if (length(which.time) > 0) {
+        else if (is_not_null(which.time)) {
             warning("which.time was specified but a point treatment was supplied. Ignoring which.time.", call. = FALSE)
         }
         
@@ -317,18 +317,18 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     else { #Categorical treatments (multinomial supported)
         D$treat <- factor(D$treat)
         
-        if (length(which.treat) == 0) 
+        if (is_null(which.treat)) 
             which.treat <- character(0)
         else if (is.numeric(which.treat)) {
             which.treat <- levels(D$treat)[seq_along(levels(D$treat)) %in% which.treat]
-            if (length(which.treat) == 0) {
+            if (is_null(which.treat)) {
                 warning("No numbers in which.treat correspond to treatment values. All treatment groups will be displayed.", call. = FALSE)
                 which.treat <- character(0)
             }
         }
         else if (is.character(which.treat)) {
             which.treat <- levels(D$treat)[levels(D$treat) %in% which.treat]
-            if (length(which.treat) == 0) {
+            if (is_null(which.treat)) {
                 warning("No names in which.treat correspond to treatment values. All treatment groups will be displayed.", call. = FALSE)
                 which.treat <- character(0)
             }
@@ -340,11 +340,11 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             warning("The argument to which.treat must be NA, NULL, or a vector of treatment names or indices. All treatment groups will be displayed.", call. = FALSE)
             which.treat <- character(0)
         }
-        if (length(which.treat) > 0 && all(!is.na(which.treat))) D <- D[D$treat %in% which.treat,]
+        if (is_not_null(which.treat) && all(!is.na(which.treat))) D <- D[D$treat %in% which.treat,]
         
         for (i in names(D)[sapply(D, is.factor)]) D[[i]] <- factor(D[[i]])
         
-        if (length(facet) > 0) {
+        if (is_not_null(facet)) {
             if ("subclass" %in% facet) {
                 weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i] & subclass==subclass[i]])))
                 d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
@@ -359,7 +359,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             d <- data.frame(weights = weights, treat = D$treat, var = D$var)
         }
         
-        if (length(unique(d$var)) <= 2 || is.factor(d$var) || is.character(d$var)) { #Categorical vars
+        if (!nunique.gt(d$var, 2) || is.factor(d$var) || is.character(d$var)) { #Categorical vars
             d$var <- factor(d$var)
             bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
                 geom_bar(position = "dodge", alpha = .4, color = "black") + 
@@ -373,7 +373,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
     }
     
-    if (length(facet) > 0) {
+    if (is_not_null(facet)) {
         if (length(facet) >= 2) {
             if ("facet.which" %in% facet) {
                 facet.formula <- f.build("facet.which", facet[!facet %in% "facet.which"])
