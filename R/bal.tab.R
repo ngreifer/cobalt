@@ -1059,7 +1059,7 @@ bal.tab.formula <- function(formula, data = NULL, ...) {
 
     #Initializing variables
     t.c <- get.covs.and.treat.from.formula(formula, data)
-    covs <- t.c[["covs"]]
+    covs <- t.c[["reported.covs"]]
     treat <- t.c[["treat"]]
  
     out <- do.call("bal.tab.data.frame", c(list(covs = covs, treat = treat), args))

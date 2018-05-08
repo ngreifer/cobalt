@@ -502,7 +502,7 @@ x2base.formula <- function(f, ...) {
     A[["treat"]] <- NULL
     
     t.c <- get.covs.and.treat.from.formula(f, A[["data"]])
-    covs <- t.c[["covs"]]
+    covs <- t.c[["reported.covs"]]
     treat <- t.c[["treat"]]
 
     X <- do.call("x2base.data.frame", c(list(covs = covs, treat = treat), A))
@@ -1936,7 +1936,7 @@ x2base.formula.list <- function(formula.list, ...) {
     treat.list <- covs.list <- vector("list", length(formula.list))
     for (i in seq_along(formula.list)) {
         t.c <- get.covs.and.treat.from.formula(formula.list[[i]], A[["data"]])
-        covs.list[[i]] <- t.c[["covs"]]
+        covs.list[[i]] <- t.c[["reported.covs"]]
         treat.list[[i]] <- t.c[["treat"]]
         names(treat.list)[i] <- t.c[["treat.name"]]
     }
