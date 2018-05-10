@@ -1,5 +1,14 @@
 cobalt News and Updates
 ======
+
+Version 3.2.4
+
+* Fixed bugs resulting form changes to how formula inputs are handled.
+
+* Cleaned up some internal functions, also fixing some related bugs
+
+* Added `subset` option in all `bal.tab()` methods (and consequently in `bal.plot()`) that allows users to specify a subset of the data to assess balance on (i.e., instead of the whole data set). This provides a workaround for methods were the `cluster` option isn't allowed (e.g., longitudinal treatments) but balance is desired on subsets of the data. However, in most cases, `cluster` with `which.cluster` specified makes more sense.
+
 Version 3.2.3
 
 * Added support for data with missing covariates. `bal.tab()` will produce balanace statistics for the non-missing values and will automatically create a new variable indicating whether the variable is missing or not and produce balance statistics on this variable as well. 

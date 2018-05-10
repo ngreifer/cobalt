@@ -36,6 +36,7 @@ Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package
     which.time = NULL,
     msm.summary = TRUE, 
     s.weights = NULL,
+    subset = NULL,
     quick = FALSE, 
     ...)
 }
@@ -124,6 +125,9 @@ which time periods to display if longutdinal treatments are used. See \code{\lin
 }
   \item{s.weights}{
 Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data} or the CBPS object. If the original call to \code{CBPS()} included sampling weights, they should be specified again here to ensure correct computation of balance statistics and unadjusted values. See Details below.
+}
+  \item{subset}{
+A \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{CBPS()} or \code{CBMSM()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.

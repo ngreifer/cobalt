@@ -32,6 +32,8 @@ x2base.matchit <- function(m, ...) {
     weights <- data.frame(weights = m$weights)
     treat <- m$treat
     data <- A$data
+    subset <- A$subset
+    cluster <- A$cluster
     
     if (is_not_null(m$model$model)) {
         o.data <- m$model$model #data used in the PS formula, including treatment and covs
@@ -45,7 +47,6 @@ x2base.matchit <- function(m, ...) {
     m.data <- m$model$data
     
     #Process cluster
-    cluster <- A$cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -61,6 +62,17 @@ x2base.matchit <- function(m, ...) {
         else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     #Process addl and distance
     for (i in c("addl", "distance")) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data, m.data))
@@ -72,7 +84,7 @@ x2base.matchit <- function(m, ...) {
     }
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster", "treat")
+    vectors <- c("cluster", "treat", "subset")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
@@ -95,13 +107,15 @@ x2base.matchit <- function(m, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$treat <- treat
-    X$weights <- weights
-    X$discarded <- m$discarded
-    X$covs <- covs
-    X$distance <- distance
-    X$addl <- addl
-    X$cluster <- factor(cluster)
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$treat <- treat[subset]
+    X$weights <- weights[subset, , drop = FALSE]
+    X$discarded <- m$discarded[subset]
+    X$covs <- covs[subset, , drop = FALSE]
+    X$distance <- distance[subset, , drop = FALSE]
+    X$addl <- addl[subset, , drop = FALSE]
+    X$cluster <- factor(cluster[subset])
     X$call <- m$call
     return(X)
 }
@@ -165,9 +179,11 @@ x2base.ps <- function(ps, ...) {
     covs <- ps$data[, ps$gbm.obj$var.names, drop = FALSE]
     data <- A$data
     ps.data <- ps$data
+    cluster <- A$cluster
+    subset <- A$subset
+    s.weights <- ps$sampw
     
     #Process cluster
-    cluster <- A$cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -180,6 +196,17 @@ x2base.ps <- function(ps, ...) {
                 cluster <- ps.data[[cluster]]
             }
             else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+        }
+    }
+    
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
         }
     }
     
@@ -206,7 +233,7 @@ x2base.ps <- function(ps, ...) {
     }
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster")
+    vectors <- c("s.weights", "cluster", "subset")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
@@ -229,15 +256,17 @@ x2base.ps <- function(ps, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$weights <- weights
-    X$treat <- treat
-    X$distance <- distance
-    X$addl <- addl
-    X$covs <- covs
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat <- treat[subset]
+    X$distance <- distance[subset, , drop = FALSE]
+    X$addl <- addl[subset, , drop = FALSE]
+    X$covs <- covs[subset, , drop = FALSE]
     X$call <- ps$parameters
-    X$cluster <- factor(cluster)
+    X$cluster <- factor(cluster[subset])
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- ps$sampw
+    X$s.weights <- s.weights[subset]
     
     return(X)
 }
@@ -301,11 +330,13 @@ x2base.mnps <- function(mnps, ...) {
     treat <- mnps$treatVar
     covs <- mnps$data[mnps$psList[[1]]$gbm.obj$var.names]
     data <- A$data
+    cluster <- A$cluster
+    subset <- A$subset
+    s.weights <- ps$sampw
     
     mnps.data <- mnps$data
     
     #Process cluster
-    cluster <- A$cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -321,6 +352,17 @@ x2base.mnps <- function(mnps, ...) {
         else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     #Process addl and distance
     for (i in c("addl", "distance")) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data, mnps.data))
@@ -334,7 +376,7 @@ x2base.mnps <- function(mnps, ...) {
     # else distance <- data.frame(prop.score = model.ps.combined)
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster")
+    vectors <- c("s.weights", "cluster", "subset")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
@@ -357,15 +399,17 @@ x2base.mnps <- function(mnps, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$weights <- weights
-    X$treat <- treat
-    X$distance <- distance
-    X$addl <- addl
-    X$covs <- covs
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat <- treat[subset]
+    X$distance <- distance[subset, , drop = FALSE]
+    X$addl <- addl[subset, , drop = FALSE]
+    X$covs <- covs[subset, , drop = FALSE]
     X$call <- NULL
-    X$cluster <- factor(cluster)
+    X$cluster <- factor(cluster[subset])
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- mnps$sampw
+    X$s.weights <- mnps$sampw[subset]
     X$focal <- mnps$treatATT
     
     return(X)
@@ -435,8 +479,10 @@ x2base.Match <- function(Match, ...) {
     o.data <- do.call(rbind, data.list)
     o.data2 <- merge(unique(o.data[is.na(match(names(o.data), "weights"))]), aggregate(weights~index, data=o.data, FUN=sum), by="index")
     
-    #Process cluster
     cluster <- A$cluster
+    subset <- A$subset
+    
+    #Process cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -448,10 +494,22 @@ x2base.Match <- function(Match, ...) {
         
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     #Process addl and distance
     for (i in c("addl", "distance")) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data))
-    }    
+    }  
+    
     treat <- o.data2$treat
     weights <- data.frame(weights = o.data2$weights)
     covs <- o.data2[is.na(match(names(o.data2), c("treat", "weights", "index")))]
@@ -460,7 +518,7 @@ x2base.Match <- function(Match, ...) {
     
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
-    vectors <- c("treat", "cluster")
+    vectors <- c("treat", "cluster", "subset")
     data.frames <- c(covs.data, "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
@@ -484,15 +542,17 @@ x2base.Match <- function(Match, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$treat <- treat
-    X$weights <- weights
-    X$discarded <- dropped
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$treat <- treat[subset]
+    X$weights <- weights[subset, , drop = FALSE]
+    X$discarded <- dropped[subset]
     X$distance <- NULL #NAs in distance bcause of incomplete list in Match object
-    X$addl <- addl
-    X$covs <- covs
+    X$addl <- addl[subset, , drop = FALSE]
+    X$covs <- covs[subset, , drop = FALSE]
     X$call <- NULL
     X$method <- "matching"
-    X$cluster <- factor(cluster)
+    X$cluster <- factor(cluster[subset])
     
     return(X)
 }
@@ -549,6 +609,7 @@ x2base.data.frame <- function(covs, ...) {
     estimand <- A$estimand
     imp <- A$imp
     s.weights <- A$s.weights
+    subset <- A$subset
     focal <- A$focal
     
     
@@ -771,7 +832,6 @@ x2base.data.frame <- function(covs, ...) {
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }
     }
-    else s.weights <- rep(1, length(treat))
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -784,8 +844,19 @@ x2base.data.frame <- function(covs, ...) {
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     ensure.equal.lengths <- TRUE
-    vectors <- c("treat", "subclass", "match.strata", "cluster", "s.weights")
+    vectors <- c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
@@ -1012,16 +1083,18 @@ x2base.data.frame <- function(covs, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$covs <- covs
-    X$weights <- weights
-    X$treat <- treat
-    X$distance <- distance
-    X$subclass <- subclass
-    X$cluster <- factor(cluster)
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$covs <- covs[subset, , drop = FALSE]
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat <- treat[subset]
+    X$distance <- distance[subset, , drop = FALSE]
+    X$subclass <- subclass[subset]
+    X$cluster <- factor(cluster[subset])
     X$call <- NULL
-    X$addl <- addl
-    X$imp <- factor(imp)
-    X$s.weights <- s.weights
+    X$addl <- addl[subset, , drop = FALSE]
+    X$imp <- factor(imp[subset])
+    X$s.weights <- s.weights[subset]
     
     return(X)
 }
@@ -1043,7 +1116,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
     covs <- cbps.fit$data[!is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
     data <- A$data
     s.weights <- A$s.weights
+    subset <- A$subset
     weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights))
+    cluster <- A$cluster
     
     #Process sampling weights
     if (is_not_null(s.weights)) {
@@ -1091,7 +1166,6 @@ x2base.CBPS <- function(cbps.fit, ...) {
     c.data <- cbps.fit$data
     
     #Process cluster
-    cluster <- A$cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -1105,6 +1179,17 @@ x2base.CBPS <- function(cbps.fit, ...) {
             }
         }
         else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+    }
+    
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
     }
     
     #Process addl and distance
@@ -1132,7 +1217,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     }
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster", "s.weights")
+    vectors <- c("cluster", "s.weights", "subset")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
@@ -1155,14 +1240,16 @@ x2base.CBPS <- function(cbps.fit, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$distance <- distance
-    X$addl <- addl
-    X$weights <- weights
-    X$treat <- treat
-    X$covs <- covs
-    X$cluster <- factor(cluster)
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$distance <- distance[subset, , drop = FALSE]
+    X$addl <- addl[subset, , drop = FALSE]
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat <- treat[subset]
+    X$covs <- covs[subset, , drop = FALSE]
+    X$cluster <- factor(cluster[subset])
     X$call <- cbps.fit$call
-    X$s.weights <- s.weights
+    X$s.weights <- s.weights[subset]
     
     return(X)
 }
@@ -1189,11 +1276,11 @@ x2base.ebalance <- function(ebalance, ...) {
     
     treat <- t.c[["treat"]]
     covs  <- t.c[["covs"]]
-    
+    cluster <- A$cluster
+    subset <- A$subset
     weights <- data.frame(weights = get.w(ebalance, treat))
     
     #Process cluster
-    cluster <- A$cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -1205,6 +1292,17 @@ x2base.ebalance <- function(ebalance, ...) {
         
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     #Process addl and distance
     for (i in c("addl", "distance")) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data))
@@ -1212,7 +1310,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
-    vectors <- c("treat", "cluster")
+    vectors <- c("treat", "cluster", "subset")
     data.frames <- c(covs.data, "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
@@ -1236,14 +1334,16 @@ x2base.ebalance <- function(ebalance, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$treat <- treat
-    X$weights <- weights
-    X$covs <- covs
-    X$distance <- distance
-    X$addl <- addl
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$treat <- treat[subset]
+    X$weights <- weights[subset, , drop = FALSE]
+    X$covs <- covs[subset, , drop = FALSE]
+    X$distance <- distance[subset, , drop = FALSE]
+    X$addl <- addl[subset, , drop = FALSE]
     X$call <- NULL
     X$method <- "weighting"
-    X$cluster <- factor(cluster)
+    X$cluster <- factor(cluster[subset])
     
     return(X)
 }
@@ -1270,6 +1370,8 @@ x2base.optmatch <- function(optmatch, ...) {
     treat <- binarize(t.c$treat)
     covs  <- t.c$covs
     distance <- A$distance
+    subset <- A$subset
+    cluster <- A$cluster
     
     #Process match.strata (optmatch)
     if (length(optmatch) != length(treat) || length(optmatch) != nrow(covs)) {
@@ -1282,7 +1384,6 @@ x2base.optmatch <- function(optmatch, ...) {
     weights <- data.frame(weights = get.w(optmatch))
     
     #Process cluster
-    cluster <- A$cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -1293,13 +1394,24 @@ x2base.optmatch <- function(optmatch, ...) {
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     #Process addl and distance
     for (i in c("addl", "distance")) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data))
     }    
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
-    vectors <- c("treat", "cluster")
+    vectors <- c("treat", "cluster", "subset")
     data.frames <- c(covs.data, "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(sapply(vectors, 
@@ -1324,14 +1436,17 @@ x2base.optmatch <- function(optmatch, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$treat <- treat[d.reordered]
-    X$distance <- distance[d.reordered, , drop = FALSE]
-    X$covs <- covs[d.reordered, , drop = FALSE]
-    X$weights <- weights
-    X$addl <- addl[d.reordered, , drop = FALSE]
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    subset <- subset[d.reordered]
+    
+    X$treat <- treat[d.reordered][subset]
+    X$distance <- distance[d.reordered, , drop = FALSE][subset, , drop = FALSE]
+    X$covs <- covs[d.reordered, , drop = FALSE][subset, , drop = FALSE]
+    X$weights <- weights[subset, , drop = FALSE]
+    X$addl <- addl[d.reordered, , drop = FALSE][subset, , drop = FALSE]
     X$call <- attr(optmatch, "call")
     X$method <- "matching"
-    X$cluster <- factor(cluster)[d.reordered]
+    X$cluster <- factor(cluster[d.reordered][subset])
     
     return(X)
     
@@ -1357,9 +1472,11 @@ x2base.weightit <- function(weightit, ...) {
     covs <- weightit$covs
     s.weights <- weightit$s.weights
     data <- A$data
+    cluster <- A$cluster
     imp <- A$imp
+    subset <- A$subset
     
-    weightit.data <- weightit$data
+    weightit.data <- do.call("data.frame", weightit[[c("data", "exact")[c("data", "exact") %in% names(weightit)]]])
     
     if (is_not_null(attr(treat, "treat.type"))) {
         treat.type <- attr(treat, "treat.type")
@@ -1390,8 +1507,6 @@ x2base.weightit <- function(weightit, ...) {
     }
     
     #Process cluster
-    cluster <- A$cluster
-    
     if (is_not_null(cluster)) {
         if (!is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
             stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
@@ -1415,6 +1530,17 @@ x2base.weightit <- function(weightit, ...) {
         stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     #Process addl and distance
     for (i in c("addl", "distance")) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data, weightit.data))
@@ -1425,14 +1551,14 @@ x2base.weightit <- function(weightit, ...) {
     else distance <- NULL
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("s.weights", "cluster")
+    vectors <- c("s.weights", "cluster", "subset")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
                           sapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
-    #Process imp
+    #Process imp further
     if (is_not_null(imp)) {
         if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
             imp <- imp
@@ -1447,7 +1573,7 @@ x2base.weightit <- function(weightit, ...) {
         
         imp.lengths <- sapply(unique(imp), function(i) sum(imp == i))
         
-        if (all_the_same(imp.lengths)) { #all the same
+        if (all_the_same(imp.lengths)) {
             for (i in vectors) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) { 
                     if (lengths[i] == imp.lengths[1]) {
@@ -1509,16 +1635,19 @@ x2base.weightit <- function(weightit, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$weights <- weights
-    X$treat <- treat
-    X$distance <- distance
-    X$addl <- addl
-    X$covs <- covs
-    X$cluster <- factor(cluster)
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat <- treat[subset]
+    X$distance <- distance[subset, , drop = FALSE]
+    X$addl <- addl[subset, , drop = FALSE]
+    X$covs <- covs[subset, , drop = FALSE]
+    X$cluster <- factor(cluster[subset])
     X$method <- rep("weighting", ncol(weights))
-    X$imp <- factor(imp)
-    X$s.weights <- weightit$s.weights
-    X$discarded <- weightit$discarded
+    X$imp <- factor(imp[subset])
+    X$s.weights <- weightit$s.weights[subset]
+    X$discarded <- weightit$discarded[subset]
     X$focal <- weightit$focal
     X$call <- weightit$call
     
@@ -1581,8 +1710,11 @@ x2base.iptw <- function(iptw, ...) {
     weights <- data.frame(get.w(iptw, s))
     treat.list <- lapply(iptw$psList, function(x) x$treat)
     covs.list <- lapply(iptw$psList, function(x) x$data[x$gbm.obj$var.names])
+    subset <- A$subset
     data <- A$data
+    cluster <- A$cluster
     ps.data <- iptw$psList[[1]]$data
+    s.weights <- iptw$psList[[1]]$sampw
     ntimes <- iptw$nFits
     
     #Order covs.list
@@ -1590,7 +1722,6 @@ x2base.iptw <- function(iptw, ...) {
     covs.list <- lapply(covs.list, function(x) x[all.covs[all.covs %in% names(x)]])
     
     #Process cluster
-    cluster <- A$cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
@@ -1603,6 +1734,17 @@ x2base.iptw <- function(iptw, ...) {
                 cluster <- ps.data[[cluster]]
             }
             else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+        }
+    }
+    
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
         }
     }
     
@@ -1641,9 +1783,9 @@ x2base.iptw <- function(iptw, ...) {
     }
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster")
+    vectors <- c("s.weights", "cluster", "subset")
     data.frames <- c("weights")
-    lists <- c("distance.list", "addl.list", "covs.list")
+    lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
                           sapply(data.frames, 
@@ -1651,6 +1793,7 @@ x2base.iptw <- function(iptw, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
+                              else if (is.vector(get(x))) max(lengths(get(x)))
                               else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
                           })), c(vectors, data.frames, lists))
     
@@ -1670,15 +1813,17 @@ x2base.iptw <- function(iptw, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$weights <- weights
-    X$treat.list <- treat.list
-    X$distance.list <- distance.list
-    X$addl.list <- addl.list
-    X$covs.list <- covs.list
+    if (is_null(subset)) subset <- rep(TRUE, length(treat.list[[1]]))
+    
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat.list <- lapply(treat.list, function(x) x[subset])
+    X$distance.list <- lapply(distance.list, function(x) x[subset, , drop = FALSE])
+    X$addl.list <- lapply(addl.list, function(x) x[subset, , drop = FALSE])
+    X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
     X$call <- NULL
-    X$cluster <- factor(cluster)
+    X$cluster <- factor(cluster[subset])
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- iptw$psList[[1]]$sampw
+    X$s.weights <- s.weights[subset]
     
     return(X)
 }
@@ -1706,6 +1851,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     method <- A$method
     imp <- A$imp
     s.weights <- A$s.weights
+    subset <- A$subset
     focal <- A$focal
     ntimes <- length(covs.list)
     
@@ -1853,7 +1999,6 @@ x2base.data.frame.list <- function(covs.list, ...) {
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }
     }
-    else s.weights <- rep(1, length(treat.list[[1]]))
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -1866,10 +2011,21 @@ x2base.data.frame.list <- function(covs.list, ...) {
         else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster")
+    vectors <- c("s.weights", "cluster", "subset")
     data.frames <- c("weights")
-    lists <- c("distance.list", "addl.list", "covs.list", "treat.list")
+    lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
                           sapply(data.frames, 
@@ -1877,6 +2033,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
+                              else if (is.vector(get(x))) max(lengths(get(x)))
                               else max(sapply(get(x), function(y) if (is_not_null(y)) {
                                   if (is.data.frame(y) || is.matrix(y)) nrow(y)
                                   else length(y)
@@ -1916,15 +2073,18 @@ x2base.data.frame.list <- function(covs.list, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$covs.list <- covs.list
-    X$weights <- weights
-    X$treat.list <- treat.list
-    X$distance.list <- distance.list
-    X$cluster <- factor(cluster)
+    if (is_null(s.weights)) s.weights <- rep(1, length(treat.list[[1]]))
+    if (is_null(subset)) subset <- rep(TRUE, length(treat.list[[1]]))
+    
+    X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat.list <- lapply(treat.list, function(x) x[subset])
+    X$distance.list <- lapply(distance.list, function(x) x[subset, , drop = FALSE])
+    X$cluster <- factor(cluster[subset])
     X$call <- NULL
-    X$addl.list <- addl.list
-    X$imp <- factor(imp)
-    X$s.weights <- s.weights
+    X$addl.list <- lapply(addl.list, function(x) x[subset, , drop = FALSE])
+    X$imp <- factor(imp[subset])
+    X$s.weights <- s.weights[subset]
     
     return(X)
 }
@@ -1978,13 +2138,13 @@ x2base.CBMSM <- function(cbmsm, ...) {
         }
     }
     
+    cluster <- A$cluster
+    subset <- A$subset
     data <- A$data
     
     cbmsm.data <- cbmsm$data[ID, , drop = FALSE][cbmsm$time == 1, , drop = FALSE]
     
     #Process cluster
-    cluster <- A$cluster
-    
     if (is_not_null(cluster)) {
         if (!is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
             stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
@@ -2003,6 +2163,17 @@ x2base.CBMSM <- function(cbmsm, ...) {
         }
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     #Process addl and distance
     for (i in c("addl.list", "distance.list")) {
         assign(i, list.process(i, A[[i]], ntimes, 
@@ -2018,9 +2189,9 @@ x2base.CBMSM <- function(cbmsm, ...) {
     else distance.list <- NULL
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster")
+    vectors <- c("cluster", "subset")
     data.frames <- c("weights")
-    lists <- c("distance.list", "addl.list", "covs.list")
+    lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
                           sapply(data.frames, 
@@ -2028,6 +2199,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
+                              else if (is.vector(get(x))) max(lengths(get(x)))
                               else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
                           })), c(vectors, data.frames, lists))
     
@@ -2047,13 +2219,15 @@ x2base.CBMSM <- function(cbmsm, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$weights <- weights
-    X$treat.list <- treat.list
-    X$distance.list <- distance.list
-    X$addl.list <- addl.list
-    X$covs.list <- covs.list
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat.list <- lapply(treat.list, function(x) x[subset])
+    X$distance.list <- lapply(distance.list, function(x) x[subset, , drop = FALSE])
+    X$addl.list <- lapply(addl.list, function(x) x[subset, , drop = FALSE])
+    X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
     X$call <- cbmsm$call
-    X$cluster <- factor(cluster)
+    X$cluster <- factor(cluster[subset])
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- NULL
     X$s.d.denom <- "pooled"
@@ -2080,6 +2254,9 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     covs.list <- weightitMSM$covs.list
     s.weights <- weightitMSM$s.weights
     data <- A$data
+    cluster <- A$cluster
+    imp <- A$imp
+    subset <- A$subset
     ntimes <- length(treat.list)
     
     weightitMSM.data <- weightitMSM$data
@@ -2119,7 +2296,6 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     covs.list <- lapply(covs.list, function(x) x[all.covs[all.covs %in% names(x)]])
     
     #Process cluster
-    cluster <- A$cluster
     if (is_not_null(cluster)) {
         if (!is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
             stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
@@ -2138,6 +2314,17 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         }
     }
     
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
     #Process addl and distance
     for (i in c("addl.list", "distance.list")) {
         assign(i, list.process(i, A[[i]], ntimes, 
@@ -2153,9 +2340,9 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     else distance.list <- NULL
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster")
+    vectors <- c("s.weights", "cluster", "subset")
     data.frames <- c("weights")
-    lists <- c("distance.list", "addl.list", "covs.list")
+    lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
                           sapply(data.frames, 
@@ -2163,6 +2350,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
+                              else if (is.vector(get(x))) max(lengths(get(x)))
                               else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
                           })), c(vectors, data.frames, lists))
     
@@ -2182,15 +2370,17 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    X$weights <- weights
-    X$treat.list <- treat.list
-    X$distance.list <- distance.list
-    X$addl.list <- addl.list
-    X$covs.list <- covs.list
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$weights <- weights[subset, , drop = FALSE]
+    X$treat.list <- lapply(treat.list, function(x) x[subset])
+    X$distance.list <- lapply(distance.list, function(x) x[subset, , drop = FALSE])
+    X$addl.list <- lapply(addl.list, function(x) x[subset, , drop = FALSE])
+    X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
     X$call <- NULL
-    X$cluster <- factor(cluster)
+    X$cluster <- factor(cluster[subset])
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- s.weights
+    X$s.weights <- s.weights[subset]
     
     return(X)
 }
