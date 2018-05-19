@@ -1,5 +1,5 @@
 love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistics"), threshold = NULL, 
-                      abs = FALSE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
+                      abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
                       drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
                       colors = NULL, shapes = NULL, line = FALSE, ...) {
     b <- x; rm(x)
@@ -202,7 +202,11 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
         }
         else if (config == "agg.imp") {
-            Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            if (Agg.Fun == "Median") {
+                warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
+                Agg.Fun <- "Mean"
+            }
             if (Agg.Fun == "Range") {
                 if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Imputations")
@@ -214,11 +218,14 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                                          function(x) cbind(b[["Cluster.Balance.Across.Imputations"]][[x]][["Cluster.Balance"]], 
                                                            cluster = x, 
                                                            var.names = rownames(b[["Cluster.Balance.Across.Imputations"]][[x]][["Cluster.Balance"]]))))
-            abs <- TRUE
             facet <- "cluster"
         }
         else if (config == "agg.cluster") {
-            Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            if (Agg.Fun == "Median") {
+                warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
+                Agg.Fun <- "Mean"
+            }
             if (Agg.Fun == "Range") {
                 if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Clusters")
@@ -230,12 +237,15 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                                          function(x) cbind(b[["Imputation.Balance"]][[x]][["Cluster.Summary"]], 
                                                            imp = paste("Imputation:", x), 
                                                            var.names = rownames(b[["Imputation.Balance"]][[x]][["Cluster.Summary"]]))))
-            abs <- TRUE
             facet <- "imp"
         }
         else if (config == "agg.all") {
             #Cluster.Fun <- switch(match.arg(cluster.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
-            Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            if (Agg.Fun == "Median") {
+                warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
+                Agg.Fun <- "Mean"
+            }
             if (Agg.Fun == "Range") {
                 if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Clusters and Imputations")
@@ -245,9 +255,9 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
             B <- cbind(b[["Balance.Across.Imputations"]],
                        var.names = row.names(b[["Balance.Across.Imputations"]]))
-            abs <- TRUE
             facet <- NULL
         }
+        abs <- b$print.options[["abs"]]
     }
     else if (any(class(b) == "bal.tab.imp")) {
         #Get imp.numbers.good
@@ -280,7 +290,11 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "imp"
         }
         else if (config == "agg.imp") {
-            Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            if (Agg.Fun == "Median") {
+                warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
+                Agg.Fun <- "Mean"
+            }
             if (Agg.Fun == "Range") {
                 if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Imputations")
@@ -290,8 +304,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
             B <- cbind(b[["Balance.Across.Imputations"]],
                        var.names = rownames(b[["Balance.Across.Imputations"]]))
-            abs <- TRUE
         }
+        abs <- b$print.options[["abs"]]
     }
     else if (any(class(b) == "bal.tab.cluster")) {
         #Get cluster.names.good
@@ -334,7 +348,11 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "cluster"
         }
         else if (config == "agg.cluster") {
-            Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            if (Agg.Fun == "Median") {
+                warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
+                Agg.Fun <- "Mean"
+            }
             if (Agg.Fun == "Range") {
                 if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Clusters")
@@ -344,8 +362,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
             B <- cbind(b[["Cluster.Summary"]],
                        var.names = rownames(b[["Cluster.Summary"]]))
-            abs <- TRUE
         }
+        abs <- b$print.options[["abs"]]
     }
     else if (any(class(b) == "bal.tab.multi")) {
         #Get cluster.names.good
@@ -542,7 +560,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
     }
     
-    #Sample <- min.stat <- max.stat <- mean.stat <- NULL #To avoid CRAN checks
     if (is_not_null(Agg.Fun) && Agg.Fun == "Range") {
         agg.range <- TRUE
     }
