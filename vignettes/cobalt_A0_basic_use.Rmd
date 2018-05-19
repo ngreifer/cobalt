@@ -391,7 +391,7 @@ cov.mn <- subset(lalonde, select = -c(treat, re78, race))
 
 #Using WeightIt to generate weights with multinomial
 #logistic regression
-W.out.mn <- weightit(race ~ cov.mn, data = lalonde,
+W.out.mn <- weightit(f.build("race", cov.mn), data = lalonde,
                      method = "ps")
 ```
 
