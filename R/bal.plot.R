@@ -6,6 +6,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         stop("An argument for var.name must be specified.", call. = FALSE)
     }
     
+    obj <- is.designmatch(obj)
     if (all(class(obj) == "list")) {
         if (all(sapply(obj, is.formula))) class(obj) <- "formula.list"
         else if (all(sapply(obj, is.data.frame))) class(obj) <- "data.frame.list"

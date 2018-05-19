@@ -37,7 +37,7 @@ x2base.matchit <- function(m, ...) {
     
     if (is_not_null(m$model$model)) {
         o.data <- m$model$model #data used in the PS formula, including treatment and covs
-        covs <- data.frame(o.data[, !is.na(match(names(o.data), attributes(terms(m$model))$term.labels))])
+        covs <- data.frame(o.data[, names(o.data) %in% attributes(terms(m$model))$term.labels])
         #if (identical(o.data, data)) o.data <- NULL
     }
     else {
@@ -477,7 +477,7 @@ x2base.Match <- function(Match, ...) {
     
     data.list <- lapply(1:4, function(x) cbind(data.frame(treat=treat.list[[x]]), data.frame(weights=weights.list[[x]]), covs.list[[x]]))
     o.data <- do.call(rbind, data.list)
-    o.data2 <- merge(unique(o.data[is.na(match(names(o.data), "weights"))]), aggregate(weights~index, data=o.data, FUN=sum), by="index")
+    o.data2 <- merge(unique(o.data[names(o.data) %nin% "weights"]), aggregate(weights~index, data=o.data, FUN=sum), by="index")
     
     cluster <- A$cluster
     subset <- A$subset
@@ -512,7 +512,7 @@ x2base.Match <- function(Match, ...) {
     
     treat <- o.data2$treat
     weights <- data.frame(weights = o.data2$weights)
-    covs <- o.data2[is.na(match(names(o.data2), c("treat", "weights", "index")))]
+    covs <- o.data2[names(o.data2) %nin% c("treat", "weights", "index")]
     dropped <- rep(0, length(treat))
     if (is_not_null(m$index.dropped)) dropped[m$index.dropped] <- 1
     
@@ -1113,7 +1113,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Checks
     
     treat <- model.response(model.frame(cbps.fit$terms, cbps.fit$data))
-    covs <- cbps.fit$data[!is.na(match(names(cbps.fit$data), attributes(terms(cbps.fit))$term.labels))]
+    covs <- cbps.fit$data[names(cbps.fit$data) %in% attributes(terms(cbps.fit))$term.labels]
     data <- A$data
     s.weights <- A$s.weights
     subset <- A$subset
@@ -1653,6 +1653,101 @@ x2base.weightit <- function(weightit, ...) {
     
     return(X)
 }
+x2base.designmatch <- function(dm, ...) {
+    #formula
+    #data
+    #treat
+    #covs
+    A <- list(...)
+    X <- list(covs=NA,
+              treat=NA,
+              weights=NA,
+              method=NA,
+              distance=NA,
+              call=NA,
+              cluster = NA)
+    
+    #Get treat and covs
+    data <- A$data
+    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
+    
+    #Initializing variables
+    treat <- binarize(t.c$treat)
+    covs  <- t.c$covs
+    distance <- A$distance
+    subset <- A$subset
+    cluster <- A$cluster
+    
+    #Process designmatch
+    weights <- data.frame(weights = get.w.designmatch(dm, treat))
+    
+    #Process cluster
+    if (is_not_null(cluster)) {
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+            cluster <- cluster
+        }
+        else if (is.character(cluster) && length(cluster)==1 && any(names(data) == cluster)) {
+            cluster <- data[[cluster]]
+        }
+        else stop("The name supplied to cluster is not the name of a variable in data.", call. = FALSE)
+    }
+    
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (any(is.na(subset))) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        assign(i, data.frame.process(i, A[[i]], treat, covs, data))
+    }    
+    ensure.equal.lengths <- TRUE
+    covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
+    vectors <- c("treat", "cluster", "subset")
+    data.frames <- c(covs.data, "weights", "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(sapply(vectors, 
+                                 function(x) length(get(x))), 
+                          sapply(data.frames, 
+                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
+                                 })), c(vectors, data.frames))
+    
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in names(lengths)[names(lengths) != "weights"]) {
+            if (lengths[i] > 0 && lengths[i] != lengths["weights"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to optmatch()."), call. = FALSE)
+    }
+    
+    if (any(is.na(c(covs, addl)))) {
+        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+    }
+    
+    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    
+    X$treat <- treat[subset]
+    X$distance <- distance[subset, , drop = FALSE]
+    X$covs <- covs[subset, , drop = FALSE]
+    X$weights <- weights[subset, , drop = FALSE]
+    X$addl <- addl[subset, , drop = FALSE]
+    X$call <- NULL
+    X$method <- "matching"
+    X$cluster <- factor(cluster[subset])
+    
+    return(X)
+    
+}
 
 #MSMs wth multiple time points
 x2base.iptw <- function(iptw, ...) {
@@ -2120,7 +2215,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     times <- sort(unique(cbmsm$time))
     #treat.list <- as.list(as.data.frame(cbmsm$treat.hist[ID, , drop = FALSE])) 
     treat.list <- lapply(times, function(x) cbmsm$treat.hist[ID, x]) 
-    covs <- cbmsm$data[!is.na(match(names(cbmsm$data), attributes(terms(cbmsm$model))$term.labels))]
+    covs <- cbmsm$data[names(cbmsm$data) %in% attributes(terms(cbmsm$model))$term.labels]
     weights <- data.frame(weights = get.w(cbmsm)[ID])
     ntimes <- length(times)
     

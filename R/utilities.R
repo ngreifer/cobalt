@@ -519,6 +519,26 @@ get.w.weightit <- function(W, s.weights = FALSE, ...) {
     if (s.weights) return(W$weights * W$s.weights)
     else return(W$weights)
 }
+get.w.designmatch <- function(dm, treat, ...) {
+    if (missing(treat)) stop("treat must be specified.", call. = FALSE)
+    if (length(dm[["group_id"]]) != length(dm[["t_id"]]) + length(dm[["c_id"]])) {
+        ratio <- length(dm[["c_id"]])/length(dm[["t_id"]])
+        if (check_if_zero(ratio - as.integer(ratio))) {
+            dm[["group_id"]] <- c(seq_along(dm[["t_id"]]),
+                                  rep(seq_along(dm[["c_id"]]), each = as.integer(ratio)))
+        }
+        else {
+            stop("There is a problem with the group_id value in the designmatch output. Matched sets cannot be determined.", call. = FALSE)
+        }
+    }
+    q <- merge(data.frame(id = seq_along(treat)), 
+               data.frame(id = c(dm[["t_id"]], dm[["c_id"]]),
+                          group = dm[["group_id"]]),
+               all.x = TRUE, by = "id")
+    q <- q[order(q$id), , drop = FALSE]
+    
+    return(match.strata2weights(q$group, treat))
+}
 
 #For cobalt
 word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE, quotes = FALSE) {
@@ -574,12 +594,13 @@ nunique <- function(x, nmax = NA, na.rm = TRUE) {
     
 }
 nunique.gt <- function(x, n, na.rm = TRUE) {
-    if (n < 0) stop("n must be non-negative.", call. = FALSE)
+    if (missing(n)) stop("n must be supplied.")
+    if (n < 0) stop("n must be non-negative.")
     if (is_null(x)) FALSE
     else {
         if (na.rm) x <- x[!is.na(x)]
         if (n == 1 && is.numeric(x)) !check_if_zero(max(x) - min(x))
-        if (length(x) < 2000) nunique(x) > n
+        else if (length(x) < 2000) nunique(x) > n
         else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
     }
 }
@@ -604,3 +625,4 @@ check_if_zero_base <- function(x) {
 check_if_zero <- Vectorize(check_if_zero_base)
 is_null <- function(x) length(x) == 0L
 is_not_null <- function(x) !is_null(x)
+`%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
