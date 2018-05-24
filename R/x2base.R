@@ -1669,21 +1669,39 @@ x2base.designmatch <- function(dm, ...) {
     
     #Get treat and covs
     data <- A$data
-    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
+    
+    if (all(c("id_1", "id_2") %in% names(dm))) {
+        t.c <- use.tc.fd(A$formula, data, A$treat, A$covs, needs.treat = FALSE)
+        covs  <- t.c$covs
+        
+        if (anyDuplicated(c(dm[["id_1"]], dm[["id_2"]])) != 0) {
+            stop("Some units are used more than once. Balance cannot be checked.", call. = FALSE)
+        }
+        treat <- rep(NA_real_, nrow(covs))
+        treat[dm[["id_1"]]] <- 1
+        treat[dm[["id_2"]]] <- 0
+        
+        in.matched <- !is.na(treat)
+        weights <- NULL
+    }
+    else {
+        t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
+        covs  <- t.c$covs
+        treat <- binarize(t.c$treat)
+        in.matched <- rep(TRUE, length(treat))
+        
+        weights <- data.frame(weights = get.w.designmatch(dm, treat))
+        
+    }
     
     #Initializing variables
-    treat <- binarize(t.c$treat)
-    covs  <- t.c$covs
     distance <- A$distance
     subset <- A$subset
     cluster <- A$cluster
     
-    #Process designmatch
-    weights <- data.frame(weights = get.w.designmatch(dm, treat))
-    
     #Process cluster
     if (is_not_null(cluster)) {
-        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster) > 1)) {
             cluster <- cluster
         }
         else if (is.character(cluster) && length(cluster)==1 && any(names(data) == cluster)) {
@@ -1715,19 +1733,19 @@ x2base.designmatch <- function(dm, ...) {
     lengths <- setNames(c(sapply(vectors, 
                                  function(x) length(get(x))), 
                           sapply(data.frames, 
-                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
+                                 function(x) {if (is_null(get0(x))) 0 else nrow(get(x))
                                  })), c(vectors, data.frames))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
-        for (i in names(lengths)[names(lengths) != "weights"]) {
-            if (lengths[i] > 0 && lengths[i] != lengths["weights"]) {
+        for (i in names(lengths)[names(lengths) != "treat"]) {
+            if (lengths[i] > 0 && lengths[i] != lengths["treat"]) {
                 problematic[i] <- TRUE
             }
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to optmatch()."), call. = FALSE)
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to designmatch()."), call. = FALSE)
     }
     
     if (any(is.na(c(covs, addl)))) {
@@ -1736,14 +1754,14 @@ x2base.designmatch <- function(dm, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$treat <- treat[subset]
-    X$distance <- distance[subset, , drop = FALSE]
-    X$covs <- covs[subset, , drop = FALSE]
-    X$weights <- weights[subset, , drop = FALSE]
-    X$addl <- addl[subset, , drop = FALSE]
+    X$treat <- treat[in.matched & subset]
+    X$distance <- distance[in.matched & subset, , drop = FALSE]
+    X$covs <- covs[in.matched & subset, , drop = FALSE]
+    X$weights <- weights[in.matched & subset, , drop = FALSE]
+    X$addl <- addl[in.matched & subset, , drop = FALSE]
     X$call <- NULL
     X$method <- "matching"
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster[in.matched & subset])
     
     return(X)
     
