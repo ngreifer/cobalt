@@ -1,18 +1,12 @@
 #bal.tab
 is.designmatch <- function(x) {
     dm.b.names <- c("obj_total", "obj_dist_mat", "t_id", 
-                  "c_id", "group_id", "time")
+                    "c_id", "group_id", "time")
     dm.n.names <- c("obj_total", "obj_dist_mat", "id_1", 
                     "id_2", "group_id", "time")
-    if (length(x) >= min(c(length(dm.b.names), length(dm.n.names)))) {
-        if (all(dm.b.names %in% names(x))) {
-            class(x) <- "designmatch"
-        }
-        else if (all(dm.n.names %in% names(x))) {
-            names(x)[names(x) == "id_1"] <- "t_id"
-            names(x)[names(x) == "id_2"] <- "c_id"
-            class(x) <- "designmatch"
-        }
+    if (length(x) >= min(length(dm.b.names), length(dm.n.names)) && 
+        (all(dm.b.names %in% names(x)) || all(dm.n.names %in% names(x)))) {
+        class(x) <- c("designmatch")
     }
     return(x)
 }
@@ -135,7 +129,7 @@ match.strata2weights <- function(match.strata, treat, covs = NULL) {
     }
     return(t.c)
 }
-use.tc.fd <- function(formula, data, treat, covs) {
+use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, needs.treat = TRUE, needs.covs = TRUE) {
     if (is_not_null(formula) && class(formula) == "formula") {
         D <- NULL
         if (is_not_null(data)) D <- data
@@ -145,12 +139,15 @@ use.tc.fd <- function(formula, data, treat, covs) {
         attr(t.c, "which") <- "fd"
     }
     else {
+        if (is.matrix(covs)) covs <- as.data.frame(covs)
+        else if (!is.data.frame(covs)) stop("covs must be a data.frame of covariates.", call. = FALSE)
+        if (!is.atomic(treat)) stop("treat must be an atomic vector of treatment statuses.", call. = FALSE)
         t.c <- list(treat = treat, covs = covs)
         attr(t.c, "which") <- "tc"
     }
     
-    if (is_null(t.c[["covs"]])) stop("No covariates were specified.", call. = FALSE)
-    if (is_null(t.c[["treat"]])) stop("No treatment variable was specified.", call. = FALSE)
+    if (needs.covs && is_null(t.c[["covs"]])) stop("No covariates were specified.", call. = FALSE)
+    if (needs.treat && is_null(t.c[["treat"]])) stop("No treatment variable was specified.", call. = FALSE)
     
     return(t.c)
 }
@@ -348,11 +345,15 @@ get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv, ...) {
         
         for (i in rhs.term.labels[rhs.term.labels %in% rhs.vars.mentioned[rhs.df]]) {
             ind <- which(rhs.term.labels == i)
-            rhs.term.labels <- append(rhs.term.labels[-ind], names(addl.dfs[[i]]), ind - 1)
+            rhs.term.labels <- append(rhs.term.labels[-ind], 
+                                      values = names(addl.dfs[[i]]), 
+                                      after = ind - 1)
         }
         new.form <- as.formula(paste("~", paste(rhs.term.labels, collapse = " + ")))
+        
         tt.covs <- terms(new.form)
-        data <- do.call("cbind", c(addl.dfs, data))
+        if (is_not_null(data)) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
+        else data <- do.call("cbind", unname(addl.dfs))
     }
     
     #Get model.frame, report error
@@ -366,8 +367,8 @@ get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv, ...) {
     
     #Get full model matrix with interactions too
     covs.matrix <- model.matrix(tt.covs, data = covs,
-                                contrasts.arg = lapply(covs[sapply(covs, is.factor)], contrasts, contrasts=FALSE)
-    )[,-1, drop = FALSE]
+                                contrasts.arg = lapply(covs[sapply(covs, is.factor)], 
+                                                       contrasts, contrasts=FALSE))[,-1, drop = FALSE]
     
     attr(covs, "terms") <- NULL
     
@@ -452,7 +453,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     covs.with.inf <- unlist(sapply(C, function(x) any(!is.finite(x) & !is.na(x))))
     if (any(covs.with.inf)) {
         s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
-        stop(paste0("The variable", s[1], " ", word.list(names(covs)[covs.with.inf], quotes = TRUE), 
+        stop(paste0("The variable", s[1], " ", word.list(names(C)[covs.with.inf], quotes = TRUE), 
                     " contain", s[2], " non-finite values, which are not allowed."), call. = FALSE)
     }
     
@@ -486,7 +487,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     C <- as.matrix(C)
     single.value <- apply(C, 2, function(x) !nunique.gt(x, 1))
     C <- C[, !single.value, drop = FALSE]
-
+    
     #Process int
     if (length(int) != 1L || !is.finite(int) || !(is.logical(int) || is.numeric(int))) {
         stop("int must be TRUE, FALSE, or a numeric value of length 1.", call. = FALSE)
@@ -511,11 +512,11 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         if (as.numeric(int) %in% c(1, 2)) poly <- 2
         else poly <- int
         C <- cbind(C, int.poly.f(C, int = TRUE, poly = poly, nunder = nunder, ncarrot = ncarrot))
-
+        
     }
     #Remove duplicate & redundant variables
     C <- remove.perfect.col(C)    
-
+    
     #Add missingness indicators
     vars.w.missing <- vars.w.missing[vars.w.missing$placed.after %in% colnames(C) & vars.w.missing$has.missing, , drop = FALSE]
     if (nrow(vars.w.missing) > 0) {
@@ -571,6 +572,27 @@ remove.perfect.col <- function(C) {
 }
 
 #base.bal.tab
+check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL) {
+    if (is_null(unique.treat)) unique.treat <- unique(treat)
+    w.t.mat <- expand.grid(colnames(weights.df), unique.treat)
+    problems <- apply(w.t.mat, 1, function(x) all(check_if_zero(weights.df[treat == x[2], x[1]])))
+    prob.w.t.mat <- droplevels(w.t.mat[problems,])
+    if (any(problems)) {
+        if (ncol(weights.df) == 1) {
+            error <- paste0("All weights are zero when ", word.list(paste("treat =", prob.w.t.mat[, 2]), "or"), ".")
+        }
+        else {
+            errors <- setNames(character(nlevels(prob.w.t.mat[,1])), levels(prob.w.t.mat[,1]))
+            
+            for (i in levels(prob.w.t.mat[,1])) {
+                errors[i] <- paste0("\"", i, "\" weights are zero when ", word.list(paste("treat =", prob.w.t.mat[prob.w.t.mat[,1] == i, 2]), "or"))
+            }
+            errors <- paste(c("All", rep("all", length(errors)-1)), errors)
+            error <- paste0(word.list(errors, "and"), ".")
+        }
+        stop(error, call. = FALSE)
+    }
+}
 w.m <- function(x, w = NULL, na.rm = TRUE) {
     if (is_null(w)) w <- as.numeric(!is.na(x))
     return(sum(x*w, na.rm=na.rm)/sum(w, na.rm=na.rm))
@@ -627,7 +649,7 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
     diffs[check_if_zero(diffs)] <- 0
     denoms <- rep(1, ncol(mat))
     denoms.to.std <- ifelse(x.types == "Binary", binary == "std", continuous == "std")
-      
+    
     if (any(denoms.to.std)) {
         if (s.d.denom == "control") {
             denoms[denoms.to.std] <- sqrt(col.w.v(mat[treat == 0 & ss, denoms.to.std, drop = FALSE], s.weights[treat == 0 & ss]))
@@ -645,7 +667,7 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
             }
         }
     }
-   
+    
     std.diffs <- diffs/denoms
     std.diffs[!is.finite(std.diffs)] <- NA
     
@@ -832,7 +854,7 @@ max.imbal <- function(balance.table, col.name, thresh.col.name) {
 balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
                           s.weights = rep(1, length(treat)), no.adj = FALSE, types = NULL, pooled.sds = NULL, quick = FALSE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
-
+    
     if (no.adj) weight.names <- "Adj"
     else weight.names <- names(weights)
     
@@ -1363,7 +1385,7 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
         }
     }
     else B <- NULL
-
+    
     return(B)
 }
 samplesize.across.imps <- function(obs.list) {
@@ -1596,17 +1618,10 @@ get.var.from.list.with.time <- function(var.name, covs.list) {
 
 #print.bal.tab
 round_df_char <- function(df, digits, pad = "0", na_vals = "") {
-    
     nas <- is.na(df)
-    if (!is.data.frame(df)) {
-        # Fixes a sneaky error
-        df <- as.data.frame.matrix(df, stringsAsFactors = FALSE)
-        
-    }
-    
+    if (!is.data.frame(df)) df <- as.data.frame.matrix(df, stringsAsFactors = FALSE)
     rn <- rownames(df)
     cn <- colnames(df)
-    
     df <- as.data.frame(lapply(df, function(col) {
         if (suppressWarnings(all(!is.na(as.numeric(as.character(col)))))) {
             as.numeric(as.character(col))
@@ -1614,56 +1629,39 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
             col
         }
     }), stringsAsFactors = FALSE)
-    
     nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+    o.negs <- df < 0
+    df[nums] <- round(df[nums], digits = digits)
+    df[nas] <- ""
     
-    # Using a format function here to force trailing zeroes to be printed
-    # "format" allows signed zeros (e.g., "-0.00")
-    df <- as.data.frame(lapply(df, format, digits = digits, format = "f"),
-                        stringsAsFactors = FALSE)
+    df <- as.data.frame(lapply(df, as.character), stringsAsFactors = FALSE)
     
-    # Convert missings to blank character
-    if (any(nas)) {
-        df[nas] <- ""
-    }
-    
-    # Here's where we align the the decimals
     for (i in which(nums)) {
         if (any(grepl(".", df[[i]], fixed = TRUE))) {
-            
             s <- strsplit(df[[i]], ".", fixed = TRUE)
             lengths <- lengths(s)
             digits.r.of.. <- sapply(seq_along(s), function(x) {
-                
-                if (lengths[x] > 1) {
-                    nchar(s[[x]][lengths[x]])
-                } else {
-                    0
-                }
-            })
-            
+                if (lengths[x] > 1) nchar(s[[x]][lengths[x]])
+                else 0 })
             df[[i]] <- sapply(seq_along(df[[i]]), function(x) {
-                if (df[[i]][x] == "") {
-                    ""
-                } else if (lengths[x] <= 1) {
-                    paste0(c(df[[i]][x],
-                             rep(".", pad == 0),
-                             rep(pad, max(digits.r.of..) -
-                                     digits.r.of..[x] + as.numeric(pad != 0))),
-                           collapse = "")
-                } else {
-                    paste0(c(df[[i]][x], rep(pad, max(digits.r.of..) - digits.r.of..[x])),
+                if (df[[i]][x] == "") ""
+                else if (lengths[x] <= 1) {
+                    paste0(c(df[[i]][x], rep(".", pad == 0), rep(pad, max(digits.r.of..) - digits.r.of..[x] + as.numeric(pad != 0))),
                            collapse = "")
                 }
+                else paste0(c(df[[i]][x], rep(pad, max(digits.r.of..) - digits.r.of..[x])),
+                            collapse = "")
             })
         }
     }
     
-    if (!is_null(rn)) rownames(df) <- rn
-    if (!is_null(cn)) names(df) <- cn
+    df[o.negs & df >= 0] <- paste0("-", df[o.negs & df >= 0])
     
     # Insert NA placeholders
     df[df == ""] <- na_vals
+    
+    if (length(rn) > 0) rownames(df) <- rn
+    if (length(cn) > 0) names(df) <- cn
     
     return(df)
 }
