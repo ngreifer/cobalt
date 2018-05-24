@@ -11,14 +11,17 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
         stop("Treatment indicator must be a binary (0, 1) variable---i.e., treatment (1) or control (0)", call. = FALSE)
     }
     else if (is.factor(treat) || is.character(treat)) {
-        if (is.factor(treat)) treat.names <- levels(treat)
-        else treat.names <- unique(treat)
+        if (is.factor(treat)) treat.names <- unique.treat <- levels(treat)
+        else treat.names <- unique.treat <- unique(treat, nmax = 2)
     }
     else {
         treat.names <- c("Control", "Treated")
+        unique.treat <- unique(treat, nmax = 2)
     }
-    treat <- binarize(treat)
     
+    check_if_zero_weights(weights, treat, unique.treat)
+    
+    treat <- binarize(treat)
     if (is_not_null(m.threshold)) m.threshold <- abs(m.threshold)
     if (is_not_null(v.threshold)) {
         v.threshold <- max(v.threshold, 1/v.threshold)
@@ -857,7 +860,7 @@ bal.tab.matchit <- function(m, int = FALSE, distance = NULL, addl = NULL, data =
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -905,7 +908,7 @@ bal.tab.ps <- function(ps, stop.method, int = FALSE, distance = NULL, addl = NUL
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -957,7 +960,7 @@ bal.tab.mnps <- function(mnps, stop.method, int = FALSE, distance = NULL, addl =
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1015,7 +1018,7 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1072,7 +1075,7 @@ bal.tab.formula <- function(formula, data = NULL, ...) {
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1100,7 +1103,7 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1255,7 +1258,7 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1403,7 +1406,7 @@ bal.tab.ebalance <- function(ebal, formula = NULL, data = NULL, treat = NULL, co
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1457,7 +1460,7 @@ bal.tab.optmatch <- function(optmatch, formula = NULL, data = NULL, treat = NULL
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1508,7 +1511,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1692,7 +1695,7 @@ bal.tab.designmatch <- function(dm, formula = NULL, data = NULL, treat = NULL, c
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1745,7 +1748,7 @@ bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = F
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
@@ -1827,7 +1830,7 @@ bal.tab.iptw <- function(iptw, stop.method, int = FALSE, distance.list = NULL, a
     
     blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
     if (any(blank.args)) {
-        for (arg.name in names(args)[blank.args]) {
+        for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
                 assign(arg.name, NULL)
             }
