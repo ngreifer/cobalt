@@ -1476,7 +1476,8 @@ x2base.weightit <- function(weightit, ...) {
     imp <- A$imp
     subset <- A$subset
     
-    weightit.data <- do.call("data.frame", weightit[[c("data", "exact")[c("data", "exact") %in% names(weightit)]]])
+    if (any(c("data", "exact") %in% names(weightit))) weightit.data <- do.call("data.frame", weightit[[c("data", "exact")[c("data", "exact") %in% names(weightit)]]])
+    else weightit.data <- NULL
     
     if (is_not_null(attr(treat, "treat.type"))) {
         treat.type <- attr(treat, "treat.type")
