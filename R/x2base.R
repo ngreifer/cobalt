@@ -501,18 +501,18 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     if (is_not_null(distance)) {
         if (length(s) == 1) {
-            distance <- cbind(distance, prop.score = ps$ps[[s]])
+            distance <- cbind(distance, prop.score = ps.cont$ps[[s]])
         }
         else {
-            distance <- cbind(distance, prop.score = ps$ps[s])
+            distance <- cbind(distance, prop.score = ps.cont$ps[s])
         }
     }
     else {
         if (length(s) == 1) {
-            distance <- data.frame(prop.score = ps$ps[[s]])
+            distance <- data.frame(prop.score = ps.cont$ps[[s]])
         }
         else {
-            distance <- data.frame(prop.score = ps$ps[s])
+            distance <- data.frame(prop.score = ps.cont$ps[s])
         }
     }
     
@@ -533,7 +533,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
+        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps.cont()."), call. = FALSE)
     }
     
     if (any(is.na(c(covs, addl)))) {
