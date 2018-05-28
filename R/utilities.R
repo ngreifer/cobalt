@@ -319,20 +319,26 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE,
         names(estimand) <- s
     }
     
-    w <- setNames(lapply(seq_along(s), function(p) {
-        if (estimand[p] == "att") ps$treat + (1-ps$treat)*ps$ps[,s[p]]/(1-ps$ps[,s[p]])
-        else if (estimand[p] == "ate") ps$treat/ps$ps[,s[p]] + (1-ps$treat)/(1-ps$ps[,s[p]])
-        else if (estimand[p] == "atc") (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])}),
-        ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
-    
-    if (s.weights) {
-        w <- w * ps$sampw
+    w <- setNames(as.data.frame(matrix(1, nrow = nrow(ps$ps), ncol = length(s))),
+                  ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
+    for (p in s) {
+        if (estimand[p] == "att") w[[p]] <- ps$treat + (1-ps$treat)*ps$ps[,p]/(1-ps$ps[,p])
+        else if (estimand[p] == "ate") w[[p]] <- ps$treat/ps$ps[,p] + (1-ps$treat)/(1-ps$ps[,p])
+        else if (estimand[p] == "atc") w[[p]] <- (1-ps$treat) + ps$treat*ps$ps[,p]/(1-ps$ps[,p])
+        if (s.weights) w[[p]] <- w[[p]] * ps$sampw
     }
+    # w <- setNames(lapply(seq_along(s), function(p) {
+    #     if (estimand[p] == "att") ps$treat + (1-ps$treat)*ps$ps[,s[p]]/(1-ps$ps[,s[p]])
+    #     else if (estimand[p] == "ate") ps$treat/ps$ps[,s[p]] + (1-ps$treat)/(1-ps$ps[,s[p]])
+    #     else if (estimand[p] == "atc") (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])}),
+    #     ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
+    # 
+    # if (s.weights) {
+    #     w <- w * ps$sampw
+    # }
     
-    if (length(w) == 1) w <- w[[1]]
-    else {
-        class(w) <- "data.frame"; attr(w, "row.names") <- .set_row_names(length(w[[1]]))
-    }
+    if (ncol(w) == 1) w <- w[[1]]
+
     return(w)
 }
 get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
@@ -395,6 +401,48 @@ get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
     
     if (ncol(w) == 1) w <- w[[1]]
     
+    return(w)
+}
+get.w.ps.cont <- function(ps.cont, stop.method = NULL, s.weights = FALSE, ...) {
+    if (is_not_null(stop.method)) {
+        if (any(is.character(stop.method))) {
+            rule1 <- names(ps.cont$w)[sapply(names(ps.cont$w), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
+            if (is_null(rule1)) {
+                message(paste0("Warning: stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                rule1 <- names(ps.cont$w)
+            }
+            # rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
+            #                   error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
+            #                       return(names(ps$w))})
+        }
+        else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(ps.cont$w)))) {
+            if (any(!stop.method %in% seq_along(names(ps.cont$w)))) {
+                message(paste0("Warning: There are ", length(names(ps.cont$w)), " stop methods available, but you requested ", 
+                               word.list(stop.method[!stop.method %in% seq_along(names(ps.cont$w))], and.or = "and"),"."))
+            }
+            rule1 <- names(ps.cont$w)[stop.method %in% seq_along(names(ps.cont$w))]
+        }
+        else {
+            warning("stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            rule1 <- names(ps.cont$w)
+        }
+    }
+    else {
+        rule1 <- names(ps.cont$w)
+    }
+    
+    s <- names(ps.cont$w)[match(tolower(rule1), tolower(names(ps.cont$w)))]
+    
+    w <- setNames(as.data.frame(matrix(1, nrow = nrow(ps.cont$w), ncol = length(s))),
+                  s)
+    
+    for (p in s) {
+        w[[p]] <- ps.cont$w[[p]]
+        if (s.weights) w[[p]] <- w[[p]] * ps.cont$sampw
+    }
+
+    if (ncol(w) == 1) w <- w[[1]]
+
     return(w)
 }
 get.w.iptw <- function(iptw, stop.method = NULL, s.weights = FALSE, ...) {
@@ -503,7 +551,7 @@ get.w.ebalance <- function(e, treat, ...) {
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     
     weights <- rep(1, length(treat))
-
+    
     if (length(e$w) != sum(treat == 0)) {
         stop("There are more control units in treat than weights in the ebalance object.", call. = FALSE)
     }
