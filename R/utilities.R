@@ -438,7 +438,7 @@ get.w.ps.cont <- function(ps.cont, stop.method = NULL, s.weights = FALSE, ...) {
     
     for (p in s) {
         w[[p]] <- ps.cont$w[[p]]
-        if (s.weights) w[[p]] <- w[[p]] * ps.cont$sampw
+        if (!s.weights && is_not_null(ps.cont$sampw)) w[[p]] <- w[[p]] / ps.cont$sampw
     }
 
     if (ncol(w) == 1) w <- w[[1]]
