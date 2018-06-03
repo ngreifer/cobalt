@@ -499,23 +499,6 @@ x2base.ps.cont <- function(ps.cont, ...) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data, ps.data))
     }
     
-    if (is_not_null(distance)) {
-        if (length(s) == 1) {
-            distance <- cbind(distance, prop.score = ps.cont$ps[[s]])
-        }
-        else {
-            distance <- cbind(distance, prop.score = ps.cont$ps[s])
-        }
-    }
-    else {
-        if (length(s) == 1) {
-            distance <- data.frame(prop.score = ps.cont$ps[[s]])
-        }
-        else {
-            distance <- data.frame(prop.score = ps.cont$ps[s])
-        }
-    }
-    
     ensure.equal.lengths <- TRUE
     vectors <- c("s.weights", "cluster", "subset")
     data.frames <- c("covs", "weights", "distance", "addl")
@@ -2288,14 +2271,13 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
-                              else if (is.vector(get(x))) max(lengths(get(x)))
+                              #else if (is.vector(get(x))) max(lengths(get(x)))
                               else max(sapply(get(x), function(y) if (is_not_null(y)) {
                                   if (is.data.frame(y) || is.matrix(y)) nrow(y)
                                   else length(y)
                               }
                               else 0))
                           })), c(vectors, data.frames, lists))
-    
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames, lists)) {
@@ -2334,10 +2316,10 @@ x2base.data.frame.list <- function(covs.list, ...) {
     X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
     X$weights <- weights[subset, , drop = FALSE]
     X$treat.list <- lapply(treat.list, function(x) x[subset])
-    X$distance.list <- lapply(distance.list, function(x) x[subset, , drop = FALSE])
+    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
     X$cluster <- factor(cluster[subset])
     X$call <- NULL
-    X$addl.list <- lapply(addl.list, function(x) x[subset, , drop = FALSE])
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
     X$imp <- factor(imp[subset])
     X$s.weights <- s.weights[subset]
     
