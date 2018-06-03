@@ -1,5 +1,6 @@
 bal.tab <- function(...) {
     A <- list(...)
+    if (is_null(A)) stop("No arguments were supplied.", call. = FALSE)
     A[[1]] <- is.designmatch(A[[1]])
     UseMethod("bal.tab", A[[1]])
 }
