@@ -368,7 +368,7 @@ get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv, ...) {
     #Get full model matrix with interactions too
     covs.matrix <- model.matrix(tt.covs, data = covs,
                                 contrasts.arg = lapply(covs[sapply(covs, is.factor)], 
-                                                       contrasts, contrasts=FALSE))[,-1, drop = FALSE]
+                                                       contrasts, contrasts=FALSE))
     
     attr(covs, "terms") <- NULL
     
@@ -630,18 +630,21 @@ w.cov <- function(x, y , w = NULL) {
 col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL, x.types, continuous, binary, s.d.denom, no.weights = FALSE, s.weights = rep(1, length(treat)), pooled.sds = NULL) {
     if (no.weights) weights <- rep(1, nrow(mat))
     w <- weights*s.weights
+    sw <- s.weights
     
     no.sub <- is_null(which.sub)
-    if (no.sub) ss <- w > 0
-    else ss <- (!is.na(subclass) & subclass == which.sub & w > 0)
-    
-    if (sum(treat==0 & ss) == 0) {
-        warning(paste0("There are no control units in subclass ", which.sub, "."), call. = FALSE)
-        return(rep(NA, ncol(mat)))
-    }
-    if (sum(treat==1 & ss) == 0) {
-        warning(paste0("There are no treated units in subclass ", which.sub, "."), call. = FALSE)
-        return(rep(NA, ncol(mat)))
+    if (no.sub) ss <- sw > 0
+    else {
+        ss <- (!is.na(subclass) & subclass == which.sub & sw > 0)
+        
+        if (sum(treat==0 & ss) == 0) {
+            warning(paste0("There are no control units in subclass ", which.sub, "."), call. = FALSE)
+            return(rep(NA, ncol(mat)))
+        }
+        if (sum(treat==1 & ss) == 0) {
+            warning(paste0("There are no treated units in subclass ", which.sub, "."), call. = FALSE)
+            return(rep(NA, ncol(mat)))
+        }
     }
     
     diffs <- col.w.m(mat[treat == 1 & ss, , drop = FALSE], w[treat == 1 & ss]) - 
@@ -667,7 +670,7 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
             }
         }
     }
-    
+
     std.diffs <- diffs/denoms
     std.diffs[!is.finite(std.diffs)] <- NA
     
@@ -886,7 +889,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     if (!(!un && quick)) B[["Diff.Un"]] <- col.std.diff(C, treat = treat, weights = NULL, x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[1], no.weights = TRUE, s.weights = s.weights, pooled.sds = pooled.sds)
     if (!no.adj) {
         for (j in seq_len(ncol(weights))) {
-            B[[paste0("Diff.", weight.names[j])]] <- col.std.diff(C, treat = treat, weights = weights[[j]], x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[j], s.weights = s.weights, pooled.sds = pooled.sds)
+            B[[paste0("Diff.", weight.names[j])]] <- col.std.diff(C, treat = treat, weights = weights[[j]], x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[j], no.weights = FALSE, s.weights = s.weights, pooled.sds = pooled.sds)
         }
     }
     
@@ -1630,11 +1633,11 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
         }
     }), stringsAsFactors = FALSE)
     nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-    o.negs <- df < 0
+    o.negs <- sapply(1:ncol(df), function(x) if (nums[x]) df[[x]] < 0 else rep(FALSE, length(df[[x]])))
     df[nums] <- round(df[nums], digits = digits)
     df[nas] <- ""
     
-    df <- as.data.frame(lapply(df, as.character), stringsAsFactors = FALSE)
+    df <- as.data.frame(lapply(df, format, scientific = FALSE), stringsAsFactors = FALSE)
     
     for (i in which(nums)) {
         if (any(grepl(".", df[[i]], fixed = TRUE))) {
@@ -1655,7 +1658,7 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
         }
     }
     
-    df[o.negs & df >= 0] <- paste0("-", df[o.negs & df >= 0])
+    df[o.negs & df == 0] <- paste0("-", df[o.negs & df == 0])
     
     # Insert NA placeholders
     df[df == ""] <- na_vals
