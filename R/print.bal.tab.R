@@ -355,7 +355,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                     keep.row <- rowSums(apply(s.balance[[i]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
                 }
                 else keep.row <- rep(TRUE, nrow(s.balance[[i]]))
-                cat("\n - - - " %+% italic("Subclass " %+% i) %+% " - - - \n")
+                cat("\n - - - " %+% italic("Subclass " %+% as.character(i)) %+% " - - - \n")
                 print.data.frame(round_df_char(s.balance[[i]][keep.row, s.keep, drop = FALSE], digits))
             }
             cat("\n")
@@ -1725,7 +1725,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     if (is_not_null(which.time)) {
         cat(underline("Balance by Time Point") %+% "\n")
         for (i in which.time) {
-            cat("\n - - - " %+% italic("Time: " %+% i) %+% " - - - \n")
+            cat("\n - - - " %+% italic("Time: " %+% as.character(i)) %+% " - - - \n")
             do.call(print, c(list(x = msm.balance[[i]]), args))
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Time: ", i, " - - - "))/2)), collapse = ""), " \n"))
@@ -1770,7 +1770,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             cat(underline(attr(x$Observations[[1]], "tag")) %+% "\n")
             
             for (ti in seq_along(x$Observations)) {
-                cat(" - " %+% italic("Time " %+% ti) %+% "\n")
+                cat(" - " %+% italic("Time " %+% as.character(ti)) %+% "\n")
                 for (i in rownames(x$Observations[[ti]])) {
                     if (all(x$Observations[[ti]][i,] == 0)) x$Observations[[ti]] <- x$Observations[[ti]][rownames(x$Observations[[ti]])!=i,]
                 }
