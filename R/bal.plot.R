@@ -68,7 +68,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     subtitle <- NULL
     
     facet <- NULL
-    is.categorical.var <- !nunique.gt(X$var, 2) || is.factor(X$var) || is.character(X$var)
+    is.categorical.var <- is_binary(X$var) || is.factor(X$var) || is.character(X$var)
     
     if (is_not_null(X$subclass)) {
         if (which %in% c("adjusted", "both")) {
@@ -278,7 +278,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
     }
     
-    if (nunique(D$treat) > 2 && is.numeric(D$treat)) { #Continuous treatments
+    if (!is_binary(D$treat) && is.numeric(D$treat)) { #Continuous treatments
         if ("subclass" %in% facet) {
             if (is.categorical.var) {
                 weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[subclass==subclass[i] & var==var[i]])))
@@ -360,7 +360,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             d <- data.frame(weights = weights, treat = D$treat, var = D$var)
         }
         
-        if (!nunique.gt(d$var, 2) || is.factor(d$var) || is.character(d$var)) { #Categorical vars
+        if (is_binary(d$var) || is.factor(d$var) || is.character(d$var)) { #Categorical vars
             d$var <- factor(d$var)
             bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
                 geom_bar(position = "dodge", alpha = .4, color = "black") + 

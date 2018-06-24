@@ -3,7 +3,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                       drop.distance = FALSE, agg.fun = c("mean", "median", "max", "range"), 
                       colors = NULL, shapes = NULL, line = FALSE, ...) {
     b <- x; rm(x)
-    if (!"bal.tab" %in% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
+    if ("bal.tab" %nin% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
     else stat <- match.arg(stat)
     
@@ -23,7 +23,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (i %in% names(args)) b$print.options[[i]] <- args[[i]]
     }
     
-    null.threshold <- is.null(threshold)
+    null.threshold <- is_null(threshold)
     if (!null.threshold) {
         if (!is.numeric(threshold) || length(threshold) > 1) stop("threshold must be a single number.", call. = FALSE)
     }
@@ -493,25 +493,25 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     
     if (null.threshold) {
         if (which.stat=="Diff") {
-            if (!is.null(b$print.options$m.threshold)) {
+            if (is_not_null(b$print.options$m.threshold)) {
                 threshold <- b$print.options$m.threshold
                 null.threshold <- FALSE
             }
         }
         else if (which.stat=="V.Ratio") {
-            if (!is.null(b$print.options$v.threshold)) {
+            if (is_not_null(b$print.options$v.threshold)) {
                 threshold <- b$print.options$v.threshold
                 null.threshold <- FALSE
             }
         }
         else if (which.stat=="KS") {
-            if (!is.null(b$print.options$ks.threshold)) {
+            if (is_not_null(b$print.options$ks.threshold)) {
                 threshold <- b$print.options$ks.threshold
                 null.threshold <- FALSE
             }
         }
         else if (which.stat=="Corr") {
-            if (!is.null(b$print.options$r.threshold)) {
+            if (is_not_null(b$print.options$r.threshold)) {
                 threshold <- b$print.options$r.threshold
                 null.threshold <- FALSE
             }
@@ -743,7 +743,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     
     #Setting up appearance
     #Size
-    if (is.null(args$size)) size <- 1
+    if (is_null(args$size)) size <- 1
     else if (is.numeric(args$size[1])) size <- args$size[1]
     else {
         warning("The argument to size must be a number. Using 1 instead.", call. = FALSE)
@@ -781,7 +781,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     fill <- colors
     
     #Shapes
-    if (is.null(shapes)) {
+    if (is_null(shapes)) {
         shapes <- assign.shapes(colors)
     }
     else {
@@ -794,8 +794,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     }
     
     #Title
-    if (!is.null(args$title)) title <- as.character(args$title)
-    if (!is.null(args$subtitle)) subtitle <- as.character(args$subtitle)
+    if (is_not_null(args$title)) title <- as.character(args$title)
+    if (is_not_null(args$subtitle)) subtitle <- as.character(args$subtitle)
     #else subtitle <- NULL
     
     if (which.stat == "Corr") {

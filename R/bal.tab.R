@@ -493,10 +493,10 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
     names(out) <- out.names
     
     #Get list of bal.tabs for each imputation
-    if (isTRUE(attr(treat, "treat.type") == "continuous") || (is.numeric(treat) && nunique.gt(treat, 2))) {#if continuous treatment
+    if (isTRUE(attr(treat, "treat.type") == "continuous") || (is.numeric(treat) && !is_binary(treat))) {#if continuous treatment
         out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) base.bal.tab.cont(weights = weights[imp==i, , drop  = FALSE], treat = treat[imp==i], distance = distance[imp==i, , drop = FALSE], subclass = subclass[imp==i], covs = covs[imp == i, , drop = FALSE], call = call, int = int, addl = addl[imp = i, , drop = FALSE], r.threshold = r.threshold, imbalanced.only = imbalanced.only, un = un, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster[imp==i], which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights[imp==i], discarded = discarded[imp==i], quick = quick, ...))
     }
-    else if (isTRUE(attr(treat, "treat.type") == "multinomial") || ((is.factor(treat) || is.character(treat)) && nunique.gt(treat, 2))) {
+    else if (isTRUE(attr(treat, "treat.type") == "multinomial") || ((is.factor(treat) || is.character(treat)) && !is_binary(treat))) {
         stop("Multinomial treaments are not yet supported with multiply imputed data.", call. = FALSE)
     }
     else {#if binary treatment
@@ -760,7 +760,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
             if (isTRUE(attr(x, "treat.type") %in% c("binary", "multinomial", "continuous"))) {
                 attr(x, "treat.type")
             }
-            else if (nunique.gt(x, 2)) {
+            else if (!is_binary(x)) {
                  if (is.numeric(x)) "continuous"
                 else if (is.factor(x) || is.character(x)) "multinomial"
             }
@@ -810,7 +810,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         
         out[["Observations"]] <- lapply(out[["Time.Balance"]], function(x) x$Observations)
         
-        if (!(quick && !msm.summary) && !nunique.gt(treat.type, 1) && !any(treat.type == "multinomial")) {
+        if (!(quick && !msm.summary) && all_the_same(treat.type) && !any(treat.type == "multinomial")) {
             out[["Balance.Across.Times"]] <- balance.table.msm.summary(out[["Time.Balance"]],
                                                                    weight.names = names(weights),
                                                                    no.adj = no.adj,
@@ -1209,7 +1209,7 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
                                 quick = quick,
                                 ...)
     }
-    else if (nunique.gt(X$treat, 2) && is.numeric(X$treat)) {
+    else if (!is_binary(X$treat) && is.numeric(X$treat)) {
         out <- base.bal.tab.cont(weights=X$weights, 
                                  treat = X$treat, 
                                  distance = X$distance, 
@@ -1232,7 +1232,7 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
                                  quick = quick,
                                  ...)
     }
-    else if (nunique.gt(X$treat, 2) && (is.factor(X$treat) || is.character(X$treat))) {
+    else if (!is_binary(X$treat) && (is.factor(X$treat) || is.character(X$treat))) {
         out <- base.bal.tab.multi(weights=X$weights, 
                                   treat=X$treat, 
                                   distance=X$distance, 
@@ -1389,7 +1389,7 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
                                      abs = abs,
                                      quick = quick)
         }
-        else if (nunique.gt(X$treat, 2)) {
+        else if (!is_binary(X$treat)) {
             out <- base.bal.tab.multi(weights=X$weights, 
                                       treat=X$treat, 
                                       distance=X$distance, 

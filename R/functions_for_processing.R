@@ -399,7 +399,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     else d <- mat
     nd <- ncol(d)
     nrd <- nrow(d)
-    no.poly <- apply(d, 2, function(x) !nunique.gt(x, 2))
+    no.poly <- apply(d, 2, is_binary)
     npol <- nd - sum(no.poly)
     new <- matrix(0, ncol = (poly-1)*npol + int*(.5*(nd)*(nd-1)), nrow = nrd)
     nc <- ncol(new)
@@ -415,14 +415,14 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
         new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse=paste0(replicate(nunder, "_"), collapse = ""))
     }
     
-    single.value <- apply(new, 2, function(x) !nunique.gt(x, 1))
+    single.value <- apply(new, 2, all_the_same)
     colnames(new) <- new.names
     #new <- setNames(data.frame(new), new.names)[!single.value]
     return(new[, !single.value, drop = FALSE])
 }
 binarize <- function(variable) {
     nas <- is.na(variable)
-    if (nunique.gt(variable[!nas], 2)) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
+    if (!is_binary(variable[!nas])) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
     variable.numeric <- as.numeric(variable)
     if (0 %in% unique(variable.numeric)) zero <- 0
     else zero <- min(unique(variable.numeric), na.rm = TRUE)
@@ -464,7 +464,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
                                  stringsAsFactors = FALSE)
     for (i in names(C)) {
         if (is.character(C[[i]])) C[[i]] <- factor(C[[i]])
-        else if (!nunique.gt(C[[i]][!is.na(C[[i]])], 2)) {
+        else if (is_binary(C[[i]][!is.na(C[[i]])])) {
             if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
             else if (is.numeric(C[[i]])) C[[i]] <- binarize(C[[i]])
         }
@@ -485,7 +485,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     }
     #Make sure categorical variable have missingness indicators done correctly
     C <- as.matrix(C)
-    single.value <- apply(C, 2, function(x) !nunique.gt(x, 1))
+    single.value <- apply(C, 2, all_the_same)
     C <- C[, !single.value, drop = FALSE]
     
     #Process int
@@ -549,8 +549,8 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
 get.types <- function(C) {
     sapply(colnames(C), function(x) {
         if (any(attr(C, "distance.names") == x)) "Distance"
-        else if (nunique.gt(C[!is.na(C[,x]),x], 2))  "Contin."
-        else "Binary"
+        else if (is_binary(C[,x]))  "Binary"
+        else "Contin."
     })
 }
 remove.perfect.col <- function(C) {
@@ -558,7 +558,7 @@ remove.perfect.col <- function(C) {
     if (nrow(C) > 1500) {
         repeat {
             mini.C <- C[sample(seq_len(nrow(C)), 1000),,drop=FALSE]
-            single.value <- apply(mini.C, 2, function(x) !nunique.gt(x, 1))
+            single.value <- apply(mini.C, 2, all_the_same)
             if (all(!single.value)) break
         }
         suppressWarnings(C.cor <- cor(mini.C, use = "pairwise.complete.obs"))
