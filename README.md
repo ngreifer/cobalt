@@ -22,7 +22,7 @@ vignette detailing the use of `cobalt`, which can be accessed with
 use of `cobalt` with additional packages, and another for the use of
 `cobalt` with multiply imputed and/or clustered data. Currently,
 `cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`,
-`optmatch`, `CBPS`, `ebal`, and `WeightIt`. as well as data not
+`optmatch`, `CBPS`, `ebal`, `designmatch`, and `WeightIt`. as well as data not
 processed through these packages.
 
 # Why cobalt?
@@ -130,5 +130,5 @@ love.plot(bal.tab(m.out), threshold = 0.1, abs = TRUE, var.order = "unadjusted")
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, write: “Matching was performed using Matching
 (Sekhon, 2011), and covariate balance was assessed using cobalt
-(Greifer, 2017) in R (R Core team, 2017).” Use `citation("cobalt")` to
+(Greifer, 2018) in R (R Core team, 2018).” Use `citation("cobalt")` to
 generate a bibliographic reference for the `cobalt` package.
