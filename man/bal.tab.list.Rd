@@ -37,7 +37,8 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     msm.summary = TRUE, 
     s.weights = NULL, 
     estimand = "ATE",
-    subset = subset,
+    abs = FALSE,
+    subset = NULL,
     quick = FALSE, 
     ...)
 }
@@ -127,6 +128,9 @@ Optional; either a vector containing sampling weights for each unit or a string 
 }
   \item{estimand}{
 The causal estimand of interest. This value is used to set \code{s.d.denom}, and should not be changed from "ATE".
+}
+  \item{abs}{
+\code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
 A \code{logical} vector denoting whether each observation should be included. It should be the same length as the treatment and covariates. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.

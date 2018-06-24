@@ -44,7 +44,8 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     multi.summary = TRUE, 
     s.weights = NULL, 
     estimand = NULL, 
-    subset = subset,
+    abs = FALSE,
+    subset = NULL,
     quick = FALSE, 
     ...)
 
@@ -165,6 +166,9 @@ Optional; either a vector containing sampling weights for each unit or a string 
   \item{estimand}{
 \code{character}; whether the desired estimand is the "ATT", "ATC", or "ATE" for each set of weights. This argument can be used in place of \code{s.d.denom} to specify how standardized differences are calculated.
 }
+  \item{abs}{
+\code{logical}; whether displayed balance statistics should be in absolute value or not. 
+}
   \item{subset}{
 A \code{logical} vector denoting whether each observation should be included. It should be the same length as the treatment and covariates. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
@@ -210,13 +214,9 @@ Noah Greifer
 
 \seealso{
 \code{\link{bal.tab}} for output and details of calculations.
-
 \code{\link{bal.tab.cluster}} for more information on clustered data.
-
 \code{\link{bal.tab.imp}} for more information on multiply imputed data.
-
 \code{\link{bal.tab.multi}} for more information on multiple categorical treatments.
-
 }
 \examples{
 data("lalonde", package = "cobalt")

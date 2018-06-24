@@ -31,7 +31,8 @@ Generates balance statistics for output objects from \pkg{designmatch}.
     cluster = NULL, 
     which.cluster = NULL, 
     cluster.summary = TRUE, 
-    subset = subset,
+    abs = FALSE,
+    subset = NULL,
     quick = FALSE, 
     ...)
 }
@@ -105,6 +106,9 @@ which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.
 }
   \item{cluster.summary}{
 \code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
+}
+  \item{abs}{
+\code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
 A \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{designmatch()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.

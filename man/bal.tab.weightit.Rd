@@ -38,6 +38,7 @@ Generates balance statistics for \code{weightit} and \code{weightitMSM} objects 
     multi.summary = TRUE, 
     which.time = NULL,
     msm.summary = TRUE,
+    abs = FALSE,
     subset = NULL,
     quick = FALSE, ...)
 }
@@ -129,10 +130,13 @@ Currently ignored.
 \code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
 }
   \item{which.time}{
-Which time periods to display if longutdinal treatments are used. See \code{\link{bal.tab.msm}} for details.
+Which time periods to display if longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
 }
   \item{msm.summary}{
 \code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
+}
+  \item{abs}{
+\code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
 A \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{weightit()} or \code{weightitMSM()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
@@ -170,6 +174,8 @@ Noah Greifer
 
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
+\code{\link{bal.tab.cluster}} for more information on clustered data.
+\code{\link{bal.tab.msm}} for more information on longitudinal treatments.
 }
 \examples{
 library(WeightIt); data("lalonde", package = "cobalt")

@@ -13,7 +13,7 @@ bal.tab(\dots)
 
 \arguments{
   \item{\dots}{
-arguments passed to other methods. These arguments may be data-related, computation-related, or print-related.
+Arguments passed to other methods. These arguments may be data-related, computation-related, or print-related. The first argument must be the object corresponding to the method to be dispatched; for example, the output of a call to a balancing function in another package or a formula or data frame.
 }
 }
 \details{
@@ -31,7 +31,7 @@ Although the reported mean differences (standardized or otherwise) are presented
 
 Variance ratios are computed within-sample, with the larger of the two variances in the numerator, always yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion. \code{bal.tab()} takes the reciprocal of the input to \code{v.threshold} if it is less than 1.
 
-When matching is used for conditioning, the presented sample sizes are calculated simply by summing the number of observations in each group with matching weights greater than 0. When weighting is used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}, as is used in \pkg{twang}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being discarded.
+When matching is used for conditioning, the presented sample sizes are calculated simply by summing the number of observations in each group with matching weights greater than 0. When weighting is used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}, as is used in \pkg{twang}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being down-weighted.
 
 When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass},  the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See \code{\link{bal.tab.subclass}} for more details.}
 
@@ -92,7 +92,7 @@ For scenarios with binary point treatments and no subclasses, imputations, or cl
 \item{call}{The original function call, if adjustment was performed by a function in another package.}
 \item{print.options}{A list of print options passed to \code{print.bal.tab}.}
 
-If the treatment is continuous, instead of mean differences, variance ratios, and KS statistics, \code{bal.tab()} will produce correlations between the covariates and the treatment. The corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.threshold" (and accordingly for the balance tally and maximum imbalance tables).
+If the treatment is continuous, instead of producing mean differences, variance ratios, and KS statistics, \code{bal.tab()} will produce correlations between the covariates and the treatment. The corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.threshold" (and accordingly for the balance tally and maximum imbalance tables).
 
 If multiple weights are supplied, \code{"Adj"} in \code{Balance} will be replaced by the provided names of the sets of weights, and extra columns will be added for each set of weights. Additional columns and rows for other items in the output will be created as well.
 
@@ -112,11 +112,9 @@ Noah Greifer
 
 \code{\link{bal.tab.matchit}} for the method for objects returned by \pkg{MatchIt}.
 
-\code{\link{bal.tab.weightit}} for the method for objects returned by \pkg{WeightIt}.
+\code{\link{bal.tab.weightit}} for the method for \code{weightit} and \code{weightitMSM} objects returned by \pkg{WeightIt}.
 
-\code{\link{bal.tab.ps}} for the method for \code{ps} objects returned by \pkg{twang}.
-
-\code{\link{bal.tab.mnps}} for the method for \code{mnps} objects returned by \pkg{twang}.
+\code{\link{bal.tab.ps}} for the method for \code{ps}, \code{mnps}, and \code{iptw} objects returned by \pkg{twang} and for \code{ps.cont} objects returned by \pkg{WeightIt}.
 
 \code{\link{bal.tab.Match}} for the method for objects returned by \pkg{Matching}.
 
@@ -124,9 +122,10 @@ Noah Greifer
 
 \code{\link{bal.tab.CBPS}} for the method for objects returned by \pkg{CBPS}.
 
-\code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set.
+\code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \code{\link{bal.tab.list}}.
 
 \code{\link{bal.tab.ebalance}} for the method for objects returned by \pkg{ebal}.
 
+\code{\link{bal.tab.designmatch}} for the method for objects returned by \pkg{designmatch}.
 
 }
