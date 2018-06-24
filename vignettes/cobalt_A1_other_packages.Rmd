@@ -18,7 +18,7 @@ knitr::opts_chunk$set(message = FALSE)
 library("cobalt")
 ```
 
-This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A Guide to the cobalt Package". It contains descriptions and demonstrations of several utility functions in `cobalt` and the use of `bal.tab()` with `twang`, `Matching`, `optmatch`, `CBPS`, and `ebal`. Note that `MatchIt` can perform most of the functions that `Matching` and `optmatch` can, and `WeightIt` completely subsumes and expands the capabilities of `twang`, `CBPS`, and `ebal`. Because `cobalt` has been optimized to work with `MatchIt` and `WeightIt`, it is recommended to use those package to simplify preprocessing and balance assessment, but we recognize users may prefer to use the packages described in this vignette.
+This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A Guide to the cobalt Package". It contains descriptions and demonstrations of several utility functions in `cobalt` and the use of `bal.tab()` with `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, and `designmatch`. Note that `MatchIt` can perform most of the functions that `Matching` and `optmatch` can, and `WeightIt` completely subsumes and expands the capabilities of `twang`, `CBPS`, and `ebal`. Because `cobalt` has been optimized to work with `MatchIt` and `WeightIt`, it is recommended to use those package to simplify preprocessing and balance assessment, but we recognize users may prefer to use the packages described in this vignette.
 
 ## Utilities
 
@@ -75,7 +75,7 @@ Notice the original data set and the unsplit data set look identical.
 
 `get.w()` allows users to extract weights from the output of a call to a preprocessing function in one of the supported packages. Because each package stores weights in different ways, it can be helpful to have a single function that applies equally to all outputs. `twang` has a function called `get.weights()` that performs the same functions with slightly finer control for the output of a call to `ps()`. See the section "Comparing balancing methods" in the main vignette for examples of the use of `get.w()`.
 
-##`bal.tab()`
+## `bal.tab()`
 
 The next sections describe the use of `bal.tab()` with packages other than those described in the main vignette. Even if you are using `bal.tab()` with one of these packages, it may be useful to read the main vignette to understand `bal.tab()`'s main options, which are not detailed here.
 
@@ -105,7 +105,7 @@ The other arguments to `bal.tab()` when using it with `twang` have the same form
 
 If sampling weights are used in the call to `ps()`, they will be automatically incorporated into the `bal.tab()` calculations for both the adjusted and unadjusted samples, just as `twang` does.
 
-`mnps` objects resulting from fitting models in `twang` with multinomial treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multinomial treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitduinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette.
+`mnps` objects resulting from fitting models in `twang` with multinomial treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multinomial treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette. `ps.cont` objects resulting from using `ps.cont()` in `WeightIt`, which implements GBM for continuous treatments, are also compatible. See the section "Using `cobalt` with continuous treatments" in the main vignette.
 ```{r, include=FALSE, eval=TRUE}
 #knitr::opts_chunk$set(eval = TRUE)
 ```
@@ -210,6 +210,37 @@ bal.tab(e.out, treat = lalonde$treat, covs = covs0)
 First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. The "effective" sample size is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" in the main vignette for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure. That said, in simulations by Zhao and Percival (2015), entropy balancing reliably had smaller empirical standard errors than did covariate balancing propensity scores.
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In additon to the `ebalance` object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
+
+```{r, include=FALSE}
+#knitr::opts_chunk$set(eval = TRUE)
+```
+
+### Using `bal.tab()` with `designmatch`
+
+The `designmatch` package implements various matching methods that use optimization to find matches that satisfy certain balance constraints. `bal.tab()` functions similarly to `designmatch`'s `meantab()` command but provides additional flexibility and convenience. Below is a simple example of using `bal.tab()` with `designmatch`:
+```{r, include=FALSE}
+#if (!requireNamespace("designmatch")) knitr::opts_chunk$set(eval = FALSE)
+```
+```{r}
+library("designmatch")
+data("lalonde", package = "cobalt") #If not yet loaded
+covs0 <- subset(lalonde, select = -c(treat, re78, race))
+
+#Matching for balance on covariates
+dmout <- bmatch(lalonde$treat,
+                dist_mat = NULL,
+                subset_weight = NULL,
+                mom = list(covs = covs0,
+                           tols = absstddif(covs0, lalonde$treat, .005)),
+                n_controls = 1,
+                total_groups = 185)
+
+bal.tab(dmout, treat = lalonde$treat, covs = covs0)
+```
+
+The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In additon to the `designmatch()` output object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates. The output is similar to that of `optmatch`.
+
+
 
 ```{r, include=FALSE}
 #knitr::opts_chunk$set(eval = TRUE)

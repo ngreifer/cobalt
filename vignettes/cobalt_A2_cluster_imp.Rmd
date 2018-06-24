@@ -91,27 +91,27 @@ Balance plots for each cluster are displayed next to each other. You can specify
 
 ## `love.plot()`
 
-`love.plot()` shines with clustered data because there are several options that are unique to `cobalt` and help with the visual display of balance. First, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean, median, or maximum) of the balance statistic for each covariate across clusters. To change which aggregate function is displayed, use the argument to `agg.fun`, which may be "mean", "median", or "max" ("mean" is the default). Below is an example:
+`love.plot()` shines with clustered data because there are several options that are unique to `cobalt` and help with the visual display of balance. One way to display cluster balance with `love.plot()` is to produce different plots for each cluster, as `bal.plot()` does. This method should not be used with many clusters, or the plots will be unreadable. In our present example, this is not an issue. To do so, the `which.cluster` argument in `bal.tab()` or `love.plot()` must be set to the names or indices of the clusters for which balance is to be plotted. If `which.cluster` is set to `NULL` (teh default), all clusters will be plotted. Below is an example:
 
 ```{r}
-love.plot(bal.tab(m.out, cluster = "race"), agg.fun = "mean")
-```
-
-Another option is to set `agg.fun = "range"`, which produces a similar plot as above except that the minimum and maximum values of the balance statistics for each covariate are displayed as well. See below for an example:
-
-```{r}
-love.plot(bal.tab(m.out, cluster = "race"), agg.fun = "range")
-```
-
-Each point represents the mean balance statistic, and the bars represent intervals bounded by the minimum and maximum of each balance statistic. This display can be especially helpful with many clusters given that the mean alone may not tell the whole story. In some cases, it might be useful to set limits on the x-axis by using the `limits` argument in `love.plot()`; doing so may cut off some of the ranges, but whatever is left will be displayed. All `love.plot()` arguments work with these methods as they do in the case of non-clustered data. When `var.order` is specified and `unadjusted` or `adjusted` are given, the ordering will occur on the mean balance statstic when using `agg.fun = "range"`.
-
-A third way to display cluster balance with `love.plot()` is to produce different plots for each cluster, as `bal.plot()` does. This method should not be used with many clusters, or the plots will be unreadable. In our present example, this is not an issue. To do so, the `which.cluster` argument in `bal.tab()` or `love.plot()` must be set to the names or indices of the clusters for which balance is to be plotted. If `which.cluster` is set to `NULL`, all clusters will be plotted. Below is an example:
-
-```{r}
-love.plot(bal.tab(m.out, cluster = "race"), which.cluster = NULL)
+love.plot(bal.tab(m.out, cluster = "race"))
 ```
 
 These plots function like those from using `love.plot()` with non-clustered data, except that they cannot be sorted based on the values of the balance statistics (they can still be sorted alphabetically, though). This is to ensure that the covariates line up across the plots. The same axis limits will apply to all plots.
+
+Second, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean, median, or maximum) of the balance statistic for each covariate across clusters. To do this, `which.cluster` in the `love.plot` command must be set to `NA`. To change which aggregate function is displayed, use the argument to `agg.fun`, which may be "mean", "median", or "max" ("mean" is the default). Below is an example:
+
+```{r}
+love.plot(bal.tab(m.out, cluster = "race"), which.cluster = NA, agg.fun = "mean")
+```
+
+A third option is to set `agg.fun = "range"`, which produces a similar plot as above except that the minimum and maximum values of the balance statistics for each covariate are displayed as well. See below for an example:
+
+```{r}
+love.plot(bal.tab(m.out, cluster = "race"), which.cluster = NA, agg.fun = "range")
+```
+
+Each point represents the mean balance statistic, and the bars represent intervals bounded by the minimum and maximum of each balance statistic. This display can be especially helpful with many clusters given that the mean alone may not tell the whole story. In some cases, it might be useful to set limits on the x-axis by using the `limits` argument in `love.plot()`; doing so may cut off some of the ranges, but whatever is left will be displayed. All `love.plot()` arguments work with these methods as they do in the case of non-clustered data. When `var.order` is specified and `unadjusted` or `adjusted` are given, the ordering will occur on the mean balance statstic when using `agg.fun = "range"`.
 
 # Multiply Imputed Data
 
@@ -131,7 +131,7 @@ imp.data <- imp.data[with(imp.data, order(.imp, .id)),]
 
 #Estimate propensity scores and perform matching within each one
 imp.data$ps <- imp.data$match.weight <- rep(0, nrow(imp.data))
-for (i in levels(imp.data$.imp)) {
+for (i in unique(imp.data$.imp)) {
     in.imp <- imp.data$.imp == i
     imp.data$ps[in.imp] <- glm(treat ~ age + educ + race + 
                                    married + nodegree +
@@ -202,6 +202,19 @@ bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
 
 For some variables, the mean, median, and maximum balance statistic will be the same. This will be the case for any variables that are not imputed, i.e., are the same across imputed data sets.
 
+`WeightIt` is well suited for estimating weights within multiple imputed data sets. Below is an example of estimating propensity score weights after multiple imputation using the same scenario as those above.
+
+```{r}
+#Estimating the weights; exact = ".imp" separates by imputation
+library("WeightIt")
+w.out <- weightit(treat ~ age + educ + race + married + 
+                      nodegree + re74 + re75, data = imp.data, 
+                  exact = ".imp", estimand = "ATT")
+
+#Checking balance on the output object
+bal.tab(w.out, imp = ".imp")
+```
+
 ## `bal.plot()`
 
 `bal.plot()` works with imputed data as it does with non-imputed data, except that multiple plots can be produced displaying balance for multiple imputations at a time. The arguments to `bal.plot()` are the same as those for `bal.tab()`, except that `imp.summary` is absent. Below is an example of the use of `bal.plot()` with imputated data, examining balance in the first imputation:
@@ -253,7 +266,7 @@ imp.data <- complete(imp, "long", include = FALSE)
 
 #Estimate propensity scores and perform matching within each one
 imp.data$match.weight <- rep(0, nrow(imp.data))
-for (i in levels(imp.data$.imp)) {
+for (i in unique(imp.data$.imp)) {
     in.imp <- imp.data$.imp == i
     m.out <- matchit(treat ~ race*(age + educ + married + nodegree + re74 + re75), 
                      data = imp.data[in.imp,], method = "nearest", exact = "race", 

@@ -105,7 +105,7 @@ Finally, we'll examine using `love.plot()` with longitudinal treatments to displ
 
 ## `love.plot()`
 
-`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display seperate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `NA`, the summary across time points is displayed. The `agg.fun` argument is automatically set to `"max"` and cannot be changed.
+`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `NA`, the summary across time points is displayed. The `agg.fun` argument is automatically set to `"max"` and cannot be changed.
 
 ```{r}
 love.plot(bal.tab(Wmsm), abs = TRUE)
