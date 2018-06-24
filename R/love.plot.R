@@ -53,6 +53,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     null.time <- is_null(b$print.options$which.time)
     na.time <- !null.time && is.na(b$print.options$which.time)
     
+    config <- "agg.none"
+    
     if (any(class(b) == "bal.tab.msm")) {
         #Get time.names.good
         time.names <- names(b[["Time.Balance"]])
@@ -100,7 +102,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             #Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
-                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Time Points")
             }
             else {
@@ -108,7 +109,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
             B <- cbind(b[["Balance.Across.Times"]],
                        var.names = rownames(b[["Balance.Across.Times"]]))
-            abs <- TRUE
         }
     }
     else if (any(class(b) == "bal.tab.imp.cluster")) {
@@ -202,13 +202,15 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
         }
         else if (config == "agg.imp") {
+            if (is_null(b[["Cluster.Balance.Across.Imputations"]])) {
+                stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and imp.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
+            }
             Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
             if (Agg.Fun == "Median") {
                 warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
                 Agg.Fun <- "Mean"
             }
             if (Agg.Fun == "Range") {
-                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Imputations")
             }
             else {
@@ -221,13 +223,15 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "cluster"
         }
         else if (config == "agg.cluster") {
+            if (is_null(b[["Imputation.Balance"]][[1]][["Cluster.Summary"]])) {
+                stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
+            }
             Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
             if (Agg.Fun == "Median") {
-                warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
+                warning("agg.fun = \"median\" is being deprecated. Using \"mean\" instead.", call. = FALSE)
                 Agg.Fun <- "Mean"
             }
             if (Agg.Fun == "Range") {
-                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Clusters")
             }
             else {
@@ -240,6 +244,9 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "imp"
         }
         else if (config == "agg.all") {
+            if (is_null(b[["Balance.Across.Imputations"]])) {
+                stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and cluster.summary or imp.summary were set to FALSE in the original bal.tab() call.", call. = FALSE)
+            }
             #Cluster.Fun <- switch(match.arg(cluster.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
             Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
             if (Agg.Fun == "Median") {
@@ -247,7 +254,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 Agg.Fun <- "Mean"
             }
             if (Agg.Fun == "Range") {
-                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Clusters and Imputations")
             }
             else {
@@ -257,7 +263,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                        var.names = row.names(b[["Balance.Across.Imputations"]]))
             facet <- NULL
         }
-        abs <- b$print.options[["abs"]]
     }
     else if (any(class(b) == "bal.tab.imp")) {
         #Get imp.numbers.good
@@ -290,13 +295,15 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "imp"
         }
         else if (config == "agg.imp") {
+            if (is_null(b[["Balance.Across.Imputations"]])) {
+                stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and imp.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
+            }
             Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
             if (Agg.Fun == "Median") {
                 warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
                 Agg.Fun <- "Mean"
             }
             if (Agg.Fun == "Range") {
-                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Imputations")
             }
             else {
@@ -305,7 +312,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             B <- cbind(b[["Balance.Across.Imputations"]],
                        var.names = rownames(b[["Balance.Across.Imputations"]]))
         }
-        abs <- b$print.options[["abs"]]
     }
     else if (any(class(b) == "bal.tab.cluster")) {
         #Get cluster.names.good
@@ -348,13 +354,18 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "cluster"
         }
         else if (config == "agg.cluster") {
-            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", median = "Median", max = "Max", range = "Range")
+            if (is_null(b[["Cluster.Summary"]])) {
+                stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
+            }
+            
+            tryCatch({agg.fun <- tolower(match.arg(agg.fun))}, 
+                     error = function(e) stop("agg.fun should be one of \"mean\", \"max\", or \"range\".", call. = FALSE))
+            Agg.Fun <- switch(agg.fun, mean = "Mean", median = "Median", max = "Max", range = "Range")
             if (Agg.Fun == "Median") {
-                warning("The median is being deprecated. Using the mean instead.", call. = FALSE)
+                warning("The median is deprecated. Using the mean instead.", call. = FALSE)
                 Agg.Fun <- "Mean"
             }
             if (Agg.Fun == "Range") {
-                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Clusters")
             }
             else {
@@ -363,7 +374,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             B <- cbind(b[["Cluster.Summary"]],
                        var.names = rownames(b[["Cluster.Summary"]]))
         }
-        abs <- b$print.options[["abs"]]
     }
     else if (any(class(b) == "bal.tab.multi")) {
         #Get cluster.names.good
@@ -436,7 +446,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             #Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", median = "Median", max = "Max", range = "Range")
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
-                if (b$print.options$quick) stop("\"range\" cannot be used when the original call to bal.tab() used quick = TRUE.", call. = FALSE)
                 subtitle <- paste0(which.stat2, " Range Across Treatment", ifelse(b$print.options$pairwise, " Pairs", "s"))
             }
             else {
@@ -444,7 +453,6 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
             B <- cbind(b[["Balance.Across.Pairs"]],
                        var.names = rownames(b[["Balance.Across.Pairs"]]))
-            abs <- TRUE
         }
     }
     else if (any(class(b) == "bal.tab.subclass")) {
@@ -464,6 +472,23 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     }
     else {
         B <- cbind(b[["Balance"]], var.names = row.names(b[["Balance"]]))
+    }
+    
+    if (config == "agg.none") {
+        if (!abs && !b$print.options[["abs"]]) {
+            abs <- FALSE
+        }
+        else {
+            if (!abs && b$print.options[["abs"]])
+                warning("abs is TRUE in the bal.tab object; ignoring abs in the call to love.plot().", call. = FALSE)
+            abs <- TRUE
+        }
+    }
+    else if (config %in% c("agg.time", "agg.pair")) {
+        abs <- TRUE
+    }
+    else if (config %in% c("agg.imp", "agg.cluster", "agg.all")) {
+        abs <- b$print.options[["abs"]]
     }
     
     if (null.threshold) {
