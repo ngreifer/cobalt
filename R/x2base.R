@@ -35,6 +35,8 @@ x2base.matchit <- function(m, ...) {
     subset <- A$subset
     cluster <- A$cluster
     
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+
     if (is_not_null(m$model$model)) {
         o.data <- m$model$model #data used in the PS formula, including treatment and covs
         covs <- data.frame(o.data[, names(o.data) %in% attributes(terms(m$model))$term.labels])
@@ -182,6 +184,9 @@ x2base.ps <- function(ps, ...) {
     cluster <- A$cluster
     subset <- A$subset
     s.weights <- ps$sampw
+    
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -332,7 +337,10 @@ x2base.mnps <- function(mnps, ...) {
     data <- A$data
     cluster <- A$cluster
     subset <- A$subset
-    s.weights <- ps$sampw
+    s.weights <- mnps$sampw
+    
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     mnps.data <- mnps$data
     
@@ -466,6 +474,9 @@ x2base.ps.cont <- function(ps.cont, ...) {
     cluster <- A$cluster
     subset <- A$subset
     s.weights <- ps.cont$sampw
+    
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -735,6 +746,8 @@ x2base.data.frame <- function(covs, ...) {
     subset <- A$subset
     focal <- A$focal
     
+    if (is_not_null(weights) && any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Checks
     if (is_null(covs)) {
@@ -1243,6 +1256,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
     weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights))
     cluster <- A$cluster
     
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    
     #Process sampling weights
     if (is_not_null(s.weights)) {
         if (!(is.character(s.weights) && length(s.weights) == 1) && !is.numeric(s.weights)) {
@@ -1403,6 +1419,8 @@ x2base.ebalance <- function(ebalance, ...) {
     subset <- A$subset
     weights <- data.frame(weights = get.w(ebalance, treat))
     
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+
     #Process cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
@@ -1598,6 +1616,9 @@ x2base.weightit <- function(weightit, ...) {
     cluster <- A$cluster
     imp <- A$imp
     subset <- A$subset
+    
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     d.e.in.w <- sapply(c("data", "exact"), function(x) is_not_null(weightit[[x]]))
     if (any(d.e.in.w)) weightit.data <- do.call("data.frame", weightit[[c("data", "exact")[d.e.in.w]]])
@@ -1955,6 +1976,9 @@ x2base.iptw <- function(iptw, ...) {
     s.weights <- iptw$psList[[1]]$sampw
     ntimes <- iptw$nFits
     
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    
     #Order covs.list
     all.covs <- unique(unlist(lapply(covs.list, names)))
     covs.list <- lapply(covs.list, function(x) x[all.covs[all.covs %in% names(x)]])
@@ -2031,7 +2055,10 @@ x2base.iptw <- function(iptw, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
-                              else if (is.vector(get(x))) max(lengths(get(x)))
+                              else if (is.vector(get(x))) {
+                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                  else max(lengths(get(x)))
+                              }
                               else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
                           })), c(vectors, data.frames, lists))
     
@@ -2051,12 +2078,12 @@ x2base.iptw <- function(iptw, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat.list[[1]]))
+    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     
     X$weights <- weights[subset, , drop = FALSE]
     X$treat.list <- lapply(treat.list, function(x) x[subset])
-    X$distance.list <- lapply(distance.list, function(x) x[subset, , drop = FALSE])
-    X$addl.list <- lapply(addl.list, function(x) x[subset, , drop = FALSE])
+    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
     X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
     X$call <- NULL
     X$cluster <- factor(cluster[subset])
@@ -2092,6 +2119,9 @@ x2base.data.frame.list <- function(covs.list, ...) {
     subset <- A$subset
     focal <- A$focal
     ntimes <- length(covs.list)
+    
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Checks
     if (is_null(covs.list)) {
@@ -2271,13 +2301,13 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
-                              #else if (is.vector(get(x))) max(lengths(get(x)))
-                              else max(sapply(get(x), function(y) if (is_not_null(y)) {
-                                  if (is.data.frame(y) || is.matrix(y)) nrow(y)
-                                  else length(y)
+                              else if (is.vector(get(x))) {
+                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                  else max(lengths(get(x)))
                               }
-                              else 0))
+                              else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
                           })), c(vectors, data.frames, lists))
+    
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames, lists)) {
@@ -2317,9 +2347,9 @@ x2base.data.frame.list <- function(covs.list, ...) {
     X$weights <- weights[subset, , drop = FALSE]
     X$treat.list <- lapply(treat.list, function(x) x[subset])
     X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
     X$cluster <- factor(cluster[subset])
     X$call <- NULL
-    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
     X$imp <- factor(imp[subset])
     X$s.weights <- s.weights[subset]
     
@@ -2355,12 +2385,13 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     ID <- sort(unique(cbmsm$id))
     times <- sort(unique(cbmsm$time))
-    #treat.list <- as.list(as.data.frame(cbmsm$treat.hist[ID, , drop = FALSE])) 
     treat.list <- lapply(times, function(x) cbmsm$treat.hist[ID, x]) 
     covs <- cbmsm$data[names(cbmsm$data) %in% attributes(terms(cbmsm$model))$term.labels]
     weights <- data.frame(weights = get.w(cbmsm)[ID])
     ntimes <- length(times)
     
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+
     covs.list <- vector("list", ntimes)
     for (ti in times) {
         if (ti == 1) {
@@ -2379,7 +2410,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     subset <- A$subset
     data <- A$data
     
-    cbmsm.data <- cbmsm$data[ID, , drop = FALSE][cbmsm$time == 1, , drop = FALSE]
+    cbmsm.data <- cbmsm$data[cbmsm$time == 1, , drop = FALSE][ID, , drop = FALSE]
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -2436,7 +2467,10 @@ x2base.CBMSM <- function(cbmsm, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
-                              else if (is.vector(get(x))) max(lengths(get(x)))
+                              else if (is.vector(get(x))) {
+                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                  else max(lengths(get(x)))
+                              }
                               else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
                           })), c(vectors, data.frames, lists))
     
@@ -2456,12 +2490,12 @@ x2base.CBMSM <- function(cbmsm, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     
     X$weights <- weights[subset, , drop = FALSE]
     X$treat.list <- lapply(treat.list, function(x) x[subset])
-    X$distance.list <- lapply(distance.list, function(x) x[subset, , drop = FALSE])
-    X$addl.list <- lapply(addl.list, function(x) x[subset, , drop = FALSE])
+    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
     X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
     X$call <- cbmsm$call
     X$cluster <- factor(cluster[subset])
@@ -2495,6 +2529,9 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     imp <- A$imp
     subset <- A$subset
     ntimes <- length(treat.list)
+    
+    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     weightitMSM.data <- weightitMSM$data
     
@@ -2587,7 +2624,10 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
                                  }),
                           sapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
-                              else if (is.vector(get(x))) max(lengths(get(x)))
+                              else if (is.vector(get(x))) {
+                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                  else max(lengths(get(x)))
+                              }
                               else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
                           })), c(vectors, data.frames, lists))
     
@@ -2607,12 +2647,12 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
+    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     
     X$weights <- weights[subset, , drop = FALSE]
     X$treat.list <- lapply(treat.list, function(x) x[subset])
-    X$distance.list <- lapply(distance.list, function(x) x[subset, , drop = FALSE])
-    X$addl.list <- lapply(addl.list, function(x) x[subset, , drop = FALSE])
+    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
     X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
     X$call <- NULL
     X$cluster <- factor(cluster[subset])
