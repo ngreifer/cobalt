@@ -5,12 +5,19 @@ Version 3.3.0
 
 * Added methods for objects from the `designmatch` package.
 
+* Added methods for `ps.cont` objects from the `WeightIt` package.
+
 * Fixed bugs resulting form changes to how formula inputs are handled.
 
 * Cleaned up some internal functions, also fixing some related bugs
 
 * Added `subset` option in all `bal.tab()` methods (and consequently in `bal.plot()`) that allows users to specify a subset of the data to assess balance on (i.e., instead of the whole data set). This provides a workaround for methods were the `cluster` option isn't allowed (e.g., longitudinal treatments) but balance is desired on subsets of the data. However, in most cases, `cluster` with `which.cluster` specified makes more sense.
 
+* Updated help files, in particularly more clearly documenting methods for `iptw` objects from `twang` and `CBMSM` objects from `CBPS`.
+
+* Added pretty printing with `crayon`, inspired by Jacob Long's `jtools` package
+
+* Added `abs` option to `bal.tab` to display absolute values of statistics, which can be especially helpful for aggregated output. This also affects how `love.plot()` handles aggregated balance statistics.
 
 Version 3.2.3
 
