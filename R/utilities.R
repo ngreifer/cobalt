@@ -667,3 +667,8 @@ check_if_zero <- Vectorize(check_if_zero_base)
 is_null <- function(x) length(x) == 0L
 is_not_null <- function(x) !is_null(x)
 `%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
+`%+%` <- function(...) {
+    a <- list(...)
+    if (is.character(a[[1]])) do.call(crayon::`%+%`, a)
+    else do.call(ggplot2::`%+%`, a)
+}
