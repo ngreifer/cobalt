@@ -2,7 +2,7 @@
 library("cobalt")
 data("lalonde", package = "cobalt")
 covs <- subset(lalonde, select = -c(re78, treat))
-lalonde_ <- splitfactor(lalonde, "race")
+lalonde_ <- splitfactor(lalonde, "race", drop.first = F)
 covs_ <- subset(lalonde_, select = -c(re78, treat))
 #No Adjustment
 bal.tab(covs, treat = lalonde$treat, m.threshold = .1, v.threshold = 2, imbalanced.only = T)
@@ -10,7 +10,7 @@ bal.tab(f.build("treat",covs), data = lalonde, ks.threshold = .1)
 
 #MatchIt: matching w/ PS
 library("MatchIt")
-m1 <- matchit(f.build("treat", covs), data = lalonde, replace = T, ratio = 2, discard = "control")
+m1 <- matchit(f.build("treat", covs), data = lalonde, replace = T, ratio = 2)
 bal.tab(m1, int = T, quick = T, v.threshold = 2, imbalanced.only = T)
 #MatchIt: matching w/Mahalanobis
 m2 <- matchit(f.build("treat", covs_), data = lalonde_, distance = "mahalanobis", 
@@ -43,8 +43,8 @@ bal.tab(covs, lalonde$treat, weights = get.w(ps.out.s), s.weights = sampw,
         un = T, distance = ps.out.s$ps)
 #CBPS: binary
 library("CBPS")
-cbps.out <- CBPS(f.build("treat", covs), data = lalonde, ATT = F)
-bal.tab(cbps.out, disp.bal.tab = F)
+cbps.out <- CBPS(f.build("treat", covs), data = lalonde, ATT = T)
+bal.tab(cbps.out, disp.bal.tab = T)
 cbps.out.e <- CBPS(f.build("treat", covs), data = lalonde, method = "exact")
 bal.tab(covs, lalonde$treat, weights = list("ps" = get.w(cbps.out),
                                             "exact" = get.w(cbps.out.e)),
@@ -70,6 +70,21 @@ Gen.Match.out2 <- Match(Tr=lalonde$treat, X=covs_, Weight.matrix=gen2,
                        M = 1, replace = F, ties = F)
 bal.tab(Gen.Match.out2, formula = f.build("treat", covs), data = lalonde,
         addl = data.frame(age2 = covs$age^2))
+
+#optmatch
+
+#WeightIt
+W <- weightit(f.build("treat", covs), data = lalonde,
+              method = "ps", estimand = "ATT")
+bal.tab(W)
+W.cont <- weightit(f.build("re75", covs[-7]), data = lalonde,
+              method = "ps", estimand = "ATT")
+bal.tab(W)
+W.mult <- weightit(f.build("race", covs[-3]), data = lalonde,
+                  method = "ps", estimand = "ATE",
+                  focal = "black")
+bal.tab(W.mult)
+
 #Data frame/formula: weighting
 glm1 <- glm(treat ~ age + educ + race, data = lalonde, 
             family = "binomial")
@@ -157,6 +172,18 @@ bal.tab(f.build("re78", covs_mis), data = imp.data, weights = "cbps.w",
 bal.tab(f.build("re78", covs_mis), data = imp.data, weights = "cbps.w", 
         method = "w", imp = ".imp", which.imp = NULL, cluster = "race")
 
+#Missingness indicators
+data("lalonde_mis", package = "cobalt")
+covs_mis <- subset(lalonde_mis, select = -c(re78, treat))
+lalonde_mis_ <- splitfactor(lalonde_mis, "race")
+covs_mis_ <- subset(lalonde_mis_, select = -c(re78, treat))
+library(twang)
+
+ps.out <- ps(f.build("treat", covs_mis), data = lalonde_mis, 
+             stop.method = c("es.max"), 
+             estimand = "ATE", verbose = FALSE, n.trees = 1000)
+bal.tab(ps.out)
+
 #love.plot
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
                         "race_white", "married", "nodegree", "re74", "re75", "distance"),
@@ -198,7 +225,7 @@ bal.plot(f.build("treat", covs_mis), data = imp.data, weights = "match.weight",
 #sbw
 library("sbw")
 s <- sbw(splitfactor(lalonde, drop.first = F), "treat", 
-         names(splitfactor(covs, drop.first = F)), rep(0.00001, 9), bal_tols_sd = F, target = "treated", 
+         names(splitfactor(covs, drop.first = F)), rep(0.001, 9), bal_tols_sd = T, target = "treated", 
          solver = "quadprog")
 s$w <- s$data_frame_weights$weights; s$w[lalonde$treat==1] <- 1; s$w[s$w < 0] <- 0
 bal.tab(covs, lalonde$treat, weights = s$w, method = "w", estimand = "att", disp.v.ratio = T)
@@ -212,12 +239,45 @@ ate.ate <- ATE(Y = rep(0, nrow(lalonde)), lalonde_$treat, covs_, ATT = F, theta 
 ate.ate$weights <- ate.ate$weights.q + ate.ate$weights.p
 bal.tab(covs, lalonde$treat, weights = ate.ate$weights, method = "w", estimand = "ate", disp.v.ratio = T)
 
+#CMatching
+library("CMatching")
+lalonde$school <- sample(1:4, nrow(lalonde), replace = T)
+lalonde <- lalonde[order(lalonde$school),]
+p.score <- glm(treat ~ age + educ + race + married + nodegree + re74 + re75 + factor(school) - 1, 
+               data = lalonde, family = "binomial")$fitted.values
+MW <- MatchPW(Tr = lalonde$treat, X = p.score,
+                   M = 1, replace = F, Group = lalonde$school,
+             caliper = 2, estimand = "ATT")
+bal.tab(MW, formula = f.build("treat", covs), data = lalonde, cluster = "school")
+
+#designmatch
+library(designmatch)
+dmout <- bmatch(lalonde$treat,
+                dist_mat = NULL,
+                subset_weight = NULL,
+                mom = list(covs = as.matrix(covs[-(3:5)]),
+                           tols = absstddif(as.matrix(covs[-(3:5)]), lalonde$treat, .001)),
+                # ks = list(covs = as.matrix(covs_[-c(3:7)]), 
+                #           n_grid = 7,
+                #            tols = rep(.05, 4)),
+                n_controls = 1,
+                solver = list(name = "glpk", approximate = 0),
+                total_groups = 185,
+                fine = list(covs = covs[c(4,5)])
+                )
+
+bal.tab(dmout, covs = covs, treat = lalonde$treat)
+bal.tab(dmout, formula = treat ~ covs, data = lalonde)
+
+
+
 #Multinomial
 lalonde$treat3 <- factor(ifelse(lalonde$treat == 1, "A", sample(c("B", "C"), nrow(lalonde), T)))
 bal.tab(f.build("treat3", covs), data = lalonde, focal = 1, which.treat = 1:3, m.threshold = .1)
 mnps3.out <- mnps(f.build("treat3", covs), data = lalonde, 
-                  stop.method = c("ks.max"), 
-                  estimand = "ATE", verbose = FALSE)
+                  stop.method = c("es.mean"), 
+                  estimand = "ATE", verbose = FALSE,
+                  n.trees = 200)
 bal.tab(mnps3.out, which.treat = 1:3)
 bal.plot(mnps3.out, var.name = "age")
 mnps3.att <- mnps(f.build("treat3", covs), data = lalonde, 
@@ -246,6 +306,50 @@ bal.plot(f.build("treat3", covs), data = lalonde, var.name = "age",
 bal.tab(f.build("treat3", covs), data = lalonde,
          weights = data.frame(ate = ate3.out$weights),
          method = "w")
+#MSMs
+library("twang")
+data(iptwExWide)
+iptw.Ex <- iptw(list(tx1 ~ use0 + gender + age,
+                     tx2 ~ use1 + use0 + tx1 + gender + age,
+                     tx3 ~ use2 + use1 + use0 + tx2 + tx1 + gender + age),
+                timeInvariant ~ gender + age,
+                data = iptwExWide,
+                cumulative = FALSE,
+                priorTreatment = FALSE,
+                verbose = FALSE,
+                stop.method = "es.max",
+                n.trees = 2000)
+bal.tab(iptw.Ex)
+iptw.l <- iptw(tx ~ gender + age + use, data = iptwExLong$covariates, 
+               timeIndicators = iptwExLong$covariates$time, ID = iptwExLong$covariates$ID,
+               n.trees = 200, stop.method = "es.max",
+               verbose = FALSE)
+bal.tab(iptw.l)
+
+library("WeightIt")
+Wmsm <- weightitMSM(list(tx1 ~ use0 + gender + age,
+                     tx2 ~ use1 + use0 + tx1 + gender + age,
+                     tx3 ~ use2 + use1 + use0 + tx2 + tx1 + gender + age),
+                data = iptwExWide,
+                verbose = FALSE,
+                stop.method = "es.max",
+                n.trees = 200,
+                method = "gbm")
+bal.tab(Wmsm)
+
+library("CBPS")
+data(iptwExLong)
+cbps.msm <- CBMSM(tx ~ age + use,
+                data = iptwExLong$covariates,
+                id = iptwExLong$covariates$ID,
+                time = iptwExLong$covariates$time)
+W.msm <- weightitMSM(list(tx1 ~ use0 + gender + age,
+                         tx2 ~ use1 + use0 + tx1 + gender + age,
+                         tx3 ~ use2 + use1 + use0 + tx2 + tx1 + gender + age),
+                    data = iptwExWide,
+                    verbose = FALSE,
+                    method = "cbps")
+bal.tab(cbps.msm)
 
 #sourcing
 source('R/x2base.R')
@@ -256,4 +360,3 @@ source('R/utilities.R')
 source('R/love.plot.R')
 source('R/bal.plot.R')
 library(ggplot2)
-
