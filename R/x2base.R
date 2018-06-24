@@ -2213,7 +2213,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process treat
     if (is_null(treat.list)) stop("treat.list must be specified.", call. = FALSE)
-    if (!is.list(treat.list)) {
+    if (!is.vector(treat.list)) {
         treat.list <- as.list(treat.list)
     }
     if (length(treat.list) != length(covs.list)) {
@@ -2306,7 +2306,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                   if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
                                   else max(lengths(get(x)))
                               }
-                              else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
+                              else max(sapply(get(x), function(y) if (is_not_null(y)) {if (is_not_null(nrow(y))) nrow(y) else length(y)} else 0))
                           })), c(vectors, data.frames, lists))
     
     #Ensure all input lengths are the same.
