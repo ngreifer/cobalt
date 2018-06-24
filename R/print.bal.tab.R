@@ -1,4 +1,4 @@
-print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", digits = max(3, getOption("digits") - 4), ...) {
+print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", abs = "as.is", digits = max(3, getOption("digits") - 4), ...) {
     call <- x$call
     balance <- x$Balance
     baltal.r <- x$Balanced.Corr
@@ -88,6 +88,10 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         baltal.ks <- NULL
         maximbal.ks <- NULL
     }
+    if (!identical(abs, "as.is")) {
+        if (!is.logical(abs)) stop("abs must be TRUE, FALSE, or \"as.is\"")
+        p.ops$abs <- abs
+    }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
@@ -108,6 +112,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         }
     }
     else p.ops$imbalanced.only <- FALSE
+    
     
     if (!is.na(match("bal.tab.cont", class(x)))) {
         keep <- as.logical(c(TRUE, 
@@ -210,7 +215,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     invisible(x)
 }
-print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 4), ...) {
+print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.subclass = "as.is", abs = "as.is", digits = max(3, getOption("digits") - 4), ...) {
     call <- x$call
     s.balance <- x$Subclass.Balance
     b.a.subclass <- x$Balance.Across.Subclass
@@ -300,6 +305,10 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         p.ops$ks.threshold <- NULL
         baltal.ks <- NULL
         maximbal.ks <- NULL
+    }
+    if (!identical(abs, "as.is")) {
+        if (!is.logical(abs)) stop("abs must be TRUE, FALSE, or \"as.is\"")
+        p.ops$abs <- abs
     }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
@@ -427,7 +436,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 4), ...) {
+print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, abs = "as.is", digits = max(3, getOption("digits") - 4), ...) {
     #Figure out how to print bal.tab for clusters with multinomial
     call <- x$call
     c.balance <- x$Cluster.Balance
@@ -514,6 +523,10 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             p.ops$r.threshold <- NULL
         }
     }
+    if (!identical(abs, "as.is")) {
+        if (!is.logical(abs)) stop("abs must be TRUE, FALSE, or \"as.is\"")
+        p.ops$abs <- abs
+    }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
@@ -556,17 +569,24 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         if (is_null(cluster.fun)) {
             warning("There were no valid entries to cluster.fun. Using all other cluster.funs instead.", call. = FALSE)
             #cluster.fun <- c("mean", "median", "max")
-            cluster.fun <- c("min", "mean", "max")
+            if (p.ops$abs) cluster.fun <- c("mean", "max")
+            else cluster.fun <- c("min", "mean", "max")
         }
     }
     else {
         #cluster.fun <- c("mean", "median", "max")
-        cluster.fun <- c("min", "mean", "max")
+        if (p.ops$abs) cluster.fun <- c("mean", "max")
+        else cluster.fun <- c("min", "mean", "max")
     }
     
     #Checks and Adjustments
     if (is_null(p.ops$which.cluster)) 
         which.cluster <- seq_along(c.balance)
+    else if (is.na(p.ops$which.cluster)) {
+        which.cluster <- integer(0)
+        if (!p.ops$cluster.summary) message("No clusters will be displayed; displaying the summary across clusters.")
+        p.ops$cluster.summary <- TRUE
+    }
     else if (is.numeric(p.ops$which.cluster)) {
         which.cluster <- seq_along(c.balance)[seq_along(c.balance) %in% p.ops$which.cluster]
         if (is_null(which.cluster)) {
@@ -581,13 +601,13 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             which.cluster <- seq_along(c.balance)
         }
     }
-    else if (is.na(p.ops$which.cluster)) {
-        which.cluster <- integer(0)
-        p.ops$cluster.summary <- TRUE
-    }
     else {
         warning("The argument to which.cluster must be NA, NULL, or a vector of cluster indicies or cluster names. Displaying all clusters instead.", call. = FALSE)
         which.cluster <- seq_along(c.balance)
+    }
+    
+    if (p.ops$cluster.summary && is_null(c.balance.summary)) {
+        warning("No summary across clusters was produced. This can occur if cluster.summary is FALSE and quick is TRUE.", call. = FALSE)
     }
     
     if (!is.na(match("bal.tab.cont.cluster", class(x)))) {
@@ -655,7 +675,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         cat("\n")
     }
     
-    if (isTRUE(as.logical(p.ops$cluster.summary))) {
+    if (isTRUE(as.logical(p.ops$cluster.summary)) && is_not_null(c.balance.summary)) {
         CF <- !is.na(match(cluster.funs, cluster.fun))
         names(CF) <- cluster.funs
         if (!is.na(match("bal.tab.cont.cluster", class(x)))) {
@@ -721,7 +741,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     
     invisible(x)
 }
-print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 4), ...) {
+print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.imp, imp.summary = "as.is", imp.fun = NULL, abs = "as.is", digits = max(3, getOption("digits") - 4), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     call <- x$call
@@ -809,6 +829,10 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             p.ops$r.threshold <- NULL
         }
     }
+    if (!identical(abs, "as.is")) {
+        if (!is.logical(abs)) stop("abs must be TRUE, FALSE, or \"as.is\"")
+        p.ops$abs <- abs
+    }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
@@ -856,33 +880,41 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         if (is_null(imp.fun)) {
             warning("There were no valid entries to imp.fun Using all other imp.funs instead.", call. = FALSE)
             #imp.fun <- c("mean", "median", "max")
-            imp.fun <- c("min", "mean", "max")
+            if (p.ops$abs) imp.fun <- c("mean", "max")
+            else imp.fun <- c("min", "mean", "max")
         }
     }
     else {
         #imp.fun <- c("mean", "median", "max")
-        imp.fun <- c("min", "mean", "max")
+        if (p.ops$abs) imp.fun <- c("mean", "max")
+        else imp.fun <- c("min", "mean", "max")
     }
     
     #Checks and Adjustments
     if (is_null(p.ops$which.imp)) 
         which.imp <- seq_along(i.balance)
+    else if (is.na(p.ops$which.imp)) {
+        which.imp <- integer(0)
+        if (!p.ops$imp.summary) message("No imputations will be displayed; displaying the summary across imputations.")
+        p.ops$imp.summary <- TRUE
+    }
     else if (is.numeric(p.ops$which.imp)) {
         which.imp <- seq_along(i.balance)[seq_along(i.balance) %in% p.ops$which.imp]
         if (is_null(which.imp)) {
             warning("No numbers in which.imp are imputation numbers. No imputations will be displayed.", call. = FALSE)
             which.imp <- integer(0)
+            if (!p.ops$imp.summary) message("No imputations will be displayed; displaying the summary across imputations.")
+            p.ops$imp.summary <- TRUE
         }
     }
-    
-    else if (is.na(p.ops$which.imp)) {
+    else {
+        warning("The argument to which.imp must be NA, NULL, or a vector of imputation numbers. No imputations will be displayed. Displaying the summary across imputations", call. = FALSE)
         which.imp <- integer(0)
         p.ops$imp.summary <- TRUE
     }
-    else {
-        warning("The argument to which.imp must be NA, NULL, or a vector of imputation numbers. No imputations will be displayed.", call. = FALSE)
-        which.imp <- integer(0)
-        p.ops$imp.summary <- TRUE
+    
+    if (p.ops$imp.summary && is_null(i.balance.summary)) {
+        warning("No summary across imputations was produced. This can occur if imp.summary is FALSE and quick is TRUE.", call. = FALSE)
     }
     
     #Printing output
@@ -901,7 +933,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         cat("\n")
     }
     
-    if (isTRUE(as.logical(p.ops$imp.summary))) {
+    if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
         IF <- !is.na(match(imp.funs, imp.fun))
         names(IF) <- imp.funs
         if (!is.na(match("bal.tab.cont", class(x)))) { #continuous
@@ -969,7 +1001,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     invisible(x)
     
 }
-print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 4), ...) {
+print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.imp, imp.summary = "as.is", imp.fun = NULL, abs = "as.is", digits = max(3, getOption("digits") - 4), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     call <- x$call
@@ -1065,6 +1097,10 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         baltal.ks <- NULL
         maximbal.ks <- NULL
     }
+    if (!identical(abs, "as.is")) {
+        if (!is.logical(abs)) stop("abs must be TRUE, FALSE, or \"as.is\"")
+        p.ops$abs <- abs
+    }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
@@ -1115,16 +1151,23 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         if (is_null(cluster.fun)) {
             warning("There were no valid entries to cluster.fun. Using all other cluster.funs instead.", call. = FALSE)
             #cluster.fun <- c("mean", "median", "max")
-            cluster.fun <- c("min", "mean", "max")
+            if (p.ops$abs) cluster.fun <- c("mean", "max")
+            else cluster.fun <- c("min", "mean", "max")
         }
     }
     else {
         #cluster.fun <- c("mean", "median", "max")
-        cluster.fun <- c("min", "mean", "max")
+        if (p.ops$abs) cluster.fun <- c("mean", "max")
+        else cluster.fun <- c("min", "mean", "max")
     }
     
     if (is_null(p.ops$which.cluster)) 
         which.cluster <- seq_along(i.balance[[1]][["Cluster.Balance"]])
+    else if (is.na(p.ops$which.cluster)) {
+        which.cluster <- integer(0)
+        if (!p.ops$cluster.summary) message("No clusters will be displayed; displaying the summary across clusters.")
+        p.ops$cluster.summary <- TRUE
+    }
     else if (is.numeric(p.ops$which.cluster)) {
         which.cluster <- seq_along(i.balance[[1]][["Cluster.Balance"]])[seq_along(i.balance[[1]][["Cluster.Balance"]]) %in% p.ops$which.cluster]
         if (is_null(which.cluster)) {
@@ -1139,13 +1182,13 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             which.cluster <- seq_along(i.balance[[1]][["Cluster.Balance"]])
         }
     }
-    else if (is.na(p.ops$which.cluster)) {
-        which.cluster <- integer(0)
-        p.ops$cluster.summary <- TRUE
-    }
     else {
         warning("The argument to which.cluster must be NA, NULL, or a vector of cluster indicies or cluster names. Displaying all clusters instead.", call. = FALSE)
         which.cluster <- seq_along(i.balance[[1]][["Cluster.Balance"]])
+    }
+    
+    if (p.ops$cluster.summary && is_null(i.balance[[1]][["Cluster.Summary"]])) {
+        warning("No summary across clusters was produced. This can occur if cluster.summary is FALSE and quick is TRUE.", call. = FALSE)
     }
     
     imp.funs <- c("min", "mean", 
@@ -1165,30 +1208,40 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         if (is_null(imp.fun)) {
             warning("There were no valid entries to imp.fun Using all other imp.funs instead.", call. = FALSE)
             # imp.fun <- c("mean", "median", "max")
-            imp.fun <- c("min", "mean", "max")
+            if (p.ops$abs) imp.fun <- c("mean", "max")
+            else imp.fun <- c("min", "mean", "max")
         }
     }
     else {
         # imp.fun <- c("mean", "median", "max")
-        imp.fun <- c("min", "mean", "max")
+        if (p.ops$abs) imp.fun <- c("mean", "max")
+        else imp.fun <- c("min", "mean", "max")
     }
     
     if (is_null(p.ops$which.imp)) 
         which.imp <- seq_along(i.balance)
+    else if (is.na(p.ops$which.imp)) {
+        which.imp <- integer(0)
+        if (!p.ops$imp.summary) message("No imputations will be displayed; displaying the summary across imputations.")
+        p.ops$imp.summary <- TRUE
+    }
     else if (is.numeric(p.ops$which.imp)) {
         which.imp <- seq_along(i.balance)[seq_along(i.balance) %in% p.ops$which.imp]
         if (is_null(which.imp)) {
             warning("No numbers in which.imp are imputation numbers. No imputations will be displayed.", call. = FALSE)
             which.imp <- integer(0)
+            if (!p.ops$imp.summary) message("No imputations will be displayed; displaying the summary across imputations.")
+            p.ops$imp.summary <- TRUE
         }
-    }
-    else if (is.na(p.ops$which.imp)) {
-        which.imp <- integer(0)
-        p.ops$imp.summary <- TRUE
     }
     else {
         warning("The argument to which.imp must be NA, NULL, or a vector of imputation numbers. No imputations will be displayed.", call. = FALSE)
         which.imp <- integer(0)
+        p.ops$imp.summary <- TRUE
+    }
+    
+    if (p.ops$imp.summary && is_null(i.balance.summary)) {
+        warning("No summary across imputations was produced. This can occur if imp.summary is FALSE and quick is TRUE.", call. = FALSE)
     }
     
     #Printing output
@@ -1207,7 +1260,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         cat("\n")
     }
     
-    if (isTRUE(as.logical(p.ops$imp.summary))) {
+    if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
         IF <- !is.na(match(imp.funs, imp.fun))
         names(IF) <- imp.funs
         if (!is.na(match("bal.tab.cont", class(x)))) {
@@ -1249,7 +1302,6 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                                          p.ops$disp.adj && p.ops$disp.ks && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
-        
         if (is_not_null(which.cluster)) {
             cat("Cluster balance summary across all imputations:\n")
             for (c in which.cluster) {
@@ -1274,11 +1326,13 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             }
             cat("\n")
         }
+        
         if (p.ops$disp.bal.tab) {
         cat("Balance summary across all imputations and clusters:\n")
         print.data.frame(round_df_char(i.balance.summary[, s.keep], digits))
         cat("\n")
         }
+        
         if (!is.null(nn)) {
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
@@ -1298,7 +1352,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     invisible(x)
     
 }
-print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 4), ...) {
+print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.treat, multi.summary = "as.is", abs = "as.is", digits = max(3, getOption("digits") - 4), ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -1381,6 +1435,10 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         baltal.ks <- NULL
         maximbal.ks <- NULL
     }
+    if (!identical(abs, "as.is")) {
+        if (!is.logical(abs)) stop("abs must be TRUE, FALSE, or \"as.is\"")
+        p.ops$abs <- abs
+    }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
@@ -1414,6 +1472,11 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     #Checks and Adjustments
     if (is_null(p.ops$which.treat)) 
         which.treat <- p.ops$treat.names
+    else if (is.na(p.ops$which.treat)) {
+        which.treat <- character(0)
+        if (!p.ops$multi.summary) message("No treatment pairs will be displayed; displaying the summary across treatments.")
+        p.ops$multi.summary <- TRUE
+    }
     else if (is.numeric(p.ops$which.treat)) {
         which.treat <- p.ops$treat.names[seq_along(p.ops$treat.names) %in% p.ops$which.treat]
         if (is_null(which.treat)) {
@@ -1428,14 +1491,15 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
             which.treat <- character(0)
         }
     }
-    else if (is.na(p.ops$which.treat)) {
-        which.treat <- character(0)
-        p.ops$multi.summary <- TRUE
-    }
     else {
         warning("The argument to which.treat must be NA, NULL, or a vector of treatment names or indices. No treatment pairs will be displayed.", call. = FALSE)
         which.treat <- character(0)
+        if (!p.ops$multi.summary) message("No treatment pairs will be displayed; displaying the summary across treatments.")
         p.ops$multi.summary <- TRUE
+    }
+    
+    if (p.ops$multi.summary && is_null(m.balance.summary)) {
+        warning("No summary across treatment pairs was produced. This can occur if multi.summary is FALSE and quick is TRUE.", call. = FALSE)
     }
     
     if (is_null(which.treat)) {
@@ -1484,7 +1548,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         cat("\n")
     }
     
-    if (isTRUE(as.logical(p.ops$multi.summary))) {
+    if (isTRUE(as.logical(p.ops$multi.summary)) && is_not_null(m.balance.summary)) {
         s.keep <- as.logical(c(TRUE, 
                                p.ops$un,
                                p.ops$un && !p.ops$disp.adj && !is.null(p.ops$m.threshold),
@@ -1527,7 +1591,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     invisible(x)
     
 }
-print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 4), ...) {
+print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.time, msm.summary = "as.is", abs = "as.is", digits = max(3, getOption("digits") - 4), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     args <- args[!sapply(args, function(x) identical(x, quote(expr =)))]
     
@@ -1616,6 +1680,10 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             p.ops$r.threshold <- NULL
         }
     }
+    if (!identical(abs, "as.is")) {
+        if (!is.logical(abs)) stop("abs must be TRUE, FALSE, or \"as.is\"")
+        p.ops$abs <- abs
+    }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
@@ -1651,6 +1719,11 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     #Checks and Adjustments
     if (is_null(p.ops$which.time)) 
         which.time <- seq_along(msm.balance)
+    else if (is.na(p.ops$which.time)) {
+        which.time <- integer(0)
+        if (!p.ops$msm.summary) message("No time points will be displayed; displaying the summary across time points.")
+        p.ops$msm.summary <- TRUE
+    }
     else if (is.numeric(p.ops$which.time)) {
         which.time <- seq_along(msm.balance)[seq_along(msm.balance) %in% p.ops$which.time]
         if (is_null(which.time)) {
@@ -1665,14 +1738,15 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             which.time <- seq_along(msm.balance)
         }
     }
-    else if (is.na(p.ops$which.time)) {
-        which.time <- integer(0)
-        p.ops$msm.summary <- TRUE
-    }
     else {
         warning("The argument to which.time must be NA, NULL, or a vector of time point numbers. No time points will be displayed.", call. = FALSE)
         which.time <- integer(0)
+        if (!p.ops$msm.summary) message("No time points will be displayed; displaying the summary across time points.")
         p.ops$msm.summary <- TRUE
+    }
+    
+    if (p.ops$msm.summary && is_null(msm.balance.summary)) {
+        warning("No summary across time points was produced. This can occur if msm.summary is FALSE and quick is TRUE.", call. = FALSE)
     }
     
     #Printing output
@@ -1691,7 +1765,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         cat("\n")
     }
     
-    if (isTRUE(as.logical(p.ops$msm.summary))) {
+    if (isTRUE(as.logical(p.ops$msm.summary)) && is_not_null(msm.balance.summary)) {
         if (!is.na(match("bal.tab.cont", class(x)))) { #continuous
             s.keep <- as.logical(c(TRUE, 
                                    TRUE,
@@ -1718,7 +1792,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                                          p.ops$disp.adj && !is.null(p.ops$ks.threshold)), p.ops$nweights + !p.ops$disp.adj)))
         }
         
-        if (p.ops$disp.bal.tab && is_not_null(msm.balance.summary)) {
+        if (p.ops$disp.bal.tab) {
             cat("Balance summary across all time points:\n")
             print.data.frame(round_df_char(msm.balance.summary[keep.row, s.keep, drop = FALSE], digits))
             cat("\n")
