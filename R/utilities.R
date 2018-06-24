@@ -325,17 +325,9 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE,
         if (estimand[p] == "att") w[[p]] <- ps$treat + (1-ps$treat)*ps$ps[,p]/(1-ps$ps[,p])
         else if (estimand[p] == "ate") w[[p]] <- ps$treat/ps$ps[,p] + (1-ps$treat)/(1-ps$ps[,p])
         else if (estimand[p] == "atc") w[[p]] <- (1-ps$treat) + ps$treat*ps$ps[,p]/(1-ps$ps[,p])
+        else w[[p]] <- ps$w[,p]
         if (s.weights) w[[p]] <- w[[p]] * ps$sampw
     }
-    # w <- setNames(lapply(seq_along(s), function(p) {
-    #     if (estimand[p] == "att") ps$treat + (1-ps$treat)*ps$ps[,s[p]]/(1-ps$ps[,s[p]])
-    #     else if (estimand[p] == "ate") ps$treat/ps$ps[,s[p]] + (1-ps$treat)/(1-ps$ps[,s[p]])
-    #     else if (estimand[p] == "atc") (1-ps$treat) + ps$treat*ps$ps[,s[p]]/(1-ps$ps[,s[p]])}),
-    #     ifelse(tolower(substr(s, nchar(s)-2, nchar(s))) == tolower(estimand), s, paste0(s, " (", toupper(estimand), ")")))
-    # 
-    # if (s.weights) {
-    #     w <- w * ps$sampw
-    # }
     
     if (ncol(w) == 1) w <- w[[1]]
 
@@ -541,7 +533,7 @@ get.w.CBPS <- function(c, estimand = NULL, ...) {
         
     }
 }
-get.w.npCBPS <- function(c, estimand = NULL, ...) {
+get.w.npCBPS <- function(c, ...) {
     return(c$weights)
 }
 get.w.CBMSM <- function(c, ...) {
