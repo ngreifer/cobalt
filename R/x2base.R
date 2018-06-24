@@ -923,7 +923,7 @@ x2base.data.frame <- function(covs, ...) {
     if (sum(is.na(treat)) > 0)
         stop("Missing values exist in treat.", call. = FALSE)
     
-    if (nunique(treat) == 2) {
+    if (is_binary(treat)) {
         treat <- binarize(treat)
     }
     else if (is.character(treat)) {
@@ -1105,7 +1105,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Get s.d.denom
-    if (nunique(treat) <= 2 || !is.numeric(treat)) { #non-continuous
+    if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
         check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
         if (is_not_null(s.d.denom)) {
             try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
@@ -1160,7 +1160,7 @@ x2base.data.frame <- function(covs, ...) {
                 X$s.d.denom <- estimand <- character(ncol(weights))
                 for (i in seq_len(ncol(weights))) {
                     if (X$method[i] == "weighting") {
-                        if (nunique(treat) <= 2) {
+                        if (is_binary(treat)) {
                             if (all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])]) &&
                                 !all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])])
                             ) { #if treated weights are the same and control weights differ; ATT
@@ -1205,7 +1205,7 @@ x2base.data.frame <- function(covs, ...) {
             message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(all_the_same(estimand), toupper(estimand)[1], word.list(toupper(estimand))), "\" instead.")
         }
         else if (check.focal || check.weights) {
-            message("Note: estimand and s.d.denom not specified; assuming ", ifelse(nunique(toupper(estimand)) == 1, toupper(unique(estimand)), word.list(toupper(estimand))), " and ", ifelse(nunique(X$s.d.denom) == 1, unique(X$s.d.denom), word.list(X$s.d.denom)), ".")
+            message("Note: estimand and s.d.denom not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word.list(toupper(estimand))), " and ", ifelse(all_the_same(X$s.d.denom), unique(X$s.d.denom), word.list(X$s.d.denom)), ".")
         }
         
         if (all(X$method %in% c("weighting", "matching"))) {
@@ -1278,7 +1278,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     weights <- weights/s.weights #Because CBPS weights contain s.weights in them
     
-    if (!any(class(cbps.fit) == "CBPSContinuous") && !nunique.gt(treat, 2)) {
+    if (!any(class(cbps.fit) == "CBPSContinuous") && is_binary(treat)) {
         if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
             X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
@@ -1298,7 +1298,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
             }
         }
     }
-    else if (nunique.gt(treat, 2)) {
+    else if (!is_binary(treat)) {
         X$s.d.denom <- "pooled"
     }
     
@@ -1336,7 +1336,8 @@ x2base.CBPS <- function(cbps.fit, ...) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data, c.data))
     }
     
-    if (!any(class(cbps.fit) == "CBPSContinuous") && nunique.gt(treat, 2)) {
+    if (!any(class(cbps.fit) == "CBPSContinuous") && !is_binary(treat)) {
+        #Multinomial
         # model.ps <- setNames(data.frame(cbps.fit$fitted.values), levels(treat))
         # model.ps.combined <- numeric(length(treat))
         # for (i in levels(treat)) {
@@ -1631,7 +1632,7 @@ x2base.weightit <- function(weightit, ...) {
         treat.type <- weightit$treat.type
     }
     else {
-        if (!is.factor(treat) && nunique.gt(treat, 2)) {
+        if (!is.factor(treat) && !is_binary(treat)) {
             treat.type <- "continuous"
         }
         else {
@@ -2232,7 +2233,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         if (sum(is.na(treat.list[[ti]])) > 0)
             stop("Missing values exist in treat.list", call. = FALSE)
         
-        if (nunique(treat.list[[ti]]) == 2) {
+        if (is_binary(treat.list[[ti]])) {
             treat.list[[ti]] <- binarize(treat.list[[ti]])
         }
         else if (is.character(treat.list[[ti]])) {
@@ -2543,7 +2544,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     }
     else {
         treat.type <- sapply(treat.list, function(treat) {
-            if (!is.factor(treat) && nunique.gt(treat, 2)) {
+            if (!is.factor(treat) && !is_binary(treat)) {
                 return("continuous")
             }
             else {
