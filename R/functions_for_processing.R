@@ -407,7 +407,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     if (poly > 1 && npol != 0) {
         for (i in 2:poly) {
             new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
-            new.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], paste0(replicate(ncarrot, "_"), collapse = ""), i)
+            new.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], num_to_superscript(i))
         }
     }
     if (int && nd > 1) {
@@ -569,6 +569,23 @@ remove.perfect.col <- function(C) {
     redundant.vars <- apply(s, 2, any)
     C <- C[, !redundant.vars, drop = FALSE] 
     return(C)
+}
+num_to_superscript <- function(x) {
+    nums <- setNames(c("\u2070",
+                       "\u00B9",
+                       "\u00B2",
+                       "\u00B3",
+                       "\u2074",
+                       "\u2075",
+                       "\u2076",
+                       "\u2077",
+                       "\u2078",
+                       "\u2079"),
+                     as.character(0:9))
+    x <- as.character(x)
+    splitx <- strsplit(x, "")
+    supx <- sapply(splitx, function(y) paste0(nums[y], collapse = ""))
+    return(supx)
 }
 
 #base.bal.tab
@@ -855,7 +872,7 @@ max.imbal <- function(balance.table, col.name, thresh.col.name) {
     # return(balance.table[which.max(abs(balance.table[balance.table$Type != "Distance", col.name])), match(c(col.name, thresh.col.name), names(balance.table))])
 }
 balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
-                          s.weights = rep(1, length(treat)), no.adj = FALSE, types = NULL, pooled.sds = NULL, quick = FALSE) {
+                          s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, pooled.sds = NULL, quick = FALSE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
@@ -882,14 +899,16 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
             B[[paste0("M.0.", i)]] <- col.w.m(C[treat == 0, , drop = FALSE], w = weights[[i]][treat==0]*s.weights[treat==0])
             B[[paste0("M.1.", i)]] <- col.w.m(C[treat == 1, , drop = FALSE], w = weights[[i]][treat==1]*s.weights[treat==1])
         }
-        
     }
     
     #Mean differences
-    if (!(!un && quick)) B[["Diff.Un"]] <- col.std.diff(C, treat = treat, weights = NULL, x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[1], no.weights = TRUE, s.weights = s.weights, pooled.sds = pooled.sds)
+    if (abs) a0 <- base::abs
+    else a0 <- base::identity
+    
+    if (!(!un && quick)) B[["Diff.Un"]] <- a0(col.std.diff(C, treat = treat, weights = NULL, x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[1], no.weights = TRUE, s.weights = s.weights, pooled.sds = pooled.sds))
     if (!no.adj) {
         for (j in seq_len(ncol(weights))) {
-            B[[paste0("Diff.", weight.names[j])]] <- col.std.diff(C, treat = treat, weights = weights[[j]], x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[j], no.weights = FALSE, s.weights = s.weights, pooled.sds = pooled.sds)
+            B[[paste0("Diff.", weight.names[j])]] <- a0(col.std.diff(C, treat = treat, weights = weights[[j]], x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[j], no.weights = FALSE, s.weights = s.weights, pooled.sds = pooled.sds))
         }
     }
     
@@ -918,24 +937,24 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     if (is_not_null(m.threshold)) {
         if (no.adj) {
-            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Diff.Un"]]), paste0(ifelse(abs(B[["Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Diff.Un"]]), paste0(ifelse(abs(B[["Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)), "")
         }
         else {
             for (i in weight.names) {
-                B[[paste0("M.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("Diff.", i)]]), paste0(ifelse(abs(B[[paste0("Diff.", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+                B[[paste0("M.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("Diff.", i)]]), paste0(ifelse(abs(B[[paste0("Diff.", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)), "")
             }
         }
         
     }
     if (no.adj || ncol(weights) <= 1) names(B)[names(B) == "M.Threshold.Adj"] <- "M.Threshold"
-    
-    if (is_null(v.threshold)) {
+   
+    if (is_not_null(v.threshold)) {
         if (no.adj) {
-            B[["V.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["V.Ratio.Un"]]), paste0(ifelse(B[["V.Ratio.Un"]] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
+            B[["V.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["V.Ratio.Un"]]), paste0(ifelse(B[["V.Ratio.Un"]] < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
         }
         else {
             for (i in weight.names) {
-                B[[paste0("V.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("V.Ratio.", i)]]), paste0(ifelse(B[[paste0("V.Ratio.", i)]] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
+                B[[paste0("V.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("V.Ratio.", i)]]), paste0(ifelse(B[[paste0("V.Ratio.", i)]] < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
             }
         }
         
@@ -944,11 +963,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     if (is_not_null(ks.threshold)) {
         if (no.adj) {
-            B[["KS.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["KS.Un"]]), paste0(ifelse(B[["KS.Un"]] < ks.threshold, "Balanced, <", "Not Balanced, >"), ks.threshold), "")
+            B[["KS.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["KS.Un"]]), paste0(ifelse(B[["KS.Un"]] < ks.threshold, "Balanced, <", "Not Balanced, >"), round(ks.threshold, 3)), "")
         }
         else {
             for (i in weight.names) {
-                B[[paste0("KS.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("KS.", i)]]), paste0(ifelse(B[[paste0("KS.", i)]] < ks.threshold, "Balanced, <", "Not Balanced, >"), ks.threshold), "")
+                B[[paste0("KS.Threshold.", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste0("KS.", i)]]), paste0(ifelse(B[[paste0("KS.", i)]] < ks.threshold, "Balanced, <", "Not Balanced, >"), round(ks.threshold, 3)), "")
             }
         }
         
@@ -1008,7 +1027,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     if (is_not_null(m.threshold)) {
         for (i in levels(subclass)) {
             SB[[i]][["M.Threshold"]] <- ifelse(SB[[i]][["Type"]]=="Distance", "", 
-                                               paste0(ifelse(is.finite(SB[[i]][["Diff.Adj"]]) & abs(SB[[i]][["Diff.Adj"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold))
+                                               paste0(ifelse(is.finite(SB[[i]][["Diff.Adj"]]) & abs(SB[[i]][["Diff.Adj"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)))
         }
     }
     
@@ -1018,7 +1037,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     if (is_not_null(v.threshold)) {
         for (i in levels(subclass)) {
             SB[[i]][["V.Threshold"]] <- ifelse(SB[[i]][["Type"]]!="Distance" & is.finite(SB[[i]][["V.Ratio.Adj"]]), 
-                                               paste0(ifelse(SB[[i]][["V.Ratio.Adj"]] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
+                                               paste0(ifelse(SB[[i]][["V.Ratio.Adj"]] < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
         }
     }
     if (all(sapply(SB, function(x) !any(is.finite(x[["KS.Adj"]]))))) {
@@ -1027,7 +1046,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     if (is_not_null(ks.threshold)) {
         for (i in levels(subclass)) {
             SB[[i]][["KS.Threshold"]] <- ifelse(SB[[i]][["Type"]]!="Distance" & is.finite(SB[[i]][["KS.Adj"]]), 
-                                                paste0(ifelse(SB[[i]][["KS.Adj"]] < ks.threshold, "Balanced, <", "Not Balanced, >"), ks.threshold), "")
+                                                paste0(ifelse(SB[[i]][["KS.Adj"]] < ks.threshold, "Balanced, <", "Not Balanced, >"), round(ks.threshold, 3)), "")
         }
     }
     
@@ -1217,7 +1236,7 @@ samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = 
     
     return(nn)
 }
-balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE, s.weights = rep(1, length(treat)), no.adj = FALSE, types = NULL, quick = FALSE) {
+balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE, s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, quick = FALSE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
@@ -1237,10 +1256,12 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     else B[["Type"]] <- get.types(C)
     
     #Correlations
-    if (!(!un && quick)) B[["Corr.Un"]] <- apply(C, 2, w.r, y = treat, w = s.weights)
+    if (abs) a0 <- base::abs
+    else a0 <- base::identity
+    if (!(!un && quick)) B[["Corr.Un"]] <- a0(apply(C, 2, w.r, y = treat, w = s.weights))
     if (!no.adj) {
         for (i in weight.names) {
-            B[[paste0("Corr.", i)]] <- apply(C, 2, w.r, y = treat, w = weights[[i]]*s.weights)
+            B[[paste0("Corr.", i)]] <- a0(apply(C, 2, w.r, y = treat, w = weights[[i]]*s.weights))
         }
     }
     
@@ -1637,7 +1658,7 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     df[nums] <- round(df[nums], digits = digits)
     df[nas] <- ""
     
-    df <- as.data.frame(lapply(df, format, scientific = FALSE), stringsAsFactors = FALSE)
+    df <- as.data.frame(lapply(df, format, scientific = FALSE, justify = "none"), stringsAsFactors = FALSE)
     
     for (i in which(nums)) {
         if (any(grepl(".", df[[i]], fixed = TRUE))) {
@@ -1661,7 +1682,7 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     df[o.negs & df == 0] <- paste0("-", df[o.negs & df == 0])
     
     # Insert NA placeholders
-    df[df == ""] <- na_vals
+    df[nas] <- na_vals
     
     if (length(rn) > 0) rownames(df) <- rn
     if (length(cn) > 0) names(df) <- cn
