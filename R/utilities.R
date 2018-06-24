@@ -644,6 +644,7 @@ nunique.gt <- function(x, n, na.rm = TRUE) {
         else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
     }
 }
+is_binary <- function(x) !nunique.gt(x, 2)
 all_the_same <- function(x) !nunique.gt(x, 1)
 is.formula <- function(f, sides = NULL) {
     res <- is.name(f[[1]])  && deparse(f[[1]]) %in% c( '~', '!') &&
