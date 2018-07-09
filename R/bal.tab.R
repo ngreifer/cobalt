@@ -2,6 +2,7 @@ bal.tab <- function(...) {
     A <- list(...)
     if (is_null(A)) stop("No arguments were supplied.", call. = FALSE)
     A[[1]] <- is.designmatch(A[[1]])
+    A[[1]] <- is.time.list(A[[1]])
     UseMethod("bal.tab", A[[1]])
 }
 base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, disp.bal.tab = TRUE, method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, pooled.sds = NULL, ...) {
@@ -1800,7 +1801,7 @@ bal.tab.designmatch <- function(dm, formula = NULL, data = NULL, treat = NULL, c
 }
 
 #MSMs wth multiple time points
-bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = FALSE, distance.list = NULL, addl.list = NULL, method, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, pairwise = TRUE, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, estimand = "ATE", abs = FALSE, subset = NULL, quick = FALSE, ...) {
+bal.tab.time.list <- function(time.list, data, treat.list = NULL, weights = NULL, int = FALSE, distance.list = NULL, addl.list = NULL, method, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, pairwise = TRUE, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, estimand = "ATE", abs = FALSE, subset = NULL, quick = FALSE, ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
@@ -1819,8 +1820,8 @@ bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = F
     if (is_not_null(args$cluster)) stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
     if (is_not_null(args$imp)) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
     
-    if (all(sapply(list_, is.formula))) {
-        X <- x2base.formula.list(formula.list = list_, 
+    if (all(sapply(time.list, is.formula))) {
+        X <- x2base.formula.list(formula.list = time.list, 
                                  data = data,
                                  weights = weights,
                                  distance.list = distance.list,
@@ -1831,8 +1832,8 @@ bal.tab.list <- function(list_, data, treat.list = NULL, weights = NULL, int = F
                                  estimand = estimand,
                                  subset = subset)
     }
-    else if (all(sapply(list_, is.data.frame))) {
-        X <- x2base.data.frame.list(covs.list = list_, 
+    else if (all(sapply(time.list, is.data.frame))) {
+        X <- x2base.data.frame.list(covs.list = time.list, 
                                     treat.list = treat.list,
                                     data = data,
                                     weights = weights,
