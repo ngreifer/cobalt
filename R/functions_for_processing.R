@@ -10,6 +10,14 @@ is.designmatch <- function(x) {
     }
     return(x)
 }
+is.time.list <- function(x) {
+    if (is.vector(x, mode = "list")) {
+        if (all(sapply(x, is.formula)) || all(sapply(x, is.data.frame))) {
+            class(x) <- c("time.list", class(x))
+        }
+    }
+    return(x)
+}
 
 #x2base
 match.strata2weights <- function(match.strata, treat, covs = NULL) {
@@ -57,6 +65,9 @@ match.strata2weights <- function(match.strata, treat, covs = NULL) {
     else if (all(check_if_zero(weights[clabels])))
         stop("No control units were matched", call. = FALSE)
     return(weights)
+}
+weights.same.as.strata <- function(weights, match.strata, treat) {
+    weights == match.strata2weights(match.strata, treat)
 }
 .use.tc.fd <- function(formula, data, treat, covs) {
     useWhich <- function(f, d, t, c) {
@@ -273,11 +284,10 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
     return(val.List)
 }
 null.or.error <- function(x) {is_null(x) || class(x) == "try-error"}
-get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv, ...) {
+get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ...) {
     A <- list(...)
     
     tt <- terms(f, data = data)
-    attr(tt, "intercept") <- 0
     
     #Check if data exists
     if (is_not_null(data) && is.data.frame(data)) {
@@ -345,8 +355,8 @@ get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv, ...) {
         
         for (i in rhs.term.labels[rhs.term.labels %in% rhs.vars.mentioned[rhs.df]]) {
             ind <- which(rhs.term.labels == i)
-            rhs.term.labels <- append(rhs.term.labels[-ind], 
-                                      values = names(addl.dfs[[i]]), 
+            rhs.term.labels <- append(rhs.term.labels[-ind],
+                                      values = names(addl.dfs[[i]]),
                                       after = ind - 1)
         }
         new.form <- as.formula(paste("~", paste(rhs.term.labels, collapse = " + ")))
@@ -363,13 +373,15 @@ get.covs.and.treat.from.formula <- function(f, data, env = .GlobalEnv, ...) {
     tryCatch({covs <- eval(mf.covs, c(data, env))},
              error = function(e) {stop(conditionMessage(e), call. = FALSE)})
     
-    if (is_null(rhs.vars.mentioned)) covs <- data.frame(Intercept = rep(1, if (is_null(treat)) 1 else length(treat)))
+    if (is_null(rhs.vars.mentioned)) {
+        covs <- data.frame(Intercept = rep(1, if (is_null(treat)) 1 else length(treat)))
+    }
+    else attr(tt.covs, "intercept") <- 0
     
     #Get full model matrix with interactions too
     covs.matrix <- model.matrix(tt.covs, data = covs,
-                                contrasts.arg = lapply(covs[sapply(covs, is.factor)], 
+                                contrasts.arg = lapply(covs[sapply(covs, is.factor)],
                                                        contrasts, contrasts=FALSE))
-    
     attr(covs, "terms") <- NULL
     
     return(list(reported.covs = covs,
