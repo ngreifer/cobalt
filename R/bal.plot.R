@@ -7,7 +7,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     }
     
     obj <- is.designmatch(obj)
-    if (all(class(obj) == "list")) {
+    obj <- is.time.list(obj)
+    if (any(class(obj) == "time.list")) {
         if (all(sapply(obj, is.formula))) class(obj) <- "formula.list"
         else if (all(sapply(obj, is.data.frame))) class(obj) <- "data.frame.list"
         else stop("If obj is a list, it must be a list of formulas specifying the treatment/covariate relationships at each time point or a list of data frames containing covariates to be assessed at each time point.", call. = FALSE)
