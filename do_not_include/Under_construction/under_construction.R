@@ -1,4 +1,4 @@
-bal.tab.default <- function(obj, formula = NULL, data = NULL, treat = NULL, covs = NULL, weights = NULL, distance = NULL, subclass = NULL, match.strata = NULL, method, int = FALSE, addl = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, imp = NULL, which.imp = NA, imp.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, s.weights = NULL, estimand = NULL, abs = FALSE, subset = NULL, quick = FALSE, ...) {
+bal.tab.default <- function(obj, formula = NULL, data = NULL, treat = NULL, covs = NULL, weights = NULL, distance = NULL, subclass = NULL, match.strata = NULL, treat.list = NULL, covs.list = NULL, formula.list = NULL, method, int = FALSE, addl = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, imp = NULL, which.imp = NA, imp.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, s.weights = NULL, estimand = NULL, abs = FALSE, subset = NULL, quick = FALSE, ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
@@ -15,7 +15,8 @@ bal.tab.default <- function(obj, formula = NULL, data = NULL, treat = NULL, covs
     }
     
     #Initializing variables
-    X <- x2base.default(obj, covs = covs,
+    X <- x2base.default(obj = obj, 
+                        covs = covs,
                         treat = treat,
                         formula = formula,
                         data = data,
@@ -33,34 +34,127 @@ bal.tab.default <- function(obj, formula = NULL, data = NULL, treat = NULL, covs
                         focal = focal,
                         subset = subset)
     
-    out <- base.bal.tab(weights=X$weights, 
-                        treat=X$treat, 
-                        distance=X$distance, 
-                        subclass=X$subclass, 
-                        covs=X$covs, 
-                        call=X$call, 
-                        int=int, 
-                        addl=X$addl, 
-                        continuous=continuous, 
-                        binary=binary, 
-                        s.d.denom=X$s.d.denom, 
-                        m.threshold=m.threshold, 
-                        v.threshold=v.threshold, 
-                        ks.threshold=ks.threshold, 
-                        imbalanced.only = imbalanced.only,
-                        un=un, 
-                        disp.means=disp.means, 
-                        disp.v.ratio=disp.v.ratio, 
-                        disp.ks=disp.ks, 
-                        disp.subclass=disp.subclass,                                 
-                        disp.bal.tab = disp.bal.tab,
-                        method=X$method, 
-                        cluster = X$cluster, 
-                        which.cluster = which.cluster, 
-                        cluster.summary = cluster.summary, 
-                        abs = abs,
-                        discarded = X$discarded, 
-                        quick = quick)
+    if (is_not_null(X$imp)) {
+        out <- base.bal.tab.imp(weights=X$weights, 
+                                treat=X$treat, 
+                                distance=X$distance, 
+                                subclass=X$subclass, 
+                                covs=X$covs, 
+                                call=X$call, 
+                                int=int, 
+                                addl=X$addl, 
+                                continuous=continuous, 
+                                binary=binary, 
+                                s.d.denom=X$s.d.denom, 
+                                m.threshold=m.threshold, 
+                                v.threshold=v.threshold, ks.threshold=ks.threshold, 
+                                r.threshold=r.threshold,
+                                imbalanced.only = imbalanced.only,
+                                un=un, 
+                                disp.means=disp.means, 
+                                disp.v.ratio=disp.v.ratio, disp.ks=disp.ks, 
+                                disp.subclass=disp.subclass, 
+                                disp.bal.tab = disp.bal.tab,
+                                method=X$method, 
+                                cluster = X$cluster, 
+                                which.cluster = which.cluster, 
+                                cluster.summary = cluster.summary, 
+                                imp = X$imp,
+                                which.imp = which.imp,
+                                imp.summary = imp.summary,
+                                s.weights = X$s.weights, 
+                                abs = abs,
+                                quick = quick,
+                                ...)
+    }
+    else if (!is_binary(X$treat) && is.numeric(X$treat)) {
+        out <- base.bal.tab.cont(weights=X$weights, 
+                                 treat = X$treat, 
+                                 distance = X$distance, 
+                                 subclass = X$subclass,
+                                 covs=X$covs, 
+                                 call=X$call, 
+                                 int=int, 
+                                 addl = X$addl, 
+                                 r.threshold = r.threshold, 
+                                 imbalanced.only = imbalanced.only,
+                                 un = un, 
+                                 disp.subclass=disp.subclass, 
+                                 disp.bal.tab = disp.bal.tab,
+                                 method=X$method, 
+                                 cluster = X$cluster, 
+                                 which.cluster = which.cluster, 
+                                 cluster.summary = cluster.summary, 
+                                 s.weights = X$s.weights, 
+                                 abs = abs, 
+                                 quick = quick,
+                                 ...)
+    }
+    else if (!is_binary(X$treat) && (is.factor(X$treat) || is.character(X$treat))) {
+        out <- base.bal.tab.multi(weights=X$weights, 
+                                  treat=X$treat, 
+                                  distance=X$distance, 
+                                  subclass=X$subclass, 
+                                  covs=X$covs, 
+                                  call=X$call, 
+                                  int=int, 
+                                  addl=X$addl, 
+                                  continuous=continuous, 
+                                  binary=binary, 
+                                  s.d.denom=X$s.d.denom, 
+                                  m.threshold=m.threshold, 
+                                  v.threshold=v.threshold, 
+                                  ks.threshold=ks.threshold, 
+                                  imbalanced.only = imbalanced.only,
+                                  un=un, 
+                                  disp.means=disp.means, 
+                                  disp.v.ratio=disp.v.ratio, 
+                                  disp.ks=disp.ks, 
+                                  disp.subclass=disp.subclass, 
+                                  disp.bal.tab = disp.bal.tab,
+                                  method=X$method, 
+                                  cluster = X$cluster, 
+                                  which.cluster = which.cluster, 
+                                  cluster.summary = cluster.summary, 
+                                  pairwise = pairwise, focal = focal,
+                                  which.treat = which.treat,
+                                  multi.summary = multi.summary,
+                                  s.weights = X$s.weights, 
+                                  abs = abs,
+                                  quick = quick,
+                                  ...)
+    }
+    else {
+        out <- base.bal.tab(weights=X$weights, 
+                            treat=X$treat, 
+                            distance=X$distance, 
+                            subclass=X$subclass, 
+                            covs=X$covs, 
+                            call=X$call, 
+                            int=int, 
+                            addl=X$addl, 
+                            continuous=continuous, 
+                            binary=binary, 
+                            s.d.denom=X$s.d.denom, 
+                            m.threshold=m.threshold, 
+                            v.threshold=v.threshold, 
+                            ks.threshold=ks.threshold, 
+                            imbalanced.only = imbalanced.only,
+                            un=un, 
+                            disp.means=disp.means, 
+                            disp.v.ratio=disp.v.ratio, 
+                            disp.ks=disp.ks, 
+                            disp.subclass=disp.subclass, 
+                            disp.bal.tab = disp.bal.tab,
+                            method=X$method, 
+                            cluster = X$cluster, 
+                            which.cluster = which.cluster, 
+                            cluster.summary = cluster.summary, 
+                            s.weights = X$s.weights, 
+                            abs = abs,
+                            quick = quick,
+                            ...)
+    }
     return(out)
 }
 
@@ -93,95 +187,141 @@ x2base.default <- function(obj, ...) {
               cluster = NA,
               imp = NA,
               s.weights = NA)
-    in.obj <- setNames(vector("list", 10), 
-                       c("treat", "covs", "formula", "data",
-                       ))
     
-    if (is_not_null(obj[["treat"]])) {
-        
-        in.obj[["treat"]] <- TRUE
+    Q <- list(treat = list(name = c("treat", "tr"), 
+                           type = c("numeric", "character", "factor", "logical")),
+              treat.list = list(name = c("treat.list", "treat", "tr"),
+                                type = c("list", "data.frame")),
+              covs = list(name = c("covs", "covariates"), 
+                          type = c("data.frame")),
+              covs.list = list(name = c("covs.list", "covs", "covariates"),
+                               type = c("list")),
+              formula = list(name = c("formula", "form"), 
+                             type = c("formula")),
+              formula.list = list(name = c("formula.list", "formula", "form"),
+                               type = c("list")),
+              data = list(name = c("data"),
+                          type = c("data.frame")),
+              weights = list(name = c("weights", "w"),
+                             type = c("data.frame", "matrix", "numeric")),
+              distance = list(name = c("distance", "ps"),
+                              type = c("data.frame", "matrix", "numeric")),
+              subclass = list(name = c("subclass", "strata"),
+                              type = c("factor", "character", "numeric")),
+              match.strata = list(name = c("match.strata"),
+                                  type = c("factor", "character", "numeric")),
+              estimand = list(name = c("estimand", "target", "ATT", "ATE"),
+                              type = c("character", "numeric")),
+              s.weights = list(name = c("s.weights", "sw", "sweights", "sampw"),
+                               type = c("numeric")),
+              focal = list(name = c("focal"), 
+                           type = c("character", "numeric")))
+    
+    P <- setNames(vector("list", length(Q)), names(Q))
+    obj <- obj
+    
+    for (i in names(Q)) {
+        if (is_null(A[[i]])) {
+            for (j in Q[[i]][["name"]]) {
+                if (is_null(P[[i]])) {
+                    if (is_not_null(obj[[j]])) {
+                        if (any(which.type <- sapply(Q[[i]][["type"]], function(x) is(obj[[j]], x)))) {
+                            P[[i]] <- obj[[j]]
+                            attr(P[[i]], "name") <- j
+                            attr(P[[i]], "type") <- Q[[i]][["type"]][which.type]
+                        }
+                    }
+                }
+            }
+            if (is_not_null(P[[i]])) {
+                assign(i, P[[i]])
+                A[[i]] <- P[[i]]
+            }
+        }
+        assign(i, A[[i]])
     }
-    else in.obj[["treat"]] <- FALSE
     
-    if (is_not_null(obj[["covs"]])) {
-        
-        in.obj[["covs"]] <- TRUE
+    #treat OK
+    
+    #treat.list
+    if (is_not_null(treat.list)) {
+        if (!all(sapply(treat.list, function(x) any(sapply(Q[["treat"]][["type"]], function(c) is(x, c)))))) {
+            treat.list <- A[["treat.list"]]
+        }
     }
-    else in.obj[["covs"]] <- FALSE
     
-    if (is_not_null(obj[["formula"]])) {
-        
-        in.obj[["formula"]] <- TRUE
+    #covs 
+    if (is_not_null(covs)) covs <- as.data.frame(covs)
+    
+    #covs.list
+    if (is_not_null(covs.list)) {
+        if (!all(sapply(covs.list, function(x) any(sapply(Q[["covs"]][["type"]], function(c) is(x, c)))))) {
+            covs.list <- A[["covs.list"]]
+        }
     }
-    else in.obj[["formula"]] <- FALSE
     
-    if (is_not_null(obj[["data"]])) {
-        
-        in.obj[["data"]] <- TRUE
+    #formula OK
+    
+    #formula.list
+    if (is_not_null(formula.list)) {
+        if (!all(sapply(formula.list, function(x) any(sapply(Q[["formula"]][["type"]], function(c) is(x, c)))))) {
+            formula.list <- A[["formula.list"]]
+        }
     }
-    else in.obj[["data"]] <- FALSE
     
-    if (is_not_null(obj[["weights"]])) {
-        
-        in.obj[["weights"]] <- TRUE
+    #data OK
+    
+    #weights
+    if (is_not_null(weights)) {
+        if (is.numeric(weights)) weights <- data.frame(weights = weights)
+        else weights <- as.data.frame(weights)
     }
-    else in.obj[["weights"]] <- FALSE
     
-    if (is_not_null(obj[["distance"]]) || is_not_null(obj[["ps"]])) {
-        
-        in.obj[["distance"]] <- TRUE
+    #distance
+    if (is_not_null(distance)) {
+        if (is.numeric(distance)) {
+            if (is_not_null(attr(distance, "name"))) distance <- setNames(data.frame(distance),
+                                                                          attr(distance, "name"))
+            else distance <- data.frame(distance = distance)
+        }
+        else distance <- as.data.frame(distance)
     }
-    else in.obj[["distance"]] <- FALSE
     
-    if (is_not_null(obj[["subclass"]])) {
-        
-        in.obj[["subclass"]] <- TRUE
+    #subclass
+    if (is_not_null(subclass)) subclass <- factor(subclass)
+    
+    #match.strata
+    if (is_not_null(match.strata)) match.strata <- factor(match.strata)
+    
+    #estimand
+    if (is_not_null(estimand)) {
+        if (toupper(attr(estimand, "name")) == "ATT") {
+            if (estimand == 0) estimand <- "ATE"
+            else estimand <- "ATT"
+        }
+        else if (toupper(attr(estimand, "name")) == "ATE") {
+            if (estimand == 0) estimand <- "ATT"
+            else estimand <- "ATE"
+        }
+        else {
+            if (tolower(estimand) %in% c("att", "treat", "treated", "tr", "t", "atet")) estimand <- "ATT"
+            else if (tolower(estimand) %in% c("ate", "all")) estimand <- "ATE"
+            else if (tolower(estimand) %in% c("atc", "control", "untreated", "u", "c", "ctrl", "atu", "atec", "ateu")) estimand <- "ATC"
+            else estimand <- NULL
+        }
     }
-    else in.obj[["subclass"]] <- TRUE
     
-    if (is_not_null(obj[["match.strata"]])) {
-        
-        in.obj[["match.strata"]] <- TRUE
+    #s.weights OK
+    
+    #focal OK
+    
+    #model (only to extract data)
+    if (is_not_null(obj[["model"]])) {
+        if (is_null(data) && "data" %in% names(obj[["model"]])) {
+            data <- obj[["model"]][["data"]]
+        }
     }
-    else in.obj[["match.strata"]] <- TRUE
     
-    if (is_not_null(obj[["cluster"]]) || is_not_null(obj[["exact"]])) {
-        
-        in.obj[["cluster"]] <- TRUE
-    }
-    else in.obj[["cluster"]] <- TRUE
-    
-    if (is_not_null(obj[["estimand"]]) || is_not_null(obj[["ATT"]]) || is_not_null(obj[["ATT"]])  || 
-        is_not_null(obj[["target"]])) {
-        
-        in.obj[["estimand"]] <- TRUE
-    }
-    else in.obj[["estimand"]] <- TRUE
-    
-    if (is_not_null(obj[["cluster"]]) || is_not_null(obj[["exact"]])) {
-        
-        in.obj[["cluster"]] <- TRUE
-    }
-    else in.obj[["cluster"]] <- TRUE
-    
-    if (is_not_null(obj[["s.weights"]]) || is_not_null(obj[["sweights"]]) || is_not_null(obj[["sampw"]])) {
-        
-        in.obj[["s.weights"]] <- TRUE
-    }
-    else in.obj[["s.weights"]] <- TRUE
-    
-    if (is_not_null(obj[["focal"]])) {
-        
-        in.obj[["focal"]] <- TRUE
-    }
-    else in.obj[["focal"]] <- TRUE
-    
-    treat <- A$treat
-    data <- A$data
-    weights <- A$weights
-    distance <- A$distance
-    subclass <- A$subclass
-    match.strata <- A$match.strata
     cluster <- A$cluster
     addl <- A$addl
     s.d.denom <- A$s.d.denom
@@ -192,12 +332,25 @@ x2base.default <- function(obj, ...) {
     subset <- A$subset
     focal <- A$focal
     
-    if (is_not_null(weights) && any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
+    #     stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
+    # }
+    
+    if (is_not_null(cluster) && !is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
+        stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
+    }
+    if (is_not_null(imp) && !is.character(imp) && !is.numeric(imp) && !is.factor(imp)) {
+        stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
+    }
+    
+    t.c <- use.tc.fd(formula, data, treat, covs)
+    
+    treat <- t.c[["treat"]]
+    covs  <- t.c[["covs"]]
     
     #Checks
     if (is_null(covs)) {
-        stop("covs dataframe must be specified.", call. = FALSE)
+        stop("covs data.frame must be specified.", call. = FALSE)
     }
     if (!is.data.frame(covs)) {
         stop("covs must be a data.frame.", call. = FALSE)
@@ -206,9 +359,62 @@ x2base.default <- function(obj, ...) {
         warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
         data <- NULL
     }
-    # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
-    #     stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
-    # }
+    
+    #Process treat
+    if (is_null(treat)) stop("treat must be specified.", call. = FALSE)
+    
+    if (is.numeric(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
+        treat <- treat
+    }
+    else if (is.character(treat) && length(treat)==1 && any(names(data) == treat)) {
+        treat <- data[[treat]]
+    }
+    else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
+    
+    if (sum(is.na(treat)) > 0)
+        stop("Missing values exist in treat.", call. = FALSE)
+    
+    if (nunique(treat) == 2) {
+        treat <- binarize(treat)
+    }
+    else if (is.character(treat)) {
+        treat <- factor(treat)
+    }
+    
+    #Process weights, addl, and distance
+    for (i in c("weights", "addl", "distance")) {
+        assign(i, data.frame.process(i, A[[i]], treat, covs, data))
+    }
+    
+    #Process subclass
+    if (is_not_null(subclass)) {
+        if (is.numeric(subclass) || is.factor(subclass) || (is.character(subclass) && length(subclass) > 1)) {
+            subclass <- factor(subclass)
+        }
+        else if (is.character(subclass) && length(subclass)==1 && any(names(data) == subclass)) {
+            subclass <- factor(data[[subclass]])
+        }
+        else stop("The name supplied to subclass is not the name of a variable in data.", call. = FALSE)
+        
+        subclass.weights <- match.strata2weights(match.strata = subclass,
+                                                     treat = treat,
+                                                     covs = covs)
+    }
+    
+    #Process match.strata
+    if (is_not_null(match.strata)) {
+        if (is.numeric(match.strata) || is.factor(match.strata) || (is.character(match.strata) && length(match.strata) > 1)) {
+            match.strata <- factor(match.strata)
+        }
+        else if (is.character(match.strata) && length(match.strata)==1 && any(names(data) == match.strata)) {
+            match.strata <- factor(data[[match.strata]])
+        }
+        else stop("The name supplied to match.strata is not the name of a variable in data.", call. = FALSE)
+        
+        match.strata.weights <- match.strata2weights(match.strata = match.strata,
+                                                             treat = treat,
+                                                             covs = covs)
+    }
     
     specified <- setNames(rep(FALSE, 3), c("match.strata", "subclass", "weights"))
     if (is_not_null(weights)) {
@@ -218,7 +424,7 @@ x2base.default <- function(obj, ...) {
         specified["weights"] <- TRUE
     }
     if (is_not_null(subclass)){
-        if (!is.character(subclass) && !is.numeric(subclass)) {
+        if (!is.character(subclass) && !is.factor(subclass) && !is.numeric(subclass)) {
             stop("The argument to subclass must be a vector of subclass membership or the (quoted) name of a variable in data that contains subclass membership.", call. = FALSE)
         }
         specified["subclass"] <- TRUE
@@ -233,9 +439,19 @@ x2base.default <- function(obj, ...) {
     #Getting method
     if (is_null(method)) {
         if (specified["match.strata"]) {
-            if (sum(specified) > 1) {
-                message(word.list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word.list(names(specified)[specified & names(specified)!="match.strata"]), ".")
-                weights <- subclass <- NULL
+            if (specified["subclass"]) {
+                if (isTRUE(all.equal(match.strata.weights, subclass.weights, 
+                                     check.attributes = FALSE))) {
+                    subclass.weights <- subclass <- NULL
+                    specified["subclass"] <- FALSE
+                }
+            }
+            if (specified["weights"]) {
+                if (ncol(weights) == 1 && isTRUE(all.equal(match.strata.weights, weights, 
+                                     check.attributes = FALSE))) {
+                    weights <- NULL
+                    specified["weights"] <- FALSE
+                }
             }
             X$method <- "matching"
         }
@@ -348,60 +564,6 @@ x2base.default <- function(obj, ...) {
         }
     }
     
-    if (is_not_null(cluster) && !is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
-        stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
-    }
-    if (is_not_null(imp) && !is.character(imp) && !is.numeric(imp) && !is.factor(imp)) {
-        stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
-    }
-    
-    #Process treat
-    if (is_null(treat)) stop("treat must be specified.", call. = FALSE)
-    
-    if (is.numeric(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
-        treat <- treat
-    }
-    else if (is.character(treat) && length(treat)==1 && any(names(data) == treat)) {
-        treat <- data[[treat]]
-    }
-    else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
-    
-    if (sum(is.na(treat)) > 0)
-        stop("Missing values exist in treat.", call. = FALSE)
-    
-    if (nunique(treat) == 2) {
-        treat <- binarize(treat)
-    }
-    else if (is.character(treat)) {
-        treat <- factor(treat)
-    }
-    
-    #Process weights, addl, and distance
-    for (i in c("weights", "addl", "distance")) {
-        assign(i, data.frame.process(i, A[[i]], treat, covs, data))
-    }
-    
-    #Process subclass
-    if (is_not_null(subclass)) {
-        if (is.numeric(subclass) || is.factor(subclass) || (is.character(subclass) && length(subclass) > 1)) {
-            subclass <- factor(subclass)
-        }
-        else if (is.character(subclass) && length(subclass)==1 && any(names(data) == subclass)) {
-            subclass <- factor(data[[subclass]])
-        }
-        else stop("The name supplied to subclass is not the name of a variable in data.", call. = FALSE)
-    }
-    
-    #Process match.strata
-    if (is_not_null(match.strata)) {
-        if (is.character(match.strata) && length(match.strata)==1) {
-            if (any(names(data) == match.strata)) {
-                match.strata <- data[[match.strata]]
-            }
-            else stop("The name supplied to match.strata is not the name of a variable in data.", call. = FALSE)
-        }
-    }
-    
     #Process sampling weights
     if (is_not_null(s.weights)) {
         if (!(is.character(s.weights) && length(s.weights) == 1) && !is.numeric(s.weights)) {
@@ -413,6 +575,7 @@ x2base.default <- function(obj, ...) {
             }
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }
+        if (any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     }
     
     #Process cluster
@@ -516,14 +679,12 @@ x2base.default <- function(obj, ...) {
     }
     
     #Turn match.strata into weights
-    if (is_not_null(match.strata)) {
-        weights <- data.frame(weights = match.strata2weights(match.strata = match.strata,
-                                                             treat = treat,
-                                                             covs = covs
-        ))
+    if (is_not_null(match.strata.weights)) {
+        weights <- data.frame(weights = match.strata.weights)
     }
     
     if (is_not_null(weights)) {
+        if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (any(sapply(weights, function(x) !is.numeric(x)))) {
             stop("All weights must be numeric.", call. = FALSE)
         }
@@ -551,9 +712,9 @@ x2base.default <- function(obj, ...) {
     }
     
     #Get s.d.denom
-    if (nunique(treat) <= 2 || !is.numeric(treat)) { #non-continuous
+    if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
         check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
-        if (is_not_null(s.d.denom)) {
+        if (!missing(s.d.denom) && is_not_null(s.d.denom)) {
             try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
                                       error = function(cond) FALSE)
             if (any(try.s.d.denom == FALSE)) {
@@ -606,7 +767,7 @@ x2base.default <- function(obj, ...) {
                 X$s.d.denom <- estimand <- character(ncol(weights))
                 for (i in seq_len(ncol(weights))) {
                     if (X$method[i] == "weighting") {
-                        if (nunique(treat) <= 2) {
+                        if (is_binary(treat)) {
                             if (all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])]) &&
                                 !all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])])
                             ) { #if treated weights are the same and control weights differ; ATT
@@ -684,7 +845,7 @@ x2base.default <- function(obj, ...) {
 skew.diff <- function(x, group, weights, var.type) {
     #Calculates weighted skew and skew difference for groups; uses formulas at http://www.nematrian.com/WeightedMomentsAndCumulants
     skew.cols <- data.frame(Skew.C = NA, Skew.T = NA, Skew.Diff = NA)
-    if (is.null(weights)) weights <- rep(1, length(x))
+    if (is_null(weights)) weights <- rep(1, length(x))
     if (var.type=="Contin.") {
         # skew for each group
         x0 <- x[group==0];       x1 <- x[group==1];
