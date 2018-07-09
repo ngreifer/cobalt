@@ -1799,6 +1799,165 @@ bal.tab.designmatch <- function(dm, formula = NULL, data = NULL, treat = NULL, c
                         quick = quick)
     return(out)
 }
+bal.tab.default <- function(obj, formula = NULL, data = NULL, treat = NULL, covs = NULL, weights = NULL, distance = NULL, subclass = NULL, match.strata = NULL, treat.list = NULL, covs.list = NULL, formula.list = NULL, method, int = FALSE, addl = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, imp = NULL, which.imp = NA, imp.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, s.weights = NULL, estimand = NULL, abs = FALSE, subset = NULL, quick = FALSE, ...) {
+    args <- c(as.list(environment()), list(...))[-1]
+    
+    #Adjustments to arguments
+    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
+    
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(blank.args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
+                assign(arg.name, NULL)
+            }
+        }
+    }
+    
+    #Initializing variables
+    X <- x2base.default(obj = obj, 
+                        covs = covs,
+                        treat = treat,
+                        formula = formula,
+                        data = data,
+                        weights = weights,
+                        distance = distance,
+                        subclass = subclass,
+                        match.strata = match.strata,
+                        addl = addl,
+                        s.d.denom = s.d.denom,
+                        method = method,
+                        cluster = cluster,
+                        estimand = estimand,
+                        imp = imp,
+                        s.weights = s.weights,
+                        focal = focal,
+                        subset = subset)
+    
+    if (is_not_null(X$imp)) {
+        out <- base.bal.tab.imp(weights=X$weights, 
+                                treat=X$treat, 
+                                distance=X$distance, 
+                                subclass=X$subclass, 
+                                covs=X$covs, 
+                                call=X$call, 
+                                int=int, 
+                                addl=X$addl, 
+                                continuous=continuous, 
+                                binary=binary, 
+                                s.d.denom=X$s.d.denom, 
+                                m.threshold=m.threshold, 
+                                v.threshold=v.threshold, ks.threshold=ks.threshold, 
+                                r.threshold=r.threshold,
+                                imbalanced.only = imbalanced.only,
+                                un=un, 
+                                disp.means=disp.means, 
+                                disp.v.ratio=disp.v.ratio, disp.ks=disp.ks, 
+                                disp.subclass=disp.subclass, 
+                                disp.bal.tab = disp.bal.tab,
+                                method=X$method, 
+                                cluster = X$cluster, 
+                                which.cluster = which.cluster, 
+                                cluster.summary = cluster.summary, 
+                                imp = X$imp,
+                                which.imp = which.imp,
+                                imp.summary = imp.summary,
+                                s.weights = X$s.weights, 
+                                abs = abs,
+                                quick = quick,
+                                ...)
+    }
+    else if (!is_binary(X$treat) && is.numeric(X$treat)) {
+        out <- base.bal.tab.cont(weights=X$weights, 
+                                 treat = X$treat, 
+                                 distance = X$distance, 
+                                 subclass = X$subclass,
+                                 covs=X$covs, 
+                                 call=X$call, 
+                                 int=int, 
+                                 addl = X$addl, 
+                                 r.threshold = r.threshold, 
+                                 imbalanced.only = imbalanced.only,
+                                 un = un, 
+                                 disp.subclass=disp.subclass, 
+                                 disp.bal.tab = disp.bal.tab,
+                                 method=X$method, 
+                                 cluster = X$cluster, 
+                                 which.cluster = which.cluster, 
+                                 cluster.summary = cluster.summary, 
+                                 s.weights = X$s.weights, 
+                                 abs = abs, 
+                                 quick = quick,
+                                 ...)
+    }
+    else if (!is_binary(X$treat) && (is.factor(X$treat) || is.character(X$treat))) {
+        out <- base.bal.tab.multi(weights=X$weights, 
+                                  treat=X$treat, 
+                                  distance=X$distance, 
+                                  subclass=X$subclass, 
+                                  covs=X$covs, 
+                                  call=X$call, 
+                                  int=int, 
+                                  addl=X$addl, 
+                                  continuous=continuous, 
+                                  binary=binary, 
+                                  s.d.denom=X$s.d.denom, 
+                                  m.threshold=m.threshold, 
+                                  v.threshold=v.threshold, 
+                                  ks.threshold=ks.threshold, 
+                                  imbalanced.only = imbalanced.only,
+                                  un=un, 
+                                  disp.means=disp.means, 
+                                  disp.v.ratio=disp.v.ratio, 
+                                  disp.ks=disp.ks, 
+                                  disp.subclass=disp.subclass, 
+                                  disp.bal.tab = disp.bal.tab,
+                                  method=X$method, 
+                                  cluster = X$cluster, 
+                                  which.cluster = which.cluster, 
+                                  cluster.summary = cluster.summary, 
+                                  pairwise = pairwise, focal = focal,
+                                  which.treat = which.treat,
+                                  multi.summary = multi.summary,
+                                  s.weights = X$s.weights, 
+                                  abs = abs,
+                                  quick = quick,
+                                  ...)
+    }
+    else {
+        out <- base.bal.tab(weights=X$weights, 
+                            treat=X$treat, 
+                            distance=X$distance, 
+                            subclass=X$subclass, 
+                            covs=X$covs, 
+                            call=X$call, 
+                            int=int, 
+                            addl=X$addl, 
+                            continuous=continuous, 
+                            binary=binary, 
+                            s.d.denom=X$s.d.denom, 
+                            m.threshold=m.threshold, 
+                            v.threshold=v.threshold, 
+                            ks.threshold=ks.threshold, 
+                            imbalanced.only = imbalanced.only,
+                            un=un, 
+                            disp.means=disp.means, 
+                            disp.v.ratio=disp.v.ratio, 
+                            disp.ks=disp.ks, 
+                            disp.subclass=disp.subclass, 
+                            disp.bal.tab = disp.bal.tab,
+                            method=X$method, 
+                            cluster = X$cluster, 
+                            which.cluster = which.cluster, 
+                            cluster.summary = cluster.summary, 
+                            s.weights = X$s.weights, 
+                            abs = abs,
+                            quick = quick,
+                            ...)
+    }
+    return(out)
+}
 
 #MSMs wth multiple time points
 bal.tab.time.list <- function(time.list, data, treat.list = NULL, weights = NULL, int = FALSE, distance.list = NULL, addl.list = NULL, method, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, pairwise = TRUE, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, estimand = "ATE", abs = FALSE, subset = NULL, quick = FALSE, ...) {
