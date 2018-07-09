@@ -2436,7 +2436,7 @@ x2base.default <- function(obj, ...) {
     }
     
     #Turn match.strata into weights
-    if (is_not_null(match.strata.weights)) {
+    if (is_not_null(get0("match.strata.weights"))) {
         weights <- data.frame(weights = match.strata.weights)
     }
     
