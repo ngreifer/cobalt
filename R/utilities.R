@@ -649,7 +649,7 @@ all_the_same <- function(x) !nunique.gt(x, 1)
 is.formula <- function(f, sides = NULL) {
     res <- is.name(f[[1]])  && deparse(f[[1]]) %in% c( '~', '!') &&
         length(f) >= 2
-    if (length(sides) > 0 && is.numeric(sides) && sides %in% c(1,2)) {
+    if (is_not_null(sides) && is.numeric(sides) && sides %in% c(1,2)) {
         res <- res && length(f) == sides + 1
     }
     return(res)
