@@ -117,7 +117,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         warning("which.sub was specified but the unadjusted sample was requested. Ignoring which.sub.", call. = FALSE)
     }
     
-    if (!"subclass" %in% facet) {
+    if ("subclass" %nin% facet) {
         
         facet <- "facet.which"
         
