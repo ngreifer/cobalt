@@ -1231,6 +1231,7 @@ x2base.data.frame <- function(covs, ...) {
     X$addl <- addl[subset, , drop = FALSE]
     X$imp <- factor(imp[subset])
     X$s.weights <- s.weights[subset]
+    X$focal <- focal
     
     return(X)
 }
