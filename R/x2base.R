@@ -1943,7 +1943,8 @@ x2base.default <- function(obj, ...) {
               call = NA,
               cluster = NA,
               imp = NA,
-              s.weights = NA)
+              s.weights = NA,
+              focal = NA)
     
     Q <- list(treat = list(name = c("treat", "tr"), 
                            type = c("numeric", "character", "factor", "logical")),
@@ -2083,12 +2084,9 @@ x2base.default <- function(obj, ...) {
     addl <- A$addl
     s.d.denom <- A$s.d.denom
     method <- A$method
-    estimand <- A$estimand
     imp <- A$imp
-    s.weights <- A$s.weights
     subset <- A$subset
-    focal <- A$focal
-    
+
     # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
     #     stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
     # }
@@ -2595,6 +2593,7 @@ x2base.default <- function(obj, ...) {
     X$addl <- addl[subset, , drop = FALSE]
     X$imp <- factor(imp[subset])
     X$s.weights <- s.weights[subset]
+    X$focal <- focal
     
     return(X)
 }
