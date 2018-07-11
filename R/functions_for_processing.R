@@ -146,7 +146,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
         if (is_not_null(data)) D <- data
         if (is_not_null(covs)) if (is_not_null(D)) D <- cbind(D, covs) else D <- covs
         t.c <- get.covs.and.treat.from.formula(formula, D, treat = treat)
-        t.c <- list(treat = t.c[["treat"]], covs = t.c[["reported.covs"]])
+        t.c <- list(treat = t.c[["treat"]], covs = t.c[["reported.covs"]], treat.name = t.c[["treat.name"]])
         attr(t.c, "which") <- "fd"
     }
     else {
