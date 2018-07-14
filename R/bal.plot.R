@@ -282,20 +282,19 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     if (!is_binary(D$treat) && is.numeric(D$treat)) { #Continuous treatments
         if ("subclass" %in% facet) {
             if (is.categorical.var) {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[subclass==subclass[i] & var==var[i]])))
+                weights <- with(D, ave(weights, subclass, var, FUN = function(x) x/sum(x)))
             }
             else {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[subclass==subclass[i]])))
+                weights <- with(D, ave(weights, subclass, FUN = function(x) x/sum(x)))
             }
-            
             d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
         }
         else {
             if (is.categorical.var) {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[cluster==cluster[i] & imp==imp[i] & time==time[i] & facet.which==facet.which[i] & var==var[i]])))
+                weights <- with(D, ave(weights, cluster, imp, time, facet.which, var, FUN = function(x) x/sum(x)))
             }
             else {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[cluster==cluster[i] & imp==imp[i] & time==time[i] & facet.which==facet.which[i]])))
+                weights <- with(D, ave(weights, cluster, imp, time, facet.which, FUN = function(x) x/sum(x)))
             }
             d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, time = D$time, facet.which = D$facet.which)
             
@@ -304,7 +303,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (is.categorical.var) { #Categorical vars
             d$var <- factor(d$var)
             bp <- ggplot(d, mapping = aes(treat, fill = var, weight = weights)) + 
-                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n) + 
+                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) + 
                 labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle)
         }
         else { #Continuous vars
@@ -348,16 +347,16 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         if (is_not_null(facet)) {
             if ("subclass" %in% facet) {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i] & subclass==subclass[i]])))
+                weights <- with(D, ave(weights, treat, subclass, FUN = function(x) x/sum(x)))
                 d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
             }
             else {
-                weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i] & cluster==cluster[i] & imp==imp[i] & time==time[i] & facet.which==facet.which[i]])))
+                weights <- with(D, ave(weights, treat, cluster, imp, time, facet.which, FUN = function(x) x/sum(x)))
                 d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, time = D$time, facet.which = D$facet.which)
             }
         }
         else {
-            weights <- with(D, sapply(seq_along(weights), function(i) weights[i] / sum(weights[treat==treat[i]])))
+            weights <- with(D, ave(weights, treat, FUN = function(x) x/sum(x)))
             d <- data.frame(weights = weights, treat = D$treat, var = D$var)
         }
         
@@ -370,7 +369,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         else { #Continuous vars
             bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
-                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n) + 
+                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) + 
                 labs(x = var.name, y = "Density", fill = "Treat", title = title, subtitle = subtitle)
         }
     }
