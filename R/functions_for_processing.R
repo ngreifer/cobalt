@@ -699,9 +699,12 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
             }
         }
     }
-
+    
     std.diffs <- diffs/denoms
-    std.diffs[!is.finite(std.diffs)] <- NA
+    if (any(!is.finite(std.diffs))) {
+        warning("Some standardized mean differences were not finite. This can result from no variation in one of the treatment groups.", call. = FALSE)
+        std.diffs[!is.finite(std.diffs)] <- NA
+    }
     
     return(std.diffs)
 }
@@ -1628,7 +1631,7 @@ f.recode <- function(f, ...) {
 seq_int_cycle <- function(begin, end, max) {
     seq(begin, end, by = 1) - max*(seq(begin-1, end-1, by = 1) %/% max)
 }
-assign.shapes <- function(colors, default.shape = 21) {
+assign.shapes <- function(colors, default.shape = "circle filled") {
     if (nunique(colors) < length(colors)) {
         shapes <- seq_int_cycle(21, 21 + length(colors), max = 25)
     }
@@ -1636,7 +1639,16 @@ assign.shapes <- function(colors, default.shape = 21) {
     return(shapes)
 }
 shapes.ok <- function(shapes, nshapes) {
-    return((length(shapes) == 1 || length(shapes) == nshapes) && is.numeric(shapes) && all(shapes %in% 1:25))
+    shape_names <- c(
+        "circle", paste("circle", c("open", "filled", "cross", "plus", "small")), "bullet",
+        "square", paste("square", c("open", "filled", "cross", "plus", "triangle")),
+        "diamond", paste("diamond", c("open", "filled", "plus")),
+        "triangle", paste("triangle", c("open", "filled", "square")),
+        paste("triangle down", c("open", "filled")),
+        "plus", "cross", "asterisk"
+    )
+    shape_nums <- 1:25
+    return((length(shapes) == 1 || length(shapes) == nshapes) && ((is.numeric(shapes) && all(shapes %in% shape_nums)) || (is.character(shapes) && all(shapes %in% shape_names))))
 }
 gg_color_hue <- function(n) {
     hues = seq(15, 375, length = n + 1)
