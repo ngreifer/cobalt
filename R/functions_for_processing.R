@@ -462,7 +462,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         }
     } 
     
-    covs.with.inf <- unlist(sapply(C, function(x) any(!is.finite(x) & !is.na(x))))
+    covs.with.inf <- apply(C, 2, function(x) any(!is.finite(x) & !is.na(x)))
     if (any(covs.with.inf)) {
         s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
         stop(paste0("The variable", s[1], " ", word.list(names(C)[covs.with.inf], quotes = TRUE), 
@@ -602,24 +602,28 @@ num_to_superscript <- function(x) {
 
 #base.bal.tab
 check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL) {
+    #Checks if all weights are zero in each treat group for each set of weights
     if (is_null(unique.treat)) unique.treat <- unique(treat)
     w.t.mat <- expand.grid(colnames(weights.df), unique.treat)
-    problems <- apply(w.t.mat, 1, function(x) all(check_if_zero(weights.df[treat == x[2], x[1]])))
-    prob.w.t.mat <- droplevels(w.t.mat[problems,])
-    if (any(problems)) {
-        if (ncol(weights.df) == 1) {
-            error <- paste0("All weights are zero when ", word.list(paste("treat =", prob.w.t.mat[, 2]), "or"), ".")
-        }
-        else {
-            errors <- setNames(character(nlevels(prob.w.t.mat[,1])), levels(prob.w.t.mat[,1]))
-            
-            for (i in levels(prob.w.t.mat[,1])) {
-                errors[i] <- paste0("\"", i, "\" weights are zero when ", word.list(paste("treat =", prob.w.t.mat[prob.w.t.mat[,1] == i, 2]), "or"))
+    if (nrow(w.t.mat) > 0) {
+        #problems <- apply(w.t.mat, 1, function(x) all(check_if_zero(weights.df[treat == x[2], x[1]])))
+        problems <- apply(w.t.mat, 1, function(x) all_the_same(weights.df[treat == x[2], x[1]]) && check_if_zero(weights.df[treat == x[2], x[1]][1]))
+        if (any(problems)) {
+            prob.w.t.mat <- droplevels(w.t.mat[problems,])
+            if (ncol(weights.df) == 1) {
+                error <- paste0("All weights are zero when ", word.list(paste("treat =", prob.w.t.mat[, 2]), "or"), ".")
             }
-            errors <- paste(c("All", rep("all", length(errors)-1)), errors)
-            error <- paste0(word.list(errors, "and"), ".")
+            else {
+                errors <- setNames(character(nlevels(prob.w.t.mat[,1])), levels(prob.w.t.mat[,1]))
+                
+                for (i in levels(prob.w.t.mat[,1])) {
+                    errors[i] <- paste0("\"", i, "\" weights are zero when ", word.list(paste("treat =", prob.w.t.mat[prob.w.t.mat[,1] == i, 2]), "or"))
+                }
+                errors <- paste(c("All", rep("all", length(errors)-1)), errors)
+                error <- paste0(word.list(errors, "and"), ".")
+            }
+            stop(error, call. = FALSE)
         }
-        stop(error, call. = FALSE)
     }
 }
 w.m <- function(x, w = NULL, na.rm = TRUE) {
