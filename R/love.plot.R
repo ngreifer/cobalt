@@ -660,7 +660,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
         # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
         SS[["Sample"]] <- factor(SS[["Sample"]])
-        if (which.stat == "Diff" && any(na.omit(abs(SS[["max.stat"]]) > 5))) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
+        if (which.stat == "Diff" && any(abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
         SS[["stat"]] <- SS[["mean.stat"]]
     }
@@ -732,7 +732,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
         }
         SS[["Sample"]] <- factor(SS[["Sample"]])
-        if (which.stat == "Diff" && any(na.omit(abs(SS[["stat"]]) > 5))) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
+        if (which.stat == "Diff" && any(abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[["stat"]]),]
     }
     SS <- SS[order(SS[["var"]]),]
@@ -847,7 +847,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             if (limits[2] <= 0) limits[2] <- baseline.xintercept - .05*limits[1]
             
             if (agg.range) {
-                if (any(na.omit(SS[["min.stat"]] < limits[1])) || any(na.omit(SS[["max.stat"]] > limits[2]))) {
+                if (any(SS[["min.stat"]] < limits[1], na.rm = TRUE) || any(SS[["max.stat"]] > limits[2], na.rm = TRUE)) {
                     for (i in c("min.stat", "stat", "max.stat")) {
                         SS[[i]][SS[[i]] < limits[1]] <- limits[1]
                         SS[[i]][SS[[i]] > limits[2]] <- limits[2]
@@ -856,7 +856,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 }
             }
             else {
-                if (any(na.omit(SS[["stat"]] < limits[1])) || any(na.omit(SS[["stat"]] > limits[2]))) {
+                if (any(SS[["stat"]] < limits[1], na.rm = TRUE) || any(SS[["stat"]] > limits[2], na.rm = TRUE)) {
                     warning("Some points will be removed from the plot by the limits.", call. = FALSE)
                 }
             }
