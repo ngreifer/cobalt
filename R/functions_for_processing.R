@@ -462,7 +462,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         }
     } 
     
-    covs.with.inf <- apply(C, 2, function(x) any(!is.finite(x) & !is.na(x)))
+    covs.with.inf <- unlist(lapply(C, function(x) any(!is.finite(x) & !is.na(x))))
     if (any(covs.with.inf)) {
         s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
         stop(paste0("The variable", s[1], " ", word.list(names(C)[covs.with.inf], quotes = TRUE), 
