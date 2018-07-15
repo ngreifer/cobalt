@@ -1800,6 +1800,154 @@ bal.tab.designmatch <- function(dm, formula = NULL, data = NULL, treat = NULL, c
                         quick = quick)
     return(out)
 }
+
+#MSMs wth multiple time points
+bal.tab.time.list <- function(time.list, data, treat.list = NULL, weights = NULL, int = FALSE, distance.list = NULL, addl.list = NULL, method, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, pairwise = TRUE, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, estimand = "ATE", abs = FALSE, subset = NULL, quick = FALSE, ...) {
+    args <- c(as.list(environment()), list(...))[-1]
+    
+    #Adjustments to arguments
+    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
+    
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(blank.args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
+                assign(arg.name, NULL)
+            }
+        }
+    }
+    
+    if (is_not_null(args$cluster)) stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
+    if (is_not_null(args$imp)) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
+    
+    if (all(sapply(time.list, is.formula))) {
+        X <- x2base.formula.list(formula.list = time.list, 
+                                 data = data,
+                                 weights = weights,
+                                 distance.list = distance.list,
+                                 addl.list = addl.list,
+                                 method = method,
+                                 s.d.denom = s.d.denom,
+                                 s.weights = s.weights,
+                                 estimand = estimand,
+                                 subset = subset)
+    }
+    else if (all(sapply(time.list, is.data.frame))) {
+        X <- x2base.data.frame.list(covs.list = time.list, 
+                                    treat.list = treat.list,
+                                    data = data,
+                                    weights = weights,
+                                    distance.list = distance.list,
+                                    addl.list = addl.list,
+                                    method = method,
+                                    s.d.denom = s.d.denom,
+                                    s.weights = s.weights,
+                                    estimand = estimand)
+    }
+    else {
+        stop("If the first argument is a list, it must be a list of formulas specifying the treatment/covariate relationships at each time point or a list of data frames containing covariates to be assessed at each time point.", call. = FALSE)
+    }
+    
+    out <- base.bal.tab.msm(weights=X$weights, 
+                            treat.list=X$treat.list, 
+                            distance.list=X$distance.list, 
+                            covs.list=X$covs.list, 
+                            call=X$call, 
+                            int=int, 
+                            addl.list=X$addl.list, 
+                            continuous=continuous, 
+                            binary=binary, 
+                            s.d.denom=X$s.d.denom, 
+                            m.threshold=m.threshold, 
+                            v.threshold=v.threshold, 
+                            ks.threshold=ks.threshold, 
+                            r.threshold = r.threshold,
+                            imbalanced.only = imbalanced.only,
+                            un=un, 
+                            disp.means=disp.means, 
+                            disp.v.ratio=disp.v.ratio, 
+                            disp.ks=disp.ks, 
+                            disp.bal.tab = disp.bal.tab,
+                            method=X$method, 
+                            cluster = NULL, 
+                            which.cluster = NULL, 
+                            cluster.summary = FALSE, 
+                            pairwise = pairwise, 
+                            focal = NULL, 
+                            which.treat = which.treat, 
+                            multi.summary = multi.summary, 
+                            s.weights = X$s.weights, 
+                            which.time = which.time, 
+                            msm.summary = msm.summary, 
+                            abs = abs,
+                            quick = quick, 
+                            ...)
+    return(out)
+}
+bal.tab.iptw <- function(iptw, stop.method, int = FALSE, distance.list = NULL, addl.list = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, pairwise = TRUE, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, abs = FALSE, subset = NULL, quick = FALSE, ...) {
+    args <- as.list(environment())[-1]
+    
+    #Adjustments to arguments
+    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
+    
+    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    if (any(blank.args)) {
+        for (arg.name in names(blank.args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
+                assign(arg.name, NULL)
+            }
+        }
+    }
+    
+    if (is_not_null(args$cluster)) stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
+    if (is_not_null(args$imp)) stop("Multiply imputed data sets are not yet supported with longitudinal treatments.", call. = FALSE)
+    
+    #Initializing variables
+    X <- x2base.iptw(iptw, 
+                     stop.method = stop.method, 
+                     s.d.denom = s.d.denom, 
+                     distance.list = distance.list,
+                     addl.list = addl.list,
+                     subset = subset,
+                     ...)
+    
+    out <- base.bal.tab.msm(weights=X$weights, 
+                            treat.list=X$treat.list, 
+                            distance.list=X$distance.list, 
+                            covs.list=X$covs.list, 
+                            call=X$call, 
+                            int=int, 
+                            addl.list=X$addl.list, 
+                            continuous=continuous, 
+                            binary=binary, 
+                            s.d.denom=X$s.d.denom, 
+                            m.threshold=m.threshold, 
+                            v.threshold=v.threshold, 
+                            ks.threshold=ks.threshold, 
+                            imbalanced.only = imbalanced.only,
+                            un=un, 
+                            disp.means=disp.means, 
+                            disp.v.ratio=disp.v.ratio, 
+                            disp.ks=disp.ks, 
+                            disp.bal.tab = disp.bal.tab,
+                            method=X$method, 
+                            pairwise = pairwise, 
+                            #focal = focal, 
+                            which.treat = which.treat, 
+                            multi.summary = multi.summary, 
+                            s.weights = X$s.weights, 
+                            which.time = which.time, 
+                            msm.summary = msm.summary, 
+                            abs = abs,
+                            quick = quick, 
+                            ...)
+    return(out)
+}
+bal.tab.CBMSM <- bal.tab.CBPS
+
+#default method
 bal.tab.default <- function(obj, formula = NULL, data = NULL, treat = NULL, covs = NULL, weights = NULL, distance = NULL, subclass = NULL, match.strata = NULL, treat.list = NULL, covs.list = NULL, formula.list = NULL, method, int = FALSE, addl = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, imp = NULL, which.imp = NA, imp.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, estimand = NULL, abs = FALSE, subset = NULL, quick = FALSE, ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -1995,149 +2143,3 @@ bal.tab.default <- function(obj, formula = NULL, data = NULL, treat = NULL, covs
     }
     return(out)
 }
-
-#MSMs wth multiple time points
-bal.tab.time.list <- function(time.list, data, treat.list = NULL, weights = NULL, int = FALSE, distance.list = NULL, addl.list = NULL, method, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, pairwise = TRUE, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, estimand = "ATE", abs = FALSE, subset = NULL, quick = FALSE, ...) {
-    args <- c(as.list(environment()), list(...))[-1]
-    
-    #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
-    for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
-    
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                assign(arg.name, NULL)
-            }
-        }
-    }
-    
-    if (is_not_null(args$cluster)) stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
-    if (is_not_null(args$imp)) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
-    
-    if (all(sapply(time.list, is.formula))) {
-        X <- x2base.formula.list(formula.list = time.list, 
-                                 data = data,
-                                 weights = weights,
-                                 distance.list = distance.list,
-                                 addl.list = addl.list,
-                                 method = method,
-                                 s.d.denom = s.d.denom,
-                                 s.weights = s.weights,
-                                 estimand = estimand,
-                                 subset = subset)
-    }
-    else if (all(sapply(time.list, is.data.frame))) {
-        X <- x2base.data.frame.list(covs.list = time.list, 
-                                    treat.list = treat.list,
-                                    data = data,
-                                    weights = weights,
-                                    distance.list = distance.list,
-                                    addl.list = addl.list,
-                                    method = method,
-                                    s.d.denom = s.d.denom,
-                                    s.weights = s.weights,
-                                    estimand = estimand)
-    }
-    else {
-        stop("If the first argument is a list, it must be a list of formulas specifying the treatment/covariate relationships at each time point or a list of data frames containing covariates to be assessed at each time point.", call. = FALSE)
-    }
-    
-    out <- base.bal.tab.msm(weights=X$weights, 
-                            treat.list=X$treat.list, 
-                            distance.list=X$distance.list, 
-                            covs.list=X$covs.list, 
-                            call=X$call, 
-                            int=int, 
-                            addl.list=X$addl.list, 
-                            continuous=continuous, 
-                            binary=binary, 
-                            s.d.denom=X$s.d.denom, 
-                            m.threshold=m.threshold, 
-                            v.threshold=v.threshold, 
-                            ks.threshold=ks.threshold, 
-                            r.threshold = r.threshold,
-                            imbalanced.only = imbalanced.only,
-                            un=un, 
-                            disp.means=disp.means, 
-                            disp.v.ratio=disp.v.ratio, 
-                            disp.ks=disp.ks, 
-                            disp.bal.tab = disp.bal.tab,
-                            method=X$method, 
-                            cluster = NULL, 
-                            which.cluster = NULL, 
-                            cluster.summary = FALSE, 
-                            pairwise = pairwise, 
-                            focal = NULL, 
-                            which.treat = which.treat, 
-                            multi.summary = multi.summary, 
-                            s.weights = X$s.weights, 
-                            which.time = which.time, 
-                            msm.summary = msm.summary, 
-                            abs = abs,
-                            quick = quick, 
-                            ...)
-    return(out)
-}
-bal.tab.iptw <- function(iptw, stop.method, int = FALSE, distance.list = NULL, addl.list = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, pairwise = TRUE, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, abs = FALSE, subset = NULL, quick = FALSE, ...) {
-    args <- as.list(environment())[-1]
-    
-    #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
-    for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
-    
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                assign(arg.name, NULL)
-            }
-        }
-    }
-    
-    if (is_not_null(args$cluster)) stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
-    if (is_not_null(args$imp)) stop("Multiply imputed data sets are not yet supported with longitudinal treatments.", call. = FALSE)
-    
-    #Initializing variables
-    X <- x2base.iptw(iptw, 
-                     stop.method = stop.method, 
-                     s.d.denom = s.d.denom, 
-                     distance.list = distance.list,
-                     addl.list = addl.list,
-                     subset = subset,
-                     ...)
-    
-    out <- base.bal.tab.msm(weights=X$weights, 
-                            treat.list=X$treat.list, 
-                            distance.list=X$distance.list, 
-                            covs.list=X$covs.list, 
-                            call=X$call, 
-                            int=int, 
-                            addl.list=X$addl.list, 
-                            continuous=continuous, 
-                            binary=binary, 
-                            s.d.denom=X$s.d.denom, 
-                            m.threshold=m.threshold, 
-                            v.threshold=v.threshold, 
-                            ks.threshold=ks.threshold, 
-                            imbalanced.only = imbalanced.only,
-                            un=un, 
-                            disp.means=disp.means, 
-                            disp.v.ratio=disp.v.ratio, 
-                            disp.ks=disp.ks, 
-                            disp.bal.tab = disp.bal.tab,
-                            method=X$method, 
-                            pairwise = pairwise, 
-                            #focal = focal, 
-                            which.treat = which.treat, 
-                            multi.summary = multi.summary, 
-                            s.weights = X$s.weights, 
-                            which.time = which.time, 
-                            msm.summary = msm.summary, 
-                            abs = abs,
-                            quick = quick, 
-                            ...)
-    return(out)
-}
-bal.tab.CBMSM <- bal.tab.CBPS
