@@ -1,4 +1,4 @@
-bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE, mirrored = FALSE, type = c("density", "histogram"), colors = NULL, bins = NULL) {
+bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE, mirror = FALSE, type = c("density", "histogram"), colors = NULL) {
     
     args <- list(...)
     
@@ -325,8 +325,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 colors <- gg_color_hue(ntypes)
             }
             else {
-                if (length(colors) == 1) colors <- rep(colors, ntypes)
-                else if (length(colors) > ntypes) {
+                if (length(colors) > ntypes) {
                     colors <- colors[seq_len(ntypes)]
                     warning(paste("Only using first", ntypes, "values in colors."), call. = FALSE)
                 }
@@ -410,8 +409,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             colors <- gg_color_hue(ntypes)
         }
         else {
-            if (length(colors) == 1) colors <- rep(colors, ntypes)
-            else if (length(colors) > ntypes) {
+            if (length(colors) > ntypes) {
                 colors <- colors[seq_len(ntypes)]
                 warning(paste("Only using first", ntypes, "values in colors."), call. = FALSE)
             }
@@ -452,7 +450,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             
             #colors <- setNames(gg_color_hue(nlevels.treat), levels(d$treat))
             
-            if (nlevels.treat <= 2 && mirrored == TRUE) {
+            if (nlevels.treat <= 2 && mirror == TRUE) {
                 posneg <- c(1, -1)
                 alpha <- .8
             }
@@ -462,11 +460,11 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             type <- match.arg(type)
             if (type == "histogram" && nlevels.treat <= 2) {
-                if (is_null(bins) || !is.numeric(bins)) bins <- 12
+                if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
                 geom_fun <- function(t) geom_histogram(data = d[d$treat == levels(d$treat)[t],],
                                                        mapping = aes(var, y = posneg[t]*stat(count), weight = weights,
                                                                      fill = names(colors)[t]),
-                                                       alpha = alpha, bins = bins, color = "black")
+                                                       alpha = alpha, bins = args$bins, color = "black")
                 ylab <- "Proportion"
                 legend.alpha <- alpha
             }
