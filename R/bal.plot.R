@@ -1,10 +1,6 @@
-bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE) {
+bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE, mirrored = FALSE, type = c("density", "histogram"), colors = NULL, bins = NULL) {
     
     args <- list(...)
-    
-    if (missing(var.name)) {
-        stop("An argument for var.name must be specified.", call. = FALSE)
-    }
     
     obj <- is.designmatch(obj)
     obj <- is.time.list(obj)
@@ -16,6 +12,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     
     if (is_not_null(X$covs.list)) {
+        if (missing(var.name)) {
+            var.name <- names(X$covs.list[[1]])[1]
+            message(paste0("No var.name was provided. Dispalying balance for ", var.name, "."))
+        }
         var.list <- vector("list", length(X$covs.list))
         appears.in.time <- rep(TRUE, length(X$covs.list))
         for (i in seq_along(X$covs.list)) {
@@ -33,6 +33,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (is_not_null(X$weights)) X$weights <- do.call("rbind", replicate(sum(appears.in.time), list(X$weights)))
     }
     else {
+        if (missing(var.name)) {
+            var.name <- names(X$covs)[1]
+            message(paste0("No var.name was provided. Dispalying balance for ", var.name, "."))
+        }
         if (var.name %in% names(X$covs)) X$var <- X$covs[[var.name]]
         else if (!is.null(X$addl) && var.name %in% names(X$addl)) X$var <- X$addl[[var.name]]
         else if (!is.null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[[var.name]]
@@ -46,7 +50,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     if (is_not_null(args$adjust)) adjust <- args$adjust else adjust <- 1
     if (is_not_null(args$kernel)) kernel <- args$kernel else kernel <- "gaussian"
     if (is_not_null(args$n)) n <- args$n else n <- 512
-
+    
     if (missing(which)) {
         if (is_not_null(args$un)) {
             message("Note: \'un\' is deprecated; please use \'which\' for the same and added functionality.")
@@ -271,7 +275,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                                                           weight.names[weight.names != "Unadjusted Sample"]))
         
     }
-   
+    
     if ("facet.which" %in% facet) {
         if (nlevels(D$facet.which) == 1) {
             subtitle <- levels(D$facet.which)[1]
@@ -299,18 +303,56 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, time = D$time, facet.which = D$facet.which)
             
         }
-
+        
         if (is.categorical.var) { #Categorical vars
             d$var <- factor(d$var)
+            cat.sizes <- tapply(rep(1, nrow(d)), d$var, sum)
+            smallest.cat <- names(cat.sizes)[which.min(cat.sizes)]
+            if (is.character(bw)) {
+                if (is.function(get0(paste0("bw.", bw)))) {
+                    bw <- get0(paste0("bw.", bw))(d$treat[d$var == smallest.cat])
+                }
+                else {
+                    stop(paste(bw, "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
+                }
+            }
+            
+            #Color
+            ntypes <- length(cat.sizes)
+            if (is_not_null(args$colours)) colors <- args$colours
+            
+            if (is_null(colors)) {
+                colors <- gg_color_hue(ntypes)
+            }
+            else {
+                if (length(colors) == 1) colors <- rep(colors, ntypes)
+                else if (length(colors) > ntypes) {
+                    colors <- colors[seq_len(ntypes)]
+                    warning(paste("Only using first", ntypes, "values in colors."), call. = FALSE)
+                }
+                else if (length(colors) < ntypes) {
+                    warning("Not enough colors were specified. Using default colors instead.", call. = FALSE)
+                    colors <- gg_color_hue(ntypes)
+                }
+                
+                if (!all(sapply(colors, isColor))) {
+                    warning("The argument to colors contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
+                    colors <- gg_color_hue(ntypes)
+                }
+                
+            }
+            
             bp <- ggplot(d, mapping = aes(treat, fill = var, weight = weights)) + 
                 geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) + 
-                labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle)
+                labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
+                scale_fill_manual(values = colors)
         }
         else { #Continuous vars
             bp <- ggplot(d, mapping = aes(x = var, y = treat, weight = weights))
-            if (which == "unadjusted" || !isTRUE(size.weight)) bp <- bp + geom_point()
-            else bp <- bp + geom_point(aes(size = weights))
-            bp <- bp + geom_smooth(method = "loess", se = FALSE, alpha = .1) + geom_smooth(method = "lm", se = FALSE, linetype = 2, alpha = .4) + 
+            if (which == "unadjusted" || !isTRUE(size.weight)) bp <- bp + geom_point(alpha = .9)
+            else bp <- bp + geom_point(aes(size = weights), alpha = .9)
+            bp <- bp + geom_smooth(method = "loess", se = FALSE, alpha = .1) + 
+                geom_smooth(method = "lm", se = FALSE, linetype = 2, alpha = .4) + 
                 geom_hline(yintercept = w.m(d$treat, d$weights), linetype = 1, alpha = .9) + 
                 labs(y = "Treat", x = var.name, title = title, subtitle = subtitle)
         }
@@ -360,17 +402,89 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             d <- data.frame(weights = weights, treat = D$treat, var = D$var)
         }
         
+        #Color
+        ntypes <- nlevels.treat <- nlevels(d$treat)
+        if (is_not_null(args$colours)) colors <- args$colours
+        
+        if (is_null(colors)) {
+            colors <- gg_color_hue(ntypes)
+        }
+        else {
+            if (length(colors) == 1) colors <- rep(colors, ntypes)
+            else if (length(colors) > ntypes) {
+                colors <- colors[seq_len(ntypes)]
+                warning(paste("Only using first", ntypes, "values in colors."), call. = FALSE)
+            }
+            else if (length(colors) < ntypes) {
+                warning("Not enough colors were specified. Using default colors instead.", call. = FALSE)
+                colors <- gg_color_hue(ntypes)
+            }
+            
+            if (!all(sapply(colors, isColor))) {
+                warning("The argument to colors contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
+                colors <- gg_color_hue(ntypes)
+            }
+        }
+        names(colors) <- levels(d$treat)
+        
         if (is_binary(d$var) || is.factor(d$var) || is.character(d$var)) { #Categorical vars
             d$var <- factor(d$var)
             bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
-                geom_bar(position = "dodge", alpha = .4, color = "black") + 
+                geom_bar(position = "dodge", alpha = .8, color = "black") + 
                 labs(x = var.name, y = "Proportion", fill = "Treat", title = title, subtitle = subtitle) + 
-                scale_x_discrete(drop=FALSE) + scale_fill_discrete(drop=FALSE)
+                scale_x_discrete(drop=FALSE) + scale_fill_manual(drop=FALSE, values = colors)
         }
         else { #Continuous vars
-            bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
-                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) + 
-                labs(x = var.name, y = "Density", fill = "Treat", title = title, subtitle = subtitle)
+            t.sizes <- tapply(rep(1, nrow(d)), d$treat, sum)
+            smallest.t <- names(t.sizes)[which.min(t.sizes)]
+            if (is.character(bw)) {
+                if (is.function(get0(paste0("bw.", bw)))) {
+                    bw <- get0(paste0("bw.", bw))(d$var[d$treat == smallest.t])
+                }
+                else {
+                    stop(paste(bw, "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
+                }
+            }
+
+            # bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) +
+            #     geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) +
+            #     labs(x = var.name, y = "Density", fill = "Treat", title = title, subtitle = subtitle)
+            
+            #colors <- setNames(gg_color_hue(nlevels.treat), levels(d$treat))
+            
+            if (nlevels.treat <= 2 && mirrored == TRUE) {
+                posneg <- c(1, -1)
+                alpha <- .8
+            }
+            else {
+                posneg <- rep(1, nlevels.treat)
+                alpha <- .4
+            }
+            type <- match.arg(type)
+            if (type == "histogram" && nlevels.treat <= 2) {
+                if (is_null(bins) || !is.numeric(bins)) bins <- 12
+                geom_fun <- function(t) geom_histogram(data = d[d$treat == levels(d$treat)[t],],
+                                                       mapping = aes(var, y = posneg[t]*stat(count), weight = weights,
+                                                                     fill = names(colors)[t]),
+                                                       alpha = alpha, bins = bins, color = "black")
+                ylab <- "Proportion"
+                legend.alpha <- alpha
+            }
+            else {
+                geom_fun <- function(t) geom_density(data = d[d$treat == levels(d$treat)[t],],
+                                                     mapping = aes(var, y = posneg[t]*stat(density), weight = weights,
+                                                                   fill = names(colors)[t]),
+                                                     alpha = alpha, bw = bw, adjust = adjust,
+                                                     kernel = kernel, n = n, trim = TRUE)
+                ylab <- "Density"
+                legend.alpha <- alpha/nlevels.treat
+            }
+            
+            bp <- Reduce("+", c(list(ggplot(),
+                                     labs(x = var.name, y = ylab, fill = "Treat", title = title, subtitle = subtitle)),
+                                lapply(seq_len(nlevels.treat), geom_fun))) +
+                scale_fill_manual(values = colors, guide = guide_legend(override.aes = list(alpha = legend.alpha, size = .25))) +
+                geom_hline(yintercept = 0)
         }
     }
     
