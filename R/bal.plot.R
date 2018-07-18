@@ -1,5 +1,7 @@
 bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE, mirror = FALSE, type = c("density", "histogram"), colors = NULL) {
     
+    tryCatch(identity(obj), error = function(e) stop(conditionMessage(e), call. = FALSE))
+    
     args <- list(...)
     
     obj <- is.designmatch(obj)
@@ -344,7 +346,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             bp <- ggplot(d, mapping = aes(treat, fill = var, weight = weights)) + 
                 geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) + 
                 labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
-                scale_fill_manual(values = colors)
+                scale_fill_manual(values = colors) + geom_hline(yintercept = 0)
         }
         else { #Continuous vars
             bp <- ggplot(d, mapping = aes(x = var, y = treat, weight = weights))
@@ -430,7 +432,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
                 geom_bar(position = "dodge", alpha = .8, color = "black") + 
                 labs(x = var.name, y = "Proportion", fill = "Treat", title = title, subtitle = subtitle) + 
-                scale_x_discrete(drop=FALSE) + scale_fill_manual(drop=FALSE, values = colors)
+                scale_x_discrete(drop=FALSE) + scale_fill_manual(drop=FALSE, values = colors) +
+                geom_hline(yintercept = 0)
         }
         else { #Continuous vars
             t.sizes <- tapply(rep(1, nrow(d)), d$treat, sum)
