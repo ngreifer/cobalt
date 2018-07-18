@@ -12,7 +12,7 @@ is.designmatch <- function(x) {
 }
 is.time.list <- function(x) {
     if (is.vector(x, mode = "list")) {
-        if (all(sapply(x, is.formula)) || all(sapply(x, is.data.frame))) {
+        if (all(vapply(x, is.formula, logical(1))) || all(vapply(x, is.data.frame, logical(1)))) {
             class(x) <- c("time.list", class(x))
         }
     }
@@ -168,14 +168,14 @@ process.val <- function(val, i, treat, covs, ...) {
     }
     else if (is.character(val)) {
         data.sets <- list(...)
-        data.sets <- data.sets[!sapply(data.sets, is_null)]
-        if ((is_not_null(data.sets) && length(val) > max(sapply(data.sets, ncol))) || length(val) == nrow(covs) || length(val) == length(treat)){
+        data.sets <- data.sets[!vapply(data.sets, is_null, logical(1))]
+        if ((is_not_null(data.sets) && length(val) > max(vapply(data.sets, ncol, numeric(1)))) || length(val) == nrow(covs) || length(val) == length(treat)){
             val.df <- setNames(data.frame(val), i)
         }
         else {
             if (is_not_null(data.sets)) {
                 val <- unique(val)
-                val.df <- setNames(as.data.frame(matrix(NA, ncol = length(val), nrow = max(sapply(data.sets, nrow)))),
+                val.df <- setNames(as.data.frame(matrix(NA, ncol = length(val), nrow = max(vapply(data.sets, nrow, numeric(1))))),
                                    val)
                 not.found <- setNames(rep(FALSE, length(val)), val)
                 for (v in val) {
@@ -219,12 +219,12 @@ data.frame.process <- function(i, df, treat, covs, ...) {
             val.list <- lapply(seq_along(val.list), function(x) {
                 if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                 val.list[[x]]})
-            if (!all_the_same(sapply(val.list, nrow))) {
+            if (!all_the_same(vapply(val.list, nrow, numeric(1)))) {
                 stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
             }
             
             val.df <- setNames(do.call("cbind", val.list),
-                               c(sapply(val.list, names)))
+                               c(vapply(val.list, names, character(1))))
         }
         else {
             val.df <- process.val(val, i, treat, covs, ...)
@@ -259,12 +259,12 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
                     val.list <- lapply(seq_along(val.list), function(x) {
                         if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                         val.list[[x]]})
-                    if (!all_the_same(sapply(val.list, nrow))) {
+                    if (!all_the_same(vapply(val.list, nrow, numeric(1)))) {
                         stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
                     }
                     
                     val.df <- setNames(do.call("cbind", val.list),
-                                       c(sapply(val.list, names)))
+                                       c(vapply(val.list, names, character(1))))
                 }
                 else {
                     val.df <- process.val(val, strsplit(i, ".list")[[1]], treat.list[[ti]], covs.list[[ti]], ...)
@@ -276,7 +276,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
             }
             
         }
-        val.df.lengths <- sapply(val.List[lengths(val.List) > 0], nrow)
+        val.df.lengths <- vapply(val.List[lengths(val.List) > 0], nrow, numeric(1))
         if (max(val.df.lengths) != min(val.df.lengths)) {
             stop(paste("All columns in", i, "need to have the same number of rows."), call. = FALSE)
         }
@@ -298,9 +298,9 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
     #Check if response exists
     if (is.formula(tt, 2)) {
         resp.vars.mentioned <- as.character(tt)[2]
-        resp.vars.failed <- sapply(resp.vars.mentioned, function(v) {
+        resp.vars.failed <- vapply(resp.vars.mentioned, function(v) {
             null.or.error(try(eval(parse(text = v), c(data, env)), silent = TRUE))
-        })
+        }, logical(1))
         
         if (any(resp.vars.failed)) {
             if (is_null(A[["treat"]])) stop(paste0("The given response variable, \"", as.character(tt)[2], "\", is not a variable in ", word.list(c("data", "the global environment")[c(data.specified, TRUE)], "or"), "."), call. = FALSE)
@@ -328,10 +328,10 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
     #Check if RHS variables exist
     tt.covs <- delete.response(tt)
     rhs.vars.mentioned.lang <- attr(tt.covs, "variables")[-1]
-    rhs.vars.mentioned <- sapply(rhs.vars.mentioned.lang, deparse)
-    rhs.vars.failed <- sapply(rhs.vars.mentioned.lang, function(v) {
+    rhs.vars.mentioned <- vapply(rhs.vars.mentioned.lang, deparse, character(1L))
+    rhs.vars.failed <- vapply(rhs.vars.mentioned.lang, function(v) {
         null.or.error(try(eval(v, c(data, env)), silent = TRUE))
-    })
+    }, logical(1L))
     
     if (any(rhs.vars.failed)) {
         stop(paste0(c("All variables in formula must be variables in data or objects in the global environment.\nMissing variables: ",
@@ -342,12 +342,12 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
     rhs.term.labels <- attr(tt.covs, "term.labels")
     rhs.term.orders <- attr(tt.covs, "order")
     
-    rhs.df <- sapply(rhs.vars.mentioned.lang, function(v) {
+    rhs.df <- vapply(rhs.vars.mentioned.lang, function(v) {
         is.data.frame(try(eval(v, c(data, env)), silent = TRUE))
-    })
+    }, logical(1))
     
     if (any(rhs.df)) {
-        if (any(rhs.vars.mentioned[rhs.df] %in% unlist(sapply(rhs.term.labels[rhs.term.orders > 1], function(x) strsplit(x, ":", fixed = TRUE))))) {
+        if (any(rhs.vars.mentioned[rhs.df] %in% unlist(lapply(rhs.term.labels[rhs.term.orders > 1], function(x) strsplit(x, ":", fixed = TRUE))))) {
             stop("Interactions with data.frames are not allowed in the input formula.", call. = FALSE)
         }
         addl.dfs <- setNames(lapply(rhs.vars.mentioned.lang[rhs.df], function(x) {eval(x, env)}),
@@ -380,7 +380,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
     
     #Get full model matrix with interactions too
     covs.matrix <- model.matrix(tt.covs, data = covs,
-                                contrasts.arg = lapply(covs[sapply(covs, is.factor)],
+                                contrasts.arg = lapply(Filter(is.factor, covs),
                                                        contrasts, contrasts=FALSE))
     attr(covs, "terms") <- NULL
     
@@ -398,7 +398,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
 #get.C controls flow and handles redunancy
 #get.types gets variables types (contin./binary)
 
-int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
+int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1) {
     #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"
     #Only to be used in base.bal.tab; for general use see int.poly()
     #mat=matrix input
@@ -424,7 +424,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1, ncarrot=1) {
     }
     if (int && nd > 1) {
         new[,(nc - .5*nd*(nd-1) + 1):nc] <- matrix(t(apply(d, 1, combn, 2, prod)), nrow = nrd)
-        new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse=paste0(replicate(nunder, "_"), collapse = ""))
+        new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse = paste0(rep("_", nunder), collapse = ""))
     }
     
     single.value <- apply(new, 2, all_the_same)
@@ -452,7 +452,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             else stop("The argument to addl must be a data.frame. Wrap data.frame() around the argument if it is a matrix or vector.", call. = FALSE)
         }
         else {
-            repeat.name.indices <- sapply(names(addl), function(x) x %in% names(C))
+            repeat.name.indices <- vapply(names(addl), function(x) x %in% names(C), logical(1))
             if (any(repeat.name.indices)) {
                 warning(paste("The following variables in addl have the same name as covariates and will be ignored:\n",
                               paste(names(addl)[repeat.name.indices], collapse = " ")), call. = FALSE)
@@ -462,7 +462,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         }
     } 
     
-    covs.with.inf <- unlist(lapply(C, function(x) any(!is.finite(x) & !is.na(x))))
+    covs.with.inf <- vapply(C, function(x) any(!is.finite(x) & !is.na(x)), logical(1L))
     if (any(covs.with.inf)) {
         s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
         stop(paste0("The variable", s[1], " ", word.list(names(C)[covs.with.inf], quotes = TRUE), 
@@ -496,9 +496,10 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         }
     }
     #Make sure categorical variable have missingness indicators done correctly
+    
+    single.value <- vapply(C, all_the_same, logical(1L))
+    C <- C[!single.value]
     C <- as.matrix(C)
-    single.value <- apply(C, 2, all_the_same)
-    C <- C[, !single.value, drop = FALSE]
     
     #Process int
     if (length(int) != 1L || !is.finite(int) || !(is.logical(int) || is.numeric(int))) {
@@ -511,19 +512,16 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     
     if (int) {
         #Prevent duplicate var names with _'s
-        nunder <- ncarrot <- 1
+        nunder <- 1
         repeat {
-            if (all(sapply(colnames(C), function(x) x %nin% do.call(paste, c(expand.grid(colnames(C), colnames(C)), list(sep = paste0(replicate(nunder, "_"), collapse = ""))))))) break
+            all.possible.names <- outer(colnames(C), colnames(C), paste, sep = paste0(rep("_", nunder), collapse = ""))
+            if (!any(colnames(C) %in% all.possible.names)) break
             else nunder <- nunder + 1
         }
-        #Variable names don't contain carrots
-        # repeat {
-        #     if (all(sapply(names(C), function(x) x %nin% paste0(names(C), paste0(replicate(nunder, "_"), collapse = ""), "2")))) break
-        #     else ncarrot <- ncarrot + 1
-        # }
+
         if (as.numeric(int) %in% c(1, 2)) poly <- 2
         else poly <- int
-        C <- cbind(C, int.poly.f(C, int = TRUE, poly = poly, nunder = nunder, ncarrot = ncarrot))
+        C <- cbind(C, int.poly.f(C, int = TRUE, poly = poly, nunder = nunder))
         
     }
     #Remove duplicate & redundant variables
@@ -545,7 +543,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         colnames(new.C)[-new.var.order] <- colnames(missing.ind)
         C <- new.C
         if (int) {
-            C <- cbind(C, int.poly.f(missing.ind, int = TRUE, poly = 1, nunder = 1, ncarrot = 1))
+            C <- cbind(C, int.poly.f(missing.ind, int = TRUE, poly = 1, nunder = 1))
         }
     }
     
@@ -559,11 +557,11 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     
 }
 get.types <- function(C) {
-    sapply(colnames(C), function(x) {
+    vapply(colnames(C), function(x) {
         if (any(attr(C, "distance.names") == x)) "Distance"
         else if (is_binary(C[,x]))  "Binary"
         else "Contin."
-    })
+    }, character(1))
 }
 remove.perfect.col <- function(C) {
     #If many rows, select subset to test redundancy
@@ -596,7 +594,7 @@ num_to_superscript <- function(x) {
                      as.character(0:9))
     x <- as.character(x)
     splitx <- strsplit(x, "")
-    supx <- sapply(splitx, function(y) paste0(nums[y], collapse = ""))
+    supx <- vapply(splitx, function(y) paste0(nums[y], collapse = ""), character(1))
     return(supx)
 }
 
@@ -704,7 +702,7 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
         }
     }
     
-    std.diffs <- diffs/denoms
+    std.diffs <- ifelse(check_if_zero(diffs), 0, diffs/denoms)
     if (any(!is.finite(std.diffs))) {
         warning("Some standardized mean differences were not finite. This can result from no variation in one of the treatment groups.", call. = FALSE)
         std.diffs[!is.finite(std.diffs)] <- NA
@@ -1094,8 +1092,8 @@ balance.table.across.subclass <- function(balance.table, balance.table.subclass.
     
     for(i in rownames(B.A)) {
         for(j in colnames(B.A)) {
-            B.A[[i, j]] <- sum(sapply(seq_along(balance.table.subclass.list),
-                                      function(s) subclass.obs[[wsub, s]]/sum(subclass.obs[wsub, ]) * (balance.table.subclass.list[[s]][[i, j]])))
+            B.A[[i, j]] <- sum(vapply(seq_along(balance.table.subclass.list),
+                                      function(s) subclass.obs[[wsub, s]]/sum(subclass.obs[wsub, ]) * (balance.table.subclass.list[[s]][[i, j]]), numeric(1)))
         }
     }
     B.A.df <- data.frame(balance.table[c("Type", "M.0.Un", "M.1.Un", "Diff.Un", "V.Ratio.Un", "KS.Un")], 
@@ -1117,7 +1115,7 @@ balance.table.cluster.summary <- function(balance.table.clusters.list, weight.na
     names(B) <- Bcolnames
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(sapply(Brownames, function(x) {u <- unique(sapply(balance.table.clusters.list, function(y) y[[x, "Type"]])); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(balance.table.clusters.list, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
     
     abs0 <- function(x) {if (abs) abs(x) else (x)}
     funs <- structure(vector("list", length(cluster.functions)), names = cluster.functions)
@@ -1129,12 +1127,12 @@ balance.table.cluster.summary <- function(balance.table.clusters.list, weight.na
         for (sample in c("Un", weight.names)) {
             if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
                 if (cont.treat) {
-                    B[[paste(Fun, "Corr", sample, sep = ".")]] <- sapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) abs0(y[[x, paste0("Corr.", sample)]])), na.rm = TRUE))
+                    B[[paste(Fun, "Corr", sample, sep = ".")]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) abs0(y[[x, paste0("Corr.", sample)]])), na.rm = TRUE), numeric(1))
                 }
                 else {
-                    B[[paste(Fun, "Diff", sample, sep = ".")]] <- sapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) abs0(y[[x, paste0("Diff.", sample)]])), na.rm = TRUE))
-                    B[[paste(Fun, "V.Ratio", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste0("V.Ratio.", sample)]]), na.rm = TRUE))
-                    B[[paste(Fun, "KS", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste0("KS.", sample)]]), na.rm = TRUE))
+                    B[[paste(Fun, "Diff", sample, sep = ".")]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) abs0(y[[x, paste0("Diff.", sample)]])), na.rm = TRUE), numeric(1))
+                    B[[paste(Fun, "V.Ratio", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste0("V.Ratio.", sample)]]), na.rm = TRUE), numeric(1))
+                    B[[paste(Fun, "KS", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste0("KS.", sample)]]), na.rm = TRUE), numeric(1))
                 }            
             }
         }
@@ -1360,7 +1358,7 @@ balance.table.imp.summary <- function(bal.tab.imp.list, weight.names = NULL, no.
     names(B) <- Bcolnames
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(sapply(Brownames, function(x) {u <- unique(sapply(bal.tab.imp.list, function(y) y[[x, "Type"]])); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(bal.tab.imp.list, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
     
     abs0 <- function(x) {if (abs) abs(x) else (x)}
     funs <- structure(vector("list", length(imp.functions)), names = imp.functions)
@@ -1372,12 +1370,12 @@ balance.table.imp.summary <- function(bal.tab.imp.list, weight.names = NULL, no.
         for (sample in c("Un", weight.names)) {
             if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
                 if (cont.treat) {
-                    B[[paste(Fun, "Corr", sample, sep = ".")]] <- sapply(Brownames, function(x) funs[[Fun]](sapply(bal.tab.imp.list, function(y) abs0(y[x, paste0("Corr.", sample)])), na.rm = TRUE))
+                    B[[paste(Fun, "Corr", sample, sep = ".")]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(bal.tab.imp.list, function(y) abs0(y[x, paste0("Corr.", sample)])), na.rm = TRUE), numeric(1))
                 }
                 else {
-                    B[[paste(Fun, "Diff", sample, sep = ".")]] <- sapply(Brownames, function(x) funs[[Fun]](sapply(bal.tab.imp.list, function(y) abs0(y[[x, paste0("Diff.", sample)]])), na.rm = TRUE))
-                    B[[paste(Fun, "V.Ratio", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(bal.tab.imp.list, function(y) y[[x, paste0("V.Ratio.", sample)]]), na.rm = TRUE))
-                    B[[paste(Fun, "KS", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(bal.tab.imp.list, function(y) y[[x, paste0("KS.", sample)]]), na.rm = TRUE))
+                    B[[paste(Fun, "Diff", sample, sep = ".")]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(bal.tab.imp.list, function(y) abs0(y[[x, paste0("Diff.", sample)]])), na.rm = TRUE), numeric(1))
+                    B[[paste(Fun, "V.Ratio", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(bal.tab.imp.list, function(y) y[[x, paste0("V.Ratio.", sample)]]), na.rm = TRUE), numeric(1))
+                    B[[paste(Fun, "KS", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(bal.tab.imp.list, function(y) y[[x, paste0("KS.", sample)]]), na.rm = TRUE), numeric(1))
                 }
             }
         }
@@ -1391,7 +1389,7 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
     #cluster.balance.across.imps <- lapply(cluster.tables, balance.table.imp.summary, no.adj, quick, types)
     #names(cluster.balance.across.imps) <- clusters
     
-    if (!all(sapply(summary.tables, is_null))) {
+    if (!all(vapply(summary.tables, is_null, logical(1)))) {
         Brownames <- unique(do.call("c", lapply(summary.tables, rownames)))
         Bcolnames <- unique(do.call("c", lapply(summary.tables, colnames)))
         cont.treat <- !is.na(charmatch("Mean.Corr.Un", Bcolnames))
@@ -1404,7 +1402,7 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
         dimnames(B) <- list(Brownames, Bcolnames)
         
         if (is_not_null(types)) B[["Type"]] <- types
-        else B[["Type"]] <- unlist(sapply(Brownames, function(x) {u <- unique(sapply(summary.tables, function(y) y[[x, "Type"]])); return(u[!is.na(u)])}), use.names = FALSE)
+        else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(summary.tables, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
         
         abs0 <- function(x) {if (abs) abs(x) else (x)}
         funs <- structure(vector("list", length(imp.functions)), names = imp.functions)
@@ -1416,12 +1414,12 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
             for (sample in c("Un", weight.names)) {
                 if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
                     if (cont.treat) {
-                        B[[paste(Fun, "Corr", sample, sep = ".")]] <- sapply(Brownames, function(x) funs[[Fun]](sapply(summary.tables, function(y) abs0(y[[x, paste(Fun, "Corr", sample, sep = ".")]])), na.rm = TRUE))
+                        B[[paste(Fun, "Corr", sample, sep = ".")]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(summary.tables, function(y) abs0(y[[x, paste(Fun, "Corr", sample, sep = ".")]])), na.rm = TRUE), numeric(1))
                     }
                     else {
-                        B[[paste(Fun, "Diff", sample, sep = ".")]] <- sapply(Brownames, function(x) funs[[Fun]](sapply(summary.tables, function(y) abs0(y[[x, paste(Fun, "Diff", sample, sep = ".")]])), na.rm = TRUE))
-                        B[[paste(Fun, "V.Ratio", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(summary.tables, function(y) y[[x, paste(Fun, "V.Ratio", sample, sep = ".")]]), na.rm = TRUE))
-                        B[[paste(Fun, "KS", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(summary.tables, function(y) y[[x, paste(Fun, "KS", sample, sep = ".")]]), na.rm = TRUE))
+                        B[[paste(Fun, "Diff", sample, sep = ".")]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(summary.tables, function(y) abs0(y[[x, paste(Fun, "Diff", sample, sep = ".")]])), na.rm = TRUE), numeric(1))
+                        B[[paste(Fun, "V.Ratio", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(summary.tables, function(y) y[[x, paste(Fun, "V.Ratio", sample, sep = ".")]]), na.rm = TRUE), numeric(1))
+                        B[[paste(Fun, "KS", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else funs[[Fun]](sapply(summary.tables, function(y) y[[x, paste(Fun, "KS", sample, sep = ".")]]), na.rm = TRUE), numeric(1))
                     }
                 }
             }
@@ -1453,7 +1451,7 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
     names(B) <- Bcolnames
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(sapply(Brownames, function(x) {u <- unique(sapply(bal.tab.multi.list, function(y) y[[x, "Type"]])); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(bal.tab.multi.list, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
     
     max_ <- function(x, na.rm = TRUE) {
         if (!any(is.finite(x))) NA
@@ -1461,9 +1459,9 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
     }
     for (sample in c("Un", weight.names)) {
         if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
-            B[[paste("Max", "Diff", sample, sep = ".")]] <- sapply(Brownames, function(x) max_(sapply(bal.tab.multi.list, function(y) abs(y[[x, paste0("Diff.", sample)]])), na.rm = TRUE))
-            B[[paste("Max", "V.Ratio", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.multi.list, function(y) y[[x, paste0("V.Ratio.", sample)]]), na.rm = TRUE))
-            B[[paste("Max", "KS", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.multi.list, function(y) y[[x, paste0("KS.", sample)]]), na.rm = TRUE))
+            B[[paste("Max", "Diff", sample, sep = ".")]] <- vapply(Brownames, function(x) max_(sapply(bal.tab.multi.list, function(y) abs(y[[x, paste0("Diff.", sample)]])), na.rm = TRUE), numeric(1))
+            B[[paste("Max", "V.Ratio", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.multi.list, function(y) y[[x, paste0("V.Ratio.", sample)]]), na.rm = TRUE), numeric(1))
+            B[[paste("Max", "KS", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.multi.list, function(y) y[[x, paste0("KS.", sample)]]), na.rm = TRUE), numeric(1))
         }
     }
     
@@ -1522,7 +1520,7 @@ balance.table.msm.summary <- function(bal.tab.msm.list, weight.names = NULL, no.
     if (length(weight.names) <= 1) weight.names <- "Adj"
     
     Brownames <- unique(do.call("c", lapply(bal.tab.msm.list, rownames)))
-    Brownames.appear <- sapply(Brownames, function(x) paste(seq_along(bal.tab.msm.list)[sapply(bal.tab.msm.list, function(y) x %in% rownames(y))], collapse = ", "))
+    Brownames.appear <- vapply(Brownames, function(x) paste(seq_along(bal.tab.msm.list)[sapply(bal.tab.msm.list, function(y) x %in% rownames(y))], collapse = ", "), character(1))
     if (cont.treat) {
         Bcolnames <- c("Type", expand.grid_string(c("Max.Corr", "R.Threshold"), 
                                                   c("Un", weight.names), collapse = "."))
@@ -1536,7 +1534,7 @@ balance.table.msm.summary <- function(bal.tab.msm.list, weight.names = NULL, no.
     names(B) <- c("Times", Bcolnames)
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(sapply(Brownames, function(x) {u <- unique(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA)); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA, character(1))); return(u[!is.na(u)])}), use.names = FALSE)
     
     B[["Times"]] <- Brownames.appear[Brownames]
     
@@ -1547,12 +1545,12 @@ balance.table.msm.summary <- function(bal.tab.msm.list, weight.names = NULL, no.
     for (sample in c("Un", weight.names)) {
         if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
             if (cont.treat) {
-                B[[paste("Max", "Corr", sample, sep = ".")]] <- sapply(Brownames, function(x) max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) abs(y[[x, paste0("Corr.", sample)]]) else NA), na.rm = TRUE))
+                B[[paste("Max", "Corr", sample, sep = ".")]] <- vapply(Brownames, function(x) max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) abs(y[[x, paste0("Corr.", sample)]]) else NA), na.rm = TRUE), numeric(1))
             }
             else {
-                B[[paste("Max", "Diff", sample, sep = ".")]] <- sapply(Brownames, function(x) max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) abs(y[[x, paste0("Diff.", sample)]]) else NA), na.rm = TRUE))
-                B[[paste("Max", "V.Ratio", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, paste0("V.Ratio.", sample)]] else NA), na.rm = TRUE))
-                B[[paste("Max", "KS", sample, sep = ".")]] <- sapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, paste0("KS.", sample)]] else NA), na.rm = TRUE))
+                B[[paste("Max", "Diff", sample, sep = ".")]] <- vapply(Brownames, function(x) max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) abs(y[[x, paste0("Diff.", sample)]]) else NA), na.rm = TRUE), numeric(1))
+                B[[paste("Max", "V.Ratio", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, paste0("V.Ratio.", sample)]] else NA), na.rm = TRUE), numeric(1))
+                B[[paste("Max", "KS", sample, sep = ".")]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA else max_(sapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, paste0("KS.", sample)]] else NA), na.rm = TRUE), numeric(1))
             }
         }
     }
@@ -1661,7 +1659,7 @@ gg_color_hue <- function(n) {
 
 #bal.plot
 get.var.from.list.with.time <- function(var.name, covs.list) {
-    var.name.in.covs <- sapply(covs.list, function(x) var.name %in% names(x))
+    var.name.in.covs <- vapply(covs.list, function(x) var.name %in% names(x), logical(1))
     n.times.appeared <- sum(var.name.in.covs)
     var <- unlist(lapply(covs.list[var.name.in.covs], function(x) x[[var.name]]))
     times <- rep(var.name.in.covs, each = ncol(covs.list[[1]]))
@@ -1672,6 +1670,7 @@ get.var.from.list.with.time <- function(var.name, covs.list) {
 round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     nas <- is.na(df)
     if (!is.data.frame(df)) df <- as.data.frame.matrix(df, stringsAsFactors = FALSE)
+    infs <- sapply(df, function(x) !is.na(x) & (x == Inf | x == -Inf), simplify = "array")
     rn <- rownames(df)
     cn <- colnames(df)
     df <- as.data.frame(lapply(df, function(col) {
@@ -1684,7 +1683,7 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
     o.negs <- sapply(1:ncol(df), function(x) if (nums[x]) df[[x]] < 0 else rep(FALSE, length(df[[x]])))
     df[nums] <- round(df[nums], digits = digits)
-    df[nas] <- ""
+    df[nas | infs] <- ""
     
     df <- as.data.frame(lapply(df, format, scientific = FALSE, justify = "none"), stringsAsFactors = FALSE)
     
@@ -1711,6 +1710,7 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     
     # Insert NA placeholders
     df[nas] <- na_vals
+    df[infs] <- "N/A"
     
     if (length(rn) > 0) rownames(df) <- rn
     if (length(cn) > 0) names(df) <- cn

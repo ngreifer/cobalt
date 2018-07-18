@@ -35,7 +35,7 @@ x2base.matchit <- function(m, ...) {
     subset <- A$subset
     cluster <- A$cluster
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
     if (is_not_null(m$model$model)) {
         o.data <- m$model$model #data used in the PS formula, including treatment and covs
@@ -90,9 +90,9 @@ x2base.matchit <- function(m, ...) {
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames[data.frames!="covs"])) {
@@ -174,7 +174,7 @@ x2base.ps <- function(ps, ...) {
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- sapply(tolower(estimand), switch, att = "treated", ate = "pooled")
+    else X$s.d.denom <- vapply(tolower(estimand), switch, character(1L), att = "treated", ate = "pooled")
     
     weights <- data.frame(get.w(ps, s, estimand))
     treat <- ps$treat
@@ -185,8 +185,8 @@ x2base.ps <- function(ps, ...) {
     subset <- A$subset
     s.weights <- ps$sampw
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -242,9 +242,9 @@ x2base.ps <- function(ps, ...) {
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames[data.frames!="covs"])) {
@@ -329,7 +329,7 @@ x2base.mnps <- function(mnps, ...) {
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- sapply(tolower(estimand), switch, att = "treated", ate = "pooled")
+    else X$s.d.denom <- vapply(tolower(estimand), switch, characte(1L), att = "treated", ate = "pooled")
     
     weights <- data.frame(get.w(mnps, s))
     treat <- mnps$treatVar
@@ -339,8 +339,8 @@ x2base.mnps <- function(mnps, ...) {
     subset <- A$subset
     s.weights <- mnps$sampw
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     mnps.data <- mnps$data
     
@@ -388,9 +388,9 @@ x2base.mnps <- function(mnps, ...) {
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames[data.frames!="covs"])) {
@@ -475,8 +475,8 @@ x2base.ps.cont <- function(ps.cont, ...) {
     subset <- A$subset
     s.weights <- ps.cont$sampw
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -515,9 +515,9 @@ x2base.ps.cont <- function(ps.cont, ...) {
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames[data.frames!="covs"])) {
@@ -639,16 +639,16 @@ x2base.Match <- function(Match, ...) {
         }
     }
     
-    #Process addl and distance
-    for (i in c("addl", "distance")) {
-        assign(i, data.frame.process(i, A[[i]], treat, covs, data))
-    }  
-    
     treat <- o.data2$treat
     weights <- data.frame(weights = o.data2$weights)
     covs <- o.data2[names(o.data2) %nin% c("treat", "weights", "index")]
     dropped <- rep(0, length(treat))
     if (is_not_null(m$index.dropped)) dropped[m$index.dropped] <- 1
+    
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        assign(i, data.frame.process(i, A[[i]], treat, covs, data))
+    }
     
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
@@ -656,9 +656,9 @@ x2base.Match <- function(Match, ...) {
     data.frames <- c(covs.data, "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -746,8 +746,8 @@ x2base.data.frame <- function(covs, ...) {
     subset <- A$subset
     focal <- A$focal
     
-    if (is_not_null(weights) && any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(weights) && any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Checks
     if (is_null(covs)) {
@@ -996,9 +996,9 @@ x2base.data.frame <- function(covs, ...) {
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     #Process imp
     if (is_not_null(imp)) {
         if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
@@ -1009,7 +1009,7 @@ x2base.data.frame <- function(covs, ...) {
         }
         else stop("The name supplied to imp is not the name of a variable in data.", call. = FALSE)
         
-        imp.lengths <- sapply(unique(imp), function(i) sum(imp == i))
+        imp.lengths <- vapply(unique(imp), function(i) sum(imp == i), numeric(1L))
         
         if (all_the_same(imp.lengths)) { #all the same
             for (i in vectors) {
@@ -1078,7 +1078,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     if (is_not_null(weights)) {
-        if (any(sapply(weights, function(x) !is.numeric(x)))) {
+        if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) {
             stop("All weights must be numeric.", call. = FALSE)
         }
         if (length(X$method) == 1) {
@@ -1137,7 +1137,7 @@ x2base.data.frame <- function(covs, ...) {
                     if (length(try.estimand) > 1 && length(try.estimand) != ncol(weights)) {
                         stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
                     }
-                    else X$s.d.denom <- sapply(try.estimand, function(x) switch(x, att = "treated", atc = "control", ate = "pooled"))
+                    else X$s.d.denom <- vapply(try.estimand, switch, character(1L), att = "treated", atc = "control", ate = "pooled")
                 }
             }
             else {
@@ -1257,8 +1257,8 @@ x2base.CBPS <- function(cbps.fit, ...) {
     weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights))
     cluster <- A$cluster
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process sampling weights
     if (is_not_null(s.weights)) {
@@ -1362,9 +1362,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in names(lengths)[names(lengths) != "covs"]) {
@@ -1421,7 +1421,7 @@ x2base.ebalance <- function(ebalance, ...) {
     subset <- A$subset
     weights <- data.frame(weights = get.w(ebalance, treat))
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -1457,9 +1457,9 @@ x2base.ebalance <- function(ebalance, ...) {
     data.frames <- c(covs.data, "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -1557,11 +1557,10 @@ x2base.optmatch <- function(optmatch, ...) {
     vectors <- c("treat", "cluster", "subset")
     data.frames <- c(covs.data, "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
-    lengths <- setNames(c(sapply(vectors, 
-                                 function(x) length(get(x))), 
-                          sapply(data.frames, 
+    lengths <- setNames(c(lengths(mget(vectors)), 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -1619,10 +1618,10 @@ x2base.weightit <- function(weightit, ...) {
     imp <- A$imp
     subset <- A$subset
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
-    d.e.in.w <- sapply(c("data", "exact"), function(x) is_not_null(weightit[[x]]))
+    d.e.in.w <- vapply(c("data", "exact"), function(x) is_not_null(weightit[[x]]), logical(1L))
     if (any(d.e.in.w)) weightit.data <- do.call("data.frame", weightit[[c("data", "exact")[d.e.in.w]]])
     else weightit.data <- NULL
     
@@ -1703,9 +1702,9 @@ x2base.weightit <- function(weightit, ...) {
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     #Process imp further
     if (is_not_null(imp)) {
         if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
@@ -1719,7 +1718,7 @@ x2base.weightit <- function(weightit, ...) {
         }
         else stop("The name supplied to imp is not the name of a variable in data.", call. = FALSE)
         
-        imp.lengths <- sapply(unique(imp), function(i) sum(imp == i))
+        imp.lengths <- vapply(unique(imp), function(i) sum(imp == i), numeric(1L))
         
         if (all_the_same(imp.lengths)) {
             for (i in vectors) {
@@ -1878,11 +1877,10 @@ x2base.designmatch <- function(dm, ...) {
     vectors <- c("treat", "cluster", "subset")
     data.frames <- c(covs.data, "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
-    lengths <- setNames(c(sapply(vectors, 
-                                 function(x) length(get(x))), 
-                          sapply(data.frames, 
+    lengths <- setNames(c(lengths(mget(vectors)), 
+                          vapply(data.frames, 
                                  function(x) {if (is_null(get0(x))) 0 else nrow(get(x))
-                                 })), c(vectors, data.frames))
+                                 }, numeric(1L))), c(vectors, data.frames))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -1988,7 +1986,7 @@ x2base.default <- function(obj, ...) {
             for (j in Q[[i]][["name"]]) {
                 if (is_null(P[[i]])) {
                     if (is_not_null(obj[[j]])) {
-                        if (any(which.type <- sapply(Q[[i]][["type"]], function(x) is(obj[[j]], x)))) {
+                        if (any(which.type <- vapply(Q[[i]][["type"]], function(x) is(obj[[j]], x), logical(1L)))) {
                             P[[i]] <- obj[[j]]
                             attr(P[[i]], "name") <- j
                             attr(P[[i]], "type") <- Q[[i]][["type"]][which.type]
@@ -2009,7 +2007,7 @@ x2base.default <- function(obj, ...) {
     
     #treat.list
     if (is_not_null(treat.list)) {
-        if (!all(sapply(treat.list, function(x) any(sapply(Q[["treat"]][["type"]], function(c) is(x, c)))))) {
+        if (!all(sapply(treat.list, function(x) any(vapply(Q[["treat"]][["type"]], function(c) is(x, c), logical(1L)))))) {
             treat.list <- A[["treat.list"]]
         }
         msm <- TRUE
@@ -2020,7 +2018,7 @@ x2base.default <- function(obj, ...) {
     
     #covs.list
     if (is_not_null(covs.list)) {
-        if (!all(sapply(covs.list, function(x) any(sapply(Q[["covs"]][["type"]], function(c) is(x, c)))))) {
+        if (!all(sapply(covs.list, function(x) any(vapply(Q[["covs"]][["type"]], function(c) is(x, c), logical(1L)))))) {
             covs.list <- A[["covs.list"]]
         }
         msm <- TRUE
@@ -2030,7 +2028,7 @@ x2base.default <- function(obj, ...) {
     
     #formula.list
     if (is_not_null(formula.list)) {
-        if (!all(sapply(formula.list, function(x) any(sapply(Q[["formula"]][["type"]], function(c) is(x, c)))))) {
+        if (!all(sapply(formula.list, function(x) any(vapply(Q[["formula"]][["type"]], function(c) is(x, c), logical(1L)))))) {
             formula.list <- A[["formula.list"]]
         }
         msm <- TRUE
@@ -2056,7 +2054,7 @@ x2base.default <- function(obj, ...) {
     
     #distance.list
     if (is_not_null(distance.list)) {
-        if (!all(sapply(distance.list, function(x) any(sapply(Q[["distance"]][["type"]], function(c) is(x, c)))))) {
+        if (!all(sapply(distance.list, function(x) any(vapply(Q[["distance"]][["type"]], function(c) is(x, c), logical(1L)))))) {
             distance.list <- A[["distance.list"]]
         }
         msm <- TRUE
@@ -2381,9 +2379,9 @@ x2base.default <- function(obj, ...) {
         data.frames <- c("covs", "weights", "distance", "addl")
         problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
         lengths <- setNames(c(lengths(mget(vectors)), 
-                              sapply(data.frames, 
+                              vapply(data.frames, 
                                      function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                     })), c(vectors, data.frames))
+                                     }, numeric(1L))), c(vectors, data.frames))
         #Process imp
         if (is_not_null(imp)) {
             if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
@@ -2394,7 +2392,7 @@ x2base.default <- function(obj, ...) {
             }
             else stop("The name supplied to imp is not the name of a variable in data.", call. = FALSE)
             
-            imp.lengths <- sapply(unique(imp), function(i) sum(imp == i))
+            imp.lengths <- vapply(unique(imp), function(i) sum(imp == i), numeric(1L))
             
             if (all_the_same(imp.lengths)) { #all the same
                 for (i in vectors) {
@@ -2460,8 +2458,8 @@ x2base.default <- function(obj, ...) {
         }
         
         if (is_not_null(weights)) {
-            if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-            if (any(sapply(weights, function(x) !is.numeric(x)))) {
+            if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+            if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) {
                 stop("All weights must be numeric.", call. = FALSE)
             }
             if (length(X$method) == 1) {
@@ -2520,7 +2518,7 @@ x2base.default <- function(obj, ...) {
                         if (length(try.estimand) > 1 && length(try.estimand) != ncol(weights)) {
                             stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
                         }
-                        else X$s.d.denom <- sapply(try.estimand, function(x) switch(x, att = "treated", atc = "control", ate = "pooled"))
+                        else X$s.d.denom <- vapply(try.estimand, switch, character(1L), att = "treated", atc = "control", ate = "pooled")
                     }
                 }
                 else {
@@ -2625,8 +2623,8 @@ x2base.default <- function(obj, ...) {
         imp <- A$imp
         subset <- A$subset
         
-        if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-        if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+        if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
         
         initial.list.lengths <- c(length(formula.list), length(covs.list), length(treat.list))
         if (!all_the_same(initial.list.lengths[initial.list.lengths != 0])) stop("The lists in the object were not the same length.", call. = FALSE)
@@ -2651,7 +2649,7 @@ x2base.default <- function(obj, ...) {
         if (!is.list(covs.list)) {
             stop("covs.list must be a list of covariates for which balanced is to be assessed at each time point.", call. = FALSE)
         }
-        if (any(!sapply(covs.list, function(x) is.data.frame(x)))) {
+        if (any(!vapply(covs.list, function(x) is.data.frame(x), logical(1L)))) {
             stop("Each item in covs.list must be a data frame.", call. = FALSE)
         }
         
@@ -2817,17 +2815,17 @@ x2base.default <- function(obj, ...) {
         lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
         problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
         lengths <- setNames(c(lengths(mget(vectors)), 
-                              sapply(data.frames, 
+                              vapply(data.frames, 
                                      function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                     }),
-                              sapply(lists, function(x) {
+                                     }, numeric(1L)),
+                              vapply(lists, function(x) {
                                   if (is.null(get0(x))) 0 
                                   else if (is.vector(get(x))) {
-                                      if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                      if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(vapply(get(x), nrow, numeric(1L)))
                                       else max(lengths(get(x)))
                                   }
-                                  else max(sapply(get(x), function(y) if (is_not_null(y)) {if (is_not_null(nrow(y))) nrow(y) else length(y)} else 0))
-                              })), c(vectors, data.frames, lists))
+                                  else max(vapply(get(x), function(y) if (is_not_null(y)) {if (is_not_null(nrow(y))) nrow(y) else length(y)} else 0, numeric(1L)))
+                              }, numeric(1L))), c(vectors, data.frames, lists))
         
         #Ensure all input lengths are the same.
         if (ensure.equal.lengths) {
@@ -2842,7 +2840,7 @@ x2base.default <- function(obj, ...) {
         }
         
         if (is_not_null(weights)) {
-            if (any(sapply(weights, function(x) !is.finite(x)))) {
+            if (any(vapply(weights, function(x) !is.finite(x), logical(1L)))) {
                 stop("All weights must be numeric.", call. = FALSE)
             }
             if (length(X$method) == 1) {
@@ -2857,7 +2855,7 @@ x2base.default <- function(obj, ...) {
         #Get s.d.denom
         X$s.d.denom <- rep("pooled", max(1, ncol(weights)))
         
-        if (any(sapply(c(covs.list, addl.list), function(x) any(is.na(x))))) {
+        if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x), logical(1L))))) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
         
@@ -2897,7 +2895,7 @@ x2base.iptw <- function(iptw, ...) {
     available.stop.methods <- names(iptw$psList[[1]]$ps)
     if (is_not_null(A$stop.method)) {
         if (any(is.character(A$stop.method))) {
-            rule1 <- available.stop.methods[sapply(available.stop.methods, function(x) any(startsWith(tolower(x), tolower(A$stop.method))))]
+            rule1 <- available.stop.methods[vapply(available.stop.methods, function(x) any(startsWith(tolower(x), tolower(A$stop.method))), logical(1L))]
             if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- available.stop.methods
@@ -2929,7 +2927,7 @@ x2base.iptw <- function(iptw, ...) {
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- sapply(tolower(estimand), switch, att = "treated", ate = "pooled")
+    else X$s.d.denom <- vapply(tolower(estimand), switch, character(1L), att = "treated", ate = "pooled")
     
     weights <- data.frame(get.w(iptw, s))
     treat.list <- lapply(iptw$psList, function(x) x$treat)
@@ -2941,8 +2939,8 @@ x2base.iptw <- function(iptw, ...) {
     s.weights <- iptw$psList[[1]]$sampw
     ntimes <- iptw$nFits
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Order covs.list
     all.covs <- unique(unlist(lapply(covs.list, names)))
@@ -3015,17 +3013,17 @@ x2base.iptw <- function(iptw, ...) {
     lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 }),
-                          sapply(lists, function(x) {
+                                 }, numeric(1L)),
+                          vapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
                               else if (is.vector(get(x))) {
-                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(vapply(get(x), nrow, numeric(1L)))
                                   else max(lengths(get(x)))
                               }
-                              else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
-                          })), c(vectors, data.frames, lists))
+                              else max(vapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0, numeric(1L)))
+                          }, numeric(1L))), c(vectors, data.frames, lists))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -3039,7 +3037,7 @@ x2base.iptw <- function(iptw, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to iptw()."), call. = FALSE)
     }
     
-    if (any(sapply(c(covs.list, addl.list), function(x) any(is.na(x))))) {
+    if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -3085,8 +3083,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
     focal <- A$focal
     ntimes <- length(covs.list)
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Checks
     if (is_null(covs.list)) {
@@ -3095,7 +3093,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     if (!is.list(covs.list)) {
         stop("covs.list must be a list of covariates for which balanced is to be assessed at each time point.", call. = FALSE)
     }
-    if (any(!sapply(covs.list, function(x) is.data.frame(x)))) {
+    if (any(!vapply(covs.list, function(x) is.data.frame(x), logical(1L)))) {
         stop("Each item in covs.list must be a data frame.", call. = FALSE)
     }
     
@@ -3261,17 +3259,17 @@ x2base.data.frame.list <- function(covs.list, ...) {
     lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 }),
-                          sapply(lists, function(x) {
+                                 }, numeric(1L)),
+                          vapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
                               else if (is.vector(get(x))) {
-                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(vapply(get(x), nrow, numeric(1L)))
                                   else max(lengths(get(x)))
                               }
-                              else max(sapply(get(x), function(y) if (is_not_null(y)) {if (is_not_null(nrow(y))) nrow(y) else length(y)} else 0))
-                          })), c(vectors, data.frames, lists))
+                              else max(vapply(get(x), function(y) if (is_not_null(y)) {if (is_not_null(nrow(y))) nrow(y) else length(y)} else 0, numeric(1L)))
+                          }, numeric(1L))), c(vectors, data.frames, lists))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -3286,7 +3284,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     if (is_not_null(weights)) {
-        if (any(sapply(weights, function(x) !is.finite(x)))) {
+        if (any(vapply(weights, function(x) !is.finite(x), logical(1L)))) {
             stop("All weights must be numeric.", call. = FALSE)
         }
         if (length(X$method) == 1) {
@@ -3301,7 +3299,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Get s.d.denom
     X$s.d.denom <- rep("pooled", max(1, ncol(weights)))
     
-    if (any(sapply(c(covs.list, addl.list), function(x) any(is.na(x))))) {
+    if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -3355,7 +3353,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     weights <- data.frame(weights = get.w(cbmsm)[ID])
     ntimes <- length(times)
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
     covs.list <- vector("list", ntimes)
     for (ti in times) {
@@ -3427,17 +3425,17 @@ x2base.CBMSM <- function(cbmsm, ...) {
     lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 }),
-                          sapply(lists, function(x) {
+                                 }, numeric(1L)),
+                          vapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
                               else if (is.vector(get(x))) {
-                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(vapply(get(x), nrow, numeric(1L)))
                                   else max(lengths(get(x)))
                               }
-                              else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
-                          })), c(vectors, data.frames, lists))
+                              else max(vapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0, numeric(1L)))
+                          }, numeric(1L))), c(vectors, data.frames, lists))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -3451,7 +3449,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to CBMSM()."), call. = FALSE)
     }
     
-    if (any(sapply(c(covs.list, addl.list), function(x) any(is.na(x))))) {
+    if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -3495,26 +3493,26 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     subset <- A$subset
     ntimes <- length(treat.list)
     
-    if (any(sapply(weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(sapply(s.weights, function(x) any(is.na(x))))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     weightitMSM.data <- weightitMSM$data
     
-    if (all(sapply(treat.list, function(x) is_not_null(attr(x, "treat.type"))))) {
-        treat.type <- sapply(treat.list, function(x) attr(x, "treat.type"))
+    if (all(vapply(treat.list, function(x) is_not_null(attr(x, "treat.type")), logical(1L)))) {
+        treat.type <- vapply(treat.list, function(x) attr(x, "treat.type"), character(1L))
     }
     else if (length(weightitMSM$treat.type) == length(treat.list)) {
         treat.type <- weightitMSM$treat.type
     }
     else {
-        treat.type <- sapply(treat.list, function(treat) {
+        treat.type <- vapply(treat.list, function(treat) {
             if (!is.factor(treat) && !is_binary(treat)) {
                 return("continuous")
             }
             else {
                 return("not continuous")
             }
-        })
+        }, character(1L))
     } 
     
     if (any(treat.type != "continuous")) {
@@ -3584,17 +3582,17 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     lists <- c("treat.list", "distance.list", "addl.list", "covs.list")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
-                          sapply(data.frames, 
+                          vapply(data.frames, 
                                  function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 }),
-                          sapply(lists, function(x) {
+                                 }, numeric(1L)),
+                          vapply(lists, function(x) {
                               if (is.null(get0(x))) 0 
                               else if (is.vector(get(x))) {
-                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(sapply(get(x), nrow))
+                                  if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(vapply(get(x), nrow, numeric(1L)))
                                   else max(lengths(get(x)))
                               }
-                              else max(sapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0))
-                          })), c(vectors, data.frames, lists))
+                              else max(vapply(get(x), function(y) if (is_not_null(y)) nrow(y) else 0, numeric(1L)))
+                          }, numeric(1L))), c(vectors, data.frames, lists))
     
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
@@ -3608,7 +3606,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to weightitMSM()."), call. = FALSE)
     }
     
-    if (any(sapply(c(covs.list, addl.list), function(x) any(is.na(x))))) {
+    if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     

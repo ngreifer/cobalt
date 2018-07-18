@@ -20,7 +20,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
     if (is.data.frame(data)) {
         data <- as.data.frame(data)
         if (check) {
-            factor.names <- names(data)[sapply(data, function(x) is.factor(x) || is.character(x))]
+            factor.names <- names(data)[vapply(data, function(x) is.factor(x) || is.character(x), logical(1L))]
             if (missing(var.name)) {
                 var.name <- factor.names
             }
@@ -130,7 +130,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         }
         
         if (!skip) {
-            colnames(k) <- paste(v, sapply(strsplit(colnames(k), v, fixed = TRUE), function(n) paste(n, collapse = "")), sep = sep)
+            colnames(k) <- paste(v, vapply(strsplit(colnames(k), v, fixed = TRUE), function(n) paste(n, collapse = ""), character(1L)), sep = sep)
             
             if (is_not_null(drop.level)) {
                 if (is.character(drop.level) && length(drop.level) == 1 && drop.level %in% levels(x)) {
@@ -284,7 +284,7 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE,
     estimand <- tolower(estimand)
     if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
-            rule1 <- names(ps$w)[sapply(names(ps$w), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
+            rule1 <- names(ps$w)[vapply(names(ps$w), function(x) any(startsWith(tolower(x), tolower(stop.method))), logical(1L))]
             if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps$w)
@@ -398,7 +398,7 @@ get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
 get.w.ps.cont <- function(ps.cont, stop.method = NULL, s.weights = FALSE, ...) {
     if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
-            rule1 <- names(ps.cont$w)[sapply(names(ps.cont$w), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
+            rule1 <- names(ps.cont$w)[vapply(names(ps.cont$w), function(x) any(startsWith(tolower(x), tolower(stop.method))), logical(1L))]
             if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps.cont$w)
@@ -440,7 +440,7 @@ get.w.ps.cont <- function(ps.cont, stop.method = NULL, s.weights = FALSE, ...) {
 get.w.iptw <- function(iptw, stop.method = NULL, s.weights = FALSE, ...) {
     if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
-            rule1 <- names(iptw$psList[[1]]$ps)[sapply(names(iptw$psList[[1]]$ps), function(x) any(startsWith(tolower(x), tolower(stop.method))))]
+            rule1 <- names(iptw$psList[[1]]$ps)[vapply(names(iptw$psList[[1]]$ps), function(x) any(startsWith(tolower(x), tolower(stop.method))), logical(1L))]
             if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(iptw$psList[[1]]$ps)
@@ -586,7 +586,7 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
     #or "a, b, and c"
     #If is.are, adds "is" or "are" appropriately
     L <- length(word.list)
-    if (quotes) word.list <- sapply(word.list, function(x) paste0("\"", x, "\""))
+    if (quotes) word.list <- vapply(word.list, function(x) paste0("\"", x, "\""), character(1L))
     if (L == 0) {
         out <- ""
         attr(out, "plural") = FALSE
@@ -654,7 +654,7 @@ is.formula <- function(f, sides = NULL) {
     }
     return(res)
 }
-check_if_zero_base <- function(x) {
+check_if_zero <- function(x) {
     # this is the default tolerance used in all.equal
     tolerance <- .Machine$double.eps^0.5
     # If the absolute deviation between the number and zero is less than
@@ -663,7 +663,6 @@ check_if_zero_base <- function(x) {
     # -3.20469e-16 or some such.
     abs(x - 0) < tolerance
 }
-check_if_zero <- Vectorize(check_if_zero_base)
 is_null <- function(x) length(x) == 0L
 is_not_null <- function(x) !is_null(x)
 `%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))

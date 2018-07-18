@@ -83,8 +83,8 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
                                                                                                         abs = abs,
                                                                                                         quick = quick,
                                                                                                         types = types)
-            if (all(sapply(balance.tables, function(x) !attr(x, "disp")["v"]))) {disp.v.ratio <- FALSE; v.threshold <- NULL}
-            if (all(sapply(balance.tables, function(x) !attr(x, "disp")["ks"]))) {disp.ks.ratio <- FALSE; ks.threshold <- NULL}
+            if (all(vapply(balance.tables, function(x) !attr(x, "disp")["v"], logical(1L)))) {disp.v.ratio <- FALSE; v.threshold <- NULL}
+            if (all(vapply(balance.tables, function(x) !attr(x, "disp")["ks"], logical(1L)))) {disp.ks.ratio <- FALSE; ks.threshold <- NULL}
             out <- out[names(out) %nin% "Cluster.Balance.Across.Subclass"]
             out[["Observations"]] <- samplesize.across.clusters(observations)
             out[["call"]] <- call
@@ -288,6 +288,8 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
 base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.subclass = FALSE, disp.bal.tab = TRUE, method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
     
     #Preparations
+    if (all(check_if_zero(weights))) stop("All weights are zero.", call. = FALSE)
+    
     if (is_not_null(r.threshold)) {
         r.threshold <- abs(r.threshold)
         if (r.threshold > 1) {
@@ -757,7 +759,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         
         out[["Time.Balance"]] <- vector("list", length(covs.list))
         
-        treat.type <- sapply(treat.list, function(x) {
+        treat.type <- vapply(treat.list, function(x) {
             if (isTRUE(attr(x, "treat.type") %in% c("binary", "multinomial", "continuous"))) {
                 attr(x, "treat.type")
             }
@@ -771,7 +773,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
             else {
                 stop("All treatments must have at least 2 unique values.", call. = FALSE)
             }
-        })
+        }, character(1L))
 
         #Get list of bal.tabs for each time period
         out[["Time.Balance"]] <- lapply(seq_along(treat.list), function(ti) {
@@ -857,10 +859,10 @@ bal.tab.matchit <- function(m, int = FALSE, distance = NULL, addl = NULL, data =
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -906,10 +908,10 @@ bal.tab.matchit <- function(m, int = FALSE, distance = NULL, addl = NULL, data =
 bal.tab.ps <- function(ps, stop.method, int = FALSE, distance = NULL, addl = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, abs = FALSE, subset = NULL, quick = FALSE, ...) {
     args <- as.list(environment())[-1]
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -959,10 +961,10 @@ bal.tab.ps <- function(ps, stop.method, int = FALSE, distance = NULL, addl = NUL
 bal.tab.mnps <- function(mnps, stop.method, int = FALSE, distance = NULL, addl = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, abs = FALSE, subset = NULL, quick = FALSE, ...) {
     args <- as.list(environment())[-1]
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1016,10 +1018,10 @@ bal.tab.mnps <- function(mnps, stop.method, int = FALSE, distance = NULL, addl =
 bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, distance = NULL, addl = NULL, data = NULL, r.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.bal.tab = TRUE, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, abs = FALSE, subset = NULL, quick = FALSE, ...) {
     args <- as.list(environment())[-1]
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1061,10 +1063,10 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1120,10 +1122,10 @@ bal.tab.formula <- function(formula, data = NULL, ...) {
     args[["treat"]] <- NULL
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1148,10 +1150,10 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
     #Adjustments to arguments
     if (is_null(subclass)) disp.subclass <- FALSE
     
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1305,10 +1307,10 @@ bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data =
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1457,10 +1459,10 @@ bal.tab.ebalance <- function(ebal, formula = NULL, data = NULL, treat = NULL, co
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1513,10 +1515,10 @@ bal.tab.optmatch <- function(optmatch, formula = NULL, data = NULL, treat = NULL
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1566,10 +1568,10 @@ bal.tab.weightit <- function(weightit, int = FALSE, distance = NULL, addl = NULL
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1751,10 +1753,10 @@ bal.tab.designmatch <- function(dm, formula = NULL, data = NULL, treat = NULL, c
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1806,10 +1808,10 @@ bal.tab.time.list <- function(time.list, data, treat.list = NULL, weights = NULL
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1821,7 +1823,7 @@ bal.tab.time.list <- function(time.list, data, treat.list = NULL, weights = NULL
     if (is_not_null(args$cluster)) stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
     if (is_not_null(args$imp)) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
     
-    if (all(sapply(time.list, is.formula))) {
+    if (all(vapply(time.list, is.formula, logical(1L)))) {
         X <- x2base.formula.list(formula.list = time.list, 
                                  data = data,
                                  weights = weights,
@@ -1833,7 +1835,7 @@ bal.tab.time.list <- function(time.list, data, treat.list = NULL, weights = NULL
                                  estimand = estimand,
                                  subset = subset)
     }
-    else if (all(sapply(time.list, is.data.frame))) {
+    else if (all(vapply(time.list, is.data.frame, logical(1L)))) {
         X <- x2base.data.frame.list(covs.list = time.list, 
                                     treat.list = treat.list,
                                     data = data,
@@ -1889,10 +1891,10 @@ bal.tab.iptw <- function(iptw, stop.method, int = FALSE, distance.list = NULL, a
     args <- as.list(environment())[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
@@ -1952,10 +1954,10 @@ bal.tab.default <- function(obj, formula = NULL, data = NULL, treat = NULL, covs
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[sapply(formals()[-c(1, length(formals()))], function(x) length(x)>1)]
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in seq_along(args.with.choices)) assign(args.with.choices[i], eval(parse(text=paste0("match.arg(", args.with.choices[i], ")"))))
     
-    blank.args <- sapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)))
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
     if (any(blank.args)) {
         for (arg.name in names(blank.args)[blank.args]) {
             if (identical(args[[arg.name]], quote(expr = ))) {
