@@ -26,10 +26,10 @@ bal.plot(obj,
 }
 \arguments{
   \item{obj}{
-the object for which balance is to be assessed; can be a \code{matchit} object from \pkg{MatchIt}, a \code{weightit} object from \pkg{WeightIt}, a \code{ps} object from \pkg{twang}, a \code{Match} object from \pkg{Matching}, an \code{optmatch} object from \pkg{optmatch}, a \code{CBPS} or \code{CBPSContinuous} object from \pkg{CBPS}, an \code{ebalance} object from \pkg{ebal}, or a \code{formula} or data frame containing covariate information.
+the object for which balance is to be assessed; can be any object for which there is support in \code{bal.tab}.
 }
   \item{var.name}{
-\code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate data frame from \code{obj}, followed by \code{addl}, and then \code{distance}, if any. If not specified, will use the first covariate available with a warning.
+\code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate \code{data.frame} from \code{obj}, followed by \code{addl}, and then \code{distance}, if any. If not specified, will use the first covariate available with a warning.
 }
   \item{\dots}{
 other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments. Can also be used to supply the \code{bw}, \code{adjust}, \code{kernel}, and \code{n} arguments for \code{\link[ggplot2]{geom_density}} and the \code{bins} argument for \code{\link[ggplot2]{geom_histogram}}.
@@ -78,9 +78,7 @@ For \code{matchit} objects: None
 
 For \code{weightit} objects: None
 
-For \code{ps} and \code{mnps} objects: (\code{stop.method}; see \link[=bal.tab.ps]{defaults}).
-
-For \code{iptw} objects: None
+For \code{ps}, \code{ps.cont}, \code{mnps}, and \code{iptw} objects: (\code{stop.method}; see \link[=bal.tab.ps]{defaults}).
 
 For \code{Match} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
@@ -92,9 +90,11 @@ For \code{ebalance} objects: \code{formula} and \code{data} or \code{covs} and \
 
 For \code{formula}s: \code{data}, \code{weights}, (\code{distance}), (\code{method}; see \link[=bal.tab.formula]{defaults})
 
-For data frames: \code{treat}, (\code{data}), \code{weights}, (\code{distance}), (\code{method}; see \link[=bal.tab.data.frame]{defaults})
+For \code{data.frame}s: \code{treat}, (\code{data}), \code{weights}, (\code{distance}), (\code{method}; see \link[=bal.tab.data.frame]{defaults})
 
 For \code{designmatch} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+
+For other objects processed through \code{bal.tab}'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
 
 }
 \details{
