@@ -1,6 +1,16 @@
 cobalt News and Updates
 ======
 
+Version 3.3.1
+
+* Added `default` method for `bal.tab` so it can be used with specially formatted output from other packages (e.g., from `optweight`). `bal.plot` should work with these outputs too. This, of course, will never be completely bug-free because infinite inputs are possible and cannot all be processed perfectly. Don't try to break this function :)
+
+* Fixed some bugs occuring when standardized mean differences are not finite, thanks to Noémie Kiefer.
+
+* Speed improvements in `bal.plot`, especially with multiple facets, and in `bal.tab`.
+
+* Added new options to `bal.plot`, including the ability to display histograms rather than densities and mirrored rather than overlapping plots. This makes it possible to make the popular mirrored histogram plot for propensity scores. In addition, it's now easier to change the colors of the components of the plots.
+
 Version 3.3.0
 
 * Added methods for objects from the `designmatch` package.

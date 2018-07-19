@@ -16,14 +16,15 @@ the balance assessment tools found in the R packages `twang`, `MatchIt`,
 `CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these
 packages and others, see the help file for `bal.tab()` with `?bal.tab`,
 which links to the methods used for each package. Each page has examples
-of how `bal.tab()` is used with the package. There are also three
+of how `bal.tab()` is used with the package. There are also four
 vignette detailing the use of `cobalt`, which can be accessed with
 `browseVignettes("cobalt")`: one for basic uses of `cobalt`, one for the
-use of `cobalt` with additional packages, and another for the use of
-`cobalt` with multiply imputed and/or clustered data. Currently,
-`cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`,
-`optmatch`, `CBPS`, `ebal`, `designmatch`, and `WeightIt`. as well as data not
-processed through these packages.
+use of `cobalt` with additional packages, one for the use of `cobalt`
+with multiply imputed and/or clustered data, one for the use of `cobalt`
+with longitudinal treatments. Currently, `cobalt` is compatible with
+output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`,
+`WeightIt`, and `designmatch`, as well as data not processed through
+these packages.
 
 # Why cobalt?
 
@@ -53,7 +54,7 @@ other packages.
 A large focus in devloping `cobalt` was to streamline output so that
 only the most useful, non-redundant, and complete information is
 displayed, all at the user’s choice. Balance statistics are intuitive,
-methodological informed, and simple to interpret. Visual displays of
+methodologically informed, and simple to interpret. Visual displays of
 balance reflect the goals of balance assessment rather than being steps
 removed. While other packages have focused their efforts on processing
 data, `cobalt` only assesses balance, and does so particularly well.
@@ -78,12 +79,11 @@ m.out <- matchit(treat ~ age + educ + race + married + nodegree + re74 + re75,
 bal.tab(m.out, m.threshold = 0.1, un = TRUE)
 ```
 
+    #> Call
+    #>  matchit(formula = treat ~ age + educ + race + married + nodegree + 
+    #>     re74 + re75, data = lalonde)
     #> 
-    #> Call:
-    #>   matchit(formula = treat ~ age + educ + race + married + nodegree + 
-    #>       re74 + re75, data = lalonde)
-    #> 
-    #> Balance Measures:
+    #> Balance Measures
     #>                 Type Diff.Un Diff.Adj        M.Threshold
     #> distance    Distance  1.7941   0.9739                   
     #> age          Contin. -0.3094   0.0718     Balanced, <0.1
@@ -96,16 +96,16 @@ bal.tab(m.out, m.threshold = 0.1, un = TRUE)
     #> re74         Contin. -0.7211  -0.0505     Balanced, <0.1
     #> re75         Contin. -0.2903  -0.0257     Balanced, <0.1
     #> 
-    #> Balance tally for mean differences:
+    #> Balance tally for mean differences
     #>                    count
     #> Balanced, <0.1         5
     #> Not Balanced, >0.1     4
     #> 
-    #> Variable with the greatest mean difference:
+    #> Variable with the greatest mean difference
     #>    Variable Diff.Adj        M.Threshold
     #>  race_black    0.373 Not Balanced, >0.1
     #> 
-    #> Sample sizes:
+    #> Sample sizes
     #>           Control Treated
     #> All           429     185
     #> Matched       185     185
