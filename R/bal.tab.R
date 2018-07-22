@@ -586,7 +586,7 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
                                    disp.bal.tab = disp.bal.tab,
                                    nweights = ifelse(no.adj, 0, ncol(weights)),
                                    weight.names = names(weights),
-                                   co.names = co.names)
+                                   co.names = out[["Imputation.Balance"]][[1]][["print.options"]][["co.names"]])
     class(out) <- unique(c(classes, sapply(out[["Imputation.Balance"]], class)))
     
     return(out)
@@ -653,7 +653,6 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         
         if (any(s.d.denom == "pooled")) {
             C <- get.C(covs = covs, int = int, addl = addl, distance = distance, ...)
-            co.names <- attr(C, "co.names")
             pooled.sds <- rowMeans(do.call("cbind", lapply(levels(treat), function(t) sqrt(col.w.v(C[treat == t, , drop = FALSE], 
                                                                                                    s.weights[treat == t])))))
             #pooled.sds <- sqrt(col.w.v(C, s.weights)) #How twang does it
@@ -711,7 +710,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
                                        which.treat = which.treat,
                                        multi.summary = multi.summary,
                                        pairwise = pairwise,
-                                       co.names = co.names)
+                                       co.names = out[["Pair.Balance"]][[1]][["print.options"]][["co.names"]])
         
         class(out) <- c("bal.tab.multi", "bal.tab")
     }
@@ -862,7 +861,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
                                        weight.names = names(weights),
                                        which.time = which.time,
                                        msm.summary = msm.summary,
-                                       co.names = co.names)
+                                       co.names = out[["Time.Balance"]][[1]][["print.options"]][["co.names"]])
         
         class(out) <- c("bal.tab.msm", "bal.tab")
     }
