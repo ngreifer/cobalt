@@ -592,7 +592,7 @@ Missing data is frequent in all research involving human subjects, and especiall
 
 ## For Programmers: Integrating `cobalt` with Your Package
 
-If you are designing a new R package for preprocessing that performs similar functions to `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, or `designmatch`, you might consider integrating `cobalt` into your package to avoid programming your own balance assessment tool. The simplest way to do so is to have the output of your preprocessing function contain all the elements for use with the default method for `bal.tab()` and `bal.plot()`.
+If you are designing a new R package for preprocessing that performs similar functions to `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, or `WeightIt`, you might consider integrating `cobalt` into your package to avoid programming your own balance assessment tool. The simplest way to do so is to have the output of your preprocessing function contain sufficient elements for use with the default method for `bal.tab()` and `bal.plot()`. See `?bal.tab.default` for more information on how this might work.
 
 As `cobalt` is updated to remain in line with methodological recommendations, the balance assessment capabilities for your function's output will also improve if `cobalt` is a balance assessment tool for your package. In this way, users of your package can use the most up-to-date balance assessment tools programmed in `cobalt` without you having to update your package.
 

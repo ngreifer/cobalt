@@ -242,14 +242,14 @@ The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`
 
 ### Using `bal.tab()` with other packages
 
-It is possible to use `bal.tab` with objects that don't come from these packages using the "`default`" method. If an object is passed as teh first argument to `bal.tab` that doesn't correspond to the output from one of the specifically supported packages, `bal.tab` will do its best to process that object as if it did come from a supported package. It will search through the components of the object for items with names like `"treat"`, `"covs"`, `"data"`, `"weights"`, etc., that have the correct object types. Any additional arguments can be specified by the user. 
+It is possible to use `bal.tab` with objects that don't come from these packages using the "`default`" method. If an object that doesn't correspond to the output from one of the specifically supported packages is passed as the first argument to `bal.tab`, `bal.tab` will do its best to process that object as if it did come from a supported package. It will search through the components of the object for items with names like `"treat"`, `"covs"`, `"data"`, `"weights"`, etc., that have the correct object types. Any additional arguments can be specified by the user. 
 
-The goal of the "`default`" method is to allow package authors to rely `cobalt` as a substitute for any balancing function they might otherwise write. By ensuring compatibility with the "`default`" method, package authors can have their users simply supply the output of a compatible function into `cobalt` functions without having to write a specific method in `cobalt`. A package author would need to make sure the output of their package contained enough information with correctly named items; if so, `cobalt` funcions can be used as conveniently with the output as it is with specifically supported packages.
+The goal of the "`default`" method is to allow package authors to rely on `cobalt` as a substitute for any balancing function they might otherwise write. By ensuring compatibility with the "`default`" method, package authors can have their users simply supply the output of a compatible function into `cobalt` functions without having to write a specific method in `cobalt`. A package author would need to make sure the output of their package contained enough information with correctly named items; if so, `cobalt` funcions can be used as conveniently with the output as it is with specifically supported packages.
 
 Below, we demonstrate this capability with the output of `optweight`, which performs a version of propensity score weighting using optimization. No `bal.tab` method has been written with `optweight` output in mind; rather, `optweight` was written to have output compatible with the "`default`" method of `bal.tab`.
 
 ```{r, include=FALSE}
-#if (!requireNamespace("optweight")) knitr::opts_chunk$set(eval = FALSE)
+if (!requireNamespace("optweight")) knitr::opts_chunk$set(eval = FALSE)
 ```
 ```{r}
 library("optweight")
