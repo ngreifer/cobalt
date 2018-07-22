@@ -114,7 +114,7 @@ bal.tab(m.out, m.threshold = 0.1, un = TRUE)
 ``` r
 # Examining distributional balance with plots:
 bal.plot(m.out, var.name = "educ")
-bal.plot(m.out, var.name = "race")
+bal.plot(m.out, var.name = "distance", mirror = TRUE, type = "histogram")
 ```
 
 ![](inst/figures/README-unnamed-chunk-3-1.png)
