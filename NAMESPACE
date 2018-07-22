@@ -5,7 +5,7 @@ importFrom("grDevices", "col2rgb", "hcl")
 importFrom("crayon", "italic", "underline")
 
 export(bal.tab, bal.plot, love.plot, f.build, splitfactor, 
-       unsplitfactor, get.w)
+       unsplitfactor, get.w, var.names)
 S3method(print, bal.tab)
 S3method(print, bal.tab.subclass)
 S3method(print, bal.tab.cluster)
