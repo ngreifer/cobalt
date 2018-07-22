@@ -580,6 +580,66 @@ get.w.designmatch <- function(dm, treat, ...) {
     return(match.strata2weights(q$group, treat))
 }
 
+var.names <- function(b, type, file = NULL, minimal = FALSE) {
+    if (is_not_null(b[["print.options"]][["co.names"]])) {
+        if (minimal) vars <- unique(unlist(lapply(b[["print.options"]][["co.names"]], function(x) x[["component"]][x[["is.name"]]])))
+        else vars <- vapply(b[["print.options"]][["co.names"]], function(x) paste(x[["component"]], collapse = ""), character(1))
+    }
+    else {
+        vars <- NULL
+        var.containers <- c(quote(b[["Balance"]]),
+                            quote(b[["Cluster.Balance"]][[1]][["Balance"]]),
+                            quote(b[["Subclass.Balance"]][[1]]),
+                            quote(b[["Imputation.Balance"]][[1]][["Balance"]]),
+                            quote(b[["Imputation.Balance"]][[1]][["Cluster.Balance"]][[1]][["Balance"]]),
+                            quote(b[["Pair.Balance"]][[1]]),
+                            quote(b[["Time.Balance"]][[1]][["Balance"]]))
+        for (i in var.containers) {
+            obj <- eval(i)
+            if (is_not_null(obj)) {
+                vars <- rownames(obj)
+                break
+            }
+            else obj <- NULL
+        }
+        if (is_null(vars)) stop("No variable names were found in the object. It is probably not a bal.tab object.", call. = FALSE)
+        if (minimal) warning("minimal is being set to FALSE because the part of the object required for it to be TRUE is missing.", call. = FALSE)
+    }
+    
+    if (is_not_null(file)) {
+        if (!endsWith(file, ".csv")) stop("The filename in file must end in \".csv\".", call. = FALSE)
+    }
+    
+    if (missing(type)) {
+        if (is_not_null(file)) type <- "df"
+        else type <- "vec"
+    }
+    else {
+        possible.types <- c("df", "vec")
+        type <- possible.types[pmatch(type, possible.types)]
+    }
+    
+    if (is.na(type)) stop("type must be \"df\" or \"vec\"")
+    else if (type == "df") {
+        out <- data.frame(old = vars, new = vars, stringsAsFactors = FALSE, row.names = NULL)
+    }
+    else {
+        out <- setNames(vars, vars)
+    }
+    
+    if (is_not_null(file)) {
+        if (type == "df") {
+            write.csv(out, file = file, row.names = FALSE)
+            invisible(out)
+        }
+        else {
+            warning("Only type = \"df\" is compatible with a file name.", call. = FALSE)
+            out
+        }
+    }
+    else out
+}
+
 #For cobalt
 word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE, quotes = FALSE) {
     #When given a vector of strings, creates a string of the form "a and b"
