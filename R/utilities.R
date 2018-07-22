@@ -671,3 +671,9 @@ is_not_null <- function(x) !is_null(x)
     if (is.character(a[[1]])) do.call(crayon::`%+%`, a)
     else do.call(ggplot2::`%+%`, a)
 }
+strsplits <- function(x, splits, fixed = TRUE, ...) {
+    #Link strsplit but takes multiple split values.
+    #Only works for one string at a time (in x).
+    for (split in splits) x <- unlist(strsplit(x, split, fixed = TRUE, ...))
+    return(x[x != ""]) # Remove empty values
+}

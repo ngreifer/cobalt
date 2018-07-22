@@ -398,7 +398,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
 #get.C controls flow and handles redunancy
 #get.types gets variables types (contin./binary)
 
-int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1) {
+int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, sep, co.names) {
     #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"
     #Only to be used in base.bal.tab; for general use see int.poly()
     #mat=matrix input
@@ -415,22 +415,28 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, nunder=1) {
     npol <- nd - sum(no.poly)
     new <- matrix(0, ncol = (poly-1)*npol + int*(.5*(nd)*(nd-1)), nrow = nrd)
     nc <- ncol(new)
-    new.names <- character(nc)
+    new.co.names <- vector("list", (nc))
     if (poly > 1 && npol != 0) {
         for (i in 2:poly) {
             new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
-            new.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], num_to_superscript(i))
+            new.co.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- lapply(colnames(d)[!no.poly], function(x) setNames(list(c(co.names[[x]][["component"]], num_to_superscript(i)), c(co.names[[x]][["is.name"]], FALSE)), c("component", "is.name")))
+            
         }
     }
     if (int && nd > 1) {
         new[,(nc - .5*nd*(nd-1) + 1):nc] <- matrix(t(apply(d, 1, combn, 2, prod)), nrow = nrd)
-        new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse = paste0(rep("_", nunder), collapse = ""))
+        #new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse = sep)
+        new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- lapply(as.data.frame(combn(colnames(d), 2), stringsAsFactors = FALSE), 
+                                                           function(x) setNames(list(c(co.names[[x[1]]][["component"]], sep, co.names[[x[2]]][["component"]]),
+                                                                                     c(co.names[[x[1]]][["is.name"]], FALSE, co.names[[x[2]]][["is.name"]])),
+                                                                                c("component", "is.name")))
     }
     
-    single.value <- apply(new, 2, all_the_same)
-    colnames(new) <- new.names
-    #new <- setNames(data.frame(new), new.names)[!single.value]
-    return(new[, !single.value, drop = FALSE])
+    colnames(new) <- vapply(new.co.names, function(x) paste0(x[["component"]], collapse = ""), character(1))
+    names(new.co.names) <- colnames(new)
+    new <- new[, !apply(new, 2, all_the_same), drop = FALSE]
+    attr(new, "co.names") <- new.co.names
+    return(new)
 }
 binarize <- function(variable) {
     nas <- is.na(variable)
@@ -442,8 +448,11 @@ binarize <- function(variable) {
     newvar[nas] <- NA
     return(newvar)
 }
-get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL) {
+get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL, ...) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
+    A <- list(...)
+    if (is_null(A[["int_sep"]])) A[["int_sep"]] <- " | "
+    if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- "_"
     
     C <- covs
     if (!is.null(addl)) {
@@ -474,12 +483,16 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
                                  has.Inf = FALSE,
                                  row.names = names(C),
                                  stringsAsFactors = FALSE)
+    co.names <- setNames(lapply(names(C), function(x) setNames(list(x, TRUE), c("component", "is.name"))), names(C))
+    
     for (i in names(C)) {
-        if (is.character(C[[i]])) C[[i]] <- factor(C[[i]])
-        else if (is_binary(C[[i]][!is.na(C[[i]])])) {
-            if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
-            else if (is.numeric(C[[i]])) C[[i]] <- binarize(C[[i]])
+        if (is_binary(C[[i]])) {
+            #if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
+            #else if (is.numeric(C[[i]])) C[[i]] <- binarize(C[[i]])
+            C[[i]] <- factor(C[[i]])
+            levels(C[[i]]) <- rev(levels(C[[i]]))
         }
+        else if (is.character(C[[i]]) || is.factor(C[[i]])) C[[i]] <- factor(C[[i]])
         
         if (nlevels(cluster) > 0 && qr(matrix(c(C[[i]], as.numeric(cluster)), ncol = 2))$rank == 1) {
             C <- C[names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
@@ -488,17 +501,25 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             if (any(is.na(C[[i]]))) vars.w.missing[i, "has.missing"] <- TRUE
             if (!is.numeric(C[[i]])) {
                 old.C.names <- names(C)
-                C <- splitfactor(C, i, replace = TRUE, sep = "_", drop.first = FALSE, 
+                C <- splitfactor(C, i, replace = TRUE, sep = A[["factor_sep"]], drop.first = FALSE, 
                                  drop.singleton = FALSE)
                 newly.added.names <- names(C)[names(C) %nin% old.C.names]
                 vars.w.missing[i, "placed.after"] <- newly.added.names[length(newly.added.names)]
+                co.names <- c(co.names, setNames(lapply(newly.added.names, function(x) {
+                    split.points <- nchar(i)
+                    split.names <- substring(x,
+                        c(1, split.points + 1),
+                        c(split.points, nchar(x))
+                    )
+                    setNames(list(split.names, c(TRUE, FALSE)), 
+                             c("component", "is.name"))
+                }), newly.added.names))
             }
         }
     }
     #Make sure categorical variable have missingness indicators done correctly
     
-    single.value <- vapply(C, all_the_same, logical(1L))
-    C <- C[!single.value]
+    C <- C[!vapply(C, all_the_same, logical(1L))]
     C <- as.matrix(C)
     
     #Process int
@@ -511,22 +532,21 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     }
     
     if (int) {
-        #Prevent duplicate var names with _'s
-        nunder <- 1
+        #Prevent duplicate var names with `sep`s
+        nsep <- 1
         repeat {
-            all.possible.names <- outer(colnames(C), colnames(C), paste, sep = paste0(rep("_", nunder), collapse = ""))
+            all.possible.names <- outer(colnames(C), colnames(C), paste, sep = paste0(rep(A[["int_sep"]], nsep), collapse = ""))
             if (!any(colnames(C) %in% all.possible.names)) break
-            else nunder <- nunder + 1
+            else nsep <- nsep + 1
         }
 
         if (as.numeric(int) %in% c(1, 2)) poly <- 2
         else poly <- int
-        C <- cbind(C, int.poly.f(C, int = TRUE, poly = poly, nunder = nunder))
-        
+        new <- int.poly.f(C, int = TRUE, poly = poly, sep = rep(A[["int_sep"]], nsep), co.names = co.names)
+        C <- cbind(C, new)
+        co.names <- c(co.names, attr(new, "co.names"))
     }
-    #Remove duplicate & redundant variables
-    C <- remove.perfect.col(C)    
-    
+
     #Add missingness indicators
     vars.w.missing <- vars.w.missing[vars.w.missing$placed.after %in% colnames(C) & vars.w.missing$has.missing, , drop = FALSE]
     if (nrow(vars.w.missing) > 0) {
@@ -534,6 +554,9 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         new.var.order <- original.var.order + cumsum(c(0,(colnames(C) %in% vars.w.missing$placed.after)[-ncol(C)]))
         missing.ind <- apply(C[,colnames(C) %in% vars.w.missing$placed.after, drop = FALSE], 2, function(x) as.numeric(is.na(x)))
         colnames(missing.ind) <- paste0(rownames(vars.w.missing), ":<NA>")
+        miss.co.names <- setNames(lapply(rownames(vars.w.missing), function(x) setNames(list(c(x, ":<NA>"),
+                                                                                 c(TRUE, FALSE)), c("component", "is.name"))),
+                                  colnames(missing.ind))
         missing.ind <- remove.perfect.col(missing.ind) 
         new.C <- matrix(NA, nrow = nrow(C), ncol = ncol(C) + ncol(missing.ind),
                         dimnames = list(rownames(C), seq_len(ncol(C) + ncol(missing.ind))))
@@ -543,15 +566,25 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         colnames(new.C)[-new.var.order] <- colnames(missing.ind)
         C <- new.C
         if (int) {
-            C <- cbind(C, int.poly.f(missing.ind, int = TRUE, poly = 1, nunder = 1))
+            new <- int.poly.f(missing.ind, int = TRUE, poly = 1, sep = rep(A[["int_sep"]], nsep), co.names = miss.co.names)
+            C <- cbind(C, new)
+            miss.co.names <- c(miss.co.names, attr(new, "co.names"))
         }
+        co.names <- c(co.names, miss.co.names)
     }
+
+    #Remove duplicate & redundant variables
+    C <- remove.perfect.col(C) 
     
     if (is_not_null(distance)) {
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
         C <- cbind(distance, C, row.names = NULL)
         attr(C, "distance.names") <- names(distance)
     }
+
+    co.names <- co.names[colnames(C)]
+    attr(co.names, "seps") <- c(factor = A[["factor_sep"]], int = A[["int_sep"]])
+    attr(C, "co.names") <- co.names
     
     return(C)
     
@@ -575,7 +608,7 @@ remove.perfect.col <- function(C) {
     }
     else suppressWarnings(C.cor <- cor(C, use = "pairwise.complete.obs"))
     
-    s <- !lower.tri(C.cor, diag=TRUE) & check_if_zero(1 - abs(C.cor))
+    s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
     redundant.vars <- apply(s, 2, any)
     C <- C[, !redundant.vars, drop = FALSE] 
     return(C)

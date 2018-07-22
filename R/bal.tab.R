@@ -61,10 +61,11 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
         out <- vector("list", length(out.names))
         names(out) <- out.names
         
-        C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster)
+        C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster, ...)
         C.list <- setNames(lapply(levels(cluster), function(x) C[cluster == x, , drop = FALSE]), 
                            levels(cluster))
         types <- get.types(C)
+        co.names <- attr(C, "co.names")
         
         if (length(method) == 1 && method == "subclassification") {
             stop("Subclassification with clusters is not yet supported.", call. = FALSE)
@@ -106,7 +107,8 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
                                            weight.names = names(weights),
-                                           treat.names = treat.names)
+                                           treat.names = treat.names,
+                                           co.names = co.names)
             class(out) <- c("bal.tab.cluster", "bal.tab")
         }
         
@@ -122,7 +124,8 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
                 out <- vector("list", length(out.names))
                 names(out) <- out.names
                 
-                C <- get.C(covs = covs, int = int, addl = addl, distance = distance)
+                C <- get.C(covs = covs, int = int, addl = addl, distance = distance, ...)
+                co.names <- attr(C, "co.names")
                 
                 if (is_not_null(list(...)$sub.by)) sub.by <- list(...)$sub.by
                 else sub.by <- call$sub.by
@@ -184,7 +187,8 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
                                                disp.bal.tab = disp.bal.tab, 
                                                abs = abs,
                                                quick = quick,
-                                               treat.names = treat.names)
+                                               treat.names = treat.names,
+                                               co.names = co.names)
                 class(out) <- c("bal.tab.subclass", "bal.tab")
             }
             else stop("Method specified as subclassification, but no subclasses were specified.", call. = FALSE)
@@ -198,7 +202,8 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
             out <- vector("list", length(out.names))
             names(out) <- out.names
             
-            C <- get.C(covs = covs, int = int, addl = addl, distance = distance)
+            C <- get.C(covs = covs, int = int, addl = addl, distance = distance, ...)
+            co.names <- attr(C, "co.names")
             
             out[["Balance"]] <- balance.table(C, weights, treat, continuous, binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, ks.threshold = ks.threshold, un = un, disp.means = disp.means, disp.v.ratio = disp.v.ratio, disp.ks = disp.ks, s.weights = s.weights, abs = abs, no.adj = no.adj, quick = quick, pooled.sds = pooled.sds)
             
@@ -278,7 +283,8 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
                                            weight.names = names(weights),
-                                           treat.names = treat.names)
+                                           treat.names = treat.names,
+                                           co.names = co.names)
             class(out) <- "bal.tab"
         }
     }
@@ -321,7 +327,8 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
         out[["Cluster.Balance"]] <- vector("list", length(levels(cluster)))
         names(out[["Cluster.Balance"]]) <- levels(cluster)
         
-        C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster)
+        C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster, ...)
+        co.names <- attr(C, "co.names")
         C.list <- structure(lapply(levels(cluster), function(x) C[cluster == x, , drop = FALSE]), names = levels(cluster))
         types <- get.types(C)
         
@@ -358,7 +365,8 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
                                            abs = abs,
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
-                                           weight.names = names(weights))
+                                           weight.names = names(weights),
+                                           co.names = co.names)
             class(out) <- c("bal.tab.cont.cluster", "bal.tab.cluster", "bal.tab.cont", "bal.tab")
         }
         
@@ -373,7 +381,8 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
                 out <- vector("list", length(out.names))
                 names(out) <- out.names
                 
-                C <- get.C(covs = covs, int = int, addl = addl, distance = distance)
+                C <- get.C(covs = covs, int = int, addl = addl, distance = distance, ...)
+                co.names <- attr(C, "co.names")
                 
                 # if (length(list(...)$sub.by > 0)) sub.by <- list(...)$sub.by
                 # else sub.by <- call$sub.by
@@ -400,7 +409,8 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
                                                disp.subclass=disp.subclass,
                                                disp.bal.tab = disp.bal.tab,
                                                abs = abs,
-                                               quick = quick)
+                                               quick = quick,
+                                               co.names = co.names)
                 class(out) <- c("bal.tab.subclass.cont", "bal.tab.subclass", "bal.tab.cont", "bal.tab")
             }
             else stop("Method specified as subclassification, but no subclasses were specified.", call. = FALSE)
@@ -414,7 +424,8 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
             out <- vector("list", length(out.names))
             names(out) <- out.names
             
-            C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster)
+            C <- get.C(covs = covs, int = int, addl = addl, distance = distance, cluster = cluster, ...)
+            co.names <- attr(C, "co.names")
             
             out[["Balance"]] <- balance.table.cont(C, weights, treat, r.threshold, un = un, s.weights = s.weights, abs = abs, no.adj = no.adj, quick = quick)
             if (is_not_null(r.threshold)) {
@@ -446,7 +457,8 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
                                            abs = abs,
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
-                                           weight.names = names(weights))
+                                           weight.names = names(weights),
+                                           co.names = co.names)
             class(out) <- c("bal.tab.cont", "bal.tab")
         }
     }
@@ -573,12 +585,13 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
                                    disp.ks=disp.ks,
                                    disp.bal.tab = disp.bal.tab,
                                    nweights = ifelse(no.adj, 0, ncol(weights)),
-                                   weight.names = names(weights))
+                                   weight.names = names(weights),
+                                   co.names = co.names)
     class(out) <- unique(c(classes, sapply(out[["Imputation.Balance"]], class)))
     
     return(out)
 }
-base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, ccontinuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, disp.bal.tab = TRUE, method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
+base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, disp.bal.tab = TRUE, method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
     #Preparations
     
     if (is_not_null(m.threshold)) m.threshold <- abs(m.threshold)
@@ -639,7 +652,8 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         names(out) <- out.names
         
         if (any(s.d.denom == "pooled")) {
-            C <- get.C(covs = covs, int = int, addl = addl, distance = distance)
+            C <- get.C(covs = covs, int = int, addl = addl, distance = distance, ...)
+            co.names <- attr(C, "co.names")
             pooled.sds <- rowMeans(do.call("cbind", lapply(levels(treat), function(t) sqrt(col.w.v(C[treat == t, , drop = FALSE], 
                                                                                                    s.weights[treat == t])))))
             #pooled.sds <- sqrt(col.w.v(C, s.weights)) #How twang does it
@@ -696,7 +710,8 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
                                        treat.names = treat.names,
                                        which.treat = which.treat,
                                        multi.summary = multi.summary,
-                                       pairwise = pairwise)
+                                       pairwise = pairwise,
+                                       co.names = co.names)
         
         class(out) <- c("bal.tab.multi", "bal.tab")
     }
@@ -846,7 +861,8 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
                                        nweights = ifelse(no.adj, 0, ncol(weights)),
                                        weight.names = names(weights),
                                        which.time = which.time,
-                                       msm.summary = msm.summary)
+                                       msm.summary = msm.summary,
+                                       co.names = co.names)
         
         class(out) <- c("bal.tab.msm", "bal.tab")
     }
