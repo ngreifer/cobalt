@@ -1,7 +1,7 @@
 cobalt News and Updates
 ======
 
-Version 3.3.1
+Version 3.4.0
 
 * Added `default` method for `bal.tab` so it can be used with specially formatted output from other packages (e.g., from `optweight`). `bal.plot` should work with these outputs too. This, of course, will never be completely bug-free because infinite inputs are possible and cannot all be processed perfectly. Don't try to break this function :)
 
@@ -10,6 +10,12 @@ Version 3.3.1
 * Speed improvements in `bal.plot`, especially with multiple facets, and in `bal.tab`.
 
 * Added new options to `bal.plot`, including the ability to display histograms rather than densities and mirrored rather than overlapping plots. This makes it possible to make the popular mirrored histogram plot for propensity scores. In addition, it's now easier to change the colors of the components of the plots.
+
+* Made behavior around binary variables with interactions more like documentation, where interactions with both levels of the variable are present (thanks to @victorn1). Also, replaced `_` with ` | ` as the delimiter between variable names in interactions. For the old behavior, use the "secret" option `int_sep = "_"` in `bal.tab`. This functionality is not documented (mostly because I'm lazy).
+
+* Expanded the flexibility of `var.names` in `love.plot` so that replacing the name of a variable will replace it everywhere it appears, including interactions (thanks to @victorn1)
+
+* Added `var.names` function to extract and save variable names from `bal.tab` objects. This makes it a lot easier to create replacement names for use in `love.plot`. Thanks to @victorn1 for the suggestion.
 
 Version 3.3.0
 
