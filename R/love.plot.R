@@ -793,7 +793,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (length(colors) == 1) colors <- rep(colors, ntypes)
         else if (length(colors) > ntypes) {
             colors <- colors[seq_len(ntypes)]
-            warning(paste("Only using first", ntypes, "values in colors."), call. = FALSE)
+            warning(paste("Only using first", ntypes, "value", if (ntypes>1) "s " else " ", "in colors."), call. = FALSE)
         }
         else if (length(colors) < ntypes) {
             warning("Not enough colors were specified. Using default colors instead.", call. = FALSE)
@@ -815,7 +815,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     else {
         #check shapes
         if (!shapes.ok(shapes, ntypes)) {
-            warning(paste("The argument to shape must be", ntypes, "valid shapes. See ?love.plot for more information.\nUsing default shapes instead."), call. = FALSE)
+            warning(paste("The argument to shape must be", ntypes, "valid shape", if (ntypes>1) "s." else ".", " See ?love.plot for more information.\nUsing default shapes instead."), call. = FALSE)
             shapes <- assign.shapes(colors)
         }
         else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
