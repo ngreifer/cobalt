@@ -370,6 +370,8 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                                      p.ops$un && p.ops$disp.means, 
                                      p.ops$un && p.ops$disp.means, 
                                      p.ops$un, 
+                                     p.ops$un && p.ops$disp.v.ratio,
+                                     p.ops$un && p.ops$disp.ks,
                                      p.ops$disp.adj && p.ops$disp.means, 
                                      p.ops$disp.adj && p.ops$disp.means, 
                                      p.ops$disp.adj, 

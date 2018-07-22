@@ -772,7 +772,7 @@ x2base.data.frame <- function(covs, ...) {
         specified["weights"] <- TRUE
     }
     if (is_not_null(subclass)){
-        if (!is.character(subclass) && !is.numeric(subclass)) {
+        if (!is.character(subclass) && !is.numeric(subclass) && !is.factor(subclass)) {
             stop("The argument to subclass must be a vector of subclass membership or the (quoted) name of a variable in data that contains subclass membership.", call. = FALSE)
         }
         specified["subclass"] <- TRUE
