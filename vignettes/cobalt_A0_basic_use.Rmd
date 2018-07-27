@@ -245,7 +245,7 @@ data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 #Generating propensity score weights for the ATT
-W.out <- weightit(f.build("treat", covs0), data = lalonde,
+W.out <- weightit(treat ~ covs0, data = lalonde,
                   method = "ps", estimand = "ATT")
 
 bal.tab(W.out)
@@ -396,7 +396,7 @@ cov.mn <- subset(lalonde, select = -c(treat, re78, race))
 
 #Using WeightIt to generate weights with multinomial
 #logistic regression
-W.out.mn <- weightit(f.build("race", cov.mn), data = lalonde,
+W.out.mn <- weightit(race ~ cov.mn, data = lalonde,
                      method = "ps")
 ```
 
