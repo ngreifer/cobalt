@@ -2297,10 +2297,10 @@ x2base.data.frame.list <- function(covs.list, ...) {
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
     lengths <- setNames(c(lengths(mget(vectors)), 
                           vapply(data.frames, 
-                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
+                                 function(x) {if (is_null(get0(x))) 0 else nrow(get(x))
                                  }, numeric(1L)),
                           vapply(lists, function(x) {
-                              if (is.null(get0(x))) 0 
+                              if (is_null(get0(x))) 0 
                               else if (is.vector(get(x))) {
                                   if (is.data.frame(get(x)[[1]]) || is.matrix(get(x)[[1]])) max(vapply(get(x), nrow, numeric(1L)))
                                   else max(lengths(get(x)))
