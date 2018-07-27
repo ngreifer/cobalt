@@ -3603,7 +3603,7 @@ x2base.default <- function(obj, ...) {
         #Get s.d.denom
         X$s.d.denom <- rep("pooled", max(1, ncol(weights)))
         
-        if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x), logical(1L))))) {
+        if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
         
