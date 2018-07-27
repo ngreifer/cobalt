@@ -7,7 +7,7 @@ Description: Generate balance tables and plots for covariates of groups preproce
 Depends:
     R (>= 3.3.0)
 Imports:
-    ggplot2 (>= 2.2.0),
+    ggplot2 (>= 3.0.0),
     ggstance,
     crayon
 Suggests:
