@@ -3588,7 +3588,7 @@ x2base.default <- function(obj, ...) {
         }
         
         if (is_not_null(weights)) {
-            if (any(vapply(weights, function(x) !is.finite(x), logical(1L)))) {
+            if (any(vapply(weights, function(x) any(!is.finite(x)), logical(1L)))) {
                 stop("All weights must be numeric.", call. = FALSE)
             }
             if (length(X$method) == 1) {
