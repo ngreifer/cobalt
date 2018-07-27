@@ -7,7 +7,7 @@
 Balance Statistics for Longitudinal Treatments
 }
 \description{
-Generates balance statistics for data coming from a longtiduinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point; this object is given the class \code{"time.list""} internally.
+Generates balance statistics for data coming from a longtiduinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point; this object is given the class \code{"time.list"} internally.
 }
 \usage{
 \method{bal.tab}{time.list}(time.list, 
@@ -174,7 +174,7 @@ Noah Greifer
 data("iptwExWide", package = "twang")
 library("cobalt")
 
-## Estimating longtiduinal propensity scores and weights
+## Estimating longitudinal propensity scores and weights
 ps1 <- glm(tx1 ~ age + gender + use0,
             data = iptwExWide, 
             family = "binomial")$fitted.values

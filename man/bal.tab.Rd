@@ -27,7 +27,7 @@ The default balance statistic for mean differences for continuous variables is t
 
 Standardized differences are calculated as follows: the numerator is the mean of the treated group minus the mean of the control group, and the denominator is a measure of spread calculated in accordance with the argument to \code{s.d.denom} or the default of the specific method used. Common approaches in the literature include using the standard deviation of the treated group or using the "pooled" standard deviation (i.e., the square root of the mean of the group variances) in calculating standardized mean differences. The computed spread \code{bal.tab()} uses is always that of the full, unadjusted sample (i.e., before matching, weighting, or subclassification), as recommended by Stuart (2010) and institued in \pkg{MatchIt}, though some analysts and other packages use the spread of the sample in question (i.e., before or after adjustment). One reason to favor the use of the spead of the unadjusted sample is that it prevents the paradoxical situation of adjustment descreasing both the mean difference and the spread of the sample, yielding a larger standardized mean difference than that prior to adjusting even though the adjusted groups are now more similar.
 
-Although the reported mean differences (standardized or otherwise) are presented as they are calculated, when \code{m.threshold} is specified, it is compared to the absolute mean difference for simplicty of reporting. \code{bal.tab()} takes the absolute value of the input to \code{m.threshold} as well before comparing.
+When \code{m.threshold} is specified, it is compared to the absolute mean difference. \code{bal.tab()} takes the absolute value of the input to \code{m.threshold} as well before comparing.
 
 Variance ratios are computed within-sample, with the larger of the two variances in the numerator, always yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion. \code{bal.tab()} takes the reciprocal of the input to \code{v.threshold} if it is less than 1.
 
@@ -122,10 +122,12 @@ Noah Greifer
 
 \code{\link{bal.tab.CBPS}} for the method for objects returned by \pkg{CBPS}.
 
-\code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \code{\link{bal.tab.list}}.
+\code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \code{\link{bal.tab.time.list}}.
 
 \code{\link{bal.tab.ebalance}} for the method for objects returned by \pkg{ebal}.
 
 \code{\link{bal.tab.designmatch}} for the method for objects returned by \pkg{designmatch}.
+
+\code{\link{bal.tab.default}} for the method for objects that do not come from one of the explicitly supported conditioning packages.
 
 }
