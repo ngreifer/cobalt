@@ -111,7 +111,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             if (any(is.na(levels(x)))) {
                 
                 if (drop.na[v]) {
-                    k[k[,is.na(levels(x))] == 1,] <- NA
+                    k[k[,is.na(levels(x))] == 1,] <- NA_real_
                     #k <- k[, !is.na(levels(x)), drop = FALSE]
                 }
             }
@@ -212,7 +212,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         if (!isTRUE(dropped.na)) {
             NA.column <- paste0(v, sep, ifelse(dropped.na == FALSE, "NA", dropped.na))
             if (NA.column %in% names(var.to.combine)) {
-                var.to.combine[var.to.combine[[NA.column]] == 1,] <- NA
+                var.to.combine[var.to.combine[[NA.column]] == 1,] <- NA_real_
                 var.to.combine <- var.to.combine[names(var.to.combine) != NA.column]
             }
             else {
@@ -652,7 +652,7 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
         attr(out, "plural") = FALSE
     }
     else {
-        word.list <- word.list[!word.list %in% c(NA, "")]
+        word.list <- word.list[!word.list %in% c(NA_character_, "")]
         L <- length(word.list)
         if (L == 0) {
             out <- ""
@@ -684,7 +684,7 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
 expand.grid_string <- function(..., collapse = "") {
     return(apply(expand.grid(...), 1, paste, collapse = collapse))
 }
-nunique <- function(x, nmax = NA, na.rm = TRUE) {
+nunique <- function(x, nmax = NA_real_, na.rm = TRUE) {
     if (is_null(x)) return(0)
     else {
         if (na.rm) x <- x[!is.na(x)]
