@@ -2692,7 +2692,7 @@ x2base.default <- function(obj, ...) {
               imp = NA,
               s.weights = NA,
               focal = NA)
-    
+  
     Q <- list(treat = list(name = c("treat", "tr"), 
                            type = c("numeric", "character", "factor", "logical")),
               treat.list = list(name = c("treat.list", "treat", "tr"),
@@ -2837,7 +2837,7 @@ x2base.default <- function(obj, ...) {
     #focal OK
     
     #call OK
-    
+       
     #model (only to extract data)
     if (is_not_null(obj[["model"]])) {
         if (is_null(data) && "data" %in% names(obj[["model"]])) {

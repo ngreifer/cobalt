@@ -6,7 +6,6 @@ bal.tab <- function(...) {
     UseMethod("bal.tab", A[[1]])
 }
 base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = FALSE, un = FALSE, disp.means = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, disp.subclass = FALSE, disp.bal.tab = TRUE, method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, pooled.sds = NULL, ...) {
-    
     #Preparations
     args <- list(...)
    
@@ -2003,7 +2002,8 @@ bal.tab.default <- function(obj, ...) {
                                 s.d.denom=X$s.d.denom, 
                                 method=X$method, 
                                 s.weights = X$s.weights),
-                                args))
+                                args),
+                       quote = TRUE)
     }
     else if (is_not_null(X$imp)) {
         out <- do.call("base.bal.tab.imp", c(list(weights=X$weights, 
@@ -2018,7 +2018,8 @@ bal.tab.default <- function(obj, ...) {
                                 cluster = X$cluster, 
                                 imp = X$imp,
                                 s.weights = X$s.weights),
-                                args))
+                                args),
+                       quote = TRUE)
     }
     else if (!is_binary(X$treat) && is.numeric(X$treat)) {
         out <- do.call("base.bal.tab.cont", c(list(weights=X$weights, 
@@ -2031,7 +2032,8 @@ bal.tab.default <- function(obj, ...) {
                                  method=X$method, 
                                  cluster = X$cluster, 
                                  s.weights = X$s.weights),
-                                 args))
+                                 args),
+                       quote = TRUE)
     }
     else if (!is_binary(X$treat) && (is.factor(X$treat) || is.character(X$treat))) {
         out <- do.call("base.bal.tab.multi", c(list(weights=X$weights, 
@@ -2046,7 +2048,8 @@ bal.tab.default <- function(obj, ...) {
                                   cluster = X$cluster, 
                                   focal = X$focal,
                                   s.weights = X$s.weights),
-                                  args))
+                                  args),
+                       quote = TRUE)
     }
     else {
         out <- do.call("base.bal.tab", c(list(weights=X$weights, 
