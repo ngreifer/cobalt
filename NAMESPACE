@@ -3,7 +3,7 @@ import(stats)
 importFrom("utils", "combn", "data", "write.csv")
 importFrom("grDevices", "col2rgb", "hcl")
 importFrom("crayon", "italic", "underline")
-importFrom("method", "is")
+importFrom("methods", "is")
 
 export(bal.tab, bal.plot, love.plot, f.build, splitfactor, 
        unsplitfactor, get.w, var.names)
