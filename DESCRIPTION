@@ -9,7 +9,8 @@ Depends:
 Imports:
     ggplot2 (>= 3.0.0),
     ggstance,
-    crayon
+    crayon,
+    methods
 Suggests:
     MatchIt,
     WeightIt (>= 0.3.0),
