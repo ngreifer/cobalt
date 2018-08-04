@@ -569,7 +569,7 @@ check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL) {
     w.t.mat <- expand.grid(colnames(weights.df), unique.treat)
     if (nrow(w.t.mat) > 0) {
         #problems <- apply(w.t.mat, 1, function(x) all(check_if_zero(weights.df[treat == x[2], x[1]])))
-        problems <- apply(w.t.mat, 1, function(x) all_the_same(weights.df[treat == x[2], x[1]]) && check_if_zero(weights.df[treat == x[2], x[1]][1]))
+        problems <- apply(w.t.mat, 1, function(x) check_if_zero(weights.df[treat == x[2], x[1]][1]) && all_the_same(weights.df[treat == x[2], x[1]]))
         if (any(problems)) {
             prob.w.t.mat <- droplevels(w.t.mat[problems,])
             if (ncol(weights.df) == 1) {
@@ -1111,7 +1111,9 @@ w.r <- function(x, y, w = NULL) {
     if (is_null(w)) w <- rep(1, length(x))
     else if (length(w) != length(x)) stop("weights must be same length as x and y")
     
-    r <- w.cov(x, y, w) / (sqrt(w.cov(x, x, w) * w.cov(y, y, w)))
+    #r <- w.cov(x, y, w) / (sqrt(w.cov(x, x, w) * w.cov(y, y, w)))
+    r <- w.cov(x, y, w) / (sqrt(var(x) * var(y)))
+    
     return(r)
 }
 samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), cluster = NULL, which.cluster = NULL, discarded = NULL) {
