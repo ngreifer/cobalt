@@ -329,7 +329,7 @@ x2base.mnps <- function(mnps, ...) {
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- vapply(tolower(estimand), switch, characte(1L), att = "treated", ate = "pooled")
+    else X$s.d.denom <- vapply(tolower(estimand), switch, character(1L), att = "treated", ate = "pooled")
     
     weights <- data.frame(get.w(mnps, s))
     treat <- mnps$treatVar
