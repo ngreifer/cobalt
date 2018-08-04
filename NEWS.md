@@ -17,6 +17,8 @@ Version 3.4.0
 
 * Added `var.names` function to extract and save variable names from `bal.tab` objects. This makes it a lot easier to create replacement names for use in `love.plot`. Thanks to @victorn1 for the suggestion.
 
+* When weighted correlations are computed for continuous treatments, the denominator of the correlation uses the unweighted standard deviations. See `?bal.tab` for the rationale.
+
 Version 3.3.0
 
 * Added methods for objects from the `designmatch` package.
