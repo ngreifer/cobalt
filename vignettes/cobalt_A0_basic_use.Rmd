@@ -43,7 +43,7 @@ The rest of this guide explains how to use `cobalt` with the above packages and 
 #### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.3.0.
+Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.4.0.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
@@ -83,8 +83,11 @@ There are unique features in `cobalt` that do not exist in any other package. Th
 
 There are three main functions for use in `cobalt`: `bal.tab()`, `bal.plot()`, and `love.plot()`. There are also several utility functions which can be used to ease the use of `cobalt` and other packages. The next sections describe how to use each, complete with example code and output. To start, install and load `cobalt` with the following code:
 
-```{r, eval = 2}
-#install.packages("cobalt")
+```{r, include = F}
+library("cobalt")
+```
+```{r, eval = F}
+install.packages("cobalt")
 library("cobalt")
 ```
 ### Utilities
@@ -205,7 +208,7 @@ nsub <- 5 #number of subclasses
 lalonde$subclass <- findInterval(lalonde$p.score, 
                                  quantile(lalonde$p.score[lalonde$treat == 1], 
                                           seq(0, 1, length.out = nsub + 1)), 
-                                 all.inside = T)
+                                 all.inside = TRUE)
 
 bal.tab(treat ~ covs0, data = lalonde, subclass = "subclass", 
         method = "subclassification", disp.subclass = TRUE)
@@ -318,7 +321,7 @@ The plot uses the original variable names as they are given in the data set, whi
 
 ```{r, fig.width = 5}
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
-                        "race_white", "married", "nodegree", "re74", "re75", "distance"),
+                        "race_white", "married_1", "nodegree_1", "re74", "re75", "distance"),
                 new = c("Age", "Years of Education", "Black", 
                         "Hispanic", "White", "Married", "No Degree Earned", 
                         "Earnings 1974", "Earnings 1975", "Propensity Score"))
@@ -342,7 +345,7 @@ Although the most common use of propensity scores is in the context of binary tr
 
 Bia & Mattei (2008) describe the use of the `gpscore` function in Stata, which appears to be highly effective for estimating and assessing dose-response functions for continuous treatments. In R, there are not many ways to estimate and condition on the propensity score in these contexts. It is possible, using the formulas described by Hirano & Imbens (2004), to generate the propensity scores manually and perform weighting, subclassification, or covariate adjustment on them. The `WeightIt` package supports continuous treatments with a variety of options, including the CBPS method implemented in the `CBPS` package and described by Fong & Imai (2014) and the GBM method implemeted in `WeightIt` and described by Zhu, Coffman, & Ghosh (2015). The `balance()` function in the `CBPS` package assesses balance after propensity score weighting using `CBPS`.
 
-In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in Zhu et al. (2015), but not that described in Hirano & Imbens (2004) or implemented in `gpscore` (Bia & Mattei, 2008), which involves stratifying on both the treatment variable and the propensity score and calculating mean differences.
+In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in Zhu et al. (2015), but not that described in Hirano & Imbens (2004) or implemented in `gpscore` (Bia & Mattei, 2008), which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator.
 
 Below is an example of the workflow for using propensity scores for continuous treatments in the `WeightIt` package. To demonstrate, we use the `lalonde` package included in `cobalt`, using an arbitrary continuous variable as the treatment, though substantively this analysis makes little sense.
 
@@ -459,7 +462,7 @@ love.plot(bal.tab(treat ~ covs0, data = lalonde,
                                        IPW = get.w(W.out)),
                   method = c("matching", "weighting")), var.order = "unadjusted",
           abs = TRUE, colors = c("red", "blue", "darkgreen"), 
-          shapes = c(21, 22, 23))
+          shapes = c("circle", "square", "diamond"))
 ```
 
 ### Using the prognostic score for balance assessment
@@ -524,9 +527,9 @@ Because hypothesis tests can be misleading and their use is discouraged by leadi
 
 ### Q-Q Plots and Summaries
 
-Q-Q plots have been recommended as tools to assess distributional balance of covariates between groups (Ho et al., 2007), and are implemented in `MatchIt` and `Matching` (`twang` implements them but for a different purpose). Statistics summarizing the degree of imbalance in Q-Q plots are also reported in both `MatchIt` and `Matching`. `MatchIt`'s `summary()` command by default reports "eQQ Med", "eQQ Mean", and "eQQ Max" for each covariate before and after adjustment. These are the median, mean, and maximum distance between the treated and control group empirical Q-Q plots on the scale of the covariate. When `standardize = TRUE`, the values reported are "eCDF Med", "eCDF Mean", and "eCDF Max", which are the same values as above but computed using the empircal cumulative densities. The `Matching` package also provides all of these values. Values close to 0 indicate good balance between groups for the given covariate.
+Q-Q plots have been recommended as tools to assess distributional balance of covariates between groups (Ho et al., 2007), and are implemented in `MatchIt` and `Matching` (`twang` implements them but for a different purpose). Statistics summarizing the degree of imbalance in Q-Q plots are also reported in both `MatchIt` and `Matching`. `MatchIt`'s `summary()` command by default reports "eQQ Med", "eQQ Mean", and "eQQ Max" for each covariate before and after adjustment. These are the median, mean, and maximum distance between the treated and control group empirical Q-Q plots on the scale of the covariate. When `standardize = TRUE`, the values reported are "eCDF Med", "eCDF Mean", and "eCDF Max", which are the same values as above but computed using the empircal cumulative densities. The `Matching` package also provides all of these values. The "eCDF Max" is equivalent to the Kolmogorov-Smirnov statistic. Values close to 0 indicate good balance between groups for the given covariate.
 
-A weakness of empirical Q-Q plots is that they don't reveal much about the differences in the shapes of the distributions between the groups, which is a key aspect of distributional balance. A density plot essentially contains the same information, but is clearer and more intuitive. Although the assessment of balance using an empirical Q-Q plot is straightforward (i.e., deviations from the 45-degree line indicate imbalances), density plots present the information in a way more in line with the actual goals of conditioning, in particular, that the distributions of treated and control units are similar (Ho et al., 2007). Empirical Q-Q plot summary statistics may be useful in quantifying imbalance, but currently there are no recommendations for their use, and no precedents in the applied literature either.
+A weakness of empirical Q-Q plots is that they don't reveal much about the differences in the shapes of the distributions between the groups, which is a key aspect of distributional balance. A density plot essentially contains the same information, but is clearer and more intuitive. Although the assessment of balance using an empirical Q-Q plot is straightforward (i.e., deviations from the 45-degree line indicate imbalances), density plots present the information in a way more in line with the actual goals of conditioning, in particular, that the distributions of treated and control units are similar (Ho et al., 2007). Empirical Q-Q plot summary statistics may be useful in quantifying imbalance, but currently there are few recommendations for their use beyond the Kolmogorov-Smirnov statistic.
 
 ## What's Added in `cobalt`
 
@@ -567,15 +570,15 @@ Because the number of computations increases both with sample size and number of
 
 Love plots and other similar plots that graphically display covariate balance before and after matching appear with some frequency in the applied and methodological literature (e.g., Ahmed et al., 2007; Austin, 2009; Austin & Stuart, 2015). Several of the conditioning packages implement a similar plot: `MatchIt`'s `plot(summary(..., standardize = TRUE))` and `twang`'s `plot(..., plots = "es")` present line plots showing the change in balance for each covariate. Below are examples of `twang`'s balance plot (above) and `cobalt`'s Love plot (below).
 
-```{r, echo = FALSE, fig.show = 'hold', fig.width = 5}
+```{r, echo = FALSE, fig.show = 'hold', fig.width = 5, warning=FALSE}
 library("twang")
 data("lalonde", package = "cobalt") ##If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 ps.out <- ps(f.build("treat", covs0), data = lalonde, 
-             stop.method = c("es.mean", "es.max"), 
+             stop.method = "es.max", 
              estimand = "ATT", n.trees = 100, verbose = FALSE)
 plot(ps.out, plots = "es", subset = 1)
-love.plot(bal.tab(ps.out, full.stop.method = "es.mean.att"), threshold = .1,
+love.plot(bal.tab(ps.out, stop.method = "es.max"), threshold = .1,
           abs = TRUE, var.order = "u", color = c("red", "blue"), line = TRUE,
           drop.distance = TRUE)
 ```
