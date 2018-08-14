@@ -302,6 +302,8 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
     tryCatch({covs <- eval(mf.covs, c(data, env))},
              error = function(e) {stop(conditionMessage(e), call. = FALSE)})
     
+    if (is_not_null(treat.name) && treat.name %in% names(covs)) stop("The variable on the left side of the formula appears on the right side too.", call. = FALSE)
+    
     if (is_null(rhs.vars.mentioned)) {
         covs <- data.frame(Intercept = rep(1, if (is_null(treat)) 1 else length(treat)))
     }
@@ -380,7 +382,7 @@ binarize <- function(variable) {
 get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL, ...) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
     A <- list(...)
-    if (is_null(A[["int_sep"]])) A[["int_sep"]] <- " | "
+    if (is_null(A[["int_sep"]])) A[["int_sep"]] <- " * "
     if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- "_"
     
     C <- covs
