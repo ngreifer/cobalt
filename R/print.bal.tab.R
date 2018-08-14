@@ -1716,7 +1716,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     }
     
     if (p.ops$msm.summary && is_null(msm.balance.summary)) {
-        warning("No summary across time points was produced. This can occur if msm.summary is FALSE and quick is TRUE.", call. = FALSE)
+        warning("No summary across time points was produced. This can occur if msm.summary is FALSE and quick is TRUE or if the treatments are not all binary or all continuous.", call. = FALSE)
     }
     
     #Printing output
@@ -1735,7 +1735,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     }
     
     if (isTRUE(as.logical(p.ops$msm.summary)) && is_not_null(msm.balance.summary)) {
-        if ("bal.tab.cont" %in% class(x)) { #continuous
+        if (all(sapply(msm.balance, function(x) "bal.tab.cont" %in% class(x)))) { #continuous
             s.keep <- as.logical(c(TRUE, 
                                    TRUE,
                                    p.ops$un,
