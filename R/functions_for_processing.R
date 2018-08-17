@@ -421,7 +421,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             #if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
             #else if (is.numeric(C[[i]])) C[[i]] <- binarize(C[[i]])
             C[[i]] <- factor(C[[i]])
-            levels(C[[i]]) <- rev(levels(C[[i]]))
+            C[[i]] <- relevel(C[[i]], levels(C[[i]])[2])
         }
         else if (is.character(C[[i]]) || is.factor(C[[i]])) C[[i]] <- factor(C[[i]])
         
@@ -1635,6 +1635,7 @@ get.var.from.list.with.time <- function(var.name, covs.list) {
 
 #print.bal.tab
 round_df_char <- function(df, digits, pad = "0", na_vals = "") {
+    if (nrow(df) == 0) return(df)
     nas <- is.na(df)
     if (!is.data.frame(df)) df <- as.data.frame.matrix(df, stringsAsFactors = FALSE)
     infs <- sapply(df, function(x) !is.na(x) & (x == Inf | x == -Inf), simplify = "array")
@@ -1650,6 +1651,8 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     nums <- vapply(df, is.numeric, logical(1))
     o.negs <- sapply(1:ncol(df), function(x) if (nums[x]) df[[x]] < 0 else rep(FALSE, length(df[[x]])))
     df[nums] <- round(df[nums], digits = digits)
+    #print(nas)
+    #print(infs); stop()
     df[nas | infs] <- ""
     
     df <- as.data.frame(lapply(df, format, scientific = FALSE, justify = "none"), stringsAsFactors = FALSE)
@@ -1683,6 +1686,11 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     if (length(cn) > 0) names(df) <- cn
     
     return(df)
+}
+print.data.frame_ <- function(x, ...) {
+    if (is_not_null(x) && nrow(x) > 0 && ncol(x) > 0) {
+        print.data.frame(x, ...)
+    }
 }
 
 #To pass CRAN checks:
