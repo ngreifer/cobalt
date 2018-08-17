@@ -7,6 +7,8 @@ Version 3.4.1
 
 * Fixed a bug where the mean of a binary variable would be displayed as 1 minus its mean.
 
+* Fixed a bug that would occur when missingness patterns were the same for multiple variables.
+
 Version 3.4.0
 
 * Added `default` method for `bal.tab` so it can be used with specially formatted output from other packages (e.g., from `optweight`). `bal.plot` should work with these outputs too. This, of course, will never be completely bug-free because infinite inputs are possible and cannot all be processed perfectly. Don't try to break this function :)

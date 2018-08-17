@@ -488,27 +488,33 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     #Add missingness indicators
     vars.w.missing <- vars.w.missing[vars.w.missing$placed.after %in% colnames(C) & vars.w.missing$has.missing, , drop = FALSE]
     if (nrow(vars.w.missing) > 0) {
+        missing.ind <- apply(C[,colnames(C) %in% vars.w.missing$placed.after, drop = FALSE], 2, function(x) as.numeric(is.na(x)))
+        #colnames(missing.ind) <- paste0(rownames(vars.w.missing), ":<NA>")
+        colnames(missing.ind) <- rownames(vars.w.missing)
+        #missing.ind <- remove.perfect.col(missing.ind) 
+        vars.w.missing <- vars.w.missing[colnames(missing.ind), , drop = FALSE]
+        colnames(missing.ind) <- paste0(colnames(missing.ind), ":<NA>")
         original.var.order <- setNames(seq_len(ncol(C)), colnames(C))
         new.var.order <- original.var.order + cumsum(c(0,(colnames(C) %in% vars.w.missing$placed.after)[-ncol(C)]))
-        missing.ind <- apply(C[,colnames(C) %in% vars.w.missing$placed.after, drop = FALSE], 2, function(x) as.numeric(is.na(x)))
-        colnames(missing.ind) <- paste0(rownames(vars.w.missing), ":<NA>")
-        miss.co.names <- setNames(lapply(rownames(vars.w.missing), function(x) setNames(list(c(x, ":<NA>"),
-                                                                                 c(TRUE, FALSE)), c("component", "is.name"))),
-                                  colnames(missing.ind))
-        missing.ind <- remove.perfect.col(missing.ind) 
         new.C <- matrix(NA, nrow = nrow(C), ncol = ncol(C) + ncol(missing.ind),
                         dimnames = list(rownames(C), seq_len(ncol(C) + ncol(missing.ind))))
         new.C[, new.var.order] <- C
         new.C[, -new.var.order] <- missing.ind
         colnames(new.C)[new.var.order] <- colnames(C)
         colnames(new.C)[-new.var.order] <- colnames(missing.ind)
+        miss.co.names <- setNames(lapply(rownames(vars.w.missing), function(x) setNames(list(c(x, ":<NA>"),
+                                                                                             c(TRUE, FALSE)), c("component", "is.name"))),
+                                  colnames(missing.ind))
         C <- new.C
+        missing.ind.C <- colnames(missing.ind)
         if (int) {
             new <- int.poly.f(missing.ind, int = TRUE, poly = 1, sep = rep(A[["int_sep"]], nsep), co.names = miss.co.names)
             C <- cbind(C, new)
+            missing.ind.C <- c(missing.ind.C, colnames(new))
             miss.co.names <- c(miss.co.names, attr(new, "co.names"))
         }
         co.names <- c(co.names, miss.co.names)
+        attr(C, "missing.ind") <- missing.ind.C
     }
 
     #Remove duplicate & redundant variables
@@ -530,20 +536,21 @@ get.types <- function(C) {
     }, character(1))
 }
 remove.perfect.col <- function(C) {
+    C.no.miss <- C[,colnames(C) %nin% attr(C, "missing.ind"), drop = FALSE]
     #If many rows, select subset to test redundancy
-    if (nrow(C) > 1500) {
+    if (nrow(C.no.miss) > 1500) {
         repeat {
-            mini.C <- C[sample(seq_len(nrow(C)), 1000),,drop=FALSE]
-            single.value <- apply(mini.C, 2, all_the_same)
+            mini.C.no.miss <- C.no.miss[sample(seq_len(nrow(C.no.miss)), 1000),,drop=FALSE]
+            single.value <- apply(mini.C.no.miss, 2, all_the_same)
             if (all(!single.value)) break
         }
-        suppressWarnings(C.cor <- cor(mini.C, use = "pairwise.complete.obs"))
+        suppressWarnings(C.cor <- cor(mini.C.no.miss, use = "pairwise.complete.obs"))
     }
-    else suppressWarnings(C.cor <- cor(C, use = "pairwise.complete.obs"))
+    else suppressWarnings(C.cor <- cor(C.no.miss, use = "pairwise.complete.obs"))
     
     s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
-    redundant.vars <- apply(s, 2, any)
-    C <- C[, !redundant.vars, drop = FALSE] 
+    redundant.vars <- colnames(C.no.miss)[apply(s, 2, any)]
+    C <- C[, colnames(C) %nin% redundant.vars, drop = FALSE] 
     return(C)
 }
 num_to_superscript <- function(x) {
