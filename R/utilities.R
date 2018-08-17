@@ -51,7 +51,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             }
             else {
                 if (any(var.name %in% names(data))) {
-                    if (any(!var.name %in% names(data))) {
+                    if (any(var.name %nin% names(data))) {
                         not.in.data.names <- var.name[!var.name %in% names(data)]
                         warning(paste(word.list(not.in.data.names, "and", is.are = TRUE), 
                                       "not the name(s) of variable(s) in data and will not be split."), 
@@ -248,7 +248,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
             stop("The variables in data selected based on var.name and sep do not seem to form a split variable based on the row sums.", call. = FALSE)
         }
         
-        k.levels <- sapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep))[[1]][2])
+        k.levels <- vapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep))[[1]][2], character(1L))
         
         k <- rep(NA_character_, nrow(data))
         for (i in seq_along(k.levels)) {
@@ -737,3 +737,7 @@ strsplits <- function(x, splits, fixed = TRUE, ...) {
     for (split in splits) x <- unlist(strsplit(x, split, fixed = TRUE, ...))
     return(x[x != ""]) # Remove empty values
 }
+# is_ <- function(x, class) {
+#     if (is_not_null(get0(paste0("is.", class)))) get0(paste0("is.", class))(x)
+#     else inherits(x, class)
+# }
