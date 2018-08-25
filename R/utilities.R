@@ -10,7 +10,7 @@ f.build <- function(y, rhs) {
     f <- reformulate(vars, y)
     return(f)
 }
-splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = NULL, drop.first = c(TRUE, FALSE, "if2"), drop.singleton = FALSE, drop.na = TRUE, check = TRUE) {
+splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = NULL, drop.first = TRUE, drop.singleton = FALSE, drop.na = TRUE, check = TRUE) {
     #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
     #Retains all categories unless only 2 levels, in which case only the second level is retained.
     #If variable only has one level, will delete.
@@ -101,6 +101,8 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
     for (v in var.name) {
         drop <- character(0)
         x <- factor(data[names(data) == v][[1]], exclude = NULL)
+        na.level <- is.na(levels(x))
+        levels(x) <- paste0(sep, levels(x))
         data[names(data) == v][[1]] <- x
         
         skip <- FALSE
@@ -108,11 +110,9 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             k <- model.matrix(as.formula(paste0("~`", v, "`- 1")), data = data)
             colnames(k) <- gsub("`", colnames(k), replacement = "")
             
-            if (any(is.na(levels(x)))) {
-                
+            if (any(na.level)) {
                 if (drop.na[v]) {
-                    k[k[,is.na(levels(x))] == 1,] <- NA_real_
-                    #k <- k[, !is.na(levels(x)), drop = FALSE]
+                    k[k[,na.level] == 1,] <- NA_real_
                 }
             }
             else drop.na[v] <- FALSE
@@ -130,8 +130,6 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         }
         
         if (!skip) {
-            colnames(k) <- paste(v, vapply(strsplit(colnames(k), v, fixed = TRUE), function(n) paste(n, collapse = ""), character(1L)), sep = sep)
-            
             if (is_not_null(drop.level)) {
                 if (is.character(drop.level) && length(drop.level) == 1 && drop.level %in% levels(x)) {
                     drop <- drop.level
@@ -141,7 +139,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
                 }
             }
             else {
-                if ((ncol(k) == 2 && drop.first %in% c("if2", TRUE)) ||
+                if ((ncol(k) == 2 && (drop.first == "if2" || drop.first == TRUE)) ||
                     (ncol(k) > 2 && drop.first == TRUE)) {
                     drop <- levels(x)[1]
                 }
@@ -149,28 +147,29 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             
             dropl <- rep(FALSE, ncol(k))
             if (is_not_null(drop)) {
-                dropl[!is.na(levels(x)) & levels(x) %in% drop] <- TRUE
+                dropl[!na.level & levels(x) %in% drop] <- TRUE
             }
-            if (drop.na[v]) dropl[is.na(levels(x))] <- TRUE
-            k <- k[,!dropl]
+            if (drop.na[v]) dropl[na.level] <- TRUE
+            
+            k <- k[,!dropl, drop = FALSE]
             
             if (ncol(data) == 1) {
-                data <- data.frame(k, row.names = NULL)
+                data <- data.frame(k, row.names = rownames(data))
             }
             else if (replace) {
                 if (match(v, names(data)) == 1){
-                    data <- cbind(k, data[names(data)!=v], row.names = NULL)
+                    data <- data.frame(k, data[names(data)!=v], row.names = rownames(data))
                 }
                 else if (match(v, names(data)) == ncol(data)) {
-                    data <- cbind(data[names(data)!=v], k, row.names = NULL)
+                    data <- data.frame(data[names(data)!=v], k, row.names = rownames(data))
                 }
                 else {
                     where <- match(v, names(data))
-                    data <- cbind(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = NULL)
+                    data <- data.frame(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = rownames(data))
                 }
             }
             else {
-                data <- cbind(data, k, row.names = NULL)
+                data <- data.frame(data, k, row.names = rownames(data))
             }
             
         }
