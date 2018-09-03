@@ -147,13 +147,13 @@ data.frame.process <- function(i, df, treat, covs, ...) {
             val.list <- lapply(val, function(x) process.val(x, i, treat, covs, ...))
             val.list <- lapply(seq_along(val.list), function(x) {
                 if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
-                val.list[[x]]})
+                return(val.list[[x]])})
             if (!all_the_same(vapply(val.list, nrow, numeric(1)))) {
                 stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
             }
             
             val.df <- setNames(do.call("cbind", val.list),
-                               c(vapply(val.list, names, character(1))))
+                               c(sapply(val.list, names)))
         }
         else {
             val.df <- process.val(val, i, treat, covs, ...)
