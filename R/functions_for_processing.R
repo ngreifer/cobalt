@@ -145,6 +145,9 @@ data.frame.process <- function(i, df, treat, covs, ...) {
     if (is_not_null(val)) {
         if (is.vector(val, mode = "list")) {
             val.list <- lapply(val, function(x) process.val(x, i, treat, covs, ...))
+            if (is_null(names(val.list)) || "" %in% names(val.list)) {
+                stop(paste("All entries in", i, "must have names."), call. = FALSE)
+            }
             val.list <- lapply(seq_along(val.list), function(x) {
                 if (ncol(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                 return(val.list[[x]])})
