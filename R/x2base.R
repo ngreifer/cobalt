@@ -2130,7 +2130,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     if (!is.list(covs.list)) {
         stop("covs.list must be a list of covariates for which balanced is to be assessed at each time point.", call. = FALSE)
     }
-    if (any(!vapply(covs.list, function(x) is.data.frame(x), logical(1L)))) {
+    if (any(!vapply(covs.list, is.data.frame, logical(1L)))) {
         stop("Each item in covs.list must be a data frame.", call. = FALSE)
     }
     
