@@ -2751,6 +2751,7 @@ x2base.default <- function(obj, ...) {
     }
     
     msm <- FALSE
+    
     #treat OK
     
     #treat.list
@@ -2816,11 +2817,12 @@ x2base.default <- function(obj, ...) {
     
     #estimand
     if (is_not_null(estimand)) {
-        if (toupper(attr(estimand, "name")) == "ATT") {
+        estimand.name <- attr(estimand, "name")
+        if (is_not_null(estimand.name) && toupper(estimand.name) == "ATT") {
             if (estimand == 0) estimand <- "ATE"
             else estimand <- "ATT"
         }
-        else if (toupper(attr(estimand, "name")) == "ATE") {
+        else if (is_not_null(estimand.name) && toupper(estimand.name) == "ATE") {
             if (estimand == 0) estimand <- "ATT"
             else estimand <- "ATE"
         }
