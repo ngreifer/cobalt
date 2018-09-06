@@ -423,6 +423,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         if (is_binary(C[[i]])) {
             #if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
             #else if (is.numeric(C[[i]])) C[[i]] <- binarize(C[[i]])
+            
             C[[i]] <- factor(C[[i]])
             C[[i]] <- relevel(C[[i]], levels(C[[i]])[2])
         }
@@ -580,10 +581,9 @@ num_to_superscript <- function(x) {
 check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL) {
     #Checks if all weights are zero in each treat group for each set of weights
     if (is_null(unique.treat)) unique.treat <- unique(treat)
-    w.t.mat <- expand.grid(colnames(weights.df), unique.treat)
+    w.t.mat <- expand.grid(colnames(weights.df), unique.treat, stringsAsFactors = FALSE)
     if (nrow(w.t.mat) > 0) {
-        #problems <- apply(w.t.mat, 1, function(x) all(check_if_zero(weights.df[treat == x[2], x[1]])))
-        problems <- apply(w.t.mat, 1, function(x) check_if_zero(weights.df[treat == x[2], x[1]][1]) && all_the_same(weights.df[treat == x[2], x[1]]))
+        problems <- vapply(seq_len(nrow(w.t.mat)), function(x) all(check_if_zero(weights.df[treat == w.t.mat[x,2], w.t.mat[x, 1]])), logical(1L))
         if (any(problems)) {
             prob.w.t.mat <- droplevels(w.t.mat[problems,])
             if (ncol(weights.df) == 1) {
