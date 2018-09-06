@@ -9,6 +9,12 @@ Version 3.4.1
 
 * Fixed a bug that would occur when missingness patterns were the same for multiple variables.
 
+* Fixed a bug that would occur when a distance measure was to be assessed with `bal.tab` and there were missing values in the covariates (thanks to Laura Helmkamp).
+
+* Fixed a bug that would occur when `estimand` was supplied by the user when using the `default` method of `bal.tab`.
+
+* Fixed a bug where non-standard variable names (like `"I(age^2)"`) would cause an error.
+
 Version 3.4.0
 
 * Added `default` method for `bal.tab` so it can be used with specially formatted output from other packages (e.g., from `optweight`). `bal.plot` should work with these outputs too. This, of course, will never be completely bug-free because infinite inputs are possible and cannot all be processed perfectly. Don't try to break this function :)
@@ -25,7 +31,7 @@ Version 3.4.0
 
 * Added `var.names` function to extract and save variable names from `bal.tab` objects. This makes it a lot easier to create replacement names for use in `love.plot`. Thanks to @victorn1 for the suggestion.
 
-* When weighted correlations are computed for continuous treatments, the denominator of the correlation uses the unweighted standard deviations. See `?bal.tab` for the rationale.
+* When weighted correlations are computed for continuous treatments, the denominator of the correlation now uses the unweighted standard deviations. See `?bal.tab` for the rationale.
 
 Version 3.3.0
 
@@ -39,7 +45,7 @@ Version 3.3.0
 
 * Added `subset` option in all `bal.tab()` methods (and consequently in `bal.plot()`) that allows users to specify a subset of the data to assess balance on (i.e., instead of the whole data set). This provides a workaround for methods were the `cluster` option isn't allowed (e.g., longitudinal treatments) but balance is desired on subsets of the data. However, in most cases, `cluster` with `which.cluster` specified makes more sense.
 
-* Updated help files, in particularly more clearly documenting methods for `iptw` objects from `twang` and `CBMSM` objects from `CBPS`.
+* Updated help files, in particular, more clearly documenting methods for `iptw` objects from `twang` and `CBMSM` objects from `CBPS`.
 
 * Added pretty printing with `crayon`, inspired by Jacob Long's `jtools` package
 
