@@ -158,14 +158,14 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             }
             else if (replace) {
                 if (match(v, names(data)) == 1){
-                    data <- data.frame(k, data[names(data)!=v], row.names = rownames(data))
+                    data <- cbind(k, data[names(data)!=v], row.names = rownames(data))
                 }
                 else if (match(v, names(data)) == ncol(data)) {
-                    data <- data.frame(data[names(data)!=v], k, row.names = rownames(data))
+                    data <- cbind(data[names(data)!=v], k, row.names = rownames(data))
                 }
                 else {
                     where <- match(v, names(data))
-                    data <- data.frame(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = rownames(data))
+                    data <- cbind(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = rownames(data))
                 }
             }
             else {
