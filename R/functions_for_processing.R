@@ -480,13 +480,6 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         C <- cbind(C, new)
         co.names <- c(co.names, attr(new, "co.names"))
     }
-    
-    if (is_not_null(distance)) {
-        if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
-        C <- cbind(distance, C, row.names = NULL)
-        dist.co.names <- setNames(lapply(names(distance), function(x) setNames(list(x, TRUE), c("component", "is.name"))), names(distance))
-        co.names <- c(co.names, dist.co.names)
-    }
 
     #Add missingness indicators
     vars.w.missing <- vars.w.missing[vars.w.missing$placed.after %in% colnames(C) & vars.w.missing$has.missing, , drop = FALSE]
@@ -517,16 +510,25 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             miss.co.names <- c(miss.co.names, attr(new, "co.names"))
         }
         co.names <- c(co.names, miss.co.names)
-        attr(C, "missing.ind") <- missing.ind.C
+        
     }
 
     #Remove duplicate & redundant variables
     C <- remove.perfect.col(C) 
+    
+    if (is_not_null(distance)) {
+        if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
+        if (any(apply(distance, 2, function(x) any(is.na(x))))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
+        C <- cbind(distance, C, row.names = NULL)
+        dist.co.names <- setNames(lapply(names(distance), function(x) setNames(list(x, TRUE), c("component", "is.name"))), names(distance))
+        co.names <- c(co.names, dist.co.names)
+    }
 
     co.names <- co.names[colnames(C)]
     attr(co.names, "seps") <- c(factor = A[["factor_sep"]], int = A[["int_sep"]])
     attr(C, "co.names") <- co.names
     if (is_not_null(distance)) attr(C, "distance.names") <- names(distance)
+    if (nrow(vars.w.missing) > 0) attr(C, "missing.ind") <- missing.ind.C
     
     return(C)
     
