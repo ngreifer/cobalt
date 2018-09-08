@@ -200,7 +200,7 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
                            "call", "print.options")
             out <- vector("list", length(out.names))
             names(out) <- out.names
-            
+         
             C <- get.C(covs = covs, int = int, addl = addl, distance = distance, ...)
             co.names <- attr(C, "co.names")
             
