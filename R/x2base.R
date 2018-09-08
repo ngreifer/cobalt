@@ -2692,6 +2692,8 @@ x2base.default <- function(obj, ...) {
               imp = NA,
               s.weights = NA,
               focal = NA)
+    
+    if (!is.vector(obj, "list")) stop("The input object must be an appropriate list, data.frame, formula, or the output of one of the supported packages.", call. = FALSE)
   
     Q <- list(treat = list(name = c("treat", "tr"), 
                            type = c("numeric", "character", "factor", "logical")),
