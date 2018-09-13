@@ -111,10 +111,15 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     
     
     if ("bal.tab.cont" %in% class(x)) {
-        keep <- as.logical(c(TRUE, 
+        keep <- setNames(as.logical(c(TRUE, 
+                             p.ops$un && p.ops$disp.means, 
                              p.ops$un, 
-                             rep(c(p.ops$disp.adj, 
-                                   is_not_null(p.ops$r.threshold)), p.ops$nweights + !p.ops$disp.adj)))
+                             p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$r.threshold), 
+                             rep(c(p.ops$disp.adj && p.ops$disp.means,
+                                   p.ops$disp.adj, 
+                                   p.ops$disp.adj && is_not_null(p.ops$r.threshold)), 
+                                 p.ops$nweights + !p.ops$disp.adj))),
+                         names(balance))
         
     }
     else {
@@ -134,7 +139,8 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
                                             p.ops$disp.adj && p.ops$disp.v.ratio, 
                                             p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
                                             p.ops$disp.adj && p.ops$disp.ks, 
-                                            p.ops$disp.adj && is_not_null(p.ops$ks.threshold)), p.ops$nweights + !p.ops$disp.adj))),
+                                            p.ops$disp.adj && is_not_null(p.ops$ks.threshold)), 
+                                          p.ops$nweights + !p.ops$disp.adj))),
                          names(balance))
     }
     
@@ -335,6 +341,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         if (p.ops$disp.subclass) {
             if ("bal.tab.cont" %in% class(x)) {
                 s.keep <- as.logical(c(TRUE, 
+                                       p.ops$disp.means, 
                                        p.ops$disp.adj, 
                                        is_not_null(p.ops$r.threshold)))
             }
