@@ -28,7 +28,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         if (all(sapply(var.list, is_null))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
         X$var <- unlist(var.list[appears.in.time])
-        X$time <- rep(seq_along(X$covs.list)[appears.in.time], each = nrow(X$covs.list[[1]]))
+        X$time <- rep(seq_along(X$covs.list)[appears.in.time], each = NROW(X$covs.list[[1]]))
         X$treat <- unlist(X$treat.list[appears.in.time])
         if (is_not_null(names(X$treat.list))) treat.names <- names(X$treat.list)
         else treat.names <- seq_along(X$treat.list)
@@ -93,7 +93,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 in.sub <- !is.na(X$subclass) & X$subclass %in% which.sub
                 D <- setNames(as.data.frame(matrix(0, nrow = sum(in.sub), ncol = 4)),
                               c("weights", "treat", "var", "subclass"))
-                D$weights <- rep(1, nrow(D))
+                D$weights <- rep(1, NROW(D))
                 D$treat <- X$treat[in.sub]
                 D$var <- X$var[in.sub]
                 D$subclass <- paste("Subclass", X$subclass[in.sub])
@@ -107,7 +107,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (which == "both") {
             D2 <- setNames(as.data.frame(matrix(0, nrow = length(X$treat), ncol = 4)),
                            c("weights", "treat", "var", "subclass"))
-            D2$weights <- rep(1, nrow(D2))
+            D2$weights <- rep(1, NROW(D2))
             D2$treat <- X$treat
             D2$var <- X$var
             D2$subclass <- rep("Unadjusted Sample", length(X$treat))
@@ -308,7 +308,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         if (is.categorical.var) { #Categorical vars
             d$var <- factor(d$var)
-            cat.sizes <- tapply(rep(1, nrow(d)), d$var, sum)
+            cat.sizes <- tapply(rep(1, NROW(d)), d$var, sum)
             smallest.cat <- names(cat.sizes)[which.min(cat.sizes)]
             if (is.character(bw)) {
                 if (is.function(get0(paste0("bw.", bw)))) {
@@ -436,7 +436,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 geom_hline(yintercept = 0)
         }
         else { #Continuous vars
-            t.sizes <- tapply(rep(1, nrow(d)), d$treat, sum)
+            t.sizes <- tapply(rep(1, NROW(d)), d$treat, sum)
             smallest.t <- names(t.sizes)[which.min(t.sizes)]
             if (is.character(bw)) {
                 if (is.function(get0(paste0("bw.", bw)))) {
