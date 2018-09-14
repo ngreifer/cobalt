@@ -43,7 +43,7 @@ The rest of this guide explains how to use `cobalt` with the above packages and 
 #### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.4.0.
+Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.4.1.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
