@@ -7,8 +7,8 @@
 }
 \usage{
 splitfactor(data, var.name, replace = TRUE, sep = "_", 
-            drop.level = NULL, drop.first = c(TRUE, 
-            FALSE, "if2"), drop.singleton = FALSE, 
+            drop.level = NULL, drop.first = TRUE, 
+            drop.singleton = FALSE, 
             drop.na = TRUE, check = TRUE)
 
 unsplitfactor(data, var.name, replace = TRUE, sep = "_", 
@@ -37,7 +37,7 @@ Whether to drop the first dummy created for each factor. If \code{"if2"}, will o
 Whether to drop a factor variable if it only has one level.
 }
 \item{drop.na}{
-if \code{NA}s are present in the variable, how to handle them. If \code{TRUE}, no new dummy will be created for \code{NA} values, but all created dummies will have \code{NA} where the original variable was \code{NA}. If \code{FALSE}, \code{NA} will be treated like any other factor level, given its own column, and the other dummies will have a value of 0 where the original variable is \code{NA}.
+If \code{NA}s are present in the variable, how to handle them. If \code{TRUE}, no new dummy will be created for \code{NA} values, but all created dummies will have \code{NA} where the original variable was \code{NA}. If \code{FALSE}, \code{NA} will be treated like any other factor level, given its own column, and the other dummies will have a value of 0 where the original variable is \code{NA}.
 }
 \item{check}{
 Whether to make sure the variables specified in \code{var.name} are actually factor (or character) variables. If splitting non-factor (or non-character) variables into dummies, set \code{check = FALSE}. If \code{check = FALSE} and \code{data} is a data frame, an argument to \code{var.name} must be specified.
