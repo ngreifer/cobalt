@@ -100,6 +100,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     r.threshold = NULL, 
     imbalanced.only = FALSE, 
     un = FALSE, 
+    disp.means = FALSE,
     disp.bal.tab = TRUE, 
     cluster = NULL, 
     which.cluster = NULL, 
