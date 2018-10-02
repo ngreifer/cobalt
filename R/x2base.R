@@ -912,11 +912,12 @@ x2base.data.frame <- function(covs, ...) {
     #Process treat
     if (is_null(treat)) stop("treat must be specified.", call. = FALSE)
     
-    if (is.numeric(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
-        treat <- treat
-    }
-    else if (is.character(treat) && length(treat)==1 && any(names(data) == treat)) {
+    
+    if (is.character(treat) && length(treat)==1 && treat %in% names(data)) {
         treat <- data[[treat]]
+    }
+    else if (is.numeric(treat) || is.logical(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
+        treat <- treat
     }
     else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
     
