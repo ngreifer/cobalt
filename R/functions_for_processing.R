@@ -418,11 +418,15 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
                                  row.names = names(C),
                                  stringsAsFactors = FALSE)
     co.names <- setNames(lapply(names(C), function(x) setNames(list(x, TRUE), c("component", "is.name"))), names(C))
-    
+    is.0.1.cov <- setNames(rep(FALSE, ncol(C)), names(C))
     for (i in names(C)) {
         if (nunique(C[[i]]) == 2) {
             #if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
-            #else if (is.numeric(C[[i]])) C[[i]] <- binarize(C[[i]])
+            if ((is.numeric(C[[i]]) || is.logical(C[[i]])) && 
+                all(check_if_zero(as.numeric(C[[i]]) - binarize(C[[i]])))) {
+                is.0.1.cov[i] <- TRUE
+            }
+            
             C[[i]] <- factor(C[[i]])
             C[[i]] <- relevel(C[[i]], levels(C[[i]])[2])
         }
@@ -525,6 +529,25 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     }
 
     co.names <- co.names[colnames(C)]
+    
+    #Get rid of _1 for binary covs
+    for (i in colnames(C)) {
+        in.is.0.1.cov <- vapply(names(is.0.1.cov)[is.0.1.cov], 
+                                function(i1) length(co.names[[i]][["component"]]) == 2 && 
+                                    co.names[[i]][["component"]][1] == i1 && 
+                                    co.names[[i]][["component"]][2] %in% c("_1", "_TRUE"), 
+                                logical(1L))
+        
+        if (any(in.is.0.1.cov)) {
+            name.index <- which(colnames(C) == i)
+            new.name <- names(is.0.1.cov)[is.0.1.cov][in.is.0.1.cov][1]
+            colnames(C)[name.index] <- new.name
+            names(co.names)[name.index] <- new.name
+            co.names[[name.index]][["component"]] <- new.name
+            co.names[[name.index]][["is.name"]] <- TRUE
+        }
+    }
+    
     attr(co.names, "seps") <- c(factor = A[["factor_sep"]], int = A[["int_sep"]])
     attr(C, "co.names") <- co.names
     if (is_not_null(distance)) attr(C, "distance.names") <- names(distance)
