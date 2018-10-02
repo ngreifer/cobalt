@@ -1,6 +1,14 @@
 cobalt News and Updates
 ======
 
+Version 3.4.2
+
+* Fixed a bug when logical treatments were used.
+
+* Fixed a bug that would occur when a variable had only one value.
+
+* Made it so the names of 0/1 and logical variables are not printed with `"_1"` appended to them.
+
 Version 3.4.1
 
 * Fixed a bug that would occur when `imabalanced.only = TRUE` in `bal.tab` but all variables were balanced.
@@ -14,6 +22,8 @@ Version 3.4.1
 * Fixed a bug that would occur when `estimand` was supplied by the user when using the `default` method of `bal.tab`.
 
 * Fixed a bug where non-standard variable names (like `"I(age^2)"`) would cause an error.
+
+* Fixed a bug where treatment levels that had different numbers of characters would yield an error.
 
 * Added `disp.means` option to `bal.tab` with continuous treatments.
 
