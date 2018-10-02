@@ -3,11 +3,11 @@ cobalt News and Updates
 
 Version 3.4.2
 
-* Fixed a bug when logical treatments were used.
+* Fixed a bug when logical treatments were used. Thanks to @victorn1.
 
-* Fixed a bug that would occur when a variable had only one value.
+* Fixed a bug that would occur when a variable had only one value. Thanks to @victorn1.
 
-* Made it so the names of 0/1 and logical variables are not printed with `"_1"` appended to them.
+* Made it so the names of 0/1 and logical variables are not printed with `"_1"` appended to them. Thanks to @victorn1 for the suggestion.
 
 Version 3.4.1
 
