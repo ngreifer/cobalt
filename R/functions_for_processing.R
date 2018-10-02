@@ -420,10 +420,9 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     co.names <- setNames(lapply(names(C), function(x) setNames(list(x, TRUE), c("component", "is.name"))), names(C))
     
     for (i in names(C)) {
-        if (is_binary(C[[i]])) {
+        if (nunique(C[[i]]) == 2) {
             #if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
             #else if (is.numeric(C[[i]])) C[[i]] <- binarize(C[[i]])
-            
             C[[i]] <- factor(C[[i]])
             C[[i]] <- relevel(C[[i]], levels(C[[i]])[2])
         }
