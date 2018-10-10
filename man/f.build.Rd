@@ -8,7 +8,7 @@
 f.build(y, rhs)
 }
 \arguments{
-\item{y}{the quoted name of the response (left hand side) variable in the formula. Only one variable is supported. The empty string is allowed.}
+\item{y}{the quoted name of the response (left hand side) variable in the formula. Only one variable is supported. If missing, \code{NULL}, or the empty string (\code{""}), the formula will have no response variable.}
 
 \item{rhs}{a data frame whose variable names will be the terms on the right hand side of the formula, or a character vector whose values will be the terms on the right hand side of the formula.}
 }

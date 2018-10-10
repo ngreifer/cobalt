@@ -9,6 +9,8 @@ Version 3.4.2
 
 * Made it so the names of 0/1 and logical variables are not printed with `"_1"` appended to them. Thanks to @victorn1 for the suggestion.
 
+* Minor updates to `f.build` to process inputs more flexibly. The left hand side can now be empty, and the variables on the right hand side can now contain spaces.
+
 Version 3.4.1
 
 * Fixed a bug that would occur when `imabalanced.only = TRUE` in `bal.tab` but all variables were balanced.

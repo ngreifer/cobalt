@@ -1,12 +1,17 @@
 #Utility functions
 f.build <- function(y, rhs) {
-    if ((is.data.frame(rhs) || is.matrix(rhs)) && is_not_null(colnames(rhs)))
-        vars <- colnames(rhs)
-    else if (is.character(rhs) && is_not_null(rhs))
-        vars <- rhs
+    if (missing(rhs)) stop("Right hand side argument to f.build() must be a vector of variable names or a data set with named variables.", call. = FALSE)
+    else if ((is.data.frame(rhs) || is.matrix(rhs)) && is_not_null(colnames(rhs))) {
+        vars <- paste0("`", gsub("`", "", colnames(rhs)), "`")
+    }
+    else if (is.character(rhs) && is_not_null(rhs)) {
+        vars <- paste0("`", gsub("`", "", rhs), "`")
+    }
     else stop("Right hand side argument to f.build() must be a vector of variable names or a data set with named variables.", call. = FALSE)
-    if (!(is.character(y) && length(y) == 1)) stop ("Response argument to f.build() must be the quoted name of the response variable.", call. = FALSE)
-    if (y == "") y <- NULL
+    
+    if (missing(y) || identical(y, "")) y <- NULL
+    else if (!is.character(y) || length(y) > 1) stop ("Response argument to f.build() must be the quoted name of the response variable.", call. = FALSE)
+    
     f <- reformulate(vars, y)
     return(f)
 }
