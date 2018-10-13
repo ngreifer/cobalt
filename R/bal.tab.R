@@ -18,8 +18,9 @@ base.bal.tab <- function(weights, treat, distance = NULL, subclass = NULL, covs,
     }
     else {
         treat.names <- c("Control", "Treated")
-        unique.treat <- unique(treat, nmax = 2)
+        unique.treat <- sort(unique(treat, nmax = 2))
     }
+    names(treat.names) <- unique.treat
 
     check_if_zero_weights(weights, treat, unique.treat, treat.type = "cat")
     
@@ -642,6 +643,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
     }
     else stop("focal must be a vector of length 1 containing the name or index of the focal treatment group.", call. = FALSE)
     treat.names <- levels(treat)
+    names(treat.names) <- treat.names
     
     if (is_not_null(cluster)) {
         stop("Clusters are not yet supported with multiple categorical treatments.", call. = FALSE)
