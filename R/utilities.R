@@ -586,7 +586,7 @@ get.w.designmatch <- function(dm, treat, ...) {
 
 var.names <- function(b, type, file = NULL, minimal = FALSE) {
     if (is_not_null(b[["print.options"]][["co.names"]])) {
-        if (minimal) vars <- unique(unlist(lapply(b[["print.options"]][["co.names"]], function(x) x[["component"]][x[["is.name"]]])))
+        if (minimal) vars <- unique(unlist(lapply(b[["print.options"]][["co.names"]], function(x) x[["component"]][x[["type"]] == "base"])))
         else vars <- vapply(b[["print.options"]][["co.names"]], function(x) paste(x[["component"]], collapse = ""), character(1))
     }
     else {

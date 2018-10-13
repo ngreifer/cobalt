@@ -353,7 +353,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, sep, co.names) {
     if (poly > 1 && npol != 0) {
         for (i in 2:poly) {
             new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
-            new.co.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- lapply(colnames(d)[!no.poly], function(x) setNames(list(c(co.names[[x]][["component"]], num_to_superscript(i)), c(co.names[[x]][["is.name"]], FALSE)), c("component", "is.name")))
+            new.co.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- lapply(colnames(d)[!no.poly], function(x) setNames(list(c(co.names[[x]][["component"]], num_to_superscript(i)), c(co.names[[x]][["type"]], "power")), c("component", "type")))
             
         }
     }
@@ -362,8 +362,8 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, sep, co.names) {
         #new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse = sep)
         new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- lapply(as.data.frame(combn(colnames(d), 2), stringsAsFactors = FALSE), 
                                                            function(x) setNames(list(c(co.names[[x[1]]][["component"]], sep, co.names[[x[2]]][["component"]]),
-                                                                                     c(co.names[[x[1]]][["is.name"]], FALSE, co.names[[x[2]]][["is.name"]])),
-                                                                                c("component", "is.name")))
+                                                                                     c(co.names[[x[1]]][["type"]], "isep", co.names[[x[2]]][["type"]])),
+                                                                                c("component", "type")))
     }
     
     colnames(new) <- vapply(new.co.names, function(x) paste0(x[["component"]], collapse = ""), character(1))
@@ -417,13 +417,14 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
                                  has.Inf = FALSE,
                                  row.names = names(C),
                                  stringsAsFactors = FALSE)
-    co.names <- setNames(lapply(names(C), function(x) setNames(list(x, TRUE), c("component", "is.name"))), names(C))
+    co.names <- setNames(lapply(names(C), function(x) setNames(list(x, "base"), c("component", "type"))), names(C))
+    #component types: base, fsep, isep, power, na, level
     is.0.1.cov <- setNames(rep(FALSE, ncol(C)), names(C))
     for (i in names(C)) {
         if (nunique(C[[i]]) == 2) {
             #if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
             if ((is.numeric(C[[i]]) || is.logical(C[[i]])) && 
-                all(check_if_zero(as.numeric(C[[i]]) - binarize(C[[i]])))) {
+                all(check_if_zero(as.numeric(C[[i]]) - binarize(C[[i]])), na.rm = TRUE)) {
                 is.0.1.cov[i] <- TRUE
             }
             
@@ -444,13 +445,13 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
                 newly.added.names <- names(C)[names(C) %nin% old.C.names]
                 vars.w.missing[i, "placed.after"] <- newly.added.names[length(newly.added.names)]
                 co.names <- c(co.names, setNames(lapply(newly.added.names, function(x) {
-                    split.points <- nchar(i)
+                    split.points <- c(nchar(i), nchar(i)+nchar(A[["factor_sep"]]))
                     split.names <- substring(x,
-                        c(1, split.points + 1),
-                        c(split.points, nchar(x))
+                        c(1, split.points[1] + 1, split.points[2] + 1),
+                        c(split.points[1], split.points[2], nchar(x))
                     )
-                    setNames(list(split.names, c(TRUE, FALSE)), 
-                             c("component", "is.name"))
+                    setNames(list(split.names, c("base", "fsep", "level")), 
+                             c("component", "type"))
                 }), newly.added.names))
             }
         }
@@ -503,7 +504,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         colnames(new.C)[new.var.order] <- colnames(C)
         colnames(new.C)[-new.var.order] <- colnames(missing.ind)
         miss.co.names <- setNames(lapply(rownames(vars.w.missing), function(x) setNames(list(c(x, ":<NA>"),
-                                                                                             c(TRUE, FALSE)), c("component", "is.name"))),
+                                                                                             c("base", "na")), c("component", "type"))),
                                   colnames(missing.ind))
         C <- new.C
         missing.ind.C <- colnames(missing.ind)
@@ -524,7 +525,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
         if (any(apply(distance, 2, function(x) any(is.na(x))))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
         C <- cbind(distance, C, row.names = NULL)
-        dist.co.names <- setNames(lapply(names(distance), function(x) setNames(list(x, TRUE), c("component", "is.name"))), names(distance))
+        dist.co.names <- setNames(lapply(names(distance), function(x) setNames(list(x, "base"), c("component", "type"))), names(distance))
         co.names <- c(co.names, dist.co.names)
     }
 
@@ -533,9 +534,10 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     #Get rid of _1 for binary covs
     for (i in colnames(C)) {
         in.is.0.1.cov <- vapply(names(is.0.1.cov)[is.0.1.cov], 
-                                function(i1) length(co.names[[i]][["component"]]) == 2 && 
+                                function(i1) length(co.names[[i]][["component"]]) == 3 && 
                                     co.names[[i]][["component"]][1] == i1 && 
-                                    co.names[[i]][["component"]][2] %in% c("_1", "_TRUE"), 
+                                    co.names[[i]][["component"]][2] == A[["factor_sep"]] &&
+                                    co.names[[i]][["component"]][3] %in% c("1", "TRUE"), 
                                 logical(1L))
         
         if (any(in.is.0.1.cov)) {
@@ -544,7 +546,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
             colnames(C)[name.index] <- new.name
             names(co.names)[name.index] <- new.name
             co.names[[name.index]][["component"]] <- new.name
-            co.names[[name.index]][["is.name"]] <- TRUE
+            co.names[[name.index]][["type"]] <- "base"
         }
     }
     

@@ -557,25 +557,28 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         seps <- attr(co.names, "seps")
         for (i in names(co.names)) {
             comp <- co.names[[i]][["component"]]
-            is.name <- co.names[[i]][["is.name"]]
+            type <- co.names[[i]][["type"]]
             
-            if (i %in% names(new.labels) && !is.na(new.labels[i])) co.names[[i]][["component"]] <- new.labels[i]
+            if (i %in% names(new.labels) && !is.na(new.labels[i])) {
+                co.names[[i]][["component"]] <- new.labels[i]
+                co.names[[i]][["type"]] <- "base"
+            }
             else {
-                if (seps["int"] %in% comp[!is.name]) {
-                    named.vars <- character(sum(comp[!is.name] == seps["int"]) + 1)
-                    sep.inds <- c(which(comp == seps["int"] & !is.name), length(comp) + 1)
+                if ("isep" %in% type) {
+                    named.vars <- character(sum(type == "isep") + 1)
+                    sep.inds <- c(which(type == "isep"), length(comp) + 1)
                     named.vars <- lapply(seq_along(sep.inds), function(k) {
                         inds <- (if (k == 1) seq(1, sep.inds[k] - 1) 
                                  else seq(sep.inds[k-1] + 1, sep.inds[k] - 1))
                         var <- comp[inds]
-                        var.is.name <- is.name[inds]
+                        var.is.base <- type[inds] == "base"
                         pasted.var <- paste(var, collapse = "")
                         if (pasted.var %in% names(new.labels)) return(new.labels[pasted.var])
-                        else return(paste(ifelse(var.is.name & var %in% names(new.labels) & !is.na(new.labels[var]), new.labels[var], var), collapse = ""))
+                        else return(paste(ifelse(var.is.base & var %in% names(new.labels) & !is.na(new.labels[var]), new.labels[var], var), collapse = ""))
                     })
                     co.names[[i]][["component"]] <- do.call("paste", c(unname(named.vars), list(sep = seps["int"])))
                 }
-                else co.names[[i]][["component"]] <- ifelse(is.name & comp %in% names(new.labels) & !is.na(new.labels[comp]), new.labels[comp], comp)
+                else co.names[[i]][["component"]] <- ifelse(type == "base" & comp %in% names(new.labels) & !is.na(new.labels[comp]), new.labels[comp], comp)
             }
         }
         
