@@ -741,6 +741,9 @@ strsplits <- function(x, splits, fixed = TRUE, ...) {
     for (split in splits) x <- unlist(strsplit(x, split, fixed = TRUE, ...))
     return(x[x != ""]) # Remove empty values
 }
+paste. <- function(..., collapse = NULL) {
+    paste(..., sep = ".", collapse = collapse)
+}
 # is_ <- function(x, class) {
 #     if (is_not_null(get0(paste0("is.", class)))) get0(paste0("is.", class))(x)
 #     else inherits(x, class)
