@@ -624,9 +624,9 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     if (agg.range) {
         SS <- do.call("rbind", lapply(c("Un", b$print.options$weight.names),
                                       function(x) data.frame(var = B[["variable.names"]],
-                                                             min.stat = B[[paste("Min", which.stat, x, sep = ".")]],
-                                                             max.stat = B[[paste("Max", which.stat, x, sep = ".")]],
-                                                             mean.stat = B[[paste("Mean", which.stat, x, sep = ".")]],
+                                                             min.stat = B[[paste.("Min", which.stat, x)]],
+                                                             max.stat = B[[paste.("Max", which.stat, x)]],
+                                                             mean.stat = B[[paste.("Mean", which.stat, x)]],
                                                              Sample = ifelse(x == "Un", "Unadjusted", 
                                                                              ifelse(x == "Adj", "Adjusted", x)))))
 
@@ -698,8 +698,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     else {
         SS <- do.call("rbind", lapply(c("Un", b$print.options$weight.names),
                                       function(x) data.frame(var = B[["variable.names"]],
-                                                             stat = B[[ifelse(is_null(Agg.Fun), paste(which.stat, x, sep = "."),
-                                                                               paste(Agg.Fun, which.stat, x, sep = "."))]],
+                                                             stat = B[[ifelse(is_null(Agg.Fun), paste.(which.stat, x),
+                                                                               paste.(Agg.Fun, which.stat, x))]],
                                                              Sample = ifelse(x == "Un", "Unadjusted", 
                                                                              ifelse(x == "Adj", "Adjusted", x)))))
         

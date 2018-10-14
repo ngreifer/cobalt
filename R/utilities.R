@@ -362,8 +362,8 @@ get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
         rule1 <- mnps$stopMethods
     }
     
-    s <- paste(mnps$stopMethods[match(tolower(rule1), tolower(mnps$stopMethods))],
-               mnps$estimand, sep = ".")
+    s <- paste.(mnps$stopMethods[match(tolower(rule1), tolower(mnps$stopMethods))],
+               mnps$estimand)
     
     estimand <- setNames(mnps$estimand, s)
     
