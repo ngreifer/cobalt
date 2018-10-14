@@ -1,4 +1,5 @@
-\name{bal.tab.cluster}
+\name{class-bal.tab.cluster}
+\alias{class-bal.tab.cluster}
 \alias{bal.tab.cluster}
 
 \title{Using \code{bal.tab()} with Clustered Data}

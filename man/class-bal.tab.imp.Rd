@@ -1,4 +1,5 @@
-\name{bal.tab.imp}
+\name{class-bal.tab.imp}
+\alias{class-bal.tab.imp}
 \alias{bal.tab.imp}
 
 \title{Using \code{bal.tab()} with Multiply Imputed Data}

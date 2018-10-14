@@ -1,4 +1,5 @@
-\name{bal.tab.subclass}
+\name{class-bal.tab.subclass}
+\alias{class-bal.tab.subclass}
 \alias{bal.tab.subclass}
 
 \title{Using \code{bal.tab()} with Subclassified Data}

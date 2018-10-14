@@ -1,6 +1,7 @@
 \name{class-bal.tab.msm}
 \alias{class-bal.tab.msm}
 \alias{bal.tab.msm}
+
 \title{Using \code{bal.tab()} with Longitudinal Treatments}
 \description{
 When using \code{bal.tab()} with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all \code{bal.tab} methods for dealing with longitudinal data. This page outlines the outputs and options in this case.

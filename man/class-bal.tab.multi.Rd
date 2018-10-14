@@ -1,4 +1,5 @@
-\name{bal.tab.multi}
+\name{class-bal.tab.multi}
+\alias{class-bal.tab.multi}
 \alias{bal.tab.multi}
 
 \title{Using \code{bal.tab()} with Multiple Categorical Treatments}
