@@ -11,6 +11,12 @@ Version 3.4.2
 
 * Minor updates to `f.build` to process inputs more flexibly. The left hand side can now be empty, and the variables on the right hand side can now contain spaces.
 
+* Added `disp.sds` option to display standard deviations for each group in `bal.tab`.
+
+* Major updates to the organization of the code.
+
+* Several changes to `bal.tab` display options (e.g., `un`, `disp.means`, etc.). First, the named arguments have been removed from the method-specific functions in order to clean them up and make it easier to add new functions. Second, a help page devoted just to these functions has been created. Third, global options for these arguments can be set with `options()` so they don't need to be typed each time. For example, if you wanted `un = TRUE` all the time, you could set `options(un = TRUE)` once and not have ot include it in the call to `bal.tab`.
+
 Version 3.4.1
 
 * Fixed a bug that would occur when `imabalanced.only = TRUE` in `bal.tab` but all variables were balanced.
