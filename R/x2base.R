@@ -4,16 +4,22 @@ x2base <- function(obj, ...) UseMethod("x2base")
 
 x2base.matchit <- function(m, ...) {
     A <- list(...)
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              subclass=NA,
-              method=NA,
-              addl=NA,
-              distance=NA,
-              call=NA,
-              cluster=NA,
-              discarded=NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     #Initializing variables
     
@@ -34,6 +40,16 @@ x2base.matchit <- function(m, ...) {
     data <- A$data
     subset <- A$subset
     cluster <- A$cluster
+    
+    s <- "ATT"
+    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
+        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                error = function(cond) {
+                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
+                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                    return(new.s.d.denom)})
+    }
+    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
@@ -119,6 +135,8 @@ x2base.matchit <- function(m, ...) {
     X$addl <- addl[subset, , drop = FALSE]
     X$cluster <- factor(cluster[subset])
     X$call <- m$call
+    
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.ps <- function(ps, ...) {
@@ -126,15 +144,22 @@ x2base.ps <- function(ps, ...) {
     #s.d.denom
     A <- list(...)
     
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              distance=NA,
-              addl=NA,
-              s.d.denom=NA,
-              call=NA,
-              cluster = NA,
-              s.weights = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     #Initializing variables
     if (is_not_null(A) && names(A)[1]=="" && is_null(A$stop.method)) A$stop.method <- A[[1]]
@@ -273,6 +298,7 @@ x2base.ps <- function(ps, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights[subset]
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.mnps <- function(mnps, ...) {
@@ -280,15 +306,22 @@ x2base.mnps <- function(mnps, ...) {
     #s.d.denom
     A <- list(...)
     
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              distance=NA,
-              addl=NA,
-              s.d.denom=NA,
-              call=NA,
-              cluster = NA,
-              s.weights = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     #Initializing variables
     if (is_not_null(A)&& names(A)[1]=="" && is_null(A$stop.method)) A$stop.method <- A[[1]]
@@ -419,7 +452,9 @@ x2base.mnps <- function(mnps, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- mnps$sampw[subset]
     X$focal <- mnps$treatATT
+    X$method <- rep("weighting", ncol(weights))
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.ps.cont <- function(ps.cont, ...) {
@@ -427,14 +462,22 @@ x2base.ps.cont <- function(ps.cont, ...) {
     #s.d.denom
     A <- list(...)
     
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              distance=NA,
-              addl=NA,
-              call=NA,
-              cluster = NA,
-              s.weights = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     #Initializing variables
     if (is_not_null(A) && names(A)[1]=="" && is_null(A$stop.method)) A$stop.method <- A[[1]]
@@ -546,26 +589,28 @@ x2base.ps.cont <- function(ps.cont, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights[subset]
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.Match <- function(Match, ...) {
-    #formula
-    #data
-    #treat
-    #covs
-    #addl
-    #distance
-    #s.d.denom
+
     A <- list(...)
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              method=NA,
-              distance=NA,
-              addl=NA,
-              call=NA,
-              s.d.denom=NA,
-              cluster = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     #Checks
     if (!is.list(Match) && is_not_null(Match)) {
         stop("'Match' object contains no valid matches")}
@@ -584,7 +629,7 @@ x2base.Match <- function(Match, ...) {
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
+    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
     treat0 <- t.c[["treat"]]
     covs0  <- t.c[["covs"]]
@@ -688,6 +733,7 @@ x2base.Match <- function(Match, ...) {
     X$method <- "matching"
     X$cluster <- factor(cluster[subset])
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.formula <- function(f, ...) {
@@ -717,18 +763,22 @@ x2base.data.frame <- function(covs, ...) {
     #imp
     
     A <- list(...)
-    X <- list(covs = NA,
-              weights = NA,
-              treat = NA,
-              distance = NA,
-              subclass = NA,
-              match.strata = NA,
-              addl = NA,
-              method = NA,
-              call = NA,
-              cluster = NA,
-              imp = NA,
-              s.weights = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     treat <- A$treat
     data <- A$data
@@ -1234,20 +1284,29 @@ x2base.data.frame <- function(covs, ...) {
     X$s.weights <- s.weights[subset]
     X$focal <- focal
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.CBPS <- function(cbps.fit, ...) {
     #s.d.denom
     #cluster
     A <- list(...)
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              distance=NA,
-              addl=NA,
-              s.d.denom=NA,
-              call=NA,
-              cluster=NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     #Checks
     
     treat <- model.response(model.frame(cbps.fit$terms, cbps.fit$data))
@@ -1392,7 +1451,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
     X$cluster <- factor(cluster[subset])
     X$call <- cbps.fit$call
     X$s.weights <- s.weights[subset]
+    X$method <- "weighting"
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.ebalance <- function(ebalance, ...) {
@@ -1401,14 +1462,22 @@ x2base.ebalance <- function(ebalance, ...) {
     #treat
     #covs
     A <- list(...)
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              method=NA,
-              distance=NA,
-              call=NA,
-              cluster = NA,
-              addl=NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     #Get treat and covs
     data <- A$data
@@ -1423,6 +1492,16 @@ x2base.ebalance <- function(ebalance, ...) {
     weights <- data.frame(weights = get.w(ebalance, treat))
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    
+    s <- "ATT"
+    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
+        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                error = function(cond) {
+                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
+                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                    return(new.s.d.denom)})
+    }
+    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -1489,6 +1568,7 @@ x2base.ebalance <- function(ebalance, ...) {
     X$method <- "weighting"
     X$cluster <- factor(cluster[subset])
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.ebalance.trim <- x2base.ebalance
@@ -1498,13 +1578,22 @@ x2base.optmatch <- function(optmatch, ...) {
     #treat
     #covs
     A <- list(...)
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              method=NA,
-              distance=NA,
-              call=NA,
-              cluster = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     #Get treat and covs
     data <- A$data
@@ -1516,6 +1605,16 @@ x2base.optmatch <- function(optmatch, ...) {
     distance <- A$distance
     subset <- A$subset
     cluster <- A$cluster
+    
+    s <- "ATT"
+    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
+        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                error = function(cond) {
+                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
+                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                    return(new.s.d.denom)})
+    }
+    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
     #Process match.strata (optmatch)
     if (length(optmatch) != length(treat) || length(optmatch) != nrow(covs)) {
@@ -1591,22 +1690,28 @@ x2base.optmatch <- function(optmatch, ...) {
     X$method <- "matching"
     X$cluster <- factor(cluster[d.reordered][subset])
     
+    attr(X, "X.names") <- X.names
     return(X)
     
 }
 x2base.weightit <- function(weightit, ...) {
     A <- list(...)
-    
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              distance=NA,
-              addl=NA,
-              s.d.denom=NA,
-              call=NA,
-              cluster = NA,
-              imp = NA,
-              s.weights = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     #Initializing variables
     estimand <- weightit$estimand
@@ -1799,6 +1904,7 @@ x2base.weightit <- function(weightit, ...) {
     X$focal <- weightit$focal
     X$call <- weightit$call
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.designmatch <- function(dm, ...) {
@@ -1807,13 +1913,32 @@ x2base.designmatch <- function(dm, ...) {
     #treat
     #covs
     A <- list(...)
-    X <- list(covs=NA,
-              treat=NA,
-              weights=NA,
-              method=NA,
-              distance=NA,
-              call=NA,
-              cluster = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
+    
+    s <- "ATT"
+    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
+        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+                                error = function(cond) {
+                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
+                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                    return(new.s.d.denom)})
+    }
+    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
     #Get treat and covs
     data <- A$data
@@ -1910,6 +2035,7 @@ x2base.designmatch <- function(dm, ...) {
     X$method <- "matching"
     X$cluster <- factor(cluster[in.matched & subset])
     
+    attr(X, "X.names") <- X.names
     return(X)
     
 }
@@ -1918,15 +2044,22 @@ x2base.designmatch <- function(dm, ...) {
 x2base.iptw <- function(iptw, ...) {
     A <- list(...)
     
-    X <- list(covs.list=NA,
-              treat.list=NA,
-              weights=NA,
-              distance.list=NA,
-              addl.list=NA,
-              s.d.denom=NA,
-              call=NA,
-              cluster = NA,
-              s.weights = NA)
+    X.names <- c("covs.list",
+                 "treat.list",
+                 "weights",
+                 "distance.list",
+                 "addl.list",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     if (is_not_null(A) && names(A)[1]=="" && is_null(A$stop.method)) A$stop.method <- A[[1]] #for bal.plot
     if (is_null(A$stop.method) && is_not_null(A$full.stop.method)) A$stop.method <- A$full.stop.method
@@ -2091,20 +2224,27 @@ x2base.iptw <- function(iptw, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights[subset]
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.data.frame.list <- function(covs.list, ...) {
     A <- list(...)
-    X <- list(covs.list = NA,
-              weights = NA,
-              treat.list = NA,
-              distance.list = NA,
-              addl.list = NA,
-              method = NA,
-              call = NA,
-              cluster = NA,
-              imp = NA,
-              s.weights = NA)
+    X.names <- c("covs.list",
+                 "treat.list",
+                 "weights",
+                 "distance.list",
+                 "addl.list",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     covs.list <- covs.list
     treat.list <- A$treat.list
@@ -2354,6 +2494,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     X$imp <- factor(imp[subset])
     X$s.weights <- s.weights[subset]
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.formula.list <- function(formula.list, ...) {
@@ -2375,14 +2516,22 @@ x2base.formula.list <- function(formula.list, ...) {
 x2base.CBMSM <- function(cbmsm, ...) {
     A <- list(...)
     
-    X <- list(covs.list=NA,
-              treat.list=NA,
-              weights=NA,
-              distance.list=NA,
-              addl.list=NA,
-              s.d.denom=NA,
-              call=NA,
-              cluster = NA)
+    X.names <- c("covs.list",
+                 "treat.list",
+                 "weights",
+                 "distance.list",
+                 "addl.list",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     ID <- sort(unique(cbmsm$id))
     times <- sort(unique(cbmsm$time))
@@ -2504,20 +2653,28 @@ x2base.CBMSM <- function(cbmsm, ...) {
     X$s.weights <- NULL
     X$s.d.denom <- "pooled"
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 x2base.weightitMSM <- function(weightitMSM, ...) {
     A <- list(...)
     
-    X <- list(covs.list=NA,
-              treat.list=NA,
-              weights=NA,
-              distance.list=NA,
-              addl.list=NA,
-              s.d.denom=NA,
-              call=NA,
-              cluster = NA,
-              s.weights = NA)
+    X.names <- c("covs.list",
+                 "treat.list",
+                 "weights",
+                 "distance.list",
+                 "addl.list",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     #Initializing variables
     estimand <- weightitMSM$estimand
@@ -2660,6 +2817,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights[subset]
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
 
@@ -2680,19 +2838,27 @@ x2base.default <- function(obj, ...) {
     #imp
     
     A <- list(...)
-    X <- list(covs = NA,
-              weights = NA,
-              treat = NA,
-              distance = NA,
-              subclass = NA,
-              match.strata = NA,
-              addl = NA,
-              method = NA,
-              call = NA,
-              cluster = NA,
-              imp = NA,
-              s.weights = NA,
-              focal = NA)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass",
+                 "covs.list",
+                 "treat.list",
+                 "distance.list",
+                 "addl.list")
+
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
     
     if (!is.list(obj)) stop("The input object must be an appropriate list, data.frame, formula, or the output of one of the supported packages.", call. = FALSE)
   
@@ -3626,5 +3792,6 @@ x2base.default <- function(obj, ...) {
         X$s.weights <- s.weights[subset]
     }
     
+    attr(X, "X.names") <- X.names
     return(X)
 }
