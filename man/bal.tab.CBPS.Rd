@@ -5,7 +5,7 @@
 Balance statistics for CBPS Objects
 }
 \description{
-Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package.
+Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \pkg{CBPS} package.
 }
 \usage{
 \method{bal.tab}{CBPS}(cbps, 
@@ -20,12 +20,6 @@ Generates balance statistics for \code{CBPS} objects from the \pkg{CBPS} package
     v.threshold = NULL, 
     ks.threshold = NULL, 
     r.threshold = NULL, 
-    imbalanced.only = FALSE,
-    un = FALSE, 
-    disp.bal.tab = TRUE, 
-    disp.means = FALSE, 
-    disp.v.ratio = FALSE, 
-    disp.ks = FALSE, 
     cluster = NULL, 
     which.cluster = NULL, 
     cluster.summary = TRUE, 
@@ -79,24 +73,6 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
   \item{r.threshold}{
 a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
-  \item{imbalanced.only}{
-\code{logical}; whether to display only the covariates that failed to meet at least one of balance thresholds.
-}
-  \item{un}{
-\code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
-}
-  \item{disp.bal.tab}{
-\code{logical}; whether to display the table of balance statistics.
-}
-  \item{disp.means}{
-\code{logical}; whether to print the group means in balance output.
-}
-  \item{disp.v.ratio}{
-\code{logical}; whether to display variance ratios in balance output.
-}
-  \item{disp.ks}{
-\code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
-}
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
@@ -137,13 +113,13 @@ A \code{logical} vector denoting whether each observation should be included. It
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-further arguments passed to or from other methods. They are ignored in this function.
+Further arguments to control display of output. See \link[=display_options]{display options} for details.
 }
 }
 \details{
-\code{bal.tab.CBPS} generates a list of balance summaries for the \code{CBPS} object given, and functions similarly to \code{balance()} in \pkg{CBPS}.
+\code{bal.tab.CBPS} generates a list of balance summaries for the \code{CBPS} or \code{CBMSM} object given and functions similarly to \code{balance()} in \pkg{CBPS}.
 
-All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}), and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 The \code{CBPS} object does not return sampling weights even if they are used; rather, the weights returned already have the sampling weights combined within them. Because some of the checks and defaults in \code{bal.tab()} rely on patterns in these weights, using sampling weights in \code{CBPS()} without specifying them in \code{bal.tab()} can lead to incorrect results. If sampling weights are used in \code{CBPS()}, it is important that they are specified in \code{bal.tab()} as well.
 

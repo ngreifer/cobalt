@@ -21,13 +21,7 @@ Generates balance statistics for \code{optmatch} objects from \pkg{optmatch}.
     s.d.denom = c("treated", "control", "pooled"), 
     m.threshold = NULL, 
     v.threshold = NULL, 
-    ks.threshold = NULL, 
-    imbalanced.only = FALSE, 
-    un = FALSE, 
-    disp.bal.tab = TRUE, 
-    disp.means = FALSE, 
-    disp.v.ratio = FALSE, 
-    disp.ks = FALSE, 
+    ks.threshold = NULL,
     cluster = NULL, 
     which.cluster = NULL, 
     cluster.summary = TRUE, 
@@ -80,24 +74,6 @@ a numeric value for the threshold for variance ratios. Will automatically conver
   \item{ks.threshold}{
 a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
 }
-  \item{imbalanced.only}{
-\code{logical}; whether to display only the covariates that failed to meet at least one of balance thresholds.
-}
-  \item{un}{
-\code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
-}
-  \item{disp.bal.tab}{
-\code{logical}; whether to display the table of balance statistics.
-}
-  \item{disp.means}{
-\code{logical}; whether to print the group means in balance output.
-}
-  \item{disp.v.ratio}{
-\code{logical}; whether to display variance ratios in balance output.
-}
-  \item{disp.ks}{
-\code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
-}
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
@@ -111,13 +87,13 @@ which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
-A \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{optmatch()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
+a \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{optmatch()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-further arguments passed to or from other methods. They are ignored in this function.
+further arguments to control display of output. See \link[=display_options]{display options} for details.
 }
 }
 \details{
@@ -125,7 +101,7 @@ further arguments passed to or from other methods. They are ignored in this func
 
 The input to \code{bal.tab.optmatch()} must include either both \code{formula} and \code{data} or both \code{treat} and \code{covs}. 
 
-All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold} and \code{v.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}, and \code{ks.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 The inputs (if any) to \code{covs} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to \code{covs} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
 }

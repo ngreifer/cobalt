@@ -22,12 +22,6 @@ Generates balance statistics for output objects from \pkg{designmatch}.
     m.threshold = NULL, 
     v.threshold = NULL, 
     ks.threshold = NULL, 
-    imbalanced.only = FALSE, 
-    un = FALSE, 
-    disp.bal.tab = TRUE, 
-    disp.means = FALSE, 
-    disp.v.ratio = FALSE, 
-    disp.ks = FALSE, 
     cluster = NULL, 
     which.cluster = NULL, 
     cluster.summary = TRUE, 
@@ -80,24 +74,6 @@ a numeric value for the threshold for variance ratios. Will automatically conver
   \item{ks.threshold}{
 a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
 }
-  \item{imbalanced.only}{
-\code{logical}; whether to display only the covariates that failed to meet at least one of balance thresholds.
-}
-  \item{un}{
-\code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample.
-}
-  \item{disp.bal.tab}{
-\code{logical}; whether to display the table of balance statistics.
-}
-  \item{disp.means}{
-\code{logical}; whether to print the group means in balance output.
-}
-  \item{disp.v.ratio}{
-\code{logical}; whether to display variance ratios in balance output.
-}
-  \item{disp.ks}{
-\code{logical}; whether to display Kolmogorov-Smirnov statistics in balance output.
-}
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
@@ -117,7 +93,7 @@ A \code{logical} vector denoting whether each observation should be included. It
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-further arguments passed to or from other methods. They are ignored in this function.
+Further arguments to control display of output. See \link[=display_options]{display options} for details.
 }
 }
 \details{
@@ -146,7 +122,6 @@ Noah Greifer
 library("designmatch"); data("lalonde", package = "cobalt")
 treat <- lalonde$treat
 covs <- as.matrix(lalonde[c("age", "educ", "re74", "re75")])
-
 
 dmout <- bmatch(treat,
                 total_groups = sum(treat == 1),

@@ -22,12 +22,6 @@ Generates balance statistics for \code{ebalance} objects from \pkg{ebal}.
     m.threshold = NULL, 
     v.threshold = NULL, 
     ks.threshold = NULL, 
-    imbalanced.only = FALSE, 
-    un = FALSE, 
-    disp.bal.tab = TRUE, 
-    disp.means = FALSE, 
-    disp.v.ratio = FALSE, 
-    disp.ks = FALSE, 
     cluster = NULL, 
     which.cluster = NULL, 
     cluster.summary = TRUE, 
@@ -117,7 +111,7 @@ A \code{logical} vector denoting whether each observation should be included. It
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-further arguments passed to or from other methods. They are ignored in this function.
+Further arguments to control display of output. See \link[=display_options]{display options} for details.
 }
 }
 \details{

@@ -21,12 +21,6 @@ Generates balance statistics for \code{Match} objects from \pkg{Matching}.
     m.threshold = NULL, 
     v.threshold = NULL, 
     ks.threshold = NULL, 
-    imbalanced.only = FALSE, 
-    un = FALSE, 
-    disp.bal.tab = TRUE, 
-    disp.means = FALSE, 
-    disp.v.ratio = FALSE, 
-    disp.ks = FALSE, 
     cluster = NULL, 
     which.cluster = NULL, 
     cluster.summary = TRUE, 
@@ -56,7 +50,7 @@ a data frame of covariate values for which to check balance. See Details.
 \code{logical} or \code{numeric}; whether or not to include powers and 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric} and equal to \code{1} or \code{2}, squares of each covariate will be displayed; greater numbers will display corresponding powers up to the provided input (e.g., \code{3} will display squares and cubes of each covariate). 
 }
   \item{distance}{
-Optional; either a vector or data.frame containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
+optional; either a vector or data.frame containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
 }
   \item{addl}{
 a data frame of additional covariates for which to present balance. These may be covariates included in the original dataset but not included in \code{formula} or \code{covs}. In general, it makes more sense to include all desired variables in \code{formula} or \code{covs} than in \code{addl}. See note in Details for using \code{addl}.
@@ -110,13 +104,13 @@ which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
-A \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{Match()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
+a \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{Match()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-further arguments passed to or from other methods. They are ignored in this function.
+further arguments to control display of output. See \link[=display_options]{display options} for details.
 }
 }
 \details{

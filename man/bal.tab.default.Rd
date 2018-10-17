@@ -12,10 +12,10 @@ Generates balance statistics using an object for which there is not a defined me
 }
 \arguments{
   \item{obj}{
-A data frame containing covariate values for each unit.
+An object containing information about conditioning. See Details.
 }
   \item{...}{
-arguments that would be pased to \code{\link{bal.tab.formula}}, \code{\link{bal.tab.data.frame}}, or \code{\link{bal.tab.time.list}}. See Details.
+Arguments that would be pased to \code{\link{bal.tab.formula}}, \code{\link{bal.tab.data.frame}}, or \code{\link{bal.tab.time.list}}. See Details.
 }
 }
 \details{
