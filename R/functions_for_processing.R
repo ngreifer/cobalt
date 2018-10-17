@@ -385,8 +385,8 @@ binarize <- function(variable) {
 get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL, ...) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
     A <- list(...)
-    if (is_null(A[["int_sep"]])) A[["int_sep"]] <- " * "
-    if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- "_"
+    if (is_null(A[["int_sep"]])) A[["int_sep"]] <- getOption("cobalt_int_sep", default = " * ")
+    if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- getOption("cobalt_factor_sep", default = "_")
     
     C <- covs
     if (!is.null(addl)) {
