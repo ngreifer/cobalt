@@ -1206,12 +1206,8 @@ bal.tab.formula <- function(formula, data = NULL, ...) {
     return(out)
 }
 bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distance = NULL, subclass = NULL, match.strata = NULL, method, int = FALSE, addl = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, imp = NULL, which.imp = NA, imp.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, s.weights = NULL, estimand = NULL, abs = FALSE, subset = NULL, quick = FALSE, ...) {
-    
     args <- c(as.list(environment()), list(...))[-(1:2)]
-    
-    #Adjustments to arguments
-    if (is_null(subclass)) disp.subclass <- FALSE
-    
+
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
     for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match.arg(", i, ")")))
     
@@ -1235,20 +1231,22 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
         out <- do.call("base.bal.tab.imp", c(X, args),
                        quote = TRUE)
     }
-    else if (!is_binary(X$treat) && is.numeric(X$treat)) {
+    else if (is_binary(X$treat)) {
+        out <- do.call("base.bal.tab", c(X, args),
+                       quote = TRUE)
+    }
+    else if (is.factor(X$treat) || is.character(X$treat)) {
+        
+        out <- do.call("base.bal.tab.multi", c(X, args),
+                       quote = TRUE)
+    }
+    else if (is.numeric(X$treat)) {
 
         out <- do.call("base.bal.tab.cont", c(X, args),
                        quote = TRUE)
     }
-    else if (!is_binary(X$treat) && (is.factor(X$treat) || is.character(X$treat))) {
-
-        out <- do.call("base.bal.tab.multi", c(X, args),
-                       quote = TRUE)
-    }
-    else {
-        out <- do.call("base.bal.tab", c(X, args),
-                       quote = TRUE)
-    }
+    else stop("Something went wrong. Contact the maintainer.", call. = FALSE)
+    
     return(out)
 }
 bal.tab.CBPS <- function(cbps, int = FALSE, distance = NULL, addl = NULL, data = NULL, continuous = c("std", "raw"), binary = c("raw", "std"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = FALSE, ...) {
