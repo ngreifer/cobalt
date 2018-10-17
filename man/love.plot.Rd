@@ -17,7 +17,7 @@ love.plot(x,
     no.missing = TRUE, 
     var.names = NULL, 
     drop.distance = FALSE, 
-    agg.fun = c("mean", "median", "max", "range"), 
+    agg.fun = c("mean", "max", "range"), 
     colors = NULL, 
     shapes = NULL, 
     line = FALSE, 
@@ -50,13 +50,13 @@ an optional object providing alternate names for the variables in the plot, whic
 \code{logical}; whether to ignore the distance measure (if there are any) in plotting.
 }
   \item{agg.fun}{
-if balance is to be displayed across clusters or imputations rather than within a single cluster or imputation, which summarizing function (mean, median, max, or range) of the balance statistics sould be used. If "range" is entered, \code{love.plot} will display a line from the min to the max with a point at the mean for each covariate; it can only be used if \code{quick = FALSE} in the \code{bal.tab} call. Abbreviations allowed; "mean" is default.
+if balance is to be displayed across clusters or imputations rather than within a single cluster or imputation, which summarizing function (mean, max, or range) of the balance statistics sould be used. If "range" is entered, \code{love.plot} will display a line from the min to the max with a point at the mean for each covariate; it can only be used if \code{quick = FALSE} in the \code{bal.tab} call. Abbreviations allowed; "mean" is default.
 }
   \item{colors}{
-The colors of the points on the plot. See 'Color Specification' at \code{\link[graphics]{par}} or the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill}{aesthetic specifications} page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.
+the colors of the points on the plot. See 'Color Specification' at \code{\link[graphics]{par}} or the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill}{aesthetic specifications} page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.
   }
   \item{shapes}{
-the shapes of the points on the plot. See Example at \code{\link[ggplot2]{shape}}. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point}{aesthetic specifications} page for valid options. Values 21 to 25 and "filled" shapes are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 21 (\code{"circle filled"}).
+the shapes of the points on the plot. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point}{aesthetic specifications} page for valid options. Values 21 to 25 and "filled" shapes are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 21 (\code{"circle filled"}).
   }
   \item{line}{
   \code{logical}; whether to display a line connecting the points for each sample.
@@ -84,7 +84,7 @@ The default in \code{love.plot} is to present variables as they are named in the
 
 There are several ways to specify alternate names for presentation in the displayed plot using the \code{var.names} argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the \code{names} of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from \code{bal.tab} is not provided in the list of old variable names, \code{love.plot} will use the original old variable name.
 
-\code{love.plot} can replace old variables names with new ones based on exact matching for the name strings or matching using the variable name components. For example, if a factor variable \code{"X"} with levels \code{"a"}, \code{"b"}, and \code{"c"} is displayed with \code{love.plot}, the variables \code{"X_a"}, \code{"X_b"}, and \code{"X_c"} will be displayed. You can enter replacement names for all three variables individually with \code{var.names}, or you can simply specify a replacement name for \code{"X"}, and \code{"X"} will be replaced by the given name in all instances it appears, including not just factor expansions, but also polynomials and interactions in \code{int = TRUE} in the original \code{bal.tab} call. In an interaction with another variable, say \code{"Y"}, there are several ways to replace the name of the interaction term \code{"X_a | Y"}. If the entire string (\code{"X_a | Y"}) is included in \code{var.names}, the entire string will be replaced. If \code{"X_a"} is included in \code{var.name}, only it will be replaced (and it will be replaced everywhere else it appears). If \code{"X"} is included in \code{var.name}, only it will be replaced (and it will be replaced everywhere else it appears). See example at \code{\link{var.names}}.
+\code{love.plot} can replace old variables names with new ones based on exact matching for the name strings or matching using the variable name components. For example, if a factor variable \code{"X"} with levels \code{"a"}, \code{"b"}, and \code{"c"} is displayed with \code{love.plot}, the variables \code{"X_a"}, \code{"X_b"}, and \code{"X_c"} will be displayed. You can enter replacement names for all three variables individually with \code{var.names}, or you can simply specify a replacement name for \code{"X"}, and \code{"X"} will be replaced by the given name in all instances it appears, including not just factor expansions, but also polynomials and interactions in \code{int = TRUE} in the original \code{bal.tab} call. In an interaction with another variable, say \code{"Y"}, there are several ways to replace the name of the interaction term \code{"X_a * Y"}. If the entire string (\code{"X_a * Y"}) is included in \code{var.names}, the entire string will be replaced. If \code{"X_a"} is included in \code{var.name}, only it will be replaced (and it will be replaced everywhere else it appears). If \code{"X"} is included in \code{var.name}, only it will be replaced (and it will be replaced everywhere else it appears). See example at \code{\link{var.names}}.
 
 \code{love.plot} can be used with clusters, imuputations, or both as well. The cluster or imputation arguments must be specified in the call to \code{bal.tab}. Several types of plots can be requested: a plot aggregating over all imputations across all clusters, a plot displaying individual clusters aggregating over imputations (if any), a plot displaying individual imputations across clusters, or a plot displaying individual clusters within one imputation (if any) or individual imputations for one cluster. The choice of these displays is controlled by the arguments to \code{which.cluster} and \code{which.imp}. If either of them are \code{NA}, the plot will aggregate over that collection. If either are individual values, the plot will display the values for those specific clusters or imputations. If either of them are \code{NULL}, the plot will display the values for all clusters or imputations. If both clusters and imputations are specified, at least one of \code{which.cluster} or \code{which.imp} must be a single value, or \code{NA}. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range") of balance statistics for each covariate should be presented in the plot.
 
@@ -94,7 +94,7 @@ If no aggregation (e.g., over clusters or imputations) is to take place, \code{a
 
 }
 \value{
-A \code{"ggplot"} object, returned invisbly.
+A \code{"ggplot"} object, returned invisibly.
 }
 \note{
 \code{love.plot} can also be called by using \code{plot} on a \code{bal.tab} object. That is, the \code{"love."} prefix is optional.
