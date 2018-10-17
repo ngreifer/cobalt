@@ -25,7 +25,10 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 }
 \item{disp.bal.tab}{\code{logical}; whether to display the table of balance statistics. Default is \code{TRUE}, so the balance table is displayed.
 }
-
+\item{factor_sep}{\code{character}; the string used to seperate factor variables from their levels when variable names are printed. Default is \code{"_"}.
+}
+\item{int_sep}{\code{character}; the string used to seperate two variables involved in an interaction when variable names are printed. Default is \code{" * "}. Older versions of \pkg{cobalt} used \code{"_"}.
+}
 }
 \details{
 These arguments used to be named arguments to \code{bal.tab}, but were relegated to arguments passed through \code{...} to consolidate documentation and make it easier to add new features and options. For users of previous versions of \pkg{cobalt}, nothing should change as far as how the arguments are used, but new options may be added.
