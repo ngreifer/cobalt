@@ -1,7 +1,7 @@
 cobalt News and Updates
 ======
 
-Version 3.4.2
+Version 3.5.0
 
 * Fixed a bug when logical treatments were used. Thanks to @victorn1.
 
@@ -11,11 +11,13 @@ Version 3.4.2
 
 * Minor updates to `f.build` to process inputs more flexibly. The left hand side can now be empty, and the variables on the right hand side can now contain spaces.
 
-* Added `disp.sds` option to display standard deviations for each group in `bal.tab`.
-
 * Major updates to the organization of the code.
 
-* Several changes to `bal.tab` display options (e.g., `un`, `disp.means`, etc.). First, the named arguments have been removed from the method-specific functions in order to clean them up and make it easier to add new functions. Second, a help page devoted just to these functions has been created. Third, global options for these arguments can be set with `options()` so they don't need to be typed each time. For example, if you wanted `un = TRUE` all the time, you could set `options(un = TRUE)` once and not have ot include it in the call to `bal.tab`.
+* Several changes to `bal.tab` display options (e.g., `un`, `disp.means`, etc.). First, the named arguments have been removed from the method-specific functions in order to clean them up and make it easier to add new functions. Second, a help page devoted just to these functions has been created, which can be accessed with `?display_options`. Third, global options for these arguments can be set with `options()` so they don't need to be typed each time. For example, if you wanted `un = TRUE` all the time, you could set `options(cobalt_un = TRUE)` once and not have to include it in the call to `bal.tab`.
+
+* Added `disp.sds` option to display standard deviations for each group in `bal.tab`.
+
+* Added `factor_sep` and `int_sep` options to change the seperators between variable names when factor variables and interactions are displayed. This functionality had been available since version 3.4.0 but was not documented. It is now documented in the new `display_options` help page.
 
 Version 3.4.1
 
@@ -45,7 +47,7 @@ Version 3.4.0
 
 * Added new options to `bal.plot`, including the ability to display histograms rather than densities and mirrored rather than overlapping plots. This makes it possible to make the popular mirrored histogram plot for propensity scores. In addition, it's now easier to change the colors of the components of the plots.
 
-* Made behavior around binary variables with interactions more like documentation, where interactions with both levels of the variable are present (thanks to @victorn1). Also, replaced `_` with ` * ` as the delimiter between variable names in interactions. For the old behavior, use the "secret" option `int_sep = "_"` in `bal.tab`. This functionality is not documented (mostly because I'm lazy).
+* Made behavior around binary variables with interactions more like documentation, where interactions with both levels of the variable are present (thanks to @victorn1). Also, replaced `_` with ` * ` as the delimiter between variable names in interactions. For the old behavior, use `int_sep = "_"` in `bal.tab`.
 
 * Expanded the flexibility of `var.names` in `love.plot` so that replacing the name of a variable will replace it everywhere it appears, including interactions. Thanks to @victorn1 for the suggestion.
 
