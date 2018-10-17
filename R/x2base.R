@@ -24,17 +24,18 @@ x2base.matchit <- function(m, ...) {
     #Initializing variables
     
     if (any(class(m) == "matchit.subclass")) {
-        X$subclass <- factor(m$subclass)
+        subclass <- factor(m$subclass)
         X$method <- "subclassification"
     }
     else if (any(class(m) == "matchit.full")) {
-        X$subclass <- NULL
+        subclass <- NULL
         X$method <- "weighting"
     }
     else {
-        X$subclass <- NULL
+        subclass <- NULL
         X$method <- "matching"
     }
+    
     weights <- data.frame(weights = m$weights)
     treat <- m$treat
     data <- A$data
@@ -43,13 +44,13 @@ x2base.matchit <- function(m, ...) {
     
     s <- "ATT"
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
+    else s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
@@ -102,13 +103,13 @@ x2base.matchit <- function(m, ...) {
     }
     
     ensure.equal.lengths <- TRUE
-    vectors <- c("cluster", "treat", "subset")
+    vectors <- c("cluster", "treat", "subset", "subclass")
     data.frames <- c("covs", "weights", "distance", "addl")
     problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
-    lengths <- setNames(c(lengths(mget(vectors)), 
+    lengths <- setNames(c(lengths(mget(vectors, ifnotfound = list(NULL))), 
                           vapply(data.frames, 
-                                 function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                 }, numeric(1L))), c(vectors, data.frames))
+                                 function(x) NROW(get0(x)),
+                                 numeric(1L))), c(vectors, data.frames))
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames[data.frames!="covs"])) {
@@ -121,7 +122,7 @@ x2base.matchit <- function(m, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to matchit()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (any(c(is.na(covs), is.na(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -135,6 +136,8 @@ x2base.matchit <- function(m, ...) {
     X$addl <- addl[subset, , drop = FALSE]
     X$cluster <- factor(cluster[subset])
     X$call <- m$call
+    X$s.d.denom <- s.d.denom
+    X$subclass <- factor(subclass[subset])
     
     attr(X, "X.names") <- X.names
     return(X)
@@ -3297,10 +3300,10 @@ x2base.default <- function(obj, ...) {
         vectors <- c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset")
         data.frames <- c("covs", "weights", "distance", "addl")
         problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
-        lengths <- setNames(c(lengths(mget(vectors)), 
+        lengths <- setNames(c(lengths(mget(vectors, ifnotfound = list(NULL))), 
                               vapply(data.frames, 
-                                     function(x) {if (is.null(get0(x))) 0 else nrow(get(x))
-                                     }, numeric(1L))), c(vectors, data.frames))
+                                     function(x) NROW(get0(x)), 
+                                     numeric(1L))), c(vectors, data.frames))
         #Process imp
         if (is_not_null(imp)) {
             if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
@@ -3515,7 +3518,7 @@ x2base.default <- function(obj, ...) {
             }
         }
         
-        if (any(is.na(c(covs, addl)))) {
+        if (any(c(is.na(covs), is.na(addl)))) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
         
