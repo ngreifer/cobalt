@@ -1,6 +1,6 @@
 #Functions to convert object to base.bal.tab input
 
-x2base <- function(obj, ...) UseMethod("x2base")
+x2base <- function(...) UseMethod("x2base")
 
 x2base.matchit <- function(m, ...) {
     A <- list(...)
@@ -2825,20 +2825,6 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
 }
 
 x2base.default <- function(obj, ...) {
-    #treat
-    #covs
-    #data
-    #formula
-    #weights
-    #distance
-    #subclass
-    #match.strata
-    #addl
-    #s.d.denom
-    #method
-    #cluster
-    #estimand
-    #imp
     
     A <- list(...)
     X.names <- c("covs",
