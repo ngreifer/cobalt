@@ -1730,6 +1730,16 @@ samplesize.msm <- function(bal.tab.msm.list) {
     return(obs)
 }
 
+#base.bal.tab.target
+balance.table.target.summary <- balance.table.multi.summary
+samplesize.target <- function(bal.tab.target.list, treat.names, target.name) {
+    which <- treat.names[treat.names != target.name]
+    obs <- do.call("cbind", unname(lapply(bal.tab.target.list, function(x) x[["Observations"]])))[, which]
+    attr(obs, "tag") <- attr(bal.tab.target.list[[1]][["Observations"]], "tag")
+    attr(obs, "ss.type") <- attr(bal.tab.target.list[[1]][["Observations"]], "ss.type")
+    return(obs)
+}
+
 #love.plot
 isColor <- function(x) {
     tryCatch(is.matrix(col2rgb(x)), 
