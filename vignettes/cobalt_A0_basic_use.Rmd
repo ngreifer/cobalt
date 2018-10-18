@@ -38,12 +38,12 @@ In addition to simply achieving balance, researchers must also report balance to
 
 `cobalt` is meant to supplement or replace the balance assessment tools in the above packages and allow researchers to assess and report balance on covariates simply, clearly, and flexibly before and after conditioning. It integrates seamlessly with the above packages so that users can employ both the conditioning package of their choice and `cobalt` in conjunction to assess and report balance. It is important to note that `cobalt` does not replace the highly sophisticated *conditioning* tools of these packages, as it does no conditioning or estimation of its own.
 
-The rest of this guide explains how to use `cobalt` with the above packages and others, as well as the choices instituted by the functions and customizable by the user.
+The rest of this guide explains how to use `cobalt` with some of the above packages and others, as well as the choices instituted by the functions and customizable by the user. Other vignettes describe the use of `cobalt` with packages not mentioned here, with multiply imputed and clustered data, and with longitudinal treatments.
 
 #### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.4.1.
+Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.5.0.
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
@@ -53,7 +53,7 @@ For example, if you use `Matching` for propensity score estimation and matching 
 
 If most of the major conditioning packages contain functions to assess balance, why use `cobalt` at all? `cobalt` arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. However, some users of these packages may be completely satisfied with their capabilities and comfortable with their output; for them, `cobalt` still has value in its unique plotting capabilities that make use of `ggplot2` in R.
 
-The following are some reasons why `cobalt` may be attractive to users of `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, and `WeightIt`:
+The following are some reasons why `cobalt` may be attractive to users of `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, `WeightIt`, and other conditioning packages:
 
 #### Visual clarity
 
@@ -77,7 +77,7 @@ The main conditioning packages produce plots that can be useful in assessing bal
 
 #### Unique features
 
-There are unique features in `cobalt` that do not exist in any other package. These include the handling of clustered and grouped data and the handling of data generated with multiple imputation. These more advanced uses of `cobalt` are described in detail in the accompanying Appendix 2. In addition, `cobalt` includes tools for handling data sets with continuous and multinomial treatments.
+There are unique features in `cobalt` that do not exist in any other package. These include the handling of clustered and grouped data and the handling of data generated with multiple imputation. These more advanced uses of `cobalt` are described in detail in the accompanying Appendix 2. In addition, `cobalt` includes tools for handling data sets with continuous and multinomial treatments. Data sets with longitudinal treatments, where time-varying confounding may be an issue, can be handled as well; these uses are described in the accompanying Appendix 3.
 
 ## How To Use cobalt
 
@@ -152,7 +152,7 @@ bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
 
 Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denominator is the standard deviation of the treated group (`"treated"`), most apprpriate when computing the ATT; the standard deviation of the control group (`"control"`), most appropriate when computing the ATC; or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087), most appropriate when computing the ATE. If using weights for weighted analysis, `bal.tab()` can determine if the ATT or ATC are being estimated and supply `s.d.denom` accordingly. Otherwise, the default is `"pooled"`, and when matching or subclassification are used, the default is `"treated"`. See Austin (2011) for an explanation on how to calculate weights for estimation of the ATT, ATE, and ATC.
 
-The next options only affect display, not the calculation of any statistics. First is `disp.means`, which controls whether the group means for each covariate are displayed in addition to the mean differences. This can be useful in reporting balance for publication, but in balance assessment mean differences are typically more useful.
+The next options only affect display, not the calculation of any statistics. First are `disp.means` and `disp.sds`, which controls whether the group means and standard deviations for each covariate are displayed in addition to the mean differences. This can be useful in reporting balance for publication, but in balance assessment mean differences are typically more useful.
 
 Next is `disp.v.ratio`, which controls whether variance ratios are displayed, in addition to mean differences. Variance ratios are another important tool for assessing balance beyond mean differences because they pertain to the shape of the covariate distributions beyond their centers. Variance ratios close to 1 (i.e., equal variances in both groups) are indicative of group balance (Austin, 2009).
 
@@ -165,6 +165,8 @@ Next is `un`, which controls whether the statistics to be displayed should be di
 bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
         method = "weighting", disp.v.ratio = TRUE, un = TRUE)
 ```
+
+See `?display_options` for the full list of display options. They can also be set as global options by using, for example, `options(cobalt_disp.means = TRUE)`, which allows user not to type a non-default options everytime they call `bal.tab`.
 
 Finally, the user can specify a threshold for balance for mean differences, variance ratios, and KS statistics through the arguments to `m.threshold`, `v.threshold`, and `ks.threshold`. Thresholds can be useful in determining whether satisfactory balance has been achieved. For standardized mean differences, thresholds of .1 and .25 have been proposed, but Stuart et al. (2013) found that a threshold of .1 was more effective at assessing imbalance that would lead to biased effect estimation. In general, standardized mean differences should be as close to 0 as possible, but a conservative upper limit such as .1 can be a valuable heuristic in selecting models and defending the conditioning choice.
 
@@ -180,7 +182,7 @@ bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
         method = "weighting", m.threshold = .1, v.threshold = 2)
 ```
 
-To simplify output when many covariates are included or when `int = TRUE` is specified, `imbalanced.only` can be set to `TRUE`, which will only reveal imbalanced covariates in the output. These rae covariates that have failed to meet any of the balance thresholds set. In addition, `disp.bal.tab` can be set `TRUE`, which will hide the balance table (revealing only the balance summaries accompanying the threshold).
+To simplify output when many covariates are included or when `int = TRUE` is specified, `imbalanced.only` can be set to `TRUE`, which will only reveal imbalanced covariates in the output. These are covariates that have failed to meet any of the balance thresholds set. In addition, `disp.bal.tab` can be set `FALSE`, which will hide the balance table (revealing only the balance summaries accompanying the threshold).
 
 If sampling weights are used and are to be applied to both the adjusted and unadjusted groups, they can be specified with an argument to `s.weights`, which can be specified either by providing a vector of sampling weights for each unit or by providing the name of a variable in `data` containing the sampling weights. The adjusted and unadjusted samples will each be weighted by the sampling weights by multiplying the adjustment weights (if any) by the sampling weights.
 
@@ -300,7 +302,8 @@ covs <- subset(lalonde, select = -c(treat, re78))
 
 # Nearest neighbor 1:1 matching with replacement
 library("MatchIt") #if not yet loaded
-m.out <- matchit(f.build("treat", covs), data = lalonde, method = "nearest", replace = TRUE)
+m.out <- matchit(f.build("treat", covs), data = lalonde, 
+                 method = "nearest", replace = TRUE)
 
 love.plot(bal.tab(m.out), threshold = .1)
 ```
@@ -309,11 +312,11 @@ love.plot(bal.tab(m.out), threshold = .1)
 
 The output is a plot with the balance statistic on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment. The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved.
 
-The default is to present mean differences as they are calculated in the call to `bal.tab()`; by specifying `stat = "variance.ratios"` or `stat = "ks.statistics"` (abbreviations allowed), the user can request variance ratios or KS statistics instead. Because binary variables don't have variance ratios calculated, there may be empty rows if variance ratios are requested, but these rows can be deleted by setting `no.missing = TRUE`. 
+The default is to present the absolute mean differences as they are calculated in the call to `bal.tab()`; by specifying `stat = "variance.ratios"` or `stat = "ks.statistics"` (abbreviations allowed), the user can request variance ratios or KS statistics instead. Because binary variables don't have variance ratios calculated, there may be empty rows if variance ratios are requested, but these rows can be deleted by setting `no.missing = TRUE`.
 
 The `threshold` argument works similarly to `m.threshold`, `v.threshold`, and `ks.threshold` in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on which to evaluate the displayed balance measures. If these thresholds are specified in `bal.tab()`, `love.plot()` will use them in the resultant plot with the corresponding balance statistic. The `threshold` argument to `love.plot()` takes precedence.
 
-If mean difference are requested, `love.plot()` will use the mean differences as they are calculated by `bal.tab()` and presented in the mean differences columns of the balance table. See the section on using `bal.tab()` to see what the default calculations are for these values. If `abs = TRUE` in `love.plot()`, the plot will display absolute mean differences, which can aid in display clarity since the magnitude is generally the more important aspect of the statistic.
+If mean difference are requested, `love.plot()` will use the mean differences as they are calculated by `bal.tab()` and presented in the mean differences columns of the balance table. See the section on using `bal.tab()` to see what the default calculations are for these values. If `abs = TRUE` in `love.plot()`, which is the default, the plot will display absolute mean differences, which can aid in display clarity since the magnitude is generally the more important aspect of the statistic^[The `abs` argument can be confusing; see `?love.plot` for complete details.]. If `abs = TRUE` in the call to `bal.tab()`, only absolute mean differences can be displayed.
 
 The order of the covariates displayed can be adjusted using the argument to `var.order`. If left empty or `NULL`, the covariates will be listed in alphabetical order. If `"adjusted"`, covariates will be ordered by the requested balance statistic of the adjusted sample. If `"unadjusted"`, covariates will be ordered by the requested balance statistic of the unadjusted sample, which tends to be more visually appealing. Abbreviations are allowed. The distance variable(s), if any, will always be displayed at the top. They can be omitted by setting `drop.distance = TRUE`. 
 
@@ -332,6 +335,8 @@ love.plot(bal.tab(m.out), stat = "mean.diffs", threshold = .1,
 ```
 
 This plot shows that balance was improved on almost all variables after adjustment, bringing all but one below the threshold of .1 for absolute mean differences.
+
+A helper function, `var.names()` can be used to more easily create new variable names when many variables are present. See `?var.names` for details.
 
 When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stat` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations.
 
@@ -379,7 +384,7 @@ When balance has been achieved to a satisfactory level, users can present balanc
 
 ```{r, fig.width = 5}
 #Summarizing balance in a Love plot
-love.plot(bal.tab(W.out.c), threshold = .1, abs = TRUE, 
+love.plot(bal.tab(W.out.c), threshold = .1, 
           var.order = "unadjusted", line = TRUE)
 ```
 
