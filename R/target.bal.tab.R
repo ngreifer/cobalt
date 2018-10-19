@@ -31,7 +31,7 @@ target.bal.tab <- function(obj, ..., method, int = FALSE, addl = NULL, continuou
     
     X <- setNames(X[attr(X, "X.names")], attr(X, "X.names"))
     
-    if (X$s.d.denom %in% c("treated", "control")) {
+    if (is_not_null(X$s.d.denom) && X$s.d.denom %in% c("treated", "control")) {
         stop("When the estimand is the ATT or ATC, use bal.tab to assess balance between non-focal groups and the focal (target) group.", call. = FALSE)
     }
     if (is_not_null(X$subclass)) {
@@ -44,6 +44,7 @@ target.bal.tab <- function(obj, ..., method, int = FALSE, addl = NULL, continuou
         stop("Target balance assessment is not yet supported with multiply imputed data.", call. = FALSE)
     }
     if (is_not_null(X$treat.list) && is_not_null(X$covs.list)) {
+        warning("Target balance assessment will only occur for the baseline covariates.", call. = FALSE)
         X$treat <- X$treat.list[[1]]
         X$covs <- X$covs.list[[1]]
         X$distance <- X$distance.list[[1]]
