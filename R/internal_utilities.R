@@ -72,6 +72,9 @@ is.formula <- function(f, sides = NULL) {
     }
     return(res)
 }
+is.char.or.factor <- function(x) {
+    return(is_not_null(x) && (is.factor(x) || is.character(x)))
+}
 check_if_zero <- function(x) {
     # this is the default tolerance used in all.equal
     tolerance <- .Machine$double.eps^0.5
@@ -98,7 +101,28 @@ strsplits <- function(x, splits, fixed = TRUE, ...) {
 paste. <- function(..., collapse = NULL) {
     paste(..., sep = ".", collapse = collapse)
 }
-# is_ <- function(x, class) {
-#     if (is_not_null(get0(paste0("is.", class)))) get0(paste0("is.", class))(x)
-#     else inherits(x, class)
-# }
+is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
+    s1 <- deparse(substitute(x))
+    if (is_not_null(x)) {
+        for (i in types) {
+            if (is_not_null(get0(paste.("is", i)))) {
+                it.is <- get0(paste.("is", i))(x)
+            }
+            else it.is <- inherits(x, i)
+            if (it.is) break
+        }
+    }
+    else it.is <- FALSE
+    
+    if (stop) {
+        if (!it.is) {
+            s0 <- ifelse(arg.to, "The argument to ", "")
+            s2 <- ifelse(any(types %in% c("factor", "character", "numeric", "logical")),
+                         "vector", "")
+            stop(paste0(s0, s1, " must be a ", word.list(types, and.or = "or"), " ", s2, "."), call. = FALSE)
+        }
+    }
+    else {
+        return(it.is)
+    }
+}
