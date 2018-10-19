@@ -1486,27 +1486,29 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
-    if (p.ops$disp.bal.tab) {
-        if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
-            p.ops$imbalanced.only <- imbalanced.only
-        }
-        if (p.ops$imbalanced.only) {
-            if (all(sapply(c(p.ops$m.threshold, 
-                             p.ops$v.threshold, 
-                             p.ops$ks.threshold, 
-                             p.ops$r.threshold), is_null))) {
-                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
-                p.ops$imbalanced.only <- FALSE
+    if (is_not_null(m.balance.summary)) {
+        if (p.ops$disp.bal.tab) {
+            if (!identical(imbalanced.only, "as.is")) {
+                if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+                p.ops$imbalanced.only <- imbalanced.only
+            }
+            if (p.ops$imbalanced.only) {
+                if (all(sapply(c(p.ops$m.threshold, 
+                                 p.ops$v.threshold, 
+                                 p.ops$ks.threshold, 
+                                 p.ops$r.threshold), is_null))) {
+                    warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                    p.ops$imbalanced.only <- FALSE
+                }
             }
         }
+        else p.ops$imbalanced.only <- FALSE
+        
+        if (p.ops$imbalanced.only) {
+            keep.row <- rowSums(apply(m.balance.summary[grepl(".Threshold", names(m.balance.summary), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+        }
+        else keep.row <- rep(TRUE, nrow(m.balance.summary))
     }
-    else p.ops$imbalanced.only <- FALSE
-    
-    if (p.ops$imbalanced.only) {
-        keep.row <- rowSums(apply(m.balance.summary[grepl(".Threshold", names(m.balance.summary), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-    }
-    else keep.row <- rep(TRUE, nrow(m.balance.summary))
     
     if (!missing(which.treat)) {
         p.ops$which.treat <- which.treat
@@ -1960,27 +1962,29 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
-    if (p.ops$disp.bal.tab) {
-        if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
-            p.ops$imbalanced.only <- imbalanced.only
-        }
-        if (p.ops$imbalanced.only) {
-            if (all(sapply(c(p.ops$m.threshold, 
-                             p.ops$v.threshold, 
-                             p.ops$ks.threshold, 
-                             p.ops$r.threshold), is_null))) {
-                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
-                p.ops$imbalanced.only <- FALSE
+    if (is_not_null(t.balance.summary)) {
+        if (p.ops$disp.bal.tab) {
+            if (!identical(imbalanced.only, "as.is")) {
+                if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+                p.ops$imbalanced.only <- imbalanced.only
+            }
+            if (p.ops$imbalanced.only) {
+                if (all(sapply(c(p.ops$m.threshold, 
+                                 p.ops$v.threshold, 
+                                 p.ops$ks.threshold, 
+                                 p.ops$r.threshold), is_null))) {
+                    warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                    p.ops$imbalanced.only <- FALSE
+                }
             }
         }
+        else p.ops$imbalanced.only <- FALSE
+        
+        if (p.ops$imbalanced.only) {
+            keep.row <- rowSums(apply(t.balance.summary[grepl(".Threshold", names(t.balance.summary), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+        }
+        else keep.row <- rep(TRUE, nrow(t.balance.summary))
     }
-    else p.ops$imbalanced.only <- FALSE
-    
-    if (p.ops$imbalanced.only) {
-        keep.row <- rowSums(apply(t.balance.summary[grepl(".Threshold", names(t.balance.summary), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-    }
-    else keep.row <- rep(TRUE, nrow(t.balance.summary))
     
     if (!missing(which.treat)) {
         p.ops$which.treat <- which.treat
