@@ -43,7 +43,7 @@ x2base.matchit <- function(m, ...) {
     cluster <- A$cluster
     
     s <- "ATT"
-    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
+    if (is_(A$s.d.denom, "character")) {
         s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
@@ -83,7 +83,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process subset
     if (is_not_null(subset)) {
-        if (!is.logical(subset)) {
+        if (!is_(subset, "logical")) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
         if (any(is.na(subset))) {
@@ -741,12 +741,15 @@ x2base.Match <- function(Match, ...) {
 }
 x2base.formula <- function(f, ...) {
     A <- list(...)
-    A[["covs"]] <- NULL
-    A[["treat"]] <- NULL
     
-    t.c <- get.covs.and.treat.from.formula(f, A[["data"]])
+    t.c <- get.covs.and.treat.from.formula(f, A[["data"]], treat = A[["treat"]])
     covs <- t.c[["reported.covs"]]
     treat <- t.c[["treat"]]
+    
+    if (is_null(covs)) stop("The right hand side of the formula must contain covariates for which balance is to be assessed.", call. = FALSE)
+    
+    A[["covs"]] <- NULL
+    A[["treat"]] <- NULL
     
     X <- do.call("x2base.data.frame", c(list(covs = covs, treat = treat), A))
     return(X)
@@ -804,12 +807,10 @@ x2base.data.frame <- function(covs, ...) {
     
     #Checks
     if (is_null(covs)) {
-        stop("covs dataframe must be specified.", call. = FALSE)
+        stop("covs data.frame must be specified.", call. = FALSE)
     }
-    if (!is.data.frame(covs)) {
-        stop("covs must be a data.frame.", call. = FALSE)
-    }
-    if (is_not_null(data) && !is.data.frame(data)) {
+    is_(covs, "data.frame", stop = TRUE)
+    if (is_not_null(data) && !is_(data, "data.frame")) {
         warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
         data <- NULL
     }
@@ -819,19 +820,19 @@ x2base.data.frame <- function(covs, ...) {
     
     specified <- setNames(rep(FALSE, 3), c("match.strata", "subclass", "weights"))
     if (is_not_null(weights)) {
-        if (!is.character(weights) && !is.numeric(weights) && !is.data.frame(weights) && !is.list(weights)) {
+        if (!is_(weights, c("character", "numeric", "data.frame", "list"))) {
             stop("The argument to weights must be a vector, list, or data frame of weights or the (quoted) names of variables in data that contain weights.", call. = FALSE)
         }
         specified["weights"] <- TRUE
     }
     if (is_not_null(subclass)){
-        if (!is.character(subclass) && !is.numeric(subclass) && !is.factor(subclass)) {
+        if (!is_(subclass, c("character", "numeric", "factor"))) {
             stop("The argument to subclass must be a vector of subclass membership or the (quoted) name of a variable in data that contains subclass membership.", call. = FALSE)
         }
         specified["subclass"] <- TRUE
     }
     if (is_not_null(match.strata)) {
-        if (!is.character(match.strata) && !is.numeric(match.strata) && !is.factor(match.strata)) {
+        if (!is_(match.strata, c("character", "numeric", "factor"))) {
             stop("The argument to match.strata must be a vector of match stratum membership or the (quoted) name of a variable in data that contains match stratum membership.", call. = FALSE)
         }
         specified["match.strata"] <- TRUE
@@ -955,10 +956,10 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     
-    if (is_not_null(cluster) && !is.character(cluster) && !is.numeric(cluster) && !is.factor(cluster)) {
+    if (is_not_null(cluster) && !is_(cluster, c("character", "numeric", "factor"))) {
         stop("The argument to cluster must be a vector of cluster membership or the (quoted) name of a variable in data that contains cluster membership.", call. = FALSE)
     }
-    if (is_not_null(imp) && !is.character(imp) && !is.numeric(imp) && !is.factor(imp)) {
+    if (is_not_null(imp) && !is_(imp, c("character", "numeric", "factor"))) {
         stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
     }
     
@@ -969,7 +970,7 @@ x2base.data.frame <- function(covs, ...) {
     if (is.character(treat) && length(treat)==1 && treat %in% names(data)) {
         treat <- data[[treat]]
     }
-    else if (is.numeric(treat) || is.logical(treat) || is.factor(treat) || (is.character(treat) && length(treat) > 1)) {
+    else if (is_(treat, c("numeric", "logical", "factor")) || (is.character(treat) && length(treat) > 1)) {
         treat <- treat
     }
     else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
@@ -991,7 +992,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process subclass
     if (is_not_null(subclass)) {
-        if (is.numeric(subclass) || is.factor(subclass) || (is.character(subclass) && length(subclass) > 1)) {
+        if (is_(subclass, c("numeric", "factor")) || (is.character(subclass) && length(subclass) > 1)) {
             subclass <- factor(subclass)
         }
         else if (is.character(subclass) && length(subclass)==1 && any(names(data) == subclass)) {
@@ -1025,7 +1026,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process cluster
     if (is_not_null(cluster)) {
-        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+        if (is_(cluster, c("numeric", "factor")) || (is.character(cluster) && length(cluster)>1)) {
             cluster <- cluster
         }
         else if (is.character(cluster) && length(cluster)==1 && any(names(data) == cluster)) {
@@ -1055,7 +1056,7 @@ x2base.data.frame <- function(covs, ...) {
                                  }, numeric(1L))), c(vectors, data.frames))
     #Process imp
     if (is_not_null(imp)) {
-        if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
+        if (is_(imp, c("numeric", "factor")) || (is.character(imp) && length(imp)>1)) {
             imp <- imp
         }
         else if (is.character(imp) && length(imp)==1 && any(names(data) == imp)) {
