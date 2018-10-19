@@ -1072,12 +1072,25 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
         covs <- data.frame(treat = treat, covs)
         treat <- factor(rep(c("All", target.name), each = n))
         target.summary <- FALSE
+        which.treat <- NULL
         needs.summary <- FALSE
+        treat.names <- unique.treat <- "All"
     }
     else {
-        treat <- factor(c(as.character(treat), rep(target.name, n)))
+        if (is.factor(treat) || is.character(treat)) {
+            if (is.factor(treat)) treat.names <- unique.treat <- levels(treat)
+            else treat.names <- unique.treat <- unique(treat, nmax = n - 1)
+        }
+        else {
+            treat.names <- c("Control", "Treated")
+            unique.treat <- sort(unique(treat, nmax = 2))
+        }
+        names(treat.names) <- unique.treat
+        
+        treat <- factor(c(treat.names[as.character(treat)], rep(target.name, n)))
         needs.summary <- TRUE
     }
+    
     covs <- rbind(covs, covs)
     if (is_not_null(weights)) weights <- rbind(weights, as.data.frame(array(1, dim = dim(weights), 
                                                                             dimnames = dimnames(weights))))
@@ -1086,9 +1099,6 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
     s.weights <- c(s.weights, s.weights)
     if (is_not_null(discarded)) discarded <- c(discarded, rep(FALSE, length(discarded)))
     s.d.denom <- "treated"
-    
-    treat.names <- levels(treat)[levels(treat) != target.name]
-    names(treat.names) <- treat.names
     
     treat.target.combinations <- lapply(treat.names, function(x) c(x, target.name))
 
