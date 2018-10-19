@@ -332,7 +332,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
 #get.C controls flow and handles redunancy
 #get.types gets variables types (contin./binary)
 
-int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, sep, co.names) {
+int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.names) {
     #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"
     #Only to be used in base.bal.tab; for general use see int.poly()
     #mat=matrix input
@@ -343,9 +343,13 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, sep, co.names) {
     
     if (is_not_null(ex)) d <- mat[, colnames(mat) %nin% colnames(ex), drop = FALSE]
     else d <- mat
+    binary.vars <- apply(d, 2, is_binary)
+    if (center) {
+        d[,!binary.vars] <- scale(d[, !binary.vars, drop = FALSE], center = TRUE, scale = FALSE)
+    }
     nd <- NCOL(d)
     nrd <- NROW(d)
-    no.poly <- apply(d, 2, is_binary)
+    no.poly <- binary.vars
     npol <- nd - sum(no.poly)
     new <- matrix(0, ncol = (poly-1)*npol + int*(.5*(nd)*(nd-1)), nrow = nrd)
     nc <- NCOL(new)
@@ -359,7 +363,6 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, sep, co.names) {
     }
     if (int && nd > 1) {
         new[,(nc - .5*nd*(nd-1) + 1):nc] <- matrix(t(apply(d, 1, combn, 2, prod)), nrow = nrd)
-        #new.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse = sep)
         new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- lapply(as.data.frame(combn(colnames(d), 2), stringsAsFactors = FALSE), 
                                                            function(x) setNames(list(c(co.names[[x[1]]][["component"]], sep, co.names[[x[2]]][["component"]]),
                                                                                      c(co.names[[x[1]]][["type"]], "isep", co.names[[x[2]]][["type"]])),
@@ -387,6 +390,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     A <- list(...)
     if (is_null(A[["int_sep"]])) A[["int_sep"]] <- getOption("cobalt_int_sep", default = " * ")
     if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- getOption("cobalt_factor_sep", default = "_")
+    if (is_null(A[["center"]]) || A[["center"]] %nin% c(TRUE, FALSE)) A[["center"]] <- FALSE
     
     C <- covs
     if (!is.null(addl)) {
