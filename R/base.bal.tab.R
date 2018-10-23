@@ -1,4 +1,4 @@
-base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, pooled.sds = NULL, ...) {
+base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, pooled.sds = NULL, ...) {
     #Preparations
     args <- list(...)
     
@@ -44,6 +44,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
     if (is_null(s.weights)) {
         s.weights <- rep(1, length(treat))
     }
+    if (is_not_null(args[["agg.fun"]])) cluster.fun <- args[["agg.fun"]]
     
     #Actions
     if (nunique.gt(cluster, 1)) {
@@ -108,6 +109,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                                            disp.bal.tab = disp.bal.tab, 
                                            which.cluster=which.cluster,
                                            cluster.summary=cluster.summary,
+                                           cluster.fun = cluster.fun,
                                            abs = abs,
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
@@ -375,7 +377,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
     #attr(out, "int") <- int
     return(out)
 }
-base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
+base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
     
     #Preparations
     check_if_zero_weights(weights, treat.type = "cont")
@@ -398,6 +400,8 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
     if (is_null(s.weights)) {
         s.weights <- rep(1, length(treat))
     }    
+    if (is_not_null(args[["agg.fun"]])) cluster.fun <- args[["agg.fun"]]
+    
     #Actions
     if (nlevels(cluster) > 0) {
         out.names <- c("Cluster.Balance", 
@@ -447,6 +451,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
                                            disp.bal.tab = disp.bal.tab,
                                            which.cluster=which.cluster,
                                            cluster.summary=cluster.summary,
+                                           cluster.fun=cluster.fun,
                                            abs = abs,
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
@@ -615,7 +620,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
     attr(out, "int") <- int
     return(out)
 }
-base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, imp = NULL, which.imp = NA, imp.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
+base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), imp = NULL, which.imp = NA, imp.summary = getOption("cobalt_imp.summary", TRUE), imp.fun = getOption("cobalt_imp.fun", NULL), s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
     args <- list(...)
     #Preparations
     if (is_not_null(m.threshold)) m.threshold <- abs(m.threshold)
@@ -648,6 +653,8 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
     if (is_null(s.weights)) {
         s.weights <- rep(1, length(treat))
     }    
+    if (is_not_null(args[["agg.fun"]])) cluster.fun <- imp.fun <- args[["agg.fun"]]
+    
     #Setup output object
     out.names <- c("Imputation.Balance", 
                    "Cluster.Balance.Across.Imputations",
@@ -728,8 +735,10 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
                                    disp.adj=!no.adj, 
                                    which.cluster=which.cluster,
                                    cluster.summary=cluster.summary,
+                                   cluster.fun = cluster.fun,
                                    which.imp=which.imp,
                                    imp.summary=imp.summary,
+                                   imp.fun = imp.fun,
                                    abs = abs,
                                    quick = quick,
                                    disp.means=disp.means, 
@@ -744,7 +753,7 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
     
     return(out)
 }
-base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
+base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = getOption("cobalt_multi.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
     #Preparations
     args <- list(...)
     if (is_not_null(m.threshold)) m.threshold <- abs(m.threshold)
@@ -770,6 +779,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
     if (is_null(s.weights)) {
         s.weights <- rep(1, length(treat))
     }
+    if (is_not_null(args[["agg.fun"]])) cluster.fun <- args[["agg.fun"]]
     
     #Treat is a factor variable of 3+ levels
     if (is_null(focal)) {
@@ -819,7 +829,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         }
         else {
             if (any(treat.names == "Others")) stop ("\"Others\" cannot be the name of a treatment level. Please rename your treatments.", call. = FALSE)
-            args <- args[names(args) %nin% names(formals(base.bal.tab))]
+            args <- args[names(args) %nin% names(formals(base.bal.tab.binary))]
             balance.tables <- lapply(treat.combinations, function(t) {
                 treat_ <- factor(treat, levels = c(levels(treat), "Others"))
                 treat_[treat_ != t[1]] <- "Others"
@@ -856,6 +866,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
                                        disp.adj=!no.adj, 
                                        which.cluster=which.cluster,
                                        cluster.summary=cluster.summary,
+                                       cluster.fun = cluster.fun,
                                        abs = abs,
                                        quick = quick,
                                        disp.means=disp.means, 
@@ -876,7 +887,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
     return(out)
     
 }
-base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass = NULL, covs.list, call = NULL, int = FALSE, addl.list = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = TRUE, which.time = NULL, msm.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
+base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass = NULL, covs.list, call = NULL, int = FALSE, addl.list = NULL, continuous = "std", binary = "raw", s.d.denom = "pooled", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = getOption("cobalt_multi.summary", TRUE), which.time = NULL, msm.summary = getOption("cobalt_msm.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
     #One vector of weights
     #treat.list should be a df/list of treatment vectors, one for each time period
     #cov.list should be a list of covariate data.frames, one for each time period; 
@@ -918,6 +929,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
     if (is_null(s.weights)) {
         s.weights <- rep(1, length(treat.list[[1]]))
     }
+    if (is_not_null(args[["agg.fun"]])) cluster.fun <- args[["agg.fun"]]
     
     if (nunique.gt(cluster, 1)) {
         stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
@@ -1023,6 +1035,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
                                        disp.bal.tab = disp.bal.tab, 
                                        which.cluster=which.cluster,
                                        cluster.summary=cluster.summary,
+                                       cluster.fun = cluster.fun,
                                        abs = abs,
                                        quick = quick,
                                        nweights = ifelse(no.adj, 0, ncol(weights)),
@@ -1036,7 +1049,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
     
     return(out)
 }
-base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = TRUE, which.treat = NA, target.summary = TRUE, s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
+base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, addl = NULL, continuous = "std", binary = "raw", m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), which.treat = NA, target.summary = getOption("cobalt_target.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = FALSE, ...) {
     #Preparations
     args <- list(...)
     
@@ -1063,6 +1076,7 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
     if (is_null(s.weights)) {
         s.weights <- rep(1, length(treat))
     }
+    if (is_not_null(args[["agg.fun"]])) cluster.fun <- args[["agg.fun"]]
     
     #Create new Target group
     target.name <- "Target"
@@ -1152,6 +1166,7 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
                                        disp.adj=!no.adj, 
                                        which.cluster=which.cluster,
                                        cluster.summary=cluster.summary,
+                                       cluster.fun = cluster.fun,
                                        abs = abs,
                                        quick = quick,
                                        disp.means=disp.means, 
