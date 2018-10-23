@@ -1,11 +1,12 @@
 \name{bal.tab.designmatch}
 \alias{bal.tab.designmatch}
+\alias{bal.tab.optmatch}
 
 \title{
-Balance Statistics for designmatch Objects
+Balance Statistics for designmatch and optmatch Objects
 }
 \description{
-Generates balance statistics for output objects from \pkg{designmatch}.
+Generates balance statistics for output objects from \pkg{designmatch} and \pkg{optmatch}. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{designmatch}(dm, 
@@ -23,17 +24,20 @@ Generates balance statistics for output objects from \pkg{designmatch}.
     v.threshold = NULL, 
     ks.threshold = NULL, 
     cluster = NULL, 
-    which.cluster = NULL, 
-    cluster.summary = TRUE, 
     abs = FALSE,
     subset = NULL,
     quick = FALSE, 
     ...)
+    
+\method{bal.tab}{optmatch}(optmatch, ...)
 }
 
 \arguments{
   \item{dm}{
 the output of a call to \code{bmatch()}, \code{nmatch()}, or related wrapper functions from the \pkg{designmatch} package. This should be a list containing the IDs of the matched treated and control units.
+}
+  \item{optmatch}{
+an \code{optmatch} object; the output of a call to \code{pairmatch()} or \code{fullmatch()} from the \pkg{optmatch} package. This should be a factor vector containing the matching stratum membership for each unit.
 }
   \item{formula}{
 a \code{formula} with the treatment variable as the response and the covariates for which balanace is to be assessed as the predictors. All named variables must be in \code{data} or the global environment. See Details.
@@ -75,31 +79,25 @@ a numeric value for the threshold for variance ratios. Will automatically conver
 a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
 }
   \item{cluster}{
-either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{which.cluster}{
-which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
-A \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{designmatch()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
+A \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to the \pkg{designmatch} or \pkg{optmatch} functions. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-Further arguments to control display of output. See \link[=display_options]{display options} for details.
+For \code{bal.tab.optmatch()}, the same arguments as those passed to \code{bal.tab.designmatch()}. Otherwise, further arguments to control display of output. See \link[=display_options]{display options} for details.
 }
 }
 \details{
-\code{bal.tab.designmatch()} generates a list of balance summaries for the object given. Note that output objects from \pkg{designmatch} do not have their own class; \code{bal.tab()} first check whether the object meets the criteria to be treated as a designmatch object before dispatching the correct method. In particular, renaming or removing items from the output object can create unintended consequences.
+\code{bal.tab.designmatch()} and \code{bal.tab.optmatch()} generate a list of balance summaries for the object given. Note that output objects from \pkg{designmatch} do not have their own class; \code{bal.tab()} first check whether the object meets the criteria to be treated as a designmatch object before dispatching the correct method. In particular, renaming or removing items from the output object can create unintended consequences.
 
-The input to \code{bal.tab.designmatch()} must include either both \code{formula} and \code{data} or both \code{treat} and \code{covs}. (\code{data} can be omitted if all variables in \code{formula} are in the global environment.)
+The input to \code{bal.tab.designmatch()} and \code{bal.tab.optmatch()} must include either both \code{formula} and \code{data} or both \code{treat} and \code{covs}. (\code{data} can be omitted if all variables in \code{formula} are in the global environment.)
 
 All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}, and \code{ks.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
@@ -119,6 +117,7 @@ Noah Greifer
 \code{\link{bal.tab}} for details of calculations.
 }
 \examples{\dontrun{
+# designmatch
 library("designmatch"); data("lalonde", package = "cobalt")
 treat <- lalonde$treat
 covs <- as.matrix(lalonde[c("age", "educ", "re74", "re75")])
@@ -129,9 +128,20 @@ dmout <- bmatch(treat,
                            tols = absstddif(covs, treat, .05))
                 )
 
-## Using formula and data
-bal.tab(dmout, treat ~ age + educ + re74 + re75, data = lalonde)
-
 ## Using treat and covs
 bal.tab(dmout, treat = treat, covs = covs)
+
+# optmatch
+library("optmatch"); data("lalonde", package = "cobalt")
+
+lalonde$prop.score <- glm(treat ~ age + educ + race + 
+            married + nodegree + re74 + re75, 
+            data = lalonde, family = binomial)$fitted.values
+pm <- pairmatch(treat ~ prop.score, data = lalonde)
+
+## Using formula and data
+bal.tab(pm, treat ~ age + educ + race + 
+        married + nodegree + re74 + re75, data = lalonde,
+        distance = "prop.score")
+
 }}
