@@ -45,10 +45,10 @@ x2base.matchit <- function(m, ...) {
     s <- "ATT"
     if (is_(A$s.d.denom, "character")) {
         s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
+                              error = function(cond) {
+                                  new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
+                                  message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
+                                  return(new.s.d.denom)})
     }
     else s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
@@ -139,7 +139,11 @@ x2base.matchit <- function(m, ...) {
     X$s.d.denom <- s.d.denom
     X$subclass <- factor(subclass[subset])
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "binary"
+    
     return(X)
 }
 x2base.ps <- function(ps, ...) {
@@ -301,7 +305,11 @@ x2base.ps <- function(ps, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights[subset]
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "binary"
+    
     return(X)
 }
 x2base.mnps <- function(mnps, ...) {
@@ -457,7 +465,11 @@ x2base.mnps <- function(mnps, ...) {
     X$focal <- mnps$treatATT
     X$method <- rep("weighting", ncol(weights))
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
 x2base.ps.cont <- function(ps.cont, ...) {
@@ -592,11 +604,15 @@ x2base.ps.cont <- function(ps.cont, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights[subset]
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "cont"
+    
     return(X)
 }
 x2base.Match <- function(Match, ...) {
-
+    
     A <- list(...)
     X.names <- c("covs",
                  "treat",
@@ -736,13 +752,17 @@ x2base.Match <- function(Match, ...) {
     X$method <- "matching"
     X$cluster <- factor(cluster[subset])
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "binary"
+    
     return(X)
 }
-x2base.formula <- function(f, ...) {
+x2base.formula <- function(formula, ...) {
     A <- list(...)
     
-    t.c <- get.covs.and.treat.from.formula(f, A[["data"]], treat = A[["treat"]])
+    t.c <- get.covs.and.treat.from.formula(formula, A[["data"]], treat = A[["treat"]])
     covs <- t.c[["reported.covs"]]
     treat <- t.c[["treat"]]
     
@@ -1288,7 +1308,11 @@ x2base.data.frame <- function(covs, ...) {
     X$s.weights <- s.weights[subset]
     X$focal <- focal
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
 x2base.CBPS <- function(cbps.fit, ...) {
@@ -1457,7 +1481,11 @@ x2base.CBPS <- function(cbps.fit, ...) {
     X$s.weights <- s.weights[subset]
     X$method <- "weighting"
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
 x2base.ebalance <- function(ebalance, ...) {
@@ -1572,7 +1600,11 @@ x2base.ebalance <- function(ebalance, ...) {
     X$method <- "weighting"
     X$cluster <- factor(cluster[subset])
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "binary"
+    
     return(X)
 }
 x2base.ebalance.trim <- x2base.ebalance
@@ -1694,7 +1726,11 @@ x2base.optmatch <- function(optmatch, ...) {
     X$method <- "matching"
     X$cluster <- factor(cluster[d.reordered][subset])
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "binary"
+    
     return(X)
     
 }
@@ -1908,7 +1944,11 @@ x2base.weightit <- function(weightit, ...) {
     X$focal <- weightit$focal
     X$call <- weightit$call
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
 x2base.designmatch <- function(dm, ...) {
@@ -2039,7 +2079,11 @@ x2base.designmatch <- function(dm, ...) {
     X$method <- "matching"
     X$cluster <- factor(cluster[in.matched & subset])
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "binary"
+    
     return(X)
     
 }
@@ -2228,7 +2272,11 @@ x2base.iptw <- function(iptw, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights[subset]
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
 x2base.data.frame.list <- function(covs.list, ...) {
@@ -2498,7 +2546,11 @@ x2base.data.frame.list <- function(covs.list, ...) {
     X$imp <- factor(imp[subset])
     X$s.weights <- s.weights[subset]
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
 x2base.formula.list <- function(formula.list, ...) {
@@ -2657,7 +2709,11 @@ x2base.CBMSM <- function(cbmsm, ...) {
     X$s.weights <- NULL
     X$s.d.denom <- "pooled"
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
 x2base.weightitMSM <- function(weightitMSM, ...) {
@@ -2821,7 +2877,11 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights[subset]
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
 
@@ -2846,12 +2906,12 @@ x2base.default <- function(obj, ...) {
                  "treat.list",
                  "distance.list",
                  "addl.list")
-
+    
     X <- setNames(vector("list", length(X.names)),
                   X.names)
     
     if (!is.list(obj)) stop("The input object must be an appropriate list, data.frame, formula, or the output of one of the supported packages.", call. = FALSE)
-  
+    
     Q <- list(treat = list(name = c("treat", "tr"), 
                            type = c("numeric", "character", "factor", "logical")),
               treat.list = list(name = c("treat.list", "treat", "tr"),
@@ -2998,7 +3058,7 @@ x2base.default <- function(obj, ...) {
     #focal OK
     
     #call OK
-       
+    
     #model (only to extract data)
     if (is_not_null(obj[["model"]])) {
         if (is_null(data) && "data" %in% names(obj[["model"]])) {
@@ -3782,6 +3842,10 @@ x2base.default <- function(obj, ...) {
         X$s.weights <- s.weights[subset]
     }
     
-    attr(X, "X.names") <- X.names
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- get.X.class(X)
+    
     return(X)
 }
