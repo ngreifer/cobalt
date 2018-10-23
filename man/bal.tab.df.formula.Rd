@@ -5,7 +5,7 @@
 Balance Statistics for Data Sets
 }
 \description{
-Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a \code{data.frame} or formula interface.
+Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a \code{data.frame} or formula interface. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{data.frame}(covs, 
@@ -26,15 +26,9 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     ks.threshold = NULL, 
     r.threshold = NULL, 
     cluster = NULL, 
-    which.cluster = NULL, 
-    cluster.summary = TRUE, 
     imp = NULL, 
-    which.imp = NA, 
-    imp.summary = TRUE,
     pairwise = TRUE, 
     focal = NULL, 
-    which.treat = NA, 
-    multi.summary = TRUE, 
     s.weights = NULL, 
     estimand = NULL, 
     abs = FALSE,
@@ -104,33 +98,14 @@ A numeric value for the threshold for correlations between covariates and treatm
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in data or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
-  \item{which.cluster}{
-which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
   \item{imp}{
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link{bal.tab.imp}} for details.
-}
-  \item{which.imp}{
-which imputations(s) to display if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
-
-}
-  \item{imp.summary}{
-\code{logical}; whether to display the cluster summary table if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
 }
   \item{pairwise}{
 Whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{focal}{
 The name of the focal treatment when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{which.treat}{
-which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{multi.summary}{
-\code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
 }
   \item{s.weights}{
 Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.

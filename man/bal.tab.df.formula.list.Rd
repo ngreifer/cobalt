@@ -7,7 +7,7 @@
 Balance Statistics for Longitudinal Treatments
 }
 \description{
-Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. \code{bal.tab} automatically classifies this list as either a \code{data.frame.list} or \code{formula.list}, respectively.
+Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. \code{bal.tab} automatically classifies this list as either a \code{data.frame.list} or \code{formula.list}, respectively. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{data.frame.list}(covs.list, 
@@ -26,10 +26,6 @@ Generates balance statistics for data coming from a longitudinal treatment scena
     ks.threshold = NULL, 
     r.threshold = NULL, 
     pairwise = TRUE, 
-    which.treat = NA, 
-    multi.summary = TRUE, 
-    which.time = NULL, 
-    msm.summary = TRUE, 
     s.weights = NULL, 
     estimand = "ATE",
     abs = FALSE,
@@ -93,18 +89,6 @@ a numeric value for the threshold for correlations between covariates and treatm
 }
   \item{pairwise}{
 whether balance should be computed for pairs of treatments or for each treatment against all others combined when treatment is multinomial. See \code{\link{bal.tab.multi}} for details. 
-}
-  \item{which.treat}{
-which treatments to display when multinomial treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{multi.summary}{
-\code{logical}; whether to display the balance summary table across pairwise comparisons when multinomial treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{which.time}{
-which time periods to display if longutdinal treatments are used. See \code{\link{bal.tab.msm}} for details.
-}
-  \item{msm.summary}{
-\code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
 }
   \item{s.weights}{
 optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.

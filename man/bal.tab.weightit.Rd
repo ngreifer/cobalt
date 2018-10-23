@@ -5,7 +5,7 @@
 Balance Statistics for WeightIt Objects
 }
 \description{
-Generates balance statistics for \code{weightit} and \code{weightitMSM} objects from \pkg{WeightIt}.
+Generates balance statistics for \code{weightit} and \code{weightitMSM} objects from \pkg{WeightIt}. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{weightit}(weightit, 
@@ -21,17 +21,9 @@ Generates balance statistics for \code{weightit} and \code{weightitMSM} objects 
     ks.threshold = NULL, 
     r.threshold = NULL, 
     cluster = NULL, 
-    which.cluster = NULL, 
-    cluster.summary = TRUE, 
     imp = NULL, 
-    which.imp = NA, 
-    imp.summary = TRUE, 
-    which.treat = NA, 
     pairwise = TRUE, 
     focal = NULL, 
-    multi.summary = TRUE, 
-    which.time = NULL,
-    msm.summary = TRUE,
     abs = FALSE,
     subset = NULL,
     quick = FALSE, ...)
@@ -77,38 +69,14 @@ a numeric value for the threshold for correlations between covariates and treatm
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
-  \item{which.cluster}{
-which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
   \item{imp}{
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{weightit()}. See \code{\link{bal.tab.imp}} for details.
-}
-  \item{which.imp}{
-which imputations(s) to display if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
-}
-  \item{imp.summary}{
-\code{logical}; whether to display the cluster summary table if \code{imp} is specified. See \code{\link{bal.tab.imp}} for details.
-}
-  \item{which.treat}{
-which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
 }
   \item{pairwise}{
 whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{focal}{
 Currently ignored.
-}
-  \item{multi.summary}{
-\code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{which.time}{
-which time periods to display if longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
-}
-  \item{msm.summary}{
-\code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 

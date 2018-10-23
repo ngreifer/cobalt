@@ -4,7 +4,7 @@
 Balance Statistics for Matchit Objects
 }
 \description{
-Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
+Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{matchit}(m, 
@@ -19,8 +19,6 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
     v.threshold = NULL, 
     ks.threshold = NULL,
     cluster = NULL, 
-    which.cluster = NULL, 
-    cluster.summary = TRUE, 
     abs = FALSE,
     subset = NULL,
     quick = FALSE, 
@@ -63,12 +61,6 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 }
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{which.cluster}{
-which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 

@@ -5,7 +5,7 @@
 Balance statistics for CBPS Objects
 }
 \description{
-Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \pkg{CBPS} package.
+Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \pkg{CBPS} package. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{CBPS}(cbps, 
@@ -21,14 +21,8 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
     ks.threshold = NULL, 
     r.threshold = NULL, 
     cluster = NULL, 
-    which.cluster = NULL, 
-    cluster.summary = TRUE, 
     pairwise = TRUE, 
     focal = NULL, 
-    which.treat = NA, 
-    multi.summary = TRUE, 
-    which.time = NULL,
-    msm.summary = TRUE, 
     s.weights = NULL,
     abs = FALSE,
     subset = NULL,
@@ -76,29 +70,11 @@ a numeric value for the threshold for correlations between covariates and treatm
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
-  \item{which.cluster}{
-which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
   \item{pairwise}{
 Whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{focal}{
 The name of the focal treatment when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{which.treat}{
-which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{multi.summary}{
-\code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{which.time}{
-which time periods to display if longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
-}
-  \item{msm.summary}{
-\code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
 }
   \item{s.weights}{
 Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data} or the CBPS object. If the original call to \code{CBPS()} included sampling weights, they should be specified again here to ensure correct computation of balance statistics and unadjusted values. See Details below.
@@ -142,7 +118,6 @@ If \code{CBMSM()} is used for longitudinal treatments, an object of class \code{
 \author{
 Noah Greifer 
 }
-
 
 \seealso{
 \code{\link{bal.tab}} for details of calculations.

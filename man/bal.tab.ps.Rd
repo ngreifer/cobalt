@@ -7,7 +7,7 @@
 Balance Statistics for twang Objects
 }
 \description{
-Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{WeightIt}.
+Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{WeightIt}. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{ps}(ps, 
@@ -23,8 +23,6 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     v.threshold = NULL, 
     ks.threshold = NULL, 
     cluster = NULL, 
-    which.cluster = NULL, 
-    cluster.summary = TRUE, 
     abs = FALSE,
     subset = NULL,
     quick = FALSE, ...)
@@ -42,12 +40,8 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     v.threshold = NULL, 
     ks.threshold = NULL, 
     cluster = NULL, 
-    which.cluster = NULL, 
-    cluster.summary = TRUE, 
     pairwise = TRUE, 
     focal = NULL, 
-    which.treat = NA, 
-    multi.summary = TRUE, 
     abs = FALSE,
     subset = NULL,
     quick = FALSE, ...)
@@ -65,10 +59,6 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     v.threshold = NULL, 
     ks.threshold = NULL, 
     pairwise = TRUE, 
-    which.treat = NA, 
-    multi.summary = TRUE, 
-    which.time = NULL, 
-    msm.summary = TRUE, 
     abs = FALSE, 
     subset = NULL, 
     quick = FALSE, ...)
@@ -81,8 +71,6 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     data = NULL, 
     r.threshold = NULL, 
     cluster = NULL, 
-    which.cluster = NULL, 
-    cluster.summary = TRUE, 
     abs = FALSE, 
     subset = NULL, 
     quick = FALSE, ...)
@@ -131,29 +119,11 @@ a numeric value for the threshold for correlations between covariates and treatm
   \item{cluster}{
 either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in data or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
-  \item{which.cluster}{
-which cluster(s) to display if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
-  \item{cluster.summary}{
-\code{logical}; whether to display the cluster summary table if \code{cluster} is specified. See \code{\link{bal.tab.cluster}} for details.
-}
   \item{pairwise}{
 whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{focal}{
 ignored. With multiple categorical treatments, \code{bal.tab()} automatically assigns a focal treatment based on the \code{mnps} object. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{which.treat}{
-which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{multi.summary}{
-\code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{which.time}{
-which time periods to display if longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
-}
-  \item{msm.summary}{
-\code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
