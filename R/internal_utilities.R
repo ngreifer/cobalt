@@ -89,7 +89,7 @@ is_not_null <- function(x) !is_null(x)
 `%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
 `%+%` <- function(...) {
     a <- list(...)
-    if (is.character(a[[1]])) do.call(crayon::`%+%`, a)
+    if (is.atomic(a[[1]])) do.call(crayon::`%+%`, a)
     else do.call(ggplot2::`%+%`, a)
 }
 strsplits <- function(x, splits, fixed = TRUE, ...) {
@@ -99,6 +99,7 @@ strsplits <- function(x, splits, fixed = TRUE, ...) {
     return(x[x != ""]) # Remove empty values
 }
 paste. <- function(..., collapse = NULL) {
+    #Like paste0 but with sep = ".'
     paste(..., sep = ".", collapse = collapse)
 }
 is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
