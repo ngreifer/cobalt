@@ -132,3 +132,30 @@
     }
     else return(NA)
 }
+
+.bal.tab.optmatch <- function(optmatch, formula = NULL, data = NULL, treat = NULL, covs = NULL, int = FALSE, distance = NULL, addl = NULL, continuous = getOption("cobalt_cont", "std"), binary = getOption("cobalt_bin", "raw"), s.d.denom = c("treated", "control", "pooled"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = FALSE, ...) {
+    
+    args <- c(as.list(environment()), list(...))[-(1:2)]
+    
+    #Adjustments to arguments
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
+    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match.arg(", i, ")")))
+    
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
+    if (any(blank.args)) {
+        for (arg.name in names(blank.args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
+                args[[arg.name]] <- NULL
+            }
+        }
+    }
+    
+    #Initializing variables
+    X <- do.call("x2base", c(list(optmatch), args), quote = TRUE)
+    
+    args <- args[names(args) %nin% names(X)]
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+                   quote = TRUE)
+    return(out)
+}
