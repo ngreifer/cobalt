@@ -12,8 +12,11 @@ is.designmatch <- function(x) {
 }
 is.time.list <- function(x) {
     if (is.vector(x, mode = "list")) {
-        if (all(vapply(x, is.formula, logical(1))) || all(vapply(x, is.data.frame, logical(1)))) {
-            class(x) <- c("time.list", class(x))
+        if (all(vapply(x, is.formula, logical(1)))) {
+            class(x) <- c("formula.list", "time.list", class(x))
+        }
+        else if (all(vapply(x, is.data.frame, logical(1)))) {
+            class(x) <- c("data.frame.list", "time.list", class(x))
         }
     }
     return(x)
@@ -323,6 +326,37 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
                 treat = treat,
                 treat.name = treat.name))
 }
+get.X.class <- function(X) {
+    if (is_not_null(X[["imp"]])) {
+        if (is_not_null(X[["treat.list"]])) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
+        else if (is_(X[["treat"]], c("factor", "character"))) stop("Multiply imputed data is not yet supported with multinomial treatments.", call. = FALSE)
+        else X.class <- "imp"
+    }
+    else if (is_not_null(X[["treat.list"]])) X.class <- "msm"
+    else if (is_binary(X[["treat"]])) X.class <- "binary"
+    else if (is_(X[["treat"]], c("factor", "character"))) X.class <- "multi"
+    else if (is.numeric(X[["treat"]])) X.class <- "cont"
+    else probably.a.bug()
+    
+    return(X.class)
+}
+probably.a.bug <- function() {
+    fun <- deparse(sys.call(-1))
+    stop(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function ",
+                fun, "."), call. = FALSE)
+}
+subset_X <- function(X, subset) {
+    lapply(X, function(x) {
+        if (is_not_null(x)) {
+            if (is.factor(x)) factor(x[subset])
+            else if (is.atomic(x)) x[subset]
+            else if (is.matrix(x) || is.data.frame(x)) x[subset, , drop = FALSE]
+            else if (is.list(x)) lapply(x, subset_X, subset = subset)
+            else x
+        }
+        else x
+    })
+}
 
 #get.C
 #Functions to turn input covariates into usable form
@@ -391,6 +425,7 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     if (is_null(A[["int_sep"]])) A[["int_sep"]] <- getOption("cobalt_int_sep", default = " * ")
     if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- getOption("cobalt_factor_sep", default = "_")
     if (is_null(A[["center"]]) || A[["center"]] %nin% c(TRUE, FALSE)) A[["center"]] <- FALSE
+    if (is_not_null(A[["poly"]])) poly <- A[["poly"]] else poly <- int
     
     C <- covs
     if (!is.null(addl)) {
@@ -474,18 +509,24 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
         stop("int must be TRUE, FALSE, or a numeric (integer) value greater than 1.", call. = FALSE)
     }
     
-    if (int) {
-        #Prevent duplicate var names with `sep`s
-        nsep <- 1
-        repeat {
-            all.possible.names <- outer(colnames(C), colnames(C), paste, sep = paste0(rep(A[["int_sep"]], nsep), collapse = ""))
-            if (!any(colnames(C) %in% all.possible.names)) break
-            else nsep <- nsep + 1
+    if (int || poly) {
+        if (int) { 
+            #Prevent duplicate var names with `sep`s
+            nsep <- 1
+            repeat {
+                all.possible.names <- outer(colnames(C), colnames(C), paste, sep = paste0(rep(A[["int_sep"]], nsep), collapse = ""))
+                if (!any(colnames(C) %in% all.possible.names)) break
+                else nsep <- nsep + 1
+            }
+            
+            if (as.numeric(int) %in% c(1, 2)) {
+                if (!poly) poly <- 2
+            }
+            else poly <- int
+            
+            int <- TRUE
         }
-        
-        if (as.numeric(int) %in% c(1, 2)) poly <- 2
-        else poly <- int
-        new <- int.poly.f(C, int = TRUE, poly = poly, sep = rep(A[["int_sep"]], nsep), co.names = co.names)
+        new <- int.poly.f(C, int = int, poly = poly, center = A[["center"]], sep = rep(A[["int_sep"]], nsep), co.names = co.names)
         C <- cbind(C, new)
         co.names <- c(co.names, attr(new, "co.names"))
     }
@@ -959,7 +1000,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
             sds <- rep(NA_real_, NCOL(C))
             sds[non.binary] <- sqrt(col.w.v(C[treat == t, non.binary, drop = FALSE], w = s.weights[treat==t]))
             B[[paste.("SD", t, "Un")]] <- sds
-            }
+        }
     }
     if (!no.adj && !(!disp.sds && quick)) {
         for (i in weight.names) {
@@ -1363,15 +1404,15 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     #SDs
     non.binary <- B[["Type"]] != "Binary"
     if (!((!un || !disp.sds) && quick)) {
-            sds <- rep(NA_real_, NCOL(C))
-            sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = s.weights))
-            B[["SD.Un"]] <- sds
+        sds <- rep(NA_real_, NCOL(C))
+        sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = s.weights))
+        B[["SD.Un"]] <- sds
     }
     if (!no.adj && !(!disp.sds && quick)) {
         for (i in weight.names) {
-                sds <- rep(NA_real_, NCOL(C))
-                sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = weights[[i]]*s.weights))
-                B[[paste.("SD", i)]] <- sds
+            sds <- rep(NA_real_, NCOL(C))
+            sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = weights[[i]]*s.weights))
+            B[[paste.("SD", i)]] <- sds
         }
     }
     if (!any(sapply(B[startsWith(names(B), "SD.")], is.finite))) {disp.sds <- FALSE}
@@ -1432,9 +1473,9 @@ balance.table.subclass.cont <- function(C, weights = NULL, treat, subclass, r.th
         }
         if (!(!disp.sds && quick)) {
             non.binary <- B[["Type"]] != "Binary"
-                sds <- rep(NA_real_, NCOL(C))
-                sds[non.binary] <- apply(C[in.subclass, non.binary, drop = FALSE], 2, sd)
-                SB[[i]][["SD.Adj"]] <- sds
+            sds <- rep(NA_real_, NCOL(C))
+            sds[non.binary] <- apply(C[in.subclass, non.binary, drop = FALSE], 2, sd)
+            SB[[i]][["SD.Adj"]] <- sds
         }
         
         #Correlations
@@ -1456,7 +1497,7 @@ balance.table.subclass.cont <- function(C, weights = NULL, treat, subclass, r.th
     
     attr(SB, "thresholds") <- c(r = r.threshold)
     attr(SB, "disp") <- c(means = disp.means,
-                         sds = disp.sds)
+                          sds = disp.sds)
     
     return(SB)
 }
