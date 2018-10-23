@@ -461,7 +461,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     #Figure out how to print bal.tab for clusters with multinomial
     call <- x$call
     c.balance <- x$Cluster.Balance
@@ -580,31 +580,22 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         p.ops$which.cluster <- which.cluster
     }
     
-    cluster.funs <- c("min", "mean", 
-                      #"median", 
-                      "max")
-    if (is_not_null(cluster.fun)) {
-        cluster.fun <- match.arg(tolower(cluster.fun), cluster.funs, several.ok = TRUE)
-        # if (!is.na(match("min", cluster.fun)) && p.ops$quick) {
-        #     cluster.fun <- cluster.fun[is.na(match(cluster.fun, "min"))]
-        #     if (is_null(cluster.fun)) {
-        #         warning("\"min\" was the only valid entry to cluster.fun, but it cannot be used when quick = TRUE in the call to bal.tab(). Using all other cluster.funs instead.", call. = FALSE)
-        #         cluster.fun <- c("mean", "median", "max")
-        #     }
-        #     else warning("\"min\" cannot be requested when quick = TRUE in the call to bal.tab(), so it was ignored.", call. = FALSE)
-        # }
-        # else if VVV
-        if (is_null(cluster.fun)) {
-            warning("There were no valid entries to cluster.fun. Using all other cluster.funs instead.", call. = FALSE)
-            #cluster.fun <- c("mean", "median", "max")
-            if (p.ops$abs) cluster.fun <- c("mean", "max")
-            else cluster.fun <- c("min", "mean", "max")
+    cluster.funs <- c("min", "mean", "max")
+    if (!identical(cluster.fun, "as.is")) {
+        p.ops$cluster.fun <- cluster.fun
+    }
+    if (is_not_null(p.ops$cluster.fun)) {
+        if (!is.character(p.ops$cluster.fun)) stop(paste0("cluster.fun must be ", word.list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
+        p.ops$cluster.fun <- match.arg(tolower(p.ops$cluster.fun), cluster.funs, several.ok = TRUE)
+        if (is_null(p.ops$cluster.fun)) {
+            warning("There were no valid entries to cluster.fun. Using the default cluster.funs instead.", call. = FALSE)
+            if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
+            else p.ops$cluster.fun <- c("min", "mean", "max")
         }
     }
     else {
-        #cluster.fun <- c("mean", "median", "max")
-        if (p.ops$abs) cluster.fun <- c("mean", "max")
-        else cluster.fun <- c("min", "mean", "max")
+        if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
+        else p.ops$cluster.fun <- c("min", "mean", "max")
     }
     
     #Checks and Adjustments
@@ -699,7 +690,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             print.warning <- FALSE
             if (length(attr(c.balance[[i]][["Observations"]], "ss.type")) > 1 && nunique.gt(attr(c.balance[[i]][["Observations"]], "ss.type")[-1], 1)) {
                 ess <- ifelse(attr(c.balance[[i]][["Observations"]], "ss.type") == "ess", "*", "")
-                xc.balance[[i]][["Observations"]] <- setNames(cbind(c.balance[[i]][["Observations"]], ess), c(names(c.balance[[i]][["Observations"]]), ""))
+                c.balance[[i]][["Observations"]] <- setNames(cbind(c.balance[[i]][["Observations"]], ess), c(names(c.balance[[i]][["Observations"]]), ""))
                 print.warning <- TRUE
             }
             print.data.frame_(round_df_char(c.balance[[i]][["Observations"]], digits))
@@ -711,44 +702,36 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary)) && is_not_null(c.balance.summary)) {
-        CF <- !is.na(match(cluster.funs, cluster.fun))
+        CF <- !is.na(match(cluster.funs, p.ops$cluster.fun))
         names(CF) <- cluster.funs
         if ("bal.tab.cont.cluster" %in% class(x)) {
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && CF["min"],
                                    p.ops$un && CF["mean"],
-                                   #p.ops$un && CF["median"],
                                    p.ops$un && CF["max"],
                                    rep(c(p.ops$disp.adj && CF["min"],
                                          p.ops$disp.adj && CF["mean"],
-                                         #p.ops$disp.adj && CF["median"],
                                          p.ops$disp.adj && CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && CF["min"],
                                    p.ops$un && CF["mean"],
-                                   #p.ops$un && CF["median"],
                                    p.ops$un && CF["max"],
                                    p.ops$un && p.ops$disp.v.ratio && CF["min"],
                                    p.ops$un && p.ops$disp.v.ratio && CF["mean"],
-                                   #p.ops$un && p.ops$disp.v.ratio && CF["median"],
                                    p.ops$un && p.ops$disp.v.ratio && CF["max"],
                                    p.ops$un && p.ops$disp.ks && CF["min"],
                                    p.ops$un && p.ops$disp.ks && CF["mean"],
-                                   #p.ops$un && p.ops$disp.ks && CF["median"],
                                    p.ops$un && p.ops$disp.ks && CF["max"],
                                    rep(c(p.ops$disp.adj && CF["min"],
                                          p.ops$disp.adj && CF["mean"],
-                                         #p.ops$disp.adj && CF["median"],
                                          p.ops$disp.adj && CF["max"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && CF["min"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && CF["mean"],
-                                         #p.ops$disp.adj && p.ops$disp.v.ratio && CF["median"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && CF["max"],
                                          p.ops$disp.adj && p.ops$disp.ks && CF["min"],
                                          p.ops$disp.adj && p.ops$disp.ks && CF["mean"],
-                                         #p.ops$disp.adj && p.ops$disp.ks && CF["median"],
                                          p.ops$disp.adj && p.ops$disp.ks && CF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         if (p.ops$disp.bal.tab) {
@@ -776,7 +759,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     
     invisible(x)
 }
-print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.imp, imp.summary = "as.is", imp.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     call <- x$call
@@ -901,31 +884,22 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         p.ops$which.imp <- which.imp
     }
     
-    imp.funs <- c("min", "mean", 
-                  #"median", 
-                  "max")
-    if (is_not_null(imp.fun)) {
-        imp.fun <- match.arg(tolower(imp.fun), imp.funs, several.ok = TRUE)
-        # if (!is.na(match("min", imp.fun)) && p.ops$quick) {
-        #     imp.fun <- imp.fun[is.na(match(imp.fun, "min"))]
-        #     if (is_null(imp.fun)) {
-        #         warning("\"min\" was the only valid entry to imp.fun, but it cannot be used when quick = TRUE in the call to bal.tab(). Using all other imp.funs instead.", call. = FALSE)
-        #         imp.fun <- c("mean", "median", "max")
-        #     }
-        #     else warning("\"min\" cannot be requested when quick = TRUE in the call to bal.tab(), so it was ignored.", call. = FALSE)
-        # }
-        # else if VVV
-        if (is_null(imp.fun)) {
-            warning("There were no valid entries to imp.fun Using all other imp.funs instead.", call. = FALSE)
-            #imp.fun <- c("mean", "median", "max")
-            if (p.ops$abs) imp.fun <- c("mean", "max")
-            else imp.fun <- c("min", "mean", "max")
+    imp.funs <- c("min", "mean", "max")
+    if (!identical(imp.fun, "as.is")) {
+        p.ops$imp.fun <- imp.fun
+    }
+    if (is_not_null(p.ops$imp.fun)) {
+        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word.list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
+        p.ops$imp.fun <- match.arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
+        if (is_null(p.ops$imp.fun)) {
+            warning("There were no valid entries to imp.fun Using the default imp.funs instead.", call. = FALSE)
+            if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
+            else p.ops$imp.fun <- c("min", "mean", "max")
         }
     }
     else {
-        #imp.fun <- c("mean", "median", "max")
-        if (p.ops$abs) imp.fun <- c("mean", "max")
-        else imp.fun <- c("min", "mean", "max")
+        if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
+        else p.ops$imp.fun <- c("min", "mean", "max")
     }
     
     #Checks and Adjustments
@@ -988,27 +962,21 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && IF["min"],
                                    p.ops$un && IF["mean"],
-                                   #p.ops$un && IF["median"],
                                    p.ops$un && IF["max"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["min"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["mean"],
-                                   #p.ops$un && p.ops$disp.v.ratio && IF["median"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["max"],
                                    p.ops$un && p.ops$disp.ks && IF["min"],
                                    p.ops$un && p.ops$disp.ks && IF["mean"],
-                                   #p.ops$un && p.ops$disp.ks && IF["median"],
                                    p.ops$un && p.ops$disp.ks && IF["max"],
                                    rep(c(p.ops$disp.adj && IF["min"],
                                          p.ops$disp.adj && IF["mean"],
-                                         #p.ops$disp.adj && IF["median"],
                                          p.ops$disp.adj && IF["max"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["min"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["mean"],
-                                         #p.ops$disp.adj && p.ops$disp.v.ratio && IF["median"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["max"],
                                          p.ops$disp.adj && p.ops$disp.ks && IF["min"],
                                          p.ops$disp.adj && p.ops$disp.ks && IF["mean"],
-                                         #p.ops$disp.adj && p.ops$disp.ks && IF["median"],
                                          p.ops$disp.adj && p.ops$disp.ks && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
@@ -1038,7 +1006,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     invisible(x)
     
 }
-print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.imp, imp.summary = "as.is", imp.fun = NULL, digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.imp, imp.summary = "as.is", imp.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     
     call <- x$call
@@ -1174,31 +1142,22 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         p.ops$which.cluster <- which.cluster
     }
     
-    cluster.funs <- c("min", "mean", 
-                      #"median", 
-                      "max")
-    if (is_not_null(cluster.fun)) {
-        cluster.fun <- match.arg(tolower(cluster.fun), cluster.funs, several.ok = TRUE)
-        # if (!is.na(match("min", cluster.fun)) && p.ops$quick) {
-        #     cluster.fun <- cluster.fun[is.na(match(cluster.fun, "min"))]
-        #     if (is_null(cluster.fun)) {
-        #         warning("\"min\" was the only valid entry to cluster.fun, but it cannot be used when quick = TRUE in the call to bal.tab(). Using all other cluster.funs instead.", call. = FALSE)
-        #         cluster.fun <- c("mean", "median", "max")
-        #     }
-        #     else warning("\"min\" cannot be requested when quick = TRUE in the call to bal.tab(), so it was ignored.", call. = FALSE)
-        # }
-        # else if VVV
-        if (is_null(cluster.fun)) {
-            warning("There were no valid entries to cluster.fun. Using all other cluster.funs instead.", call. = FALSE)
-            #cluster.fun <- c("mean", "median", "max")
-            if (p.ops$abs) cluster.fun <- c("mean", "max")
-            else cluster.fun <- c("min", "mean", "max")
+    cluster.funs <- c("min", "mean", "max")
+    if (!identical(cluster.fun, "as.is")) {
+        p.ops$cluster.fun <- cluster.fun
+    }
+    if (is_not_null(p.ops$cluster.fun)) {
+        if (!is.character(p.ops$cluster.fun)) stop(paste0("cluster.fun must be ", word.list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
+        p.ops$cluster.fun <- match.arg(tolower(p.ops$cluster.fun), cluster.funs, several.ok = TRUE)
+        if (is_null(p.ops$cluster.fun)) {
+            warning("There were no valid entries to cluster.fun. Using the default cluster.funs instead.", call. = FALSE)
+            if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
+            else p.ops$cluster.fun <- c("min", "mean", "max")
         }
     }
     else {
-        #cluster.fun <- c("mean", "median", "max")
-        if (p.ops$abs) cluster.fun <- c("mean", "max")
-        else cluster.fun <- c("min", "mean", "max")
+        if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
+        else p.ops$cluster.fun <- c("min", "mean", "max")
     }
     
     if (is_null(p.ops$which.cluster)) 
@@ -1231,31 +1190,22 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         warning("No summary across clusters was produced. This can occur if cluster.summary is FALSE and quick is TRUE.", call. = FALSE)
     }
     
-    imp.funs <- c("min", "mean", 
-                  #"median", 
-                  "max")
-    if (is_not_null(imp.fun)) {
-        imp.fun <- match.arg(tolower(imp.fun), imp.funs, several.ok = TRUE)
-        # if (!is.na(match("min", imp.fun)) && p.ops$quick) {
-        #     imp.fun <- imp.fun[is.na(match(imp.fun, "min"))]
-        #     if (is_null(imp.fun)) {
-        #         warning("\"min\" was the only valid entry to imp.fun, but it cannot be used when quick = TRUE in the call to bal.tab(). Using all other imp.funs instead.", call. = FALSE)
-        #         imp.fun <- c("mean", "median", "max")
-        #     }
-        #     else warning("\"min\" cannot be requested when quick = TRUE in the call to bal.tab(), so it was ignored.", call. = FALSE)
-        # }
-        # else if VVV
-        if (is_null(imp.fun)) {
-            warning("There were no valid entries to imp.fun Using all other imp.funs instead.", call. = FALSE)
-            # imp.fun <- c("mean", "median", "max")
-            if (p.ops$abs) imp.fun <- c("mean", "max")
-            else imp.fun <- c("min", "mean", "max")
+    imp.funs <- c("min", "mean", "max")
+    if (!identical(imp.fun, "as.is")) {
+        p.ops$imp.fun <- imp.fun
+    }
+    if (is_not_null(p.ops$imp.fun)) {
+        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word.list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
+        p.ops$imp.fun <- match.arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
+        if (is_null(p.ops$imp.fun)) {
+            warning("There were no valid entries to imp.fun Using the default imp.funs instead.", call. = FALSE)
+            if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
+            else p.ops$imp.fun <- c("min", "mean", "max")
         }
     }
     else {
-        # imp.fun <- c("mean", "median", "max")
-        if (p.ops$abs) imp.fun <- c("mean", "max")
-        else imp.fun <- c("min", "mean", "max")
+        if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
+        else p.ops$imp.fun <- c("min", "mean", "max")
     }
     
     if (is_null(p.ops$which.imp)) 
@@ -1306,38 +1256,30 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && IF["min"],
                                    p.ops$un && IF["mean"],
-                                   #p.ops$un && IF["median"],
                                    p.ops$un && IF["max"],
                                    rep(c(p.ops$disp.adj && IF["min"],
                                          p.ops$disp.adj && IF["mean"],
-                                         #p.ops$disp.adj && IF["median"],
                                          p.ops$disp.adj && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && IF["min"],
                                    p.ops$un && IF["mean"],
-                                   #p.ops$un && IF["median"],
                                    p.ops$un && IF["max"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["min"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["mean"],
-                                   #p.ops$un && p.ops$disp.v.ratio && IF["median"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["max"],
                                    p.ops$un && p.ops$disp.ks && IF["min"],
                                    p.ops$un && p.ops$disp.ks && IF["mean"],
-                                   #p.ops$un && p.ops$disp.ks && IF["median"],
                                    p.ops$un && p.ops$disp.ks && IF["max"],
                                    rep(c(p.ops$disp.adj && IF["min"],
                                          p.ops$disp.adj && IF["mean"],
-                                         #p.ops$disp.adj && IF["median"],
                                          p.ops$disp.adj && IF["max"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["min"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["mean"],
-                                         #p.ops$disp.adj && p.ops$disp.v.ratio && IF["median"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["max"],
                                          p.ops$disp.adj && p.ops$disp.ks && IF["min"],
                                          p.ops$disp.adj && p.ops$disp.ks && IF["mean"],
-                                         #p.ops$disp.adj && p.ops$disp.ks && IF["median"],
                                          p.ops$disp.adj && p.ops$disp.ks && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
