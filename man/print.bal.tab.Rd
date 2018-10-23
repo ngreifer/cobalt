@@ -22,6 +22,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     un = "as.is", 
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
+    disp.sds = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     digits = max(3, getOption("digits") - 3), 
@@ -36,6 +37,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     un = "as.is", 
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
+    disp.sds = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     disp.subclass = "as.is", 
@@ -51,11 +53,12 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     un = "as.is", 
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
+    disp.sds = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.cluster, 
     cluster.summary = "as.is", 
-    cluster.fun = NULL, 
+    cluster.fun = "as.is", 
     digits = max(3, getOption("digits") - 3), 
     ...)
 
@@ -68,11 +71,12 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     un = "as.is", 
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
+    disp.sds = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.imp, 
     imp.summary = "as.is", 
-    imp.fun = NULL, 
+    imp.fun = "as.is", 
     digits = max(3, getOption("digits") - 3), 
     ...)
 
@@ -85,6 +89,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     un = "as.is", 
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
+    disp.sds = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.cluster, 
@@ -92,7 +97,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     cluster.fun = NULL, 
     which.imp, 
     imp.summary = "as.is", 
-    imp.fun = NULL, 
+    imp.fun = "as.is", 
     digits = max(3, getOption("digits") - 3), 
     ...)
     
@@ -104,6 +109,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     un = "as.is", 
     disp.bal.tab = "as.is", 
     disp.means = "as.is", 
+    disp.sds = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.treat, 
@@ -120,17 +126,17 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     un = "as.is", 
     disp.bal.tab = "as.is", 
     disp.means = "as.is", 
+    disp.sds = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.cluster, 
     cluster.summary = "as.is", 
-    cluster.fun = NULL, 
+    cluster.fun = "as.is", 
     which.time, 
     msm.summary = "as.is", 
     digits = max(3, getOption("digits") - 3), 
     ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{
 a \code{bal.tab} object; the output of a call to \code{bal.tab()}.
@@ -158,6 +164,9 @@ whether to display the table of balance statistics. If \code{FALSE}, only other 
   \item{disp.means}{
 whether to print the group means in balance output.
 }
+  \item{disp.sds}{
+whether to print the group standard deviations in balance output.
+}
   \item{disp.v.ratio}{
 whether to display variance ratios in balance output.
 }
@@ -177,7 +186,7 @@ which cluster(s) to display. If \code{NULL}, all clusters will be displayed. If 
 whether to display the cluster summary table. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
 }
   \item{cluster.fun}{
-a character vector of functions of balance statistics to display when dislaying balance across clusters. Can be "mean", "median", "min", or "max". More than one are allowed. "min" cannot be used if \code{quick = TRUE} in the original \code{bal.tab()} call.
+a character vector of functions of balance statistics to display when dislaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed.
 }
   \item{which.imp}{
 which imputation(s) to display. If \code{NULL}, all imputations will be displayed. If \code{NA}, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to \code{bal.tab()}, omit this argument, or enter \code{"as.is"}.
@@ -186,7 +195,7 @@ which imputation(s) to display. If \code{NULL}, all imputations will be displaye
 whether to display the imputation summary table. If \code{which.imp} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
 }
   \item{imp.fun}{
-a character vector of functions of balance statistics to display when dislaying balance across imputations. Can be "mean", "median", "min", or "max". More than one are allowed. "min" cannot be used if \code{quick = TRUE} in the original \code{bal.tab()} call.
+a character vector of functions of balance statistics to display when dislaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed.
 }
   \item{which.treat}{
 which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
@@ -224,6 +233,7 @@ Noah Greifer
 
 \seealso{
 \code{\link[base]{print}}, \code{\link{bal.tab}}
+\code{\link{display_options}} for further information on some of these options.
 }
 \examples{
 \dontrun{
