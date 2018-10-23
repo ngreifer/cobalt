@@ -5,7 +5,7 @@
 Generates Balance Statistics
 }
 \description{
-Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument. This page links to each method page and documents the calculation and details of aspects all \code{bal.tab} methods use.
+Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument. This page links to each method page and documents the calculation and details of aspects all \code{bal.tab} methods use. See the section 'See Also' at the bottom for links to the documentation pages for the use of \code{bal.tab} with various pre-processing packages such as \pkg{MatchIt}, \pkg{twang}, \pkg{Matching}, and \pkg{WeightIt}.
 }
 \usage{
 bal.tab(\dots)
