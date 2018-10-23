@@ -346,11 +346,12 @@ probably.a.bug <- function() {
                 fun, "."), call. = FALSE)
 }
 subset_X <- function(X, subset) {
+    n <- length(subset)
     lapply(X, function(x) {
         if (is_not_null(x)) {
-            if (is.factor(x)) factor(x[subset])
-            else if (is.atomic(x)) x[subset]
-            else if (is.matrix(x) || is.data.frame(x)) x[subset, , drop = FALSE]
+            if (is.factor(x) && length(x) == n) factor(x[subset])
+            else if (is.atomic(x) && length(x) == n) x[subset]
+            else if ((is.matrix(x) || is.data.frame(x))  && nrow(x) == n) x[subset, , drop = FALSE]
             else if (is.list(x)) lapply(x, subset_X, subset = subset)
             else x
         }
