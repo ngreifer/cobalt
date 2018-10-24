@@ -576,7 +576,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     }
     else p.ops$imbalanced.only <- FALSE
     
-    if (!missing(which.cluster)) {
+    if (!missing(which.cluster) && !identical(which.cluster, "as.is")) {
         p.ops$which.cluster <- which.cluster
     }
     
@@ -702,8 +702,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary)) && is_not_null(c.balance.summary)) {
-        CF <- !is.na(match(cluster.funs, p.ops$cluster.fun))
-        names(CF) <- cluster.funs
+        CF <- setNames(cluster.funs %in% p.ops$cluster.fun, cluster.funs)
         if ("bal.tab.cont.cluster" %in% class(x)) {
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && CF["min"],
@@ -875,12 +874,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     }
     else p.ops$imbalanced.only <- FALSE
     
-    # if (p.ops$imbalanced.only) {
-    #     keep.row <- rowSums(apply(balance[grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-    # }
-    # else keep.row <- rep(TRUE, nrow(balance))
-    
-    if (!missing(which.imp) && which.imp != "as.is") {
+    if (!missing(which.imp) && !identical(which.imp, "as.is")) {
         p.ops$which.imp <- which.imp
     }
     
@@ -889,10 +883,10 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         p.ops$imp.fun <- imp.fun
     }
     if (is_not_null(p.ops$imp.fun)) {
-        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word.list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
+        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word.list(c(imp.funs, "as.is"), and.or = "or", quotes = TRUE)))
         p.ops$imp.fun <- match.arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
         if (is_null(p.ops$imp.fun)) {
-            warning("There were no valid entries to imp.fun Using the default imp.funs instead.", call. = FALSE)
+            warning("There were no valid entries to imp.fun. Using the default imp.funs instead.", call. = FALSE)
             if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
             else p.ops$imp.fun <- c("min", "mean", "max")
         }
@@ -945,17 +939,14 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     }
     
     if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
-        IF <- !is.na(match(imp.funs, imp.fun))
-        names(IF) <- imp.funs
+        IF <- setNames(imp.funs %in% p.ops$imp.fun, imp.funs)
         if ("bal.tab.cont" %in% class(x)) { #continuous
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && IF["min"],
                                    p.ops$un && IF["mean"],
-                                   #p.ops$un && IF["median"],
                                    p.ops$un && IF["max"],
                                    rep(c(p.ops$disp.adj && IF["min"],
                                          p.ops$disp.adj && IF["mean"],
-                                         #p.ops$disp.adj && IF["median"],
                                          p.ops$disp.adj && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else { #binary
@@ -982,7 +973,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all imputations") %+% "\n")
-            print.data.frame_(round_df_char(i.balance.summary[, s.keep], digits))
+            print.data.frame_(round_df_char(i.balance.summary[, s.keep, drop = FALSE], digits))
             cat("\n")
         }
         
@@ -1130,15 +1121,10 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     }
     else p.ops$imbalanced.only <- FALSE
     
-    # if (p.ops$imbalanced.only) {
-    #     keep.row <- rowSums(apply(balance[grepl(".Threshold", names(balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-    # }
-    # else keep.row <- rep(TRUE, nrow(balance))
-    
-    if (!missing(which.imp) && which.imp != "as.is") {
+    if (!missing(which.imp) && !identical(which.imp, "as.is")) {
         p.ops$which.imp <- which.imp
     }
-    if (!missing(which.cluster)) {
+    if (!missing(which.cluster) && !identical(which.cluster, "as.is")) {
         p.ops$which.cluster <- which.cluster
     }
     
@@ -1195,10 +1181,10 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
         p.ops$imp.fun <- imp.fun
     }
     if (is_not_null(p.ops$imp.fun)) {
-        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word.list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
+        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word.list(c(imp.funs, "as.is"), and.or = "or", quotes = TRUE)))
         p.ops$imp.fun <- match.arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
         if (is_null(p.ops$imp.fun)) {
-            warning("There were no valid entries to imp.fun Using the default imp.funs instead.", call. = FALSE)
+            warning("There were no valid entries to imp.fun. Using the default imp.funs instead.", call. = FALSE)
             if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
             else p.ops$imp.fun <- c("min", "mean", "max")
         }
@@ -1250,8 +1236,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     }
     
     if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
-        IF <- !is.na(match(imp.funs, imp.fun))
-        names(IF) <- imp.funs
+        IF <- setNames(imp.funs %in% p.ops$imp.fun, imp.funs)
         if ("bal.tab.cont" %in% class(x)) {
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && IF["min"],
@@ -1577,7 +1562,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     invisible(x)
     
 }
-print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = NULL, which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     args <- c(as.list(environment()), list(...))[-1]
     args <- args[!sapply(args, function(x) identical(x, quote(expr =)))]
     
