@@ -1,8 +1,6 @@
 Things to Do
 ======
 
-* Add default method that takes in an arbitrary object and other inputs and checks for treatment, covariates, and a conditioning method, etc. Add in documentation and vignette that programmers of other packages can rely on it by ensuring the inputs match.
-
 * Add method for multinomial treatments with multiply imputed data
 
 * Add method to add own balance function. Could be supplied as a name (e.g., skew.diff) that takes in several arguments: treat, covs (or maybe one cov), weights, and maybe other arguments.
