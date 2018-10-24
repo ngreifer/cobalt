@@ -630,8 +630,9 @@ x2base.Match <- function(Match, ...) {
                  "subclass")
     X <- setNames(vector("list", length(X.names)),
                   X.names)
+    
     #Checks
-    if (!is.list(Match) && is_not_null(Match)) {
+    if (is_not_null(Match) && !is.list(Match)) {
         stop("'Match' object contains no valid matches")}
     
     #Get treat and covs
@@ -2545,7 +2546,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     X$call <- NULL
     X$imp <- factor(imp[subset])
     X$s.weights <- s.weights[subset]
-    
+   
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
