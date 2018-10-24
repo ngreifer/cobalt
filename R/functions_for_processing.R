@@ -347,16 +347,17 @@ probably.a.bug <- function() {
 }
 subset_X <- function(X, subset) {
     n <- length(subset)
-    lapply(X, function(x) {
+    subset_X_internal <- function(x, subset) {
         if (is_not_null(x)) {
             if (is.factor(x) && length(x) == n) factor(x[subset])
             else if (is.atomic(x) && length(x) == n) x[subset]
             else if ((is.matrix(x) || is.data.frame(x))  && nrow(x) == n) x[subset, , drop = FALSE]
-            else if (is.list(x)) lapply(x, subset_X, subset = subset)
+            else if (is.list(x)) lapply(x, subset_X_internal, subset = subset)
             else x
         }
         else x
-    })
+    }
+    lapply(X, subset_X_internal, subset)
 }
 
 #get.C
@@ -814,6 +815,9 @@ baltal <- function(threshold) {
     rownames(b) <- c(paste0("Balanced, <", thresh.val), paste0("Not Balanced, >", thresh.val))
     return(b)
 }
+ESS <- function(w) {
+    sum(w)^2/sum(w^2)
+}
 samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), cluster = NULL, which.cluster = NULL, discarded = NULL, treat.names = c("Control", "Treated")) {
     #Computes sample size info. for unadjusted and adjusted samples.
     # method is what method the weights are to be used for. 
@@ -855,8 +859,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
         sw <- s.weights[in.cluster]
         
         nn <- as.data.frame(matrix(0, ncol = 2, nrow = 1))
-        nn[1, ] <- c((sum(sw[t==0])^2)/sum(sw[t==0]^2),
-                     (sum(sw[t==1])^2)/sum(sw[t==1]^2))
+        nn[1, ] <- c(ESS(sw[t==0]), ESS(sw[t==1]))
         dimnames(nn) <- list(c("All"), 
                              c(treat.names[1], treat.names[2]))
         if (nunique.gt(s.weights, 2) || !any(s.weights==1) || !all(s.weights %in% c(0,1))) {
@@ -905,10 +908,8 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
             dc <- discarded[in.cluster]
             
             nn <- as.data.frame(matrix(0, ncol = 2, nrow = 3))
-            nn[1, ] <- c((sum(sw[t==0])^2)/sum(sw[t==0]^2),
-                         (sum(sw[t==1])^2)/sum(sw[t==1]^2))
-            nn[2, ] <- c((sum(w[t==0]*sw[t==0])^2)/sum((w[t==0]*sw[t==0])^2),
-                         (sum(w[t==1]*sw[t==1])^2)/sum((w[t==1]*sw[t==1])^2))
+            nn[1, ] <- c(ESS(sw[t==0]), ESS(sw[t==1]))
+            nn[2, ] <- c(ESS(w[t==0]*sw[t==0]), ESS(w[t==1]*sw[t==1]))
             nn[3, ] <- c(sum(t==0 & dc==1), 
                          sum(t==1 & dc==1))
             dimnames(nn) <- list(c("Unadjusted", "Adjusted", "Discarded"), 
@@ -924,8 +925,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
         sw <- s.weights[in.cluster]
         
         nn <- as.data.frame(matrix(0, ncol=2, nrow=1+NCOL(weights)))
-        nn[1, ] <- c((sum(sw[t==0])^2)/sum(sw[t==0]^2), 
-                     (sum(sw[t==1])^2)/sum(sw[t==1]^2))
+        nn[1, ] <- c(ESS(sw[t==0]), ESS(sw[t==1]))
         for (i in seq_len(NCOL(weights))) {
             if (method[i] == "matching") {
                 nn[1+i,] <- c(sum(weights[in.cluster & treat==0, i]), 
@@ -933,8 +933,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
             }
             else if (method[i] == "weighting") {
                 w <- weights[in.cluster, i]
-                nn[1+i,] <- c((sum(w[t==0]*sw[t==0])^2)/sum((w[t==0]*sw[t==0])^2),
-                              (sum(w[t==1]*sw[t==1])^2)/sum((w[t==1]*sw[t==1])^2))
+                nn[1+i,] <- c(ESS(w[t==0]*sw[t==0]), ESS(w[t==1]*sw[t==1]))
             }
             
         }
@@ -1309,7 +1308,7 @@ samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = 
         if (nunique.gt(s.weights, 2) || !any(s.weights==1) || !all(s.weights %in% c(0,1))) {
             sw <- s.weights[in.cluster]
             
-            nn[1, ] <- (sum(sw)^2)/sum(sw^2)
+            nn[1, ] <- ESS(sw)
         }
         else {
             nn[1, ] <- sum(in.cluster)
@@ -1337,8 +1336,8 @@ samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = 
             sw <- s.weights[in.cluster]
             
             nn <- as.data.frame(matrix(0, ncol = 1, nrow = 2))
-            nn[1, ] <- (sum(sw)^2)/sum(sw^2)
-            nn[2, ] <- (sum(w*sw)^2)/sum((w*sw)^2)
+            nn[1, ] <- ESS(sw)
+            nn[2, ] <- ESS(w*sw)
             dimnames(nn) <- list(c("Unadjusted", "Adjusted"), 
                                  c("Total"))
             attr(nn, "ss.type") <- c("ss", ifelse(method == "weighting", "ess", "ss"))
@@ -1349,14 +1348,14 @@ samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = 
         #t <- treat[in.cluster]
         sw <- s.weights[in.cluster]
         nn <- as.data.frame(matrix(0, ncol=1, nrow=1+NCOL(weights)))
-        nn[1, ] <- (sum(sw)^2)/sum(sw^2)
+        nn[1, ] <- ESS(sw)
         for (i in seq_len(NCOL(weights))) {
             if (method[i] == "matching") {
                 nn[1+i,] <- c(sum(in.cluster & weights[,i] > 0))
             }
             else if (method[i] == "weighting") {
                 w <- weights[in.cluster, i]
-                nn[1+i,] <- (sum(w*sw)^2)/sum((w*sw)^2)
+                nn[1+i,] <- ESS(w*sw)
             }
             
         }
