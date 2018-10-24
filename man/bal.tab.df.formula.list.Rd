@@ -2,24 +2,24 @@
 \alias{bal.tab.time.list}
 \alias{bal.tab.list}
 \alias{bal.tab.formula.list}
-\alias{bal.tab.df.list}
+\alias{bal.tab.data.frame.list}
 \title{
 Balance Statistics for Longitudinal Treatments
 }
 \description{
-Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. \code{bal.tab} automatically classifies this list as either a \code{data.frame.list} or \code{formula.list}, respectively. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
+Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. \code{bal.tab} automatically classifies this list as either a \code{data.frame.list} or \code{formula.list}, respectively. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{data.frame.list}(covs.list, 
     treat.list = NULL, 
-    data, 
+    data = NULL, 
     weights = NULL, 
     int = FALSE, 
     distance.list = NULL, 
     addl.list = NULL, 
     method, 
-    continuous = c("std", "raw"), 
-    binary = c("raw", "std"), 
+    continuous = getOption("cobalt_cont", "std"),  
+    binary = getOption("cobalt_bin", "raw"), 
     s.d.denom, 
     m.threshold = NULL, 
     v.threshold = NULL, 
@@ -106,7 +106,7 @@ a \code{logical} vector denoting whether each observation should be included. It
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-For \code{bal.tab.formula.list}, other arguments to be passed to \code{bal.tab.data.frame.list}. Otherwise, further arguments to control display of output. See \link[=display_options]{display options} for details.
+For \code{bal.tab.formula.list}, other arguments to be passed to \code{bal.tab.data.frame.list}. Otherwise, further arguments to control display of output. See \link[=options-display]{display options} for details.
 }
 }
 \details{
