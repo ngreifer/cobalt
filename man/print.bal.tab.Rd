@@ -94,7 +94,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.ks = "as.is", 
     which.cluster, 
     cluster.summary = "as.is", 
-    cluster.fun = NULL, 
+    cluster.fun = "as.is", 
     which.imp, 
     imp.summary = "as.is", 
     imp.fun = "as.is", 
@@ -233,7 +233,7 @@ Noah Greifer
 
 \seealso{
 \code{\link[base]{print}}, \code{\link{bal.tab}}
-\code{\link{display_options}} for further information on some of these options.
+\link[=options-display]{display options} for further information on some of these options.
 }
 \examples{
 \dontrun{
