@@ -30,4 +30,3 @@ LazyData: true
 VignetteBuilder: knitr
 URL: https://github.com/ngreifer/cobalt
 BugReports: https://github.com/ngreifer/cobalt/issues
-RoxygenNote: 6.0.1
