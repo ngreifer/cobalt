@@ -6,7 +6,7 @@
 Balance Statistics for designmatch and optmatch Objects
 }
 \description{
-Generates balance statistics for output objects from \pkg{designmatch} and \pkg{optmatch}. Note that several arguments that used to be documented here are now documented in \link[=display_options]{display options}. They are still available.
+Generates balance statistics for output objects from \pkg{designmatch} and \pkg{optmatch}. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
 }
 \usage{
 \method{bal.tab}{designmatch}(dm, 
@@ -17,8 +17,8 @@ Generates balance statistics for output objects from \pkg{designmatch} and \pkg{
     int = FALSE, 
     distance = NULL, 
     addl = NULL, 
-    continuous = c("std", "raw"), 
-    binary = c("raw", "std"), 
+    continuous = getOption("cobalt_cont", "std"),  
+    binary = getOption("cobalt_bin", "raw"), 
     s.d.denom = c("treated", "control", "pooled"), 
     m.threshold = NULL, 
     v.threshold = NULL, 
@@ -91,7 +91,7 @@ A \code{logical} vector denoting whether each observation should be included. It
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
-For \code{bal.tab.optmatch()}, the same arguments as those passed to \code{bal.tab.designmatch()}. Otherwise, further arguments to control display of output. See \link[=display_options]{display options} for details.
+For \code{bal.tab.optmatch()}, the same arguments as those passed to \code{bal.tab.designmatch()}. Otherwise, further arguments to control display of output. See \link[=options-display]{display options} for details.
 }
 }
 \details{
