@@ -66,3 +66,7 @@ love.plot(bal.tab(m.out), threshold = .1, abs = TRUE, var.order = "unadjusted")
 
 Please remember to cite this package when using it to analyze data. For example, in a manuscript, write: "Matching was performed using Matching (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2018) in R (R Core team, 2018)." Use `citation("cobalt")` to generate a bibliographic reference for the `cobalt` package.
 
+Bug appear in `cobalt` occasionally, often found by users. Please report any bugs at https://github.com/ngreifer/cobalt/issues. To install the latest development version of `cobalt`, which may have removed a bug you're experiencing, use the following code:
+```{r, eval=FALSE}
+devtools::install_github("ngreifer/cobalt")
+```
