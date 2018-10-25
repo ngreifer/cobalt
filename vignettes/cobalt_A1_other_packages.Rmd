@@ -130,7 +130,7 @@ bal.tab(match.out, formula = f.build("treat", covs0), data = lalonde)
 
 The output looks quite different from `Matching`'s `MatchBalance()` output. Rather than being stacked vertically, balance statistics are arranged horizontally in a table format, allowing for quick balance checking. Below the balance table is a summary of the sample size before and after matching, similar to what `Matching`'s `summary()` command would display. The sample size can include a "weighted" and "unweighted" count; the "weighted" count is the sum of the matching weights, while the  "unweighted" is the count of units with nonzero matching weights. 
 
-The input to `bal.tab()` is similar to that given to `MatchBalance()`: the `Match` object resulting from the call to `Match()`, a formula relating treatment to the covariates for which balance is to be assessed, and the original data set. This is not the only way to call `bal.tab()`: instead of a formula and a data set, one can also input a data frame of covariates and a vector of treatment status indicators, just as when using `bal.tab()` wihout a conditioning package. For example, the code below will yield the same results as the call to `bal.tab()` above:
+The input to `bal.tab()` is similar to that given to `MatchBalance()`: the `Match` object resulting from the call to `Match()`, a formula relating treatment to the covariates for which balance is to be assessed, and the original data set. This is not the only way to call `bal.tab()`: instead of a formula and a data set, one can also input a data frame of covariates and a vector of treatment status indicators, just as when using `bal.tab()` without a conditioning package. For example, the code below will yield the same results as the call to `bal.tab()` above:
 
 ```{r, eval = FALSE}
 bal.tab(match.out, treat = lalonde$treat, covs = covs0)
@@ -208,7 +208,7 @@ bal.tab(e.out, treat = lalonde$treat, covs = covs0)
 
 First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. The "effective" sample size is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" in the main vignette for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure. That said, in simulations by Zhao and Percival (2015), entropy balancing reliably had smaller empirical standard errors than did covariate balancing propensity scores.
 
-The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In additon to the `ebalance` object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
+The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `ebalance` object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(eval = TRUE)
@@ -236,7 +236,7 @@ dmout <- bmatch(lalonde$treat,
 bal.tab(dmout, treat = lalonde$treat, covs = covs0)
 ```
 
-The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In additon to the `designmatch()` output object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates. The output is similar to that of `optmatch`.
+The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `designmatch()` output object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates. The output is similar to that of `optmatch`.
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(eval = TRUE)
@@ -261,7 +261,7 @@ ow.out <- optweight(treat ~ age + educ + married + race + re74 + re75,
                     data = lalonde, estimand = "ATE", tols = .01)
 
 #Note the contents of the output object:
-str(ow.out)
+names(ow.out)
 
 #Use bal.tab() directly on the output
 bal.tab(ow.out)

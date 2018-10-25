@@ -67,7 +67,7 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
   \item{cluster}{
-either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{imp}{
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{weightit()}. See \code{\link{bal.tab.imp}} for details.
@@ -108,7 +108,7 @@ If both clusters and imputations are specified, an object of class \code{"bal.ta
 
 If \code{weightit()} is used with multiple categorical treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
-If \code{weightitMSM()} is used for longitudinal treatments, an object of class \code{"bal.tab.msm"} containing balance summaries for each time period and a summary of balance across tme periods. See \code{\link{bal.tab.msm}} for details.
+If \code{weightitMSM()} is used for longitudinal treatments, an object of class \code{"bal.tab.msm"} containing balance summaries for each time period and a summary of balance across time periods. See \code{\link{bal.tab.msm}} for details.
 }
 
 \author{

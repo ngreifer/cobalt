@@ -5,9 +5,9 @@
 \title{Using \code{bal.tab()} with Subclassified Data}
 
 \description{
-When using \code{bal.tab()} with subclassified data, i.e., data split into subclasses where balance may hold, the output will be different from the standard, non-subclassified case, and there is an additional option for controling display. This page outlines the outputs and options in this case.
+When using \code{bal.tab()} with subclassified data, i.e., data split into subclasses where balance may hold, the output will be different from the standard, non-subclassified case, and there is an additional option for controlling display. This page outlines the outputs and options in this case.
 
-There are two main componenets of the output of \code{bal.tab()} with subclassified data: the balance within subclasses and the balance summary across subclasses. The within-subclass balance displays essentially are standard balance displays for each subclass, except that only "adjusted" values are available ,ebcauset he subclassification itself is the adjustment.
+There are two main components of the output of \code{bal.tab()} with subclassified data: the balance within subclasses and the balance summary across subclasses. The within-subclass balance displays essentially are standard balance displays for each subclass, except that only "adjusted" values are available, because the subclassification itself is the adjustment.
 
 The balance summary is, for each variable, a weighted average of the means and mean differences across subclasses. Each subclass statistic is weighed by the proportion of units corresponding to the target population (i.e., treated, control, or total sample) that are in that subclass. Variance ratios and KS statistics do not appear in this summary. Although this summary can be useful as a heuristic, it is important to ensure balance within each subclass as well.
 

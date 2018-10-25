@@ -7,7 +7,7 @@
 \description{
 When using \code{bal.tab()} with multiply imputed data, the output will be different from the case with a  single data set. Multiply imputed data can only be used with the data.frame and formula \code{bal.tab()} methods. This page outlines the outputs and options available with multiply imputed data.
 
-There are two main componenets of the output of \code{bal.tab()} with multiply imputed data: the within-imputation balance summaries and the across-imputation balance summary. The within-imputation balance summaries display balance for units within each imputed data set seperately. In general, this will not be very useful because interest rarely lies in the qualities of any individual imputed data set.
+There are two main components of the output of \code{bal.tab()} with multiply imputed data: the within-imputation balance summaries and the across-imputation balance summary. The within-imputation balance summaries display balance for units within each imputed data set separately. In general, this will not be very useful because interest rarely lies in the qualities of any individual imputed data set.
 
 The across-imputation balance summary pools information across the within-imputation balance summaries to simplify balance assessment. It provides the average (mean and median) and greatest (maximum) balance statistic for each covariate across all imputations. This allows you to see how bad the worst imbalance is and what balance looks like on average across the imputations.
 }

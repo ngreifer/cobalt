@@ -6,9 +6,9 @@
 \description{
 When using \code{bal.tab()} with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all \code{bal.tab} methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
 
-There are two main componenets of the output of \code{bal.tab()} with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
+There are two main components of the output of \code{bal.tab()} with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
 
-The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imabalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall.
+The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall.
 }
 \arguments{
 There are two additional arguments for each \code{bal.tab()} method that can handle longitudinal treatments: \code{which.time} and \code{msm.summary}.

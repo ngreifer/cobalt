@@ -1,6 +1,6 @@
 \name{var.names}
 \alias{var.names}
-\title{Extract Variable Names from bal.tab Objects}
+\title{Extract Variable Names from \code{bal.tab} Objects}
 \description{
 This function extracts variable names from a \code{bal.tab} object for use in specifying alternate variable names in \code{love.plot}. Optionally, a file can be written for easy editing of names.
 }

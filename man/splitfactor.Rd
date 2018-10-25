@@ -25,7 +25,7 @@ For \code{splitfactor()}, the names of the factor variables to split. If not spe
 Whether to replace the original variable(s) with the new variable(s) (\code{TRUE}) or the append the newly created variable(s) to the end of the data set (\code{FALSE}).
 }
 \item{sep}{
-A character seperating the the stem from the value of the variable for each dummy. For example, for \code{"race_black"}, \code{sep = "_"}.
+A character separating the the stem from the value of the variable for each dummy. For example, for \code{"race_black"}, \code{sep = "_"}.
 }
 \item{drop.level}{
 The name of a level of \code{var.name} for which to drop the dummy variable. Only works if there is only one variable to be split.

@@ -64,7 +64,7 @@ optional;  distance values (e.g., propensity scores) for each unit. These can be
 optional; additional covariates for which to present balance.  These may be covariates included in the original dataset but not included in \code{time.list}.  In general, it makes more sense to include all desired variables in \code{time.list} than in \code{addl.list}. The arguments can be entered the same ways as those to \code{distance.list}.
 }
   \item{method}{
-a character vector containing the method of adjustement, if any. Currently only "weighting" is supported.
+a character vector containing the method of adjustment, if any. Currently only "weighting" is supported.
 }
   \item{continuous}{
 whether mean differences for continuous variables should be standardized ("std") or raw ("raw").  Default "std".  Abbreviations allowed.
@@ -114,13 +114,13 @@ For \code{bal.tab.formula.list}, other arguments to be passed to \code{bal.tab.d
 
 All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}.  The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold.  Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.  When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 
-Multiple sets of weights can be supplied simultaneously by incuding entering a data frame or a character vector containing the names of weight variables found in \code{data} or a list thereof. The arguments to \code{method}, \code{s.d.denom}, and \code{estimand}, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to \code{s.d.denom} or \code{estimand}. When only one set of weights is supplied, the output for the adjusted group will simply be called \code{"Adj"}, but otherwise will be named after each corresponding set of weights. Specifying mutliple sets of weights will also add components to other output of \code{bal.tab()}.
+Multiple sets of weights can be supplied simultaneously by including entering a data frame or a character vector containing the names of weight variables found in \code{data} or a list thereof. The arguments to \code{method}, \code{s.d.denom}, and \code{estimand}, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to \code{s.d.denom} or \code{estimand}. When only one set of weights is supplied, the output for the adjusted group will simply be called \code{"Adj"}, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other output of \code{bal.tab()}.
 
 }
 \value{
 An object of class \code{bal.tab.msm} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details.
 
-Currently, clusters and multiply imputated data are not compatible with longitudinal treatments.
+Currently, clusters and multiply imputed data are not compatible with longitudinal treatments.
 
 See \code{\link[=bal.tab.formula]{bal.tab base methods}} for more detailed information on the value of the \code{bal.tab} objects produced for each time point.
 }
@@ -133,7 +133,7 @@ Noah Greifer
 \seealso{
 \code{\link[=bal.tab.formula]{bal.tab base methods}} for details of calculations.
 
-\code{\link{bal.tab.msm}} for output and relaed options.
+\code{\link{bal.tab.msm}} for output and related options.
 
 }
 \examples{

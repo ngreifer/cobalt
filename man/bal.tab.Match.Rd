@@ -52,7 +52,7 @@ an \code{ebalance} object; the output of a call to \code{ebalance()} or \code{eb
 the output of a call to \code{bmatch()}, \code{nmatch()}, or related wrapper functions from the \pkg{designmatch} package. This should be a list containing the IDs of the matched treated and control units.
 }
   \item{formula}{
-a \code{formula} with the treatment variable as the response and the covariates for which balanace is to be assessed as the predictors. All named variables must be in \code{data}. See Details.
+a \code{formula} with the treatment variable as the response and the covariates for which balance is to be assessed as the predictors. All named variables must be in \code{data}. See Details.
 }
   \item{data}{
 a data frame containing all the variables named in \code{formula}. See Details.
@@ -91,7 +91,7 @@ a numeric value for the threshold for variance ratios. Will automatically conver
 a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
 }
   \item{cluster}{
-either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 

@@ -8,7 +8,7 @@
 \alias{print.bal.tab.msm}
 
 \title{
-Print Results of a Call to bal.tab()
+Print Results of a Call to \code{bal.tab()}
 }
 \description{
 Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
@@ -186,7 +186,7 @@ which cluster(s) to display. If \code{NULL}, all clusters will be displayed. If 
 whether to display the cluster summary table. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
 }
   \item{cluster.fun}{
-a character vector of functions of balance statistics to display when dislaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed.
+a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed.
 }
   \item{which.imp}{
 which imputation(s) to display. If \code{NULL}, all imputations will be displayed. If \code{NA}, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to \code{bal.tab()}, omit this argument, or enter \code{"as.is"}.
@@ -195,7 +195,7 @@ which imputation(s) to display. If \code{NULL}, all imputations will be displaye
 whether to display the imputation summary table. If \code{which.imp} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}.
 }
   \item{imp.fun}{
-a character vector of functions of balance statistics to display when dislaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed.
+a character vector of functions of balance statistics to display when displaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed.
 }
   \item{which.treat}{
 which treatments to display when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
@@ -204,7 +204,7 @@ which treatments to display when multiple categorical treatments are used. See \
 \code{logical}; whether to display the balance summary table across pairwise comparisons when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
 }
   \item{which.time}{
-which time periods to display if longutdinal treatments are used. See \code{\link{bal.tab.msm}} for details.
+which time periods to display if longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
 }
   \item{msm.summary}{
 \code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
@@ -214,15 +214,15 @@ further arguments passed to or from other methods.
 }
 }
 \details{
-Simply calling \code{bal.tab()} will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The \code{print()} function automatically dispatches the correct method for the \code{bal.tab} object given. For balance tables generated from using weighting, matching, or no adjustement, \code{print.bal.tab()} will be used. For balance tables generated from using weighting, matching, or no adjustement with clusters, \code{print.bal.tab.cluster()} will be used. For balance tables generated from using subclassification, \code{print.bal.tab.subclass()} will be used. For balance tables generated from using weighting, matching, or no adjustement with multiply imputed data, \code{print.bal.tab.imp()} will be used. For balance tables generated from using weighting, matching, or no adjustement with clusters and multiply imputed data, \code{print.bal.tab.imp.cluster()} will be used. 
+Simply calling \code{bal.tab()} will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The \code{print()} function automatically dispatches the correct method for the \code{bal.tab} object given. For balance tables generated from using weighting, matching, or no adjustment, \code{print.bal.tab()} will be used. For balance tables generated from using weighting, matching, or no adjustment with clusters, \code{print.bal.tab.cluster()} will be used. For balance tables generated from using subclassification, \code{print.bal.tab.subclass()} will be used. For balance tables generated from using weighting, matching, or no adjustment with multiply imputed data, \code{print.bal.tab.imp()} will be used. For balance tables generated from using weighting, matching, or no adjustment with clusters and multiply imputed data, \code{print.bal.tab.imp.cluster()} will be used. 
 
-For all paramaters except \code{disp.m.threshold}, \code{disp.v.threshold}, \code{disp.ks.threshold}, \code{disp.r.threshold}, and \code{which.cluster}, either omitting the argument or setting it to \code{"as.is"} will use the corresponding print option stored in the \code{bal.tab} object, which results from the original call to \code{bal.tab()}. 
+For all parameters except \code{disp.m.threshold}, \code{disp.v.threshold}, \code{disp.ks.threshold}, \code{disp.r.threshold}, and \code{which.cluster}, either omitting the argument or setting it to \code{"as.is"} will use the corresponding print option stored in the \code{bal.tab} object, which results from the original call to \code{bal.tab()}. 
 
 For \code{disp.m.threshold}, \code{disp.v.threshold}, \code{disp.ks.threshold}, and \code{disp.r.threshold}, setting the argument to \code{FALSE} will display the results as if the corresponding threshold value had been omitted or set to \code{NULL} in the original call to \code{bal.tab()}. If the original threshold was omitted or set to \code{NULL}, a new threshold cannot be set without a new call to \code{bal.tab()}, so \code{TRUE} is not an acceptable option here.
 
 For \code{which.cluster}, to retain the display option of the original call to \code{bal.tab()}, the argument must omitted, as using \code{"as.is"} would cause \code{print()} to attempt to display balance for a cluster called \code{"as.is"}. If such a cluster existed and it was desired, it would otherwise be impossible to display it.
 
-Any paramater used in \code{bal.tab()} for calculations, such as \code{int}, \code{addl}, or \code{distance}, cannot be used with \code{print()}; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to \code{bal.tab()} must be performed.
+Any parameter used in \code{bal.tab()} for calculations, such as \code{int}, \code{addl}, or \code{distance}, cannot be used with \code{print()}; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to \code{bal.tab()} must be performed.
 }
 \note{
 If \code{quick = TRUE} in the original call to \code{bal.tab()}, some values may not be calculated, in which case using \code{print()} will not display these values even when requested. For example, if \code{disp.means = FALSE} and \code{quick = TRUE} in the original call to \code{bal.tab()}, setting \code{disp.means = TRUE} in \code{print()} will not print the covariate means because they were not calculated.

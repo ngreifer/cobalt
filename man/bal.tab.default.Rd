@@ -15,7 +15,7 @@ Generates balance statistics using an object for which there is not a defined me
 An object containing information about conditioning. See Details.
 }
   \item{...}{
-Arguments that would be pased to \code{\link{bal.tab.formula}}, \code{\link{bal.tab.data.frame}}, or \code{\link{bal.tab.time.list}}. See Details.
+Arguments that would be passed to \code{\link{bal.tab.formula}}, \code{\link{bal.tab.data.frame}}, or \code{\link{bal.tab.time.list}}. See Details.
 }
 }
 \details{
@@ -35,7 +35,7 @@ The function will search \code{obj} for the following named items and attempt to
 }
 \item{\code{formula.list}}{A list of \code{formula}s with, for each time point, the treatment variable as the response and the covariates for which balance is to be assessed as the terms. Essentially the same input to \code{formula.list} in \code{\link{bal.tab.time.list}}.
 }
-\item{\code{data}}{A \code{data.frame} containing variables with the names used in other arguments and componenets (e.g., \code{formula}, \code{weights}, etc.). Essentially the same input to \code{data} in \code{\link{bal.tab.formula}}, \code{\link{bal.tab.data.frame}}, or \code{\link{bal.tab.time.list}}.
+\item{\code{data}}{A \code{data.frame} containing variables with the names used in other arguments and components (e.g., \code{formula}, \code{weights}, etc.). Essentially the same input to \code{data} in \code{\link{bal.tab.formula}}, \code{\link{bal.tab.data.frame}}, or \code{\link{bal.tab.time.list}}.
 }
 \item{\code{weights}}{A vector, list, or \code{data.frame} containing weights for each unit or a string containing the names of the weights variables in \code{data}. Essentially the same input to \code{weights} in \code{\link{bal.tab.data.frame}} or \code{\link{bal.tab.time.list}}.
 }
@@ -58,7 +58,7 @@ The function will search \code{obj} for the following named items and attempt to
 }
 Any of these items can also be supplied directly to \code{bal.tab.default}, e.g., \code{bal.tab.default( obj, formula = treat ~ x1 + x2)}. If supplied, it will override the object with the same role in \code{obj}. In addition, any arguments to \code{bal.tab.formula}, \code{bal.tab.data.frame}, and \code{bal.tab.time.list} are allowed and perform the same function.
 
-At least some inputs containing information to create the treatment and covariates are required (e.g., \code{formula} and \code{data} or \code{covs} and \code{treat}). All other arguments are optional and have the same defaults as those in \code{\link{bal.tab.data.frame}} or \code{\link{bal.tab.time.list}}. If \code{treat.list}, \code{covs.list}, or \code{formula.list} are supplied in \code{obj} or as an argument to \code{bal.tab.default}, the function will proceed considering a longtudinal treatment. Otherwise, it will proceed considering a point treatment.
+At least some inputs containing information to create the treatment and covariates are required (e.g., \code{formula} and \code{data} or \code{covs} and \code{treat}). All other arguments are optional and have the same defaults as those in \code{\link{bal.tab.data.frame}} or \code{\link{bal.tab.time.list}}. If \code{treat.list}, \code{covs.list}, or \code{formula.list} are supplied in \code{obj} or as an argument to \code{bal.tab.default}, the function will proceed considering a longitudinal treatment. Otherwise, it will proceed considering a point treatment.
 
 \code{bal.tab.default}, like other \code{bal.tab} methods, is just a shortcut to supply arguments to \code{bal.tab.data.frame} or \code{bal.tab.time.list}. Therefore, any matters regarding argument priority or function are described in the documentation for these methods.
 
@@ -76,7 +76,7 @@ If treatment is continuous, then means, mean differences, and variance ratios ar
 
 If multiple categorical treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
-If longitudinal treatments are used, an object of class \code{bal.tab.msm} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details. Currently, clusters and multiply imputated data are not compatible with longitudinal treatments.
+If longitudinal treatments are used, an object of class \code{bal.tab.msm} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details. Currently, clusters and multiply imputed data are not compatible with longitudinal treatments.
 }
 
 

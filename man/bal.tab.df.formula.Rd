@@ -66,7 +66,7 @@ Optional; either a vector containing subclass membership for each unit or a stri
 Optional; either a vector containing matching stratum membership for each unit or a string containing the name of the matching stratum variable in \code{data}. If \code{weights=NULL}, \code{subclass=NULL} and \code{match.strata=NULL}, balance information will be presented only for the unadjusted sample.
 }
   \item{method}{
-A character vector containing the method of adjustement, if any.  If \code{weights} are specified, the user must specify either "matching" or "weighting"; "weighting" is the default. If multiple sets of weights are used, each must have a corresponding value for \code{method}, but if they are all of the same type, only one value is required. If \code{subclass} is specified, "subclassification" is the default.  Abbreviations allowed.
+A character vector containing the method of adjustment, if any.  If \code{weights} are specified, the user must specify either "matching" or "weighting"; "weighting" is the default. If multiple sets of weights are used, each must have a corresponding value for \code{method}, but if they are all of the same type, only one value is required. If \code{subclass} is specified, "subclassification" is the default.  Abbreviations allowed.
 }
   \item{int}{
 \code{logical} or \code{numeric}; whether or not to include powers and 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric} and equal to \code{1} or \code{2}, squares of each covariate will be displayed; greater numbers will display corresponding powers up to the provided input (e.g., \code{3} will display squares and cubes of each covariate). 
@@ -96,7 +96,7 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 A numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
   \item{cluster}{
-either a vector containing cluster membserhip for each unit or a string containing the name of the cluster membership variable in data or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in data or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{imp}{
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link{bal.tab.imp}} for details.
@@ -129,7 +129,7 @@ For \code{bal.tab.formula}, other arguments to be passed to \code{bal.tab.data.f
 \details{
 \code{bal.tab.data.frame()} generates a list of balance summaries for the covariates and treatment status values given. \code{bal.tab.formula()} does the same but uses a formula interface instead.  When the formula interface is used, the formula and data are reshaped into a treatment vector and \code{data.frame} of covariates and then simply passed through the \code{data.frame} method.  
 
-The argument to \code{match.strata} corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of \code{weights}, \code{subclass}, or \code{match.strata} are specified, \code{bal.tab()} will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, bal.tab creates balance statistics for each subclass and for the sample in aggregate. See \code{\link{bal.tab.subclass}} for more information.
+The argument to \code{match.strata} corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of \code{weights}, \code{subclass}, or \code{match.strata} are specified, \code{bal.tab()} will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate. See \code{\link{bal.tab.subclass}} for more information.
 
 All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}.  The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and, for continuous treatments, \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold.  Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.  When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 

@@ -29,7 +29,7 @@ bal.plot(obj,
 the object for which balance is to be assessed; can be any object for which there is support in \code{bal.tab}.
 }
   \item{var.name}{
-\code{character}; the name of the variable whose values are to be plotted. To view distrbutions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate \code{data.frame} from \code{obj}, followed by \code{addl}, and then \code{distance}, if any. If not specified, will use the first covariate available with a warning.
+\code{character}; the name of the variable whose values are to be plotted. To view distributions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate \code{data.frame} from \code{obj}, followed by \code{addl}, and then \code{distance}, if any. If not specified, will use the first covariate available with a warning.
 }
   \item{\dots}{
 other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments. Can also be used to supply the \code{bw}, \code{adjust}, \code{kernel}, and \code{n} arguments for \code{\link[ggplot2]{geom_density}} and the \code{bins} argument for \code{\link[ggplot2]{geom_histogram}}.
@@ -72,7 +72,7 @@ a vector of colors for the plotted densities/histograms. See 'Color Specificatio
 }
 }
 \section{Additional Arguments}{
-\code{bal.plot()} works like \code{bal.tab()} in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional paramaters are required in \code{\dots}. For details on what is required and allowed for each additional input and their defaults, see the help file for the \code{\link{bal.tab}} method associated with the input. The following are the required additional arguments based on each input type (optional arguments in parentheses):
+\code{bal.plot()} works like \code{bal.tab()} in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional parameters are required in \code{\dots}. For details on what is required and allowed for each additional input and their defaults, see the help file for the \code{\link{bal.tab}} method associated with the input. The following are the required additional arguments based on each input type (optional arguments in parentheses):
 
 For \code{matchit} objects: None
 
@@ -105,7 +105,7 @@ For continuous treatments with continuous covariates, three additional lines are
 When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or \code{which = "both"}, or when treatment is longitudinal), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{facet_grid()}. Subclassification cannot be used with clusters or multiply imputed data.
 }
 \value{
-A \code{"ggplot"} object, returned invisbly.
+A \code{"ggplot"} object, returned invisibly.
 }
 
 \author{

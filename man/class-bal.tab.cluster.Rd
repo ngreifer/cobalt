@@ -7,7 +7,7 @@
 \description{
 When using \code{bal.tab()} with clustered data, the output will be different from the case with single-level data, and there are some options that are common across all \code{bal.tab} methods. This page outlines the outputs and options in this case.
 
-There are two main componenets of the output of \code{bal.tab()} with clustered data: the within-cluster balance summaries and the across-cluster balance summary. The within-cluster balance summaries display balance for units within each cluster seperately.
+There are two main components of the output of \code{bal.tab()} with clustered data: the within-cluster balance summaries and the across-cluster balance summary. The within-cluster balance summaries display balance for units within each cluster separately.
 
 The across-cluster balance summary pools information across the within-cluster balance summaries to simplify balance assessment. It provides a combination (e.g., mean or maximum) of each balance statistic for each covariate across all clusters. This allows you to see how bad the worst imbalance is and what balance looks like on average.
 }
@@ -29,5 +29,5 @@ The output is a \code{bal.tab.cluster} object, which inherits from \code{bal.tab
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.
 }
 \seealso{
-\link{bal.tab}, \link{bal.tab.data.frame}, \link{print.bal.tab.cluster}
+\code{\link{bal.tab}}, \code{\link{bal.tab.data.frame}}, \code{\link{print.bal.tab.cluster}}
 }
