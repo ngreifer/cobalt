@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+Version 3.5.1
+
+* Fixed a bug where using `subset` would produce an error.
+
 Version 3.5.0
 
 * Several changes to `bal.tab()` display options (i.e., `imbalanced.only`, `un`, `disp.means`, `disp.v.ratio`, `disp.ks`, `disp.bal.tab`, `disp.subclass`, and parameters related to the display of balance tables with multinomial treatments, clusters, multiple imputations, and longitudinal treatments). First, the named arguments have been removed from the method-specific functions in order to clean them up and make it easier to add new functions, but they are still available to be specified. Second, a help page devoted just to these functions has been created, which can be accessed with `?options-display`. Third, global options for these arguments can be set with `options()` so they don't need to be typed each time. For example, if you wanted `un = TRUE` all the time, you could set `options(cobalt_un = TRUE)` once and not have to include it in the call to `bal.tab()`.
