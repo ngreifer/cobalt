@@ -329,7 +329,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ..
 get.X.class <- function(X) {
     if (is_not_null(X[["imp"]])) {
         if (is_not_null(X[["treat.list"]])) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
-        else if (is_(X[["treat"]], c("factor", "character"))) stop("Multiply imputed data is not yet supported with multinomial treatments.", call. = FALSE)
+        else if (is_(X[["treat"]], c("factor", "character")) && !is_binary(X[["treat"]])) stop("Multiply imputed data is not yet supported with multinomial treatments.", call. = FALSE)
         else X.class <- "imp"
     }
     else if (is_not_null(X[["treat.list"]])) X.class <- "msm"
