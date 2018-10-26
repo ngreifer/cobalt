@@ -128,16 +128,16 @@ x2base.matchit <- function(m, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$treat <- treat[subset]
-    X$weights <- weights[subset, , drop = FALSE]
-    X$discarded <- m$discarded[subset]
-    X$covs <- covs[subset, , drop = FALSE]
-    X$distance <- distance[subset, , drop = FALSE]
-    X$addl <- addl[subset, , drop = FALSE]
-    X$cluster <- factor(cluster[subset])
+    X$treat <- treat
+    X$weights <- weights
+    X$discarded <- m$discarded
+    X$covs <- covs
+    X$distance <- distance
+    X$addl <- addl
+    X$cluster <- factor(cluster)
     X$call <- m$call
     X$s.d.denom <- s.d.denom
-    X$subclass <- factor(subclass[subset])
+    X$subclass <- factor(subclass)
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -295,15 +295,15 @@ x2base.ps <- function(ps, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat <- treat[subset]
-    X$distance <- distance[subset, , drop = FALSE]
-    X$addl <- addl[subset, , drop = FALSE]
-    X$covs <- covs[subset, , drop = FALSE]
+    X$weights <- weights
+    X$treat <- treat
+    X$distance <- distance
+    X$addl <- addl
+    X$covs <- covs
     X$call <- ps$parameters
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- s.weights[subset]
+    X$s.weights <- s.weights
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -453,15 +453,15 @@ x2base.mnps <- function(mnps, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat <- treat[subset]
-    X$distance <- distance[subset, , drop = FALSE]
-    X$addl <- addl[subset, , drop = FALSE]
-    X$covs <- covs[subset, , drop = FALSE]
+    X$weights <- weights
+    X$treat <- treat
+    X$distance <- distance
+    X$addl <- addl
+    X$covs <- covs
     X$call <- NULL
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- mnps$sampw[subset]
+    X$s.weights <- mnps$sampw
     X$focal <- mnps$treatATT
     X$method <- rep("weighting", ncol(weights))
     
@@ -594,15 +594,15 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat <- treat[subset]
-    X$distance <- distance[subset, , drop = FALSE]
-    X$addl <- addl[subset, , drop = FALSE]
-    X$covs <- covs[subset, , drop = FALSE]
+    X$weights <- weights
+    X$treat <- treat
+    X$distance <- distance
+    X$addl <- addl
+    X$covs <- covs
     X$call <- ps.cont$parameters
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- s.weights[subset]
+    X$s.weights <- s.weights
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -743,15 +743,15 @@ x2base.Match <- function(Match, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$treat <- treat[subset]
-    X$weights <- weights[subset, , drop = FALSE]
-    X$discarded <- dropped[subset]
+    X$treat <- treat
+    X$weights <- weights
+    X$discarded <- dropped
     X$distance <- NULL #NAs in distance bcause of incomplete list in Match object
-    X$addl <- addl[subset, , drop = FALSE]
-    X$covs <- covs[subset, , drop = FALSE]
+    X$addl <- addl
+    X$covs <- covs
     X$call <- NULL
     X$method <- "matching"
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster)
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -1297,16 +1297,16 @@ x2base.data.frame <- function(covs, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$covs <- covs[subset, , drop = FALSE]
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat <- treat[subset]
-    X$distance <- distance[subset, , drop = FALSE]
-    X$subclass <- subclass[subset]
-    X$cluster <- factor(cluster[subset])
+    X$covs <- covs
+    X$weights <- weights
+    X$treat <- treat
+    X$distance <- distance
+    X$subclass <- subclass
+    X$cluster <- factor(cluster)
     X$call <- NULL
-    X$addl <- addl[subset, , drop = FALSE]
-    X$imp <- factor(imp[subset])
-    X$s.weights <- s.weights[subset]
+    X$addl <- addl
+    X$imp <- factor(imp)
+    X$s.weights <- s.weights
     X$focal <- focal
     
     X <- subset_X(X, subset)
@@ -1472,14 +1472,14 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$distance <- distance[subset, , drop = FALSE]
-    X$addl <- addl[subset, , drop = FALSE]
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat <- treat[subset]
-    X$covs <- covs[subset, , drop = FALSE]
-    X$cluster <- factor(cluster[subset])
+    X$distance <- distance
+    X$addl <- addl
+    X$weights <- weights
+    X$treat <- treat
+    X$covs <- covs
+    X$cluster <- factor(cluster)
     X$call <- cbps.fit$call
-    X$s.weights <- s.weights[subset]
+    X$s.weights <- s.weights
     X$method <- "weighting"
     
     X <- subset_X(X, subset)
@@ -1592,14 +1592,14 @@ x2base.ebalance <- function(ebalance, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$treat <- treat[subset]
-    X$weights <- weights[subset, , drop = FALSE]
-    X$covs <- covs[subset, , drop = FALSE]
-    X$distance <- distance[subset, , drop = FALSE]
-    X$addl <- addl[subset, , drop = FALSE]
+    X$treat <- treat
+    X$weights <- weights
+    X$covs <- covs
+    X$distance <- distance
+    X$addl <- addl
     X$call <- NULL
     X$method <- "weighting"
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster)
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -1718,14 +1718,14 @@ x2base.optmatch <- function(optmatch, ...) {
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     subset <- subset[d.reordered]
     
-    X$treat <- treat[d.reordered][subset]
-    X$distance <- distance[d.reordered, , drop = FALSE][subset, , drop = FALSE]
-    X$covs <- covs[d.reordered, , drop = FALSE][subset, , drop = FALSE]
-    X$weights <- weights[subset, , drop = FALSE]
-    X$addl <- addl[d.reordered, , drop = FALSE][subset, , drop = FALSE]
+    X$treat <- treat[d.reordered]
+    X$distance <- distance[d.reordered, , drop = FALSE]
+    X$covs <- covs[d.reordered, , drop = FALSE]
+    X$weights <- weights
+    X$addl <- addl[d.reordered, , drop = FALSE]
     X$call <- attr(optmatch, "call")
     X$method <- "matching"
-    X$cluster <- factor(cluster[d.reordered][subset])
+    X$cluster <- factor(cluster[d.reordered])
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -1932,16 +1932,16 @@ x2base.weightit <- function(weightit, ...) {
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
     
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat <- treat[subset]
-    X$distance <- distance[subset, , drop = FALSE]
-    X$addl <- addl[subset, , drop = FALSE]
-    X$covs <- covs[subset, , drop = FALSE]
-    X$cluster <- factor(cluster[subset])
+    X$weights <- weights
+    X$treat <- treat
+    X$distance <- distance
+    X$addl <- addl
+    X$covs <- covs
+    X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
-    X$imp <- factor(imp[subset])
-    X$s.weights <- weightit$s.weights[subset]
-    X$discarded <- weightit$discarded[subset]
+    X$imp <- factor(imp)
+    X$s.weights <- weightit$s.weights
+    X$discarded <- weightit$discarded
     X$focal <- weightit$focal
     X$call <- weightit$call
     
@@ -2263,15 +2263,15 @@ x2base.iptw <- function(iptw, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat.list <- lapply(treat.list, function(x) x[subset])
-    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
-    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
-    X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
+    X$weights <- weights
+    X$treat.list <- lapply(treat.list, function(x) x)
+    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x) else NULL
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x) else NULL
+    X$covs.list <- lapply(covs.list, function(x) x)
     X$call <- NULL
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- s.weights[subset]
+    X$s.weights <- s.weights
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -2537,15 +2537,15 @@ x2base.data.frame.list <- function(covs.list, ...) {
     if (is_null(s.weights)) s.weights <- rep(1, length(treat.list[[1]]))
     if (is_null(subset)) subset <- rep(TRUE, length(treat.list[[1]]))
     
-    X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat.list <- lapply(treat.list, function(x) x[subset])
-    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
-    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
-    X$cluster <- factor(cluster[subset])
+    X$covs.list <- lapply(covs.list, function(x) x)
+    X$weights <- weights
+    X$treat.list <- lapply(treat.list, function(x) x)
+    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x) else NULL
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x) else NULL
+    X$cluster <- factor(cluster)
     X$call <- NULL
-    X$imp <- factor(imp[subset])
-    X$s.weights <- s.weights[subset]
+    X$imp <- factor(imp)
+    X$s.weights <- s.weights
    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -2699,13 +2699,13 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat.list <- lapply(treat.list, function(x) x[subset])
-    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
-    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
-    X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
+    X$weights <- weights
+    X$treat.list <- lapply(treat.list, function(x) x)
+    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x) else NULL
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x) else NULL
+    X$covs.list <- lapply(covs.list, function(x) x)
     X$call <- cbmsm$call
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- NULL
     X$s.d.denom <- "pooled"
@@ -2868,15 +2868,15 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     
-    X$weights <- weights[subset, , drop = FALSE]
-    X$treat.list <- lapply(treat.list, function(x) x[subset])
-    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
-    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
-    X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
+    X$weights <- weights
+    X$treat.list <- lapply(treat.list, function(x) x)
+    X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x) else NULL
+    X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x) else NULL
+    X$covs.list <- lapply(covs.list, function(x) x)
     X$call <- NULL
-    X$cluster <- factor(cluster[subset])
+    X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
-    X$s.weights <- s.weights[subset]
+    X$s.weights <- s.weights
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -3572,16 +3572,16 @@ x2base.default <- function(obj, ...) {
         
         if (is_null(subset)) subset <- rep(TRUE, length(treat))
         
-        X$covs <- covs[subset, , drop = FALSE]
-        X$weights <- weights[subset, , drop = FALSE]
-        X$treat <- treat[subset]
-        X$distance <- distance[subset, , drop = FALSE]
-        X$subclass <- subclass[subset]
-        X$cluster <- factor(cluster[subset])
+        X$covs <- covs
+        X$weights <- weights
+        X$treat <- treat
+        X$distance <- distance
+        X$subclass <- subclass
+        X$cluster <- factor(cluster)
         X$call <- call
-        X$addl <- addl[subset, , drop = FALSE]
-        X$imp <- factor(imp[subset])
-        X$s.weights <- s.weights[subset]
+        X$addl <- addl
+        X$imp <- factor(imp)
+        X$s.weights <- s.weights
         X$focal <- focal
         
     }
@@ -3832,15 +3832,15 @@ x2base.default <- function(obj, ...) {
         if (is_null(s.weights)) s.weights <- rep(1, length(treat.list[[1]]))
         if (is_null(subset)) subset <- rep(TRUE, length(treat.list[[1]]))
         
-        X$covs.list <- lapply(covs.list, function(x) x[subset, , drop = FALSE])
-        X$weights <- weights[subset, , drop = FALSE]
-        X$treat.list <- lapply(treat.list, function(x) x[subset])
-        X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x[subset, , drop = FALSE]) else NULL
-        X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x[subset, , drop = FALSE]) else NULL
-        X$cluster <- factor(cluster[subset])
+        X$covs.list <- lapply(covs.list, function(x) x)
+        X$weights <- weights
+        X$treat.list <- lapply(treat.list, function(x) x)
+        X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x) else NULL
+        X$addl.list <- if (is_not_null(addl.list)) lapply(addl.list, function(x) x) else NULL
+        X$cluster <- factor(cluster)
         X$call <- call
-        X$imp <- factor(imp[subset])
-        X$s.weights <- s.weights[subset]
+        X$imp <- factor(imp)
+        X$s.weights <- s.weights
     }
     
     X <- subset_X(X, subset)
