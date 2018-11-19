@@ -5,7 +5,28 @@
 Generates Balance Statistics
 }
 \description{
-Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument. This page links to each method page and documents the calculation and details of aspects all \code{bal.tab} methods use. See the section 'See Also' at the bottom for links to the documentation pages for the use of \code{bal.tab} with various pre-processing packages such as \pkg{MatchIt}, \pkg{twang}, \pkg{Matching}, and \pkg{WeightIt}.
+Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument. This page links to each method page and documents the calculation and details of aspects all \code{bal.tab} methods use. For information on the use of \code{bal.tab} with specific types of objects, use the following links:
+
+ - \code{\link{bal.tab.matchit}} for the method for objects returned by \pkg{MatchIt}.
+
+ - \code{\link{bal.tab.weightit}} for the method for \code{weightit} and \code{weightitMSM} objects returned by \pkg{WeightIt}.
+
+ - \code{\link{bal.tab.ps}} for the method for \code{ps}, \code{mnps}, and \code{iptw} objects returned by \pkg{twang} and for \code{ps.cont} objects returned by \pkg{WeightIt}.
+
+ - \code{\link{bal.tab.Match}} for the method for objects returned by \pkg{Matching}.
+
+ - \code{\link{bal.tab.optmatch}} for the method for objects returned by \pkg{optmatch}.
+
+ - \code{\link{bal.tab.CBPS}} for the method for objects returned by \pkg{CBPS}.
+
+ - \code{\link{bal.tab.ebalance}} for the method for objects returned by \pkg{ebal}.
+
+ - \code{\link{bal.tab.designmatch}} for the method for objects returned by \pkg{designmatch}.
+
+ - \code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \code{\link{bal.tab.time.list}}.
+ 
+ - \code{\link{bal.tab.default}} for the method for objects that do not come from one of the explicitly supported conditioning packages.
+
 }
 \usage{
 bal.tab(\dots)
@@ -68,13 +89,17 @@ For scenarios with binary point treatments and no subclasses, imputations, or cl
 \item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
 \itemize{
 \item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
-\item{\code{M.C.Un}: The mean of the control group prior to adjusting.}
-\item{\code{M.T.Un}: The mean of the treated group prior to adjusting.}
+\item{\code{M.0.Un}: The mean of the control group prior to adjusting.}
+\item{\code{SD.0.Un}: The standard deviation of the control group prior to adjusting.}
+\item{\code{M.1.Un}: The mean of the treated group prior to adjusting.}
+\item{\code{SD.1.Un}: The standard deviation of the treated group prior to adjusting.}
 \item{\code{Diff.Un}: The (standardized) difference in means between the two groups prior to adjusting.}
 \item{\code{V.Ratio.Un}: The ratio of the variances of the two groups prior to adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
 \item{\code{KS.Un}: The KS statistic of the two groups prior to adjusting.  \code{NA} for binary variables.}
-\item{\code{M.C.Adj}: The mean of the control group after adjusting.}
-\item{\code{M.T.Adj}: The mean of the treated group after adjusting.}
+\item{\code{M.0.Adj}: The mean of the control group after adjusting.}
+\item{\code{SD.0.Adj}: The standard deviation of the control group after adjusting.}
+\item{\code{M.1.Adj}: The mean of the treated group after adjusting.}
+\item{\code{SD.1.Adj}: The standard deviation of the treated group after adjusting.}
 \item{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting.}
 \item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{m.threshold}.  If \code{m.threshold} is \code{NULL}, this column will be \code{NA}.}
 \item{\code{V.Ratio.Adj}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
@@ -106,28 +131,4 @@ Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look
 }
 \author{
 Noah Greifer 
-}
-
-\seealso{
-
-\code{\link{bal.tab.matchit}} for the method for objects returned by \pkg{MatchIt}.
-
-\code{\link{bal.tab.weightit}} for the method for \code{weightit} and \code{weightitMSM} objects returned by \pkg{WeightIt}.
-
-\code{\link{bal.tab.ps}} for the method for \code{ps}, \code{mnps}, and \code{iptw} objects returned by \pkg{twang} and for \code{ps.cont} objects returned by \pkg{WeightIt}.
-
-\code{\link{bal.tab.Match}} for the method for objects returned by \pkg{Matching}.
-
-\code{\link{bal.tab.optmatch}} for the method for objects returned by \pkg{optmatch}.
-
-\code{\link{bal.tab.CBPS}} for the method for objects returned by \pkg{CBPS}.
-
-\code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \code{\link{bal.tab.time.list}}.
-
-\code{\link{bal.tab.ebalance}} for the method for objects returned by \pkg{ebal}.
-
-\code{\link{bal.tab.designmatch}} for the method for objects returned by \pkg{designmatch}.
-
-\code{\link{bal.tab.default}} for the method for objects that do not come from one of the explicitly supported conditioning packages.
-
 }
