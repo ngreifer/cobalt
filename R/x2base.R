@@ -218,7 +218,8 @@ x2base.ps <- function(ps, ...) {
     s.weights <- ps$sampw
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -384,7 +385,8 @@ x2base.mnps <- function(mnps, ...) {
     s.weights <- mnps$sampw
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     mnps.data <- mnps$data
     
@@ -534,7 +536,8 @@ x2base.ps.cont <- function(ps.cont, ...) {
     s.weights <- ps.cont$sampw
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -823,9 +826,6 @@ x2base.data.frame <- function(covs, ...) {
     subset <- A$subset
     focal <- A$focal
     
-    if (is_not_null(weights) && any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
-    
     #Checks
     if (is_null(covs)) {
         stop("covs data.frame must be specified.", call. = FALSE)
@@ -1043,6 +1043,7 @@ x2base.data.frame <- function(covs, ...) {
             }
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }
+        if (any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     }
     
     #Process cluster
@@ -1154,9 +1155,10 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     if (is_not_null(weights)) {
-        if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) {
-            stop("All weights must be numeric.", call. = FALSE)
-        }
+        if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
+        if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+        
         if (length(X$method) == 1) {
             X$method <- rep(X$method, ncol(weights))
         }
@@ -1347,7 +1349,8 @@ x2base.CBPS <- function(cbps.fit, ...) {
     cluster <- A$cluster
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process sampling weights
     if (is_not_null(s.weights)) {
@@ -1525,7 +1528,8 @@ x2base.ebalance <- function(ebalance, ...) {
     weights <- data.frame(weights = get.w(ebalance, treat))
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+
     s <- "ATT"
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
         X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
@@ -1766,7 +1770,8 @@ x2base.weightit <- function(weightit, ...) {
     subset <- A$subset
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     d.e.in.w <- vapply(c("data", "exact"), function(x) is_not_null(weightit[[x]]), logical(1L))
     if (any(d.e.in.w)) weightit.data <- do.call("data.frame", weightit[[c("data", "exact")[d.e.in.w]]])
@@ -2160,7 +2165,8 @@ x2base.iptw <- function(iptw, ...) {
     ntimes <- iptw$nFits
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Order covs.list
     all.covs <- unique(unlist(lapply(covs.list, names)))
@@ -2460,6 +2466,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
             }
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }
+        if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+        
     }
     
     #Process cluster
@@ -2515,9 +2523,10 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     if (is_not_null(weights)) {
-        if (any(vapply(weights, function(x) any(!is.finite(x)), logical(1L)))) {
-            stop("All weights must be numeric.", call. = FALSE)
-        }
+        if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (any(vapply(weights, function(x) any(!is.finite(x)), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
+        if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+        
         if (length(X$method) == 1) {
             X$method <- rep(X$method, ncol(weights))
         }
@@ -2598,7 +2607,8 @@ x2base.CBMSM <- function(cbmsm, ...) {
     ntimes <- length(times)
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+
     covs.list <- vector("list", ntimes)
     for (ti in times) {
         if (ti == 1) {
@@ -2750,7 +2760,8 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     ntimes <- length(treat.list)
     
     if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     weightitMSM.data <- weightitMSM$data
     
