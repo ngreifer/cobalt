@@ -341,9 +341,9 @@ get.X.class <- function(X) {
     return(X.class)
 }
 probably.a.bug <- function() {
-    fun <- deparse(sys.call(-1))
-    stop(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function ",
-                fun, "."), call. = FALSE)
+    fun <- paste(deparse(sys.call(-1)), collapse = "\n")
+    stop(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function\n",
+                fun), call. = FALSE)
 }
 subset_X <- function(X, subset) {
     n <- length(subset)
@@ -381,7 +381,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.
     else d <- mat
     binary.vars <- apply(d, 2, is_binary)
     if (center) {
-        d[,!binary.vars] <- scale(d[, !binary.vars, drop = FALSE], center = TRUE, scale = FALSE)
+        d[,!binary.vars] <- center(d[, !binary.vars, drop = FALSE])
     }
     nd <- NCOL(d)
     nrd <- NROW(d)
@@ -421,14 +421,13 @@ binarize <- function(variable) {
     newvar[nas] <- NA_real_
     return(newvar)
 }
-get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NULL, ...) {
+get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, cluster = NULL, ...) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
     A <- list(...)
     if (is_null(A[["int_sep"]])) A[["int_sep"]] <- getOption("cobalt_int_sep", default = " * ")
     if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- getOption("cobalt_factor_sep", default = "_")
-    if (is_null(A[["center"]]) || A[["center"]] %nin% c(TRUE, FALSE)) A[["center"]] <- FALSE
-    if (is_not_null(A[["poly"]])) poly <- A[["poly"]] else poly <- int
-    
+    if (is_null(A[["center"]]) || A[["center"]] %nin% c(TRUE, FALSE)) getOption("cobalt_center", default = FALSE)
+
     C <- covs
     if (!is.null(addl)) {
         if (!is.data.frame(addl)) {
@@ -502,14 +501,22 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
     C <- C[!vapply(C, all_the_same, logical(1L))]
     C <- as.matrix(C)
     
-    #Process int
+    #Process int and poly
     if (length(int) != 1L || !is.finite(int) || !(is.logical(int) || is.numeric(int))) {
         stop("int must be TRUE, FALSE, or a numeric value of length 1.", call. = FALSE)
     }
-    int <- as.integer(round(int))
-    if (int < 0) {
+    if (int < 0 || !check_if_zero(abs(int - round(int)))) {
         stop("int must be TRUE, FALSE, or a numeric (integer) value greater than 1.", call. = FALSE)
     }
+    int <- as.integer(round(int))
+    
+    if (length(poly) != 1L || !is.finite(poly) || !is.numeric(poly)) {
+        stop("poly must be a numeric value of length 1.", call. = FALSE)
+    }
+    if (poly < 0 || !check_if_zero(abs(poly - round(poly)))) {
+        stop("poly must be a numeric (integer) value greater than 1.", call. = FALSE)
+    }
+    poly <- as.integer(round(poly))
     
     if (int || poly) {
         if (int) { 
@@ -521,13 +528,11 @@ get.C <- function(covs, int = FALSE, addl = NULL, distance = NULL, cluster = NUL
                 else nsep <- nsep + 1
             }
             
-            if (as.numeric(int) %in% c(1, 2)) {
-                if (!poly) poly <- 2
-            }
-            else poly <- int
-            
+            if (poly < int) poly <- int
+
             int <- TRUE
         }
+
         new <- int.poly.f(C, int = int, poly = poly, center = A[["center"]], sep = rep(A[["int_sep"]], nsep), co.names = co.names)
         C <- cbind(C, new)
         co.names <- c(co.names, attr(new, "co.names"))

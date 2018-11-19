@@ -17,6 +17,7 @@ Generates balance statistics for output objects from \pkg{Matching}, \pkg{optmat
     treat = NULL, 
     covs = NULL, 
     int = FALSE, 
+    poly = 1, 
     distance = NULL, 
     addl = NULL, 
     continuous = getOption("cobalt_cont", "std"), 
@@ -64,7 +65,10 @@ a vector of treatment statuses. See Details.
 a data frame of covariate values for which to check balance. See Details.
 }
   \item{int}{
-\code{logical} or \code{numeric}; whether or not to include powers and 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric} and equal to \code{1} or \code{2}, squares of each covariate will be displayed; greater numbers will display corresponding powers up to the provided input (e.g., \code{3} will display squares and cubes of each covariate). 
+\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
+}
+  \item{poly}{
+\code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in additon to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
 }
   \item{distance}{
 optional; either a vector or data.frame containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
