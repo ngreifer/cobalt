@@ -84,6 +84,18 @@ check_if_zero <- function(x) {
     # -3.20469e-16 or some such.
     abs(x - 0) < tolerance
 }
+center <- function(x, na.rm = TRUE, at = NULL) {
+    if (!is.numeric(x)) warning("x is not numeric and will not be centered.")
+    else {
+        if (is.matrix(x)) x <- apply(x, 2, center, na.rm = na.rm, at = at)
+        else {
+            if (is_null(at)) at <- mean(x, na.rm = na.rm)
+            else if (!is.numeric(at)) stop("at must be numeric.")
+            x <- x - at
+        }
+    }
+    return(x)
+}
 is_null <- function(x) length(x) == 0L
 is_not_null <- function(x) !is_null(x)
 `%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
