@@ -1,12 +1,13 @@
-get.w <- function(...) UseMethod("get.w")
-get.w.matchit <- function(m,...) {
-    return(m$weights)
+get.w <- function(x, ...) UseMethod("get.w")
+get.w.matchit <- function(x,...) {
+    return(x$weights)
 }
-get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE, ...) {
+get.w.ps <- function(x, stop.method = NULL, estimand = NULL, s.weights = FALSE, ...) {
+    ps <- x
     estimand <- tolower(estimand)
     if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
-            rule1 <- names(ps$w)[vapply(names(ps$w), function(x) any(startsWith(tolower(x), tolower(stop.method))), logical(1L))]
+            rule1 <- names(ps$w)[vapply(names(ps$w), function(n) any(startsWith(tolower(n), tolower(stop.method))), logical(1L))]
             if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps$w)
@@ -55,10 +56,11 @@ get.w.ps <- function(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE,
     
     return(w)
 }
-get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
+get.w.mnps <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
+    mnps <- x
     if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
-            rule1 <- mnps$stopMethods[sapply(t(sapply(tolower(stop.method), function(x) startsWith(tolower(mnps$stopMethods), x))), any)]
+            rule1 <- mnps$stopMethods[sapply(t(sapply(tolower(stop.method), function(s) startsWith(tolower(mnps$stopMethods), s))), any)]
             if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- mnps$stopMethods
@@ -117,10 +119,11 @@ get.w.mnps <- function(mnps, stop.method = NULL, s.weights = FALSE, ...) {
     
     return(w)
 }
-get.w.ps.cont <- function(ps.cont, stop.method = NULL, s.weights = FALSE, ...) {
+get.w.ps.cont <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
+    ps.cont <- x
     if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
-            rule1 <- names(ps.cont$w)[vapply(names(ps.cont$w), function(x) any(startsWith(tolower(x), tolower(stop.method))), logical(1L))]
+            rule1 <- names(ps.cont$w)[vapply(names(ps.cont$w), function(n) any(startsWith(tolower(n), tolower(stop.method))), logical(1L))]
             if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps.cont$w)
@@ -159,10 +162,11 @@ get.w.ps.cont <- function(ps.cont, stop.method = NULL, s.weights = FALSE, ...) {
     
     return(w)
 }
-get.w.iptw <- function(iptw, stop.method = NULL, s.weights = FALSE, ...) {
+get.w.iptw <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
+    iptw <- x
     if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
-            rule1 <- names(iptw$psList[[1]]$ps)[vapply(names(iptw$psList[[1]]$ps), function(x) any(startsWith(tolower(x), tolower(stop.method))), logical(1L))]
+            rule1 <- names(iptw$psList[[1]]$ps)[vapply(names(iptw$psList[[1]]$ps), function(n) any(startsWith(tolower(n), tolower(stop.method))), logical(1L))]
             if (is_null(rule1)) {
                 message(paste0("Warning: stop.method should be ", word.list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(iptw$psList[[1]]$ps)
@@ -197,7 +201,8 @@ get.w.iptw <- function(iptw, stop.method = NULL, s.weights = FALSE, ...) {
     
     return(w)
 }
-get.w.Match <- function(M,  ...) {
+get.w.Match <- function(x,  ...) {
+    M <- x
     nobs <- M$orig.nobs
     weights.list <- index.list <- setNames(vector("list", 4), c("control", "treated", "unmatched", "dropped"))
     
@@ -210,14 +215,15 @@ get.w.Match <- function(M,  ...) {
     weights.list$unmatched <- rep(0, sum(!seq_len(nobs) %in% c(M$index.treated, M$index.control, M$index.dropped)))
     weights.list$dropped <- rep(0, length(M$index.dropped))
     
-    data.list <- lapply(1:4, function(x) cbind(data.frame(index=index.list[[x]]), data.frame(weights=weights.list[[x]])))
+    data.list <- lapply(1:4, function(q) cbind(data.frame(index=index.list[[q]]), data.frame(weights=weights.list[[q]])))
     o.data <- do.call(rbind, data.list)
     o.data2 <- merge(unique(o.data[is.na(match(names(o.data), "weights"))]), 
                      aggregate(weights~index, data=o.data, FUN=sum), 
                      by="index")
     return(o.data2$weights)
 }
-get.w.CBPS <- function(c, estimand = NULL, ...) {
+get.w.CBPS <- function(x, estimand = NULL, ...) {
+    c <- x
     A <- list(...)
     if (is_null(A$use.weights)) use.weights <- TRUE
     else use.weights <- A$use.weights
@@ -255,33 +261,34 @@ get.w.CBPS <- function(c, estimand = NULL, ...) {
         
     }
 }
-get.w.npCBPS <- function(c, ...) {
-    return(c$weights)
+get.w.npCBPS <- function(x, ...) {
+    return(x$weights)
 }
-get.w.CBMSM <- function(c, ...) {
-    return(c$weights)
+get.w.CBMSM <- function(x, ...) {
+    return(x$weights)
 }
-get.w.ebalance <- function(e, treat, ...) {
+get.w.ebalance <- function(x, treat, ...) {
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     
     weights <- rep(1, length(treat))
     
-    if (length(e$w) != sum(treat == 0)) {
+    if (length(x$w) != sum(treat == 0)) {
         stop("There are more control units in treat than weights in the ebalance object.", call. = FALSE)
     }
-    weights[treat == 0] <- e$w
+    weights[treat == 0] <- x$w
     return(weights)
 }
 get.w.ebalance.trim <- get.w.ebalance
-get.w.optmatch <- function(o, ...) {
-    treat <- as.numeric(attr(o, "contrast.group"))
-    return(match.strata2weights(o, treat = treat, covs = NULL))
+get.w.optmatch <- function(x, ...) {
+    treat <- as.numeric(attr(x, "contrast.group"))
+    return(match.strata2weights(x, treat = treat, covs = NULL))
 }
-get.w.weightit <- function(W, s.weights = FALSE, ...) {
-    if (s.weights) return(W$weights * W$s.weights)
-    else return(W$weights)
+get.w.weightit <- function(x, s.weights = FALSE, ...) {
+    if (s.weights) return(x$weights * x$s.weights)
+    else return(x$weights)
 }
-get.w.designmatch <- function(dm, treat, ...) {
+get.w.designmatch <- function(x, treat, ...) {
+    dm <- x
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     if (length(dm[["group_id"]]) != length(dm[["t_id"]]) + length(dm[["c_id"]])) {
         ratio <- length(dm[["c_id"]])/length(dm[["t_id"]])
