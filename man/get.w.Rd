@@ -17,43 +17,45 @@ Extract Weights from Preprocessing Objects
 Extracts weights from the outputs of preprocessing functions.
 }
 \usage{
-get.w(\dots)
+get.w(x, \dots)
 
-\method{get.w}{matchit}(m, ...)
+\method{get.w}{matchit}(x, ...)
 
-\method{get.w}{ps}(ps, stop.method = NULL, estimand = NULL, s.weights = FALSE, ...)
+\method{get.w}{ps}(x, stop.method = NULL, estimand = NULL, s.weights = FALSE, ...)
 
-\method{get.w}{mnps}(mnps, stop.method = NULL, s.weights = FALSE, ...)
+\method{get.w}{mnps}(x, stop.method = NULL, s.weights = FALSE, ...)
 
-\method{get.w}{iptw}(iptw, stop.method = NULL, s.weights = FALSE, ...)
+\method{get.w}{iptw}(x, stop.method = NULL, s.weights = FALSE, ...)
 
-\method{get.w}{Match}(M, ...)
+\method{get.w}{Match}(x, ...)
 
-\method{get.w}{CBPS}(c, estimand = NULL, ...)
+\method{get.w}{CBPS}(x, estimand = NULL, ...)
 
-\method{get.w}{ebalance}(e, treat, ...)
+\method{get.w}{ebalance}(x, treat, ...)
 
-\method{get.w}{optmatch}(o, ...)
+\method{get.w}{optmatch}(x, ...)
 
-\method{get.w}{weightit}(W, s.weights = FALSE, ...)
+\method{get.w}{weightit}(x, s.weights = FALSE, ...)
+
+\method{get.w}{designmatch}(x, treat, ...)
 
 }
 
 \arguments{
-  \item{m, ps, mnps, iptw, M, c, e, o, W}{
-Output from the corresponding preprocessing packages.
+  \item{x}{
+output from the corresponding preprocessing packages.
 }
   \item{stop.method}{
-The name of the stop method used in the original call to \code{ps()} or \code{mnps()} in \pkg{twang}, e.g., \code{"es.mean"}. If empty, will return weights from all stop method available into a data.frame. Abbreviations allowed.
+the name of the stop method used in the original call to \code{ps()} or \code{mnps()} in \pkg{twang}, e.g., \code{"es.mean"}. If empty, will return weights from all stop method available into a data.frame. Abbreviations allowed.
 }
   \item{estimand}{
-If weights are computed using the propensity score (i.e., for the \code{ps} and \code{CBPS} methods), which estimand to use to compute the weights. If \code{"ATE"}, weights will be computed as \code{1/ps} for the treated group and \code{1/(1-ps)} for the control group. If \code{"ATT"}, weights will be computed as \code{1} for the treated group and \code{ps/(1-ps)} for the control group. If \code{NULL}, \code{get.w()} will try to figure out which estimand is desired based on the object.
+if weights are computed using the propensity score (i.e., for the \code{ps} and \code{CBPS} methods), which estimand to use to compute the weights. If \code{"ATE"}, weights will be computed as \code{1/ps} for the treated group and \code{1/(1-ps)} for the control group. If \code{"ATT"}, weights will be computed as \code{1} for the treated group and \code{ps/(1-ps)} for the control group. If \code{NULL}, \code{get.w()} will try to figure out which estimand is desired based on the object.
 }
   \item{treat}{
-A vector of treatment status for each unit. This is required for methods that include \code{treat} as an argument. The treatment variable that was used in the original preprocessing function call should be used.
+a vector of treatment status for each unit. This is required for methods that include \code{treat} as an argument. The treatment variable that was used in the original preprocessing function call should be used.
 }
   \item{s.weights}{
-Whether the sampling weights included in the original call to the fitting function should be included in the weights. If \code{TRUE}, the returned weights will be the product of the balancing weights estimated by the fitting function and the sampling weights. If \code{FALSE}, only the balancing weights will be returned.
+whether the sampling weights included in the original call to the fitting function should be included in the weights. If \code{TRUE}, the returned weights will be the product of the balancing weights estimated by the fitting function and the sampling weights. If \code{FALSE}, only the balancing weights will be returned.
 }
   \item{...}{
 further arguments passed to or from other methods.
@@ -68,7 +70,7 @@ When sampling weights are used with \code{CBPS()}, the returned weights will alr
 
 }
 \value{
-A vector or data.frame of weights for each unit. These may be matching weights or balancing weights.
+A vector or data frame of weights for each unit. These may be matching weights or balancing weights.
 }
 
 \author{
