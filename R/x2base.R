@@ -44,7 +44,7 @@ x2base.matchit <- function(m, ...) {
     
     s <- "ATT"
     if (is_(A$s.d.denom, "character")) {
-        s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                               error = function(cond) {
                                   new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
                                   message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -200,7 +200,7 @@ x2base.ps <- function(ps, ...) {
     estimand <- substr(tolower(s), nchar(s)-2, nchar(s))
     
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -368,7 +368,7 @@ x2base.mnps <- function(mnps, ...) {
     estimand <- setNames(mnps$estimand, s)
     
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -646,7 +646,7 @@ x2base.Match <- function(Match, ...) {
     m <- Match
     s <- m$estimand
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -891,7 +891,7 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     else if (length(method) == 1) {
-        specified.method <- match.arg(method, c("weighting", "matching", "subclassification"))
+        specified.method <- match_arg(method, c("weighting", "matching", "subclassification"))
         if (specified.method == "weighting") {
             if (specified["weights"]) {
                 if (sum(specified) > 1) {
@@ -959,7 +959,7 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     else {
-        specified.method <- match.arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+        specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
         if (any(specified.method == "subclassification") || specified["subclass"]) {
             stop("Subclassification cannot be specified along with other methods.", call. = FALSE)
         }
@@ -1185,8 +1185,11 @@ x2base.data.frame <- function(covs, ...) {
     #Get s.d.denom
     if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
         check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
-        if (is_not_null(s.d.denom)) {
-            try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
+        s.d.denom.specified <- is_not_null(s.d.denom)
+        estimand.specified <- is_not_null(estimand)
+        
+        if (s.d.denom.specified) {
+            try.s.d.denom <- tryCatch(match_arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
                                       error = function(cond) FALSE)
             if (any(try.s.d.denom == FALSE)) {
                 check.estimand <- TRUE
@@ -1204,8 +1207,8 @@ x2base.data.frame <- function(covs, ...) {
         }
         
         if (check.estimand == TRUE) {
-            if (is_not_null(estimand)) {
-                try.estimand <- tryCatch(match.arg(tolower(estimand), c("att", "atc", "ate"), several.ok = TRUE),
+            if (estimand.specified) {
+                try.estimand <- tryCatch(match_arg(tolower(estimand), c("att", "atc", "ate"), several.ok = TRUE),
                                          error = function(cond) FALSE)
                 if (any(try.estimand == FALSE)) {
                     check.focal <- TRUE
@@ -1276,10 +1279,10 @@ x2base.data.frame <- function(covs, ...) {
         }
         if (is_not_null(weights) && length(X$s.d.denom) == 1) X$s.d.denom <- rep(X$s.d.denom, ncol(weights))
         
-        if (bad.s.d.denom && bad.estimand) {
+        if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
             message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using \"", word.list(X$s.d.denom), "\" instead.")
         }
-        else if (bad.estimand) {
+        else if (estimand.specified && bad.estimand) {
             message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(all_the_same(estimand), toupper(estimand)[1], word.list(toupper(estimand))), "\" instead.")
         }
         else if (check.focal || check.weights) {
@@ -1373,7 +1376,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     if (!any(class(cbps.fit) == "CBPSContinuous") && is_binary(treat)) {
         if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-            X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+            X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
                                         new.s.d.denom <- switch(tolower(A$estimand), att = "treated", ate = "pooled")
                                         message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -1532,7 +1535,7 @@ x2base.ebalance <- function(ebalance, ...) {
 
     s <- "ATT"
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -1649,7 +1652,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     s <- "ATT"
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -1773,8 +1776,8 @@ x2base.weightit <- function(weightit, ...) {
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
-    d.e.in.w <- vapply(c("data", "exact"), function(x) is_not_null(weightit[[x]]), logical(1L))
-    if (any(d.e.in.w)) weightit.data <- do.call("data.frame", weightit[[c("data", "exact")[d.e.in.w]]])
+    d.e.in.w <- vapply(c("covs", "exact", "by"), function(x) is_not_null(weightit[[x]]), logical(1L))
+    if (any(d.e.in.w)) weightit.data <- do.call("cbind", unname(weightit[c("covs", "exact", "by")[d.e.in.w]]))
     else weightit.data <- NULL
     
     if (is_not_null(attr(treat, "treat.type"))) {
@@ -1794,7 +1797,7 @@ x2base.weightit <- function(weightit, ...) {
     
     if (treat.type != "continuous") {
         if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-            X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+            X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
                                         new.s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", "pooled")
                                         message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -1982,7 +1985,7 @@ x2base.designmatch <- function(dm, ...) {
     
     s <- "ATT"
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -2146,7 +2149,7 @@ x2base.iptw <- function(iptw, ...) {
     estimand <- substr(tolower(s), nchar(s)-2, nchar(s))
     
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -2360,7 +2363,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         }
     }
     else if (length(method) == 1) {
-        specified.method <- match.arg(method, c("weighting", "matching", "subclassification"))
+        specified.method <- match_arg(method, c("weighting", "matching", "subclassification"))
         if (specified.method == "weighting") {
             if (specified["weights"]) {
                 X$method <- "weighting"
@@ -2380,7 +2383,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         }
     }
     else {
-        specified.method <- match.arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+        specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
         if (any(specified.method == "subclassification") || specified["subclass"]) {
             warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
             X$method <- "matching"
@@ -2752,6 +2755,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     weights <- data.frame(weights = get.w(weightitMSM))
     treat.list <- weightitMSM$treat.list
     covs.list <- weightitMSM$covs.list
+    covs <- do.call("cbind", covs.list)
     s.weights <- weightitMSM$s.weights
     data <- A$data
     cluster <- A$cluster
@@ -2764,6 +2768,9 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     weightitMSM.data <- weightitMSM$data
+    d.e.in.w <- vapply(c("covs.list", "exact", "by"), function(x) is_not_null(weightitMSM[[x]]), logical(1L))
+    if (any(d.e.in.w)) weightitMSM.data <- do.call("cbind", c(list(covs), weightitMSM[c("exact", "by")])[d.e.in.w])
+    else weightitMSM.data <- NULL
     
     if (all(vapply(treat.list, function(x) is_not_null(attr(x, "treat.type")), logical(1L)))) {
         treat.type <- vapply(treat.list, function(x) attr(x, "treat.type"), character(1L))
@@ -2784,7 +2791,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     if (any(treat.type != "continuous")) {
         if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-            X$s.d.denom <- tryCatch(match.arg(A$s.d.denom, c("treated", "control", "pooled")),
+            X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                     error = function(cond) {
                                         new.s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
                                         message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
@@ -3224,7 +3231,8 @@ x2base.default <- function(obj, ...) {
                     match.strata <- subclass <- NULL
                 }
                 else {
-                    message("Assuming \"weighting\". If not, specify with an argument to method.")
+                    if (!any(c("optweight", "weightit") %in% class(obj))) {
+                        message("Assuming \"weighting\". If not, specify with an argument to method.")}
                 }
                 X$method <- "weighting"
             }
@@ -3233,7 +3241,7 @@ x2base.default <- function(obj, ...) {
             }
         }
         else if (length(method) == 1) {
-            specified.method <- match.arg(method, c("weighting", "matching", "subclassification"))
+            specified.method <- match_arg(method, c("weighting", "matching", "subclassification"))
             if (specified.method == "weighting") {
                 if (specified["weights"]) {
                     if (sum(specified) > 1) {
@@ -3301,7 +3309,7 @@ x2base.default <- function(obj, ...) {
             }
         }
         else {
-            specified.method <- match.arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+            specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
             if (any(specified.method == "subclassification") || specified["subclass"]) {
                 stop("Subclassification cannot be specified along with other methods.", call. = FALSE)
             }
@@ -3469,8 +3477,11 @@ x2base.default <- function(obj, ...) {
         #Get s.d.denom
         if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
             check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
-            if (!missing(s.d.denom) && is_not_null(s.d.denom)) {
-                try.s.d.denom <- tryCatch(match.arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
+            s.d.denom.specified <- is_not_null(s.d.denom)
+            estimand.specified <- is_not_null(estimand)
+            
+            if (s.d.denom.specified) {
+                try.s.d.denom <- tryCatch(match_arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
                                           error = function(cond) FALSE)
                 if (any(try.s.d.denom == FALSE)) {
                     check.estimand <- TRUE
@@ -3488,8 +3499,8 @@ x2base.default <- function(obj, ...) {
             }
             
             if (check.estimand == TRUE) {
-                if (is_not_null(estimand)) {
-                    try.estimand <- tryCatch(match.arg(tolower(estimand), c("att", "atc", "ate"), several.ok = TRUE),
+                if (estimand.specified) {
+                    try.estimand <- tryCatch(match_arg(tolower(estimand), c("att", "atc", "ate"), several.ok = TRUE),
                                              error = function(cond) FALSE)
                     if (any(try.estimand == FALSE)) {
                         check.focal <- TRUE
@@ -3560,14 +3571,14 @@ x2base.default <- function(obj, ...) {
             }
             if (is_not_null(weights) && length(X$s.d.denom) == 1) X$s.d.denom <- rep(X$s.d.denom, ncol(weights))
             
-            if (bad.s.d.denom && bad.estimand) {
+            if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
                 message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using \"", word.list(X$s.d.denom), "\" instead.")
             }
-            else if (bad.estimand) {
+            else if (estimand.specified && bad.estimand) {
                 message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(all_the_same(estimand), toupper(estimand)[1], word.list(toupper(estimand))), "\" instead.")
             }
             else if (check.focal || check.weights) {
-                message("Note: estimand and s.d.denom not specified; assuming ", ifelse(nunique(toupper(estimand)) == 1, toupper(unique(estimand)), word.list(toupper(estimand))), " and ", ifelse(nunique(X$s.d.denom) == 1, unique(X$s.d.denom), word.list(X$s.d.denom)), ".")
+                message("Note: estimand and s.d.denom not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word.list(toupper(estimand))), " and ", ifelse(all_the_same(X$s.d.denom), unique(X$s.d.denom), word.list(X$s.d.denom)), ".")
             }
             
             if (all(X$method %in% c("weighting", "matching"))) {
@@ -3576,7 +3587,7 @@ x2base.default <- function(obj, ...) {
                 }
             }
         }
-        
+
         if (any(c(is.na(covs), is.na(addl)))) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
@@ -3660,7 +3671,7 @@ x2base.default <- function(obj, ...) {
             }
         }
         else if (length(method) == 1) {
-            specified.method <- match.arg(method, c("weighting", "matching", "subclassification"))
+            specified.method <- match_arg(method, c("weighting", "matching", "subclassification"))
             if (specified.method == "weighting") {
                 if (specified["weights"]) {
                     X$method <- "weighting"
@@ -3680,7 +3691,7 @@ x2base.default <- function(obj, ...) {
             }
         }
         else {
-            specified.method <- match.arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+            specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
             if (any(specified.method == "subclassification") || specified["subclass"]) {
                 warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
                 X$method <- "matching"
