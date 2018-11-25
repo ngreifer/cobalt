@@ -1,5 +1,6 @@
 \name{options-display}
 \alias{options-display}
+\alias{display_options}
 
 \title{Options for Displaying \code{bal.tab} Output}
 
@@ -60,7 +61,7 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 \details{
 These arguments used to be named arguments to \code{bal.tab}, but were relegated to arguments passed through \code{...} to consolidate documentation and make it easier to add new features and options. For users of previous versions of \pkg{cobalt}, nothing should change as far as how the arguments are used, but new options may be added.
 
-In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a permanent option (for the present R session) using \code{\link{options}} and retrieve it using \code{\link{getOption}}. The name of each option is \code{"cobalt_argname"}, where \code{argname} is replaced by the name of the argument. For example, to set the global option so that \code{un = TRUE} unless otherwise specified (which is opposite from the default), use \code{options(cobalt_un = TRUE)}. To determine whether the global option for \code{un} has been set and what its value is, use \code{getOption("cobalt_un")}. Note that global options cannot be set for \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.
+In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \code{\link{set.cobalt.options}} and retrieve it using \code{\link{get.cobalt.options}}. Note that global options cannot be set for \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.
 }
 
 \seealso{
