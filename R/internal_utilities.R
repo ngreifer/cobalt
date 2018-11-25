@@ -22,7 +22,7 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
             attr(out, "plural") = FALSE
         }
         else {
-            and.or <- match.arg(and.or)
+            and.or <- match_arg(and.or)
             if (L == 2) {
                 out <- paste(word.list, collapse = paste0(" ", and.or," "))
             }
@@ -138,4 +138,41 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
     else {
         return(it.is)
     }
+}
+clear_null <- function(x) {
+    x[vapply(x, is_null, logical(1L))] <- NULL
+    return(x)
+}
+match_arg <- function(arg, choices, several.ok = FALSE) {
+    if (missing(arg))
+        stop("No argument was supplied to match_arg.", call. = FALSE)
+    arg.name <- deparse(substitute(arg))
+    
+    if (missing(choices)) {
+        formal.args <- formals(sys.function(sysP <- sys.parent()))
+        choices <- eval(formal.args[[as.character(substitute(arg))]], 
+                        envir = sys.frame(sysP))
+    }
+    
+    if (is.null(arg)) 
+        return(choices[1L])
+    else if (!is.character(arg)) 
+        stop(paste0("'", arg.name, "' must be NULL or a character vector"), call. = FALSE)
+    if (!several.ok) {
+        if (identical(arg, choices)) 
+            return(arg[1L])
+        if (length(arg) > 1L) 
+            stop(paste0("'", arg.name, "' must be of length 1"), call. = FALSE)
+    }
+    else if (length(arg) == 0L) 
+        stop(paste0("'", arg.name, "' must be of length >= 1"), call. = FALSE)
+    
+    i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
+    if (all(i == 0L)) 
+        stop(paste0("'", arg.name, "' should be one of ", word.list(choices, and.or = "or", quotes = TRUE), "."),
+             call. = FALSE)
+    i <- i[i > 0L]
+    if (!several.ok && length(i) > 1) 
+        stop("there is more than one match in 'match_arg'")
+    choices[i]
 }
