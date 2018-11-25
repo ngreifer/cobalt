@@ -586,7 +586,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     }
     if (is_not_null(p.ops$cluster.fun)) {
         if (!is.character(p.ops$cluster.fun)) stop(paste0("cluster.fun must be ", word.list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
-        p.ops$cluster.fun <- match.arg(tolower(p.ops$cluster.fun), cluster.funs, several.ok = TRUE)
+        p.ops$cluster.fun <- match_arg(tolower(p.ops$cluster.fun), cluster.funs, several.ok = TRUE)
         if (is_null(p.ops$cluster.fun)) {
             warning("There were no valid entries to cluster.fun. Using the default cluster.funs instead.", call. = FALSE)
             if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
@@ -884,7 +884,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     }
     if (is_not_null(p.ops$imp.fun)) {
         if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word.list(c(imp.funs, "as.is"), and.or = "or", quotes = TRUE)))
-        p.ops$imp.fun <- match.arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
+        p.ops$imp.fun <- match_arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
         if (is_null(p.ops$imp.fun)) {
             warning("There were no valid entries to imp.fun. Using the default imp.funs instead.", call. = FALSE)
             if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
@@ -1134,7 +1134,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     }
     if (is_not_null(p.ops$cluster.fun)) {
         if (!is.character(p.ops$cluster.fun)) stop(paste0("cluster.fun must be ", word.list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
-        p.ops$cluster.fun <- match.arg(tolower(p.ops$cluster.fun), cluster.funs, several.ok = TRUE)
+        p.ops$cluster.fun <- match_arg(tolower(p.ops$cluster.fun), cluster.funs, several.ok = TRUE)
         if (is_null(p.ops$cluster.fun)) {
             warning("There were no valid entries to cluster.fun. Using the default cluster.funs instead.", call. = FALSE)
             if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
@@ -1182,7 +1182,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     }
     if (is_not_null(p.ops$imp.fun)) {
         if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word.list(c(imp.funs, "as.is"), and.or = "or", quotes = TRUE)))
-        p.ops$imp.fun <- match.arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
+        p.ops$imp.fun <- match_arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
         if (is_null(p.ops$imp.fun)) {
             warning("There were no valid entries to imp.fun. Using the default imp.funs instead.", call. = FALSE)
             if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
