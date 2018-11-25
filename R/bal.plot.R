@@ -6,11 +6,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     obj <- is.designmatch(obj)
     obj <- is.time.list(obj)
-    if (any(class(obj) == "time.list")) {
-        if (all(sapply(obj, is.formula))) class(obj) <- "formula.list"
-        else if (all(sapply(obj, is.data.frame))) class(obj) <- "data.frame.list"
-        else stop("If obj is a list, it must be a list of formulas specifying the treatment/covariate relationships at each time point or a list of data frames containing covariates to be assessed at each time point.", call. = FALSE)
-    }
+
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     
     if (is_not_null(X$covs.list)) {
@@ -66,7 +62,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     else {
         if (is_null(X$weights) && is_null(X$subclass)) which <- "unadjusted"
         else {
-            which <- tryCatch(match.arg(tolower(which), c("adjusted", "unadjusted", "both")),
+            which <- tryCatch(match_arg(tolower(which), c("adjusted", "unadjusted", "both")),
                               error = function(cond) stop(paste("The argument to 'which' should be one of", word.list(c("adjusted", "unadjusted", "both"), "or", quotes = TRUE)), call. = FALSE))
         }
     }
@@ -461,7 +457,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 posneg <- rep(1, nlevels.treat)
                 alpha <- .4
             }
-            type <- match.arg(type)
+            type <- match_arg(type)
             if (type == "histogram" && nlevels.treat <= 2) {
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
                 geom_fun <- function(t) geom_histogram(data = d[d$treat == levels(d$treat)[t],],
