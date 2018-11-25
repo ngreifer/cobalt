@@ -24,7 +24,7 @@ Multilevel data occurs when units are nested within groups, and each unit belong
 
 Most research into propensity score methods with multilevel data has focused on how to model the propensity score (e.g., with multilevel modeling or with standard regression) and how to condition on the propensity score (e.g., by matching or weighting) to arrive at the best balance (e.g., conditioning within clusters or across clusters). It is critical that balance must be assured on all unit-level and cluster-level characteristics to ensure the removal of confounding. The advantage of conditioning within clusters is that all cluster-level characteristics are automatically balanced (but unit-level characteristics may remain imbalanced). When conditioning across clusters, the analyst must assess and ensure balance on both unit-level and cluster-level characteristics. See Leite et al. (2015) for an excellent review of the literature on propensity scores with multilevel data.
 
-Grouped data is similar to clustered data but has been treated differently in the methodological literature. Groups can be thought of as strata for which units are only comparable within each stratum. For example, in a study with multiple cohorts, each cohort can be considered a group. Green and Stuart (2014) discuss the application of propensity scores in this context to examine the potential for effect moderation by the grouping variable. As with multilevel data, units fall within one group only. To ensure balance in grouped data, balance must be achieved within each group. Thus, as Green and Stuart (2014) recommend, separate propensity score models should be estimated within each group, and conditioning should occur separately within each group. In matching scenarios, this involves exact matching on group. Multilevel and grouped data are treated the same in `cobalt`, and so will be unified as "clustered" data..
+Grouped data is similar to clustered data but has been treated differently in the methodological literature. Groups can be thought of as strata for which units are only comparable within each stratum. For example, in a study with multiple cohorts, each cohort can be considered a group. Green and Stuart (2014) discuss the application of propensity scores in this context to examine the potential for effect moderation by the grouping variable. As with multilevel data, units fall within one group only. To ensure balance in grouped data, balance must be achieved within each group. Thus, as Green and Stuart (2014) recommend, separate propensity score models should be estimated within each group, and conditioning should occur separately within each group. In matching scenarios, this involves exact matching on group. Multilevel and grouped data are treated the same in `cobalt`, and so will be unified as "clustered" data.
 
 Multiply imputed data occurs when some values of the covariates are missing, and multiple imputation has been performed to generate several data sets each with their own plausible values for the missing values. Missing data is a ubiquitous problem with large longitudinal data sets, which are popular for propensity score analysis. There are several choices researchers must make when addressing missing data; Cham and West (2016) discuss options researchers have to address the missingness. They recommend multiple imputation in most circumstances. Mitra and Reiter (2016) describe two ways to use propensity scores with multiply imputed data. The first, called the "within" method, is to perform a traditional analysis within each data set, and combine the effect estimates using the recommended rules for doing so. The second, called the "across" method, is to generate propensity scores within each imputed data set, but then to average the propensity score across data sets for each individual and use the averaged propensity scores to estimate a single effect. Guidelines for assessing balance in either scenario are absent; however, we recommend that balance assessment should involve all imputed data sets, by, for example, ensuring the average balance measure for each covariate across data sets is within some range of tolerance. `cobalt` allows for this kind of assessment, as well as balance assessment within each imputed data set.
 
@@ -79,7 +79,7 @@ bal.tab(m.out, cluster = "race", which.cluster = c("black", "hispan"),
 bal.tab(m.out, cluster = "race", which.cluster = NA, cluster.fun = "mean")
 ```
 
-It should be noted that `which.cluster`, `cluster.summary`, and `cluster.fun` affect display only, and so all output is generated even when some is not requested to be seen^[Except when `quick = TRUE`. In this case, if `cluster.summary = FALSE`, it will not be computed, though balance for all individual groups will be computed even if not requested.] ^[If some outputs are suppressed, they can still be displayed later with the `print()` command, which allows you to respecify display options for printing saved `bal.tab` objects. Thus, if balance is to be checked on the same data set multiple times in different ways, it is advisable to save the output of `bal.tab()` to a variable and then use `print()` on that variable with the desired display options. Note that if `quick = TRUE`, not all display options will be available with this method.].
+It should be noted that `which.cluster`, `cluster.summary`, and `cluster.fun` affect display only, and so all output is generated even when some is not requested to be seen^[Except when `quick = TRUE`. In this case, if `cluster.summary = FALSE`, it will not be computed, though balance for all individual groups will be computed even if not requested.] ^[If some outputs are suppressed, they can still be displayed later with the `print()` command, which allows you to respecify display options for printing saved `bal.tab` objects. Thus, if balance is to be checked on the same data set multiple times in different ways, it is advisable to save the output of `bal.tab()` to a variable and then use `print()` on that variable with the desired display options. Note that if `quick = TRUE`, not all display options will be available with this method.]. These can also be set as global options by using, for example, `set.cobalt.options(cluster.fun = "mean")`, which allows user not to type a non-default option every time they call `bal.tab`.
 
 ## `bal.plot()`
 
@@ -160,6 +160,8 @@ To use `bal.tab()` with our imputed data sets, we need to use the `data.frame` o
 
 * `imp.fun` determines which function(s) are used to combine balance statistics across imputations for the summary of balance across imputations. (Default: when `abs = FALSE`, minimum, mean, and maximum; when `abs = TRUE`, mean and maximum)
 
+`which.imp`, `imp.summary`, and `imp.fun` affect display only and can also be set as global options by using `set.cobalt.options()` like the corresponding cluster options.
+
 In many cases, not all variables are imputed, and often the treatment variable is not imputed. If each imputation as the same number of units, you can specify other arguments (e.g., treatment, distance) by specifying a vector of the length of one imputation, and this vector will be applied to all imputations. This will come in handy when each individual receives one average propensity score in the "across" method. To do this, the imputed data set must be sorted by imputation and unit ID.
 
 ```{r}
@@ -209,17 +211,17 @@ For some variables, the minimum, mean, and maximum balance statistic will be the
 `WeightIt` is well suited for estimating weights within multiple imputed data sets. Below is an example of estimating propensity score weights after multiple imputation using the same scenario as those above.
 
 ```{r}
-#Estimating the weights; exact = ".imp" separates by imputation
+#Estimating the weights; by = ".imp" separates by imputation
 library("WeightIt")
 w.out <- weightit(treat ~ age + educ + race + married + 
                       nodegree + re74 + re75, data = imp.data, 
-                  exact = ".imp", estimand = "ATT")
+                  by = ".imp", estimand = "ATT")
 
 #Checking balance on the output object
 bal.tab(w.out, imp = ".imp")
 ```
 
-Setting `exact = ".imp"` requests that weights be estimated within each imputation separately. Because this variable exists within the `w.out` object, we can simply refer to it by its name in the call to `bal.tab`.
+Setting `by = ".imp"` requests that weights be estimated within each imputation separately. Because this variable exists within the `w.out` object, we can simply refer to it by its name in the call to `bal.tab`.
 
 ## `bal.plot()`
 
@@ -298,7 +300,7 @@ There are essentially 9 combinations of `which.imp` and `which.cluster` to use t
 1) `which.imp = NULL, which.cluster = NULL`: For each imputation, balance within each cluster and across clusters\*\*. For each cluster, balance across all imputations\*. Balance across all imputations and clusters\*.
 2) `which.imp = NULL, which.cluster = NA`: For each imputation, balance across clusters. Balance across all imputations and clusters\*.
 3) `which.imp = NULL, which.cluster = c`: For each imputation, balance within the specified cluster(s) and across all clusters\*\*. For each specified cluster, balance across all imputations\*. Balance across all imputations and clusters\*.
-4) `which.imp = NA, which.cluster = NULL`: For each cluster, balance across all imputations. Balance across all imputations and clusters.
+4) `which.imp = NA, which.cluster = NULL`: For each cluster, balance across all imputations. Balance across all imputations and clusters. (Default)
 5) `which.imp = NA, which.cluster = NA`: Balance across all imputations and clusters.
 6) `which.imp = NA, which.cluster = c`: For the specified cluster(s), balance across all imputations. Balance across all imputations and clusters.
 7) `which.imp = i, which.cluster = NULL`: For the specified imputation(s), balance within each cluster and across clusters\*\*. For each cluster, balance across all imputations\*. Balance across all imputations and clusters\*.

@@ -135,7 +135,7 @@ To use the formula interface, the user must specify a formula relating treatment
 
 An argument to `method` must be specified for `bal.tab()` to process the data correctly. If left empty, weighting will be assumed, but a warning will appear. `"matching"` and `"subclassification"` are also allowed, and can be abbreviated. If no weights or subclasses are provided (i.e., to examine balance without preprocessing), no argument to `method` is required.
 
-By default, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab` or "Details on Calculations" below. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` and/or `continuous` to `"raw"` or `"std"`. 
+By default, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab` or "Details on Calculations" below. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` and/or `continuous` to `"raw"` or `"std"`. These can also be set as global options by using, for example, `set.cobalt.options(binary = "std")`, which allows the user not to type a non-default option every time they call `bal.tab`.
 
 ```{r}
 bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
@@ -153,7 +153,7 @@ bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
 
 Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denominator is the standard deviation of the treated group (`"treated"`), most appropriate when computing the ATT; the standard deviation of the control group (`"control"`), most appropriate when computing the ATC; or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087), most appropriate when computing the ATE. If using weights for weighted analysis, `bal.tab()` can determine if the ATT or ATC are being estimated and supply `s.d.denom` accordingly. Otherwise, the default is `"pooled"`, and when matching or subclassification are used, the default is `"treated"`. See Austin (2011) for an explanation on how to calculate weights for estimation of the ATT, ATE, and ATC.
 
-The next options only affect display, not the calculation of any statistics. First are `disp.means` and `disp.sds`, which controls whether the group means and standard deviations for each covariate are displayed in addition to the mean differences. This can be useful in reporting balance for publication, but in balance assessment mean differences are typically more useful.
+The next options only affect display, not the calculation of any statistics. First are `disp.means` and `disp.sds`, which control whether the group means and standard deviations for each covariate are displayed in addition to the mean differences. These can be useful in reporting balance for publication, but for balance assessment, mean differences are typically more useful.
 
 Next is `disp.v.ratio`, which controls whether variance ratios are displayed, in addition to mean differences. Variance ratios are another important tool for assessing balance beyond mean differences because they pertain to the shape of the covariate distributions beyond their centers. Variance ratios close to 1 (i.e., equal variances in both groups) are indicative of group balance (Austin, 2009).
 
@@ -167,7 +167,7 @@ bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
         method = "weighting", disp.v.ratio = TRUE, un = TRUE)
 ```
 
-See `?display_options` for the full list of display options. They can also be set as global options by using, for example, `options(cobalt_disp.means = TRUE)`, which allows user not to type a non-default options every time they call `bal.tab`.
+See `?display_options` for the full list of display options. They can also be set as global options by using `set.cobalt.options()`.
 
 Finally, the user can specify a threshold for balance for mean differences, variance ratios, and KS statistics through the arguments to `m.threshold`, `v.threshold`, and `ks.threshold`. Thresholds can be useful in determining whether satisfactory balance has been achieved. For standardized mean differences, thresholds of .1 and .25 have been proposed, but Stuart et al. (2013) found that a threshold of .1 was more effective at assessing imbalance that would lead to biased effect estimation. In general, standardized mean differences should be as close to 0 as possible, but a conservative upper limit such as .1 can be a valuable heuristic in selecting models and defending the conditioning choice.
 
@@ -199,7 +199,7 @@ bal.tab(treat ~ covs0, data = lalonde, weights = c("att.weights", "att.weights2"
         method = "weighting", estimand = "ATT")
 ```
 
-When subclassification is used in conditioning, an argument to `subclass` must be specified; this can be a vector of subclass membership or the name of a variable in `data` containing subclass membership. `bal.tab()` produces a different type of output from when matching or weighting are used, though it has all of the same features. The default output is a balance table displaying balance aggregated across subclasses. Each cell contains the average statistic across the subclasses, but does not contain information on variance ratios. Using the arguments discussed above (except `disp.v.ratio` and `v.threshold`) will change the output as it does when only matching or weighting is used.
+When subclassification is used in conditioning, an argument to `subclass` must be specified; this can be a vector of subclass membership or the name of a variable in `data` containing subclass membership. `bal.tab()` produces a different type of output from when matching or weighting are used, though it has all of the same features. The default output is a balance table displaying balance aggregated across subclasses. Each cell contains the average statistic across the subclasses, but does not contain information on variance ratios or KS statistics. Using the arguments discussed above (except `disp.v.ratio` and `v.threshold` and the corresponding arguments for KS statistics) will change the output as it does when only matching or weighting is used.
 
 To examine balance within each subclass, the user can specify `disp.subclass = TRUE`, which will produce output for the subclasses in aggregate as well as for each subclass. Within subclasses, all the information above, including variance ratios, will be presented, except for statistics for the unadjusted groups (since the adjustment occurs by creating the subclasses), as specified by the user. See `?bal.tab.subclass` for more details.
 
