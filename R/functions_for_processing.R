@@ -426,8 +426,8 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
     A <- list(...)
     if (is_null(A[["int_sep"]])) A[["int_sep"]] <- getOption("cobalt_int_sep", default = " * ")
     if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- getOption("cobalt_factor_sep", default = "_")
-    if (is_null(A[["center"]]) || A[["center"]] %nin% c(TRUE, FALSE)) getOption("cobalt_center", default = FALSE)
-
+    if (is_null(A[["center"]]) || A[["center"]] %nin% c(TRUE, FALSE)) A[["center"]] <- getOption("cobalt_center", default = FALSE)
+    
     C <- covs
     if (!is.null(addl)) {
         if (!is.data.frame(addl)) {
@@ -529,10 +529,10 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
             }
             
             if (poly < int) poly <- int
-
+            
             int <- TRUE
         }
-
+        
         new <- int.poly.f(C, int = int, poly = poly, center = A[["center"]], sep = rep(A[["int_sep"]], nsep), co.names = co.names)
         C <- cbind(C, new)
         co.names <- c(co.names, attr(new, "co.names"))
@@ -741,6 +741,16 @@ col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL,
     if (no.weights) weights <- rep(1, NROW(mat))
     w <- weights*s.weights
     sw <- s.weights
+    
+    #Check continuous and binary
+    if (missing(continuous) || is_null(continuous)) {
+        continuous <- match_arg(getOption("cobalt_continuous", "std"), c("std", "raw"))
+    }
+    else continuous <- match_arg(continuous, c("std", "raw"))
+    if (missing(binary) || is_null(binary)) {
+        binary <- match_arg(getOption("cobalt_binary", "raw"), c("raw", "std"))
+    }
+    else binary <- match_arg(binary, c("raw", "std"))
     
     no.sub <- is_null(which.sub)
     if (no.sub) ss <- sw > 0
@@ -954,6 +964,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
     return(nn)
 }
 samplesize.across.clusters <- function(samplesize.list) {
+    samplesize.list <- clear_null(samplesize.list)
     obs <- Reduce("+", samplesize.list)
     attr(obs, "tag") <- paste0("Total ", tolower(attr(samplesize.list[[1]], "tag")), " across clusters")
     return(obs)
@@ -1226,6 +1237,7 @@ balance.table.across.subclass <- function(balance.table, balance.table.subclass.
 }
 balance.table.cluster.summary <- function(balance.table.clusters.list, weight.names = NULL, no.adj = FALSE, abs = FALSE, quick = FALSE, types = NULL) {
     
+    balance.table.clusters.list <- clear_null(balance.table.clusters.list)
     cont.treat <- "Corr.Un" %in% unique(do.call("c", lapply(balance.table.clusters.list, names)))
     if (no.adj) weight.names <- "Adj"
     
@@ -1279,7 +1291,7 @@ samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = 
     #Computes sample size info. for unadjusted and adjusted samples.
     # method is what method the weights are to be used for. 
     # method="subclassification" is for subclass sample sizes only.
-    #method <- match.arg(method)
+    #method <- match_arg(method)
     if (nlevels(cluster) > 0 && is_not_null(which.cluster)) in.cluster <- cluster == which.cluster
     else in.cluster <- rep(TRUE, length(treat))
     if (is_null(discarded)) discarded <- rep(0, length(treat))
@@ -1516,6 +1528,7 @@ balance.table.imp.summary <- function(bal.tab.imp.list, weight.names = NULL, no.
         bal.tab.imp.list <- lapply(bal.tab.imp.list, function(x) x[["Balance"]])}
     cont.treat <- "Corr.Un" %in% unique(do.call("c", lapply(bal.tab.imp.list, names)))
     if (length(weight.names) <= 1) weight.names <- "Adj"
+    bal.tab.imp.list <- clear_null(bal.tab.imp.list)
     
     Brownames <- unique(do.call("c", lapply(bal.tab.imp.list, rownames)))
     #imp.functions <- c("Min", "Mean", "Median", "Max")
@@ -1526,9 +1539,9 @@ balance.table.imp.summary <- function(bal.tab.imp.list, weight.names = NULL, no.
     names(B) <- Bcolnames
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(bal.tab.imp.list, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(sapply(bal.tab.imp.list, function(y) y[[x, "Type"]])); return(u[!is.na(u)])}), use.names = FALSE)
     
-    abs0 <- function(x) {if (abs) abs(x) else (x)}
+    abs0 <- function(x) {if (is_null(x)) NA_real_ else if (abs) abs(x) else (x)}
     funs <- structure(vector("list", length(imp.functions)), names = imp.functions)
     for (Fun in imp.functions) {
         funs[[Fun]] <- function(x, ...) {
@@ -1599,6 +1612,7 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
 }
 samplesize.across.imps <- function(obs.list) {
     #obs.list <- lapply(bal.tab.imp.list, function(x) x[["Observations"]])
+    obs.list <- clear_null(obs.list)
     
     obs <- Reduce("+", obs.list)/length(obs.list)
     attr(obs, "tag") <- paste0("Average ", tolower(attr(obs.list[[1]], "tag")), " across imputations")
@@ -1610,6 +1624,7 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
     if ("bal.tab" %in% unique(do.call("c", lapply(bal.tab.multi.list, class)))) {
         bal.tab.multi.list <- lapply(bal.tab.multi.list, function(x) x[["Balance"]])}
     if (length(weight.names) <= 1) weight.names <- "Adj"
+    bal.tab.multi.list <- clear_null(bal.tab.multi.list)
     
     Brownames <- unique(do.call("c", lapply(bal.tab.multi.list, rownames)))
     Bcolnames <- c("Type", expand.grid_string(c("Max.Diff", "M.Threshold", "Max.V.Ratio", "V.Threshold", "Max.KS", "KS.Threshold"), 
@@ -1673,6 +1688,7 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
 samplesize.multi <- function(bal.tab.multi.list, treat.names, focal) {
     if (is_not_null(focal)) which <- c(treat.names[treat.names != focal], focal)
     else which <- treat.names
+    bal.tab.multi.list <- clear_null(bal.tab.multi.list)
     obs <- do.call("cbind", unname(lapply(bal.tab.multi.list, function(x) x[["Observations"]])))[, which]
     attr(obs, "tag") <- attr(bal.tab.multi.list[[1]][["Observations"]], "tag")
     attr(obs, "ss.type") <- attr(bal.tab.multi.list[[1]][["Observations"]], "ss.type")
@@ -1860,8 +1876,7 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     nums <- vapply(df, is.numeric, logical(1))
     o.negs <- sapply(1:NCOL(df), function(x) if (nums[x]) df[[x]] < 0 else rep(FALSE, length(df[[x]])))
     df[nums] <- round(df[nums], digits = digits)
-    #print(nas)
-    #print(infs); stop()
+    
     df[nas | infs] <- ""
     
     df <- as.data.frame(lapply(df, format, scientific = FALSE, justify = "none"), stringsAsFactors = FALSE)
@@ -1900,6 +1915,31 @@ print.data.frame_ <- function(x, ...) {
     if (is_not_null(x) && NROW(x) > 0 && NCOL(x) > 0) {
         print.data.frame(x, ...)
     }
+}
+
+#set.cobalt.options
+acceptable.options <- function() {
+    TF <- c(TRUE, FALSE)
+    return(list(un = TF,
+                continuous = c("raw", "std"),
+                binary = c("raw", "std"),
+                imbalanced.only = TF,
+                disp.means = TF,
+                disp.sds = TF,
+                disp.v.ratio = TF,
+                disp.ks = TF,
+                disp.subclass = TF,
+                disp.bal.tab = TF,
+                cluster.summary = TF,
+                cluster.fun = c("min", "mean", "max"),
+                imp.summary = TF,
+                imp.fun = c("min", "mean", "max"),
+                multi.summary = TF,
+                msm.summary = TF,
+                target.summary = TF,
+                int_sep = " * ",
+                factor_sep = "_",
+                center = TF))
 }
 
 #To pass CRAN checks:
