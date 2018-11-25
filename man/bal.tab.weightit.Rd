@@ -14,8 +14,8 @@ Generates balance statistics for \code{weightit} and \code{weightitMSM} objects 
     distance = NULL, 
     addl = NULL, 
     data = NULL, 
-    continuous = getOption("cobalt_cont", "std"),  
-    binary = getOption("cobalt_bin", "raw"), 
+    continuous,  
+    binary, 
     s.d.denom, 
     m.threshold = NULL, 
     v.threshold = NULL, 
@@ -50,10 +50,10 @@ an optional data frame or the quoted names of additional covariates for which to
 an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, and \code{cluster}.
 }
   \item{continuous}{
-whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed.
+whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
 }
   \item{binary}{
-whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed.
+whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
 }
   \item{s.d.denom}{
 whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), or the pooled standard deviation ("pooled"), computed as the square root of the mean of the group variances. Abbreviations allowed. If not specified, \code{bal.tab()} will figure out which one is best based on the estimand of the \code{weightit} object: if ATT, "treated"; if ATC, "control", otherwise "pooled".
