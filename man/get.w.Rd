@@ -9,6 +9,7 @@
 \alias{get.w.ebalance}
 \alias{get.w.optmatch}
 \alias{get.w.weightit}
+\alias{get.w.designmatch}
 
 \title{
 Extract Weights from Preprocessing Objects
