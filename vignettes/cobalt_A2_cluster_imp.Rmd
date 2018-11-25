@@ -261,7 +261,7 @@ Often these ranges will be small if the imputed data sets are very similar to ea
 
 There are cases when data is both clustered and has been multiply imputed. See Enders, Mistler, & Keller (2016) for a discussion of multiply imputed, multilevel data. You can assess balance on this type of data with `cobalt` as well, though there may a lot to sift through (e.g., balance tables for each cluster for each imputation). Essentially, you can combine the syntax for clustered data and for imputed data to assess balance within and across clusters and imputations. For example, you may want to assess balance for each cluster but aggregating across imputations, or you may want to assess balance for each cluster within one imputation. Because there are many possible combinations, we will not describe them all here, but you should experiment with them as you see fit. In general, we recommend assessing balance aggregating across imputations, either within each cluster (e.g., for grouped data) or also aggregating across clusters (e.g., for multilevel data with many clusters), when possible.
 
-To demonstrate, we will combine the approaches above by using the data sets with missingess that we imputed above but examining balance within each race group. 
+To demonstrate, we will combine the approaches above by using the data sets with missingness that we imputed above but examining balance within each race group. 
 
 ```{r}
 library("MatchIt"); library("cobalt"); library("mice")

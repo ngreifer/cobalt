@@ -73,7 +73,7 @@ A character vector containing the method of adjustment, if any.  If \code{weight
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
 }
   \item{poly}{
-\code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in additon to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
+\code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
 }
   \item{addl}{
 A vector, \code{data.frame}, or the quoted names of additional covariates for which to present balance.  These may be covariates included in the original dataset but not included in \code{covs}.  In general, it makes more sense to include all desired variables in \code{covs} than in \code{addl}. If the argument is a vector, the variable will be displayed as "addl" in the output.

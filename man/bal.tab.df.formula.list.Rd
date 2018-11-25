@@ -59,7 +59,7 @@ optional; a vector, list, or data frame containing weights for each unit or a st
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
 }
   \item{poly}{
-\code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in additon to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
+\code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
 }
   \item{distance.list}{
 optional;  distance values (e.g., propensity scores) for each unit. These can be specified as a list of vectors or data frames containing the distance values (one for each time point), or as a single vector or data frame to be applied at all times points. The vectors or data frames can be replaced with the names of variables in \code{data} containing the distance values. If a list is used and some time points are not to have distance values, these can be replaced with NULL in the list.

@@ -14,9 +14,9 @@ get.cobalt.options(...)
 }
 \arguments{
   \item{...}{
-For \code{set.cobalt.options}, \code{bal.tab} parameters and the values they should take. These should be the name of the parameter in \code{bal.tab} without \code{"cobalt_"} preceeding them. See examples. If any values are \code{NULL}, the corresponding options will be set back to their defaults.
+For \code{set.cobalt.options}, \code{bal.tab} parameters and the values they should take. These should be the name of the parameter in \code{bal.tab} without \code{"cobalt_"} preceding them. See examples. If any values are \code{NULL}, the corresponding options will be set back to their defaults.
 
-For \code{get.cobalt.options}, one or more strings containing the name of a paramter option to be retrieved. See examples. If empty, all available options and their values will be returned.
+For \code{get.cobalt.options}, one or more strings containing the name of a parameter option to be retrieved. See examples. If empty, all available options and their values will be returned.
 }
   \item{default}{
 if \code{TRUE}, sets all \pkg{cobalt} options not named in \code{...} to their default values.
