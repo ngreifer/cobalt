@@ -12,7 +12,7 @@ get.w.ps <- function(x, stop.method = NULL, estimand = NULL, s.weights = FALSE, 
                 message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps$w)
             }
-            # rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
+            # rule1 <- tryCatch(match_arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
             #                   error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
             #                       return(names(ps$w))})
         }
@@ -128,7 +128,7 @@ get.w.ps.cont <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
                 message(paste0("Warning: stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps.cont$w)
             }
-            # rule1 <- tryCatch(match.arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
+            # rule1 <- tryCatch(match_arg(tolower(stop.method), tolower(names(ps$w)), several.ok = TRUE),
             #                   error = function(cond) {message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."));
             #                       return(names(ps$w))})
         }
@@ -244,7 +244,7 @@ get.w.CBPS <- function(x, estimand = NULL, ...) {
                 else estimand <- "att"
             }
             
-            estimand <- match.arg(tolower(estimand), c("att", "atc", "ate"))
+            estimand <- match_arg(tolower(estimand), c("att", "atc", "ate"))
             if (estimand == "att") {
                 return(ifelse(t == 1, 1, ps/(1-ps)))
             }
