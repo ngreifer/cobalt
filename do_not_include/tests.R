@@ -36,7 +36,7 @@ bal.tab(f.build("treat", covs), data = lalonde, weights = m5$weights, method = "
 library("twang")
 ps.out <- ps(f.build("treat", covs), data = lalonde, 
    stop.method = c("ks.max", "es.max"), 
-   estimand = "ATT", verbose = FALSE, n.trees = 1000)
+   estimand = "ATT", verbose = FALSE, n.trees = 100)
 bal.tab(ps.out, disp.ks = T, ks.threshold = .05, imbalanced.only = T)
 sampw <- sample(c(1.25, 0.75), nrow(covs), TRUE, c(.5, .5))
 ps.out.s <- ps(f.build("treat", covs), data = lalonde, 
@@ -173,6 +173,13 @@ bal.tab(f.build("treat", covs_mis), data = imp.data, weights = "match.weight",
 bal.tab(f.build("treat", covs_mis), data = imp.data, weights = "match.weight", 
         method = "matching", imp = ".imp", distance = "ps", which.imp = NULL,
         cluster = "race", disp.ks = T)
+
+#With WeightIt
+library(WeightIt)
+W.imp <- weightit(f.build("treat", covs_mis), data = imp.data, estimand = "ATT",
+                  by = ".imp", method = "ps")
+bal.tab(W.imp, imp = ".imp")
+    
 #With continuous treatment
 imp.data <- complete(imp, "long", include = FALSE)
 imp.data <- imp.data[with(imp.data, order(.imp, .id)),]
@@ -188,6 +195,8 @@ bal.tab(f.build("re78", covs_mis), data = imp.data, weights = "cbps.w",
 
 bal.tab(f.build("re78", covs_mis), data = imp.data, weights = "cbps.w", 
         method = "w", imp = ".imp", which.imp = NULL, cluster = "race")
+
+
 
 #Missingness indicators
 data("lalonde_mis", package = "cobalt")

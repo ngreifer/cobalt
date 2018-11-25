@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-Version 3.5.1
+Version 3.6.0
 
 * Added `poly` argument to `bal.tab()` to display polynomials of continuous covariates (e.g., squares, cubes, etc.). This used to only be available with the `int` argument, which also displayed all interactions. Now, the polynomials can be requested seperately. When `int = TRUE`, squares of the covariates will no longer be displayed; to replicate the old behavior, set `int = 2`, which is equivalent to `int = TRUE, poly = 2`.
 
@@ -13,7 +13,9 @@ Version 3.5.1
 
 * Small documentation and syntax updates.
 
-* Added the hidden and undocumented argument `center`, which, when set to `TRUE`, centers the covariates at the mean of the entire unadjusted sample prior to computing interactions and polynomials.
+* Added the hidden and undocumented argument `center` to `bal.tab`, which, when set to `TRUE`, centers the covariates at the mean of the entire unadjusted sample prior to computing interactions and polynomials.
+
+* Added `set.cobalt.options` function to more easily set the global options that can be used as defaults to some arguments. For example, `set.global.options(binary = "std")` makes it so that standardized mean difference are always displayed for binary covariates (in the present R session). The options can be retrieved with `get.cobalt.options`.
 
 Version 3.5.0
 
@@ -25,7 +27,7 @@ Version 3.5.0
 
 * Added `factor_sep` and `int_sep` options to change the seperators between variable names when factor variables and interactions are displayed. This functionality had been available since version 3.4.0 but was not documented. It is now documented in the new `display_options` help page.
 
-* In `bal.tab()`, `continuous` and `binary` can be specified with the global options `"cobalt_cont"` and `"cobalt_bin"`, respectively, so that a global setting (e.g., to set `binary = "std"` to view standardizd mean difference rather than raw differences in proportion for binary variables) can be used instead of specifying the argument each time in the call to `bal.tab()`.
+* In `bal.tab()`, `continuous` and `binary` can be specified with the global options `"cobalt_continuous"` and `"cobalt_binary"`, respectively, so that a global setting (e.g., to set `binary = "std"` to view standardizd mean difference rather than raw differences in proportion for binary variables) can be used instead of specifying the argument each time in the call to `bal.tab()`.
 
 * Minor updates to `f.build()` to process inputs more flexibly. The left hand side can now be empty, and the variables on the right hand side can now contain spaces.
 
