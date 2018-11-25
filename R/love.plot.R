@@ -5,7 +5,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     b <- x; rm(x)
     if ("bal.tab" %nin% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
-    else stat <- match.arg(stat)
+    else stat <- match_arg(stat)
     
     args <- list(...)
     #size
@@ -99,7 +99,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             if (is_null(b[["Balance.Across.Times"]])) {
                 stop("Cannot aggregate across time periods without a balance summary across time periods.\nThis may be because multinomial treatments were used, multiple treatment types were used,\n or quick was set to TRUE and msm.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            #Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
+            #Agg.Fun <- switch(match_arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
                 subtitle <- paste0(which.stat2, " Range Across Time Points")
@@ -205,7 +205,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             if (is_null(b[["Cluster.Balance.Across.Imputations"]])) {
                 stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and imp.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
                 subtitle <- paste0(which.stat2, " Range Across Imputations")
             }
@@ -222,7 +222,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             if (is_null(b[["Imputation.Balance"]][[1]][["Cluster.Summary"]])) {
                 stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
                 subtitle <- paste0(which.stat2, " Range Across Clusters")
             }
@@ -239,8 +239,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             if (is_null(b[["Balance.Across.Imputations"]])) {
                 stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and cluster.summary or imp.summary were set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            #Cluster.Fun <- switch(match.arg(cluster.fun), mean = "Mean", max = "Max", range = "Range")
-            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
+            #Cluster.Fun <- switch(match_arg(cluster.fun), mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
                 subtitle <- paste0(which.stat2, " Range Across Clusters and Imputations")
             }
@@ -286,7 +286,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             if (is_null(b[["Balance.Across.Imputations"]])) {
                 stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and imp.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            Agg.Fun <- switch(tolower(match.arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
                 subtitle <- paste0(which.stat2, " Range Across Imputations")
             }
@@ -342,7 +342,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
             
-            tryCatch({agg.fun <- tolower(match.arg(agg.fun))}, 
+            tryCatch({agg.fun <- tolower(match_arg(agg.fun))}, 
                      error = function(e) stop("agg.fun should be one of \"mean\", \"max\", or \"range\".", call. = FALSE))
             Agg.Fun <- switch(agg.fun, mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
@@ -423,7 +423,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             facet <- "treat.pair"
         }
         else if (config == "agg.pair") {
-            #Agg.Fun <- switch(match.arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
+            #Agg.Fun <- switch(match_arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
                 subtitle <- paste0(which.stat2, " Range Across Treatment", ifelse(b$print.options$pairwise, " Pairs", "s"))
@@ -586,7 +586,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             ua <- c("Unadjusted", b$print.options$weight.names, "Alphabetical")
             names(ua) <- c("unadjusted", b$print.options$weight.names, "alphabetical")
         }
-        var.order <- ua[match.arg(var.order, tolower(ua))]
+        var.order <- ua[match_arg(var.order, tolower(ua))]
     }
 
     if (is_not_null(facet)) {
@@ -671,7 +671,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
         # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
         SS[["Sample"]] <- factor(SS[["Sample"]])
-        if (which.stat == "Diff" && any(abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
+        if (which.stat == "Diff" && any(abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
         SS[["stat"]] <- SS[["mean.stat"]]
     }
@@ -743,7 +743,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
         }
         SS[["Sample"]] <- factor(SS[["Sample"]])
-        if (which.stat == "Diff" && any(abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardizied mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
+        if (which.stat == "Diff" && any(abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
         if (no.missing) SS <- SS[!is.na(SS[["stat"]]),]
     }
     SS <- SS[order(SS[["var"]]),]
