@@ -339,3 +339,99 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
     }
     else out
 }
+
+set.cobalt.options <- function(..., default = FALSE) {
+    opts <- list(...)
+    if (is_not_null(opts) && (is_null(names(opts)) ||  "" %in% names(opts))) {
+        stop("All arguments must be named.", call. = FALSE)
+    }
+    # if ("continuous" %in% names(opts)) names(opts)[names(opts) == "continuous"] <- "cont"
+    # if ("binary" %in% names(opts)) names(opts)[names(opts) == "binary"] <- "bin"
+    
+    multiple.allowed <- c("cluster.fun", "imp.fun")
+    any.string.allowed <- c("int_sep", "factor_sep")
+    
+    if (any(duplicates <- table(names(opts)) > 1)) {
+        stop(paste0(word.list(names(duplicates)[duplicates], is.are = TRUE), " present more than once in the input to set.cobalt.options."), call. = FALSE)
+    }
+    
+    if (any(names(opts) %nin% names(acceptable.options()))) {
+        warning(paste("The following are not acceptable options and will be ignored:", word.list(unique(names(opts)[names(opts) %nin% names(acceptable.options())]))), call. = FALSE, immediate. = TRUE)
+        opts <- opts[names(opts) %in% names(acceptable.options())]
+    }
+    
+    if (default) {
+        return.to.default <- setdiff(names(acceptable.options()), names(opts))
+    }
+    else return.to.default <- NULL
+
+    multiple.opts <- NULL
+    bad.opts <- NULL
+    for (i in names(opts)) {
+        if (is_null(opts[[i]])) {
+            return.to.default <- c(return.to.default, i)
+            opts[[i]] <- NULL
+        }
+        else {
+            if (length(opts[[i]]) > 1 && i %nin% multiple.allowed) multiple.opts <- c(multiple.opts, i)
+            if (mode(opts[[i]]) != mode(acceptable.options()[[i]]) || 
+                (!(is.character(opts[[i]]) && is.character(acceptable.options()[[i]]) && (i %in% any.string.allowed || !is.na(pmatch(opts[[i]], acceptable.options()[[i]])))) &&
+                 !all(opts[[i]] %in% acceptable.options()[[i]]))) bad.opts <- c(bad.opts, i)
+        }
+    }
+    
+    if (is_not_null(opts)) {
+        both.opts <- intersect(multiple.opts, bad.opts)
+        multiple.opts <- multiple.opts[multiple.opts %nin% both.opts]
+        bad.opts <- bad.opts[bad.opts %nin% both.opts]
+        problematic.opts <- setNames(vector("list", 3), c("multiple", "bad", "both"))
+        problematic.opts[["multiple"]] <- setNames(lapply(multiple.opts, function(i) {
+            paste(i, "must be of length 1.")
+        }), multiple.opts)
+        problematic.opts[["bad"]] <- setNames(lapply(bad.opts, function(i) {
+            if (i %in% any.string.allowed) paste0(i, " must be a character string.")
+            else paste0(i, " must be ", word.list(acceptable.options()[[i]], quotes = is.character(acceptable.options()[[i]]), and.or = "or"), ".")
+        }), bad.opts)
+        problematic.opts[["both"]] <- setNames(lapply(both.opts, function(i) {
+            if (i %in% any.string.allowed) paste0(i, " must be a character string of length 1.")
+            else paste0(i, " must be one of ", word.list(acceptable.options()[[i]], quotes = is.character(acceptable.options()[[i]]), and.or = "or"), ".")
+        }), both.opts)
+        
+        problems <- do.call("c", unname(problematic.opts))
+        problems <- problems[names(opts)[names(opts) %in% names(problems)]]
+        if (is_not_null(problems)) {
+            stop(do.call("paste", c(list(""), problems, list("\nNo options will be set.", sep = "\n"))), call. = FALSE)
+        }
+        
+        names(opts) <- paste0("cobalt_", names(opts))
+        options(opts)
+    }
+    
+    if (is_not_null(return.to.default)) {
+        options(setNames(replicate(length(return.to.default), NULL), paste0("cobalt_", return.to.default)))
+    }
+    # if ("continuous" %in% names(opts)) names(acceptable.options)[names(acceptable.options) == "continuous"] <- "cont"
+    # if ("binary" %in% names(opts)) names(acceptable.options)[names(acceptable.options) == "binary"] <- "bin"
+}
+get.cobalt.options <- function(...) {
+    opts <- list(...)
+    
+    opts <- clear_null(opts)
+    if (is_null(opts)) opts <- names(acceptable.options())
+    else {
+        if (!all(vapply(opts, is.character, logical(1L)))) {
+            stop("All arguments must be strings containing the name of an option to return.", call. = FALSE)
+        }
+        opts <- do.call("c", opts)
+        if (any(not.in.accept <- opts %nin% names(acceptable.options()))) {
+            plural <- sum(not.in.accept) > 1
+            stop(paste0(word.list(opts[not.in.accept], is.are = TRUE, quotes = TRUE),
+                        " not", ifelse(plural, "", " an"), " acceptable option", 
+                        ifelse(plural, "s", ""), "."), call. = FALSE)
+        }
+    }
+    
+    out <- setNames(lapply(paste0("cobalt_", opts), getOption), opts)
+    return(out)
+    
+}

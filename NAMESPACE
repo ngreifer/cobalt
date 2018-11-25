@@ -6,7 +6,8 @@ importFrom("crayon", "italic", "underline")
 importFrom("methods", "is")
 
 export(bal.tab, bal.plot, love.plot, f.build, splitfactor, 
-       unsplitfactor, get.w, var.names)
+       unsplitfactor, get.w, var.names, set.cobalt.options,
+       get.cobalt.options)
 S3method(print, bal.tab)
 S3method(print, bal.tab.subclass)
 S3method(print, bal.tab.cluster)
