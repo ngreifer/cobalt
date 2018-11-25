@@ -19,8 +19,8 @@ Generates balance statistics for data coming from a longitudinal treatment scena
     distance.list = NULL, 
     addl.list = NULL, 
     method, 
-    continuous = getOption("cobalt_cont", "std"),  
-    binary = getOption("cobalt_bin", "raw"), 
+    continuous,  
+    binary, 
     s.d.denom, 
     m.threshold = NULL, 
     v.threshold = NULL, 
@@ -71,10 +71,10 @@ optional; additional covariates for which to present balance.  These may be cova
 a character vector containing the method of adjustment, if any. Currently only "weighting" is supported.
 }
   \item{continuous}{
-whether mean differences for continuous variables should be standardized ("std") or raw ("raw").  Default "std".  Abbreviations allowed.
+whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
 }
   \item{binary}{
-whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw").  Default "raw".  Abbreviations allowed.
+whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
 }
   \item{s.d.denom}{
 a character vector denoting whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), or the pooled standard deviation ("pooled"), computed as the square root of the mean of the group variances. Abbreviations allowed. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. If left blank and weights are supplied, \code{bal.tab()} will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply \code{s.d.denom} accordingly. If left blank, \code{bal.tab()} will try to use the \code{estimand} argument. It is recommended not to set this argument for longitudinal treatments.
