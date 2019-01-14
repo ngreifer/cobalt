@@ -1,6 +1,8 @@
 bal.tab <- function(...) {
+    
     if (...length() == 0L) stop("No arguments were supplied.", call. = FALSE)
     .obj <- ...elt(1)
+    
     .obj <- is.designmatch(.obj)
     .obj <- is.time.list(.obj)
     UseMethod("bal.tab", .obj)
@@ -113,7 +115,7 @@ bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distanc
     return(out)
 }
 bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = NULL, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = FALSE, ...) {
-  
+    
     args <- c(as.list(environment()), list(...))[-1]
     
     #Adjustments to arguments
@@ -297,7 +299,7 @@ bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, w
             }
         }
     }
-
+    
     X <- do.call("x2base.data.frame.list", c(list(covs.list = covs.list), args), quote = TRUE)
     
     args <- args[names(args) %nin% names(X)]
