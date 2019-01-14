@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+Version 3.6.1
+
+* Fixed bug when installed version of R was earlier than 3.5.0.
+
 Version 3.6.0
 
 * Added `poly` argument to `bal.tab()` to display polynomials of continuous covariates (e.g., squares, cubes, etc.). This used to only be available with the `int` argument, which also displayed all interactions. Now, the polynomials can be requested seperately. When `int = TRUE`, squares of the covariates will no longer be displayed; to replicate the old behavior, set `int = 2`, which is equivalent to `int = TRUE, poly = 2`.
