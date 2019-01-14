@@ -218,114 +218,6 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
     }
     return(val.List)
 }
-null.or.error <- function(x) {is_null(x) || class(x) == "try-error"}
-get.covs.and.treat.from.formula <- function(f, data = NULL, env = .GlobalEnv, ...) {
-    A <- list(...)
-    
-    tt <- terms(f, data = data)
-    
-    #Check if data exists
-    if (is_not_null(data) && is.data.frame(data)) {
-        data.specified <- TRUE
-    }
-    else data.specified <- FALSE
-    
-    #Check if response exists
-    if (is.formula(tt, 2)) {
-        resp.vars.mentioned <- as.character(tt)[2]
-        resp.vars.failed <- vapply(resp.vars.mentioned, function(v) {
-            null.or.error(try(eval(parse(text = v), c(data, env)), silent = TRUE))
-        }, logical(1))
-        
-        if (any(resp.vars.failed)) {
-            if (is_null(A[["treat"]])) stop(paste0("The given response variable, \"", as.character(tt)[2], "\", is not a variable in ", word.list(c("data", "the global environment")[c(data.specified, TRUE)], "or"), "."), call. = FALSE)
-            tt <- delete.response(tt)
-        }
-    }
-    else resp.vars.failed <- TRUE
-    
-    if (any(!resp.vars.failed)) {
-        treat.name <- resp.vars.mentioned[!resp.vars.failed][1]
-        tt.treat <- terms(as.formula(paste0(treat.name, " ~ 1")))
-        mf.treat <- quote(stats::model.frame(tt.treat, data,
-                                             drop.unused.levels = TRUE,
-                                             na.action = "na.pass"))
-        
-        tryCatch({mf.treat <- eval(mf.treat, c(data, env))},
-                 error = function(e) {stop(conditionMessage(e), call. = FALSE)})
-        treat <- model.response(mf.treat)
-    }
-    else {
-        treat <- A[["treat"]]
-        treat.name <- NULL
-    }
-    
-    #Check if RHS variables exist
-    tt.covs <- delete.response(tt)
-    rhs.vars.mentioned.lang <- attr(tt.covs, "variables")[-1]
-    rhs.vars.mentioned <- vapply(rhs.vars.mentioned.lang, deparse, character(1L))
-    rhs.vars.failed <- vapply(rhs.vars.mentioned.lang, function(v) {
-        null.or.error(try(eval(v, c(data, env)), silent = TRUE))
-    }, logical(1L))
-    
-    if (any(rhs.vars.failed)) {
-        stop(paste0(c("All variables in formula must be variables in data or objects in the global environment.\nMissing variables: ",
-                      paste(rhs.vars.mentioned[rhs.vars.failed], collapse=", "))), call. = FALSE)
-        
-    }
-    
-    rhs.term.labels <- attr(tt.covs, "term.labels")
-    rhs.term.orders <- attr(tt.covs, "order")
-    
-    rhs.df <- vapply(rhs.vars.mentioned.lang, function(v) {
-        is.data.frame(try(eval(v, c(data, env)), silent = TRUE))
-    }, logical(1))
-    
-    if (any(rhs.df)) {
-        if (any(rhs.vars.mentioned[rhs.df] %in% unlist(lapply(rhs.term.labels[rhs.term.orders > 1], function(x) strsplit(x, ":", fixed = TRUE))))) {
-            stop("Interactions with data.frames are not allowed in the input formula.", call. = FALSE)
-        }
-        addl.dfs <- setNames(lapply(rhs.vars.mentioned.lang[rhs.df], function(x) {eval(x, env)}),
-                             rhs.vars.mentioned[rhs.df])
-        
-        for (i in rhs.term.labels[rhs.term.labels %in% rhs.vars.mentioned[rhs.df]]) {
-            ind <- which(rhs.term.labels == i)
-            rhs.term.labels <- append(rhs.term.labels[-ind],
-                                      values = names(addl.dfs[[i]]),
-                                      after = ind - 1)
-        }
-        new.form <- as.formula(paste("~", paste(rhs.term.labels, collapse = " + ")))
-        
-        tt.covs <- terms(new.form)
-        if (is_not_null(data)) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
-        else data <- do.call("cbind", unname(addl.dfs))
-    }
-    
-    #Get model.frame, report error
-    mf.covs <- quote(stats::model.frame(tt.covs, data,
-                                        drop.unused.levels = TRUE,
-                                        na.action = "na.pass"))
-    tryCatch({covs <- eval(mf.covs, c(data, env))},
-             error = function(e) {stop(conditionMessage(e), call. = FALSE)})
-    
-    if (is_not_null(treat.name) && treat.name %in% names(covs)) stop("The variable on the left side of the formula appears on the right side too.", call. = FALSE)
-    
-    if (is_null(rhs.vars.mentioned)) {
-        covs <- data.frame(Intercept = rep(1, if (is_null(treat)) 1 else length(treat)))
-    }
-    else attr(tt.covs, "intercept") <- 0
-    
-    #Get full model matrix with interactions too
-    covs.matrix <- model.matrix(tt.covs, data = covs,
-                                contrasts.arg = lapply(Filter(is.factor, covs),
-                                                       contrasts, contrasts=FALSE))
-    attr(covs, "terms") <- NULL
-    
-    return(list(reported.covs = covs,
-                model.covs = covs.matrix,
-                treat = treat,
-                treat.name = treat.name))
-}
 get.X.class <- function(X) {
     if (is_not_null(X[["imp"]])) {
         if (is_not_null(X[["treat.list"]])) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
@@ -339,11 +231,6 @@ get.X.class <- function(X) {
     else probably.a.bug()
     
     return(X.class)
-}
-probably.a.bug <- function() {
-    fun <- paste(deparse(sys.call(-1)), collapse = "\n")
-    stop(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function\n",
-                fun), call. = FALSE)
 }
 subset_X <- function(X, subset) {
     n <- length(subset)
@@ -410,16 +297,6 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.
     new <- new[, !apply(new, 2, all_the_same), drop = FALSE]
     attr(new, "co.names") <- new.co.names
     return(new)
-}
-binarize <- function(variable) {
-    nas <- is.na(variable)
-    if (!is_binary(variable[!nas])) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
-    variable.numeric <- as.numeric(variable)
-    if (0 %in% unique(variable.numeric)) zero <- 0
-    else zero <- min(unique(variable.numeric), na.rm = TRUE)
-    newvar <- setNames(ifelse(!nas & variable.numeric==zero, 0, 1), names(variable))
-    newvar[nas] <- NA_real_
-    return(newvar)
 }
 get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, cluster = NULL, ...) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
@@ -635,23 +512,6 @@ remove.perfect.col <- function(C) {
     C <- C[, colnames(C) %nin% redundant.vars, drop = FALSE] 
     return(C)
 }
-num_to_superscript <- function(x) {
-    nums <- setNames(c("\u2070",
-                       "\u00B9",
-                       "\u00B2",
-                       "\u00B3",
-                       "\u2074",
-                       "\u2075",
-                       "\u2076",
-                       "\u2077",
-                       "\u2078",
-                       "\u2079"),
-                     as.character(0:9))
-    x <- as.character(x)
-    splitx <- strsplit(x, "")
-    supx <- vapply(splitx, function(y) paste0(nums[y], collapse = ""), character(1))
-    return(supx)
-}
 
 #base.bal.tab
 check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL, treat.type = "cat") {
@@ -702,40 +562,6 @@ check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL, treat.
     }
     else stop("treat.type must be either \"cat\" or \"cont\".")
     
-}
-w.m <- function(x, w = NULL, na.rm = TRUE) {
-    if (is_null(w)) w <- as.numeric(!is.na(x))
-    return(sum(x*w, na.rm=na.rm)/sum(w, na.rm=na.rm))
-}
-col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
-    if (is_null(w)) {
-        w <- 1
-        w.sum <- apply(mat, 2, function(x) sum(!is.na(x)))
-    }
-    else {
-        w.sum <- apply(mat, 2, function(x) sum(w[!is.na(x)], na.rm = na.rm))
-    }
-    return(colSums(mat*w, na.rm = na.rm)/w.sum)
-}
-w.cov.scale <- function(w) {
-    (sum(w, na.rm = TRUE)^2 - sum(w^2, na.rm = TRUE)) / sum(w, na.rm = TRUE)
-}
-w.v <- function(x, w = NULL) {
-    #return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE)/(sum(w, na.rm=TRUE)-1))
-    return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE) / w.cov.scale(w))
-}
-col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
-    if (is_null(w)) {
-        w <- rep(1, NROW(mat))
-    }
-    return(colSums(t((t(mat) - col.w.m(mat, w, na.rm = na.rm))^2) * w, na.rm = na.rm) / w.cov.scale(w))
-}
-w.cov <- function(x, y , w = NULL) {
-    wmx <- w.m(x, w)
-    wmy <- w.m(y, w)
-    #wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = TRUE)/sum(w, na.rm = TRUE)
-    wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = TRUE) / w.cov.scale(w)
-    return(wcov)
 }
 col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL, x.types, continuous, binary, s.d.denom, no.weights = FALSE, s.weights = rep(1, length(treat)), pooled.sds = NULL) {
     if (no.weights) weights <- rep(1, NROW(mat))
@@ -829,9 +655,6 @@ baltal <- function(threshold) {
                             sum(threshold==paste0("Not Balanced, >", thresh.val))))
     rownames(b) <- c(paste0("Balanced, <", thresh.val), paste0("Not Balanced, >", thresh.val))
     return(b)
-}
-ESS <- function(w) {
-    sum(w)^2/sum(w^2)
 }
 samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), cluster = NULL, which.cluster = NULL, discarded = NULL, treat.names = c("Control", "Treated")) {
     #Computes sample size info. for unadjusted and adjusted samples.
@@ -1277,13 +1100,21 @@ balance.table.cluster.summary <- function(balance.table.clusters.list, weight.na
 }
 
 #base.bal.tab.cont
-w.r <- function(x, y, w = NULL) {
+w.r <- function(x, y, w = NULL, s.weights = NULL) {
+    #Computes weighted correlation but using the unweighted (s.weighted) variances
+    #in the denominator.
     if (length(x) != length(y)) stop("x and y must the same length")
+    
     if (is_null(w)) w <- rep(1, length(x))
     else if (length(w) != length(x)) stop("weights must be same length as x and y")
     
-    #r <- w.cov(x, y, w) / (sqrt(w.cov(x, x, w) * w.cov(y, y, w)))
-    r <- w.cov(x, y, w) / (sqrt(var(x) * var(y)))
+    if (is_null(s.weights)) s.weights <- rep(1, length(x))
+    else if (length(s.weights) != length(x)) stop("s.weights must be same length as x and y")
+    
+    w_ <- w*s.weights
+    
+    r <- w.cov(x, y, w_) / (sqrt(w.v(x, s.weights) * w.v(y, s.weights)))
+    #r <- w.cov(x, y, w_) / (sqrt(var(x) * var(y)))
     
     return(r)
 }
@@ -1437,10 +1268,10 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     #Correlations
     if (abs) a0 <- base::abs
     else a0 <- base::identity
-    if (!(!un && quick)) B[["Corr.Un"]] <- a0(apply(C, 2, w.r, y = treat, w = s.weights))
+    if (!(!un && quick)) B[["Corr.Un"]] <- a0(apply(C, 2, w.r, y = treat, s.weights = s.weights))
     if (!no.adj) {
         for (i in weight.names) {
-            B[[paste0("Corr.", i)]] <- a0(apply(C, 2, w.r, y = treat, w = weights[[i]]*s.weights))
+            B[[paste0("Corr.", i)]] <- a0(apply(C, 2, w.r, y = treat, w = weights[[i]], s.weights = s.weights))
         }
     }
     
@@ -1859,58 +1690,6 @@ get.var.from.list.with.time <- function(var.name, covs.list) {
 }
 
 #print.bal.tab
-round_df_char <- function(df, digits, pad = "0", na_vals = "") {
-    if (NROW(df) == 0) return(df)
-    nas <- is.na(df)
-    if (!is.data.frame(df)) df <- as.data.frame.matrix(df, stringsAsFactors = FALSE)
-    infs <- sapply(df, function(x) !is.na(x) & (x == Inf | x == -Inf), simplify = "array")
-    rn <- rownames(df)
-    cn <- colnames(df)
-    df <- as.data.frame(lapply(df, function(col) {
-        if (suppressWarnings(all(!is.na(as.numeric(as.character(col)))))) {
-            as.numeric(as.character(col))
-        } else {
-            col
-        }
-    }), stringsAsFactors = FALSE)
-    nums <- vapply(df, is.numeric, logical(1))
-    o.negs <- sapply(1:NCOL(df), function(x) if (nums[x]) df[[x]] < 0 else rep(FALSE, length(df[[x]])))
-    df[nums] <- round(df[nums], digits = digits)
-    
-    df[nas | infs] <- ""
-    
-    df <- as.data.frame(lapply(df, format, scientific = FALSE, justify = "none"), stringsAsFactors = FALSE)
-    
-    for (i in which(nums)) {
-        if (any(grepl(".", df[[i]], fixed = TRUE))) {
-            s <- strsplit(df[[i]], ".", fixed = TRUE)
-            lengths <- lengths(s)
-            digits.r.of.. <- sapply(seq_along(s), function(x) {
-                if (lengths[x] > 1) nchar(s[[x]][lengths[x]])
-                else 0 })
-            df[[i]] <- sapply(seq_along(df[[i]]), function(x) {
-                if (df[[i]][x] == "") ""
-                else if (lengths[x] <= 1) {
-                    paste0(c(df[[i]][x], rep(".", pad == 0), rep(pad, max(digits.r.of..) - digits.r.of..[x] + as.numeric(pad != 0))),
-                           collapse = "")
-                }
-                else paste0(c(df[[i]][x], rep(pad, max(digits.r.of..) - digits.r.of..[x])),
-                            collapse = "")
-            })
-        }
-    }
-    
-    df[o.negs & df == 0] <- paste0("-", df[o.negs & df == 0])
-    
-    # Insert NA placeholders
-    df[nas] <- na_vals
-    df[infs] <- "N/A"
-    
-    if (length(rn) > 0) rownames(df) <- rn
-    if (length(cn) > 0) names(df) <- cn
-    
-    return(df)
-}
 print.data.frame_ <- function(x, ...) {
     if (is_not_null(x) && NROW(x) > 0 && NCOL(x) > 0) {
         print.data.frame(x, ...)
