@@ -43,7 +43,7 @@ The rest of this guide explains how to use `cobalt` with some of the above packa
 #### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version 3.5.0.
+`r paste0("Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version ", packageVersion("cobalt"), ".")`
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
@@ -506,8 +506,10 @@ A key detail is that the standard deviation, no matter how it is computed, is al
 
 The same logic applies to computing the standard deviations that appear in the denominator of the treatment-covariate correlations that are used to assess balance with continuous treatments. Given that the covariance is the relevant quality to be assessed and the correlation is just a standardization used to simplify interpretation, the standardization factor should remain the same before and after adjustment. Thus, the standard deviations of the *unadjusted* sample are used in the denominator of the treatment-covariate correlation, even when the correlation in question is for the adjusted sample.
 
+Note that when sampling weights are used, values for the unadjusted sample will be computed incorporating the sampling weights; in that sense, they are "adjusted" by the sampling weights. 
+
 ### Weighted Variance
-When using weighting or matching, summary values after adjustment are calculated by using weights generated from the matching or weighting process. For example, group means are computed using the standard formula for a weighted mean, incorporating the weighting or matching weights into the calculation. To estimate a weighted sample variance for use in variance ratios^[Standardized mean differences use only unweighted variance estimates; see section "Variance in Standardized Mean Differences and Correlations" for details.] or sample standard deviations, there are two formulas that have been proposed:
+When using weighting or matching, summary values after adjustment are calculated by using weights generated from the matching or weighting process. For example, group means are computed using the standard formula for a weighted mean, incorporating the weighting or matching weights into the calculation. To estimate a weighted sample variance for use in variance ratios^[Standardized mean differences use only unweighted variance estimates; see section "Variance in Standardized Mean Differences and Correlations" for details.], sample standard deviations, or other stantistics in the presence of sampling weights, there are two formulas that have been proposed:
 
 1. $\frac{\sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2}{(\sum_{i=1}^{n} w_{i}) - 1}$
 
@@ -550,8 +552,8 @@ As mentioned above, `cobalt` displays density plots and bar charts rather than e
 ### Variance Ratios
 
 Although mean differences (including t-tests and chi-square tests) are the most reported balance statistic (Thoemmes & Kim, 2011), variance ratios have been recommended in the literature as a means to further examine balance between groups (Austin, 2009, Imai et al., 2008; Ho et al., 2007). When group variances are similar, the variance ratio will be close to 1. Common thresholds for the variance ratio for balanced groups are 1/2 and 2 (Rubin, 2001; Stuart, 2010), though ratios closer to 1 are preferred. 
-The `Matching` package is the only one of the conditioning packages that presents variance ratios for covariates. Although `bal.tab()` in `cobalt` does not display variance ratios by default, they can be easily requested and have thresholds set. 
 
+The `Matching` package is the only one of the conditioning packages that presents variance ratios for covariates. Although `bal.tab()` in `cobalt` does not display variance ratios by default, they can be easily requested and have thresholds set. 
 ### Distinguishing Continuous and Binary Covariates
 
 Continuous and binary covariates are treated differently by default in `bal.tab()` and `bal.plot()`. For continuous covariates, the standard manipulations apply: standardized mean differences, variance ratios, and density plots. For binary covariates, raw differences in proportion and bar charts are preferable, and variance ratios are useless. 
@@ -679,6 +681,6 @@ Thoemmes, F. J., & Kim, E. S. (2011). A Systematic Review of Propensity Score Me
 
 Zhao, Q., & Percival, D. (2015). Primal-dual Covariate Balance and Minimal Double Robustness via Entropy Balancing. arXiv preprint arXiv:1501.03571.
 
-Zhu, Y., Coffman, D. L., & Ghosh, D. (2015). A Boosting Algorithm for Estimating Generalized Propensity Scores with Continuous Treatments. Journal of Causal Inference, 3(1). https://doi.org/10.1515/jci-2014-0022
+Zhu, Y., Coffman, D. L., & Ghosh, D. (2015). A Boosting Algorithm for Estimating Generalized Propensity Scores with Continuous Treatments. Journal of Causal Inference, 3(1).
 
 Zubizarreta, J. R., Kilcioglu, C., and Vielma, J. P. (2017). designmatch: Matched Samples that are Balanced and Representative by Design. R package version 0.3.0.
