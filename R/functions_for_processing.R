@@ -354,7 +354,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
             C <- C[names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
         }
         else {
-            if (any(is.na(C[[i]]))) vars.w.missing[i, "has.missing"] <- TRUE
+            if (anyNA(C[[i]])) vars.w.missing[i, "has.missing"] <- TRUE
             if (!is.numeric(C[[i]])) {
                 old.C.names <- names(C)
                 C <- splitfactor(C, i, replace = TRUE, sep = A[["factor_sep"]], drop.first = FALSE, 
@@ -452,7 +452,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
     
     if (is_not_null(distance)) {
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
-        if (any(apply(distance, 2, function(x) any(is.na(x))))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
+        if (any(apply(distance, 2, function(x) anyNA(x)))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
         C <- cbind(distance, C, row.names = NULL)
         dist.co.names <- setNames(lapply(names(distance), function(x) setNames(list(x, "base"), c("component", "type"))), names(distance))
         co.names <- c(co.names, dist.co.names)

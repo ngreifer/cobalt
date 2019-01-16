@@ -601,7 +601,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     #Checks and Adjustments
     if (is_null(p.ops$which.cluster)) 
         which.cluster <- seq_along(c.balance)
-    else if (any(is.na(p.ops$which.cluster))) {
+    else if (anyNA(p.ops$which.cluster)) {
         which.cluster <- integer(0)
         if (!p.ops$cluster.summary) message("No clusters will be displayed; displaying the summary across clusters.")
         p.ops$cluster.summary <- TRUE
@@ -899,7 +899,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     #Checks and Adjustments
     if (is_null(p.ops$which.imp)) 
         which.imp <- seq_along(i.balance)
-    else if (any(is.na(p.ops$which.imp))) {
+    else if (anyNA(p.ops$which.imp)) {
         which.imp <- integer(0)
         if (!p.ops$imp.summary) message("No imputations will be displayed; displaying the summary across imputations.")
         p.ops$imp.summary <- TRUE
@@ -1148,7 +1148,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     
     if (is_null(p.ops$which.cluster)) 
         which.cluster <- seq_along(i.balance[[1]][["Cluster.Balance"]])
-    else if (any(is.na(p.ops$which.cluster))) {
+    else if (anyNA(p.ops$which.cluster)) {
         which.cluster <- integer(0)
         if (!p.ops$cluster.summary) message("No clusters will be displayed; displaying the summary across clusters.")
         p.ops$cluster.summary <- TRUE
@@ -1196,7 +1196,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     
     if (is_null(p.ops$which.imp)) 
         which.imp <- seq_along(i.balance)
-    else if (any(is.na(p.ops$which.imp))) {
+    else if (anyNA(p.ops$which.imp)) {
         which.imp <- integer(0)
         if (!p.ops$imp.summary) message("No imputations will be displayed; displaying the summary across imputations.")
         p.ops$imp.summary <- TRUE
@@ -1444,7 +1444,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     #Checks and Adjustments
     if (is_null(p.ops$which.treat)) 
         which.treat <- p.ops$treat.names
-    else if (any(is.na(p.ops$which.treat))) {
+    else if (anyNA(p.ops$which.treat)) {
         which.treat <- character(0)
         if (!p.ops$multi.summary) message("No treatment pairs will be displayed; displaying the summary across treatments.")
         p.ops$multi.summary <- TRUE
@@ -1693,7 +1693,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     #Checks and Adjustments
     if (is_null(p.ops$which.time)) 
         which.time <- seq_along(msm.balance)
-    else if (any(is.na(p.ops$which.time))) {
+    else if (anyNA(p.ops$which.time)) {
         which.time <- integer(0)
         if (!p.ops$msm.summary) message("No time points will be displayed; displaying the summary across time points.")
         p.ops$msm.summary <- TRUE
@@ -1920,7 +1920,7 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
     #Checks and Adjustments
     if (is_null(p.ops$which.treat)) 
         which.treat <- p.ops$treat.names
-    else if (any(is.na(p.ops$which.treat))) {
+    else if (anyNA(p.ops$which.treat)) {
         which.treat <- character(0)
         if (!p.ops$target.summary) message("No treatments will be displayed; displaying the summary across treatments.")
         p.ops$target.summary <- TRUE

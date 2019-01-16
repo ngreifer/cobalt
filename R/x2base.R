@@ -52,7 +52,7 @@ x2base.matchit <- function(m, ...) {
     }
     else s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
     if (is_not_null(m$model$model)) {
         o.data <- m$model$model #data used in the PS formula, including treatment and covs
@@ -86,7 +86,7 @@ x2base.matchit <- function(m, ...) {
         if (!is_(subset, "logical")) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -217,9 +217,9 @@ x2base.ps <- function(ps, ...) {
     subset <- A$subset
     s.weights <- ps$sampw
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -242,7 +242,7 @@ x2base.ps <- function(ps, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -290,7 +290,7 @@ x2base.ps <- function(ps, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -384,9 +384,9 @@ x2base.mnps <- function(mnps, ...) {
     subset <- A$subset
     s.weights <- mnps$sampw
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     mnps.data <- mnps$data
     
@@ -411,7 +411,7 @@ x2base.mnps <- function(mnps, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -449,7 +449,7 @@ x2base.mnps <- function(mnps, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -535,9 +535,9 @@ x2base.ps.cont <- function(ps.cont, ...) {
     subset <- A$subset
     s.weights <- ps.cont$sampw
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -560,7 +560,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -591,7 +591,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps.cont()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -701,7 +701,7 @@ x2base.Match <- function(Match, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -740,7 +740,7 @@ x2base.Match <- function(Match, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to Match()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1043,7 +1043,7 @@ x2base.data.frame <- function(covs, ...) {
             }
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }
-        if (any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+        if (anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     }
     
     #Process cluster
@@ -1062,7 +1062,7 @@ x2base.data.frame <- function(covs, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -1155,7 +1155,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     if (is_not_null(weights)) {
-        if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
         if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
         
@@ -1296,7 +1296,7 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1351,9 +1351,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
     weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights))
     cluster <- A$cluster
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process sampling weights
     if (is_not_null(s.weights)) {
@@ -1421,7 +1421,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -1472,7 +1472,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to CBPS()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1530,7 +1530,7 @@ x2base.ebalance <- function(ebalance, ...) {
     subset <- A$subset
     weights <- data.frame(weights = get.w(ebalance, treat))
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
 
     s <- "ATT"
@@ -1560,7 +1560,7 @@ x2base.ebalance <- function(ebalance, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -1593,7 +1593,7 @@ x2base.ebalance <- function(ebalance, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to ebalance()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1686,7 +1686,7 @@ x2base.optmatch <- function(optmatch, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -1718,7 +1718,7 @@ x2base.optmatch <- function(optmatch, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to optmatch()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1772,9 +1772,9 @@ x2base.weightit <- function(weightit, ...) {
     imp <- A$imp
     subset <- A$subset
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     d.e.in.w <- vapply(c("covs", "exact", "by"), function(x) is_not_null(weightit[[x]]), logical(1L))
     if (any(d.e.in.w)) weightit.data <- do.call("cbind", unname(weightit[c("covs", "exact", "by")[d.e.in.w]]))
@@ -1837,7 +1837,7 @@ x2base.weightit <- function(weightit, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -1933,7 +1933,7 @@ x2base.weightit <- function(weightit, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2041,7 +2041,7 @@ x2base.designmatch <- function(dm, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -2073,7 +2073,7 @@ x2base.designmatch <- function(dm, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to designmatch()."), call. = FALSE)
     }
     
-    if (any(is.na(c(covs, addl)))) {
+    if (anyNA(c(covs, addl))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2167,9 +2167,9 @@ x2base.iptw <- function(iptw, ...) {
     s.weights <- iptw$psList[[1]]$sampw
     ntimes <- iptw$nFits
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Order covs.list
     all.covs <- unique(unlist(lapply(covs.list, names)))
@@ -2196,7 +2196,7 @@ x2base.iptw <- function(iptw, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -2266,7 +2266,7 @@ x2base.iptw <- function(iptw, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to iptw()."), call. = FALSE)
     }
     
-    if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
+    if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2323,8 +2323,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
     focal <- A$focal
     ntimes <- length(covs.list)
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Checks
     if (is_null(covs.list)) {
@@ -2469,7 +2469,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
             }
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }
-        if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+        if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
         
     }
     
@@ -2489,7 +2489,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -2526,7 +2526,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     if (is_not_null(weights)) {
-        if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (any(vapply(weights, function(x) any(!is.finite(x)), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
         if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
         
@@ -2542,7 +2542,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Get s.d.denom
     X$s.d.denom <- rep("pooled", max(1, ncol(weights)))
     
-    if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
+    if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2609,7 +2609,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     weights <- data.frame(weights = get.w(cbmsm)[ID])
     ntimes <- length(times)
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
 
     covs.list <- vector("list", ntimes)
@@ -2656,7 +2656,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -2706,7 +2706,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to CBMSM()."), call. = FALSE)
     }
     
-    if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
+    if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2763,9 +2763,9 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     subset <- A$subset
     ntimes <- length(treat.list)
     
-    if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    if (is_not_null(s.weights) && any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     weightitMSM.data <- weightitMSM$data
     d.e.in.w <- vapply(c("covs.list", "exact", "by"), function(x) is_not_null(weightitMSM[[x]]), logical(1L))
@@ -2830,7 +2830,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         if (!is.logical(subset)) {
             stop("The argument to subset must be a logical vector.", call. = FALSE)
         }
-        if (any(is.na(subset))) {
+        if (anyNA(subset)) {
             warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
             subset[is.na(subset)] <- FALSE
         }
@@ -2880,7 +2880,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to weightitMSM()."), call. = FALSE)
     }
     
-    if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
+    if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2972,7 +2972,7 @@ x2base.default <- function(obj, ...) {
             for (j in Q[[i]][["name"]]) {
                 if (is_null(P[[i]])) {
                     if (is_not_null(obj[[j]])) {
-                        if (any(which.type <- vapply(Q[[i]][["type"]], function(x) is(obj[[j]], x), logical(1L)))) {
+                        if (any(which.type <- vapply(Q[[i]][["type"]], function(x) methods::is(obj[[j]], x), logical(1L)))) {
                             P[[i]] <- obj[[j]]
                             attr(P[[i]], "name") <- j
                             attr(P[[i]], "type") <- Q[[i]][["type"]][which.type]
@@ -2994,7 +2994,7 @@ x2base.default <- function(obj, ...) {
     
     #treat.list
     if (is_not_null(treat.list)) {
-        if (!all(sapply(treat.list, function(x) any(vapply(Q[["treat"]][["type"]], function(c) is(x, c), logical(1L)))))) {
+        if (!all(sapply(treat.list, function(x) any(vapply(Q[["treat"]][["type"]], function(c) methods::is(x, c), logical(1L)))))) {
             treat.list <- A[["treat.list"]]
         }
         msm <- TRUE
@@ -3005,7 +3005,7 @@ x2base.default <- function(obj, ...) {
     
     #covs.list
     if (is_not_null(covs.list)) {
-        if (!all(sapply(covs.list, function(x) any(vapply(Q[["covs"]][["type"]], function(c) is(x, c), logical(1L)))))) {
+        if (!all(sapply(covs.list, function(x) any(vapply(Q[["covs"]][["type"]], function(c) methods::is(x, c), logical(1L)))))) {
             covs.list <- A[["covs.list"]]
         }
         msm <- TRUE
@@ -3015,7 +3015,7 @@ x2base.default <- function(obj, ...) {
     
     #formula.list
     if (is_not_null(formula.list)) {
-        if (!all(sapply(formula.list, function(x) any(vapply(Q[["formula"]][["type"]], function(c) is(x, c), logical(1L)))))) {
+        if (!all(sapply(formula.list, function(x) any(vapply(Q[["formula"]][["type"]], function(c) methods::is(x, c), logical(1L)))))) {
             formula.list <- A[["formula.list"]]
         }
         msm <- TRUE
@@ -3041,7 +3041,7 @@ x2base.default <- function(obj, ...) {
     
     #distance.list
     if (is_not_null(distance.list)) {
-        if (!all(sapply(distance.list, function(x) any(vapply(Q[["distance"]][["type"]], function(c) is(x, c), logical(1L)))))) {
+        if (!all(sapply(distance.list, function(x) any(vapply(Q[["distance"]][["type"]], function(c) methods::is(x, c), logical(1L)))))) {
             distance.list <- A[["distance.list"]]
         }
         #msm <- TRUE
@@ -3338,7 +3338,7 @@ x2base.default <- function(obj, ...) {
                 }
                 else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
             }
-            if (any(is.na(s.weights))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+            if (anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
         }
         
         #Process cluster
@@ -3357,7 +3357,7 @@ x2base.default <- function(obj, ...) {
             if (!is.logical(subset)) {
                 stop("The argument to subset must be a logical vector.", call. = FALSE)
             }
-            if (any(is.na(subset))) {
+            if (anyNA(subset)) {
                 warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
                 subset[is.na(subset)] <- FALSE
             }
@@ -3447,7 +3447,7 @@ x2base.default <- function(obj, ...) {
         }
         
         if (is_not_null(weights)) {
-            if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+            if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
             if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) {
                 stop("All weights must be numeric.", call. = FALSE)
             }
@@ -3615,8 +3615,8 @@ x2base.default <- function(obj, ...) {
         imp <- A$imp
         subset <- A$subset
         
-        if (any(vapply(weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-        if (is_not_null(s.weights) && any(vapply(s.weights, function(x) any(is.na(x)), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+        if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (is_not_null(s.weights) && any(vapply(s.weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
         
         initial.list.lengths <- c(length(formula.list), length(covs.list), length(treat.list))
         if (!all_the_same(initial.list.lengths[initial.list.lengths != 0])) stop("The lists in the object were not the same length.", call. = FALSE)
@@ -3795,7 +3795,7 @@ x2base.default <- function(obj, ...) {
             if (!is.logical(subset)) {
                 stop("The argument to subset must be a logical vector.", call. = FALSE)
             }
-            if (any(is.na(subset))) {
+            if (anyNA(subset)) {
                 warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
                 subset[is.na(subset)] <- FALSE
             }
@@ -3847,7 +3847,7 @@ x2base.default <- function(obj, ...) {
         #Get s.d.denom
         X$s.d.denom <- rep("pooled", max(1, ncol(weights)))
         
-        if (any(vapply(c(covs.list, addl.list), function(x) any(is.na(x)), logical(1L)))) {
+        if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
         
