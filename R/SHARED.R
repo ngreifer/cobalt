@@ -64,6 +64,21 @@ num_to_superscript <- function(x) {
     supx <- sapply(splitx, function(y) paste0(nums[y], collapse = ""))
     return(supx)
 }
+ordinal <- function(x) {
+  if (!is.numeric(x) || !is.vector(x) || is_null(x)) stop("x must be a numeric vector.")
+  if (length(x) > 1) return(vapply(x, ordinal, character(1L)))
+  else {
+    x0 <- abs(x)
+    out <- paste0(x0, switch(substring(x0, nchar(x0), nchar(x0)),
+                             "1" = "st",
+                             "2" = "nd",
+                             "3" = "rd",
+                             "th"))
+    if (sign(x) == -1) out <- paste0("-", out)
+
+    return(out)
+  }
+}
 round_df_char <- function(df, digits, pad = "0", na_vals = "") {
     if (NROW(df) == 0) return(df)
     nas <- is.na(df)
@@ -140,6 +155,10 @@ text.box.plot <- function(range.list, width = 12) {
 equivalent.factors <- function(f1, f2) {
     return(nunique(f1) == nunique(interaction(f1, f2)))
 }
+paste. <- function(..., collapse = NULL) {
+  #Like paste0 but with sep = ".'
+  paste(..., sep = ".", collapse = collapse)
+}
 
 #Numbers
 check_if_zero <- function(x) {
@@ -154,10 +173,10 @@ check_if_zero <- function(x) {
 between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
     if (!all(is.numeric(x))) stop("x must be a numeric vector.", call. = FALSE)
     if (length(range) != 2) stop("range must be of length 2.", call. = FALSE)
-    if (any(is.na(range) | !is.numeric(range))) stop("range must contain numeric entries only.", call. = FALSE)
+    if (anyNA(range) || !is.numeric(range)) stop("range must contain numeric entries only.", call. = FALSE)
     range <- sort(range)
 
-    if (any(is.na(x))) {
+    if (anyNA(x)) {
         if (length(na.action) != 1 || !is.atomic(na.action)) stop("na.action must be an atomic vector of length 1.", call. = FALSE)
     }
     if (inclusive) out <- ifelse(is.na(x), na.action, x >= range[1] & x <= range[2])
