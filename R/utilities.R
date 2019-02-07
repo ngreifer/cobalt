@@ -231,7 +231,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
             #Missing category
             
             if (is_null(dropped.level)) {
-                k.levels0 <- sapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep))[[1]][2])
+                k.levels0 <- sapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep), fixed = TRUE)[[1]][2])
                 
                 if (suppressWarnings(all(!is.na(as.numeric(k.levels0))))) {
                     dropped.level0 <- as.character(min(as.numeric(k.levels0)) - 1)
@@ -252,7 +252,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
             stop("The variables in data selected based on var.name and sep do not seem to form a split variable based on the row sums.", call. = FALSE)
         }
         
-        k.levels <- vapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep))[[1]][2], character(1L))
+        k.levels <- vapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep), fixed = TRUE)[[1]][2], character(1L))
         
         k <- rep(NA_character_, nrow(data))
         for (i in seq_along(k.levels)) {

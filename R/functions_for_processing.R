@@ -190,7 +190,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
             val.df <- NULL
             if (is_not_null(val)) {
                 if (is.vector(val, mode = "list")) {
-                    val.list <- lapply(val, function(x) process.val(x, strsplit(i, ".list")[[1]], treat.list[[ti]], covs.list[[ti]], ...))
+                    val.list <- lapply(val, function(x) process.val(x, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], ...))
                     val.list <- lapply(seq_along(val.list), function(x) {
                         if (NCOL(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
                         val.list[[x]]})
@@ -202,7 +202,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
                                        c(vapply(val.list, names, character(1))))
                 }
                 else {
-                    val.df <- process.val(val, strsplit(i, ".list")[[1]], treat.list[[ti]], covs.list[[ti]], ...)
+                    val.df <- process.val(val, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], ...)
                 }
                 if (is_not_null(val.df)) { if (sum(is.na(val.df)) > 0) {
                     stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}

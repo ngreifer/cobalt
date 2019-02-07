@@ -55,24 +55,28 @@ x2base.matchit <- function(m, ...) {
     if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
     if (is_not_null(m$model$model)) {
-        
-        #Recreating covs from model object and m$X. Have to do this because when 
-        #drop != NULL and reestimate = TRUE, cases are lost. This recovers them.
-        
-        order <- setNames(attr(attr(m$model$model, "terms"), "order"),
-                          attr(attr(m$model$model, "terms"), "term.labels"))
-        assign <- setNames(attr(m$X, "assign"), colnames(m$X))
-        assign1 <- assign[assign %in% which(order == 1)] #Just main effects
-        
-        factors.to.unsplit <- names(attr(m$X, "contrasts"))
-        f0 <- setNames(lapply(factors.to.unsplit, 
-                              function(x) list(levels = levels(m$model$model[[x]]),
-                                               faclev = paste0(x, levels(m$model$model[[x]])))),
-                       factors.to.unsplit)
-        covs <- as.data.frame(m$X[, names(assign1)])
-        for (i in factors.to.unsplit) {
-            covs <- unsplitfactor(covs, i, sep = "",
-                                  dropped.level = f0[[i]]$levels[f0[[i]]$faclev %nin% colnames(m$X)])
+        if (nrow(m$model$model) == length(treat)) {
+            covs <- data.frame(m$model$model[, names(m$model$model) %in% attributes(terms(m$model))$term.labels])
+        }
+        else {
+            #Recreating covs from model object and m$X. Have to do this because when 
+            #drop != NULL and reestimate = TRUE, cases are lost. This recovers them.
+            
+            order <- setNames(attr(attr(m$model$model, "terms"), "order"),
+                              attr(attr(m$model$model, "terms"), "term.labels"))
+            assign <- setNames(attr(m$X, "assign"), colnames(m$X))
+            assign1 <- assign[assign %in% which(order == 1)] #Just main effects
+            
+            factors.to.unsplit <- names(attr(m$X, "contrasts"))
+            f0 <- setNames(lapply(factors.to.unsplit, 
+                                  function(x) list(levels = levels(m$model$model[[x]]),
+                                                   faclev = paste0(x, levels(m$model$model[[x]])))),
+                           factors.to.unsplit)
+            covs <- as.data.frame(m$X[, names(assign1)])
+            for (i in factors.to.unsplit) {
+                covs <- unsplitfactor(covs, i, sep = "",
+                                      dropped.level = f0[[i]]$levels[f0[[i]]$faclev %nin% colnames(m$X)])
+            }
         }
         
     }
