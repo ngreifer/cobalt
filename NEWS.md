@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+Version 3.6.2
+
+* Fixed bug occurring when using `matchit` objects having set `discard` to something other than `NULL` and `reestimate = TRUE` in the call to `matchit()`. Thank you to Weiyi Xie for finding this bug.
+
 Version 3.6.1
 
 * Fixed bug when installed version of R was earlier than 3.5.0.
@@ -281,9 +285,9 @@ Version 1.1.0
 
 * Added a vignette.
 
-* Fixed error in bal.tab.Match that caused wrong values and and warning messages when used.
+* Fixed error in `bal.tab.Match()` that caused wrong values and and warning messages when used.
 
-* Added new capabilities to bal.plot, including the ability to view unadjusted sample distributions, categorical variables as such, and the distance measure. Also updated documentation to reflect these changes and make which.sub more focal.
+* Added new capabilities to `bal.plot()`, including the ability to view unadjusted sample distributions, categorical variables as such, and the distance measure. Also updated documentation to reflect these changes and make `which.sub` more focal.
 
 * Allowed subclasses to be different from simply 1:S by treating them like factors once input is numerical
 
