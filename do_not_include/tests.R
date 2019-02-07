@@ -16,7 +16,7 @@ bal.tab(f.build("treat",covs), data = lalonde, ks.threshold = .1)
 #MatchIt: matching w/ PS
 library("MatchIt")
 m1 <- matchit(f.build("treat", covs), data = lalonde, replace = T, ratio = 2, 
-              discard = "control")
+              discard = "both", reestimate = TRUE)
 bal.tab(m1, int = T, quick = T, v.threshold = 2, imbalanced.only = T)
 #MatchIt: matching w/Mahalanobis
 m2 <- matchit(f.build("treat", covs_[,-3]), data = lalonde_, distance = "mahalanobis")
