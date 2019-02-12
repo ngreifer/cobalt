@@ -62,20 +62,28 @@ x2base.matchit <- function(m, ...) {
             #Recreating covs from model object and m$X. Have to do this because when 
             #drop != NULL and reestimate = TRUE, cases are lost. This recovers them.
             
-            order <- setNames(attr(attr(m$model$model, "terms"), "order"),
-                              attr(attr(m$model$model, "terms"), "term.labels"))
+            order <- setNames(attr(m$model$terms, "order"),
+                              attr(m$model$terms, "term.labels"))
             assign <- setNames(attr(m$X, "assign"), colnames(m$X))
             assign1 <- assign[assign %in% which(order == 1)] #Just main effects
             
-            factors.to.unsplit <- names(attr(m$X, "contrasts"))
+            dataClasses <- attr(m$model$terms, "dataClasses")
+            factors.to.unsplit <- names(dataClasses)[dataClasses %in% c("factor", "character", "logical")]
             f0 <- setNames(lapply(factors.to.unsplit, 
-                                  function(x) list(levels = levels(m$model$model[[x]]),
-                                                   faclev = paste0(x, levels(m$model$model[[x]])))),
+                                  function(x) {
+                                      if (dataClasses[x] == "factor")
+                                          list(levels = levels(m$model$model[[x]]),
+                                               faclev = paste0(x, levels(m$model$model[[x]])))
+                                      else 
+                                          list(levels = unique(m$model$model[[x]]),
+                                               faclev = paste0(x, unique(m$model$model[[x]])))
+                                  }),
                            factors.to.unsplit)
             covs <- as.data.frame(m$X[, names(assign1)])
             for (i in factors.to.unsplit) {
                 covs <- unsplitfactor(covs, i, sep = "",
                                       dropped.level = f0[[i]]$levels[f0[[i]]$faclev %nin% colnames(m$X)])
+                if (dataClasses[i] == "logical") covs[[i]] <- as.logical(covs[[i]])
             }
         }
         

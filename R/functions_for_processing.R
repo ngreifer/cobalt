@@ -322,7 +322,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
         }
     } 
     
-    covs.with.inf <- vapply(C, function(x) any(!is.finite(x) & !is.na(x)), logical(1L))
+    covs.with.inf <- vapply(C, function(x) !is.character(x) && any(!is.finite(x) & !is.na(x)), logical(1L))
     if (any(covs.with.inf)) {
         s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
         stop(paste0("The variable", s[1], " ", word.list(names(C)[covs.with.inf], quotes = TRUE), 
@@ -340,8 +340,9 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
     for (i in names(C)) {
         if (nunique(C[[i]]) == 2) {
             #if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
-            if ((is.numeric(C[[i]]) || is.logical(C[[i]])) && 
-                all(check_if_zero(as.numeric(C[[i]]) - binarize(C[[i]])), na.rm = TRUE)) {
+            if (((is.numeric(C[[i]]) || is.logical(C[[i]])) && 
+                all(check_if_zero(as.numeric(C[[i]]) - binarize(C[[i]])), na.rm = TRUE)) ||
+                all(as.character(C[[i]]) %in% c("0", "1"))) {
                 is.0.1.cov[i] <- TRUE
             }
             
