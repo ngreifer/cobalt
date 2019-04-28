@@ -2,6 +2,14 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     tryCatch(identity(obj), error = function(e) stop(conditionMessage(e), call. = FALSE))
     
+    #Replace .all and .none with NULL and NA respectively
+    .call <- match.call(expand.dots = TRUE)
+    if (any(sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all") || identical(as.character(.call[[x]]), ".none")))) {
+        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all"))] <- expression(NULL)
+        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".none"))] <- expression(NA)
+        return(eval(.call))
+    }
+    
     args <- list(...)
     
     obj <- is.designmatch(obj)
@@ -62,8 +70,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     else {
         if (is_null(X$weights) && is_null(X$subclass)) which <- "unadjusted"
         else {
-            which <- tryCatch(match_arg(tolower(which), c("adjusted", "unadjusted", "both")),
-                              error = function(cond) stop(paste("The argument to 'which' should be one of", word.list(c("adjusted", "unadjusted", "both"), "or", quotes = TRUE)), call. = FALSE))
+            which <- match_arg(tolower(which), c("adjusted", "unadjusted", "both"))
         }
     }
     
