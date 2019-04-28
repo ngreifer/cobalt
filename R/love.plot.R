@@ -2,8 +2,13 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                       abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
                       drop.distance = FALSE, agg.fun = c("mean", "max", "range"), 
                       colors = NULL, shapes = NULL, line = FALSE, ...) {
+    
+    if ("bal.tab" %nin% class(x)) {
+        args <- c(as.list(environment()), list(...))[-1]
+        return(do.call("love.plot", c(list(do.call("bal.tab", c(list(x), args))), args)))
+        # stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
+    }
     b <- x; rm(x)
-    if ("bal.tab" %nin% class(b)) stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
     if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
     else stat <- match_arg(stat)
     
@@ -622,7 +627,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
         }
         
-        if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) stop("No balance statistics to display.", call. = FALSE)
+        if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) stop(paste("No balance statistics to display. This can occur when", switch(which.stat, V.Ratio = "disp.v.ratio", KS = "disp.ks"), "= FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         gone <- character(0)
         for (i in levels(SS$Sample)) {
             if (all(sapply(SS[SS$Sample==i, c("min.stat", "max.stat", "mean.stat")], is.na))) {
@@ -691,7 +696,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
         }
         
-        if (all(is.na(SS[["stat"]]))) stop("No balance statistics to display.", call. = FALSE)
+        if (all(is.na(SS[["stat"]]))) stop(paste("No balance statistics to display. This can occur when", switch(which.stat, V.Ratio = "disp.v.ratio", KS = "disp.ks"), "= FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         gone <- character(0)
         for (i in levels(SS$Sample)) {
             if (all(sapply(SS[["stat"]][SS$Sample==i], is.na))) {
@@ -702,7 +707,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
 
         if (abs) {
-            SS[["stat"]] <- abs(SS[["stat"]])
+            if (which.stat == "V.Ratio") SS[["stat"]] <- pmax(abs(SS[["stat"]]), 1/abs(SS[["stat"]]))
+            else SS[["stat"]] <- abs(SS[["stat"]])
             dec <- FALSE
         }
         else dec <- FALSE
@@ -834,7 +840,12 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     else if (which.stat == "V.Ratio") {
         baseline.xintercept <- 1
         xlab <- "Variance Ratios"
-        if (!null.threshold) threshold.xintercept <- max(threshold, 1/threshold)
+        if (abs) {
+            if (!null.threshold) threshold.xintercept <- max(threshold, 1/threshold)
+        }
+        else {
+            if (!null.threshold) threshold.xintercept <- sort(c(threshold, 1/threshold))
+        }
     }
     else if (which.stat == "KS") {
         baseline.xintercept <- 0
