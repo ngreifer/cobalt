@@ -909,19 +909,20 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     # }
     # }
     # if (!no.adj && !(!disp.sds && quick)) {
-    for (i in weight.names) {
-        for (t in c(0, 1)) {
-            sds <- rep(NA_real_, NCOL(C))
-            sds[non.binary] <- sqrt(col.w.v(C[treat == t, non.binary, drop = FALSE], w = weights[[i]][treat==t]*s.weights[treat==t]))
-            B[[paste.("SD", t, i)]] <- sds
+    if (!no.adj) {
+        for (i in weight.names) {
+            for (t in c(0, 1)) {
+                sds <- rep(NA_real_, NCOL(C))
+                sds[non.binary] <- sqrt(col.w.v(C[treat == t, non.binary, drop = FALSE], w = weights[[i]][treat==t]*s.weights[treat==t]))
+                B[[paste.("SD", t, i)]] <- sds
+            }
+            # if (!(!disp.pop && quick)) {
+            #     sds <- rep(NA_real_, NCOL(C))
+            #     sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = weights[[i]]*s.weights))
+            #     B[[paste.("SD.Pop", i)]] <- sds
+            # }
         }
-        # if (!(!disp.pop && quick)) {
-        #     sds <- rep(NA_real_, NCOL(C))
-        #     sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = weights[[i]]*s.weights))
-        #     B[[paste.("SD.Pop", i)]] <- sds
-        # }
     }
-    # }
     if (!any(sapply(B[startsWith(names(B), "SD.")], is.finite))) {disp.sds <- FALSE}
     
     #Mean differences
@@ -1038,7 +1039,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     return(B)
 }
-balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, s.weights = rep(1, length(treat)), types = NULL, quick = TRUE) {
+balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, s.weights = rep(1, length(treat)), types = NULL, abs = FALSE, quick = TRUE) {
     #Creates list SB of balance tables for each subclass
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
@@ -1060,27 +1061,43 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
         SB[[i]] <- B
         in.subclass <- !is.na(subclass) & subclass==i
         
-        if (!(!disp.means && quick)) {
+        # if (!(!disp.means && quick)) {
             for (t in c(0,1)) {
                 SB[[i]][[paste.("M", t, "Adj")]] <- colMeans(C[treat==t & in.subclass, , drop = FALSE])
             }
-        }
-        if (!(!disp.sds && quick)) {
+        # }
+        # if (!(!disp.sds && quick)) {
             non.binary <- B[["Type"]] != "Binary"
+            un.sds <- setNames(vector("list", 2), c("0", "1"))
             for (t in c(0, 1)) {
                 sds <- rep(NA_real_, NCOL(C))
                 sds[non.binary] <- apply(C[treat == t & in.subclass, non.binary, drop = FALSE], 2, sd)
                 SB[[i]][[paste.("SD", t, "Adj")]] <- sds
+                un.sds[[as.character(t)]] <- rep(NA_real_, NCOL(C))
+                un.sds[[as.character(t)]][non.binary] <- apply(C[treat == t, non.binary, drop = FALSE], 2, sd)
             }
-        }
+            
+        # }
         
         
         #Mean differences
-        SB[[i]][["Diff.Adj"]] <- col.std.diff(C, treat=treat, weights=NULL, subclass=subclass, which.sub=i, x.types=B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom, no.weights = TRUE)
+        # SB[[i]][["Diff.Adj"]] <- col.std.diff(C, treat=treat, weights=NULL, subclass=subclass, which.sub=i, x.types=B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom, no.weights = TRUE)
+        SB[[i]][["Diff.Adj"]] <- std.diffs(m0 = SB[[i]][["M.0.Adj"]], 
+                                       s0 = un.sds[["0"]], 
+                                       m1 = SB[[i]][["M.1.Adj"]], 
+                                       s1 = un.sds[["1"]], 
+                                       x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom)
         
         #Variance ratios
+        vabs <- function(x) pmax(x, 1/x)
+        if (abs) v0 <- vabs
+        else v0 <- base::identity
+        
         if (!(!disp.v.ratio && quick)) {
-            SB[[i]][["V.Ratio.Adj"]] <- col.var.ratio(C[in.subclass, ], treat = treat[in.subclass], weights = NULL, x.types = B[["Type"]], no.weights = TRUE)
+            # SB[[i]][["V.Ratio.Adj"]] <- v0(col.var.ratio(C[in.subclass, ], treat = treat[in.subclass], weights = NULL, x.types = B[["Type"]], no.weights = TRUE))
+            SB[[i]][["V.Ratio.Adj"]] <- v0(var.ratios(s0 = SB[[i]][["SD.0.Adj"]], 
+                                               s1 = SB[[i]][["SD.1.Adj"]], 
+                                               x.types = B[["Type"]]))
         }
         
         #KS Statistics
@@ -1108,7 +1125,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     if (is_not_null(v.threshold)) {
         for (i in levels(subclass)) {
             SB[[i]][["V.Threshold"]] <- ifelse(SB[[i]][["Type"]]!="Distance" & is.finite(SB[[i]][["V.Ratio.Adj"]]), 
-                                               paste0(ifelse(SB[[i]][["V.Ratio.Adj"]] < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
+                                               paste0(ifelse(v0(SB[[i]][["V.Ratio.Adj"]]) < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
         }
     }
     if (all(sapply(SB, function(x) !any(is.finite(x[["KS.Adj"]]))))) {
