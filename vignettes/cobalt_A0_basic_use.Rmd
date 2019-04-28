@@ -306,10 +306,10 @@ library("MatchIt") #if not yet loaded
 m.out <- matchit(f.build("treat", covs), data = lalonde, 
                  method = "nearest", replace = TRUE)
 
-love.plot(bal.tab(m.out), threshold = .1)
+love.plot(m.out, threshold = .1)
 ```
 
-`love.plot()` takes as its first argument the output of a call to `bal.tab()`; this can be accomplished simply by inserting the call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument. There are several other arguments, all of which control display, and are described below.
+`love.plot()` takes as its arguments the same ones that would go into a call to `bal.tab()`. In addition, it can take as its first argument the output of a call to `bal.tab()`; this can be accomplished simply by inserting the `bal.tab()` call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument.  There are several other arguments, all of which control display, and are described below.
 
 The output is a plot with the balance statistic on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment. The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved.
 
@@ -330,7 +330,7 @@ v <- data.frame(old = c("age", "educ", "race_black", "race_hispan",
                         "Hispanic", "White", "Married", "No Degree Earned", 
                         "Earnings 1974", "Earnings 1975", "Propensity Score"))
 
-love.plot(bal.tab(m.out), stat = "mean.diffs", threshold = .1, 
+love.plot(m.out, stat = "mean.diffs", threshold = .1, 
           var.order = "unadjusted", var.names = v, abs = TRUE,
           line = TRUE, limits = c(0, 1))
 ```
@@ -385,7 +385,7 @@ When balance has been achieved to a satisfactory level, users can present balanc
 
 ```{r, fig.width = 5}
 #Summarizing balance in a Love plot
-love.plot(bal.tab(W.out.c), threshold = .1, 
+love.plot(W.out.c, threshold = .1, 
           var.order = "unadjusted", line = TRUE)
 ```
 
@@ -431,16 +431,16 @@ bal.plot(W.out.mn, "married", which = "both",
          which.treat = c("black", "white"))
 ```
 
-Finally, we can use `love.plot()` to display balance across treatments. By default, `love.plot()` displays the values in the summary across pairwise comparisons. To request individual treatment comparisons, use `which.treat = NULL` in either `bal.tab()` or `love.plot()`.
+Finally, we can use `love.plot()` to display balance across treatments. By default, `love.plot()` displays the values in the summary across pairwise comparisons. To request individual treatment comparisons, use `which.treat = NULL` in `love.plot()`.
 
 ```{r, fig.width = 7}
 #Summarizing balance in a Love plot
-love.plot(bal.tab(W.out.mn), threshold = .1,
+love.plot(W.out.mn, threshold = .1,
           which.treat = NULL, abs = FALSE)
 ```
 
 ### Comparing balancing methods
-It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. Do do so, weights generated from each balancing method need to be supplied together in each call. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
+It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
 
 ```{r}
 bal.tab(treat ~ covs0, data = lalonde, 
@@ -463,10 +463,11 @@ bal.plot(treat ~ covs0, data = lalonde,
 With `love.plot()`, `var.order` can be `"unadjusted"`, `"alphabetical"`, or one of the names of the weights to order the variables. Also, `colors` and `shapes` should have the same length as the number of weights or have length 1.
 
 ```{r, fig.width=5}
-love.plot(bal.tab(treat ~ covs0, data = lalonde, 
-                  weights = data.frame(Matched = get.w(m.out),
-                                       IPW = get.w(W.out)),
-                  method = c("matching", "weighting")), var.order = "unadjusted",
+love.plot(treat ~ covs0, data = lalonde, 
+          weights = data.frame(Matched = get.w(m.out),
+                               IPW = get.w(W.out)),
+          method = c("matching", "weighting"), 
+          var.order = "unadjusted",
           abs = TRUE, colors = c("red", "blue", "darkgreen"), 
           shapes = c("circle", "square", "triangle"))
 ```
@@ -588,8 +589,9 @@ ps.out <- ps(f.build("treat", covs0), data = lalonde,
              stop.method = "es.max", 
              estimand = "ATT", n.trees = 100, verbose = FALSE)
 plot(ps.out, plots = "es", subset = 1)
-love.plot(bal.tab(ps.out, stop.method = "es.max"), threshold = .1,
-          abs = TRUE, var.order = "u", color = c("red", "blue"), line = TRUE,
+love.plot(ps.out, stop.method = "es.max", 
+          threshold = .1, abs = TRUE, var.order = "u", 
+          color = c("red", "blue"), line = TRUE,
           drop.distance = TRUE)
 ```
 
