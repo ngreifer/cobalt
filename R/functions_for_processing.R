@@ -1195,10 +1195,15 @@ balance.table.cluster.summary <- function(balance.table.clusters.list, weight.na
     else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(balance.table.clusters.list, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
     
     abs0 <- function(x) {if (abs) abs(x) else (x)}
-    funs <- structure(vector("list", length(cluster.functions)), names = cluster.functions)
+    funs <- vfuns <- structure(vector("list", length(cluster.functions)), names = cluster.functions)
     for (Fun in cluster.functions) {
         funs[[Fun]] <- function(x, ...) {
             if (!any(is.finite(x))) NA_real_
+            else get(tolower(Fun))(x, ...)
+        }
+        vfuns[[Fun]] <- function(x, ...) {
+            if (!any(is.finite(x))) NA_real_
+            else if (Fun == "Mean") geom.mean(x, ...)
             else get(tolower(Fun))(x, ...)
         }
         for (sample in c("Un", weight.names)) {
@@ -1208,7 +1213,7 @@ balance.table.cluster.summary <- function(balance.table.clusters.list, weight.na
                 }
                 else {
                     B[[paste.(Fun, "Diff", sample)]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) abs0(y[[x, paste.("Diff", sample)]])), na.rm = TRUE), numeric(1))
-                    B[[paste.(Fun, "V.Ratio", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else funs[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste.("V.Ratio", sample)]]), na.rm = TRUE), numeric(1))
+                    B[[paste.(Fun, "V.Ratio", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else vfuns[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste.("V.Ratio", sample)]]), na.rm = TRUE), numeric(1))
                     B[[paste.(Fun, "KS", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else funs[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste.("KS", sample)]]), na.rm = TRUE), numeric(1))
                 }            
             }
@@ -1493,10 +1498,15 @@ balance.table.imp.summary <- function(bal.tab.imp.list, weight.names = NULL, no.
     else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(sapply(bal.tab.imp.list, function(y) y[[x, "Type"]])); return(u[!is.na(u)])}), use.names = FALSE)
     
     abs0 <- function(x) {if (is_null(x)) NA_real_ else if (abs) abs(x) else (x)}
-    funs <- structure(vector("list", length(imp.functions)), names = imp.functions)
+    funs <- vfuns <- structure(vector("list", length(imp.functions)), names = imp.functions)
     for (Fun in imp.functions) {
         funs[[Fun]] <- function(x, ...) {
             if (!any(is.finite(x))) NA_real_
+            else get(tolower(Fun))(x, ...)
+        }
+        vfuns[[Fun]] <- function(x, ...) {
+            if (!any(is.finite(x))) NA_real_
+            else if (Fun == "Mean") geom.mean(x, ...)
             else get(tolower(Fun))(x, ...)
         }
         for (sample in c("Un", weight.names)) {
@@ -1506,7 +1516,7 @@ balance.table.imp.summary <- function(bal.tab.imp.list, weight.names = NULL, no.
                 }
                 else {
                     B[[paste.(Fun, "Diff", sample)]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(bal.tab.imp.list, function(y) abs0(y[[x, paste.("Diff", sample)]])), na.rm = TRUE), numeric(1))
-                    B[[paste.(Fun, "V.Ratio", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else funs[[Fun]](sapply(bal.tab.imp.list, function(y) y[[x, paste.("V.Ratio", sample)]]), na.rm = TRUE), numeric(1))
+                    B[[paste.(Fun, "V.Ratio", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else vfuns[[Fun]](sapply(bal.tab.imp.list, function(y) y[[x, paste.("V.Ratio", sample)]]), na.rm = TRUE), numeric(1))
                     B[[paste.(Fun, "KS", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else funs[[Fun]](sapply(bal.tab.imp.list, function(y) y[[x, paste.("KS", sample)]]), na.rm = TRUE), numeric(1))
                 }
             }
@@ -1536,10 +1546,15 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
         else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(summary.tables, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
         
         abs0 <- function(x) {if (abs) abs(x) else (x)}
-        funs <- structure(vector("list", length(imp.functions)), names = imp.functions)
+        funs <- vfuns <- structure(vector("list", length(imp.functions)), names = imp.functions)
         for (Fun in imp.functions) {
             funs[[Fun]] <- function(x, ...) {
                 if (!any(is.finite(x))) NA_real_
+                else get(tolower(Fun))(x, ...)
+            }
+            vfuns[[Fun]] <- function(x, ...) {
+                if (!any(is.finite(x))) NA_real_
+                else if (Fun == "Mean") geom.mean(x, ...)
                 else get(tolower(Fun))(x, ...)
             }
             for (sample in c("Un", weight.names)) {
@@ -1549,7 +1564,7 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
                     }
                     else {
                         B[[paste.(Fun, "Diff", sample)]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(summary.tables, function(y) abs0(y[[x, paste.(Fun, "Diff", sample)]])), na.rm = TRUE), numeric(1))
-                        B[[paste.(Fun, "V.Ratio", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else funs[[Fun]](sapply(summary.tables, function(y) y[[x, paste.(Fun, "V.Ratio", sample)]]), na.rm = TRUE), numeric(1))
+                        B[[paste.(Fun, "V.Ratio", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else vfuns[[Fun]](sapply(summary.tables, function(y) y[[x, paste.(Fun, "V.Ratio", sample)]]), na.rm = TRUE), numeric(1))
                         B[[paste.(Fun, "KS", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else funs[[Fun]](sapply(summary.tables, function(y) y[[x, paste.(Fun, "KS", sample)]]), na.rm = TRUE), numeric(1))
                     }
                 }

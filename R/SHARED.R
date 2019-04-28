@@ -245,13 +245,19 @@ col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
     w.cov.scale <- (sum(w, na.rm = TRUE)^2 - sum(w^2, na.rm = TRUE)) / sum(w, na.rm = TRUE)
     return(colSums(t((t(mat) - col.w.m(mat, w, na.rm = na.rm))^2) * w, na.rm = na.rm) / w.cov.scale)
 }
-coef.of.var <- function(x, pop = TRUE) {
+coef.of.var <- function(x, pop = TRUE, na.rm = TRUE) {
+    if (na.rm) x <- x[!is.na(x)]
     if (pop) sqrt(mean((x-mean(x))^2))/mean(x)
     else sd(x)/mean(x)
 }
-mean.abs.dev <- function(x) {
+mean.abs.dev <- function(x, na.rm = TRUE) {
+    if (na.rm) x <- x[!is.na(x)]
     mean(abs(x - mean(x)))
 }
+geom.mean <- function(y, na.rm = TRUE) {
+    exp(mean(log(y[is.finite(log(y))]), na.rm = na.rm))
+}
+
 
 #Formulas
 is.formula <- function(f, sides = NULL) {
