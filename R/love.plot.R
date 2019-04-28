@@ -3,16 +3,49 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                       drop.distance = FALSE, agg.fun = c("mean", "max", "range"), 
                       colors = NULL, shapes = NULL, line = FALSE, ...) {
     
-    if ("bal.tab" %nin% class(x)) {
-        args <- c(as.list(environment()), list(...))[-1]
-        return(do.call("love.plot", c(list(do.call("bal.tab", c(list(x), args))), args)))
-        # stop("The first argument must be a bal.tab object, the output of a call to bal.tab().")
+    
+    
+    #Re-call bal.tab with disp.v.ratio or disp.ks if stat = "v" or "k".
+    if (!exists(deparse(substitute(x)))) {
+        m <- match.call()
+        if (deparse(m[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) {
+            if (pmatch(stat[1], "variance.ratios", 0L) != 0L) {
+                if (!isTRUE(eval(m[["x"]][["disp.v.ratio"]]))) {
+                    m[["x"]][["disp.v.ratio"]] <- TRUE
+                    return(eval(m))
+                }
+            }
+            else if (pmatch(stat[1], "ks.statistics", 0L) != 0L) {
+                if (!isTRUE(eval(m[["x"]][["disp.ks"]]))) {
+                    m[["x"]][["disp.ks"]] <- TRUE
+                    return(eval(m))
+                }
+            }
+        }
     }
-    b <- x; rm(x)
-    if (any(class(b) == "bal.tab.cont")) stat <- "correlation"
+    
+    if (!any(class(x) == "bal.tab")) {
+        #Use bal.tab on inputs first, then love.plot on that
+        m <- match.call()
+        m.b <- m; m.b[[1]] <- quote(bal.tab); names(m.b)[2] <- ''
+        
+        m.l <- m; 
+        m.l[["x"]] <- m.b
+
+        return(eval(m.l))
+    }
+    
+    if (any(class(x) == "bal.tab.cont")) {
+        if (pmatch(stat[1], "correlations", 0L) == 0L && !identical(stat, eval(formals()[["stat"]]))) {
+            message("Displaying treatment-covariate correlations.")
+        }
+        stat <- "correlations"
+    }
     else stat <- match_arg(stat)
     
+    b <- x; rm(x)
     args <- list(...)
+    
     #size
     #shape (deprecated)
     #un.color (deprecated)
@@ -22,7 +55,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     #sample.names
     #limits
     #cluster.fun (deprecated)
-
+    
     p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time", "disp.subclass")
     for (i in p.ops) {
         if (i %in% names(args)) b$print.options[[i]] <- args[[i]]
@@ -34,8 +67,8 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     }
     
     if (is_not_null(args$cluster.fun)) agg.fun <- args$cluster.fun
-    which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlation = "Corr")
-    which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", ks.statistics = "Kolmogorov-Smirnov Statistic", correlation = "Correlation")
+    which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")
+    which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", ks.statistics = "Kolmogorov-Smirnov Statistic", correlations = "Correlation")
     Agg.Fun <- NULL
     subtitle <- NULL
     title <- "Covariate Balance"
@@ -175,16 +208,16 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             }
         }
         else if (sum(imp.numbers.good) > 1) {
-                if (na.cluster) {
-                    config <- "agg.cluster"
-                }
-                else if (sum(cluster.names.good) == 1) {
-                    config <- "agg.none"
-                }
-                else {
-                    stop("At least one of which.cluster or which.imp must be NA or of length 1.", call. = FALSE)
-                }
+            if (na.cluster) {
+                config <- "agg.cluster"
             }
+            else if (sum(cluster.names.good) == 1) {
+                config <- "agg.none"
+            }
+            else {
+                stop("At least one of which.cluster or which.imp must be NA or of length 1.", call. = FALSE)
+            }
+        }
         else {
             stop("Make sure the arguments to which.imp are valid imputation indices.", call. = FALSE)
         }
@@ -416,7 +449,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                         all(treat.names[treat.names != "Others"] %in% b$print.options$treat.names[treat.names.good])})]
                 }
             }
-
+            
         }
         
         #Get B from b
@@ -537,7 +570,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             else warning("var.names is a list, but its values are not the new names of the variables.", call. = FALSE)
         }
         else warning("Argument to var.names is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE, call. = FALSE)
-
+        
         co.names <- b[["print.options"]][["co.names"]]
         seps <- attr(co.names, "seps")
         for (i in names(co.names)) {
@@ -593,7 +626,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         }
         var.order <- ua[match_arg(var.order, tolower(ua))]
     }
-
+    
     if (is_not_null(facet)) {
         if (is_not_null(var.order) && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
             warning("var.order cannot be set with multiple plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
@@ -614,7 +647,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                                                              mean.stat = B[[paste.("Mean", which.stat, x)]],
                                                              Sample = ifelse(x == "Un", "Unadjusted", 
                                                                              ifelse(x == "Adj", "Adjusted", x)))))
-
+        
         if (is_not_null(facet)) {
             if ("cluster" %in% facet) {
                 SS$cluster <- rep(B[["cluster"]], 1 + b$print.options$nweights)
@@ -636,7 +669,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 SS <- SS[SS[["Sample"]]!=i,]
             }
         }
-       
+        
         if (abs) dec <- FALSE
         else dec <- FALSE
         
@@ -647,10 +680,10 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                     var.order <- character(0)
                 }
                 else {
-                v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==var.order], decreasing = dec)])
-                SS[["var"]] <- factor(SS[["var"]], 
-                                      levels=c(v[is.na(match(v, distance.names))], 
-                                               sort(distance.names, decreasing = TRUE)))
+                    v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==var.order], decreasing = dec)])
+                    SS[["var"]] <- factor(SS[["var"]], 
+                                          levels=c(v[is.na(match(v, distance.names))], 
+                                                   sort(distance.names, decreasing = TRUE)))
                 }
             }
             else if (var.order == "alphabetical") {
@@ -684,7 +717,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         SS <- do.call("rbind", lapply(c("Un", b$print.options$weight.names),
                                       function(x) data.frame(var = B[["variable.names"]],
                                                              stat = B[[ifelse(is_null(Agg.Fun), paste.(which.stat, x),
-                                                                               paste.(Agg.Fun, which.stat, x))]],
+                                                                              paste.(Agg.Fun, which.stat, x))]],
                                                              Sample = ifelse(x == "Un", "Unadjusted", 
                                                                              ifelse(x == "Adj", "Adjusted", x)))))
         
@@ -705,7 +738,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 SS <- SS[SS[["Sample"]]!=i,]
             }
         }
-
+        
         if (abs) {
             if (which.stat == "V.Ratio") SS[["stat"]] <- pmax(abs(SS[["stat"]]), 1/abs(SS[["stat"]]))
             else SS[["stat"]] <- abs(SS[["stat"]])
@@ -900,9 +933,9 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                 warning("The argument to sample.names must contain as many names as there are sample types, or one fewer. Ignoring sample.names.", call. = FALSE)
             }
         }
-
+        
     }
-
+    
     lp <- ggplot(data = SS, aes(y = var, x = stat, group = Sample)) + 
         theme(panel.grid.major = element_line(color = "gray87"),
               panel.grid.minor = element_line(color = "gray90"),
@@ -914,7 +947,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         scale_fill_manual(values = fill) +
         scale_color_manual(values = colors) + 
         labs(title = title, subtitle = subtitle, y = "", x = xlab) 
-
+    
     lp <- lp + geom_vline(xintercept = baseline.xintercept, linetype = 1, color = "gray5")
     if (!null.threshold) lp <- lp + geom_vline(xintercept = threshold.xintercept, linetype=2, color = "gray8")
     
@@ -923,7 +956,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (line == TRUE) { #Add line except to distance
             f <- function(x) {x[["stat"]][x$var %in% distance.names] <- NA; x}
             lp <- lp + ggplot2::layer(geom = "path", data = f, position = position.dodge, stat = "identity", 
-                             aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+                                      aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
         }
         lp <- lp + 
             ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat, 
@@ -961,7 +994,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         
         
     }
-
+    
     if (!drop.distance && is_not_null(distance.names)) {
         lp <- lp + geom_hline(linetype = 1, color = "black", 
                               yintercept = nunique(SS[["var"]]) - length(distance.names) + .5)
@@ -972,7 +1005,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     if (is_not_null(facet)) {
         lp <- lp + facet_grid(f.build(".", facet), drop = FALSE)
     }
-
+    
     return(lp)
 }
 plot.bal.tab <- love.plot
