@@ -75,7 +75,7 @@ We can use `bal.tab()` with the `weightitMSM` object generated above. Setting `u
 bal.tab(Wmsm, un = TRUE)
 ```
 
-We can use `which.time` and `msm.summary` to focus in on specific time points. `which.time` controls which time periods are displayed; one or more time periods can be entered. `NA` will not display any time periods (so only the summary will be displayed), and `NULL`, the default, will display all time periods. Setting `msm.summary` to `FALSE` will hide the summary across time points. This option can be set globally using `set.cobalt.options(msm.summary = FALSE)`.
+We can use `which.time` and `msm.summary` to focus in on specific time points. `which.time` controls which time periods are displayed; one or more time periods can be entered. `.none` will not display any time periods (so only the summary will be displayed), and `.all`, the default, will display all time periods. Setting `msm.summary` to `FALSE` will hide the summary across time points. This option can be set globally using `set.cobalt.options(msm.summary = FALSE)`.
 
 ```{r}
 bal.tab(Wmsm, which.time = 1:2, msm.summary = FALSE)
@@ -105,13 +105,13 @@ Finally, we'll examine using `love.plot()` with longitudinal treatments to displ
 
 ## `love.plot()`
 
-`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `NA`, the summary across time points is displayed. The `agg.fun` argument is automatically set to `"max"` and cannot be changed.
+`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `.none`, the summary across time points is displayed. The `agg.fun` argument is automatically set to `"max"` and cannot be changed.
 
 ```{r}
-love.plot(bal.tab(Wmsm), abs = TRUE)
+love.plot(Wmsm, abs = TRUE)
 ```
 ```{r, fig.width=4}
-love.plot(bal.tab(Wmsm), which.time = NA)
+love.plot(Wmsm, which.time = .none)
 ```
 
 ## Other Packages

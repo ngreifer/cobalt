@@ -68,7 +68,7 @@ First we see balance tables for each cluster. These are the same output we would
 
 Second, we see a balance summary across all the clusters. This table presents the minimum, mean, and maximum balance statistics for each variable across clusters. Setting `un = TRUE` will also display the same values for the adjusted data set. With binary treatments, setting `disp.v.ratio = TRUE` or `v.threshold` to some number will display the same values for variance ratios. Setting `abs = TRUE` requests summaries of absolute balance statistics which displays the extremeness of balance statistics for each variable; thus, if, for example, in some groups there are large negative mean differences and in other groups there are large positive mean differences, this table will display large mean differences, even though the average mean difference is close to 0. While it's important to know the average balance statistic overall, assessing the absolute balance statistics provides more information about balance within each cluster rather than in aggregate.
 
-To examine balance for just a few clusters at a time, users can enter values for `which.cluster`. This can be a vector of clusters indices (i.e., 1, 2, 3, etc.) or names (e.g., "black", "hispan", "white"). Users can also specify `which.cluster = NA` to omit cluster balance for all clusters and just see the summary across clusters, which might be helpful if there are many clusters. Users can also specify whether they want to see the summary across clusters by specifying `TRUE` or `FALSE` for `cluster.summary`. When `which.cluster = NA`, `cluster.summary` will automatically be set to `TRUE` (or else there wouldn't be any output!). When examining balance within a few groups, it can be more helpful to examine balance within each group and ignore the summary. Below are examples of the use of `which.cluster` and `cluster.summary` to change `bal.tab()` output.
+To examine balance for just a few clusters at a time, users can enter values for `which.cluster`. This can be a vector of clusters indices (i.e., 1, 2, 3, etc.) or names (e.g., "black", "hispan", "white"). Users can also specify `which.cluster = .none` to omit cluster balance for all clusters and just see the summary across clusters, which might be helpful if there are many clusters. Users can also specify whether they want to see the summary across clusters by specifying `TRUE` or `FALSE` for `cluster.summary`. When `which.cluster = .none`, `cluster.summary` will automatically be set to `TRUE` (or else there wouldn't be any output!). When examining balance within a few groups, it can be more helpful to examine balance within each group and ignore the summary. Below are examples of the use of `which.cluster` and `cluster.summary` to change `bal.tab()` output.
 
 ```{r}
 #Just for black and hispan
@@ -76,7 +76,7 @@ bal.tab(m.out, cluster = "race", which.cluster = c("black", "hispan"),
         cluster.summary = FALSE)
 
 #Just the balance summary across clusters with only the mean
-bal.tab(m.out, cluster = "race", which.cluster = NA, cluster.fun = "mean")
+bal.tab(m.out, cluster = "race", which.cluster = .none, cluster.fun = "mean")
 ```
 
 It should be noted that `which.cluster`, `cluster.summary`, and `cluster.fun` affect display only, and so all output is generated even when some is not requested to be seen^[Except when `quick = TRUE`. In this case, if `cluster.summary = FALSE`, it will not be computed, though balance for all individual groups will be computed even if not requested.] ^[If some outputs are suppressed, they can still be displayed later with the `print()` command, which allows you to respecify display options for printing saved `bal.tab` objects. Thus, if balance is to be checked on the same data set multiple times in different ways, it is advisable to save the output of `bal.tab()` to a variable and then use `print()` on that variable with the desired display options. Note that if `quick = TRUE`, not all display options will be available with this method.]. These can also be set as global options by using, for example, `set.cobalt.options(cluster.fun = "mean")`, which allows user not to type a non-default option every time they call `bal.tab`.
@@ -93,24 +93,24 @@ Balance plots for each cluster are displayed next to each other. You can specify
 
 ## `love.plot()`
 
-`love.plot()` shines with clustered data because there are several options that are unique to `cobalt` and help with the visual display of balance. One way to display cluster balance with `love.plot()` is to produce different plots for each cluster, as `bal.plot()` does. This method should not be used with many clusters, or the plots will be unreadable. In our present example, this is not an issue. To do so, the `which.cluster` argument in `bal.tab()` or `love.plot()` must be set to the names or indices of the clusters for which balance is to be plotted. If `which.cluster` is set to `NULL` (the default), all clusters will be plotted. Below is an example:
+`love.plot()` shines with clustered data because there are several options that are unique to `cobalt` and help with the visual display of balance. One way to display cluster balance with `love.plot()` is to produce different plots for each cluster, as `bal.plot()` does. This method should not be used with many clusters, or the plots will be unreadable. In our present example, this is not an issue. To do so, the `which.cluster` argument in `bal.tab()` or `love.plot()` must be set to the names or indices of the clusters for which balance is to be plotted. If `which.cluster` is set to `.all` (the default), all clusters will be plotted. Below is an example:
 
 ```{r}
-love.plot(bal.tab(m.out, cluster = "race"))
+love.plot(m.out, cluster = "race")
 ```
 
 These plots function like those from using `love.plot()` with non-clustered data, except that they cannot be sorted based on the values of the balance statistics (they can still be sorted alphabetically, though). This is to ensure that the covariates line up across the plots. The same axis limits will apply to all plots.
 
-Second, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean or maximum) of the balance statistic for each covariate across clusters. To do this, `which.cluster` in the `love.plot` command must be set to `NA`. To change which aggregate function is displayed, use the argument to `agg.fun`, which may be "mean" or "max" ("mean" is the default). Below is an example:
+Second, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean or maximum) of the balance statistic for each covariate across clusters. To do this, `which.cluster` in the `love.plot` command must be set to `.none`. To change which aggregate function is displayed, use the argument to `agg.fun`, which may be "mean" or "max" ("mean" is the default). Below is an example:
 
 ```{r}
-love.plot(bal.tab(m.out, cluster = "race"), which.cluster = NA, agg.fun = "mean")
+love.plot(m.out, cluster = "race", which.cluster = .none, agg.fun = "mean")
 ```
 
 A third option is to set `agg.fun = "range"`, which produces a similar plot as above except that the minimum and maximum values of the balance statistics for each covariate are displayed as well. See below for an example:
 
 ```{r}
-love.plot(bal.tab(m.out, cluster = "race"), which.cluster = NA, agg.fun = "range")
+love.plot(m.out, cluster = "race", which.cluster = .none, agg.fun = "range")
 ```
 
 Each point represents the mean balance statistic, and the bars represent intervals bounded by the minimum and maximum of each balance statistic. This display can be especially helpful with many clusters given that the mean alone may not tell the whole story. In some cases, it might be useful to set limits on the x-axis by using the `limits` argument in `love.plot()`; doing so may cut off some of the ranges, but whatever is left will be displayed. All `love.plot()` arguments work with these methods as they do in the case of non-clustered data. When `var.order` is specified and `unadjusted` or `adjusted` are given, the ordering will occur on the mean balance statistic when using `agg.fun = "range"`.
@@ -240,19 +240,18 @@ When many imputations are generated, it is recommended not to plot all at the sa
 `love.plot()` functions with imputed data as it does with clustered data. It is not recommended to display balance for multiple imputations at a time, and rather to display balance for just one representative imputation or to summarize balance across imputations. Below is an example of displaying balance for one imputation:
 
 ```{r}
-love.plot(bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75, 
-                  data = imp.data, weights = "match.weight", method = "matching", 
-                  imp = ".imp"), which.imp = 1, 
+love.plot(treat ~ age + educ + race + married + nodegree + re74 + re75, 
+          data = imp.data, weights = "match.weight", method = "matching", 
+          imp = ".imp", which.imp = 1, 
           var.order = "unadjusted", threshold = .2)
 ```
 
 As with clustered data, it is also possible to examine the range of balance statistics for each covariate across imputations by setting `agg.fun = "range"`:
 
 ```{r}
-love.plot(bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75, 
-                  data = imp.data, weights = "match.weight", method = "matching", 
-                  imp = ".imp"), 
-          agg.fun = "range", threshold = .2)
+love.plot(treat ~ age + educ + race + married + nodegree + re74 + re75, 
+          data = imp.data, weights = "match.weight", method = "matching", 
+          imp = ".imp", agg.fun = "range", threshold = .2)
 ```
 
 Often these ranges will be small if the imputed data sets are very similar to each other, but the more imputations are generated, the wider the ranges tend to be.
@@ -295,16 +294,16 @@ bal.tab(treat ~ age + educ + married + nodegree + re74 + re75,
         imp = ".imp", cluster = "race")
 ```
 
-There are essentially 9 combinations of `which.imp` and `which.cluster` to use to display balance. `i` represents a vector (which may be of length 1) of imputation numbers, and `c` represents a vector (which may be of length 1) of cluster names or indices. In general, `NA` means to suppress display of individual clusters or imputations, and `NULL` means to display all clusters or imputations.
+There are essentially 9 combinations of `which.imp` and `which.cluster` to use to display balance. `i` represents a vector (which may be of length 1) of imputation numbers, and `c` represents a vector (which may be of length 1) of cluster names or indices. In general, `.none` means to suppress display of individual clusters or imputations, and `.all` means to display all clusters or imputations.
 
-1) `which.imp = NULL, which.cluster = NULL`: For each imputation, balance within each cluster and across clusters\*\*. For each cluster, balance across all imputations\*. Balance across all imputations and clusters\*.
-2) `which.imp = NULL, which.cluster = NA`: For each imputation, balance across clusters. Balance across all imputations and clusters\*.
-3) `which.imp = NULL, which.cluster = c`: For each imputation, balance within the specified cluster(s) and across all clusters\*\*. For each specified cluster, balance across all imputations\*. Balance across all imputations and clusters\*.
-4) `which.imp = NA, which.cluster = NULL`: For each cluster, balance across all imputations. Balance across all imputations and clusters. (Default)
-5) `which.imp = NA, which.cluster = NA`: Balance across all imputations and clusters.
-6) `which.imp = NA, which.cluster = c`: For the specified cluster(s), balance across all imputations. Balance across all imputations and clusters.
-7) `which.imp = i, which.cluster = NULL`: For the specified imputation(s), balance within each cluster and across clusters\*\*. For each cluster, balance across all imputations\*. Balance across all imputations and clusters\*.
-8) `which.imp = i, which.cluster = NA`: For the specified imputation(s), balance across clusters. Balance across all imputations and clusters\*.
+1) `which.imp = .all, which.cluster = .all`: For each imputation, balance within each cluster and across clusters\*\*. For each cluster, balance across all imputations\*. Balance across all imputations and clusters\*.
+2) `which.imp = .all, which.cluster = .none`: For each imputation, balance across clusters. Balance across all imputations and clusters\*.
+3) `which.imp = .all, which.cluster = c`: For each imputation, balance within the specified cluster(s) and across all clusters\*\*. For each specified cluster, balance across all imputations\*. Balance across all imputations and clusters\*.
+4) `which.imp = .none, which.cluster = .all`: For each cluster, balance across all imputations. Balance across all imputations and clusters. (Default)
+5) `which.imp = .none, which.cluster = .none`: Balance across all imputations and clusters.
+6) `which.imp = .none, which.cluster = c`: For the specified cluster(s), balance across all imputations. Balance across all imputations and clusters.
+7) `which.imp = i, which.cluster = .all`: For the specified imputation(s), balance within each cluster and across clusters\*\*. For each cluster, balance across all imputations\*. Balance across all imputations and clusters\*.
+8) `which.imp = i, which.cluster = .none`: For the specified imputation(s), balance across clusters. Balance across all imputations and clusters\*.
 9) `which.imp = i, which.cluster = c`: For the specified imputation(s), balance within the specified cluster(s) and across all clusters\*\*. For the specified cluster(s), balance across all imputations\*. Balance across all imputations and clusters\*.
 
 \* can be suppressed with `imp.summary = FALSE`. \*\* can be suppressed with `cluster.summary = FALSE`.
@@ -319,40 +318,40 @@ As in other cases, `bal.plot()` can display distributional balance for one varia
 bal.plot(treat ~ age + educ + married + nodegree + re74 + re75, 
          data = imp.data, weights = "match.weight", method = "matching", 
          imp = ".imp", cluster = "race", which.imp = 1, 
-         which.cluster = NULL, var.name = "age")
+         which.cluster = .all, var.name = "age")
 ```
 
-In `bal.plot()`, `NULL` and `NA` mean the same thing when used as arguments to `which.imp` and `which.cluster`.
+In `bal.plot()`, `.all` and `.none` mean the same thing when used as arguments to `which.imp` and `which.cluster`.
 
 ## `love.plot()`
 
 As in other cases, `love.plot()` can display balance for individual groupings or aggregated across groupings, but with clustered and multiply imputed data, it is possible to display balance for each cluster aggregated across imputations or for each imputation aggregated across clusters. There are 9 ways of producing a plot based on the arguments to `bal.tab()` or `love.plot()`:
 
-1) `which.imp = NULL, which.cluster = NULL`: Not allowed.
-2) `which.imp = NULL, which.cluster = NA`: Balance aggregated across clusters for each imputation.
-3) `which.imp = NULL, which.cluster = c`: Balance in cluster `c` for each imputation. `c` must be of length 1.
-4) `which.imp = NA, which.cluster = NULL`: Balance aggregated across imputations for each cluster.
-5) `which.imp = NA, which.cluster = NA`: Balance aggregated across imputations and clusters.
-6) `which.imp = NA, which.cluster = c`: Balance aggregated across imputations for cluster `c`. `c` must be of length 1.
-7) `which.imp = i, which.cluster = NULL`: Balance for imputation `i` for each cluster. `i` must be of length 1.
-8) `which.imp = i, which.cluster = NA`: Balance for imputation `i` aggregated across clusters.
+1) `which.imp = .all, which.cluster = .all`: Not allowed.
+2) `which.imp = .all, which.cluster = .none`: Balance aggregated across clusters for each imputation.
+3) `which.imp = .all, which.cluster = c`: Balance in cluster `c` for each imputation. `c` must be of length 1.
+4) `which.imp = .none, which.cluster = .all`: Balance aggregated across imputations for each cluster.
+5) `which.imp = .none, which.cluster = .none`: Balance aggregated across imputations and clusters.
+6) `which.imp = .none, which.cluster = c`: Balance aggregated across imputations for cluster `c`. `c` must be of length 1.
+7) `which.imp = i, which.cluster = .all`: Balance for imputation `i` for each cluster. `i` must be of length 1.
+8) `which.imp = i, which.cluster = .none`: Balance for imputation `i` aggregated across clusters.
 9) `which.imp = i, which.cluster = c`: Balance for imputation `i` for cluster `c`. Either `c` or `i` must be of length 1.
 
 Below are examples of (4) and (7):
 
 ```{r}
 #4)
-love.plot(bal.tab(treat ~ age + educ + married + nodegree + re74 + re75, 
-                  data = imp.data, weights = "match.weight", 
-                  method = "matching", imp = ".imp", cluster = "race"), 
-          which.imp = NA, which.cluster = NULL, 
+love.plot(treat ~ age + educ + married + nodegree + re74 + re75, 
+          data = imp.data, weights = "match.weight", 
+          method = "matching", imp = ".imp", cluster = "race", 
+          which.imp = .none, which.cluster = .all, 
           agg.fun = "range")
 
 #7)
-love.plot(bal.tab(treat ~ age + educ + married + nodegree + re74 + re75, 
-                  data = imp.data, weights = "match.weight", 
-                  method = "matching", imp = ".imp", cluster = "race"), 
-          which.imp = 1, which.cluster = NULL)
+love.plot(treat ~ age + educ + married + nodegree + re74 + re75, 
+          data = imp.data, weights = "match.weight", 
+          method = "matching", imp = ".imp", cluster = "race", 
+          which.imp = 1, which.cluster = .all)
 ```
 
 All configurations other than (3), (6), (7), and (9) involve aggregating, and so an argument to `agg.fun` should be specified (unless its default,`"mean"`, is desired); we recommend `"range"` in most cases.
