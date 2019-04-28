@@ -956,12 +956,12 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     else v0 <- base::identity
     
     if (!(!disp.v.ratio && quick)) {
-        # if (!(!un && quick)) {
+        if (!(!un && quick)) {
             # B[["V.Ratio.Un"]] <- v0(col.var.ratio(C, treat, s.weights, B[["Type"]], no.weights = FALSE))
             B[["V.Ratio.Un"]] <- v0(var.ratios(s0 = B[["SD.0.Un"]], 
                                                s1 = B[["SD.1.Un"]], 
                                                x.types = B[["Type"]]))
-        # }
+        }
         if (!no.adj) {
             # for (j in seq_len(NCOL(weights))) {
             #     B[[paste.("V.Ratio", weight.names[j])]] <- v0(col.var.ratio(C, treat, weights[[j]]*s.weights, B[["Type"]], no.weights = FALSE))
@@ -977,9 +977,9 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     #KS Statistics
     if (!(!disp.ks && quick)) {
-        # if (!(!un && quick)) {
+        if (!(!un && quick)) {
             B[["KS.Un"]] <- col.ks(C, treat, s.weights, B[["Type"]], no.weights = FALSE)
-        # }
+        }
         if (!no.adj) {
             for (j in seq_len(NCOL(weights))) {
                 B[[paste.("KS", weight.names[j])]] <- col.ks(C, treat, weights[[j]]*s.weights, B[["Type"]], no.weights = FALSE)
