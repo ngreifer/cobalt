@@ -12,8 +12,8 @@ The across-time-points balance summary is, for each variable, the greatest imbal
 }
 \arguments{
 There are two additional arguments for each \code{bal.tab()} method that can handle longitudinal treatments: \code{which.time} and \code{msm.summary}.
-\item{which.time}{This is a display option that does not affect computation. If \code{NULL} (the default), all time points will be displayed. If \code{NA}, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance.}
-\item{msm.summary}{This is a display option that does not affect computation. If \code{TRUE}, the balance summary across time points will be displayed. The default is \code{TRUE}, and if \code{which.time} is \code{NA}, it will automatically be set to \code{TRUE}.}
+\item{which.time}{This is a display option that does not affect computation. If \code{.all} (the default), all time points will be displayed. If \code{.none}, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance.}
+\item{msm.summary}{This is a display option that does not affect computation. If \code{TRUE}, the balance summary across time points will be displayed. The default is \code{TRUE}, and if \code{which.time} is \code{.none}, it will automatically be set to \code{TRUE}.}
 }
 \value{
 The output is a \code{bal.tab.msm} object, which inherits from \code{bal.tab}. It has the following elements:
