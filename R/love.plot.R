@@ -9,17 +9,27 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (deparse(m[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) {
             if (pmatch(stat[1], "variance.ratios", 0L) != 0L) {
                 if (!isTRUE(eval(m[["x"]][["disp.v.ratio"]]))) {
+                    m[["x"]][["un"]] <- TRUE
                     m[["x"]][["disp.v.ratio"]] <- TRUE
                     return(eval(m))
                 }
             }
             else if (pmatch(stat[1], "ks.statistics", 0L) != 0L) {
                 if (!isTRUE(eval(m[["x"]][["disp.ks"]]))) {
+                    m[["x"]][["un"]] <- TRUE
                     m[["x"]][["disp.ks"]] <- TRUE
                     return(eval(m))
                 }
             }
         }
+    }
+    
+    #Replace .all and .none with NULL and NA respectively
+    .call <- match.call(expand.dots = TRUE)
+    if (any(sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all") || identical(as.character(.call[[x]]), ".none")))) {
+        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all"))] <- expression(NULL)
+        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".none"))] <- expression(NA)
+        return(eval(.call))
     }
     
     if (!any(class(x) == "bal.tab")) {
