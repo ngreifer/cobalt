@@ -22,7 +22,7 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note
     cluster = NULL, 
     abs = FALSE,
     subset = NULL,
-    quick = FALSE, 
+    quick = TRUE, 
     ...)
 }
 
@@ -73,7 +73,7 @@ either a vector containing cluster membership for each unit or a string containi
 a \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original call to \code{MatchIt()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
-\code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
+\code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Set to \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
 further arguments to control display of output. See \link[=options-display]{display options} for details.

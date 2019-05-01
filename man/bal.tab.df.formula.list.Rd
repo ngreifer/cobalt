@@ -31,7 +31,7 @@ Generates balance statistics for data coming from a longitudinal treatment scena
     estimand = "ATE",
     abs = FALSE,
     subset = NULL,
-    quick = FALSE, 
+    quick = TRUE, 
     ...)
     
 \method{bal.tab}{formula.list}(formula.list,
@@ -107,7 +107,7 @@ the causal estimand of interest. This value is used to set \code{s.d.denom}, and
 a \code{logical} vector denoting whether each observation should be included. It should be the same length as the treatment and covariates. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
-\code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Leave \code{FALSE} if computed values not displayed will be used later.
+\code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Set to \code{FALSE} if computed values not displayed will be used later.
 }
   \item{...}{
 For \code{bal.tab.formula.list}, other arguments to be passed to \code{bal.tab.data.frame.list}. Otherwise, further arguments to control display of output. See \link[=options-display]{display options} for details.
