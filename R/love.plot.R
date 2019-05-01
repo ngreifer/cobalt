@@ -1,26 +1,36 @@
 love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistics"), threshold = NULL, 
                       abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
-                      drop.distance = FALSE, agg.fun = c("mean", "max", "range"), 
+                      drop.distance = FALSE, agg.fun = c("range", "max", "mean"), 
                       colors = NULL, shapes = NULL, line = FALSE, ...) {
     
     #Re-call bal.tab with disp.v.ratio or disp.ks if stat = "v" or "k".
     if (!exists(deparse(substitute(x)))) {
-        m <- match.call()
+        m <- m0 <- match.call()
         if (deparse(m[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) {
             if (pmatch(stat[1], "variance.ratios", 0L) != 0L) {
                 if (!isTRUE(eval(m[["x"]][["disp.v.ratio"]]))) {
                     m[["x"]][["un"]] <- TRUE
                     m[["x"]][["disp.v.ratio"]] <- TRUE
-                    return(eval(m))
                 }
             }
             else if (pmatch(stat[1], "ks.statistics", 0L) != 0L) {
                 if (!isTRUE(eval(m[["x"]][["disp.ks"]]))) {
                     m[["x"]][["un"]] <- TRUE
                     m[["x"]][["disp.ks"]] <- TRUE
-                    return(eval(m))
+                    
                 }
             }
+            
+            if (any(names(m[["x"]]) == "cluster")) {
+                m[["x"]][["cluster.summary"]] <- TRUE
+                if (any(names(m[["x"]]) == "cluster.fun")) m[["x"]][["cluster.fun"]] <- NULL
+            }
+            if (any(names(m[["x"]]) == "imp")) {
+                m[["x"]][["imp.summary"]] <- TRUE
+                if (any(names(m[["x"]]) == "imp.fun")) m[["x"]][["imp.fun"]] <- NULL
+            }
+            
+            if (!identical(m, m0)) return(eval(m))
         }
     }
     
@@ -73,7 +83,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         if (!is.numeric(threshold) || length(threshold) > 1) stop("threshold must be a single number.", call. = FALSE)
     }
     
-    if (is_not_null(args$cluster.fun)) agg.fun <- args$cluster.fun
+    if (is_not_null(args$cluster.fun) && is_null(agg.fun)) agg.fun <- args$cluster.fun
     which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")
     which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", ks.statistics = "Kolmogorov-Smirnov Statistic", correlations = "Correlation")
     Agg.Fun <- NULL
@@ -322,7 +332,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
         #Get B from x
         if (config == "agg.none") {
             B <- do.call("rbind", lapply(names(x[["Imputation.Balance"]])[imp.numbers.good], 
-                                         function(i) cbind(b[["Imputation.Balance"]][[i]][["Balance"]],
+                                         function(i) cbind(x[["Imputation.Balance"]][[i]][["Balance"]],
                                                            imp = paste("Imputation:", i),
                                                            variable.names = rownames(x[["Imputation.Balance"]][[i]][["Balance"]]))))
             facet <- "imp"
@@ -961,7 +971,7 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
     if (agg.range) {
         position.dodge <- ggstance::position_dodgev(.5*(size))
         if (line == TRUE) { #Add line except to distance
-            f <- function(x) {x[["stat"]][x$var %in% distance.names] <- NA; x}
+            f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
             lp <- lp + ggplot2::layer(geom = "path", data = f, position = position.dodge, stat = "identity", 
                                       aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
         }
