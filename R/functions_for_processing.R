@@ -564,7 +564,7 @@ check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL, treat.
     else stop("treat.type must be either \"cat\" or \"cont\".")
     
 }
-col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL, x.types, continuous, binary, s.d.denom, no.weights = FALSE, s.weights = rep(1, length(treat)), pooled.sds = NULL) {
+.col.std.diff <- function(mat, treat, weights, subclass = NULL, which.sub = NULL, x.types, continuous, binary, s.d.denom, no.weights = FALSE, s.weights = rep(1, length(treat)), pooled.sds = NULL) {
     if (no.weights) weights <- rep(1, NROW(mat))
     w <- weights*s.weights
     sw <- s.weights
@@ -682,7 +682,7 @@ col.ks <- function(mat, treat, weights, x.types, no.weights = FALSE) {
     })
     return(ks)
 }
-col.var.ratio <- function(mat, treat, weights, x.types, no.weights = FALSE) {
+.col.var.ratio <- function(mat, treat, weights, x.types, no.weights = FALSE) {
     if (no.weights) weights <- rep(1, NROW(mat))
     ratios <- rep(NA_real_, NCOL(mat))
     non.binary <- x.types != "Binary"
@@ -895,11 +895,16 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     }
     
     #SDs for each group
-    non.binary <- B[["Type"]] != "Binary"
+    if (missing(binary) || is_null(binary)) {
+        binary <- match_arg(getOption("cobalt_binary", "raw"), c("raw", "std"))
+    }
+    else binary <- match_arg(binary, c("raw", "std"))
+    
+    sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else B[["Type"]] != "Binary"
     # if (!((!un || !disp.sds) && quick)) {
     for (t in c(0, 1)) {
         sds <- rep(NA_real_, NCOL(C))
-        sds[non.binary] <- sqrt(col.w.v(C[treat == t, non.binary, drop = FALSE], w = s.weights[treat==t]))
+        sds[sd.computable] <- sqrt(col.w.v(C[treat == t, sd.computable, drop = FALSE], w = s.weights[treat==t]))
         B[[paste.("SD", t, "Un")]] <- sds
     }
     # if (!(!disp.pop && quick)) {
@@ -913,7 +918,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
         for (i in weight.names) {
             for (t in c(0, 1)) {
                 sds <- rep(NA_real_, NCOL(C))
-                sds[non.binary] <- sqrt(col.w.v(C[treat == t, non.binary, drop = FALSE], w = weights[[i]][treat==t]*s.weights[treat==t]))
+                sds[sd.computable] <- sqrt(col.w.v(C[treat == t, sd.computable, drop = FALSE], w = weights[[i]][treat==t]*s.weights[treat==t]))
                 B[[paste.("SD", t, i)]] <- sds
             }
             # if (!(!disp.pop && quick)) {
@@ -1045,7 +1050,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     
     #B=Balance frame
     Bnames <- c("Type", "M.0.Adj", "SD.0.Adj", "M.1.Adj", "SD.1.Adj", "Diff.Adj", "M.Threshold", "V.Ratio.Adj", "V.Threshold", "KS.Adj", "KS.Threshold")
-    B <- as.data.frame(matrix(nrow=NCOL(C), ncol=length(Bnames)))
+    B <- as.data.frame(matrix(NA_real_, nrow = NCOL(C), ncol = length(Bnames)))
     colnames(B) <- Bnames
     rownames(B) <- colnames(C)
     #Set var type (binary/continuous)
@@ -1054,6 +1059,11 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     
     SB <- vector("list", nlevels(subclass))
     names(SB) <- levels(subclass)
+    
+    if (missing(binary) || is_null(binary)) {
+        binary <- match_arg(getOption("cobalt_binary", "raw"), c("raw", "std"))
+    }
+    else binary <- match_arg(binary, c("raw", "std"))
     
     #-------------------------------------
     for (i in levels(subclass)) {
@@ -1067,7 +1077,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
             }
         # }
         # if (!(!disp.sds && quick)) {
-            non.binary <- B[["Type"]] != "Binary"
+            non.binary <- if (binary == "std") rep(TRUE, nrow(B)) else B[["Type"]] != "Binary"
             un.sds <- setNames(vector("list", 2), c("0", "1"))
             for (t in c(0, 1)) {
                 sds <- rep(NA_real_, NCOL(C))
@@ -1151,7 +1161,6 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
 }
 balance.table.across.subclass <- function(balance.table, balance.table.subclass.list, subclass.obs, sub.by = NULL, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, s.d.denom = NULL) {
     #Variance ratio, v.threshold, and KS not yet supported
-    
     if (is_not_null(s.d.denom)){
         sub.by <- switch(s.d.denom, treated = "treat",
                          pooled = "all", control = "control")
