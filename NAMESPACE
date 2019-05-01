@@ -1,6 +1,6 @@
 import(ggplot2)
 import(stats)
-importFrom("utils", "combn", "data", "write.csv")
+importFrom("utils", "combn", "data", "write.csv", "methods")
 importFrom("grDevices", "col2rgb", "hcl")
 importFrom("crayon", "italic", "underline")
 importFrom("methods", "is")
