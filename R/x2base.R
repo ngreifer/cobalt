@@ -225,16 +225,16 @@ x2base.ps <- function(ps, ...) {
     }
     
     s <- names(ps$w)[match(tolower(rule1), tolower(names(ps$w)))]
-    estimand <- substr(tolower(s), nchar(s)-2, nchar(s))
-    
+    estimand <- substr(toupper(s[1]), nchar(s[1])-2, nchar(s[1]))
+
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
+        s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
-                                    new.s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
+                                    new.s.d.denom <- switch(estimand, ATT = "treated", ATE = "pooled")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- vapply(tolower(estimand), switch, character(1L), att = "treated", ate = "pooled")
+    else s.d.denom <- vapply(estimand, switch, character(1L), ATT = "treated", ATE = "pooled")
     
     weights <- data.frame(get.w(ps, s, estimand))
     treat <- ps$treat
@@ -324,6 +324,7 @@ x2base.ps <- function(ps, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
+    X$s.d.denom <- rep(s.d.denom, ncol(weights))
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
@@ -393,16 +394,16 @@ x2base.mnps <- function(mnps, ...) {
     
     s <- mnps$stopMethods[match(tolower(rule1), tolower(mnps$stopMethods))]
     
-    estimand <- setNames(mnps$estimand, s)
+    estimand <- mnps$estimand
     
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
+        s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
-                                    new.s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
+                                    new.s.d.denom <- switch(substr(tolower(s[1]), nchar(s[1])-2, nchar(s[1])), att = "treated", ate = "pooled")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- vapply(tolower(estimand), switch, character(1L), att = "treated", ate = "pooled")
+    else s.d.denom <- vapply(tolower(estimand), switch, character(1L), att = "treated", ate = "pooled")
     
     weights <- data.frame(get.w(mnps, s))
     treat <- mnps$treatVar
@@ -483,6 +484,7 @@ x2base.mnps <- function(mnps, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
+    X$s.d.denom <- rep(s.d.denom, ncol(weights))
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
@@ -674,13 +676,13 @@ x2base.Match <- function(Match, ...) {
     m <- Match
     s <- m$estimand
     if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
+        s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
                                 error = function(cond) {
                                     new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
                                     message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
                                     return(new.s.d.denom)})
     }
-    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
+    else s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
     treat0 <- t.c[["treat"]]
     covs0  <- t.c[["covs"]]
@@ -774,6 +776,7 @@ x2base.Match <- function(Match, ...) {
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
+    X$s.d.denom <- rep(s.d.denom, ncol(weights))
     X$treat <- treat
     X$weights <- weights
     X$discarded <- dropped
