@@ -15,6 +15,12 @@ Version 3.7.0
 
 * Fixed bug occurring when using `matchit` objects having set `discard` to something other than `NULL` and `reestimate = TRUE` in the call to `matchit()`. Thank you to Weiyi Xie for finding this bug.
 
+* Fixed bug occurring when using balance thresholds with subclassification.
+
+* Fixed bug occurring when printing `bal.tab` output for continuous treatments with clusters.
+
+* Fixed bug occurring when using `bal.tab()` on `mnps` objects with multiple stop methods.
+
 Version 3.6.1
 
 * Fixed bug when installed version of R was earlier than 3.5.0.
