@@ -43,11 +43,11 @@ The rest of this guide explains how to use `cobalt` with some of the above packa
 #### Citing `cobalt`
 When using `cobalt`, please cite your use of it along with the conditioning package used. The full APA reference for `cobalt` is the following:
 
-`r paste0("Greifer, N. (2018). cobalt: Covariate Balance Tables and Plots. R package version ", packageVersion("cobalt"), ".")`
+`r paste0("Greifer, N. (", format(Sys.Date(), "%Y"), "). cobalt: Covariate Balance Tables and Plots. R package version ", packageVersion("cobalt"), ".")`
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
-> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2018), both in R (R Core Team, 2018).
+> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, `r format(Sys.Date(), "%Y")`), both in R (R Core Team, 2018).
 
 ## Why `cobalt`?
 
@@ -309,11 +309,11 @@ m.out <- matchit(f.build("treat", covs), data = lalonde,
 love.plot(m.out, threshold = .1)
 ```
 
-`love.plot()` takes as its arguments the same ones that would go into a call to `bal.tab()`. In addition, it can take as its first argument the output of a call to `bal.tab()`; this can be accomplished simply by inserting the `bal.tab()` call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument.  There are several other arguments, all of which control display, and are described below.
+`love.plot()` takes as its arguments the same ones that would go into a call to `bal.tab()`. In addition, it can take as its first argument the output of a call to `bal.tab()`; this can be accomplished simply by inserting the `bal.tab()` call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument.  There are several other arguments, all of which control display, that are described below.
 
 The output is a plot with the balance statistic on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment. The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved.
 
-The default is to present the absolute mean differences as they are calculated in the call to `bal.tab()`; by specifying `stat = "variance.ratios"` or `stat = "ks.statistics"` (abbreviations allowed), the user can request variance ratios or KS statistics instead. Because binary variables don't have variance ratios calculated, there may be empty rows if variance ratios are requested, but these rows can be deleted by setting `no.missing = TRUE`.
+The default is to present the absolute mean differences as they are calculated in the call to `bal.tab()`; by specifying `stat = "variance.ratios"` or `stat = "ks.statistics"` (abbreviations allowed), the user can request variance ratios or KS statistics instead. Because binary variables don't have variance ratios or KS statistics calculated, there will not be rows for these variables, but these rows can be added (with empty entries) to be in alignment with mean differences by setting `no.missing = FALSE`.
 
 The `threshold` argument works similarly to `m.threshold`, `v.threshold`, and `ks.threshold` in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on which to evaluate the displayed balance measures. If these thresholds are specified in `bal.tab()`, `love.plot()` will use them in the resultant plot with the corresponding balance statistic. The `threshold` argument to `love.plot()` takes precedence.
 
@@ -409,11 +409,11 @@ W.out.mn <- weightit(race ~ cov.mn, data = lalonde,
                      method = "ps")
 ```
 
-First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = NULL`. The summary across all pairwise comparisons is displayed as well, but it can be suppressed with `multi.summary = FALSE`. See `?bal.tab.multi` for more details.
+First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = .all`. The summary across all pairwise comparisons is displayed as well, but it can be suppressed with `multi.summary = FALSE`. See `?bal.tab.multi` for more details.
 
 ```{r}
 #Assessing balance numerically
-bal.tab(W.out.mn, un = TRUE, which.treat = NULL)
+bal.tab(W.out.mn, un = TRUE, which.treat = .all)
 
 #Just black vs. white
 bal.tab(W.out.mn, un = TRUE, disp.means = TRUE,
@@ -431,12 +431,12 @@ bal.plot(W.out.mn, "married", which = "both",
          which.treat = c("black", "white"))
 ```
 
-Finally, we can use `love.plot()` to display balance across treatments. By default, `love.plot()` displays the values in the summary across pairwise comparisons. To request individual treatment comparisons, use `which.treat = NULL` in `love.plot()`.
+Finally, we can use `love.plot()` to display balance across treatments. By default, `love.plot()` displays the values in the summary across pairwise comparisons. To request individual treatment comparisons, use `which.treat = .all` in `love.plot()`.
 
 ```{r, fig.width = 7}
 #Summarizing balance in a Love plot
 love.plot(W.out.mn, threshold = .1,
-          which.treat = NULL, abs = FALSE)
+          which.treat = .all, abs = FALSE)
 ```
 
 ### Comparing balancing methods
@@ -555,6 +555,7 @@ As mentioned above, `cobalt` displays density plots and bar charts rather than e
 Although mean differences (including t-tests and chi-square tests) are the most reported balance statistic (Thoemmes & Kim, 2011), variance ratios have been recommended in the literature as a means to further examine balance between groups (Austin, 2009, Imai et al., 2008; Ho et al., 2007). When group variances are similar, the variance ratio will be close to 1. Common thresholds for the variance ratio for balanced groups are .5 and 2 (Rubin, 2001; Stuart, 2010), though ratios closer to 1 are preferred. 
 
 The `Matching` package is the only one of the conditioning packages that presents variance ratios for covariates. Although `bal.tab()` in `cobalt` does not display variance ratios by default, they can be easily requested and have thresholds set. 
+
 ### Distinguishing Continuous and Binary Covariates
 
 Continuous and binary covariates are treated differently by default in `bal.tab()` and `bal.plot()`. For continuous covariates, the standard manipulations apply: standardized mean differences, variance ratios, and density plots. For binary covariates, raw differences in proportion and bar charts are preferable, and variance ratios are useless. 
