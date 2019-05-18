@@ -214,19 +214,30 @@ w.m <- function(x, w = NULL, na.rm = TRUE) {
     if (is_null(w)) w <- as.numeric(!is.na(x))
     return(sum(x*w, na.rm=na.rm)/sum(w, na.rm=na.rm))
 }
-w.v <- function(x, w = NULL) {
-    # return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE)/(sum(w, na.rm=TRUE)-1))
-    # return(sum(w*(x-w.m(x, w))^2, na.rm=TRUE) / w.cov.scale(w))
-    w.cov(x, x, w = w)
+w.v <- function(x, w = NULL, na.rm = TRUE) {
+    w.cov(x, x, w = w, na.rm = na.rm)
 }
-w.cov <- function(x, y, w = NULL) {
+w.cov <- function(x, y, w = NULL, na.rm = TRUE, type = 3) {
+    
     if (is_null(w)) w <- as.numeric(!is.na(x))
-    wmx <- w.m(x, w)
-    wmy <- w.m(y, w)
-    w.cov.scale <- (sum(w, na.rm = TRUE)^2 - sum(w^2, na.rm = TRUE)) / sum(w, na.rm = TRUE)
-    #wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = TRUE)/sum(w, na.rm = TRUE)
-    wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = TRUE) / w.cov.scale
+    wmx <- w.m(x, w, na.rm = na.rm)
+    wmy <- w.m(y, w, na.rm = na.rm)
+    
+    wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = na.rm) / w.cov.scale(w, na.rm = na.rm, type = type)
     return(wcov)
+}
+w.cov.scale <- function(w, type = 3, na.rm = TRUE) {
+    
+    sw <- sum(w, na.rm = na.rm)
+    n <- sum(!is.na(w))
+    vw1 <- sum((w - sw/n)^2, na.rm = na.rm)/n
+    # vw2 <- sum((w - sw/n)^2, na.rm = na.rm)/(n-1)
+    
+    if (type == 1) sw
+    else if (type == 2) sw - 1
+    else if (type == 3) sw*(n-1)/n - vw1*n/sw
+    # else if (type == 4) sw*(n-1)/n - vw2*n/sw
+    
 }
 col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
     if (is_null(w)) {
@@ -242,8 +253,7 @@ col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
     if (is_null(w)) {
         w <- rep(1, nrow(mat))
     }
-    w.cov.scale <- (sum(w, na.rm = TRUE)^2 - sum(w^2, na.rm = TRUE)) / sum(w, na.rm = TRUE)
-    return(colSums(t((t(mat) - col.w.m(mat, w, na.rm = na.rm))^2) * w, na.rm = na.rm) / w.cov.scale)
+    return(colSums(t((t(mat) - col.w.m(mat, w, na.rm = na.rm))^2) * w, na.rm = na.rm) / w.cov.scale(w, na.rm = na.rm))
 }
 coef.of.var <- function(x, pop = TRUE, na.rm = TRUE) {
     if (na.rm) x <- x[!is.na(x)]
@@ -257,7 +267,9 @@ mean.abs.dev <- function(x, na.rm = TRUE) {
 geom.mean <- function(y, na.rm = TRUE) {
     exp(mean(log(y[is.finite(log(y))]), na.rm = na.rm))
 }
-
+mat_div <- function(mat, vec) {
+    mat/vec[col(mat)]
+}
 
 #Formulas
 is.formula <- function(f, sides = NULL) {
@@ -311,6 +323,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     
     #Check if RHS variables exist
     tt.covs <- delete.response(tt)
+    
     rhs.vars.mentioned.lang <- attr(tt.covs, "variables")[-1]
     rhs.vars.mentioned <- vapply(rhs.vars.mentioned.lang, deparse, character(1L))
     rhs.vars.failed <- vapply(rhs.vars.mentioned, function(v) {
@@ -344,12 +357,13 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
                                       values = names(addl.dfs[[i]]),
                                       after = ind - 1)
         }
-        new.form <- as.formula(paste("~", paste(rhs.term.labels, collapse = " + ")))
         
-        tt.covs <- terms(new.form)
         if (data.specified) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
         else data <- do.call("cbind", unname(addl.dfs))
     }
+    
+    new.form <- as.formula(paste("~", paste(rhs.term.labels, collapse = " + ")))
+    tt.covs <- terms(new.form)
     
     #Get model.frame, report error
     mf.covs <- quote(stats::model.frame(tt.covs, data,
