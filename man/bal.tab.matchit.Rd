@@ -93,6 +93,10 @@ If matching is used and clusters are not specified, an object of class \code{"ba
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
 }
 
+\Note{
+When a user-suppled distance measure or Mahalanobis distance matching (\code{method = "mahalanobis"}) are used with \code{matchit()}, full covariate information is not stored in the \code{matchit} output object. In particular, categorical variables are not retained as such, and so the dummies are treated as their own variables. The consequence of this is that for all but the first factor variable supplied to \code{matchit()}, the first category will be absent. In addition, full compatibility with functions that rely on variable names (like \code{\link{love.plot}}) will be hampered. To get around this issue, users can supply the original data frame to \code{bal.tab()} through the \code{data} argument, and the variables will be processed correctly.
+}
+
 \author{
 Noah Greifer 
 }
