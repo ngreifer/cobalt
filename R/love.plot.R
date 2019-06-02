@@ -2,11 +2,13 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
                       abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
                       drop.distance = FALSE, agg.fun = c("range", "max", "mean"), 
                       colors = NULL, shapes = NULL, line = FALSE, ...) {
-    
+
     #Re-call bal.tab with disp.v.ratio or disp.ks if stat = "v" or "k".
-    if (!exists(deparse(substitute(x)))) {
-        m <- m0 <- match.call()
+    if (!exists(deparse(substitute(x)))) { #if x is not an object (i.e., is a function all)
+        m <- match.call()
+        # print(sapply(c("bal.tab", methods("bal.tab")), function(x) identical(eval(m[["x"]][[1]]), get0(x))))
         if (deparse(m[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) {
+            m0 <- m
             if (pmatch(stat[1], "variance.ratios", 0L) != 0L) {
                 if (!isTRUE(eval(m[["x"]][["disp.v.ratio"]]))) {
                     m[["x"]][["un"]] <- TRUE
@@ -32,13 +34,51 @@ love.plot <- function(x, stat = c("mean.diffs", "variance.ratios", "ks.statistic
             
             if (!identical(m, m0)) return(eval(m))
         }
+        else if (deparse(m[["x"]][[1]]) == "do.call") {
+            d <- match.call(eval(m[["x"]][[1]]), m[["x"]])
+            if (deparse(d[["what"]]) %in% c("bal.tab", methods("bal.tab"))) {
+                a <- d[["args"]]
+                
+                if (pmatch(stat[1], "variance.ratios", 0L) != 0L) {
+                    if (!isTRUE(eval(a[["disp.v.ratio"]]))) {
+                        a[["un"]] <- TRUE
+                        a[["disp.v.ratio"]] <- TRUE
+                    }
+                }
+                else if (pmatch(stat[1], "ks.statistics", 0L) != 0L) {
+                    if (!isTRUE(eval(a[["disp.ks"]]))) {
+                        a[["un"]] <- TRUE
+                        a[["disp.ks"]] <- TRUE
+                        
+                    }
+                }
+                
+                if (any(names(a) == "cluster")) {
+                    a[["cluster.summary"]] <- TRUE
+                    if (any(names(a) == "cluster.fun")) a[["cluster.fun"]] <- NULL
+                }
+                if (any(names(a) == "imp")) {
+                    a[["imp.summary"]] <- TRUE
+                    if (any(names(a) == "imp.fun")) a[["imp.fun"]] <- NULL
+                }
+                
+                if (!identical(a, d[["args"]])) {
+                    d[["args"]] <- a
+                    m[["x"]] <- d
+                    return(eval(m))
+                }
+            }
+            
+        }
     }
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
-    if (any(sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all") || identical(as.character(.call[[x]]), ".none")))) {
-        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all"))] <- expression(NULL)
-        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".none"))] <- expression(NA)
+    .alls <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.all)), logical(1L))
+    .nones <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.none)), logical(1L))
+    if (any(c(.alls, .nones))) {
+        .call[.alls] <- expression(NULL)
+        .call[.nones] <- expression(NA)
         return(eval(.call))
     }
     
