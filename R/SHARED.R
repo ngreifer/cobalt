@@ -286,8 +286,15 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     A <- list(...)
     
     #Check if data exists
-    if (is_not_null(data) && is.data.frame(data)) {
-        data.specified <- TRUE
+    if (is_not_null(data)) {
+        if (is.data.frame(data)) {
+            data.specified <- TRUE
+        }
+        else {
+            warning("The argument supplied to data is not a data.frame object. This may causes errors or unexpected results.", call. = FALSE)
+            data <- environment(f)
+            data.specified <- FALSE
+        }
     }
     else {
         data <- environment(f)
@@ -296,7 +303,13 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     
     env <- environment(f)
     
-    tt <- terms(f)
+    tryCatch(tt <- terms(f, data = data),
+             error = function(e) {
+                 if (conditionMessage(e) == "'.' in formula and no 'data' argument") {
+                     stop("'.' is not allowed in formulas.", call. = FALSE)
+                 }
+                 else stop(conditionMessage(e), call. = FALSE)
+             })
     
     #Check if response exists
     if (is.formula(tt, 2)) {
