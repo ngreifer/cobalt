@@ -1800,9 +1800,9 @@ f.recode <- function(f, ...) {
 seq_int_cycle <- function(begin, end, max) {
     seq(begin, end, by = 1) - max*(seq(begin-1, end-1, by = 1) %/% max)
 }
-assign.shapes <- function(colors, default.shape = "circle filled") {
+assign.shapes <- function(colors, default.shape = "circle") {
     if (nunique(colors) < length(colors)) {
-        shapes <- seq_int_cycle(21, 21 + length(colors), max = 25)
+        shapes <- seq_int_cycle(16, 16 + length(colors) - 1, max = 25)
     }
     else shapes <- rep(default.shape, length(colors))
     return(shapes)
