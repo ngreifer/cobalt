@@ -2,15 +2,17 @@ bal.tab <- function(...) {
     
     if (...length() == 0L) stop("No arguments were supplied.", call. = FALSE)
     .obj <- ...elt(1)
-    
+
     .obj <- is.designmatch(.obj)
     .obj <- is.time.list(.obj)
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
-    if (any(sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all") || identical(as.character(.call[[x]]), ".none")))) {
-        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all"))] <- expression(NULL)
-        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".none"))] <- expression(NA)
+    .alls <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.all)), logical(1L))
+    .nones <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.none)), logical(1L))
+    if (any(c(.alls, .nones))) {
+        .call[.alls] <- expression(NULL)
+        .call[.nones] <- expression(NA)
         return(eval(.call))
     }
     

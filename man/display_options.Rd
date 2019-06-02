@@ -63,6 +63,9 @@ These arguments used to be named arguments to \code{bal.tab}, but were relegated
 
 In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \code{\link{set.cobalt.options}} and retrieve it using \code{\link{get.cobalt.options}}. Note that global options cannot be set for \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.
 }
+\note{
+When calling \code{bal.tab()} using \code{\link{do.call}}, if you are using \code{.all} or \code{.none} as arguments, you need to use \code{\link{alist}} rather than \code{list} to group the arguments. For example, \code{do.call(bal.tab, list(., which.cluster = .none))} will produce an error, but \code{do.call(bal.tab, alist(., which.cluster = .none))} should work correctly.
+}
 
 \seealso{
 \code{\link{bal.tab}}, \code{\link{print.bal.tab}}
