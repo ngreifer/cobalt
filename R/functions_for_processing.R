@@ -350,8 +350,8 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
             C[[i]] <- relevel(C[[i]], levels(C[[i]])[2])
         }
         else if (is.character(C[[i]]) || is.factor(C[[i]])) C[[i]] <- factor(C[[i]])
-        
-        if (nlevels(cluster) > 0 && qr(matrix(c(C[[i]], as.numeric(cluster)), ncol = 2))$rank == 1) {
+        if (is_not_null(cluster) && !nunique.gt(C[[i]], nunique(cluster)) && 
+            equivalent.factors(C[[i]], cluster)) {
             C <- C[names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
         }
         else {
@@ -363,7 +363,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
                 newly.added.names <- names(C)[names(C) %nin% old.C.names]
                 vars.w.missing[i, "placed.after"] <- newly.added.names[length(newly.added.names)]
                 co.names <- c(co.names, setNames(lapply(newly.added.names, function(x) {
-                    split.points <- c(nchar(i), nchar(i)+nchar(A[["factor_sep"]]))
+                    split.points <- c(nchar(i), nchar(i) + nchar(A[["factor_sep"]]))
                     split.names <- substring(x,
                                              c(1, split.points[1] + 1, split.points[2] + 1),
                                              c(split.points[1], split.points[2], nchar(x))
@@ -374,6 +374,9 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
             }
         }
     }
+    
+    if (NCOL(C) == 0) stop("There are no variables for which to display balance.", call. = FALSE)
+    
     #Make sure categorical variable have missingness indicators done correctly
     
     C <- C[!vapply(C, all_the_same, logical(1L))]
@@ -411,7 +414,8 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
             int <- TRUE
         }
         
-        new <- int.poly.f(C, int = int, poly = poly, center = A[["center"]], sep = rep(A[["int_sep"]], nsep), co.names = co.names)
+        new <- int.poly.f(C, int = int, poly = poly, center = A[["center"]], 
+                          sep = rep(A[["int_sep"]], nsep), co.names = co.names)
         C <- cbind(C, new)
         co.names <- c(co.names, attr(new, "co.names"))
     }
@@ -420,9 +424,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
     vars.w.missing <- vars.w.missing[vars.w.missing$placed.after %in% colnames(C) & vars.w.missing$has.missing, , drop = FALSE]
     if (NROW(vars.w.missing) > 0) {
         missing.ind <- apply(C[,colnames(C) %in% vars.w.missing$placed.after, drop = FALSE], 2, function(x) as.numeric(is.na(x)))
-        #colnames(missing.ind) <- paste0(rownames(vars.w.missing), ":<NA>")
         colnames(missing.ind) <- rownames(vars.w.missing)
-        #missing.ind <- remove.perfect.col(missing.ind) 
         vars.w.missing <- vars.w.missing[colnames(missing.ind), , drop = FALSE]
         colnames(missing.ind) <- paste0(colnames(missing.ind), ":<NA>")
         original.var.order <- setNames(seq_len(NCOL(C)), colnames(C))
