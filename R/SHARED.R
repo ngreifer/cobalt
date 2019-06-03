@@ -153,7 +153,10 @@ text.box.plot <- function(range.list, width = 12) {
     return(d)
 }
 equivalent.factors <- function(f1, f2) {
-    return(nunique(f1) == nunique(interaction(f1, f2)))
+    return(nunique(f1) == nunique(interaction(f1, f2, drop = TRUE)))
+}
+equivalent.factors2 <- function(f1, f2) {
+    return(qr(matrix(c(rep(1, length(f1)), as.numeric(f1), as.numeric(f2)), ncol = 3))$rank == 2)
 }
 paste. <- function(..., collapse = NULL) {
     #Like paste0 but with sep = ".'
