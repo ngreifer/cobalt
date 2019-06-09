@@ -44,6 +44,11 @@ word.list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
     }
     return(out)
 }
+firstup <- function(x) {
+    #Capitalize first letter
+    substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+    x
+}
 expand.grid_string <- function(..., collapse = "") {
     return(apply(expand.grid(...), 1, paste, collapse = collapse))
 }
