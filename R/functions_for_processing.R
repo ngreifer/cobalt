@@ -1804,7 +1804,7 @@ seq_int_cycle <- function(begin, end, max) {
 }
 assign.shapes <- function(colors, default.shape = "circle") {
     if (nunique(colors) < length(colors)) {
-        shapes <- seq_int_cycle(16, 16 + length(colors) - 1, max = 25)
+        shapes <- seq_int_cycle(19, 19 + length(colors) - 1, max = 25)
     }
     else shapes <- rep(default.shape, length(colors))
     return(shapes)
