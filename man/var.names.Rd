@@ -52,7 +52,6 @@ b2 <- bal.tab(treat ~ age + race + married + educ + nodegree +
 var.names(b2, file = "varnames.csv")
 
 ##Manually edit the CSV (e.g., in Excel), then save it.
-##
 v2 <- read.csv("varnames.csv")
 love.plot(b2, var.names = v2)
 }
