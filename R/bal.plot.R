@@ -432,7 +432,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         if (is_binary(d$var) || is.factor(d$var) || is.character(d$var)) { #Categorical vars
             d$var <- factor(d$var)
-            bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) + 
+            bp <- ggplot(d, mapping = aes(x = var, fill = treat, weight = weights)) + 
                 geom_bar(position = "dodge", alpha = .8, color = "black") + 
                 labs(x = var.name, y = "Proportion", fill = "Treat", title = title, subtitle = subtitle) + 
                 scale_x_discrete(drop=FALSE) + scale_fill_manual(drop=FALSE, values = colors) +
@@ -468,7 +468,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             if (type == "histogram" && nlevels.treat <= 2) {
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
                 geom_fun <- function(t) geom_histogram(data = d[d$treat == levels(d$treat)[t],],
-                                                       mapping = aes(var, y = posneg[t]*stat(count), weight = weights,
+                                                       mapping = aes(x = var, y = posneg[t]*stat(count), weight = weights,
                                                                      fill = names(colors)[t]),
                                                        alpha = alpha, bins = args$bins, color = "black")
                 ylab <- "Proportion"
@@ -476,7 +476,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             else {
                 geom_fun <- function(t) geom_density(data = d[d$treat == levels(d$treat)[t],],
-                                                     mapping = aes(var, y = posneg[t]*stat(density), weight = weights,
+                                                     mapping = aes(x = var, y = posneg[t]*stat(density), weight = weights,
                                                                    fill = names(colors)[t]),
                                                      alpha = alpha, bw = bw, adjust = adjust,
                                                      kernel = kernel, n = n, trim = TRUE)
