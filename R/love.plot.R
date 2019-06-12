@@ -91,6 +91,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     #limits
     #cluster.fun (deprecated)
     #wrap
+    #grid
+    #alpha
     
     p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time", "disp.subclass")
     for (i in p.ops) {
@@ -400,7 +402,6 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         else stop("The argument to which.cluster must be .none, .all, or the names or indices of clusters.", call. = FALSE)
         
-        
         #Get B from x
         if (config == "agg.none") {
             B <- do.call("rbind", lapply(names(x[["Cluster.Balance"]])[cluster.names.good], 
@@ -413,9 +414,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             if (is_null(x[["Cluster.Summary"]])) {
                 stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            
-            tryCatch({agg.fun <- tolower(match_arg(agg.fun))}, 
-                     error = function(e) stop("agg.fun should be one of \"mean\", \"max\", or \"range\".", call. = FALSE))
+            agg.fun <- tolower(match_arg(agg.fun))
             Agg.Fun <- switch(agg.fun, mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
                 subtitle <- paste0(which.stat2, " Range Across Clusters")
@@ -903,6 +902,14 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
     }
     
+    #Alpha (transparency)
+    if (is_null(args$alpha)) alpha <- 1
+    else if (is.numeric(args$alpha[1])) alpha <- args$alpha[1]
+    else {
+        warning("The argument to alpha must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
+        alpha <- 1
+    }
+    
     #Title
     if (is_not_null(args$title)) title <- as.character(args$title)
     if (is_not_null(args$subtitle)) subtitle <- as.character(args$subtitle)
@@ -1099,12 +1106,9 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     }
     
     lp <- ggplot(aes(y = var, x = stat, group = Sample), data = SS) + 
-        theme(panel.grid.major = element_line(color = "gray87"),
-              panel.grid.minor = element_line(color = "gray90"),
-              panel.background = element_rect(fill = "white", color = "black"),
+        theme(panel.background = element_rect(fill = "white", color = "black"),
               axis.text.x = element_text(color = "black"),
-              axis.text.y = element_text(color = "black"),
-              strip.placement = "outside"
+              axis.text.y = element_text(color = "black")
         ) + 
         scale_shape_manual(values = shapes) +
         scale_fill_manual(values = fill) +
@@ -1125,9 +1129,11 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         lp <- lp + 
             ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat, 
-                                          color = Sample), position = position.dodge, size = size) + 
+                                          color = Sample), position = position.dodge, size = size,
+                                      alpha = alpha) + 
             geom_point(aes(y = var, x = mean.stat, shape = Sample, color = Sample), 
                        fill = "white", size = 2*size, stroke = stroke, na.rm = TRUE,
+                       alpha = alpha,
                        position = position.dodge) + 
             labs(title = title, y = "")
     }
@@ -1135,22 +1141,32 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         if (is_null(subclass.names) || !x$print.options$disp.subclass) {
             if (line == TRUE) { #Add line except to distance
                 f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
-                lp <- lp + ggplot2::layer(geom = "path", data = f(SS), position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+                lp <- lp + ggplot2::layer(geom = "path", data = f(SS), 
+                                          position = "identity", stat = "identity", 
+                                          mapping = aes(color = Sample), 
+                                          params = list(size = size*.8, na.rm = TRUE,
+                                                        alpha = alpha))
             }
             lp <- lp + geom_point(data = SS, aes(shape = Sample,
                                                  color = Sample), 
-                                  size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE) 
+                                  size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE,
+                                  alpha = alpha) 
         }
         else {
             SS.u.a <- SS[SS$Sample %in% c("Unadjusted", "Adjusted"),]
             SS.u.a$Sample <- factor(SS.u.a$Sample)
             if (line == TRUE) { #Add line except to distance
                 f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
-                lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a), position = "identity", stat = "identity", aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+                lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a), 
+                                          position = "identity", stat = "identity", 
+                                          mapping = aes(color = Sample), 
+                                          params = list(size = size*.8, na.rm = TRUE,
+                                                        alpha = alpha))
             }
             lp <- lp + geom_point(data = SS.u.a, 
                                   aes(shape = Sample, color = Sample), 
-                                  size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE) 
+                                  size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE,
+                                  alpha = alpha) 
             lp <- lp + geom_text(data = SS[!SS$Sample %in% c("Unadjusted", "Adjusted"),], 
                                  aes(label = gsub("Subclass ", "", Sample)), 
                                  size = 2*size, na.rm = TRUE) 
@@ -1166,22 +1182,32 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     if (apply.limits) {
         lp <- lp + scale_x_continuous(limits = limits[["limits"]][limits[["Statistic"]] == which.stat2[1]], expand = c(0, 0))
     }
+    if (isFALSE(args$grid)) {
+        lp <- lp + theme(panel.grid.major = element_blank(),
+                         panel.grid.minor = element_blank())
+    }
+    else {
+        lp <- lp + theme(panel.grid.major = element_line(color = "gray87"),
+                          panel.grid.minor = element_line(color = "gray90"))
+    }
     if (is_not_null(facet)) {
         if (length(which.stat) > 1) {
             lp <- lp + facet_grid(f.build(facet, "Statistic"), drop = FALSE, switch = "x", scales = "free_x",
                                   labeller = labeller(.default = label_wrap_gen(width = if (is_null(args[["wrap"]])) 20 else args[["wrap"]]))) +
                 theme(strip.background.x = element_blank(),
-                      strip.text.x = element_text(size = 11-.8*(length(which.stat)-1)))
+                      strip.text.x = element_text(size = 11-.8*(length(which.stat)-1)),
+                      strip.placement.x = "outside")
         }
         else {
-            lp <- lp + facet_grid(f.build(".", facet), drop = FALSE)
+            lp <- lp + facet_grid(f.build(".", facet), drop = FALSE) + labs(x = xlabs[which.stat])
         }
     }
     else {
         lp <- lp + facet_grid(. ~ Statistic, drop = FALSE, switch = "x", scales = "free_x",
                               labeller = labeller(.default = label_wrap_gen(width = if (is_null(args[["wrap"]])) 20 else args[["wrap"]]))) +
             theme(strip.background.x = element_blank(),
-                  strip.text.x = element_text(size = 11-.8*(length(which.stat)-1)))
+                  strip.text.x = element_text(size = 11-.8*(length(which.stat)-1)),
+                  strip.placement.x = "outside")
     }
     return(lp)
 }
