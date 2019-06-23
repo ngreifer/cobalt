@@ -3,7 +3,7 @@
 love.plot <- function(x, stat = "mean.diffs", threshold = NULL, 
                       abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
                       drop.distance = FALSE, agg.fun = c("range", "max", "mean"), 
-                      colors = NULL, shapes = NULL, line = FALSE, ...) {
+                      colors = NULL, shapes = NULL, line = FALSE, stars = "none", ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -464,10 +464,10 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         else {
             if (x$print.options$pairwise) {
                 if (sum(treat.names.good) == 1) {
-                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) any(x[["Pair.Balance"]][[p]]$print.options$treat.names == x$print.options$treat.names[treat.names.good]))]
+                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) any(attr(x[["Pair.Balance"]][[p]], "print.options")$treat.names == x$print.options$treat.names[treat.names.good]))]
                 }
                 else {
-                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) all(x[["Pair.Balance"]][[p]]$print.options$treat.names %in% x$print.options$treat.names[treat.names.good]))]
+                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) all(attr(x[["Pair.Balance"]][[p]], "print.options")$treat.names %in% x$print.options$treat.names[treat.names.good]))]
                 }
             }
             else {
@@ -577,6 +577,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     }
     thresholds <- thresholds[!is.na(thresholds)]
     
+    #Process variable names
     if (is_not_null(var.names)) {
         if (is.data.frame(var.names)) {
             if (ncol(var.names)==1) {
@@ -652,6 +653,14 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         B <- B[B[["variable.names"]] %nin% distance.names, , drop = FALSE]
     }
     
+    if ("Diff" %in% which.stat && is_not_null(stars)) {
+        stars <- match_arg(stars, c("none", "std", "raw"))
+        if (stars == "std") {
+            
+        }
+    }
+    
+    #Process variable order
     if (is_not_null(var.order)) {
         if (x$print.options$nweights == 0) {
             ua <- c("Unadjusted", "Alphabetical")
@@ -904,7 +913,9 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     
     #Alpha (transparency)
     if (is_null(args$alpha)) alpha <- 1
-    else if (is.numeric(args$alpha[1])) alpha <- args$alpha[1]
+    else if (is.numeric(args$alpha[1]) && 
+             !is.na(args$alpha[1]) && 
+             between(args$alpha[1], c(0,1))) alpha <- args$alpha[1]
     else {
         warning("The argument to alpha must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
         alpha <- 1

@@ -11,7 +11,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     baltal.ks <- x$Balanced.KS
     maximbal.ks <- x$Max.Imbalance.KS
     nn <- x$Observations
-    p.ops <- x$print.options
+    p.ops <- attr(x, "print.options")
     
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
@@ -245,7 +245,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     baltal.ks.subclass <- x$Balanced.KS.Subclass
     maximbal.ks.subclass <- x$Max.Imbalance.KS.Subclass
     s.nn <- x$Subclass.Observations
-    p.ops <- x$print.options
+    p.ops <- attr(x, "print.options")
     
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
@@ -475,7 +475,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     c.balance <- x$Cluster.Balance
     c.balance.summary <- x$Cluster.Summary
     nn <- x$Observations
-    p.ops <- x$print.options
+    p.ops <- attr(x, "print.options")
     
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
@@ -773,7 +773,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     i.balance <- x[["Imputation.Balance"]]
     i.balance.summary <- x[["Balance.Across.Imputations"]]
     nn <- x$Observations
-    p.ops <- x$print.options
+    p.ops <- attr(x, "print.options")
     
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
@@ -1026,7 +1026,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
     i.balance.c.summary <- x[["Cluster.Balance.Across.Imputations"]]
     i.balance.summary <- x[["Balance.Across.Imputations"]]
     nn <- x$Observations
-    p.ops <- x$print.options
+    p.ops <- attr(x, "print.options")
     
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
@@ -1364,7 +1364,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     m.balance <- x[["Pair.Balance"]]
     m.balance.summary <- x[["Balance.Across.Pairs"]]
     nn <- x$Observations
-    p.ops <- x$print.options
+    p.ops <- attr(x, "print.options")
     
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
@@ -1521,21 +1521,21 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     else {
         if (p.ops$pairwise) {
             if (length(which.treat) == 1) {
-                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) any(m.balance[[x]]$print.options$treat.names == which.treat))]
+                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) any(attr(m.balance[[x]], "print.options")$treat.names == which.treat))]
             }
             else {
-                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) all(m.balance[[x]]$print.options$treat.names %in% which.treat))]
+                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) all(attr(m.balance[[x]], "print.options")$treat.names %in% which.treat))]
             }
         }
         else {
             if (length(which.treat) == 1) {
                 disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) {
-                    treat.names <- m.balance[[x]]$print.options$treat.names
+                    treat.names <- attr(m.balance[[x]], "print.options")$treat.names
                     any(treat.names[treat.names != "Others"] == which.treat)})]
             }
             else {
                 disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) {
-                    treat.names <- m.balance[[x]]$print.options$treat.names
+                    treat.names <- attr(m.balance[[x]], "print.options")$treat.names
                     all(treat.names[treat.names != "Others"] %in% which.treat)})]
             }
         }
@@ -1551,8 +1551,8 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         if (p.ops$pairwise) cat(underline("Balance by treatment pair") %+% "\n")
         else cat(underline("Balance by treatment group") %+% "\n")
         for (i in disp.treat.pairs) {
-            headings[i] <- "\n - - - " %+% italic(m.balance[[i]]$print.options$treat.names[1] %+% " (0) vs. " %+%
-                                                      m.balance[[i]]$print.options$treat.names[2] %+% " (1)") %+% " - - - \n"
+            headings[i] <- "\n - - - " %+% italic(attr(m.balance[[i]], "print.options")$treat.names[1] %+% " (0) vs. " %+%
+                                                      attr(m.balance[[i]], "print.options")$treat.names[2] %+% " (1)") %+% " - - - \n"
             cat(headings[i])
             do.call(print, c(list(m.balance[[i]]), args))
         }
@@ -1621,7 +1621,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     msm.balance <- x[["Time.Balance"]]
     msm.balance.summary <- x[["Balance.Across.Times"]]
     nn <- x$Observations
-    p.ops <- x$print.options
+    p.ops <- attr(x, "print.options")
     
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
@@ -1868,7 +1868,7 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
     t.balance <- x[["Target.Balance"]]
     t.balance.summary <- x[["Balance.Across.Treatments"]]
     nn <- x$Observations
-    p.ops <- x$print.options
+    p.ops <- attr(x, "print.options")
     
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
@@ -2023,7 +2023,7 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
         disp.treat.pairs <- character(0)
     }
     else {
-        disp.treat.pairs <- names(t.balance)[sapply(names(t.balance), function(x) any(t.balance[[x]]$print.options$treat.names %in% which.treat))]
+        disp.treat.pairs <- names(t.balance)[sapply(names(t.balance), function(x) any(attr(t.balance[[x]], "print.options")$treat.names %in% which.treat))]
     }
     
     #Printing output
@@ -2035,7 +2035,7 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
         headings <- setNames(character(length(disp.treat.pairs)), disp.treat.pairs)
         cat(underline("Target balance by treatment group") %+% "\n")
         for (i in disp.treat.pairs) {
-            headings[i] <- "\n - - - " %+% italic(t.balance[[i]]$print.options$treat.names[1] %+% " (0) vs. " %+%
+            headings[i] <- "\n - - - " %+% italic(attr(t.balance[[i]], "print.options")$treat.names[1] %+% " (0) vs. " %+%
                                                       p.ops$target.name %+% " (1)") %+% " - - - \n"
             cat(headings[i])
             do.call(print, c(list(t.balance[[i]]), args))

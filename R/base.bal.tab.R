@@ -51,7 +51,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
         out.names <- c("Cluster.Balance", 
                        "Cluster.Balance.Across.Subclass", 
                        "Cluster.Summary", "Observations",
-                       "call", "print.options")
+                       "call")
         out <- vector("list", length(out.names))
         names(out) <- out.names
         
@@ -97,7 +97,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
             out <- out[names(out) %nin% "Cluster.Balance.Across.Subclass"]
             out[["Observations"]] <- samplesize.across.clusters(observations)
             out[["call"]] <- call
-            out[["print.options"]] <- list(m.threshold=m.threshold, 
+            attr(out, "print.options") <- list(m.threshold=m.threshold, 
                                            v.threshold=v.threshold,
                                            ks.threshold=ks.threshold,
                                            imbalanced.only = imbalanced.only,
@@ -129,7 +129,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                                expand.grid_string(c("Balanced", "Max.Imbalance"),
                                                   c("Means", "Variances", "KS"),
                                                   "Subclass", collapse = "."), 
-                               "Subclass.Observations", "call", "print.options")
+                               "Subclass.Observations", "call")
                 out <- vector("list", length(out.names))
                 names(out) <- out.names
                 
@@ -201,7 +201,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                 }
                 
                 out[["call"]] <- call
-                out[["print.options"]] <- list(m.threshold=m.threshold, 
+                attr(out, "print.options") <- list(m.threshold=m.threshold, 
                                                v.threshold=v.threshold, 
                                                ks.threshold=ks.threshold, 
                                                imbalanced.only = imbalanced.only,
@@ -226,7 +226,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                            expand.grid_string(c("Balanced", "Max.Imbalance"),
                                               c("Means", "Variances", "KS"),
                                               collapse = "."), 
-                           "Observations", "call", "print.options")
+                           "Observations", "call")
             out <- vector("list", length(out.names))
             names(out) <- out.names
             
@@ -344,7 +344,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
             
             out[["Observations"]] <- samplesize(treat = treat, weights = weights, subclass = subclass, s.weights = s.weights, method = method, discarded = discarded, treat.names = treat.names)
             out[["call"]] <- call
-            out[["print.options"]] <- list(m.threshold=m.threshold, 
+            attr(out, "print.options") <- list(m.threshold=m.threshold, 
                                            v.threshold=v.threshold, 
                                            ks.threshold=ks.threshold, 
                                            imbalanced.only = imbalanced.only,
@@ -400,7 +400,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
         out.names <- c("Cluster.Balance", 
                        "Cluster.Balance.Across.Subclass", 
                        "Cluster.Summary", "Observations",
-                       "call", "print.options")
+                       "call")
         out <- vector("list", length(out.names))
         names(out) <- out.names
         
@@ -437,7 +437,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
             out[["Observations"]] <- samplesize.across.clusters(observations)
             
             out[["call"]] <- call
-            out[["print.options"]] <- list(r.threshold=r.threshold, 
+            attr(out, "print.options") <- list(r.threshold=r.threshold, 
                                            imbalanced.only = imbalanced.only,
                                            un=un, 
                                            disp.means=disp.means, 
@@ -461,7 +461,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
             if (is_not_null(subclass)) {
                 out.names <- c("Subclass.Balance", 
                                "Balanced.Corr.Subclass", "Max.Imbalance.Corr.Subclass", 
-                               "Subclass.Observations", "call", "print.options")
+                               "Subclass.Observations", "call")
                 out <- vector("list", length(out.names))
                 names(out) <- out.names
                 
@@ -511,7 +511,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
                 # }
                 
                 out[["call"]] <- call
-                out[["print.options"]] <- list(r.threshold=r.threshold, 
+                attr(out, "print.options") <- list(r.threshold=r.threshold, 
                                                imbalanced.only = imbalanced.only,
                                                un=un,
                                                disp.means=disp.means, 
@@ -531,7 +531,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
             out.names <- c("Balance", "Balanced.Corr", 
                            "Max.Imbalance.Corr", 
                            "Observations", 
-                           "call", "print.options")
+                           "call")
             out <- vector("list", length(out.names))
             names(out) <- out.names
             
@@ -596,7 +596,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
             
             out[["Observations"]] <- samplesize.cont(treat = treat, weights = weights, subclass = subclass, s.weights = s.weights, method = method, discarded = discarded)
             out[["call"]] <- call
-            out[["print.options"]] <- list(r.threshold=r.threshold, 
+            attr(out, "print.options") <- list(r.threshold=r.threshold, 
                                            imbalanced.only = imbalanced.only,
                                            un=un, 
                                            disp.means=disp.means, 
@@ -655,7 +655,7 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
                    "Cluster.Balance.Across.Imputations",
                    "Balance.Across.Imputations", 
                    "Observations", 
-                   "call", "print.options")
+                   "call")
     out <- vector("list", length(out.names))
     names(out) <- out.names
     
@@ -777,7 +777,7 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
     }
     
     out[["call"]] <- call
-    out[["print.options"]] <- list(m.threshold=m.threshold,
+    attr(out, "print.options") <- list(m.threshold=m.threshold,
                                    v.threshold=v.threshold,
                                    ks.threshold=ks.threshold,
                                    r.threshold=r.threshold,
@@ -799,7 +799,7 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
                                    disp.bal.tab = disp.bal.tab,
                                    nweights = ifelse(no.adj, 0, ncol(weights)),
                                    weight.names = names(weights),
-                                   co.names = out[["Imputation.Balance"]][[1]][["print.options"]][["co.names"]])
+                                   co.names = attr(out[["Imputation.Balance"]][[1]], "print.options")[["co.names"]])
     class(out) <- unique(c(classes, sapply(out[["Imputation.Balance"]], class)))
     
     return(out)
@@ -862,7 +862,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         out.names <- c("Pair.Balance", 
                        "Balance.Across.Pairs", 
                        "Observations", 
-                       "call", "print.options")
+                       "call")
         out <- vector("list", length(out.names))
         names(out) <- out.names
         
@@ -909,7 +909,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         
         out[["call"]] <- call
         
-        out[["print.options"]] <- list(m.threshold=m.threshold,
+        attr(out, "print.options") <- list(m.threshold=m.threshold,
                                        v.threshold=v.threshold,
                                        ks.threshold=ks.threshold,
                                        imbalanced.only = imbalanced.only,
@@ -931,7 +931,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
                                        which.treat = which.treat,
                                        multi.summary = multi.summary,
                                        pairwise = pairwise,
-                                       co.names = out[["Pair.Balance"]][[1]][["print.options"]][["co.names"]])
+                                       co.names = attr(out[["Pair.Balance"]][[1]], "print.options")[["co.names"]])
         
         class(out) <- c("bal.tab.multi", "bal.tab")
     }
@@ -990,7 +990,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         out.names <- c("Time.Balance", 
                        "Balance.Across.Times", 
                        "Observations", 
-                       "call", "print.options")
+                       "call")
         out <- vector("list", length(out.names))
         names(out) <- out.names
         
@@ -1072,7 +1072,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         
         out[["call"]] <- call
         
-        out[["print.options"]] <- list(m.threshold=m.threshold, 
+        attr(out, "print.options") <- list(m.threshold=m.threshold, 
                                        v.threshold=v.threshold,
                                        ks.threshold=ks.threshold,
                                        r.threshold = r.threshold,
@@ -1093,7 +1093,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
                                        weight.names = names(weights),
                                        which.time = which.time,
                                        msm.summary = msm.summary,
-                                       co.names = out[["Time.Balance"]][[1]][["print.options"]][["co.names"]])
+                                       co.names = attr(out[["Time.Balance"]][[1]], "print.options")[["co.names"]])
         
         class(out) <- c("bal.tab.msm", "bal.tab")
     }
@@ -1178,7 +1178,7 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
         out.names <- c("Target.Balance", 
                        "Balance.Across.Treatments", 
                        "Observations", 
-                       "call", "print.options")
+                       "call")
         out <- vector("list", length(out.names))
         names(out) <- out.names
         
@@ -1209,7 +1209,7 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
         
         out[["call"]] <- call
         
-        out[["print.options"]] <- list(m.threshold=m.threshold,
+        attr(out, "print.options") <- list(m.threshold=m.threshold,
                                        v.threshold=v.threshold,
                                        ks.threshold=ks.threshold,
                                        imbalanced.only = imbalanced.only,
@@ -1231,7 +1231,7 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
                                        target.name = target.name,
                                        which.treat = which.treat,
                                        target.summary = target.summary,
-                                       co.names = out[["Target.Balance"]][[1]][["print.options"]][["co.names"]])
+                                       co.names = attr(out[["Target.Balance"]][[1]], "print.options")[["co.names"]])
         
         class(out) <- c("bal.tab.target", "bal.tab")
     }
