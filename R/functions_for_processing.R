@@ -906,7 +906,13 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     # if (!((!un || !disp.sds) && quick)) {
     for (t in c(0, 1)) {
         sds <- rep(NA_real_, NCOL(C))
-        sds[sd.computable] <- sqrt(col.w.v(C[treat == t, sd.computable, drop = FALSE], w = s.weights[treat==t]))
+        if (any(sd.computable & B[["Type"]] != "Binary")) {
+            sds[sd.computable & B[["Type"]] != "Binary"] <- sqrt(col.w.v(C[treat == t, sd.computable & B[["Type"]] != "Binary", drop = FALSE], 
+                                                                         w = s.weights[treat==t]))
+        }
+        if (any(sd.computable & B[["Type"]] == "Binary")) {
+            sds[sd.computable & B[["Type"]] == "Binary"] <- sqrt(B[[paste.("M", t, "Un")]][sd.computable & B[["Type"]] == "Binary"]*(1-B[[paste.("M", t, "Un")]][sd.computable & B[["Type"]] == "Binary"]))
+        }
         B[[paste.("SD", t, "Un")]] <- sds
     }
     # if (!(!disp.pop && quick)) {
@@ -920,7 +926,13 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
         for (i in weight.names) {
             for (t in c(0, 1)) {
                 sds <- rep(NA_real_, NCOL(C))
-                sds[sd.computable] <- sqrt(col.w.v(C[treat == t, sd.computable, drop = FALSE], w = weights[[i]][treat==t]*s.weights[treat==t]))
+                if (any(sd.computable & B[["Type"]] != "Binary")) {
+                    sds[sd.computable & B[["Type"]] != "Binary"] <- sqrt(col.w.v(C[treat == t, sd.computable & B[["Type"]] != "Binary", drop = FALSE], 
+                                                                                 w = weights[[i]][treat==t]*s.weights[treat==t]))
+                }
+                if (any(sd.computable & B[["Type"]] == "Binary")) {
+                    sds[sd.computable & B[["Type"]] == "Binary"] <- sqrt(B[[paste.("M", t, i)]][sd.computable & B[["Type"]] == "Binary"]*(1-B[[paste.("M", t, i)]][sd.computable & B[["Type"]] == "Binary"]))
+                }
                 B[[paste.("SD", t, i)]] <- sds
             }
             # if (!(!disp.pop && quick)) {
