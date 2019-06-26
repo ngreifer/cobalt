@@ -250,11 +250,8 @@ w.cov.scale <- function(w, type = 3, na.rm = TRUE) {
 col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
     if (is_null(w)) {
         w <- 1
-        w.sum <- apply(mat, 2, function(x) sum(!is.na(x)))
     }
-    else {
-        w.sum <- rep(sum(w, na.rm = na.rm), ncol(mat))
-    }
+    w.sum <- colSums(!is.na(mat)*w)
     return(colSums(mat*w, na.rm = na.rm)/w.sum)
 }
 col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
