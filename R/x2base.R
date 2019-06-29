@@ -1135,7 +1135,7 @@ x2base.data.frame <- function(covs, ...) {
                         )
                         temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                             by.y = 1:2, sort = FALSE)
-                        assign(i, temp.merge[[-c(1:3)]][order(temp.merge[[3]])])
+                        assign(i, temp.merge[[4]][order(temp.merge[[3]])])
                     }
                     else {
                         problematic[i] <- TRUE
@@ -1152,7 +1152,7 @@ x2base.data.frame <- function(covs, ...) {
                         )
                         temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                             by.y = 1:2, sort = FALSE)
-                        assign(i, setNames(temp.merge[[-c(1:3)]][order(temp.merge[[3]])], names(get(i))))
+                        assign(i, setNames(temp.merge[-c(1:3)][order(temp.merge[[3]]),], names(get(i))))
                     }
                     else {
                         problematic[i] <- TRUE
