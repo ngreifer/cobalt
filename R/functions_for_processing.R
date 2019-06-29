@@ -844,12 +844,11 @@ samplesize.across.clusters <- function(samplesize.list) {
     attr(obs, "tag") <- paste0("Total ", tolower(attr(samplesize.list[[1]], "tag")), " across clusters")
     return(obs)
 }
-max.imbal <- function(balance.table, col.name, thresh.col.name) {
+max.imbal <- function(balance.table, col.name, thresh.col.name, ratio = FALSE) {
     balance.table.clean <- balance.table[balance.table$Type != "Distance" & is.finite(balance.table[, col.name]),]
-    maxed <- balance.table.clean[which.max(abs(balance.table.clean[, col.name])), match(c(col.name, thresh.col.name), names(balance.table.clean))]
+    maxed <- balance.table.clean[which.max(abs_(balance.table.clean[, col.name], ratio = ratio)), match(c(col.name, thresh.col.name), names(balance.table.clean))]
     maxed <- data.frame(Variable = rownames(maxed), maxed)
     return(maxed)
-    # return(balance.table[which.max(abs(balance.table[balance.table$Type != "Distance", col.name])), match(c(col.name, thresh.col.name), names(balance.table))])
 }
 balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
                           s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, pooled.sds = NULL, disp.pop = FALSE, pop.means = NULL, pop.sds = NULL, quick = TRUE) {
@@ -1876,6 +1875,21 @@ acceptable.options <- function() {
                 int_sep = " * ",
                 factor_sep = "_",
                 center = TF))
+}
+
+#On attach
+.onAttach <- function(...) {
+    cobaltLib <- dirname(system.file(package = "cobalt"))
+    version <- packageDescription("cobalt", lib.loc = cobaltLib)$Version
+    BuildDate <- packageDescription("cobalt", lib.loc = cobaltLib)$Date
+    
+    foo <- paste0(" cobalt (Version ", version, ", Build Date: ", BuildDate, ")\n", 
+                  "   Please read the documentation at ?bal.tab to understand the default outputs.\n",
+                  "   Submit bug reports and feature requests to https://github.com/ngreifer/cobalt/issues\n",
+                  "   Install the development version (not guaranteed to be stable) with:\n",
+                  "     devtools::install_github(\"ngreifer/cobalt\")\n",
+                  "   Thank you for using cobalt!")
+    packageStartupMessage(foo)
 }
 
 #To pass CRAN checks:
