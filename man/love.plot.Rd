@@ -21,6 +21,7 @@ love.plot(x,
     colors = NULL, 
     shapes = NULL, 
     line = FALSE, 
+    stars = "none",
     ...)
 }
 
@@ -38,7 +39,7 @@ love.plot(x,
 \code{logical}; whether to present the statistic in absolute value or not. For variance ratios, this will force all ratios to be greater than or equal to 1. If \code{x} is a \code{bal.tab} object, \code{love.plot()} might ignore \code{abs} depending on the original \code{bal.tab()} call.
 }
   \item{var.order}{
-\code{character}; how to order the variables in the plot. If \code{NULL}, they will be displayed in the same order as in the call to \code{bal.tab}, which is the order of the underlying data set. If "alphabetical", they will be displayed in alphabetical order. If "adjusted", they will be ordered by the balance statistic of the adjusted sample. if "unadjusted", they will be ordered by the balance statistic of the unadjusted sample. "unadjusted" looks the nicest, but \code{NULL} or "alphabetical" should be used if comparing variables across data sets to maintain variable order. If multiple \code{stat}s are requested, the order will be determined by the first \code{stat} (e.g., if "mean.diffs" and "ks.statistics" are requested, and \code{var.order = "unadjusted", the variables iwll be displayed in order of the unadjusted mean differences for both plots). If multiple plots are produced simultaneously (i.e., for individual clusters or imputations), \code{var.order} cannot be "unadjusted" or "adjusted".
+\code{character}; how to order the variables in the plot. If \code{NULL}, they will be displayed in the same order as in the call to \code{bal.tab}, which is the order of the underlying data set. If "alphabetical", they will be displayed in alphabetical order. If "adjusted", they will be ordered by the balance statistic of the adjusted sample. if "unadjusted", they will be ordered by the balance statistic of the unadjusted sample. "unadjusted" looks the nicest, but \code{NULL} or "alphabetical" should be used if comparing variables across data sets to maintain variable order. If multiple \code{stat}s are requested, the order will be determined by the first \code{stat} (e.g., if "mean.diffs" and "ks.statistics" are requested, and \code{var.order = "unadjusted"}, the variables iwll be displayed in order of the unadjusted mean differences for both plots). If multiple plots are produced simultaneously (i.e., for individual clusters or imputations), \code{var.order} cannot be "unadjusted" or "adjusted".
 }
   \item{no.missing}{
 \code{logical}; whether to drop rows for variables for which the statistic has a value of \code{NA}, for example, variance ratios for binary variables. If \code{FALSE}, there will be rows for these variables but no points representing their value. Default is \code{TRUE}, so that variables with missing balance statistics are absent. When multiple \code{stat}s are requested, only variables with \code{NA}s for all \code{stat}s will be dropped if \code{no.missing = TRUE}.
@@ -61,6 +62,9 @@ the shapes of the points on the plot. Must be one or two numbers between 1 and 2
   \item{line}{
   \code{logical}; whether to display a line connecting the points for each sample.
   }
+  \item{stars}{
+when mean differences are to be displayed, which variable names should have a star (i.e., an asterisk) next to them. Allowable values are "none", "std" (for variables with mean differences that have been standardized), or "raw" (for variables with mean differences that have not been standardized). If "raw", the x-axis title will be "Standardized Mean Differences". Otherwise, it will be "Mean Differences". Ignored when mean difference are not displayed. See Details for an explanation of the purpose of this option.
+  }
   \item{...}{
 additional arguments. These can be arguments that are passed to \code{bal.tab()} or options for display of the plot. The following display-related arguments are currently accepted:
 \describe{
@@ -71,7 +75,7 @@ additional arguments. These can be arguments that are passed to \code{bal.tab()}
     \item{\code{subtitle}}{\code{character}; the subtitle of the plot.}
     \item{\code{sample.names}}{\code{character}; new names to be given to the samples (i.e., in place of "Unadjusted" and "Adjusted").}
     \item{\code{limits}}{\code{numeric}; the bounds for the x-axis of the plot. Must a vector of length 2 in ascending order.}
-    \item{\code{wrap}}{\code{numeric}; the number of character at which to wrap labels to the next line. See \code{\link[ggplot2]{label_wrap_gen}}; this value is supplied to the \code{width} argument. Defaults to 20.}
+    \item{\code{wrap}}{\code{numeric}; the number of characters at which to wrap labels to the next line. See \code{\link[ggplot2]{label_wrap_gen}}; this value is supplied to the \code{width} argument. Defaults to 20.}
     \item{\code{disp.subclass}}{whether to display individual subclasses if subclassification is used. Overrides the \code{disp.subclass} option in the original \code{bal.tab()} call if \code{x} is a \code{bal.tab} object.}
   }
 Additionally, any of the \code{which.} arguments used with clustered or multiply imputed data or longitudinal or multinomial treatments can be specified to display balance on selected groupings. Set to \code{.none} to aggregate across groups (in which \code{agg.fun} comes into effect) and set to \code{.all} to view all groups. See \code{display_options} for options, and see the vignette "Appendix 2: Using cobalt with Clustered and Multiply Imputed Data" for details and examples.
@@ -89,6 +93,12 @@ There are several ways to specify alternate names for presentation in the displa
 \code{love.plot} can be used with clusters, imputations, or both as well. The cluster or imputation arguments must be specified in the call to \code{bal.tab}. Several types of plots can be requested: a plot aggregating over all imputations across all clusters, a plot displaying individual clusters aggregating over imputations (if any), a plot displaying individual imputations across clusters, or a plot displaying individual clusters within one imputation (if any) or individual imputations for one cluster. The choice of these displays is controlled by the arguments to \code{which.cluster} and \code{which.imp}. If either of them are \code{.none}, the plot will aggregate over that collection. If either are individual values, the plot will display the values for those specific clusters or imputations. If either of them are \code{.all}, the plot will display the values for all clusters or imputations. If both clusters and imputations are specified, at least one of \code{which.cluster} or \code{which.imp} must be a single value, or \code{.none}. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range") of balance statistics for each covariate should be presented in the plot.
 
 With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If \code{disp.subclass} is \code{TRUE}, each subclass will be displayed additionally as a number on the plot. 
+
+\bold{Stars and the x-axis label with mean differences}
+
+When mean differences are to be displayed, \code{love.plot()} attempts to figure out the appropriate label for the x-axis. If all mean differences are standardized, the x-axis label will be "Standardized Mean Differences". If all mean differences are raw (i.e., unstandardized), the x-axis label will be "Mean Differences". Otherwise, \code{love.plot()} turns to the \code{stars} argument. If "raw", the x-axis label will be "Standardized Mean Differences" (i.e., because un-starred variables have standardized mean differences displayed). If "std", the x-axis label will be "Mean Differences" (i.e., because un-starred variables have raw mean differences displayed). If "none", the x-axis label will be "Mean Differences" and a warning will be issued recommending the use of \code{stars}. 
+
+The default is to display standardized mean differences for continuous variables, raw mean differences for binary variables, and no stars, so this warning will be issued in most default uses of \code{love.plot()}. The purpose of this is to correct behavior of previous versions of \pkg{cobalt} in which the default x-axis label was "Mean Differences", even when standardized mean differences were displayed, yielding a potentially misleading plot. This warning requires the user to think about what values are being displayed. The idea of using \code{stars} is that the user can, in a caption for the plot, explain that variables with an asterisk have standardized (or raw) mean diffences display, in contrast to un-starred variables.
 
 }
 \value{
