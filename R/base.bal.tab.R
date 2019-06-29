@@ -1,4 +1,4 @@
-base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = NULL, binary = NULL, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, pooled.sds = NULL, ...) {
+base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, pooled.sds = NULL, ...) {
     #Preparations
     args <- list(...)
    
@@ -113,6 +113,8 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                                            cluster.summary=cluster.summary,
                                            cluster.fun = cluster.fun,
                                            abs = abs,
+                                           continuous = continuous,
+                                           binary = binary,
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
                                            weight.names = names(weights),
@@ -189,7 +191,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                         out[[paste.("Balanced", s[["Names"]], "Subclass")]] <- as.data.frame(lapply(levels(subclass), function(x) baltal(out[["Subclass.Balance"]][[x]][[s[["Threshold"]]]])))
                         names(out[[paste.("Balanced", s[["Names"]], "Subclass")]]) <- paste("Subclass", levels(subclass))
                         max.imbal.list <- lapply(levels(subclass), function(x) {
-                            return(max.imbal(out[["Subclass.Balance"]][[x]][out[["Subclass.Balance"]][[x]][["Type"]] != "Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]]))
+                            return(max.imbal(out[["Subclass.Balance"]][[x]][out[["Subclass.Balance"]][[x]][["Type"]] != "Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]], ratio = s$Stat == "V.Ratio"))
                         } )
                         out[[paste.("Max.Imbalance", s[["Names"]], "Subclass")]] <- data.frame(do.call("rbind", max.imbal.list), 
                                                                                               row.names = paste("Subclass", levels(subclass)))
@@ -214,6 +216,8 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                                                disp.subclass=disp.subclass,
                                                disp.bal.tab = disp.bal.tab, 
                                                abs = abs,
+                                               continuous = continuous,
+                                               binary = binary,
                                                quick = quick,
                                                treat.names = treat.names,
                                                co.names = co.names)
@@ -260,17 +264,17 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                 if (is_not_null(s[["threshold"]])) {
                     if (no.adj) {
                         out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[paste.(s[["Threshold"]], "Un")]])
-                        out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Un"), paste.(s[["Threshold"]], "Un"))
+                        out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Un"), paste.(s[["Threshold"]], "Un"), ratio = s$Stat == "V.Ratio")
                     }
                     else if (ncol(weights) == 1) {
                         out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[s[["Threshold"]]]])
-                        out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]])
+                        out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]], ratio = s$Stat == "V.Ratio")
                     }
                     else if (ncol(weights) > 1) {
                         out[[paste.("Balanced", s[["Names"]])]] <- setNames(do.call("cbind", lapply(names(weights), function(x) baltal(out[["Balance"]][[paste.(s[["Threshold"]], x)]]))),
                                                                             names(weights))
                         out[[paste.("Max.Imbalance", s[["Names"]])]] <- cbind(Weights = names(weights),
-                                                                              do.call("rbind", lapply(names(weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], x), paste.(s[["Threshold"]], x)),
+                                                                              do.call("rbind", lapply(names(weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], x), paste.(s[["Threshold"]], x), ratio = s$Stat == "V.Ratio"),
                                                                                                                                            c("Variable", s[["Stat"]], s[["Threshold"]])))),
                                                                               stringsAsFactors = FALSE)
                     }
@@ -280,67 +284,6 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                     out[[paste.("Max.Imbalance", s[["Names"]])]] <- NULL
                 }
             }
-            
-            # if (is_not_null(m.threshold)) {
-            #     if (no.adj) {
-            #         out[["Balanced.Means"]] <- baltal(out[["Balance"]][,"M.Threshold.Un"])
-            #         out[["Max.Imbalance.Means"]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", ], "Diff.Un", "M.Threshold.Un")
-            #     }
-            #     else if (ncol(weights) == 1) {
-            #         out[["Balanced.Means"]] <- baltal(out[["Balance"]][,"M.Threshold"])
-            #         out[["Max.Imbalance.Means"]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", ], "Diff.Adj", "M.Threshold")
-            #     }
-            #     else if (ncol(weights) > 1) {
-            #         out[["Balanced.Means"]] <- setNames(do.call("cbind", lapply(names(weights), function(x) baltal(out[["Balance"]][[paste0("M.Threshold.", x)]]))),
-            #                                             names(weights))
-            #         out[["Max.Imbalance.Means"]] <- cbind(Weights = names(weights),
-            #                                               do.call("rbind", lapply(names(weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", ], paste0("Diff.", x), paste0("M.Threshold.", x)),
-            #                                                                                                            c("Variable", "Diff", "M.Threshold")))),
-            #                                               stringsAsFactors = FALSE)
-            #     }
-            # }
-            # 
-            # # if (!attr(out[["Balance"]], "disp")["v"]) {disp.v.ratio <- FALSE; v.threshold <- NULL}
-            # if (is_not_null(v.threshold)) {
-            #     if (no.adj) {
-            #         out[["Balanced.Variances"]] <- baltal(out[["Balance"]][["V.Threshold.Un"]])
-            #         out[["Max.Imbalance.Variances"]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], "V.Ratio.Un", "V.Threshold.Un")
-            #         
-            #     }
-            #     else if (ncol(weights) == 1) {
-            #         out[["Balanced.Variances"]] <- baltal(out[["Balance"]][["V.Threshold"]])
-            #         out[["Max.Imbalance.Variances"]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], "V.Ratio.Adj", "V.Threshold")
-            #     }
-            #     else {
-            #         out[["Balanced.Variances"]] <- setNames(do.call("cbind", lapply(names(weights), function(x) baltal(out[["Balance"]][[paste0("V.Threshold.", x)]]))),
-            #                                                 names(weights))
-            #         out[["Max.Imbalance.Variances"]] <- cbind(Weights = names(weights),
-            #                                                   do.call("rbind", lapply(names(weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste0("V.Ratio.", x), paste0("V.Threshold.", x)),
-            #                                                                                                                c("Variable", "V.Ratio", "V.Threshold")))),
-            #                                                   stringsAsFactors = FALSE)
-            #     }
-            # }
-            # 
-            # # if (!attr(out[["Balance"]], "disp")["ks"]) {disp.ks <- FALSE; ks.threshold <- NULL}
-            # if (is_not_null(ks.threshold)) {
-            #     if (no.adj) {
-            #         out[["Balanced.KS"]] <- baltal(out[["Balance"]][["KS.Threshold.Un"]])
-            #         out[["Max.Imbalance.KS"]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], "KS.Un", "KS.Threshold.Un")
-            #         
-            #     }
-            #     else if (ncol(weights) == 1) {
-            #         out[["Balanced.KS"]] <- baltal(out[["Balance"]][,"KS.Threshold"])
-            #         out[["Max.Imbalance.KS"]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], "KS.Adj", "KS.Threshold")
-            #     }
-            #     else {
-            #         out[["Balanced.KS"]] <- setNames(do.call("cbind", lapply(names(weights), function(x) baltal(out[["Balance"]][[paste0("KS.Threshold.", x)]]))),
-            #                                          names(weights))
-            #         out[["Max.Imbalance.KS"]] <- cbind(Weights = names(weights),
-            #                                            do.call("rbind", lapply(names(weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste0("KS.", x), paste0("KS.Threshold.", x)),
-            #                                                                                                         c("Variable", "KS", "KS.Threshold")))),
-            #                                            stringsAsFactors = FALSE)
-            #     }
-            # }
             
             out[["Observations"]] <- samplesize(treat = treat, weights = weights, subclass = subclass, s.weights = s.weights, method = method, discarded = discarded, treat.names = treat.names)
             out[["call"]] <- call
@@ -356,6 +299,8 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                                            disp.adj=!no.adj,
                                            disp.bal.tab = disp.bal.tab, 
                                            abs = abs,
+                                           continuous = continuous,
+                                           binary = binary,
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
                                            weight.names = names(weights),
@@ -492,23 +437,12 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
                         out[[paste.("Balanced", s[["Stat"]], "Subclass")]] <- as.data.frame(lapply(levels(subclass), function(x) baltal(out[["Subclass.Balance"]][[x]][[s[["Threshold"]]]])))
                         names(out[[paste.("Balanced", s[["Stat"]], "Subclass")]]) <- paste("Subclass", levels(subclass))
                         mi.list <- lapply(levels(subclass), function(x) {
-                            return(max.imbal(out[["Subclass.Balance"]][[x]][out[["Subclass.Balance"]][[x]][["Type"]] != "Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]]))
+                            return(max.imbal(out[["Subclass.Balance"]][[x]][out[["Subclass.Balance"]][[x]][["Type"]] != "Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]], ratio = s$Stat == "V.Ratio"))
                         } )
                         mi <- do.call("rbind", mi.list)
                         out[[paste.("Max.Imbalance", s[["Stat"]], "Subclass")]] <- data.frame(mi, row.names = paste("Subclass", levels(subclass)))
                     }
                 }
-                
-                # if (is_not_null(r.threshold)) {
-                #     out[["Balanced.Corr.Subclass"]] <- as.data.frame(lapply(levels(subclass), function(x) baltal(out[["Subclass.Balance"]][[x]][,"R.Threshold"])))
-                #     names(out[["Balanced.Corr.Subclass"]]) <- paste("Subclass", levels(subclass))
-                #     mirs.list <- lapply(levels(subclass), function(x) {
-                #         mi <- max.imbal(out[["Subclass.Balance"]][[x]][out[["Subclass.Balance"]][[x]][,"Type"]!="Distance", ], "Corr.Adj", "R.Threshold")
-                #         return(data.frame(Variable = row.names(mi), mi))
-                #     } )
-                #     mirs <- do.call("rbind", mirs.list)
-                #     out[["Max.Imbalance.Corr.Subclass"]] <- data.frame(mirs, row.names = paste("Subclass", levels(subclass)))
-                # }
                 
                 out[["call"]] <- call
                 attr(out, "print.options") <- list(r.threshold=r.threshold, 
@@ -557,42 +491,22 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
                 if (is_not_null(s[["threshold"]])) {
                     if (no.adj) {
                         out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[paste.(s[["Threshold"]], "Un")]])
-                        out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Un"), paste.(s[["Threshold"]], "Un"))
+                        out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Un"), paste.(s[["Threshold"]], "Un"), ratio = s$Stat == "V.Ratio")
                     }
                     else if (ncol(weights) == 1) {
                         out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[s[["Threshold"]]]])
-                        out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]])
+                        out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]], ratio = s$Stat == "V.Ratio")
                     }
                     else if (ncol(weights) > 1) {
                         out[[paste.("Balanced", s[["Names"]])]] <- setNames(do.call("cbind", lapply(names(weights), function(x) baltal(out[["Balance"]][[paste.(s[["Threshold"]], x)]]))),
                                                                             names(weights))
                         out[[paste.("Max.Imbalance", s[["Names"]])]] <- cbind(Weights = names(weights),
-                                                                              do.call("rbind", lapply(names(weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], x), paste.(s[["Threshold"]], x)),
+                                                                              do.call("rbind", lapply(names(weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], x), paste.(s[["Threshold"]], x), ratio = s$Stat == "V.Ratio"),
                                                                                                                                            c("Variable", s[["Stat"]], s[["Threshold"]])))),
                                                                               stringsAsFactors = FALSE)
                     }
                 }
             }
-            
-            # if (is_not_null(r.threshold)) {
-            #     if (no.adj) {
-            #         out[["Balanced.Corr"]] <- baltal(out[["Balance"]][["R.Threshold.Un"]])
-            #         out[["Max.Imbalance.Corr"]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", ], "Corr.Un", "R.Threshold.Un")
-            #     }
-            #     else if (ncol(weights) == 1) {
-            #         out[["Balanced.Corr"]] <- baltal(out[["Balance"]][["R.Threshold"]])
-            #         out[["Max.Imbalance.Corr"]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", ], "Corr.Adj", "R.Threshold")
-            #     }
-            #     else if (ncol(weights) > 1) {
-            #         out[["Balanced.Corr"]] <- setNames(do.call("cbind", lapply(names(weights), function(x) baltal(out[["Balance"]][[paste0("R.Threshold.", x)]]))),
-            #                                            names(weights))
-            #         out[["Max.Imbalance.Corr"]] <- cbind(Weights = names(weights),
-            #                                              do.call("rbind", lapply(names(weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", ], paste0("Corr.", x), paste0("R.Threshold.", x)),
-            #                                                                                                           c("Variable", "Corr", "R.Threshold")))),
-            #                                              stringsAsFactors = FALSE)
-            #     }
-            # }
-            # if (!any(is.finite(out[["Balance"]][["Corr.Un"]]))) {r.threshold <- NULL}
             
             out[["Observations"]] <- samplesize.cont(treat = treat, weights = weights, subclass = subclass, s.weights = s.weights, method = method, discarded = discarded)
             out[["call"]] <- call
@@ -615,7 +529,7 @@ base.bal.tab.cont <- function(weights, treat, distance = NULL, subclass = NULL, 
     attr(out, "int") <- int
     return(out)
 }
-base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = NULL, binary = NULL, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), imp = NULL, which.imp = NA, imp.summary = getOption("cobalt_imp.summary", TRUE), imp.fun = getOption("cobalt_imp.fun", NULL), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), imp = NULL, which.imp = NA, imp.summary = getOption("cobalt_imp.summary", TRUE), imp.fun = getOption("cobalt_imp.fun", NULL), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, ...) {
     args <- list(...)
     #Preparations
     if (is_not_null(m.threshold)) m.threshold <- abs(m.threshold)
@@ -791,6 +705,8 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
                                    imp.summary=imp.summary,
                                    imp.fun = imp.fun,
                                    abs = abs,
+                                   continuous = continuous,
+                                   binary = binary,
                                    quick = quick,
                                    disp.means=disp.means, 
                                    disp.sds = disp.sds,
@@ -804,7 +720,7 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
     
     return(out)
 }
-base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = NULL, binary = NULL, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = getOption("cobalt_multi.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = getOption("cobalt_multi.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, ...) {
     #Preparations
     args <- list(...)
     if (is_not_null(m.threshold)) m.threshold <- abs(m.threshold)
@@ -919,6 +835,8 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
                                        cluster.summary=cluster.summary,
                                        cluster.fun = cluster.fun,
                                        abs = abs,
+                                       continuous = continuous,
+                                       binary = binary,
                                        quick = quick,
                                        disp.means=disp.means, 
                                        disp.sds = disp.sds,
@@ -938,7 +856,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
     return(out)
     
 }
-base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass = NULL, covs.list, call = NULL, int = FALSE, poly = 1, addl.list = NULL, continuous = NULL, binary = NULL, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = getOption("cobalt_multi.summary", TRUE), which.time = NULL, msm.summary = getOption("cobalt_msm.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass = NULL, covs.list, call = NULL, int = FALSE, poly = 1, addl.list = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), pairwise = TRUE, focal = NULL, which.treat = NA, multi.summary = getOption("cobalt_multi.summary", TRUE), which.time = NULL, msm.summary = getOption("cobalt_msm.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, ...) {
     #One vector of weights
     #treat.list should be a df/list of treatment vectors, one for each time period
     #cov.list should be a list of covariate data.frames, one for each time period; 
@@ -1088,6 +1006,8 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
                                        cluster.summary=cluster.summary,
                                        cluster.fun = cluster.fun,
                                        abs = abs,
+                                       continuous = continuous,
+                                       binary = binary,
                                        quick = quick,
                                        nweights = ifelse(no.adj, 0, ncol(weights)),
                                        weight.names = names(weights),
@@ -1100,7 +1020,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
     
     return(out)
 }
-base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = NULL, binary = NULL, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), which.treat = NA, target.summary = getOption("cobalt_target.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), which.treat = NA, target.summary = getOption("cobalt_target.summary", TRUE), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, ...) {
     #Preparations
     args <- list(...)
     
@@ -1219,6 +1139,8 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
                                        cluster.summary=cluster.summary,
                                        cluster.fun = cluster.fun,
                                        abs = abs,
+                                       continuous = continuous,
+                                       binary = binary,
                                        quick = quick,
                                        disp.means=disp.means, 
                                        disp.sds = disp.sds,
