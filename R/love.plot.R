@@ -96,7 +96,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     
     p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time", "disp.subclass")
     for (i in p.ops) {
-        if (i %in% names(args)) x$print.options[[i]] <- args[[i]]
+        if (i %in% names(args)) attr(x, "print.options")[[i]] <- args[[i]]
     }
     
     if (is_not_null(args$cluster.fun) && is_null(agg.fun)) agg.fun <- args$cluster.fun
@@ -117,14 +117,14 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     subclass.names <- NULL
     
     #NA = aggregate, NULL = individual
-    null.cluster <- is_null(x$print.options$which.cluster)
-    na.cluster <- !null.cluster && is.na(x$print.options$which.cluster)
-    null.imp <- is_null(x$print.options$which.imp)
-    na.imp <- !null.imp && is.na(x$print.options$which.imp)
-    null.treat <- is_null(x$print.options$which.treat)
-    na.treat <- !null.treat && is.na(x$print.options$which.treat)
-    null.time <- is_null(x$print.options$which.time)
-    na.time <- !null.time && is.na(x$print.options$which.time)
+    null.cluster <- is_null(attr(x, "print.options")$which.cluster)
+    na.cluster <- !null.cluster && is.na(attr(x, "print.options")$which.cluster)
+    null.imp <- is_null(attr(x, "print.options")$which.imp)
+    na.imp <- !null.imp && is.na(attr(x, "print.options")$which.imp)
+    null.treat <- is_null(attr(x, "print.options")$which.treat)
+    na.treat <- !null.treat && is.na(attr(x, "print.options")$which.treat)
+    null.time <- is_null(attr(x, "print.options")$which.time)
+    na.time <- !null.time && is.na(attr(x, "print.options")$which.time)
     
     config <- "agg.none"
     
@@ -140,8 +140,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             config <- "agg.none"
             time.names.good <- setNames(rep(TRUE, length(time.names)), time.names)
         }
-        else if (is.character(x$print.options$which.time)) {
-            time.names.good <- sapply(time.names, function(x) any(sapply(x$print.options$which.time, function(y) identical(x, y))))
+        else if (is.character(attr(x, "print.options")$which.time)) {
+            time.names.good <- sapply(time.names, function(x) any(sapply(attr(x, "print.options")$which.time, function(y) identical(x, y))))
             if (any(time.names.good)) {
                 config <- "agg.none"
             }
@@ -149,8 +149,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                 stop("Make sure the arguments to which.time are valid treatment names or time point indices.", call. = FALSE)
             }
         }
-        else if (is.numeric(x$print.options$which.time)) {
-            time.names.good <- setNames(seq_along(x$Time.Balance) %in% x$print.options$which.time, time.names)
+        else if (is.numeric(attr(x, "print.options")$which.time)) {
+            time.names.good <- setNames(seq_along(x$Time.Balance) %in% attr(x, "print.options")$which.time, time.names)
             if (any(time.names.good)) {
                 config <- "agg.none"
             }
@@ -194,8 +194,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         else if (null.imp) {
             imp.numbers.good <- setNames(rep(TRUE, length(imp.numbers)), imp.numbers)
         }
-        else if (is.numeric(x$print.options$which.imp)) {
-            imp.numbers.good <- setNames(imp.numbers %in% x$print.options$which.imp, imp.numbers)
+        else if (is.numeric(attr(x, "print.options")$which.imp)) {
+            imp.numbers.good <- setNames(imp.numbers %in% attr(x, "print.options")$which.imp, imp.numbers)
         }
         else stop("The argument to which.imp must be .none, .all, or the indices of imputations.", call. = FALSE)
         
@@ -207,11 +207,11 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         else if (null.cluster) {
             cluster.names.good <- setNames(rep(TRUE, length(cluster.names)), cluster.names)
         }
-        else if (is.character(x$print.options$which.cluster)) {
-            cluster.names.good <- sapply(cluster.names, function(n) any(sapply(x$print.options$which.cluster, function(y) identical(n, y))))
+        else if (is.character(attr(x, "print.options")$which.cluster)) {
+            cluster.names.good <- sapply(cluster.names, function(n) any(sapply(attr(x, "print.options")$which.cluster, function(y) identical(n, y))))
         }
-        else if (is.numeric(x$print.options$which.cluster)) {
-            cluster.names.good <- setNames(seq_along(x$Cluster.Balance) %in% x$print.options$which.cluster, cluster.names)
+        else if (is.numeric(attr(x, "print.options")$which.cluster)) {
+            cluster.names.good <- setNames(seq_along(x$Cluster.Balance) %in% attr(x, "print.options")$which.cluster, cluster.names)
         }
         else stop("The argument to which.cluster must be .none, .all, or the names or indices of clusters.", call. = FALSE)
         
@@ -337,8 +337,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             config <- "agg.none"
             imp.numbers.good <- setNames(rep(TRUE, length(imp.numbers)), imp.numbers)
         }
-        else if (is.numeric(x$print.options$which.imp)) {
-            imp.numbers.good <- setNames(imp.numbers %in% x$print.options$which.imp, imp.numbers)
+        else if (is.numeric(attr(x, "print.options")$which.imp)) {
+            imp.numbers.good <- setNames(imp.numbers %in% attr(x, "print.options")$which.imp, imp.numbers)
             if (any(imp.numbers.good)) {
                 config <- "agg.none"
             }
@@ -382,8 +382,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             config <- "agg.none"
             cluster.names.good <- setNames(rep(TRUE, length(cluster.names)), cluster.names)
         }
-        else if (is.character(x$print.options$which.cluster)) {
-            cluster.names.good <- sapply(cluster.names, function(c) any(sapply(x$print.options$which.cluster, function(y) identical(c, y))))
+        else if (is.character(attr(x, "print.options")$which.cluster)) {
+            cluster.names.good <- sapply(cluster.names, function(c) any(sapply(attr(x, "print.options")$which.cluster, function(y) identical(c, y))))
             if (any(cluster.names.good)) {
                 config <- "agg.none"
             }
@@ -391,8 +391,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                 stop("Make sure the arguments to which.cluster are valid cluster names or indices.", call. = FALSE)
             }
         }
-        else if (is.numeric(x$print.options$which.cluster)) {
-            cluster.names.good <- setNames(seq_along(x$Cluster.Balance) %in% x$print.options$which.cluster, cluster.names)
+        else if (is.numeric(attr(x, "print.options")$which.cluster)) {
+            cluster.names.good <- setNames(seq_along(x$Cluster.Balance) %in% attr(x, "print.options")$which.cluster, cluster.names)
             if (any(cluster.names.good)) {
                 config <- "agg.none"
             }
@@ -428,7 +428,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     }
     else if (any(class(x) == "bal.tab.multi")) {
         #Get cluster.names.good
-        treat.names <- x$print.options$treat.names
+        treat.names <- attr(x, "print.options")$treat.names
         if (na.treat) {
             config <- "agg.pair"
             treat.names.good <- NULL
@@ -437,8 +437,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             config <- "agg.none"
             treat.names.good <- rep(TRUE, length(treat.names))
         }
-        else if (is.character(x$print.options$which.treat)) {
-            treat.names.good <- treat.names %in% x$print.options$which.treat
+        else if (is.character(attr(x, "print.options")$which.treat)) {
+            treat.names.good <- treat.names %in% attr(x, "print.options")$which.treat
             if (any(treat.names.good)) {
                 config <- "agg.none"
             }
@@ -446,8 +446,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                 stop("Make sure the arguments to which.treat are valid treatment names or indices.", call. = FALSE)
             }
         }
-        else if (is.numeric(x$print.options$which.treat)) {
-            treat.names.good <- seq_along(treat.names) %in% x$print.options$which.treat
+        else if (is.numeric(attr(x, "print.options")$which.treat)) {
+            treat.names.good <- seq_along(treat.names) %in% attr(x, "print.options")$which.treat
             if (any(treat.names.good)) {
                 config <- "agg.none"
             }
@@ -462,24 +462,24 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             disp.treat.pairs <- character(0)
         }
         else {
-            if (x$print.options$pairwise) {
+            if (attr(x, "print.options")$pairwise) {
                 if (sum(treat.names.good) == 1) {
-                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) any(attr(x[["Pair.Balance"]][[p]], "print.options")$treat.names == x$print.options$treat.names[treat.names.good]))]
+                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) any(attr(x[["Pair.Balance"]][[p]], "print.options")$treat.names == attr(x, "print.options")$treat.names[treat.names.good]))]
                 }
                 else {
-                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) all(attr(x[["Pair.Balance"]][[p]], "print.options")$treat.names %in% x$print.options$treat.names[treat.names.good]))]
+                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) all(attr(x[["Pair.Balance"]][[p]], "print.options")$treat.names %in% attr(x, "print.options")$treat.names[treat.names.good]))]
                 }
             }
             else {
                 if (sum(treat.names.good) == 1) {
                     disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) {
-                        treat.names <- x[["Pair.Balance"]][[p]]$print.options$treat.namestreat.names
-                        any(treat.names[treat.names != "Others"] == x$print.options$treat.names[treat.names.good])})]
+                        treat.names <- attr(x[["Pair.Balance"]][[p]], "print.options")$treat.namestreat.names
+                        any(treat.names[treat.names != "Others"] == attr(x, "print.options")$treat.names[treat.names.good])})]
                 }
                 else {
                     disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) {
-                        treat.names <- x[["Pair.Balance"]][[p]]$print.options$treat.namestreat.names
-                        all(treat.names[treat.names != "Others"] %in% x$print.options$treat.names[treat.names.good])})]
+                        treat.names <- attr(x[["Pair.Balance"]][[p]], "print.options")$treat.namestreat.names
+                        all(treat.names[treat.names != "Others"] %in% attr(x, "print.options")$treat.names[treat.names.good])})]
                 }
             }
             
@@ -497,10 +497,10 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             #Agg.Fun <- switch(match_arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
-                subtitle <- paste0(which.stat2, " Range Across Treatment", ifelse(x$print.options$pairwise, " Pairs", "s"))
+                subtitle <- paste0(which.stat2, " Range Across Treatment", ifelse(attr(x, "print.options")$pairwise, " Pairs", "s"))
             }
             else {
-                subtitle <- paste0(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), " ", which.stat2, " Across Treatment", ifelse(x$print.options$pairwise, " Pairs", "s"))
+                subtitle <- paste0(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), " ", which.stat2, " Across Treatment", ifelse(attr(x, "print.options")$pairwise, " Pairs", "s"))
             }
             B <- cbind(x[["Balance.Across.Pairs"]],
                        variable.names = rownames(x[["Balance.Across.Pairs"]]))
@@ -517,8 +517,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                                gsub(".Adj", paste0(".Subclass ", x), names(sub)[endsWith(names(sub), ".Adj")]))
             return(sub.B0) }))
         B <- cbind(x[["Balance.Across.Subclass"]], sub.B, variable.names = row.names(x[["Balance.Across.Subclass"]]))
-        if (x$print.options$disp.subclass) x$print.options$weight.names <- c("Adj", paste("Subclass", subclass.names))
-        else x$print.options$weight.names <- "Adj"
+        if (attr(x, "print.options")$disp.subclass) attr(x, "print.options")$weight.names <- c("Adj", paste("Subclass", subclass.names))
+        else attr(x, "print.options")$weight.names <- "Adj"
         subtitle <- "Across Subclasses"
     }
     else {
@@ -527,11 +527,11 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     
     #Process abs
     if (config == "agg.none") {
-        if (!abs && !x$print.options[["abs"]]) {
+        if (!abs && !attr(x, "print.options")[["abs"]]) {
             abs <- FALSE
         }
         else {
-            if (!abs && x$print.options[["abs"]])
+            if (!abs && attr(x, "print.options")[["abs"]])
                 warning("abs is TRUE in the bal.tab object; ignoring abs in the call to love.plot().", call. = FALSE)
             abs <- TRUE
         }
@@ -540,7 +540,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         abs <- TRUE
     }
     else if (config %in% c("agg.imp", "agg.cluster", "agg.all")) {
-        abs <- x$print.options[["abs"]]
+        abs <- attr(x, "print.options")[["abs"]]
     }
     
     #Process thresholds
@@ -549,8 +549,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                         KS = "ks.threshold",
                         Corr = "r.threshold")
     thresholds <- setNames(sapply(which.stat, function(i) {
-        if (is_not_null(x$print.options[[stat2threshold[i]]])) {
-            return(x$print.options[[stat2threshold[i]]])
+        if (is_not_null(attr(x, "print.options")[[stat2threshold[i]]])) {
+            return(attr(x, "print.options")[[stat2threshold[i]]])
         }
         else {
             return(NA_real_)
@@ -613,7 +613,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         else warning("Argument to var.names is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE, call. = FALSE)
         
-        co.names <- x[["print.options"]][["co.names"]]
+        co.names <- attr(x, "print.options")[["co.names"]]
         seps <- attr(co.names, "seps")
         for (i in names(co.names)) {
             comp <- co.names[[i]][["component"]]
@@ -653,26 +653,60 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         B <- B[B[["variable.names"]] %nin% distance.names, , drop = FALSE]
     }
     
-    if ("Diff" %in% which.stat && is_not_null(stars)) {
-        stars <- match_arg(stars, c("none", "std", "raw"))
-        if (stars == "std") {
-            
+    if ("Diff" %in% which.stat) {
+        binary <- attr(x, "print.options")$binary
+        continuous <- attr(x, "print.options")$continuous
+        #All std, no std, some std
+        if ((binary == "std" || sum(B[["Type"]] == "Binary") == 0) && 
+            (continuous == "std" || sum(B[["Type"]] != "Binary") == 0)) {
+            xlab.diff <- "Standardized Mean Differences"
+        } 
+        else if ((binary == "raw" || sum(B[["Type"]] == "Binary") == 0) && 
+                 (continuous == "raw" || sum(B[["Type"]] != "Binary") == 0)) {
+            xlab.diff <- "Mean Differences"
         }
+        else {
+            stars <- match_arg(stars, c("none", "std", "raw"))
+            if (stars == "none") {
+                warning("Standardized mean differences and raw mean differences are present in the same plot. \nUse the 'stars' argument to distinguish between them and appropriately label the x-axis.", call. = FALSE)
+            }
+            else {
+                if (length(args$star_char) == 1 && is.character(args$star_char)) star_char <- args$star_char
+                else star_char <- "*"
+            }
+            vars_to_star <- setNames(rep(FALSE, nrow(B)), B[["variable.names"]])
+            if (stars == "std") {
+                if (attr(x, "print.options")$binary == "std") vars_to_star[B[["variable.names"]][B[["Type"]] == "Binary"]] <- TRUE
+                if (attr(x, "print.options")$continuous == "std") vars_to_star[B[["variable.names"]][B[["Type"]] != "Binary"]] <- TRUE
+                xlab.diff <- "Mean Differences"
+            }
+            else if (stars == "raw") {
+                if (attr(x, "print.options")$binary == "raw") vars_to_star[B[["variable.names"]][B[["Type"]] == "Binary"]] <- TRUE
+                if (attr(x, "print.options")$continuous == "raw") vars_to_star[B[["variable.names"]][B[["Type"]] != "Binary"]] <- TRUE
+                xlab.diff <- "Standardized Mean Differences"
+            }
+            else {
+                xlab.diff <- "Mean Differences"
+            }
+            B[["variable.names"]] <- paste0(B[["variable.names"]], ifelse(vars_to_star[B[["variable.names"]]], star_char, ""))
+        }
+        
+        
     }
     
     #Process variable order
     if (is_not_null(var.order)) {
-        if (x$print.options$nweights == 0) {
+        if (attr(x, "print.options")$nweights == 0) {
             ua <- c("Unadjusted", "Alphabetical")
             names(ua) <- c("unadjusted", "alphabetical")
         }
-        else if (x$print.options$nweights == 1) {
+        else if (attr(x, "print.options")$nweights == 1) {
             ua <- c("Adjusted", "Unadjusted", "Alphabetical")
             names(ua) <- c("adjusted", "unadjusted", "alphabetical")
         }
         else {
-            ua <- c("Unadjusted", x$print.options$weight.names, "Alphabetical")
-            names(ua) <- c("unadjusted", x$print.options$weight.names, "alphabetical")
+            ua <- c("Unadjusted", attr(x, "print.options")$weight.names, "Alphabetical")
+            names(ua) <- c("unadjusted", attr(x, "print.options")$weight.names, "alphabetical")
         }
         var.order <- ua[match_arg(var.order, tolower(ua))]
     }
@@ -691,7 +725,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         SS <- do.call("rbind", 
                       lapply(which.stat, 
                              function(s) do.call("rbind", 
-                                                 lapply(c("Un", x$print.options$weight.names),
+                                                 lapply(c("Un", attr(x, "print.options")$weight.names),
                                                         function(w) data.frame(var = B[["variable.names"]],
                                                                                min.stat = B[[paste.("Min", s, w)]],
                                                                                max.stat = B[[paste.("Max", s, w)]],
@@ -702,13 +736,13 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         
         if (is_not_null(facet)) {
             if ("cluster" %in% facet) {
-                SS$cluster <- rep(B[["cluster"]], 1 + x$print.options$nweights)
+                SS$cluster <- rep(B[["cluster"]], 1 + attr(x, "print.options")$nweights)
             }
             if ("imp" %in% facet) {
-                SS$imp <- rep(B[["imp"]], 1 + x$print.options$nweights)
+                SS$imp <- rep(B[["imp"]], 1 + attr(x, "print.options")$nweights)
             }
             if ("treat.pair" %in% facet) {
-                SS$treat.pair <- rep(B[["treat.pair"]], 1 + x$print.options$nweights)
+                SS$treat.pair <- rep(B[["treat.pair"]], 1 + attr(x, "print.options")$nweights)
             }
         }
         
@@ -767,7 +801,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
         SS[["Sample"]] <- factor(SS[["Sample"]])
-        if ("Diff" %in% which.stat && any(base::abs(SS[["max.stat"]][SS[["Statistic"]] == "Mean Difference"]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
+        if ("Diff" %in% which.stat && any(base::abs(SS[["max.stat"]][SS[["Statistic"]] == "Mean Difference"]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
         if (no.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
         SS[["stat"]] <- SS[["mean.stat"]]
     }
@@ -775,7 +809,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         SS <- do.call("rbind", 
                       lapply(which.stat, 
                              function(s) do.call("rbind", 
-                                                 lapply(c("Un", x$print.options$weight.names),
+                                                 lapply(c("Un", attr(x, "print.options")$weight.names),
                                                         function(w) data.frame(var = B[["variable.names"]],
                                                                                stat = B[[ifelse(is_null(Agg.Fun), paste.(s, w),
                                                                                                 paste.(Agg.Fun, s, w))]],
@@ -786,7 +820,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         if (is_not_null(facet)) {
             for (i in c("cluster", "imp", "treat.pair", "time")) {
                 if (i %in% facet) {
-                    SS[[i]] <- rep(B[[i]], 1 + x$print.options$nweights)
+                    SS[[i]] <- rep(B[[i]], 1 + attr(x, "print.options")$nweights)
                 }
             }
         }
@@ -849,7 +883,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
         }
         SS[["Sample"]] <- factor(SS[["Sample"]])
-        if ("Diff" %in% which.stat && any(base::abs(SS[["stat"]][SS[["Statistic"]] == "Mean Difference"]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables. To do so, specify continuous=\"std\" in bal.tab().", call.=FALSE, noBreaks.=TRUE)
+        if ("Diff" %in% which.stat && any(base::abs(SS[["stat"]][SS[["Statistic"]] == "Mean Difference"]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
         if (length(which.stat) == 1 && no.missing) SS <- SS[!is.na(SS[["stat"]]),]
     }
     SS[["Statistic"]] <- factor(SS[["Statistic"]], levels = which.stat2)
@@ -956,11 +990,11 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         else if (i == "Diff") {
             if (abs) {
-                xlabs[i] <- "Absolute Mean Differences"
+                xlabs[i] <- paste("Absolute", xlab.diff)
                 if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower")] <- base::abs(thresholds[i])
             }
             else {
-                xlabs[i] <- "Mean Differences"
+                xlabs[i] <- xlab.diff
                 if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower", "upper")] <- c(-thresholds[i], thresholds[i])
             }
             scales_Statistics[[i]] <- scale_x_continuous()
@@ -1149,7 +1183,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             labs(title = title, y = "")
     }
     else {
-        if (is_null(subclass.names) || !x$print.options$disp.subclass) {
+        if (is_null(subclass.names) || !attr(x, "print.options")$disp.subclass) {
             if (line == TRUE) { #Add line except to distance
                 f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
                 lp <- lp + ggplot2::layer(geom = "path", data = f(SS), 
