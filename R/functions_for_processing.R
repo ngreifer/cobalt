@@ -1246,24 +1246,6 @@ balance.table.cluster.summary <- function(balance.table.clusters.list, weight.na
 }
 
 #base.bal.tab.cont
-w.r <- function(x, y, w = NULL, s.weights = NULL) {
-    #Computes weighted correlation but using the unweighted (s.weighted) variances
-    #in the denominator.
-    if (length(x) != length(y)) stop("x and y must the same length")
-    
-    if (is_null(w)) w <- rep(1, length(x))
-    else if (length(w) != length(x)) stop("weights must be same length as x and y")
-    
-    if (is_null(s.weights)) s.weights <- rep(1, length(x))
-    else if (length(s.weights) != length(x)) stop("s.weights must be same length as x and y")
-    
-    w_ <- w*s.weights
-    
-    r <- w.cov(x, y, w_) / (sqrt(w.v(x, s.weights) * w.v(y, s.weights)))
-    #r <- w.cov(x, y, w_) / (sqrt(var(x) * var(y)))
-    
-    return(r)
-}
 samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), cluster = NULL, which.cluster = NULL, discarded = NULL) {
     #Computes sample size info. for unadjusted and adjusted samples.
     # method is what method the weights are to be used for. 
