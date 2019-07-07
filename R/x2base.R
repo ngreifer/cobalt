@@ -41,18 +41,9 @@ x2base.matchit <- function(m, ...) {
     data <- A$data
     subset <- A$subset
     cluster <- A$cluster
+    s.d.denom <- A$s.d.denom
     
-    s <- "ATT"
-    if (is_(A$s.d.denom, "character")) {
-        s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                              error = function(cond) {
-                                  new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
-                                  message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                  return(new.s.d.denom)})
-    }
-    else s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
-    
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
     if (is_not_null(m$model$model)) {
         if (nrow(m$model$model) == length(treat)) {
@@ -134,6 +125,10 @@ x2base.matchit <- function(m, ...) {
         else distance <- data.frame(distance = m$distance)
     }
     
+    #Get s.d.denom
+    estimand <- "ATT"
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method = X$method)
+    
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster", "treat", "subset", "subclass")
     data.frames <- c("covs", "weights", "distance", "addl")
@@ -151,7 +146,7 @@ x2base.matchit <- function(m, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to matchit()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to matchit()."), call. = FALSE)
     }
     
     if (any(c(is.na(covs), is.na(addl)))) {
@@ -168,7 +163,6 @@ x2base.matchit <- function(m, ...) {
     X$addl <- addl
     X$cluster <- factor(cluster)
     X$call <- m$call
-    X$s.d.denom <- s.d.denom
     X$subclass <- factor(subclass)
     
     X <- subset_X(X, subset)
@@ -208,19 +202,19 @@ x2base.ps <- function(ps, ...) {
         if (is.character(A$stop.method)) {
             rule1 <- names(ps$w)[sapply(t(sapply(tolower(A$stop.method), function(x) startsWith(tolower(names(ps$w)), x))), any)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps$w)
             }
         }
         else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(names(ps$w)))) {
             if (any(!A$stop.method %in% seq_along(names(ps$w)))) {
                 message(paste0("Warning: There are ", length(names(ps$w)), " stop methods available, but you requested ", 
-                               word.list(A$stop.method[!A$stop.method %in% seq_along(names(ps$w))], and.or = "and"),"."))
+                               word_list(A$stop.method[!A$stop.method %in% seq_along(names(ps$w))], and.or = "and"),"."))
             }
             rule1 <- names(ps$w)[A$stop.method %in% seq_along(names(ps$w))]
         }
         else {
-            warning("stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- names(ps$w)
         }
     }
@@ -229,16 +223,7 @@ x2base.ps <- function(ps, ...) {
     }
     
     s <- names(ps$w)[match(tolower(rule1), tolower(names(ps$w)))]
-    estimand <- substr(toupper(s[1]), nchar(s[1])-2, nchar(s[1]))
-
-    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(estimand, ATT = "treated", ATE = "pooled")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
-    }
-    else s.d.denom <- vapply(estimand, switch, character(1L), ATT = "treated", ATE = "pooled")
+    estimand <- ps$estimand
     
     weights <- data.frame(get.w(ps, s, estimand))
     treat <- ps$treat
@@ -248,8 +233,10 @@ x2base.ps <- function(ps, ...) {
     cluster <- A$cluster
     subset <- A$subset
     s.weights <- ps$sampw
+    s.d.denom <- A$s.d.denom
+    method <- rep("weighting", ncol(weights))
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
@@ -319,16 +306,18 @@ x2base.ps <- function(ps, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    #Get s.d.denom
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$s.d.denom <- rep(s.d.denom, ncol(weights))
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
@@ -336,7 +325,7 @@ x2base.ps <- function(ps, ...) {
     X$covs <- covs
     X$call <- ps$parameters
     X$cluster <- factor(cluster)
-    X$method <- rep("weighting", ncol(weights))
+    X$method <- method
     X$s.weights <- s.weights
     
     X <- subset_X(X, subset)
@@ -376,19 +365,19 @@ x2base.mnps <- function(mnps, ...) {
         if (any(is.character(A$stop.method))) {
             rule1 <- mnps$stopMethods[sapply(t(sapply(tolower(A$stop.method), function(x) startsWith(tolower(mnps$stopMethods), x))), any)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- mnps$stopMethods
             }
         }
         else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(mnps$stopMethods))) {
             if (any(!A$stop.method %in% seq_along(mnps$stopMethods))) {
                 message(paste0("Warning: There are ", length(mnps$stopMethods), " stop methods available, but you requested ", 
-                               word.list(A$stop.method[!A$stop.method %in% seq_along(mnps$stopMethods)], and.or = "and"),"."))
+                               word_list(A$stop.method[!A$stop.method %in% seq_along(mnps$stopMethods)], and.or = "and"),"."))
             }
             rule1 <- mnps$stopMethods[A$stop.method %in% seq_along(mnps$stopMethods)]
         }
         else {
-            warning("stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- mnps$stopMethods
         }
     }
@@ -398,17 +387,6 @@ x2base.mnps <- function(mnps, ...) {
     
     s <- mnps$stopMethods[match(tolower(rule1), tolower(mnps$stopMethods))]
     
-    estimand <- mnps$estimand
-    
-    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(substr(tolower(s[1]), nchar(s[1])-2, nchar(s[1])), att = "treated", ate = "pooled")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
-    }
-    else s.d.denom <- vapply(tolower(estimand), switch, character(1L), att = "treated", ate = "pooled")
-    
     weights <- data.frame(get.w(mnps, s))
     treat <- mnps$treatVar
     covs <- mnps$data[mnps$psList[[1]]$gbm.obj$var.names]
@@ -416,8 +394,11 @@ x2base.mnps <- function(mnps, ...) {
     cluster <- A$cluster
     subset <- A$subset
     s.weights <- mnps$sampw
+    s.d.denom <- A$s.d.denom
+    focal <- mnps$treatATT
+    method <- rep("weighting", ncol(weights))
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
@@ -479,16 +460,19 @@ x2base.mnps <- function(mnps, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps()."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    #Get s.d.denom
+    estimand <- mnps$estimand
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method)
+    
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$s.d.denom <- rep(s.d.denom, ncol(weights))
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
@@ -496,10 +480,9 @@ x2base.mnps <- function(mnps, ...) {
     X$covs <- covs
     X$call <- NULL
     X$cluster <- factor(cluster)
-    X$method <- rep("weighting", ncol(weights))
     X$s.weights <- mnps$sampw
-    X$focal <- mnps$treatATT
-    X$method <- rep("weighting", ncol(weights))
+    X$focal <- focal
+    X$method <- method
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -538,19 +521,19 @@ x2base.ps.cont <- function(ps.cont, ...) {
         if (is.character(A$stop.method)) {
             rule1 <- names(ps.cont$w)[sapply(t(sapply(tolower(A$stop.method), function(x) startsWith(tolower(names(ps.cont$w)), x))), any)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps.cont$w)
             }
         }
         else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(names(ps.cont$w)))) {
             if (any(!A$stop.method %in% seq_along(names(ps.cont$w)))) {
                 message(paste0("Warning: There are ", length(names(ps.cont$w)), " stop methods available, but you requested ", 
-                               word.list(A$stop.method[!A$stop.method %in% seq_along(names(ps.cont$w))], and.or = "and"),"."))
+                               word_list(A$stop.method[!A$stop.method %in% seq_along(names(ps.cont$w))], and.or = "and"),"."))
             }
             rule1 <- names(ps.cont$w)[A$stop.method %in% seq_along(names(ps.cont$w))]
         }
         else {
-            warning("stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- names(ps.cont$w)
         }
     }
@@ -569,7 +552,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     subset <- A$subset
     s.weights <- ps.cont$sampw
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
@@ -622,10 +605,10 @@ x2base.ps.cont <- function(ps.cont, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps.cont()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to ps.cont()."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -678,15 +661,9 @@ x2base.Match <- function(Match, ...) {
     
     #Initializing variables
     m <- Match
-    s <- m$estimand
-    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
-    }
-    else s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
+    estimand <- m$estimand
+    method <- "matching"
+    s.d.denom <- A$s.d.denom
     
     treat0 <- t.c[["treat"]]
     covs0  <- t.c[["covs"]]
@@ -771,16 +748,19 @@ x2base.Match <- function(Match, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to Match()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original call to Match()."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    #Get s.d.denom
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    
+    
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
     if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$s.d.denom <- rep(s.d.denom, ncol(weights))
     X$treat <- treat
     X$weights <- weights
     X$discarded <- dropped
@@ -788,7 +768,7 @@ x2base.Match <- function(Match, ...) {
     X$addl <- addl
     X$covs <- covs
     X$call <- NULL
-    X$method <- "matching"
+    X$method <- method
     X$cluster <- factor(cluster)
     
     X <- subset_X(X, subset)
@@ -898,14 +878,14 @@ x2base.data.frame <- function(covs, ...) {
     if (is_null(method)) {
         if (specified["match.strata"]) {
             if (sum(specified) > 1) {
-                message(word.list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word.list(names(specified)[specified & names(specified)!="match.strata"]), ".")
+                message(word_list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
                 weights <- subclass <- NULL
             }
             X$method <- "matching"
         }
         else if (specified["subclass"]) {
             if (sum(specified) > 1) {
-                message(word.list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word.list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                message(word_list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                 weights <- match.strata <- NULL
             }
             X$method <- "subclassification"
@@ -913,7 +893,7 @@ x2base.data.frame <- function(covs, ...) {
         }
         else if (specified["weights"]) {
             if (sum(specified) > 1) {
-                message(word.list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word.list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                message(word_list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                 match.strata <- subclass <- NULL
             }
             else {
@@ -930,7 +910,7 @@ x2base.data.frame <- function(covs, ...) {
         if (specified.method == "weighting") {
             if (specified["weights"]) {
                 if (sum(specified) > 1) {
-                    message(word.list(names(specified)[specified]), " are specified. Using weights and ignoring ", word.list(names(specified)[specified & names(specified)!="weights"]), ".")
+                    message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
                     match.strata <- subclass <- NULL
                 }
                 X$method <- "weighting"
@@ -952,14 +932,14 @@ x2base.data.frame <- function(covs, ...) {
         else if (specified.method == "matching") {
             if (specified["match.strata"]) {
                 if (sum(specified) > 1) {
-                    message(word.list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word.list(names(specified)[specified & names(specified)!="match.strata"]), ".")
+                    message(word_list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
                     weights <- subclass <- NULL
                 }
                 X$method <- "matching"
             }
             else if (specified["weights"]) {
                 if (sum(specified) > 1) {
-                    message(word.list(names(specified)[specified]), " are specified. Using weights and ignoring ", word.list(names(specified)[specified & names(specified)!="weights"]), ".")
+                    message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
                     match.strata <- subclass <- NULL
                 }
                 X$method <- "matching"
@@ -976,7 +956,7 @@ x2base.data.frame <- function(covs, ...) {
         else if (specified.method == "subclassification") {
             if (specified["subclass"]) {
                 if (sum(specified) > 1) {
-                    message(word.list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word.list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                    message(word_list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                     weights <- match.strata <- NULL
                 }
                 X$method <- "subclassification"
@@ -1164,7 +1144,7 @@ x2base.data.frame <- function(covs, ...) {
             problematic <- lengths > 0 & lengths != length(imp)
         }
         if (any(problematic)) {
-            stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
+            stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
         }
         else ensure.equal.lengths <- FALSE
     }
@@ -1178,7 +1158,7 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
     }
     
     #Turn match.strata into weights
@@ -1190,7 +1170,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     if (is_not_null(weights)) {
-        if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
         if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
         
@@ -1219,119 +1199,10 @@ x2base.data.frame <- function(covs, ...) {
     
     #Get s.d.denom
     if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
-        check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
-        s.d.denom.specified <- is_not_null(s.d.denom)
-        estimand.specified <- is_not_null(estimand)
-        
-        if (s.d.denom.specified) {
-            try.s.d.denom <- tryCatch(match_arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
-                                      error = function(cond) FALSE)
-            if (any(try.s.d.denom == FALSE)) {
-                check.estimand <- TRUE
-                bad.s.d.denom <- TRUE
-            }
-            else {
-                if (length(try.s.d.denom) > 1 && length(try.s.d.denom) != ncol(weights)) {
-                    stop("s.d.denom must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-                }
-                else X$s.d.denom <- try.s.d.denom
-            }
-        }
-        else {
-            check.estimand <- TRUE
-        }
-        
-        if (check.estimand == TRUE) {
-            if (estimand.specified) {
-                try.estimand <- tryCatch(match_arg(tolower(estimand), c("att", "atc", "ate"), several.ok = TRUE),
-                                         error = function(cond) FALSE)
-                if (any(try.estimand == FALSE)) {
-                    check.focal <- TRUE
-                    bad.estimand <- TRUE
-                }
-                else {
-                    if (length(try.estimand) > 1 && length(try.estimand) != ncol(weights)) {
-                        stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-                    }
-                    else X$s.d.denom <- vapply(try.estimand, switch, character(1L), att = "treated", atc = "control", ate = "pooled")
-                }
-            }
-            else {
-                check.focal <- TRUE
-            }
-        }
-        if (check.focal == TRUE) {
-            if (is_not_null(focal)) {
-                X$s.d.denom <- "treated"
-                estimand <- "att"
-            }
-            else check.weights <- TRUE
-        }
-        if (check.weights == TRUE) {
-            if (is_null(weights)) {
-                X$s.d.denom <- "pooled"
-                estimand <- "ate"
-            }
-            else {
-                X$s.d.denom <- estimand <- character(ncol(weights))
-                for (i in seq_len(ncol(weights))) {
-                    if (X$method[i] == "weighting") {
-                        if (is_binary(treat)) {
-                            if (all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])]) &&
-                                !all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])])
-                            ) { #if treated weights are the same and control weights differ; ATT
-                                estimand[i] <- "att"
-                                X$s.d.denom[i] <- "treated"
-                            }
-                            else if (all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])]) &&
-                                     !all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])])
-                            ) { #if control weights are the same and treated weights differ; ATC
-                                estimand[i] <- "atc"
-                                X$s.d.denom[i] <- "control"
-                            }
-                            else {
-                                estimand[i] <- "ate"
-                                X$s.d.denom[i] <- "pooled"
-                            }
-                        }
-                        else {
-                            if (length(focal) == 1) {
-                                estimand[i] <- "att"
-                                X$s.d.denom[i] <- "treated"
-                            }
-                            else {
-                                estimand[i] <- "ate"
-                                X$s.d.denom[i] <- "pooled"
-                            }
-                        }
-                    }
-                    else {
-                        estimand[i] <- "att"
-                        X$s.d.denom[i] <- "treated"
-                    }
-                }
-            }
-        }
-        if (is_not_null(weights) && length(X$s.d.denom) == 1) X$s.d.denom <- rep(X$s.d.denom, ncol(weights))
-        
-        if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
-            message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using \"", word.list(X$s.d.denom), "\" instead.")
-        }
-        else if (estimand.specified && bad.estimand) {
-            message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(all_the_same(estimand), toupper(estimand)[1], word.list(toupper(estimand))), "\" instead.")
-        }
-        else if (check.focal || check.weights) {
-            message("Note: estimand and s.d.denom not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word.list(toupper(estimand))), " and ", ifelse(all_the_same(X$s.d.denom), unique(X$s.d.denom), word.list(X$s.d.denom)), ".")
-        }
-        
-        if (all(X$method %in% c("weighting", "matching"))) {
-            if (is_not_null(weights) && length(X$s.d.denom) != ncol(weights)) {
-                stop("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-            }
-        }
+        X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method = X$method)
     }
     
-    if (anyNA(c(covs, addl))) {
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1385,8 +1256,11 @@ x2base.CBPS <- function(cbps.fit, ...) {
     subset <- A$subset
     weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights))
     cluster <- A$cluster
+    s.d.denom <- A$s.d.denom
+    estimand <- A$estimand
+    method <- "weighting"
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
@@ -1409,29 +1283,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     weights <- weights/s.weights #Because CBPS weights contain s.weights in them
     
-    if (!any(class(cbps.fit) == "CBPSContinuous") && is_binary(treat)) {
-        if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-            X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                    error = function(cond) {
-                                        new.s.d.denom <- switch(tolower(A$estimand), att = "treated", ate = "pooled")
-                                        message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                        return(new.s.d.denom)})
-        }
-        else {
-            if (all_the_same(weights[treat == 1,])) {
-                X$s.d.denom <- "treated"
-            }
-            else if (all_the_same(weights[treat == 0,])) {
-                X$s.d.denom <- "control"
-            }
-            else {
-                X$s.d.denom <- "pooled"
-            }
-        }
-    }
-    else if (!is_binary(treat)) {
-        X$s.d.denom <- "pooled"
-    }
+    
     
     c.data <- cbps.fit$data
     
@@ -1504,10 +1356,20 @@ x2base.CBPS <- function(cbps.fit, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to CBPS()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to CBPS()."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    #Get s.d.denom
+    if (!any(class(cbps.fit) == "CBPSContinuous")) {
+        if (is_binary(treat)) {
+            X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+        }
+        else {
+            X$s.d.denom <- "pooled"
+        }
+    }
+    
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1521,7 +1383,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     X$cluster <- factor(cluster)
     X$call <- cbps.fit$call
     X$s.weights <- s.weights
-    X$method <- "weighting"
+    X$method <- method
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -1564,19 +1426,12 @@ x2base.ebalance <- function(ebalance, ...) {
     cluster <- A$cluster
     subset <- A$subset
     weights <- data.frame(weights = get.w(ebalance, treat))
+    method <- "weighting"
+    s.d.denom <- A$s.d.denom
+    estimand <- "ATT"
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    
-    s <- "ATT"
-    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
-    }
-    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -1625,10 +1480,13 @@ x2base.ebalance <- function(ebalance, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to ebalance()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original call to ebalance()."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    #Get s.d.denom
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1640,7 +1498,7 @@ x2base.ebalance <- function(ebalance, ...) {
     X$distance <- distance
     X$addl <- addl
     X$call <- NULL
-    X$method <- "weighting"
+    X$method <- method
     X$cluster <- factor(cluster)
     
     X <- subset_X(X, subset)
@@ -1684,16 +1542,9 @@ x2base.optmatch <- function(optmatch, ...) {
     distance <- A$distance
     subset <- A$subset
     cluster <- A$cluster
-    
-    s <- "ATT"
-    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
-    }
-    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
+    s.d.denom <- A$s.d.denom
+    estimand <- "ATT"
+    method <- "matching"
     
     #Process match.strata (optmatch)
     if (length(optmatch) != length(treat) || length(optmatch) != nrow(covs)) {
@@ -1750,10 +1601,13 @@ x2base.optmatch <- function(optmatch, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to optmatch()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original call to optmatch()."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    #Get s.d.denom
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1806,8 +1660,11 @@ x2base.weightit <- function(weightit, ...) {
     cluster <- A$cluster
     imp <- A$imp
     subset <- A$subset
+    s.d.denom <- A$s.d.denom
+    focal <- weightit$focal
+    method <- rep("weighting", ncol(weights))
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
@@ -1827,19 +1684,6 @@ x2base.weightit <- function(weightit, ...) {
         }
         else {
             treat.type <- "not continuous"
-        }
-    }
-    
-    if (treat.type != "continuous") {
-        if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-            X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                    error = function(cond) {
-                                        new.s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", "pooled")
-                                        message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                        return(new.s.d.denom)})
-        }
-        else {
-            X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", "pooled")
         }
     }
     
@@ -1951,7 +1795,7 @@ x2base.weightit <- function(weightit, ...) {
             problematic <- lengths > 0 & lengths != length(imp)
         }
         if (any(problematic)) {
-            stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
+            stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
         }
         else ensure.equal.lengths <- FALSE
     }
@@ -1965,10 +1809,15 @@ x2base.weightit <- function(weightit, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    #Get s.d.denom
+    if (treat.type != "continuous") {
+        X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method)
+    }
+    
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -1981,11 +1830,11 @@ x2base.weightit <- function(weightit, ...) {
     X$addl <- addl
     X$covs <- covs
     X$cluster <- factor(cluster)
-    X$method <- rep("weighting", ncol(weights))
+    X$method <- method
     X$imp <- factor(imp)
     X$s.weights <- weightit$s.weights
     X$discarded <- weightit$discarded
-    X$focal <- weightit$focal
+    X$focal <- focal
     X$call <- weightit$call
     
     X <- subset_X(X, subset)
@@ -2018,16 +1867,6 @@ x2base.designmatch <- function(dm, ...) {
     X <- setNames(vector("list", length(X.names)),
                   X.names)
     
-    s <- "ATT"
-    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "treated", ATC = "control")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
-    }
-    else X$s.d.denom <- switch(toupper(s), ATT = "treated", ATE = "pooled", ATC = "control")
-    
     #Get treat and covs
     data <- A$data
     
@@ -2059,6 +1898,9 @@ x2base.designmatch <- function(dm, ...) {
     distance <- A$distance
     subset <- A$subset
     cluster <- A$cluster
+    estimand <- A$estimand
+    s.d.denom <- A$s.d.denom
+    method <- "matching"
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -2105,10 +1947,13 @@ x2base.designmatch <- function(dm, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original call to designmatch()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original call to designmatch()."), call. = FALSE)
     }
     
-    if (anyNA(c(covs, addl))) {
+    #Get s.d.denom
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2120,7 +1965,7 @@ x2base.designmatch <- function(dm, ...) {
     X$weights <- weights[in.matched & subset, , drop = FALSE]
     X$addl <- addl[in.matched & subset, , drop = FALSE]
     X$call <- NULL
-    X$method <- "matching"
+    X$method <- method
     X$cluster <- factor(cluster[in.matched & subset])
     
     X <- subset_X(X, subset)
@@ -2160,19 +2005,19 @@ x2base.iptw <- function(iptw, ...) {
         if (any(is.character(A$stop.method))) {
             rule1 <- available.stop.methods[vapply(available.stop.methods, function(x) any(startsWith(tolower(x), tolower(A$stop.method))), logical(1L))]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word.list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- available.stop.methods
             }
         }
         else if (is.numeric(A$stop.method) && any(A$stop.method %in% seq_along(available.stop.methods))) {
             if (any(!A$stop.method %in% seq_along(available.stop.methods))) {
                 message(paste0("Warning: There are ", length(available.stop.methods), " stop methods available, but you requested ", 
-                               word.list(A$stop.method[!A$stop.method %in% seq_along(available.stop.methods)], and.or = "and"),"."))
+                               word_list(A$stop.method[!A$stop.method %in% seq_along(available.stop.methods)], and.or = "and"),"."))
             }
             rule1 <- available.stop.methods[A$stop.method %in% seq_along(available.stop.methods)]
         }
         else {
-            warning("stop.method should be ", word.list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- available.stop.methods
         }
     }
@@ -2181,16 +2026,7 @@ x2base.iptw <- function(iptw, ...) {
     }
     
     s <- available.stop.methods[match(tolower(rule1), tolower(available.stop.methods))]
-    estimand <- substr(tolower(s), nchar(s)-2, nchar(s))
-    
-    if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-        X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                error = function(cond) {
-                                    new.s.d.denom <- switch(substr(tolower(s), nchar(s)-2, nchar(s)), att = "treated", ate = "pooled")
-                                    message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                    return(new.s.d.denom)})
-    }
-    else X$s.d.denom <- vapply(tolower(estimand), switch, character(1L), att = "treated", ate = "pooled")
+    estimand <- substr(toupper(s), nchar(s)-2, nchar(s))
     
     weights <- data.frame(get.w(iptw, s))
     treat.list <- lapply(iptw$psList, function(x) x$treat)
@@ -2201,8 +2037,10 @@ x2base.iptw <- function(iptw, ...) {
     ps.data <- iptw$psList[[1]]$data
     s.weights <- iptw$psList[[1]]$sampw
     ntimes <- iptw$nFits
+    s.d.denom <- A$s.d.denom
+    method <- rep("weighting", ncol(weights))
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
@@ -2298,10 +2136,13 @@ x2base.iptw <- function(iptw, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to iptw()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to iptw()."), call. = FALSE)
     }
     
-    if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
+    #Get s.d.denom
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat.list[[1]], focal = NULL, method)
+    
+    if (any(vapply(c(covs.list, addl.list), anyNA, logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2358,8 +2199,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
     focal <- A$focal
     ntimes <- length(covs.list)
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (is_not_null(s.weights) && any(vapply(s.weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(s.weights) && any(vapply(s.weights, anyNA, logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Checks
     if (is_null(covs.list)) {
@@ -2557,11 +2398,11 @@ x2base.data.frame.list <- function(covs.list, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs.list."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as covs.list."), call. = FALSE)
     }
     
     if (is_not_null(weights)) {
-        if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (any(vapply(weights, function(x) any(!is.finite(x)), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
         if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
         
@@ -2577,7 +2418,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Get s.d.denom
     X$s.d.denom <- rep("pooled", max(1, ncol(weights)))
     
-    if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
+    if (any(vapply(c(covs.list, addl.list), anyNA, logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2644,7 +2485,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     weights <- data.frame(weights = get.w(cbmsm)[ID])
     ntimes <- length(times)
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     
     covs.list <- vector("list", ntimes)
@@ -2738,10 +2579,10 @@ x2base.CBMSM <- function(cbmsm, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to CBMSM()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to CBMSM()."), call. = FALSE)
     }
     
-    if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
+    if (any(vapply(c(covs.list, addl.list), anyNA, logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2798,7 +2639,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     subset <- A$subset
     ntimes <- length(treat.list)
     
-    if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
@@ -2823,19 +2664,6 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
             }
         }, character(1L))
     } 
-    
-    if (any(treat.type != "continuous")) {
-        if (is_not_null(A$s.d.denom) && is.character(A$s.d.denom)) {
-            X$s.d.denom <- tryCatch(match_arg(A$s.d.denom, c("treated", "control", "pooled")),
-                                    error = function(cond) {
-                                        new.s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
-                                        message(paste0("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\nUsing ", deparse(new.s.d.denom), " instead."))
-                                        return(new.s.d.denom)})
-        }
-        else {
-            X$s.d.denom <- switch(tolower(estimand), att = "treated", ate = "pooled", atc = "control", ato = "pooled")
-        }
-    }
     
     #Order covs.list
     all.covs <- unique(unlist(lapply(covs.list, names)))
@@ -2912,10 +2740,13 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to weightitMSM()."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to weightitMSM()."), call. = FALSE)
     }
     
-    if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
+    #Get s.d.denom
+    X$s.d.denom <- rep("pooled", ncol(weights))
+    
+    if (any(vapply(c(covs.list, addl.list), anyNA, logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -3254,7 +3085,7 @@ x2base.default <- function(obj, ...) {
             }
             else if (specified["subclass"]) {
                 if (sum(specified) > 1) {
-                    message(word.list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word.list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                    message(word_list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                     weights <- match.strata <- NULL
                 }
                 X$method <- "subclassification"
@@ -3262,7 +3093,7 @@ x2base.default <- function(obj, ...) {
             }
             else if (specified["weights"]) {
                 if (sum(specified) > 1) {
-                    message(word.list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word.list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                    message(word_list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                     match.strata <- subclass <- NULL
                 }
                 else {
@@ -3280,7 +3111,7 @@ x2base.default <- function(obj, ...) {
             if (specified.method == "weighting") {
                 if (specified["weights"]) {
                     if (sum(specified) > 1) {
-                        message(word.list(names(specified)[specified]), " are specified. Using weights and ignoring ", word.list(names(specified)[specified & names(specified)!="weights"]), ".")
+                        message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
                         match.strata <- subclass <- NULL
                     }
                     X$method <- "weighting"
@@ -3302,14 +3133,14 @@ x2base.default <- function(obj, ...) {
             else if (specified.method == "matching") {
                 if (specified["match.strata"]) {
                     if (sum(specified) > 1) {
-                        message(word.list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word.list(names(specified)[specified & names(specified)!="match.strata"]), ".")
+                        message(word_list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
                         weights <- subclass <- NULL
                     }
                     X$method <- "matching"
                 }
                 else if (specified["weights"]) {
                     if (sum(specified) > 1) {
-                        message(word.list(names(specified)[specified]), " are specified. Using weights and ignoring ", word.list(names(specified)[specified & names(specified)!="weights"]), ".")
+                        message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
                         match.strata <- subclass <- NULL
                     }
                     X$method <- "matching"
@@ -3326,7 +3157,7 @@ x2base.default <- function(obj, ...) {
             else if (specified.method == "subclassification") {
                 if (specified["subclass"]) {
                     if (sum(specified) > 1) {
-                        message(word.list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word.list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                        message(word_list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                         weights <- match.strata <- NULL
                     }
                     X$method <- "subclassification"
@@ -3459,7 +3290,7 @@ x2base.default <- function(obj, ...) {
                 problematic <- lengths > 0 & lengths != length(imp)
             }
             if (any(problematic)) {
-                stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
+                stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
             }
             else ensure.equal.lengths <- FALSE
         }
@@ -3473,7 +3304,7 @@ x2base.default <- function(obj, ...) {
             }
         }
         if (any(problematic)) {
-            stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
+            stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
         }
         
         #Turn match.strata into weights
@@ -3482,7 +3313,7 @@ x2base.default <- function(obj, ...) {
         }
         
         if (is_not_null(weights)) {
-            if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+            if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
             if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) {
                 stop("All weights must be numeric.", call. = FALSE)
             }
@@ -3511,116 +3342,7 @@ x2base.default <- function(obj, ...) {
         
         #Get s.d.denom
         if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
-            check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
-            s.d.denom.specified <- is_not_null(s.d.denom)
-            estimand.specified <- is_not_null(estimand)
-            
-            if (s.d.denom.specified) {
-                try.s.d.denom <- tryCatch(match_arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
-                                          error = function(cond) FALSE)
-                if (any(try.s.d.denom == FALSE)) {
-                    check.estimand <- TRUE
-                    bad.s.d.denom <- TRUE
-                }
-                else {
-                    if (length(try.s.d.denom) > 1 && length(try.s.d.denom) != ncol(weights)) {
-                        stop("s.d.denom must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-                    }
-                    else X$s.d.denom <- try.s.d.denom
-                }
-            }
-            else {
-                check.estimand <- TRUE
-            }
-            
-            if (check.estimand == TRUE) {
-                if (estimand.specified) {
-                    try.estimand <- tryCatch(match_arg(tolower(estimand), c("att", "atc", "ate"), several.ok = TRUE),
-                                             error = function(cond) FALSE)
-                    if (any(try.estimand == FALSE)) {
-                        check.focal <- TRUE
-                        bad.estimand <- TRUE
-                    }
-                    else {
-                        if (length(try.estimand) > 1 && length(try.estimand) != ncol(weights)) {
-                            stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-                        }
-                        else X$s.d.denom <- vapply(try.estimand, switch, character(1L), att = "treated", atc = "control", ate = "pooled")
-                    }
-                }
-                else {
-                    check.focal <- TRUE
-                }
-            }
-            if (check.focal == TRUE) {
-                if (is_not_null(focal)) {
-                    X$s.d.denom <- "treated"
-                    estimand <- "att"
-                }
-                else check.weights <- TRUE
-            }
-            if (check.weights == TRUE) {
-                if (is_null(weights)) {
-                    X$s.d.denom <- "pooled"
-                    estimand <- "ate"
-                }
-                else {
-                    X$s.d.denom <- estimand <- character(ncol(weights))
-                    for (i in seq_len(ncol(weights))) {
-                        if (X$method[i] == "weighting") {
-                            if (is_binary(treat)) {
-                                if (all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])]) &&
-                                    !all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])])
-                                ) { #if treated weights are the same and control weights differ; ATT
-                                    estimand[i] <- "att"
-                                    X$s.d.denom[i] <- "treated"
-                                }
-                                else if (all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])]) &&
-                                         !all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])])
-                                ) { #if control weights are the same and treated weights differ; ATC
-                                    estimand[i] <- "atc"
-                                    X$s.d.denom[i] <- "control"
-                                }
-                                else {
-                                    estimand[i] <- "ate"
-                                    X$s.d.denom[i] <- "pooled"
-                                }
-                            }
-                            else {
-                                if (length(focal) == 1) {
-                                    estimand[i] <- "att"
-                                    X$s.d.denom[i] <- "treated"
-                                }
-                                else {
-                                    estimand[i] <- "ate"
-                                    X$s.d.denom[i] <- "pooled"
-                                }
-                            }
-                        }
-                        else {
-                            estimand[i] <- "att"
-                            X$s.d.denom[i] <- "treated"
-                        }
-                    }
-                }
-            }
-            if (is_not_null(weights) && length(X$s.d.denom) == 1) X$s.d.denom <- rep(X$s.d.denom, ncol(weights))
-            
-            if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
-                message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using \"", word.list(X$s.d.denom), "\" instead.")
-            }
-            else if (estimand.specified && bad.estimand) {
-                message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(all_the_same(estimand), toupper(estimand)[1], word.list(toupper(estimand))), "\" instead.")
-            }
-            else if (check.focal || check.weights) {
-                message("Note: estimand and s.d.denom not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word.list(toupper(estimand))), " and ", ifelse(all_the_same(X$s.d.denom), unique(X$s.d.denom), word.list(X$s.d.denom)), ".")
-            }
-            
-            if (all(X$method %in% c("weighting", "matching"))) {
-                if (is_not_null(weights) && length(X$s.d.denom) != ncol(weights)) {
-                    stop("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-                }
-            }
+            X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method)
         }
         
         if (any(c(is.na(covs), is.na(addl)))) {
@@ -3650,8 +3372,8 @@ x2base.default <- function(obj, ...) {
         imp <- A$imp
         subset <- A$subset
         
-        if (any(vapply(weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-        if (is_not_null(s.weights) && any(vapply(s.weights, function(x) anyNA(x), logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+        if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+        if (is_not_null(s.weights) && any(vapply(s.weights, anyNA, logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
         
         initial.list.lengths <- c(length(formula.list), length(covs.list), length(treat.list))
         if (!all_the_same(initial.list.lengths[initial.list.lengths != 0])) stop("The lists in the object were not the same length.", call. = FALSE)
@@ -3863,7 +3585,7 @@ x2base.default <- function(obj, ...) {
             }
         }
         if (any(problematic)) {
-            stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs.list."), call. = FALSE)
+            stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as covs.list."), call. = FALSE)
         }
         
         if (is_not_null(weights)) {
@@ -3882,7 +3604,7 @@ x2base.default <- function(obj, ...) {
         #Get s.d.denom
         X$s.d.denom <- rep("pooled", max(1, ncol(weights)))
         
-        if (any(vapply(c(covs.list, addl.list), function(x) anyNA(x), logical(1L)))) {
+        if (any(vapply(c(covs.list, addl.list), anyNA, logical(1L)))) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
         
