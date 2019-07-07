@@ -218,6 +218,119 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
     }
     return(val.List)
 }
+get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, treat = NULL, focal = NULL, method = NULL) {
+    check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
+    s.d.denom.specified <- is_not_null(s.d.denom)
+    estimand.specified <- is_not_null(estimand)
+    
+    if (s.d.denom.specified) {
+        try.s.d.denom <- tryCatch(match_arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
+                                  error = function(cond) FALSE)
+        if (any(try.s.d.denom == FALSE)) {
+            check.estimand <- TRUE
+            bad.s.d.denom <- TRUE
+        }
+        else {
+            if (length(try.s.d.denom) > 1 && length(try.s.d.denom) != ncol(weights)) {
+                stop("s.d.denom must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+            }
+            else s.d.denom <- try.s.d.denom
+        }
+    }
+    else {
+        check.estimand <- TRUE
+    }
+    
+    if (check.estimand == TRUE) {
+        if (estimand.specified) {
+            try.estimand <- tryCatch(match_arg(tolower(estimand), c("att", "atc", "ate"), several.ok = TRUE),
+                                     error = function(cond) FALSE)
+            if (any(try.estimand == FALSE)) {
+                check.focal <- TRUE
+                bad.estimand <- TRUE
+            }
+            else {
+                if (length(try.estimand) > 1 && length(try.estimand) != ncol(weights)) {
+                    stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+                }
+                else s.d.denom <- vapply(try.estimand, switch, character(1L), att = "treated", atc = "control", ate = "pooled")
+            }
+        }
+        else {
+            check.focal <- TRUE
+        }
+    }
+    if (check.focal == TRUE) {
+        if (is_not_null(focal)) {
+            s.d.denom <- "treated"
+            estimand <- "att"
+        }
+        else check.weights <- TRUE
+    }
+    if (check.weights == TRUE) {
+        if (is_null(weights)) {
+            s.d.denom <- "pooled"
+            estimand <- "ate"
+        }
+        else {
+            s.d.denom <- estimand <- character(ncol(weights))
+            for (i in seq_len(ncol(weights))) {
+                if (method[i] == "weighting") {
+                    if (is_binary(treat)) {
+                        if (all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])]) &&
+                            !all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])])
+                        ) { #if treated weights are the same and control weights differ; ATT
+                            estimand[i] <- "att"
+                            s.d.denom[i] <- "treated"
+                        }
+                        else if (all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])]) &&
+                                 !all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])])
+                        ) { #if control weights are the same and treated weights differ; ATC
+                            estimand[i] <- "atc"
+                            s.d.denom[i] <- "control"
+                        }
+                        else {
+                            estimand[i] <- "ate"
+                            s.d.denom[i] <- "pooled"
+                        }
+                    }
+                    else {
+                        if (length(focal) == 1) {
+                            estimand[i] <- "att"
+                            s.d.denom[i] <- "treated"
+                        }
+                        else {
+                            estimand[i] <- "ate"
+                            s.d.denom[i] <- "pooled"
+                        }
+                    }
+                }
+                else {
+                    estimand[i] <- "att"
+                    s.d.denom[i] <- "treated"
+                }
+            }
+        }
+    }
+    if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep(s.d.denom, ncol(weights))
+    
+    if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
+        message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using \"", word_list(s.d.denom), "\" instead.")
+    }
+    else if (estimand.specified && bad.estimand) {
+        message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(all_the_same(estimand), toupper(estimand)[1], word_list(toupper(estimand))), "\" instead.")
+    }
+    else if (check.focal || check.weights) {
+        message("Note: estimand and s.d.denom not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word_list(toupper(estimand))), " and ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
+    }
+    
+    if (all(method %in% c("weighting", "matching"))) {
+        if (is_not_null(weights) && length(s.d.denom) != ncol(weights)) {
+            stop("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+        }
+    }
+    return(s.d.denom)
+}
 get.X.class <- function(X) {
     if (is_not_null(X[["imp"]])) {
         if (is_not_null(X[["treat.list"]])) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
@@ -325,7 +438,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
     covs.with.inf <- vapply(C, function(x) !is.character(x) && any(!is.finite(x) & !is.na(x)), logical(1L))
     if (any(covs.with.inf)) {
         s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
-        stop(paste0("The variable", s[1], " ", word.list(names(C)[covs.with.inf], quotes = TRUE), 
+        stop(paste0("The variable", s[1], " ", word_list(names(C)[covs.with.inf], quotes = TRUE), 
                     " contain", s[2], " non-finite values, which are not allowed."), call. = FALSE)
     }
     
@@ -527,16 +640,16 @@ check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL, treat.
             if (any(problems)) {
                 prob.w.t.mat <- droplevels(w.t.mat[problems,])
                 if (NCOL(weights.df) == 1) {
-                    error <- paste0("All weights are zero when ", word.list(paste("treat =", prob.w.t.mat[, 2]), "or"), ".")
+                    error <- paste0("All weights are zero when ", word_list(paste("treat =", prob.w.t.mat[, 2]), "or"), ".")
                 }
                 else {
                     errors <- setNames(character(nlevels(prob.w.t.mat[,1])), levels(prob.w.t.mat[,1]))
                     
                     for (i in levels(prob.w.t.mat[,1])) {
-                        errors[i] <- paste0("\"", i, "\" weights are zero when ", word.list(paste("treat =", prob.w.t.mat[prob.w.t.mat[,1] == i, 2]), "or"))
+                        errors[i] <- paste0("\"", i, "\" weights are zero when ", word_list(paste("treat =", prob.w.t.mat[prob.w.t.mat[,1] == i, 2]), "or"))
                     }
                     errors <- paste(c("All", rep("all", length(errors)-1)), errors)
-                    error <- paste0(word.list(errors, "and"), ".")
+                    error <- paste0(word_list(errors, "and"), ".")
                 }
                 stop(error, call. = FALSE)
             }
@@ -557,7 +670,7 @@ check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL, treat.
                         errors[i] <- paste0("\"", i, "\" weights are zero")
                     }
                     errors <- paste(c("All", rep("all", length(errors)-1)), errors)
-                    error <- paste0(word.list(errors, "and"), ".")
+                    error <- paste0(word_list(errors, "and"), ".")
                 }
                 stop(error, call. = FALSE)
             }
@@ -969,8 +1082,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     }
     
     #Variance ratios
-    vabs <- function(x) pmax(x, 1/x)
-    if (abs) v0 <- vabs
+    if (abs) v0 <- function(x) abs_(x, ratio = TRUE)
     else v0 <- base::identity
     
     if (!(!disp.v.ratio && quick)) {
@@ -1009,11 +1121,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     if (is_not_null(m.threshold)) {
         if (no.adj) {
-            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Diff.Un"]]), paste0(ifelse(abs(B[["Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)), "")
+            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Diff.Un"]]), paste0(ifelse(abs_(B[["Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)), "")
         }
         else {
             for (i in weight.names) {
-                B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Diff", i)]]), paste0(ifelse(abs(B[[paste.("Diff", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)), "")
+                B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Diff", i)]]), paste0(ifelse(abs_(B[[paste.("Diff", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)), "")
             }
         }
         
@@ -1022,11 +1134,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     if (is_not_null(v.threshold)) {
         if (no.adj) {
-            B[["V.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["V.Ratio.Un"]]), paste0(ifelse(vabs(B[["V.Ratio.Un"]]) < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
+            B[["V.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["V.Ratio.Un"]]), paste0(ifelse(abs_(B[["V.Ratio.Un"]], ratio = TRUE) < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
         }
         else {
             for (i in weight.names) {
-                B[[paste.("V.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("V.Ratio", i)]]), paste0(ifelse(vabs(B[[paste.("V.Ratio", i)]]) < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
+                B[[paste.("V.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("V.Ratio", i)]]), paste0(ifelse(abs_(B[[paste.("V.Ratio", i)]], ratio = TRUE) < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
             }
         }
         
@@ -1112,8 +1224,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
                                        x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom)
         
         #Variance ratios
-        vabs <- function(x) pmax(x, 1/x)
-        if (abs) v0 <- vabs
+        if (abs) v0 <- function(x) abs_(x, ratio = TRUE)
         else v0 <- base::identity
         
         if (!(!disp.v.ratio && quick)) {
@@ -1137,7 +1248,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     if (is_not_null(m.threshold)) {
         for (i in levels(subclass)) {
             SB[[i]][["M.Threshold"]] <- ifelse(SB[[i]][["Type"]]=="Distance", "", 
-                                               paste0(ifelse(is.finite(SB[[i]][["Diff.Adj"]]) & abs(SB[[i]][["Diff.Adj"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)))
+                                               paste0(ifelse(is.finite(SB[[i]][["Diff.Adj"]]) & abs_(SB[[i]][["Diff.Adj"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), round(m.threshold, 3)))
         }
     }
     
@@ -1148,7 +1259,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     if (is_not_null(v.threshold)) {
         for (i in levels(subclass)) {
             SB[[i]][["V.Threshold"]] <- ifelse(SB[[i]][["Type"]]!="Distance" & is.finite(SB[[i]][["V.Ratio.Adj"]]), 
-                                               paste0(ifelse(v0(SB[[i]][["V.Ratio.Adj"]]) < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
+                                               paste0(ifelse(abs_(SB[[i]][["V.Ratio.Adj"]], ratio = TRUE) < v.threshold, "Balanced, <", "Not Balanced, >"), round(v.threshold, 3)), "")
         }
     }
     if (all(sapply(SB, function(x) !any(is.finite(x[["KS.Adj"]]))))) {
@@ -1196,7 +1307,7 @@ balance.table.across.subclass <- function(balance.table, balance.table.subclass.
     }
     B.A.df <- data.frame(balance.table[c("Type", "M.0.Un", "SD.0.Un", "M.1.Un", "SD.1.Un", "Diff.Un", "V.Ratio.Un", "KS.Un")], 
                          B.A, M.Threshold = NA_character_)
-    if (is_not_null(m.threshold)) B.A.df[["M.Threshold"]] <- ifelse(B.A.df[["Type"]]=="Distance", "", paste0(ifelse(is.finite(B.A.df[["Diff.Adj"]]) & abs(B.A.df[["Diff.Adj"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold))
+    if (is_not_null(m.threshold)) B.A.df[["M.Threshold"]] <- ifelse(B.A.df[["Type"]]=="Distance", "", paste0(ifelse(is.finite(B.A.df[["Diff.Adj"]]) & abs_(B.A.df[["Diff.Adj"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold))
     return(B.A.df)
 }
 balance.table.cluster.summary <- function(balance.table.clusters.list, weight.names = NULL, no.adj = FALSE, abs = FALSE, quick = TRUE, types = NULL) {
@@ -1406,11 +1517,11 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     
     if (is_not_null(r.threshold)) {
         if (no.adj) {
-            B[["R.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Corr.Un"]]), paste0(ifelse(abs(B[["Corr.Un"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), round(r.threshold, 3)), "")
+            B[["R.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Corr.Un"]]), paste0(ifelse(abs_(B[["Corr.Un"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), round(r.threshold, 3)), "")
         }
         else {
             for (i in weight.names) {
-                B[[paste.("R.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Corr", i)]]), paste0(ifelse(abs(B[[paste.("Corr", i)]]) < r.threshold, "Balanced, <", "Not Balanced, >"), round(r.threshold, 3)), "")
+                B[[paste.("R.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Corr", i)]]), paste0(ifelse(abs_(B[[paste.("Corr", i)]]) < r.threshold, "Balanced, <", "Not Balanced, >"), round(r.threshold, 3)), "")
             }
         }
     }
@@ -1468,7 +1579,7 @@ balance.table.subclass.cont <- function(C, weights = NULL, treat, subclass, r.th
     if (is_not_null(r.threshold)) {
         for (i in levels(subclass)) {
             SB[[i]][["R.Threshold"]] <- ifelse(SB[[i]][["Type"]]=="Distance", "", 
-                                               paste0(ifelse(is.finite(SB[[i]][["Corr.Adj"]]) & abs(SB[[i]][["Corr.Adj"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), round(r.threshold, 3)))
+                                               paste0(ifelse(is.finite(SB[[i]][["Corr.Adj"]]) & abs_(SB[[i]][["Corr.Adj"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), round(r.threshold, 3)))
         }
     }
     
@@ -1618,11 +1729,11 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
     
     if (is_not_null(m.threshold)) {
         if (no.adj) {
-            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.Diff.Un"]]), paste0(ifelse(abs(B[["Max.Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.Diff.Un"]]), paste0(ifelse(abs_(B[["Max.Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
         }
         else {
             for (i in weight.names) {
-                B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Max.Diff", i)]]), paste0(ifelse(abs(B[[paste.("Max.Diff", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+                B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Max.Diff", i)]]), paste0(ifelse(abs_(B[[paste.("Max.Diff", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
             }
         }
     }
@@ -1709,11 +1820,11 @@ balance.table.msm.summary <- function(bal.tab.msm.list, weight.names = NULL, no.
     
     if (is_not_null(m.threshold)) {
         if (no.adj) {
-            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.Diff.Un"]]), paste0(ifelse(abs(B[["Max.Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.Diff.Un"]]), paste0(ifelse(abs_(B[["Max.Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
         }
         else {
             for (i in weight.names) {
-                B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Max.Diff", i)]]), paste0(ifelse(abs(B[[paste.("Max.Diff", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+                B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Max.Diff", i)]]), paste0(ifelse(abs_(B[[paste.("Max.Diff", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
             }
         }
     }
