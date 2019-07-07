@@ -752,7 +752,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         missing.stats <- vapply(which.stat, function(s) {
             all(is.na(SS[["mean.stat"]][SS[["Statistic"]] == which.stat2[s]]))
         }, logical(1L))
-        if (any(missing.stats)) stop(paste0(word.list(firstup(tolower(which.stat2[which.stat[missing.stats]]))), " cannot be displayed. This can occur when ", word.list(paste.("disp", tolower(which.stat[missing.stats])), and.or = "and", is.are = TRUE), " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+        if (any(missing.stats)) stop(paste0(word_list(firstup(tolower(which.stat2[which.stat[missing.stats]]))), " cannot be displayed. This can occur when ", word_list(paste.("disp", tolower(which.stat[missing.stats])), and.or = "and", is.are = TRUE), " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         
         gone <- character(0)
         for (i in levels(SS$Sample)) {
@@ -828,7 +828,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         missing.stats <- vapply(which.stat, function(s) {
             all(is.na(SS[["stat"]][SS[["Statistic"]] == which.stat2[s]]))
         }, logical(1L))
-        if (any(missing.stats)) stop(paste0(word.list(firstup(tolower(which.stat2[which.stat[missing.stats]]))), " cannot be displayed. This can occur when ", word.list(paste.("disp", tolower(which.stat[missing.stats])), and.or = "and"), " are FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+        if (any(missing.stats)) stop(paste0(word_list(firstup(tolower(which.stat2[which.stat[missing.stats]]))), " cannot be displayed. This can occur when ", word_list(paste.("disp", tolower(which.stat[missing.stats])), and.or = "and"), " are FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         
         gone <- character(0)
         for (i in levels(SS$Sample)) {

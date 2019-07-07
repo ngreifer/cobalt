@@ -9,19 +9,19 @@ get.w.ps <- function(x, stop.method = NULL, estimand = NULL, s.weights = FALSE, 
         if (any(is.character(stop.method))) {
             rule1 <- names(ps$w)[pmatch(tolower(names(ps$w)), tolower(stop.method), 0L)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps$w)
             }
         }
         else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(ps$w)))) {
             if (any(!stop.method %in% seq_along(names(ps$w)))) {
                 message(paste0("Warning: There are ", length(names(ps$w)), " stop methods available, but you requested ", 
-                               word.list(stop.method[!stop.method %in% seq_along(names(ps$w))], and.or = "and"),"."))
+                               word_list(stop.method[!stop.method %in% seq_along(names(ps$w))], and.or = "and"),"."))
             }
             rule1 <- names(ps$w)[stop.method %in% seq_along(names(ps$w))]
         }
         else {
-            warning("stop.method should be ", word.list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- names(ps$w)
         }
     }
@@ -62,19 +62,19 @@ get.w.mnps <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
         if (is.character(stop.method)) {
             rule1 <- mnps$stopMethods[pmatch(tolower(stop.method), tolower(mnps$stopMethods), nomatch = 0L)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- mnps$stopMethods
             }
         }
         else if (is.numeric(stop.method) && any(stop.method %in% seq_along(mnps$stopMethods))) {
             if (any(!stop.method %in% seq_along(mnps$stopMethods))) {
                 message(paste0("Warning: There are ", length(mnps$stopMethods), " stop methods available, but you requested ", 
-                               word.list(stop.method[!stop.method %in% seq_along(mnps$stopMethods)], and.or = "and"),"."))
+                               word_list(stop.method[!stop.method %in% seq_along(mnps$stopMethods)], and.or = "and"),"."))
             }
             rule1 <- mnps$stopMethods[stop.method %in% seq_along(mnps$stopMethods)]
         }
         else {
-            warning("stop.method should be ", word.list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- mnps$stopMethods
         }
     }
@@ -128,7 +128,7 @@ get.w.ps.cont <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
         if (any(is.character(stop.method))) {
             rule1 <- names(ps.cont$w)[pmatch(tolower(names(ps.cont$w)), tolower(stop.method), 0L)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps.cont$w)
             }
 
@@ -136,12 +136,12 @@ get.w.ps.cont <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
         else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(ps.cont$w)))) {
             if (any(!stop.method %in% seq_along(names(ps.cont$w)))) {
                 message(paste0("Warning: There are ", length(names(ps.cont$w)), " stop methods available, but you requested ", 
-                               word.list(stop.method[!stop.method %in% seq_along(names(ps.cont$w))], and.or = "and"),"."))
+                               word_list(stop.method[!stop.method %in% seq_along(names(ps.cont$w))], and.or = "and"),"."))
             }
             rule1 <- names(ps.cont$w)[stop.method %in% seq_along(names(ps.cont$w))]
         }
         else {
-            warning("stop.method should be ", word.list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- names(ps.cont$w)
         }
     }
@@ -169,19 +169,19 @@ get.w.iptw <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
         if (any(is.character(stop.method))) {
             rule1 <- names(iptw$psList[[1]]$ps)[pmatch(tolower(names(iptw$psList[[1]]$ps)), tolower(stop.method), 0L)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word.list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
                 rule1 <- names(iptw$psList[[1]]$ps)
             }
         }
         else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(iptw$psList[[1]]$ps)))) {
             if (any(!stop.method %in% seq_along(names(iptw$psList[[1]]$ps)))) {
                 message(paste0("Warning: There are ", length(names(iptw$psList[[1]]$ps)), " stop methods available, but you requested ", 
-                               word.list(stop.method[!stop.method %in% seq_along(names(iptw$psList[[1]]$ps))], and.or = "and"),"."))
+                               word_list(stop.method[!stop.method %in% seq_along(names(iptw$psList[[1]]$ps))], and.or = "and"),"."))
             }
             rule1 <- names(iptw$psList[[1]]$ps)[stop.method %in% seq_along(names(iptw$psList[[1]]$ps))]
         }
         else {
-            warning("stop.method should be ", word.list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(names(iptw$psList[[1]]$ps), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- names(iptw$psList[[1]]$ps)
         }
     }

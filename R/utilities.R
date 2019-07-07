@@ -33,7 +33,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
                 if (any(var.name %in% factor.names)) {
                     if (any(!var.name %in% factor.names)) {
                         not.in.factor.names <- var.name[!var.name %in% factor.names]
-                        warning(paste(word.list(not.in.factor.names, "and", is.are = TRUE), 
+                        warning(paste(word_list(not.in.factor.names, "and", is.are = TRUE), 
                                       "not the name(s) of factor variable(s) in data and will not be split."), 
                                 call. = FALSE)
                     }
@@ -58,7 +58,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
                 if (any(var.name %in% names(data))) {
                     if (any(var.name %nin% names(data))) {
                         not.in.data.names <- var.name[!var.name %in% names(data)]
-                        warning(paste(word.list(not.in.data.names, "and", is.are = TRUE), 
+                        warning(paste(word_list(not.in.data.names, "and", is.are = TRUE), 
                                       "not the name(s) of variable(s) in data and will not be split."), 
                                 call. = FALSE)
                     }
@@ -220,7 +220,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
                 var.to.combine <- var.to.combine[names(var.to.combine) != NA.column]
             }
             else {
-                stop(paste("There is no variable called", word.list(NA.column, quotes = TRUE), "to generate the NA values."), call. = FALSE)
+                stop(paste("There is no variable called", word_list(NA.column, quotes = TRUE), "to generate the NA values."), call. = FALSE)
             }
         }
         var.sum <- rowSums(var.to.combine)
@@ -275,7 +275,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         }
     }
     
-    if (is_not_null(not.the.stem)) warning(paste0(word.list(not.the.stem, is.are = TRUE, quotes = TRUE), " not the stem of any variables in data and will be ignored. Ensure var.name and sep are correct."), call. = FALSE)
+    if (is_not_null(not.the.stem)) warning(paste0(word_list(not.the.stem, is.are = TRUE, quotes = TRUE), " not the stem of any variables in data and will be ignored. Ensure var.name and sep are correct."), call. = FALSE)
     
     return(data)
 }
@@ -352,11 +352,11 @@ set.cobalt.options <- function(..., default = FALSE) {
     any.string.allowed <- c("int_sep", "factor_sep")
     
     if (any(duplicates <- table(names(opts)) > 1)) {
-        stop(paste0(word.list(names(duplicates)[duplicates], is.are = TRUE), " present more than once in the input to set.cobalt.options."), call. = FALSE)
+        stop(paste0(word_list(names(duplicates)[duplicates], is.are = TRUE), " present more than once in the input to set.cobalt.options."), call. = FALSE)
     }
     
     if (any(names(opts) %nin% names(acceptable.options()))) {
-        warning(paste("The following are not acceptable options and will be ignored:", word.list(unique(names(opts)[names(opts) %nin% names(acceptable.options())]))), call. = FALSE, immediate. = TRUE)
+        warning(paste("The following are not acceptable options and will be ignored:", word_list(unique(names(opts)[names(opts) %nin% names(acceptable.options())]))), call. = FALSE, immediate. = TRUE)
         opts <- opts[names(opts) %in% names(acceptable.options())]
     }
     
@@ -390,11 +390,11 @@ set.cobalt.options <- function(..., default = FALSE) {
         }), multiple.opts)
         problematic.opts[["bad"]] <- setNames(lapply(bad.opts, function(i) {
             if (i %in% any.string.allowed) paste0(i, " must be a character string.")
-            else paste0(i, " must be ", word.list(acceptable.options()[[i]], quotes = is.character(acceptable.options()[[i]]), and.or = "or"), ".")
+            else paste0(i, " must be ", word_list(acceptable.options()[[i]], quotes = is.character(acceptable.options()[[i]]), and.or = "or"), ".")
         }), bad.opts)
         problematic.opts[["both"]] <- setNames(lapply(both.opts, function(i) {
             if (i %in% any.string.allowed) paste0(i, " must be a character string of length 1.")
-            else paste0(i, " must be one of ", word.list(acceptable.options()[[i]], quotes = is.character(acceptable.options()[[i]]), and.or = "or"), ".")
+            else paste0(i, " must be one of ", word_list(acceptable.options()[[i]], quotes = is.character(acceptable.options()[[i]]), and.or = "or"), ".")
         }), both.opts)
         
         problems <- do.call("c", unname(problematic.opts))
@@ -425,7 +425,7 @@ get.cobalt.options <- function(...) {
         opts <- do.call("c", opts)
         if (any(not.in.accept <- opts %nin% names(acceptable.options()))) {
             plural <- sum(not.in.accept) > 1
-            stop(paste0(word.list(opts[not.in.accept], is.are = TRUE, quotes = TRUE),
+            stop(paste0(word_list(opts[not.in.accept], is.are = TRUE, quotes = TRUE),
                         " not", ifelse(plural, "", " an"), " acceptable option", 
                         ifelse(plural, "s", ""), "."), call. = FALSE)
         }

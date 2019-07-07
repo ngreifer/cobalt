@@ -89,7 +89,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             if (is.numeric(which.sub) && any(which.sub %in% levels(X$subclass))) {
                 if (any(!which.sub %in% levels(X$subclass))) {
-                    w.l <- word.list(which.sub[!which.sub %in% levels(X$subclass)])
+                    w.l <- word_list(which.sub[!which.sub %in% levels(X$subclass)])
                     warning(paste(w.l, ifelse(attr(w.l, "plural"), "do", "does"), "not correspond to any subclass in the object and will be ignored."), call. = FALSE)
                     which.sub <- which.sub[which.sub %in% levels(X$subclass)]
                 }
@@ -160,7 +160,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                         in.imp <- !is.na(X$imp) & sapply(X$imp, function(x) !is.na(match(x, levels(X$imp)[which.imp])))
                     }
                     else {
-                        stop(paste0("The following inputs to which.imp do not correspond to given imputations:\n\t", word.list(which.imp[!which.imp %in% seq_len(nlevels(X$imp))])), call. = FALSE)
+                        stop(paste0("The following inputs to which.imp do not correspond to given imputations:\n\t", word_list(which.imp[!which.imp %in% seq_len(nlevels(X$imp))])), call. = FALSE)
                     }
                 }
                 else stop("The argument to which.imp must be the indices corresponding to the imputations for which distributions are to be displayed.", call. = FALSE)
@@ -182,7 +182,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                         in.cluster <- !is.na(X$cluster) & sapply(X$cluster, function(x) !is.na(match(x, levels(X$cluster)[which.cluster])))
                     }
                     else {
-                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word.list(which.cluster[!which.cluster %in% seq_len(nlevels(X$cluster))])), call. = FALSE)
+                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word_list(which.cluster[!which.cluster %in% seq_len(nlevels(X$cluster))])), call. = FALSE)
                     }
                 }
                 else if (is.character(which.cluster)) {
@@ -190,7 +190,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                         in.cluster <- !is.na(X$cluster) & sapply(X$cluster, function(x) !is.na(match(x, which.cluster)))
                     }
                     else {
-                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word.list(which.cluster[is.na(match(which.cluster, levels(X$cluster)))])), call. = FALSE)
+                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word_list(which.cluster[is.na(match(which.cluster, levels(X$cluster)))])), call. = FALSE)
                     }
                 }
                 else stop("The argument to which.cluster must be the names or indices corresponding to the clusters for which distributions are to be displayed.", call. = FALSE)
@@ -213,16 +213,16 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                             #nothing; which.time is good
                         }
                         else if (any(which.time %in% seq_along(X$covs.list)[appears.in.time])) {
-                            warning(paste0(var.name, " does not appear in time period ", word.list(which.time[!which.time %in% seq_along(X$covs.list)[appears.in.time]], "or"), "."), call. = FALSE)
+                            warning(paste0(var.name, " does not appear in time period ", word_list(which.time[!which.time %in% seq_along(X$covs.list)[appears.in.time]], "or"), "."), call. = FALSE)
                             which.time <- which.time[which.time %in% seq_along(X$covs.list)[appears.in.time]]
                         }
                         else {
-                            stop(paste0(var.name, " does not appear in time period ", word.list(which.time, "or"), "."), call. = FALSE)
+                            stop(paste0(var.name, " does not appear in time period ", word_list(which.time, "or"), "."), call. = FALSE)
                         }
                         in.time <- !is.na(X$time) & X$time %in% which.time
                     }
                     else {
-                        stop(paste0("The following inputs to which.time do not correspond to given time periods:\n\t", word.list(which.time[!which.time %in% seq_along(X$covs.list)])), call. = FALSE)
+                        stop(paste0("The following inputs to which.time do not correspond to given time periods:\n\t", word_list(which.time[!which.time %in% seq_along(X$covs.list)])), call. = FALSE)
                     }
                 }
                 else if (is.character(which.time)) {
@@ -231,14 +231,14 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                             #nothing; which.time is good
                         }
                         else if (any(which.time %in% treat.names[appears.in.time])) {
-                            time.periods <- word.list(which.time[!which.time %in% treat.names[appears.in.time]], "and")
+                            time.periods <- word_list(which.time[!which.time %in% treat.names[appears.in.time]], "and")
                             warning(paste0(var.name, " does not appear in the time period", ifelse(attr(time.periods, "plural"), "s ", " "),
                                            "corresponding to treatment", ifelse(attr(time.periods, "plural"), "s ", " "),
                                            time.periods, "."), call. = FALSE)
                             which.time <- which.time[which.time %in% treat.names[appears.in.time]]
                         }
                         else {
-                            time.periods <- word.list(which.time, "and")
+                            time.periods <- word_list(which.time, "and")
                             stop(paste0(var.name, " does not appear in the time period", ifelse(attr(time.periods, "plural"), "s ", " "),
                                         "corresponding to treatment", ifelse(attr(time.periods, "plural"), "s ", " "),
                                         time.periods, "."), call. = FALSE)
@@ -247,7 +247,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                         
                     }
                     else {
-                        stop(paste0("The following inputs to which.time do not correspond to given time periods:\n\t", word.list(which.time[!which.time %in% treat.names])), call. = FALSE)
+                        stop(paste0("The following inputs to which.time do not correspond to given time periods:\n\t", word_list(which.time[!which.time %in% treat.names])), call. = FALSE)
                     }
                 }
                 else stop("The argument to which.time must be the names or indices corresponding to the time periods for which distributions are to be displayed.", call. = FALSE)
