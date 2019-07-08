@@ -574,7 +574,7 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
     names(out) <- out.names
     
     #Get list of bal.tabs for each imputation
-    if (isTRUE(attr(treat, "treat.type") == "continuous") || (is.numeric(treat) && !is_binary(treat))) {#if continuous treatment
+    if (isTRUE(get.treat.type(treat) == "continuous") || (is.numeric(treat) && !is_binary(treat))) {#if continuous treatment
         args <- args[names(args) %nin% names(formals(base.bal.tab.cont))]
         out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) do.call("base.bal.tab.cont", 
                                                                                c(list(weights = weights[imp==i, , drop  = FALSE], 
@@ -602,7 +602,7 @@ base.bal.tab.imp <- function(weights, treat, distance = NULL, subclass = NULL, c
                                                                                       quick = quick), 
                                                                                  args), quote = TRUE))
     }
-    else if (isTRUE(attr(treat, "treat.type") == "multinomial") || (is_(treat, c("factor", "character")) && !is_binary(treat))) {
+    else if (isTRUE(get.treat.type(treat) == "multinomial") || (is_(treat, c("factor", "character")) && !is_binary(treat))) {
         args <- args[names(args) %nin% names(formals(base.bal.tab.multi))]
         stop("Multinomial treatments are not yet supported with multiply imputed data.", call. = FALSE)
     }
@@ -914,21 +914,7 @@ base.bal.tab.msm <- function(weights, treat.list, distance.list = NULL, subclass
         
         out[["Time.Balance"]] <- vector("list", length(covs.list))
         
-        treat.type <- vapply(treat.list, function(x) {
-            if (isTRUE(attr(x, "treat.type") %in% c("binary", "multinomial", "continuous"))) {
-                attr(x, "treat.type")
-            }
-            else if (!is_binary(x)) {
-                if (is.numeric(x)) "continuous"
-                else if (is.factor(x) || is.character(x)) "multinomial"
-            }
-            else if (nunique.gt(x, 1)) {
-                "binary"
-            }
-            else {
-                stop("All treatments must have at least 2 unique values.", call. = FALSE)
-            }
-        }, character(1L))
+        treat.type <- vapply(treat.list, function(x) get.treat.type(assign.treat.type(x)), character(1L))
         
         #Get list of bal.tabs for each time period
         out[["Time.Balance"]] <- lapply(seq_along(treat.list), function(ti) {
@@ -1053,7 +1039,7 @@ base.bal.tab.target <- function(weights, treat, distance = NULL, subclass = NULL
     target.name <- "Target"
     n <- length(treat)
     
-    if (isTRUE(attr(treat, "treat.type") == "continuous") || (is.numeric(treat) && !is_binary(treat))) {#if continuous treatment
+    if (isTRUE(get.treat.type(treat) == "continuous") || (is.numeric(treat) && !is_binary(treat))) {#if continuous treatment
         covs <- data.frame(treat = treat, covs)
         treat <- factor(rep(c("All", target.name), each = n))
         target.summary <- FALSE

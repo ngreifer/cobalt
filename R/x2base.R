@@ -1665,19 +1665,14 @@ x2base.weightit <- function(weightit, ...) {
     if (any(d.e.in.w)) weightit.data <- do.call("cbind", unname(weightit[c("covs", "exact", "by")[d.e.in.w]]))
     else weightit.data <- NULL
     
-    if (is_not_null(attr(treat, "treat.type"))) {
-        treat.type <- attr(treat, "treat.type")
+    if (has.treat.type(treat)) {
+        treat.type <- get.treat.type(treat)
     }
     else if (is_not_null(weightit$treat.type)) {
         treat.type <- weightit$treat.type
     }
     else {
-        if (!is.factor(treat) && !is_binary(treat)) {
-            treat.type <- "continuous"
-        }
-        else {
-            treat.type <- "not continuous"
-        }
+        treat.type <- get.treat.type(assign.treat.type(treat))
     }
     
     if (is_null(covs)) stop("No covariates were specified in the weightit object.", call. = FALSE)
@@ -2642,20 +2637,15 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     if (any(d.e.in.w)) weightitMSM.data <- do.call("cbind", c(list(covs), weightitMSM[c("exact", "by")])[d.e.in.w])
     else weightitMSM.data <- NULL
     
-    if (all(vapply(treat.list, function(x) is_not_null(attr(x, "treat.type")), logical(1L)))) {
-        treat.type <- vapply(treat.list, function(x) attr(x, "treat.type"), character(1L))
+    if (all(vapply(treat.list, has.treat.type, logical(1L)))) {
+        treat.type <- vapply(treat.list, get.treat.type, character(1L))
     }
     else if (length(weightitMSM$treat.type) == length(treat.list)) {
         treat.type <- weightitMSM$treat.type
     }
     else {
         treat.type <- vapply(treat.list, function(treat) {
-            if (!is.factor(treat) && !is_binary(treat)) {
-                return("continuous")
-            }
-            else {
-                return("not continuous")
-            }
+            get.treat.type(assign.treat.type(treat))
         }, character(1L))
     } 
     
