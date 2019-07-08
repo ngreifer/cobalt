@@ -153,7 +153,6 @@ x2base.matchit <- function(m, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
     X$treat <- treat
     X$weights <- weights
@@ -165,6 +164,7 @@ x2base.matchit <- function(m, ...) {
     X$call <- m$call
     X$subclass <- factor(subclass)
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -316,7 +316,6 @@ x2base.ps <- function(ps, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
     X$weights <- weights
     X$treat <- treat
@@ -328,6 +327,7 @@ x2base.ps <- function(ps, ...) {
     X$method <- method
     X$s.weights <- s.weights
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -471,7 +471,6 @@ x2base.mnps <- function(mnps, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
     X$weights <- weights
     X$treat <- treat
@@ -484,6 +483,7 @@ x2base.mnps <- function(mnps, ...) {
     X$focal <- focal
     X$method <- method
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -612,7 +612,6 @@ x2base.ps.cont <- function(ps.cont, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
     X$weights <- weights
     X$treat <- treat
@@ -624,6 +623,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -759,7 +759,6 @@ x2base.Match <- function(Match, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
     X$treat <- treat
     X$weights <- weights
@@ -771,6 +770,7 @@ x2base.Match <- function(Match, ...) {
     X$method <- method
     X$cluster <- factor(cluster)
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1206,8 +1206,6 @@ x2base.data.frame <- function(covs, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
-    
     X$covs <- covs
     X$weights <- weights
     X$treat <- treat
@@ -1220,6 +1218,7 @@ x2base.data.frame <- function(covs, ...) {
     X$s.weights <- s.weights
     X$focal <- focal
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1259,6 +1258,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     s.d.denom <- A$s.d.denom
     estimand <- A$estimand
     method <- "weighting"
+    c.data <- cbps.fit$data
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
@@ -1282,10 +1282,6 @@ x2base.CBPS <- function(cbps.fit, ...) {
     else s.weights <- rep(1, length(treat))
     
     weights <- weights/s.weights #Because CBPS weights contain s.weights in them
-    
-    
-    
-    c.data <- cbps.fit$data
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -1373,8 +1369,6 @@ x2base.CBPS <- function(cbps.fit, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
-    
     X$distance <- distance
     X$addl <- addl
     X$weights <- weights
@@ -1385,6 +1379,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     X$s.weights <- s.weights
     X$method <- method
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1490,8 +1485,6 @@ x2base.ebalance <- function(ebalance, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
-    
     X$treat <- treat
     X$weights <- weights
     X$covs <- covs
@@ -1501,6 +1494,7 @@ x2base.ebalance <- function(ebalance, ...) {
     X$method <- method
     X$cluster <- factor(cluster)
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1611,9 +1605,6 @@ x2base.optmatch <- function(optmatch, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
-    subset <- subset[d.reordered]
-    
     X$treat <- treat[d.reordered]
     X$distance <- distance[d.reordered, , drop = FALSE]
     X$covs <- covs[d.reordered, , drop = FALSE]
@@ -1623,6 +1614,8 @@ x2base.optmatch <- function(optmatch, ...) {
     X$method <- "matching"
     X$cluster <- factor(cluster[d.reordered])
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    subset <- subset[d.reordered]
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1686,6 +1679,8 @@ x2base.weightit <- function(weightit, ...) {
             treat.type <- "not continuous"
         }
     }
+    
+    if (is_null(covs)) stop("No covariates were specified in the weightit object.", call. = FALSE)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -1821,9 +1816,6 @@ x2base.weightit <- function(weightit, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
-    
-    
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
@@ -1837,6 +1829,7 @@ x2base.weightit <- function(weightit, ...) {
     X$focal <- focal
     X$call <- weightit$call
     
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1957,17 +1950,18 @@ x2base.designmatch <- function(dm, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, length(treat))
     
-    X$treat <- treat[in.matched & subset]
-    X$distance <- distance[in.matched & subset, , drop = FALSE]
-    X$covs <- covs[in.matched & subset, , drop = FALSE]
-    X$weights <- weights[in.matched & subset, , drop = FALSE]
-    X$addl <- addl[in.matched & subset, , drop = FALSE]
+    X$treat <- treat
+    X$distance <- distance
+    X$covs <- covs
+    X$weights <- weights
+    X$addl <- addl
     X$call <- NULL
     X$method <- method
-    X$cluster <- factor(cluster[in.matched & subset])
+    X$cluster <- factor(cluster)
     
+    X <- subset_X(X, in.matched)
+    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -2146,8 +2140,6 @@ x2base.iptw <- function(iptw, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
-    
     X$weights <- weights
     X$treat.list <- lapply(treat.list, function(x) x)
     X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x) else NULL
@@ -2158,6 +2150,7 @@ x2base.iptw <- function(iptw, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights
     
+    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -2423,7 +2416,6 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     if (is_null(s.weights)) s.weights <- rep(1, length(treat.list[[1]]))
-    if (is_null(subset)) subset <- rep(TRUE, length(treat.list[[1]]))
     
     X$covs.list <- lapply(covs.list, function(x) x)
     X$weights <- weights
@@ -2435,6 +2427,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     X$imp <- factor(imp)
     X$s.weights <- s.weights
     
+    if (is_null(subset)) subset <- rep(TRUE, length(treat.list[[1]]))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -2586,8 +2579,6 @@ x2base.CBMSM <- function(cbmsm, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
-    
     X$weights <- weights
     X$treat.list <- lapply(treat.list, function(x) x)
     X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x) else NULL
@@ -2599,6 +2590,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     X$s.weights <- NULL
     X$s.d.denom <- "pooled"
     
+    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -2631,6 +2623,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     weights <- data.frame(weights = get.w(weightitMSM))
     treat.list <- weightitMSM$treat.list
     covs.list <- weightitMSM$covs.list
+    if (is_null(covs.list)) stop("No covariates were specified in the weightit object.", call. = FALSE)
     covs <- do.call("cbind", covs.list)
     s.weights <- weightitMSM$s.weights
     data <- A$data
@@ -2638,6 +2631,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     imp <- A$imp
     subset <- A$subset
     ntimes <- length(treat.list)
+    
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
@@ -2750,8 +2744,6 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
-    
     X$weights <- weights
     X$treat.list <- lapply(treat.list, function(x) x)
     X$distance.list <- if (is_not_null(distance.list)) lapply(distance.list, function(x) x) else NULL
@@ -2762,6 +2754,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights
     
+    if (is_null(subset)) subset <- rep(TRUE, lengths["treat.list"])
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -3349,7 +3342,7 @@ x2base.default <- function(obj, ...) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
         
-        if (is_null(subset)) subset <- rep(TRUE, length(treat))
+        if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
         
         X$covs <- covs
         X$weights <- weights
