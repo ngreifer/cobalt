@@ -208,7 +208,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
             next
         }
         
-        if (!all(rowSums(apply(var.to.combine, 2, is.na)) %in% c(0, ncol(var.to.combine)))) {
+        if (any(rowSums(apply(var.to.combine, 2, is.na)) %nin% c(0, ncol(var.to.combine)))) {
             stop("The variables in data selected based on var.name and sep do not seem to form a split variable based on the <NA> pattern.", call. = FALSE)
         }
         NA.column <- character(0)
