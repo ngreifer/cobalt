@@ -1,6 +1,24 @@
 `cobalt` News and Updates
 ======
 
+Version 3.8.0
+
+* Added the ability to display balance on multiple measures (e.g., mean differences, variance ratios) at the same time with `love.plot()`.
+
+* Added vignette on using `love.plot()`.
+
+* Bug fixes that make `bal.tab()` and `love.plot()` more usable within other functions and especially when called with `do.call()`.
+
+* Made it easier to get proper output when using `matchit()` with an argument ot `distance`. Include the original dataset in the `data` argument to get the variables to display correctly.
+
+* Changed the default shape in `love.plot()` to `"circle"`, which is a solid circle. I found this a prettier alternative to the open circle, especially on Windows. To get back open circles you set `shapes = "circle filled"` (yes, that is a bit confusing).
+
+* Added ability to hide the gridlines easily in `love.plot()`.
+
+* Changed the calculation of standard deviations (and standardized differences in proportion) for binary variables to be more in line with recommendations, as noted by @mbloechl05. Note this will make these values different from those in `MatchIt::summary` by a small amount.
+
+* Other small bug fixes and improvements.
+
 Version 3.7.0
 
 * Changes to some `bal.tab` defaults: `quick` is now set to `TRUE` by default. Adjusted and unadjusted means, standard deviations, and mean differences will always be computed, regardless of `quick`. Variance ratios and KS statistics will only be computed if `quick = FALSE` or `disp.v.ratio` or `disp.ks`, respectively, are `TRUE`.
