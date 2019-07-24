@@ -222,8 +222,10 @@ ESS <- function(w) {
     sum(w)^2/sum(w^2)
 }
 center <- function(x, na.rm = TRUE, at = NULL) {
-    if (!is.numeric(x)) warning("x is not numeric and will not be centered.")
-    else if (is.matrix(x)) x <- apply(x, 2, center, na.rm = na.rm, at = at)
+    dimx <- dim(x)
+    if (length(dimx) == 2L) x <- apply(x, 2, center, na.rm = na.rm, at = at)
+    else if (length(dimx) > 2L) stop("x must be a numeric or matrix-like (not array).")
+    else if (!is.numeric(x)) warning("x is not numeric and will not be centered.")
     else {
         if (is_null(at)) at <- mean(x, na.rm = na.rm)
         else if (!is.numeric(at)) stop("at must be numeric.")
@@ -294,8 +296,8 @@ col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
     }
     means <- col.w.m(mat, w, na.rm)
     w.scale <- apply(mat, 2, function(x) w.cov.scale(w[!is.na(x)]))
-    covs <- colSums(t(t(mat) - means)^2, na.rm = na.rm)/w.scale
-    return(covs)
+    vars <- colSums(w*t(t(mat) - means)^2, na.rm = na.rm)/w.scale
+    return(vars)
 }
 coef.of.var <- function(x, pop = TRUE, na.rm = TRUE) {
     if (na.rm) x <- x[!is.na(x)]
@@ -612,4 +614,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
     if (!several.ok && length(i) > 1)
         stop("there is more than one match in 'match_arg'")
     choices[i]
+}
+last <- function(x) {
+    x[[length(x)]]
 }
