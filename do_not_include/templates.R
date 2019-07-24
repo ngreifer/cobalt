@@ -129,7 +129,7 @@
             problematic <- lengths > 0 & lengths != length(imp)
         }
         if (any(problematic)) {
-            stop(paste0(word.list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
+            stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
         }
         else ensure.equal.lengths <- FALSE
     }
@@ -143,7 +143,7 @@
         }
     }
     if (any(problematic)) {
-        stop(paste0(word.list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
     }
     
     if (any(c(is.na(covs), is.na(addl)))) {
