@@ -27,3 +27,66 @@ skew.diff <- function(x, group, weights, var.type) {
     return(skew.cols)
 }
 
+reconstruct_factors <- function(df) {
+    bin <- apply(df, 2, is_binary)
+    
+    factor.groups <- rep(NA_integer_, sum(bin))
+    for (i in 1:sum(bin)) {
+        if (i == 1) factor.groups <- 1L
+        else {
+            found <- FALSE
+            k <- 1
+            while (k < i && !found) {
+                if (all(check_if_zero(df[,which(bin)[i]] * df[,which(bin)[k]]))) {
+                    found <- TRUE
+                    factor.groups[i] <- factor.groups[k]
+                }
+                else {
+                    k <- k + 1
+                }
+            }
+            if (!found) factor.groups[i] <- factor.groups[i-1] + 1
+        }
+    }
+    
+    f.list <- lapply(unique(factor.groups), function(f) {
+        g.names <- colnames(df)[which(bin)[factor.groups==f]]
+        #Find common name
+        sn <- strsplit(g.names, "")
+        
+        stop <- FALSE
+        k <- 1
+        while (k <= min(nchar(g.names)) && !stop) {
+            if (nunique.gt(sapply(sn, function(x) paste0(x[1:k], collapse = "")), 1)) {
+                end.same <- k - 1
+                stop <- TRUE
+            }
+            else k <- k + 1
+        }
+        if (end.same == -1) {
+            #No sameness in names
+        }
+        else {
+            symbols <- c("_", ".", " ", ":")
+            if (any(symbols %in% sn[[1]][1:end.same])) {
+                sep <- symbols[symbols == sn[[1]][1:end.same][last(which(sn[[1]][1:end.same] %in% symbols))]]
+                last_sep_index <- last(which(sn[[1]][1:end.same] == sep))
+                f.name <- paste0(sn[[1]][1:(last_sep_index - 1)], collapse = "")
+                f.levels <- sapply(g.names, function(x) substr(x, last_sep_index + 1, nchar(x)))
+            }
+            else {
+                sep <- ""
+                f.name <- paste0(sn[[1]][1:end.same], collapse = "")
+                f.levels <- sapply(g.names, function(x) substr(x, nchar(f.name) + 1, nchar(x)))
+            }
+            if (any(check_if_zero(rowSums(df[,g.names, drop = FALSE])))) {
+                other <- "other"
+                while (other %in% f.levels) other <- paste0(other, "_")
+            }
+            else other <- NULL
+        }
+        return(c(f.name = f.name, sep = sep, other = other))
+    })
+    for (f in f.list) df <- unsplitfactor(df, var.name = f["f.name"], sep = f["sep"], dropped.level = f["other"])
+    return(df)
+}
