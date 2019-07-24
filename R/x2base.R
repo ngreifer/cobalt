@@ -79,7 +79,7 @@ x2base.matchit <- function(m, ...) {
         }
         
     }
-    else if (is_not_null(data)) {
+    else if ("matchit.mahalanobis" %nin% class(m) && is_not_null(data)) {
         t.c <- get.covs.and.treat.from.formula(m$formula, data = data)
         covs <- t.c[["reported.covs"]]
     }
