@@ -299,6 +299,14 @@ col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
     vars <- colSums(w*t(t(mat) - means)^2, na.rm = na.rm)/w.scale
     return(vars)
 }
+col.w.v.bin <- function(mat, w = NULL, na.rm = TRUE) {
+    if (is_null(w)) {
+        w <- rep(1, nrow(mat))
+    }
+    means <- col.w.m(mat, w, na.rm)
+    vars <- means * (1 - means)
+    return(vars)
+}
 coef.of.var <- function(x, pop = TRUE, na.rm = TRUE) {
     if (na.rm) x <- x[!is.na(x)]
     if (pop) sqrt(mean((x-mean(x))^2))/mean(x)
