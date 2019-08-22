@@ -345,19 +345,22 @@ get.X.class <- function(X) {
     
     return(X.class)
 }
-subset_X <- function(X, subset) {
-    n <- length(subset)
-    subset_X_internal <- function(x, subset) {
-        if (is_not_null(x)) {
-            if (is.factor(x) && length(x) == n) factor(x[subset])
-            else if (is.atomic(x) && length(x) == n) x[subset]
-            else if ((is.matrix(x) || is.data.frame(x))  && nrow(x) == n) x[subset, , drop = FALSE]
-            else if (is.list(x)) lapply(x, subset_X_internal, subset = subset)
+subset_X <- function(X, subset = NULL) {
+    if (is_not_null(subset) && !all(subset)) {
+        n <- length(subset)
+        subset_X_internal <- function(x, subset) {
+            if (is_not_null(x)) {
+                if (is.factor(x) && length(x) == n) factor(x[subset])
+                else if (is.atomic(x) && length(x) == n) x[subset]
+                else if ((is.matrix(x) || is.data.frame(x)) && nrow(x) == n) x[subset, , drop = FALSE]
+                else if (is.list(x)) lapply(x, subset_X_internal, subset = subset)
+                else x
+            }
             else x
         }
-        else x
+        lapply(X["weights"], subset_X_internal, subset)
     }
-    lapply(X, subset_X_internal, subset)
+    else X
 }
 
 #get.C
@@ -1023,7 +1026,8 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
                                                                          w = s.weights[treat==t]))
         }
         if (any(sd.computable & B[["Type"]] == "Binary")) {
-            sds[sd.computable & B[["Type"]] == "Binary"] <- sqrt(B[[paste.("M", t, "Un")]][sd.computable & B[["Type"]] == "Binary"]*(1-B[[paste.("M", t, "Un")]][sd.computable & B[["Type"]] == "Binary"]))
+            sds[sd.computable & B[["Type"]] == "Binary"] <- sqrt(col.w.v.bin(C[treat == t, sd.computable & B[["Type"]] == "Binary", drop = FALSE], 
+                                                                         w = s.weights[treat==t]))
         }
         B[[paste.("SD", t, "Un")]] <- sds
     }
@@ -1043,7 +1047,8 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
                                                                                  w = weights[[i]][treat==t]*s.weights[treat==t]))
                 }
                 if (any(sd.computable & B[["Type"]] == "Binary")) {
-                    sds[sd.computable & B[["Type"]] == "Binary"] <- sqrt(B[[paste.("M", t, i)]][sd.computable & B[["Type"]] == "Binary"]*(1-B[[paste.("M", t, i)]][sd.computable & B[["Type"]] == "Binary"]))
+                    sds[sd.computable & B[["Type"]] == "Binary"] <- sqrt(col.w.v.bin(C[treat == t, sd.computable & B[["Type"]] == "Binary", drop = FALSE], 
+                                                                                 w = weights[[i]][treat==t]*s.weights[treat==t]))
                 }
                 B[[paste.("SD", t, i)]] <- sds
             }
@@ -1165,7 +1170,6 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
                          sds = disp.sds,
                          v.ratio = disp.v.ratio,
                          ks = disp.ks)
-    
     
     return(B)
 }
