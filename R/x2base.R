@@ -2874,10 +2874,10 @@ x2base.default <- function(obj, ...) {
     
     #weights
     if (is_not_null(weights)) {
-        if (is.numeric(weights)) weights <- data.frame(weights = weights)
+        if (is.vector(weights, "numeric")) weights <- data.frame(weights = weights)
         else weights <- as.data.frame(weights)
     }
-    
+
     #distance
     if (is_not_null(distance)) {
         if (is.numeric(distance)) {
@@ -3332,7 +3332,7 @@ x2base.default <- function(obj, ...) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
         
-        if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+        if (is_null(subset)) subset <- rep(TRUE, length(treat))
         
         X$covs <- covs
         X$weights <- weights
