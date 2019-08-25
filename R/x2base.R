@@ -25,15 +25,15 @@ x2base.matchit <- function(m, ...) {
     
     if (any(class(m) == "matchit.subclass")) {
         subclass <- factor(m$subclass)
-        X$method <- "subclassification"
+        method <- "subclassification"
     }
     else if (any(class(m) == "matchit.full")) {
         subclass <- NULL
-        X$method <- "weighting"
+        method <- "weighting"
     }
     else {
         subclass <- NULL
-        X$method <- "matching"
+        method <- "matching"
     }
     
     weights <- data.frame(weights = m$weights)
@@ -127,7 +127,7 @@ x2base.matchit <- function(m, ...) {
     
     #Get s.d.denom
     estimand <- "ATT"
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method = X$method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method = method)
     
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster", "treat", "subset", "subclass")
@@ -153,7 +153,7 @@ x2base.matchit <- function(m, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    
+    X$method <- method
     X$treat <- treat
     X$weights <- weights
     X$discarded <- m$discarded
@@ -881,14 +881,14 @@ x2base.data.frame <- function(covs, ...) {
                 message(word_list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
                 weights <- subclass <- NULL
             }
-            X$method <- "matching"
+            method <- "matching"
         }
         else if (specified["subclass"]) {
             if (sum(specified) > 1) {
                 message(word_list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                 weights <- match.strata <- NULL
             }
-            X$method <- "subclassification"
+            method <- "subclassification"
             #weights <- rep(1, nrow(covs))
         }
         else if (specified["weights"]) {
@@ -899,10 +899,10 @@ x2base.data.frame <- function(covs, ...) {
             else {
                 message("Assuming \"weighting\". If not, specify with an argument to method.")
             }
-            X$method <- "weighting"
+            method <- "weighting"
         }
         else {
-            X$method <- "matching"
+            method <- "matching"
         }
     }
     else if (length(method) == 1) {
@@ -913,20 +913,20 @@ x2base.data.frame <- function(covs, ...) {
                     message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
                     match.strata <- subclass <- NULL
                 }
-                X$method <- "weighting"
+                method <- "weighting"
             }
             else if (specified["match.strata"]) {
                 message("method = \"weighting\" is specified, but no weights are present. Assuming \"matching\" and using match.strata instead.")
                 subclass <- NULL
-                X$method <- "matching"
+                method <- "matching"
             }
             else if (specified["subclass"]) {
                 message("method = \"weighting\" is specified, but no weights are present. Assuming \"subclassification\" and using subclass instead.")
-                X$method <- "subclassification"
+                method <- "subclassification"
                 #weights <- rep(1, nrow(covs))
             }
             else {
-                X$method <- "matching"
+                method <- "matching"
             }
         }
         else if (specified.method == "matching") {
@@ -935,22 +935,22 @@ x2base.data.frame <- function(covs, ...) {
                     message(word_list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
                     weights <- subclass <- NULL
                 }
-                X$method <- "matching"
+                method <- "matching"
             }
             else if (specified["weights"]) {
                 if (sum(specified) > 1) {
                     message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
                     match.strata <- subclass <- NULL
                 }
-                X$method <- "matching"
+                method <- "matching"
             }
             else if (specified["subclass"]) {
                 message("method = \"matching\" is specified, but no weights or match.strata are present. Assuming \"subclassification\" and using subclass instead.")
-                X$method <- "subclassification"
+                method <- "subclassification"
                 #weights <- rep(1, nrow(covs))
             }
             else {
-                X$method <- "matching"
+                method <- "matching"
             }
         }
         else if (specified.method == "subclassification") {
@@ -959,17 +959,17 @@ x2base.data.frame <- function(covs, ...) {
                     message(word_list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                     weights <- match.strata <- NULL
                 }
-                X$method <- "subclassification"
+                method <- "subclassification"
                 #weights <- rep(1, nrow(covs))
             }
             else if (specified["match.strata"]) {
                 message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"matching\" and using match.strata instead.")
                 weights <- NULL
-                X$method <- "matching"
+                method <- "matching"
             }
             else if (specified["weights"]) {
                 message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"weighting\" and using weights instead.")
-                X$method <- "weighting"
+                method <- "weighting"
             }
         }
     }
@@ -983,11 +983,11 @@ x2base.data.frame <- function(covs, ...) {
         }
         else if (!specified["weights"]) {
             warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
-            X$method <- "matching"
+            method <- "matching"
         }
         else {
             #Matching and/or weighting with various weights
-            X$method <- specified.method
+            method <- specified.method
             match.strata <- subclass <- NULL
         }
     }
@@ -1174,10 +1174,10 @@ x2base.data.frame <- function(covs, ...) {
         if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
         if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
         
-        if (length(X$method) == 1) {
-            X$method <- rep(X$method, ncol(weights))
+        if (length(method) == 1) {
+            method <- rep(method, ncol(weights))
         }
-        else if (length(X$method) != ncol(weights)) {
+        else if (length(method) != ncol(weights)) {
             stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
         }
         
@@ -1199,13 +1199,14 @@ x2base.data.frame <- function(covs, ...) {
     
     #Get s.d.denom
     if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
-        X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method = X$method)
+        X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method = method)
     }
     
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
+    X$method <- method
     X$covs <- covs
     X$weights <- weights
     X$treat <- treat
@@ -2220,29 +2221,29 @@ x2base.data.frame.list <- function(covs.list, ...) {
             
             #message("Assuming \"weighting\". If not, specify with an argument to method.")
             
-            X$method <- "weighting"
+            method <- "weighting"
         }
         else {
-            X$method <- "matching"
+            method <- "matching"
         }
     }
     else if (length(method) == 1) {
         specified.method <- match_arg(method, c("weighting", "matching", "subclassification"))
         if (specified.method == "weighting") {
             if (specified["weights"]) {
-                X$method <- "weighting"
+                method <- "weighting"
             }
             else {
-                X$method <- "matching"
+                method <- "matching"
             }
         }
         else {
             if (specified["weights"]) {
                 warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
-                X$method <- "matching"
+                method <- "matching"
             }
             else {
-                X$method <- "matching"
+                method <- "matching"
             }
         }
     }
@@ -2250,19 +2251,19 @@ x2base.data.frame.list <- function(covs.list, ...) {
         specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
         if (any(specified.method == "subclassification") || specified["subclass"]) {
             warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
-            X$method <- "matching"
+            method <- "matching"
         }
         else if (specified["match.strata"]) {
             warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
-            X$method <- "matching"
+            method <- "matching"
         }
         else if (!specified["weights"]) {
             warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
-            X$method <- "matching"
+            method <- "matching"
         }
         else {
             #Matching and/or weighting with various weights
-            X$method <- specified.method
+            method <- specified.method
         }
     }
     
@@ -2394,10 +2395,10 @@ x2base.data.frame.list <- function(covs.list, ...) {
         if (any(vapply(weights, function(x) any(!is.finite(x)), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
         if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
         
-        if (length(X$method) == 1) {
-            X$method <- rep(X$method, ncol(weights))
+        if (length(method) == 1) {
+            method <- rep(method, ncol(weights))
         }
-        else if (length(X$method) != ncol(weights)) {
+        else if (length(method) != ncol(weights)) {
             stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
         }
         
@@ -2412,6 +2413,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     if (is_null(s.weights)) s.weights <- rep(1, length(treat.list[[1]]))
     
+    X$method <- method
     X$covs.list <- lapply(covs.list, function(x) x)
     X$weights <- weights
     X$treat.list <- lapply(treat.list, function(x) x)
@@ -3064,14 +3066,14 @@ x2base.default <- function(obj, ...) {
                         specified["weights"] <- FALSE
                     }
                 }
-                X$method <- "matching"
+                method <- "matching"
             }
             else if (specified["subclass"]) {
                 if (sum(specified) > 1) {
                     message(word_list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                     weights <- match.strata <- NULL
                 }
-                X$method <- "subclassification"
+                method <- "subclassification"
                 #weights <- rep(1, nrow(covs))
             }
             else if (specified["weights"]) {
@@ -3083,10 +3085,10 @@ x2base.default <- function(obj, ...) {
                     if (!any(c("optweight", "weightit") %in% class(obj))) {
                         message("Assuming \"weighting\". If not, specify with an argument to method.")}
                 }
-                X$method <- "weighting"
+                method <- "weighting"
             }
             else {
-                X$method <- "matching"
+                method <- "matching"
             }
         }
         else if (length(method) == 1) {
@@ -3097,20 +3099,20 @@ x2base.default <- function(obj, ...) {
                         message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
                         match.strata <- subclass <- NULL
                     }
-                    X$method <- "weighting"
+                    method <- "weighting"
                 }
                 else if (specified["match.strata"]) {
                     message("method = \"weighting\" is specified, but no weights are present. Assuming \"matching\" and using match.strata instead.")
                     subclass <- NULL
-                    X$method <- "matching"
+                    method <- "matching"
                 }
                 else if (specified["subclass"]) {
                     message("method = \"weighting\" is specified, but no weights are present. Assuming \"subclassification\" and using subclass instead.")
-                    X$method <- "subclassification"
+                    method <- "subclassification"
                     #weights <- rep(1, nrow(covs))
                 }
                 else {
-                    X$method <- "matching"
+                    method <- "matching"
                 }
             }
             else if (specified.method == "matching") {
@@ -3119,22 +3121,22 @@ x2base.default <- function(obj, ...) {
                         message(word_list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
                         weights <- subclass <- NULL
                     }
-                    X$method <- "matching"
+                    method <- "matching"
                 }
                 else if (specified["weights"]) {
                     if (sum(specified) > 1) {
                         message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
                         match.strata <- subclass <- NULL
                     }
-                    X$method <- "matching"
+                    method <- "matching"
                 }
                 else if (specified["subclass"]) {
                     message("method = \"matching\" is specified, but no weights or match.strata are present. Assuming \"subclassification\" and using subclass instead.")
-                    X$method <- "subclassification"
+                    method <- "subclassification"
                     #weights <- rep(1, nrow(covs))
                 }
                 else {
-                    X$method <- "matching"
+                    method <- "matching"
                 }
             }
             else if (specified.method == "subclassification") {
@@ -3143,17 +3145,17 @@ x2base.default <- function(obj, ...) {
                         message(word_list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                         weights <- match.strata <- NULL
                     }
-                    X$method <- "subclassification"
+                    method <- "subclassification"
                     #weights <- rep(1, nrow(covs))
                 }
                 else if (specified["match.strata"]) {
                     message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"matching\" and using match.strata instead.")
                     weights <- NULL
-                    X$method <- "matching"
+                    method <- "matching"
                 }
                 else if (specified["weights"]) {
                     message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"weighting\" and using weights instead.")
-                    X$method <- "weighting"
+                    method <- "weighting"
                 }
             }
         }
@@ -3167,11 +3169,11 @@ x2base.default <- function(obj, ...) {
             }
             else if (!specified["weights"]) {
                 warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
-                X$method <- "matching"
+                method <- "matching"
             }
             else {
                 #Matching and/or weighting with various weights
-                X$method <- specified.method
+                method <- specified.method
                 match.strata <- subclass <- NULL
             }
         }
@@ -3300,10 +3302,10 @@ x2base.default <- function(obj, ...) {
             if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) {
                 stop("All weights must be numeric.", call. = FALSE)
             }
-            if (length(X$method) == 1) {
-                X$method <- rep(X$method, ncol(weights))
+            if (length(method) == 1) {
+                method <- rep(method, ncol(weights))
             }
-            else if (length(X$method) != ncol(weights)) {
+            else if (length(method) != ncol(weights)) {
                 stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
             }
             
@@ -3334,6 +3336,7 @@ x2base.default <- function(obj, ...) {
         
         if (is_null(subset)) subset <- rep(TRUE, length(treat))
         
+        X$method <- method
         X$covs <- covs
         X$weights <- weights
         X$treat <- treat
@@ -3404,29 +3407,29 @@ x2base.default <- function(obj, ...) {
                 
                 #message("Assuming \"weighting\". If not, specify with an argument to method.")
                 
-                X$method <- "weighting"
+                method <- "weighting"
             }
             else {
-                X$method <- "matching"
+                method <- "matching"
             }
         }
         else if (length(method) == 1) {
             specified.method <- match_arg(method, c("weighting", "matching", "subclassification"))
             if (specified.method == "weighting") {
                 if (specified["weights"]) {
-                    X$method <- "weighting"
+                    method <- "weighting"
                 }
                 else {
-                    X$method <- "matching"
+                    method <- "matching"
                 }
             }
             else {
                 if (specified["weights"]) {
                     warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
-                    X$method <- "matching"
+                    method <- "matching"
                 }
                 else {
-                    X$method <- "matching"
+                    method <- "matching"
                 }
             }
         }
@@ -3434,19 +3437,19 @@ x2base.default <- function(obj, ...) {
             specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
             if (any(specified.method == "subclassification") || specified["subclass"]) {
                 warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
-                X$method <- "matching"
+                method <- "matching"
             }
             else if (specified["match.strata"]) {
                 warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
-                X$method <- "matching"
+                method <- "matching"
             }
             else if (!specified["weights"]) {
                 warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
-                X$method <- "matching"
+                method <- "matching"
             }
             else {
                 #Matching and/or weighting with various weights
-                X$method <- specified.method
+                method <- specified.method
             }
         }
         
@@ -3575,10 +3578,10 @@ x2base.default <- function(obj, ...) {
             if (any(vapply(weights, function(x) any(!is.finite(x)), logical(1L)))) {
                 stop("All weights must be numeric.", call. = FALSE)
             }
-            if (length(X$method) == 1) {
-                X$method <- rep(X$method, ncol(weights))
+            if (length(method) == 1) {
+                method <- rep(method, ncol(weights))
             }
-            else if (length(X$method) != ncol(weights)) {
+            else if (length(method) != ncol(weights)) {
                 stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
             }
             
@@ -3594,6 +3597,7 @@ x2base.default <- function(obj, ...) {
         if (is_null(s.weights)) s.weights <- rep(1, length(treat.list[[1]]))
         if (is_null(subset)) subset <- rep(TRUE, length(treat.list[[1]]))
         
+        X$method <- method
         X$covs.list <- lapply(covs.list, function(x) x)
         X$weights <- weights
         X$treat.list <- lapply(treat.list, function(x) x)

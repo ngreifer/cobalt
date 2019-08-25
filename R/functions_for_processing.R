@@ -275,7 +275,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, treat = NU
         else {
             s.d.denom <- estimand <- character(ncol(weights))
             for (i in seq_len(ncol(weights))) {
-                if (method[i] == "weighting") {
+                if (is_null(method) || method[i] == "weighting") {
                     if (is_binary(treat)) {
                         if (all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])]) &&
                             !all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])])
