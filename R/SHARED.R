@@ -221,7 +221,7 @@ binarize <- function(variable, zero = NULL, one = NULL) {
 ESS <- function(w) {
     sum(w)^2/sum(w^2)
 }
-center <- function(x, na.rm = TRUE, at = NULL) {
+.center <- function(x, na.rm = TRUE, at = NULL) {
     dimx <- dim(x)
     if (length(dimx) == 2L) x <- apply(x, 2, center, na.rm = na.rm, at = at)
     else if (length(dimx) > 2L) stop("x must be a numeric or matrix-like (not array).")
@@ -232,6 +232,25 @@ center <- function(x, na.rm = TRUE, at = NULL) {
         x <- x - at
     }
     return(x)
+}
+center <- function(x, at = NULL, na.rm = TRUE) {
+    if (is.data.frame(x)) {
+        x <- as.matrix.data.frame(x)
+        type <- "df"
+    }
+    if (!is.numeric(x)) stop("x must be numeric.")
+    else if (is.array(x) && length(dim(x)) > 2) stop("x must be a numeric or matrix-like (not array).")
+    else if (!is.matrix(x)) {
+        x <- matrix(x, ncol = 1)
+        type <- "vec"
+    }
+    else type <- "matrix"
+    if (is_null(at)) at <- colMeans(x, na.rm = na.rm)
+    else if (length(at) %nin% c(1, ncol(x))) stop("at is not the right length.")
+    out <- x - matrix(at, byrow = TRUE, ncol = ncol(x), nrow = nrow(x))
+    if (type == "df") out <- as.data.frame.matrix(out)
+    else if (type == "vec") out <- drop(out)
+    return(out)
 }
 w.m <- function(x, w = NULL, na.rm = TRUE) {
     if (is_null(w)) w <- rep(1, length(x))
