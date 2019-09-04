@@ -1,9 +1,12 @@
-#To do: make agg.range process the same
+#To do: make sure limits and var.order are correct
 
 love.plot <- function(x, stat = "mean.diffs", threshold = NULL, 
                       abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
                       drop.distance = FALSE, agg.fun = c("range", "max", "mean"), 
-                      colors = NULL, shapes = NULL, line = FALSE, stars = "none", ...) {
+                      line = FALSE, stars = "none", grid = TRUE, 
+                      colors = NULL, shapes = NULL, alpha = 1, size = 1, 
+                      title, subtitle, sample.names, limits = NULL, 
+                      ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -80,19 +83,15 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         stat <- "correlations"
     }
     else stat <- match_arg(stat, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
-
-    #size
+    
+    which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stat]
+    which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
+    
     #shape (deprecated)
     #un.color (deprecated)
     #adj.color (deprecated)
-    #title
-    #subtitle
-    #sample.names
-    #limits
     #cluster.fun (deprecated)
-    #wrap
-    #grid
-    #alpha
+    #star_char
     
     p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time", "disp.subclass")
     for (i in p.ops) {
@@ -100,14 +99,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     }
     
     if (is_not_null(args$cluster.fun) && is_null(agg.fun)) agg.fun <- args$cluster.fun
-    # which.stat <- switch(stat, mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")
-    # which.stat2 <- switch(stat, mean.diffs = "Mean Difference", variance.ratios = "Variance Ratio", ks.statistics = "Kolmogorov-Smirnov Statistic", correlations = "Correlation")
-    which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stat]
-    which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
     Agg.Fun <- NULL
     subtitle <- NULL
-    title <- "Covariate Balance"
-    
     facet <- NULL
     
     cluster.names.good <- NULL
@@ -507,8 +500,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
     }
     else if (any(class(x) == "bal.tab.subclass")) {
-        if (any(which.stat=="V.Ratio")) stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
-        if (any(which.stat=="KS")) stop("KS statistics not currently supported for subclassification.", call. = FALSE)
+        if (any(stat == "variance.ratios")) stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
+        if (any(stat == "ks.statistics")) stop("KS statistics not currently supported for subclassification.", call. = FALSE)
         if (any(class(x) == "bal.tab.cont")) stop("Continuous treatments not currently supported for subclassification.", call. = FALSE)
         subclass.names <- names(x[["Subclass.Balance"]])
         sub.B <- do.call("cbind", lapply(subclass.names, function(x) {
@@ -523,6 +516,10 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     }
     else {
         B <- cbind(x[["Balance"]], variable.names = row.names(x[["Balance"]]))
+    }
+    
+    if (is_not_null(facet) && length(stat) > 1) {
+        stop("stat can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment).", call. = FALSE)
     }
     
     #Process abs
@@ -542,40 +539,6 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     else if (config %in% c("agg.imp", "agg.cluster", "agg.all")) {
         abs <- attr(x, "print.options")[["abs"]]
     }
-    
-    #Process thresholds
-    stat2threshold <- c(Diff = "m.threshold",
-                        V.Ratio = "v.threshold",
-                        KS = "ks.threshold",
-                        Corr = "r.threshold")
-    thresholds <- setNames(sapply(which.stat, function(i) {
-        if (is_not_null(attr(x, "print.options")[[stat2threshold[i]]])) {
-            return(attr(x, "print.options")[[stat2threshold[i]]])
-        }
-        else {
-            return(NA_real_)
-        }
-    }), which.stat)
-
-    if (is_not_null(threshold)) {
-        if (!all(is.na(threshold)) && !is.numeric(threshold)) {
-            stop("threshold must be numeric.", call. = FALSE)
-        }
-        
-        if (is_not_null(names(threshold))) {
-            names(threshold) <- which.stat[stat[pmatch(names(threshold), stat, duplicates.ok = TRUE)]]
-            threshold <- threshold[!is.na(names(threshold))]
-        }
-        else if (length(threshold) == length(which.stat)) {
-            names(threshold) <- which.stat
-        }
-        else {
-            stop("threshold must be a named vector of threshold values or vector of threshold values with the same length as stat.", call. = FALSE)
-        }
-        
-        thresholds[names(threshold)] <- as.numeric(threshold)
-    }
-    thresholds <- thresholds[!is.na(thresholds)]
     
     #Process variable names
     if (is_not_null(var.names)) {
@@ -653,49 +616,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         B <- B[B[["variable.names"]] %nin% distance.names, , drop = FALSE]
     }
     
-    if ("Diff" %in% which.stat) {
-        binary <- attr(x, "print.options")$binary
-        continuous <- attr(x, "print.options")$continuous
-        #All std, no std, some std
-        if ((binary == "std" || sum(B[["Type"]] == "Binary") == 0) && 
-            (continuous == "std" || sum(B[["Type"]] != "Binary") == 0)) {
-            xlab.diff <- "Standardized Mean Differences"
-        } 
-        else if ((binary == "raw" || sum(B[["Type"]] == "Binary") == 0) && 
-                 (continuous == "raw" || sum(B[["Type"]] != "Binary") == 0)) {
-            xlab.diff <- "Mean Differences"
-        }
-        else {
-            stars <- match_arg(stars, c("none", "std", "raw"))
-            if (stars == "none") {
-                warning("Standardized mean differences and raw mean differences are present in the same plot. \nUse the 'stars' argument to distinguish between them and appropriately label the x-axis.", call. = FALSE)
-            }
-            else {
-                if (length(args$star_char) == 1 && is.character(args$star_char)) star_char <- args$star_char
-                else star_char <- "*"
-            }
-            vars_to_star <- setNames(rep(FALSE, nrow(B)), B[["variable.names"]])
-            if (stars == "std") {
-                if (attr(x, "print.options")$binary == "std") vars_to_star[B[["variable.names"]][B[["Type"]] == "Binary"]] <- TRUE
-                if (attr(x, "print.options")$continuous == "std") vars_to_star[B[["variable.names"]][B[["Type"]] != "Binary"]] <- TRUE
-                xlab.diff <- "Mean Differences"
-            }
-            else if (stars == "raw") {
-                if (attr(x, "print.options")$binary == "raw") vars_to_star[B[["variable.names"]][B[["Type"]] == "Binary"]] <- TRUE
-                if (attr(x, "print.options")$continuous == "raw") vars_to_star[B[["variable.names"]][B[["Type"]] != "Binary"]] <- TRUE
-                xlab.diff <- "Standardized Mean Differences"
-            }
-            else {
-                xlab.diff <- "Mean Differences"
-            }
-            B[["variable.names"]] <- paste0(B[["variable.names"]], ifelse(vars_to_star[B[["variable.names"]]], star_char, ""))
-        }
-        
-        
-    }
-    
     #Process variable order
-    if (is_not_null(var.order)) {
+    if (is_not_null(var.order) && "love.plot" %nin% class(var.order)) {
         if (attr(x, "print.options")$nweights == 0) {
             ua <- c("Unadjusted", "Alphabetical")
             names(ua) <- c("unadjusted", "alphabetical")
@@ -712,548 +634,602 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     }
     
     if (is_not_null(facet)) {
-        if (is_not_null(var.order) && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
-            warning("var.order cannot be set with multiple plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
+        if (is_not_null(var.order) && "love.plot" %nin% class(var.order) && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
+            warning("var.order cannot be set with faceted plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
             var.order <- NULL
         }
     }
     
     agg.range <- is_not_null(Agg.Fun) && Agg.Fun == "Range"
     
-    #Get SS
-    if (agg.range) {
-        SS <- do.call("rbind", 
-                      lapply(which.stat, 
-                             function(s) do.call("rbind", 
-                                                 lapply(c("Un", attr(x, "print.options")$weight.names),
-                                                        function(w) data.frame(var = B[["variable.names"]],
-                                                                               min.stat = B[[paste.("Min", s, w)]],
-                                                                               max.stat = B[[paste.("Max", s, w)]],
-                                                                               mean.stat = B[[paste.("Mean", s, w)]],
-                                                                               Sample = ifelse(w == "Un", "Unadjusted", 
-                                                                                               ifelse(w == "Adj", "Adjusted", w)),
-                                                                               Statistic = which.stat2[s], row.names = NULL)))))
-        
-        if (is_not_null(facet)) {
-            if ("cluster" %in% facet) {
-                SS$cluster <- rep(B[["cluster"]], 1 + attr(x, "print.options")$nweights)
-            }
-            if ("imp" %in% facet) {
-                SS$imp <- rep(B[["imp"]], 1 + attr(x, "print.options")$nweights)
-            }
-            if ("treat.pair" %in% facet) {
-                SS$treat.pair <- rep(B[["treat.pair"]], 1 + attr(x, "print.options")$nweights)
-            }
+    #Process thresholds
+    stat2threshold <- c(mean.diffs = "m.threshold",
+                        variance.ratios = "v.threshold",
+                        ks.statistics = "ks.threshold",
+                        correlations = "r.threshold")
+    thresholds <- setNames(sapply(stat, function(i) {
+        if (is_not_null(attr(x, "print.options")[[stat2threshold[i]]])) {
+            return(attr(x, "print.options")[[stat2threshold[i]]])
+        }
+        else {
+            return(NA_real_)
+        }
+    }), stat)
+    
+    if (is_not_null(threshold)) {
+        if (!all(is.na(threshold)) && !is.numeric(threshold)) {
+            stop("threshold must be numeric.", call. = FALSE)
         }
         
-                
-        if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) stop(paste("No balance statistics to display. This can occur when", switch(which.stat, V.Ratio = "disp.v.ratio", KS = "disp.ks"), "= FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
-        
-        missing.stats <- vapply(which.stat, function(s) {
-            all(is.na(SS[["mean.stat"]][SS[["Statistic"]] == which.stat2[s]]))
-        }, logical(1L))
-        if (any(missing.stats)) stop(paste0(word_list(firstup(tolower(which.stat2[which.stat[missing.stats]]))), " cannot be displayed. This can occur when ", word_list(paste.("disp", tolower(which.stat[missing.stats])), and.or = "and", is.are = TRUE), " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
-        
-        gone <- character(0)
-        for (i in levels(SS$Sample)) {
-            if (all(sapply(SS[SS$Sample == i, c("min.stat", "max.stat", "mean.stat")], is.na))) {
-                gone <- c(gone, i)
-                if (i == "Unadjusted") warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
-                SS <- SS[SS[["Sample"]] != i,]
-            }
+        if (is_not_null(names(threshold))) {
+            names(threshold) <- stat[pmatch(names(threshold), stat, duplicates.ok = TRUE)]
+            threshold <- threshold[!is.na(names(threshold))]
+        }
+        else {
+            names(threshold) <- stat[1:length(threshold)]
         }
         
-        dec <- FALSE
-        
-        if (is_not_null(var.order)) {
-            if (var.order %in% ua) {
-                if (var.order %in% gone) {
-                    warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
-                    var.order <- character(0)
-                }
-                else {
-                    v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==var.order & SS[["Statistic"]] == which.stat2[1]], decreasing = dec)])
-                    SS[["var"]] <- factor(SS[["var"]], 
-                                          levels=c(v[v %nin% distance.names], 
-                                                   sort(distance.names, decreasing = TRUE)))
-                }
-            }
-            else if (var.order == "alphabetical") {
-                if ("time" %in% facet) {
-                    covnames0 <- vector("list", length(unique(SS[["time"]])))
-                    for (i in seq_along(covnames0)) {
-                        if (i == 1) {
-                            covnames0[[i]] <- sort(levels(SS[["var"]][SS[["time"]] == i]))
-                        }
-                        else {
-                            covnames0[[i]] <- sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]), unlist(covnames0[seq_along(covnames0) < i])))
-                        }
-                    }
-                    covnames <- as.character(unlist(covnames0))
-                }
-                else covnames <- as.character(sort(SS[["var"]]))
-                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
-            }
-        }
-        if (is_null(var.order)) {
-            covnames <- as.character(unique(SS[["var"]]))
-            SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
-        }
-        # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
-        SS[["Sample"]] <- factor(SS[["Sample"]])
-        if ("Diff" %in% which.stat && any(base::abs(SS[["max.stat"]][SS[["Statistic"]] == "Mean Difference"]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
-        if (no.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
-        SS[["stat"]] <- SS[["mean.stat"]]
+        thresholds[names(threshold)] <- as.numeric(threshold)
     }
-    else {
-        SS <- do.call("rbind", 
-                      lapply(which.stat, 
-                             function(s) do.call("rbind", 
-                                                 lapply(c("Un", attr(x, "print.options")$weight.names),
-                                                        function(w) data.frame(var = B[["variable.names"]],
-                                                                               stat = B[[ifelse(is_null(Agg.Fun), paste.(s, w),
-                                                                                                paste.(Agg.Fun, s, w))]],
-                                                                               Sample = ifelse(w == "Un", "Unadjusted", 
-                                                                                               ifelse(w == "Adj", "Adjusted", w)),
-                                                                               Statistic = which.stat2[s], row.names = NULL)))))
-        
-        if (is_not_null(facet)) {
-            for (i in c("cluster", "imp", "treat.pair", "time")) {
-                if (i %in% facet) {
-                    SS[[i]] <- rep(B[[i]], 1 + attr(x, "print.options")$nweights)
-                }
+    thresholds <- thresholds[!is.na(thresholds)]
+    
+    #Title
+    if (missing(title)) title <- "Covariate Balance"
+    else title <- as.character(title)
+    # if (missing(subtitle)) subtitle <- as.character(subtitle)
+
+    plot.list <- setNames(vector("list", length(stat)), stat)
+    for (s in stat) {
+        variable.names <- B[["variable.names"]]
+        if (s == "mean.diffs") {
+            binary <- attr(x, "print.options")$binary
+            continuous <- attr(x, "print.options")$continuous
+            #All std, no std, some std
+            if ((binary == "std" || sum(B[["Type"]] == "Binary") == 0) && 
+                (continuous == "std" || sum(B[["Type"]] != "Binary") == 0)) {
+                xlab.diff <- "Standardized Mean Differences"
+            } 
+            else if ((binary == "raw" || sum(B[["Type"]] == "Binary") == 0) && 
+                     (continuous == "raw" || sum(B[["Type"]] != "Binary") == 0)) {
+                xlab.diff <- "Mean Differences"
             }
-        }
-        
-        missing.stats <- vapply(which.stat, function(s) {
-            all(is.na(SS[["stat"]][SS[["Statistic"]] == which.stat2[s]]))
-        }, logical(1L))
-        if (any(missing.stats)) stop(paste0(word_list(firstup(tolower(which.stat2[which.stat[missing.stats]]))), " cannot be displayed. This can occur when ", word_list(paste.("disp", tolower(which.stat[missing.stats])), and.or = "and"), " are FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
-        
-        gone <- character(0)
-        for (i in levels(SS$Sample)) {
-            if (all(is.na(SS[["stat"]][SS$Sample==i]))) {
-                gone <- c(gone, i)
-                if (i == "Unadjusted") warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
-                SS <- SS[SS[["Sample"]]!=i,]
-            }
-        }
-        
-        if (abs) {
-            SS[["stat"]][SS[["Statistic"]] == "Variance Ratio"] <- pmax(SS[["stat"]][SS[["Statistic"]] == "Variance Ratio"], 1/SS[["stat"]][SS[["Statistic"]] == "Variance Ratio"])
-            SS[["stat"]][SS[["Statistic"]] == "Mean Difference"] <- base::abs(SS[["stat"]][SS[["Statistic"]] == "Mean Difference"])
-        }
-        dec <- FALSE
-        
-        if (is_not_null(var.order)) {
-            if (tolower(var.order) == "alphabetical") {
-                if ("time" %in% facet) {
-                    covnames0 <- vector("list", length(unique(SS[["time"]])))
-                    for (i in seq_along(covnames0)) {
-                        if (i == 1) {
-                            covnames0[[i]] <- sort(levels(SS[["var"]][SS[["time"]] == i]))
-                        }
-                        else {
-                            covnames0[[i]] <- sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]), unlist(covnames0[seq_along(covnames0) < i])))
-                        }
-                    }
-                    covnames <- unlist(covnames0)
-                }
-                else covnames <- sort(levels(SS[["var"]]))
-                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
-                
-            }
-            else if (var.order %in% ua) {
-                if (var.order %in% gone) {
-                    warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
-                    var.order <- character(0)
+            else {
+                stars <- match_arg(stars, c("none", "std", "raw"))
+                if (stars == "none") {
+                    warning("Standardized mean differences and raw mean differences are present in the same plot. \nUse the 'stars' argument to distinguish between them and appropriately label the x-axis.", call. = FALSE)
                 }
                 else {
-                    v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]]==var.order & SS[["Statistic"]] == which.stat2[1]], decreasing = dec)])
-                    
-                    SS[["var"]] <- factor(SS[["var"]], 
-                                          levels=c(v[v %nin% distance.names], 
-                                                   sort(distance.names, decreasing = TRUE)))
+                    if (length(args$star_char) == 1 && is.character(args$star_char)) star_char <- args$star_char
+                    else star_char <- "*"
+                }
+                vars_to_star <- setNames(rep(FALSE, nrow(B)), B[["variable.names"]])
+                if (stars == "std") {
+                    if (attr(x, "print.options")$binary == "std") vars_to_star[B[["variable.names"]][B[["Type"]] == "Binary"]] <- TRUE
+                    if (attr(x, "print.options")$continuous == "std") vars_to_star[B[["variable.names"]][B[["Type"]] != "Binary"]] <- TRUE
+                    xlab.diff <- "Mean Differences"
+                }
+                else if (stars == "raw") {
+                    if (attr(x, "print.options")$binary == "raw") vars_to_star[B[["variable.names"]][B[["Type"]] == "Binary"]] <- TRUE
+                    if (attr(x, "print.options")$continuous == "raw") vars_to_star[B[["variable.names"]][B[["Type"]] != "Binary"]] <- TRUE
+                    xlab.diff <- "Standardized Mean Differences"
+                }
+                else {
+                    xlab.diff <- "Mean Differences"
+                }
+                variable.names <- paste0(B[["variable.names"]], ifelse(vars_to_star[B[["variable.names"]]], star_char, ""))
+            }
+        }
+        
+        #Get SS
+        if (agg.range) {
+            SS <- do.call("rbind", 
+                          lapply(c("Un", attr(x, "print.options")$weight.names),
+                                 function(w) data.frame(var = variable.names,
+                                                        min.stat = B[[paste.("Min", which.stat[s], w)]],
+                                                        max.stat = B[[paste.("Max", which.stat[s], w)]],
+                                                        mean.stat = B[[paste.("Mean", which.stat[s], w)]],
+                                                        Sample = ifelse(w == "Un", "Unadjusted", 
+                                                                        ifelse(w == "Adj", "Adjusted", w)),
+                                                        row.names = NULL)))
+            
+            if (is_not_null(facet)) {
+                if ("cluster" %in% facet) {
+                    SS$cluster <- rep(B[["cluster"]], 1 + attr(x, "print.options")$nweights)
+                }
+                if ("imp" %in% facet) {
+                    SS$imp <- rep(B[["imp"]], 1 + attr(x, "print.options")$nweights)
+                }
+                if ("treat.pair" %in% facet) {
+                    SS$treat.pair <- rep(B[["treat.pair"]], 1 + attr(x, "print.options")$nweights)
                 }
             }
             
+            
+            if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) stop(paste("No balance statistics to display. This can occur when", switch(s, variance.ratios = "disp.v.ratio", ks.statistics = "disp.ks"), "= FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            
+            missing.stat <- all(is.na(SS[["mean.stat"]]))
+            if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), " cannot be displayed. This can occur when ", word_list(paste.("disp", tolower(which.stat[s])), and.or = "and", is.are = TRUE), " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            
+            gone <- character(0)
+            for (i in levels(SS$Sample)) {
+                if (all(sapply(SS[SS$Sample == i, c("min.stat", "max.stat", "mean.stat")], is.na))) {
+                    gone <- c(gone, i)
+                    if (i == "Unadjusted") warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
+                    SS <- SS[SS[["Sample"]] != i,]
+                }
+            }
+            
+            dec <- FALSE
+            
+            if (is_not_null(var.order)) {
+                if (var.order %in% ua) {
+                    if (var.order %in% gone) {
+                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
+                        var.order <- character(0)
+                    }
+                    else {
+                        v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==var.order], decreasing = dec)])
+                        SS[["var"]] <- factor(SS[["var"]], 
+                                              levels=c(v[v %nin% distance.names], 
+                                                       sort(distance.names, decreasing = TRUE)))
+                    }
+                }
+                else if (var.order == "alphabetical") {
+                    if ("time" %in% facet) {
+                        covnames0 <- vector("list", length(unique(SS[["time"]])))
+                        for (i in seq_along(covnames0)) {
+                            if (i == 1) {
+                                covnames0[[i]] <- sort(levels(SS[["var"]][SS[["time"]] == i]))
+                            }
+                            else {
+                                covnames0[[i]] <- sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]), unlist(covnames0[seq_along(covnames0) < i])))
+                            }
+                        }
+                        covnames <- as.character(unlist(covnames0))
+                    }
+                    else covnames <- as.character(sort(SS[["var"]]))
+                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
+                }
+            }
+            if (is_null(var.order)) {
+                covnames <- as.character(unique(SS[["var"]]))
+                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
+            }
+            # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
+            SS[["Sample"]] <- factor(SS[["Sample"]])
+            if (s == "mean.diffs" && any(base::abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
+            if (no.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
+            SS[["stat"]] <- SS[["mean.stat"]]
         }
-        if (is_null(var.order)) {
-            covnames <- as.character(unique(SS[["var"]])) #Don't use levels here to preserve original order
-            SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
+        else {
+            SS <- do.call("rbind", 
+                          lapply(c("Un", attr(x, "print.options")$weight.names),
+                                 function(w) data.frame(var = variable.names,
+                                                        stat = B[[ifelse(is_null(Agg.Fun), paste.(which.stat[s], w),
+                                                                         paste.(Agg.Fun, which.stat[s], w))]],
+                                                        Sample = ifelse(w == "Un", "Unadjusted", 
+                                                                        ifelse(w == "Adj", "Adjusted", w)),
+                                                        row.names = NULL)))
+            
+            if (is_not_null(facet)) {
+                for (i in c("cluster", "imp", "treat.pair", "time")) {
+                    if (i %in% facet) {
+                        SS[[i]] <- rep(B[[i]], 1 + attr(x, "print.options")$nweights)
+                    }
+                }
+            }
+            
+            missing.stat <- all(is.na(SS[["stat"]]))
+            if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), " cannot be displayed. This can occur when ", word_list(paste.("disp", tolower(which.stat[s])), and.or = "and"), " are FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            
+            gone <- character(0)
+            for (i in levels(SS$Sample)) {
+                if (all(is.na(SS[["stat"]][SS$Sample==i]))) {
+                    gone <- c(gone, i)
+                    if (i == "Unadjusted") warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
+                    SS <- SS[SS[["Sample"]]!=i,]
+                }
+            }
+            
+            if (abs) {
+                if (s == "variance.ratios") SS[["stat"]] <- pmax(SS[["stat"]], 1/SS[["stat"]])
+                else if (s == "mean.diffs") SS[["stat"]] <- base::abs(SS[["stat"]])
+            }
+            dec <- FALSE
+            
+            if (is_not_null(plot.list[[1]])) var.order <- plot.list[[1]]
+            
+            if (is_not_null(var.order)) {
+                if ("love.plot" %in% class(var.order)) {
+                    old.vars <- levels(var.order$data$var)
+                    old.vars[endsWith(old.vars, "*")] <- gsub("*", "", old.vars[endsWith(old.vars, "*")], fixed = TRUE)
+                    if (any(SS[["var"]] %nin% old.vars)) {
+                        warning("The love.plot object in var.order doesn't have the same variables as the current input. Ignoring var.order.", call. = FALSE)
+                        var.order <- NULL
+                    }
+                    else {
+                        SS[["var"]] <- factor(SS[["var"]], levels = old.vars[old.vars %in% SS[["var"]]])
+                    }
+                }
+                else if (tolower(var.order) == "alphabetical") {
+                    if ("time" %in% facet) {
+                        covnames0 <- vector("list", length(unique(SS[["time"]])))
+                        for (i in seq_along(covnames0)) {
+                            if (i == 1) {
+                                covnames0[[i]] <- sort(levels(SS[["var"]][SS[["time"]] == i]))
+                            }
+                            else {
+                                covnames0[[i]] <- sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]), unlist(covnames0[seq_along(covnames0) < i])))
+                            }
+                        }
+                        covnames <- unlist(covnames0)
+                    }
+                    else covnames <- sort(levels(SS[["var"]]))
+                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
+                    
+                }
+                else if (var.order %in% ua) {
+                    if (var.order %in% gone) {
+                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
+                        var.order <- NULL
+                    }
+                    else {
+                        v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]]==var.order], decreasing = dec)])
+                        
+                        SS[["var"]] <- factor(SS[["var"]], 
+                                              levels=c(v[v %nin% distance.names], 
+                                                       sort(distance.names, decreasing = TRUE)))
+                    }
+                }
+                
+            }
+            if (is_null(var.order)) {
+                covnames <- as.character(unique(SS[["var"]])) #Don't use levels here to preserve original order
+                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
+            }
+            SS[["Sample"]] <- factor(SS[["Sample"]])
+            if (s == "mean.diffs" && any(base::abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
+            if (length(stat) == 1 && no.missing) SS <- SS[!is.na(SS[["stat"]]),]
         }
-        SS[["Sample"]] <- factor(SS[["Sample"]])
-        if ("Diff" %in% which.stat && any(base::abs(SS[["stat"]][SS[["Statistic"]] == "Mean Difference"]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
-        if (length(which.stat) == 1 && no.missing) SS <- SS[!is.na(SS[["stat"]]),]
-    }
-    SS[["Statistic"]] <- factor(SS[["Statistic"]], levels = which.stat2)
-    SS <- SS[order(SS[["var"]]),]
-    SS[["var"]] <- factor(SS[["var"]])
-    
-    #Make the plot
-    #library(ggplot2)
-    
-    #Setting up appearance
-    #Size
-    if (is_null(args$size)) size <- 1
-    else if (is.numeric(args$size[1])) size <- args$size[1]
-    else {
-        warning("The argument to size must be a number. Using 1 instead.", call. = FALSE)
-        size <- 1
-    }
-    stroke <- .8*size
-    
-    #Color
-    ntypes <- if (is_null(subclass.names)) nlevels(SS$Sample) else 2
-    if (is_not_null(args$colours)) colors <- args$colours
-    
-    if (is_null(colors)) {
-        if (shapes.ok(shapes, ntypes) && length(shapes) > 1 && length(shapes) == ntypes) {
-            colors <- rep("black", ntypes)
-        }
-        else colors <- gg_color_hue(ntypes)
-    }
-    else {
-        if (length(colors) == 1) colors <- rep(colors, ntypes)
-        else if (length(colors) > ntypes) {
-            colors <- colors[seq_len(ntypes)]
-            warning(paste("Only using first", ntypes, "value", if (ntypes>1) "s " else " ", "in colors."), call. = FALSE)
-        }
-        else if (length(colors) < ntypes) {
-            warning("Not enough colors were specified. Using default colors instead.", call. = FALSE)
-            colors <- gg_color_hue(ntypes)
-        }
+        SS <- SS[order(SS[["var"]]),]
+        SS[["var"]] <- factor(SS[["var"]])
         
-        if (!all(sapply(colors, isColor))) {
-            warning("The argument to colors contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
-            colors <- gg_color_hue(ntypes)
-        }
+        #Make the plot
+        #library(ggplot2)
         
-    }
-    fill <- colors
-    
-    #Shapes
-    if (is_null(shapes)) {
-        shapes <- assign.shapes(colors)
-    }
-    else {
-        #check shapes
-        if (!shapes.ok(shapes, ntypes)) {
-            warning(paste("The argument to shape must be", ntypes, "valid shape", if (ntypes>1) "s." else ".", " See ?love.plot for more information.\nUsing default shapes instead."), call. = FALSE)
+        #Setting up appearance
+        #Size
+        if (is.numeric(size[1])) size <- size[1]
+        else {
+            warning("The argument to size must be a number. Using 1 instead.", call. = FALSE)
+            size <- 1
+        }
+        stroke <- .8*size
+        
+        #Color
+        ntypes <- if (is_null(subclass.names)) nlevels(SS$Sample) else 2
+        if (is_not_null(args$colours)) colors <- args$colours
+        
+        if (is_null(colors)) {
+            if (shapes.ok(shapes, ntypes) && length(shapes) > 1 && length(shapes) == ntypes) {
+                colors <- rep("black", ntypes)
+            }
+            else colors <- gg_color_hue(ntypes)
+        }
+        else {
+            if (length(colors) == 1) colors <- rep(colors, ntypes)
+            else if (length(colors) > ntypes) {
+                colors <- colors[seq_len(ntypes)]
+                warning(paste("Only using first", ntypes, "value", if (ntypes>1) "s " else " ", "in colors."), call. = FALSE)
+            }
+            else if (length(colors) < ntypes) {
+                warning("Not enough colors were specified. Using default colors instead.", call. = FALSE)
+                colors <- gg_color_hue(ntypes)
+            }
+            
+            if (!all(sapply(colors, isColor))) {
+                warning("The argument to colors contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
+                colors <- gg_color_hue(ntypes)
+            }
+            
+        }
+        fill <- colors
+        
+        #Shapes
+        if (is_null(shapes)) {
             shapes <- assign.shapes(colors)
         }
-        else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
-    }
-    
-    #Alpha (transparency)
-    if (is_null(args$alpha)) alpha <- 1
-    else if (is.numeric(args$alpha[1]) && 
-             !is.na(args$alpha[1]) && 
-             between(args$alpha[1], c(0,1))) alpha <- args$alpha[1]
-    else {
-        warning("The argument to alpha must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
-        alpha <- 1
-    }
-    
-    #Title
-    if (is_not_null(args$title)) title <- as.character(args$title)
-    if (is_not_null(args$subtitle)) subtitle <- as.character(args$subtitle)
-    #else subtitle <- NULL
-    
-    baseline.xintercepts <- subset(data.frame(Statistic = c("Mean Difference", "Variance Ratio", "Kolmogorov-Smirnov Statistic", 
-                                                            "Correlation"),
-                                              int =       c(     0,      1,         0,    0)),
-                                   Statistic %in% which.stat2[which.stat])
-    baseline.xintercepts$Statistic <- factor(baseline.xintercepts$Statistic, levels = which.stat2)
-    
-    xlabs <- setNames(character(length(which.stat)), which.stat)
-    threshold.xintercepts <- subset(data.frame(Statistic = c("Mean Difference", "Variance Ratio", "Kolmogorov-Smirnov Statistic", 
-                                                             "Correlation"),
-                                               lower = NA_real_,
-                                               upper = NA_real_,
-                                               stringsAsFactors = FALSE),
-                                    Statistic %in% which.stat2[which.stat])
-    
-    scales_Statistics <- setNames(vector("list", length(which.stat)), which.stat) #Currently unused; see https://github.com/zeehio/facetscales
-    
-    for (i in which.stat) {
-        if (i == "Corr") {
+        else {
+            #check shapes
+            if (!shapes.ok(shapes, ntypes)) {
+                warning(paste("The argument to shape must be", ntypes, "valid shape", if (ntypes>1) "s." else ".", " See ?love.plot for more information.\nUsing default shapes instead."), call. = FALSE)
+                shapes <- assign.shapes(colors)
+            }
+            else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
+        }
+        
+        #Alpha (transparency)
+        if (is.numeric(alpha[1]) && 
+                 !is.na(alpha[1]) && 
+                 between(alpha[1], c(0,1))) alpha <- alpha[1]
+        else {
+            warning("The argument to alpha must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
+            alpha <- 1
+        }
+        
+        baseline.xintercepts <- switch(s, 
+                                       "mean.diffs" = 0, 
+                                       "variance.ratios" = 1, 
+                                       "ks.statistics" = 0, 
+                                       "correlations" = 0)
+        threshold.xintercepts <- NULL
+        if (s == "correlations") {
             if (abs) {
-                xlabs[i] <- "Absolute Treatment-Covariate Correlations"
-                if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower")] <- base::abs(thresholds[i])
+                xlab <- "Absolute Treatment-Covariate Correlations"
+                if (s %in% names(thresholds)) threshold.xintercepts <- c(lower = base::abs(thresholds[s]))
             }
             else {
-                xlabs[i] <- "Treatment-Covariate Correlations"
-                if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower", "upper")] <- c(-thresholds[i], thresholds[i])
+                xlab <- "Treatment-Covariate Correlations"
+                if (s %in% names(thresholds)) threshold.xintercepts <- c(lower = -thresholds[s], upper = thresholds[s])
             }
-            scales_Statistics[[i]] <- scale_x_continuous()
+            scale_Statistics <- scale_x_continuous()
         }
-        else if (i == "Diff") {
+        else if (s == "mean.diffs") {
             if (abs) {
-                xlabs[i] <- paste("Absolute", xlab.diff)
-                if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower")] <- base::abs(thresholds[i])
+                xlab <- paste("Absolute", xlab.diff)
+                if (s %in% names(thresholds)) threshold.xintercepts <- c(lower = base::abs(thresholds[s]))
             }
             else {
-                xlabs[i] <- xlab.diff
-                if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower", "upper")] <- c(-thresholds[i], thresholds[i])
+                xlab <- xlab.diff
+                if (s %in% names(thresholds)) threshold.xintercepts <- c(lower = -thresholds[s], upper = thresholds[s])
             }
-            scales_Statistics[[i]] <- scale_x_continuous()
+            scale_Statistics <- scale_x_continuous()
         }
-        else if (i == "V.Ratio") {
-            xlabs[i] <- "Variance Ratios"
+        else if (s == "variance.ratios") {
+            xlab <- "Variance Ratios"
             if (abs) {
-                if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower")] <- max(thresholds[i], 1/thresholds[i])
+                if (s %in% names(thresholds)) threshold.xintercepts <- c(lower = max(thresholds[s], 1/thresholds[s]))
             }
             else {
-                if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower", "upper")] <- sort(c(thresholds[i], 1/thresholds[i]))
+                if (s %in% names(thresholds)) threshold.xintercepts <- c(lower = min(c(thresholds[s], 1/thresholds[s])), upper = max(c(thresholds[s], 1/thresholds[s])))
             }
-            scales_Statistics[[i]] <- scale_x_log10()
+            scale_Statistics <- scale_x_log10()
         }
-        else if (i == "KS") {
-            xlabs[i] <- "Kolmogorov-Smirnov Statistics"
-            if (i %in% names(thresholds)) threshold.xintercepts[threshold.xintercepts$Statistic == which.stat2[i], c("lower")] <- base::abs(thresholds[i])
-            scales_Statistics[[i]] <- scale_x_continuous()
+        else if (s == "ks.statistics") {
+            xlab <- "Kolmogorov-Smirnov Statistics"
+            if (s %in% names(thresholds)) threshold.xintercepts <- c(lower = base::abs(thresholds[s]))
+            scale_Statistics <- scale_x_continuous()
         }
-    }
-    
-    threshold.xintercepts <- na.omit(reshape(threshold.xintercepts, 
-                                             direction = "long", 
-                                             varying = c("lower", "upper"), 
-                                             v.names = "threshold"))
-    
-    
-    baseline.xintercepts[["Statistic"]] <- factor(baseline.xintercepts[["Statistic"]], levels = which.stat2,
-                                                   labels = setNames(xlabs, which.stat2[names(xlabs)])[which.stat2])
-    threshold.xintercepts[["Statistic"]] <- factor(threshold.xintercepts[["Statistic"]], levels = which.stat2,
-                                                  labels = setNames(xlabs, which.stat2[names(xlabs)])[which.stat2])
-    
-    
-    apply.limits <- FALSE
-    if (is_not_null(args$limits)) {
-        if (FALSE) {
-            limits <- args$limits
-            if (length(limits) != 2 || !is.numeric(limits)) {
-                warning("limits must be a numeric vector of length 2. Ignoring limits.", call. = FALSE)
-            }
-            else {
-                if (limits[2] < limits[1]) {
-                    warning("The values in limits must be in ascending order. Reversing them.", call. = FALSE)
-                    limits <- sort(limits)
-                }
-                
-                if (limits[1] >= 0) limits[1] <- baseline.xintercept - .05*limits[2]
-                if (limits[2] <= 0) limits[2] <- baseline.xintercept - .05*limits[1]
-                
-                if (agg.range) {
-                    if (any(SS[["min.stat"]] < limits[1], na.rm = TRUE) || any(SS[["max.stat"]] > limits[2], na.rm = TRUE)) {
-                        for (i in c("min.stat", "stat", "max.stat")) {
-                            SS[[i]][SS[[i]] < limits[1]] <- limits[1]
-                            SS[[i]][SS[[i]] > limits[2]] <- limits[2]
-                        }
-                        warning("Some points will be removed from the plot by the limits.", call. = FALSE)
-                    }
+
+        apply.limits <- FALSE
+        if (is_not_null(limits)) {
+            if (FALSE) {
+                if (length(limits) != 2 || !is.numeric(limits)) {
+                    warning("limits must be a numeric vector of length 2. Ignoring limits.", call. = FALSE)
                 }
                 else {
-                    if (any(SS[["stat"]] < limits[1], na.rm = TRUE) || any(SS[["stat"]] > limits[2], na.rm = TRUE)) {
-                        warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                    if (limits[2] < limits[1]) {
+                        warning("The values in limits must be in ascending order. Reversing them.", call. = FALSE)
+                        limits <- sort(limits)
                     }
-                }
-                
-                apply.limits <- TRUE
-            }
-        }
-        else {
-            #Use this code of you become able to specify limits by facet
-            limits <- data.frame(Statistic = which.stat2,
-                                 lower = NA_real_,
-                                 upper = NA_real_)
 
-            if (is_not_null(args$limits)) {
-                limits_ <- args$limits
-                if (!is.list(limits_)) limits_ <- list(limits_)
-
-                good.limits <- sapply(limits_, function(x) is.numeric(x) || length(x) == 2)
-                if (!all(good.limits)) {
-                    warning("limits must be a list of numeric vectors of length 2. Ignoring bad limits.", call. = FALSE)
-                    limits_ <- limits_[good.limits]
-                }
-
-                if (is_not_null(limits_)) {
-                    if (is_not_null(names(limits_))) {
-                        names(limits_) <- which.stat[stat[pmatch(names(limits_), stat, duplicates.ok = TRUE)]]
-                        limits_ <- limits_[!is.na(names(limits_))]
-                    }
-                    else {
-                        names(limits_) <- which.stat[seq_along(limits_)]
-                    }
-                }
-
-                for (i in which.stat) {
-                    # limits[limits[["Statistic"]] == which.stat2[i], c("lower", "upper")] <- sort(limits_[[i]])
-                    
-                    #Take this away and use above when each facet is able to have its own limits.
-                    limits[limits[["Statistic"]] == which.stat2[i], c("lower", "upper")] <- sort(limits_[[1]])
-                    
-                }
-
-                if (is_not_null(limits)) {
-                    apply.limits <- TRUE
+                    if (limits[1] >= 0) limits[1] <- baseline.xintercept - .05*limits[2]
+                    if (limits[2] <= 0) limits[2] <- baseline.xintercept - .05*limits[1]
 
                     if (agg.range) {
-                        if (any(sapply(which.stat2, function(s) any(SS[["min.stat"]][SS[["Statistic"]] == s] < limits[limits[["Statistic"]] == s, "lower"], na.rm = TRUE)), na.rm = TRUE) ||
-                            any(sapply(which.stat2, function(s) any(SS[["max.stat"]][SS[["Statistic"]] == s] > limits[limits[["Statistic"]] == s, "upper"], na.rm = TRUE)), na.rm = TRUE)) {
-                            for (s in which.stat2) {
-                                for (i in c("min.stat", "stat", "max.stat")) {
-                                    SS[[i]][SS[["Statistic"]] == s & SS[[i]] < limits[limits[["Statistic"]] == s, "lower"]] <- limits[limits[["Statistic"]] == s, "lower"]
-                                    SS[[i]][SS[["Statistic"]] == s & SS[[i]] > limits[limits[["Statistic"]] == s, "upper"]] <- limits[limits[["Statistic"]] == s, "upper"]
-                                }
+                        if (any(SS[["min.stat"]] < limits[1], na.rm = TRUE) || any(SS[["max.stat"]] > limits[2], na.rm = TRUE)) {
+                            for (i in c("min.stat", "stat", "max.stat")) {
+                                SS[[i]][SS[[i]] < limits[1]] <- limits[1]
+                                SS[[i]][SS[[i]] > limits[2]] <- limits[2]
                             }
-
                             warning("Some points will be removed from the plot by the limits.", call. = FALSE)
                         }
                     }
                     else {
-                        if (any(sapply(which.stat2, function(s) any(SS[SS[["Statistic"]] == s, "stat"] < limits[limits[["Statistic"]] == s, "lower"], na.rm = TRUE)), na.rm = TRUE) ||
-                            any(sapply(which.stat2, function(s) any(SS[SS[["Statistic"]] == s, "stat"] > limits[limits[["Statistic"]] == s, "upper"], na.rm = TRUE)), na.rm = TRUE)) {
+                        if (any(SS[["stat"]] < limits[1], na.rm = TRUE) || any(SS[["stat"]] > limits[2], na.rm = TRUE)) {
                             warning("Some points will be removed from the plot by the limits.", call. = FALSE)
                         }
                     }
 
-                    limits <- na.omit(reshape(limits,
-                                              direction = "long",
-                                              varying = c("lower", "upper"),
-                                              v.names = "limits"))
+                    apply.limits <- TRUE
+                }
+            }
+            else {
+                #Use this code of you become able to specify limits by facet
+                limits <- data.frame(Statistic = which.stat2,
+                                     lower = NA_real_,
+                                     upper = NA_real_)
 
+                if (is_not_null(limits)) {
+                    limits_ <- limits
+                    if (!is.list(limits_)) limits_ <- list(limits_)
+
+                    good.limits <- sapply(limits_, function(x) is.numeric(x) || length(x) == 2)
+                    if (!all(good.limits)) {
+                        warning("limits must be a list of numeric vectors of length 2. Ignoring bad limits.", call. = FALSE)
+                        limits_ <- limits_[good.limits]
+                    }
+
+                    if (is_not_null(limits_)) {
+                        if (is_not_null(names(limits_))) {
+                            names(limits_) <- which.stat[stat[pmatch(names(limits_), stat, duplicates.ok = TRUE)]]
+                            limits_ <- limits_[!is.na(names(limits_))]
+                        }
+                        else {
+                            names(limits_) <- which.stat[seq_along(limits_)]
+                        }
+                    }
+
+                    for (i in which.stat) {
+                        # limits[limits[["Statistic"]] == which.stat2[i], c("lower", "upper")] <- sort(limits_[[i]])
+
+                        #Take this away and use above when each facet is able to have its own limits.
+                        limits[limits[["Statistic"]] == which.stat2[i], c("lower", "upper")] <- sort(limits_[[1]])
+
+                    }
+
+                    if (is_not_null(limits)) {
+                        apply.limits <- TRUE
+
+                        if (agg.range) {
+                            if (any(sapply(which.stat2, function(s) any(SS[["min.stat"]][SS[["Statistic"]] == s] < limits[limits[["Statistic"]] == s, "lower"], na.rm = TRUE)), na.rm = TRUE) ||
+                                any(sapply(which.stat2, function(s) any(SS[["max.stat"]][SS[["Statistic"]] == s] > limits[limits[["Statistic"]] == s, "upper"], na.rm = TRUE)), na.rm = TRUE)) {
+                                for (s in which.stat2) {
+                                    for (i in c("min.stat", "stat", "max.stat")) {
+                                        SS[[i]][SS[["Statistic"]] == s & SS[[i]] < limits[limits[["Statistic"]] == s, "lower"]] <- limits[limits[["Statistic"]] == s, "lower"]
+                                        SS[[i]][SS[["Statistic"]] == s & SS[[i]] > limits[limits[["Statistic"]] == s, "upper"]] <- limits[limits[["Statistic"]] == s, "upper"]
+                                    }
+                                }
+
+                                warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                            }
+                        }
+                        else {
+                            if (any(sapply(which.stat2, function(s) any(SS[SS[["Statistic"]] == s, "stat"] < limits[limits[["Statistic"]] == s, "lower"], na.rm = TRUE)), na.rm = TRUE) ||
+                                any(sapply(which.stat2, function(s) any(SS[SS[["Statistic"]] == s, "stat"] > limits[limits[["Statistic"]] == s, "upper"], na.rm = TRUE)), na.rm = TRUE)) {
+                                warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                            }
+                        }
+
+                        limits <- na.omit(reshape(limits,
+                                                  direction = "long",
+                                                  varying = c("lower", "upper"),
+                                                  v.names = "limits"))
+
+                    }
                 }
             }
         }
-    }
-    
-    SS[["Statistic"]] <- factor(SS[["Statistic"]], levels = which.stat2,
-                                labels = setNames(xlabs, which.stat2[names(xlabs)])[which.stat2])
-    
-    if (is_not_null(args$sample.names)) {
-        if (!all(is.character(args$sample.names))) {
-            warning("The argument to sample.names must be a character vector. Ignoring sample.names.", call. = FALSE)
-        }
-        else {
-            if (length(args$sample.names) == ntypes - 1) {
-                levels(SS$Sample)[-1] <- args$sample.names
-            }
-            else if (length(args$sample.names) == ntypes) {
-                levels(SS$Sample) <- args$sample.names
+
+        if (!missing(sample.names)) {
+            if (!is.vector(sample.names, "character")) {
+                warning("The argument to sample.names must be a character vector. Ignoring sample.names.", call. = FALSE)
             }
             else {
-                warning("The argument to sample.names must contain as many names as there are sample types, or one fewer. Ignoring sample.names.", call. = FALSE)
+                if (length(sample.names) == ntypes - 1) {
+                    levels(SS$Sample)[-1] <- sample.names
+                }
+                else if (length(sample.names) == ntypes) {
+                    levels(SS$Sample) <- sample.names
+                }
+                else {
+                    warning("The argument to sample.names must contain as many names as there are sample types, or one fewer. Ignoring sample.names.", call. = FALSE)
+                }
             }
+
         }
+
+        lp <- ggplot(aes(y = var, x = stat, group = Sample), data = SS) +
+            theme(panel.background = element_rect(fill = "white", color = "black"),
+                  axis.text.x = element_text(color = "black"),
+                  axis.text.y = element_text(color = "black")
+            ) +
+            scale_shape_manual(values = shapes) +
+            scale_fill_manual(values = fill) +
+            scale_color_manual(values = colors) +
+            scale_Statistics + 
+            labs(y = NULL, x = xlab)
         
-    }
-    
-    lp <- ggplot(aes(y = var, x = stat, group = Sample), data = SS) + 
-        theme(panel.background = element_rect(fill = "white", color = "black"),
-              axis.text.x = element_text(color = "black"),
-              axis.text.y = element_text(color = "black")
-        ) + 
-        scale_shape_manual(values = shapes) +
-        scale_fill_manual(values = fill) +
-        scale_color_manual(values = colors) + 
-        labs(title = title, subtitle = subtitle, y = NULL, x = NULL) 
-    
-    lp <- lp + geom_vline(mapping = aes(xintercept = int), data = baseline.xintercepts, linetype = 1, color = "gray5")
-    if (is_not_null(thresholds)) {
-        lp <- lp + geom_vline(mapping = aes(xintercept = threshold), data = threshold.xintercepts, linetype = 2, color = "gray8")
-    }
-    
-    if (agg.range) {
-        position.dodge <- ggstance::position_dodgev(.5*(size))
-        if (line == TRUE) { #Add line except to distance
-            f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
-            lp <- lp + ggplot2::layer(geom = "path", data = f, position = position.dodge, stat = "identity", 
-                                      aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+        lp <- lp + geom_vline(xintercept = baseline.xintercepts,
+                              linetype = 1, color = "gray5")
+        
+        if (is_not_null(threshold.xintercepts)) {
+            lp <- lp + geom_vline(xintercept = threshold.xintercepts,
+                                  linetype = 2, color = "gray8")
         }
-        lp <- lp + 
-            ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat, 
-                                          color = Sample), position = position.dodge, size = size,
-                                      alpha = alpha) + 
-            geom_point(aes(y = var, x = mean.stat, shape = Sample, color = Sample), 
-                       fill = "white", size = 2*size, stroke = stroke, na.rm = TRUE,
-                       alpha = alpha,
-                       position = position.dodge) + 
-            labs(title = title, y = "")
-    }
-    else {
-        if (is_null(subclass.names) || !attr(x, "print.options")$disp.subclass) {
+
+        if (agg.range) {
+            position.dodge <- ggstance::position_dodgev(.5*(size))
             if (line == TRUE) { #Add line except to distance
                 f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
-                lp <- lp + ggplot2::layer(geom = "path", data = f(SS), 
-                                          position = "identity", stat = "identity", 
-                                          mapping = aes(color = Sample), 
-                                          params = list(size = size*.8, na.rm = TRUE,
-                                                        alpha = alpha))
+                lp <- lp + ggplot2::layer(geom = "path", data = f, position = position.dodge, stat = "identity",
+                                          aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
             }
-            lp <- lp + geom_point(data = SS, aes(shape = Sample,
-                                                 color = Sample), 
-                                  size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE,
-                                  alpha = alpha) 
+            lp <- lp +
+                ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat,
+                                              color = Sample), position = position.dodge, size = size,
+                                          alpha = alpha) +
+                geom_point(aes(y = var, x = mean.stat, shape = Sample, color = Sample),
+                           fill = "white", size = 2*size, stroke = stroke, na.rm = TRUE,
+                           alpha = alpha,
+                           position = position.dodge)
         }
         else {
-            SS.u.a <- SS[SS$Sample %in% c("Unadjusted", "Adjusted"),]
-            SS.u.a$Sample <- factor(SS.u.a$Sample)
-            if (line == TRUE) { #Add line except to distance
-                f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
-                lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a), 
-                                          position = "identity", stat = "identity", 
-                                          mapping = aes(color = Sample), 
-                                          params = list(size = size*.8, na.rm = TRUE,
-                                                        alpha = alpha))
+            if (is_null(subclass.names) || !attr(x, "print.options")$disp.subclass) {
+                if (line == TRUE) { #Add line except to distance
+                    f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
+                    lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
+                                              position = "identity", stat = "identity",
+                                              mapping = aes(color = Sample),
+                                              params = list(size = size*.8, na.rm = TRUE,
+                                                            alpha = alpha))
+                }
+                lp <- lp + geom_point(data = SS, aes(shape = Sample,
+                                                     color = Sample),
+                                      size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE,
+                                      alpha = alpha)
             }
-            lp <- lp + geom_point(data = SS.u.a, 
-                                  aes(shape = Sample, color = Sample), 
-                                  size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE,
-                                  alpha = alpha) 
-            lp <- lp + geom_text(data = SS[!SS$Sample %in% c("Unadjusted", "Adjusted"),], 
-                                 aes(label = gsub("Subclass ", "", Sample)), 
-                                 size = 2*size, na.rm = TRUE) 
+            else {
+                SS.u.a <- SS[SS$Sample %in% c("Unadjusted", "Adjusted"),]
+                SS.u.a$Sample <- factor(SS.u.a$Sample)
+                if (line == TRUE) { #Add line except to distance
+                    f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
+                    lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a),
+                                              position = "identity", stat = "identity",
+                                              mapping = aes(color = Sample),
+                                              params = list(size = size*.8, na.rm = TRUE,
+                                                            alpha = alpha))
+                }
+                lp <- lp + geom_point(data = SS.u.a,
+                                      aes(shape = Sample, color = Sample),
+                                      size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE,
+                                      alpha = alpha)
+                lp <- lp + geom_text(data = SS[SS$Sample %nin% c("Unadjusted", "Adjusted"),],
+                                     aes(label = gsub("Subclass ", "", Sample)),
+                                     size = 2*size, na.rm = TRUE)
+            }
+
+
         }
-        
-        
+
+        if (!drop.distance && is_not_null(distance.names)) {
+            lp <- lp + geom_hline(linetype = 1, color = "black",
+                                  yintercept = nunique(SS[["var"]]) - length(distance.names) + .5)
+        }
+        if (apply.limits) {
+            lp <- lp + scale_x_continuous(limits = limits[["limits"]][limits[["Statistic"]] == which.stat2], expand = c(0, 0))
+        }
+        if (isFALSE(grid)) {
+            lp <- lp + theme(panel.grid.major = element_blank(),
+                             panel.grid.minor = element_blank())
+        }
+        else {
+            lp <- lp + theme(panel.grid.major = element_line(color = "gray87"),
+                             panel.grid.minor = element_line(color = "gray90"))
+        }
+        if (is_not_null(facet)) {
+            lp <- lp + facet_grid(f.build(".", facet), drop = FALSE) + labs(x = xlab)
+        }
+        if (s != last(stat)) {
+            lp <- lp + theme(legend.position = "none")
+        }
+        else {
+            lp <- lp + theme(legend.key=element_blank())
+        }
+        class(lp) <- c(class(lp), "love.plot")
+        plot.list[[s]] <- lp
     }
     
-    if (!drop.distance && is_not_null(distance.names)) {
-        lp <- lp + geom_hline(linetype = 1, color = "black", 
-                              yintercept = nunique(SS[["var"]]) - length(distance.names) + .5)
-    }
-    if (apply.limits) {
-        lp <- lp + scale_x_continuous(limits = limits[["limits"]][limits[["Statistic"]] == which.stat2[1]], expand = c(0, 0))
-    }
-    if (isFALSE(args$grid)) {
-        lp <- lp + theme(panel.grid.major = element_blank(),
-                         panel.grid.minor = element_blank())
+    if (length(stat) > 1) {
+        p <- do.call(egg::ggarrange, c(list(plots = plot.list, nrow = 1, top = title), args))
+        return(invisible(p))
     }
     else {
-        lp <- lp + theme(panel.grid.major = element_line(color = "gray87"),
-                          panel.grid.minor = element_line(color = "gray90"))
+        p <- plot.list[[1]] + labs(title = title) +
+            theme(plot.title = element_text(hjust = 0.5))
+        
+        return(p)
     }
-    if (is_not_null(facet)) {
-        if (length(which.stat) > 1) {
-            lp <- lp + facet_grid(f.build(facet, "Statistic"), drop = FALSE, switch = "x", scales = "free_x",
-                                  labeller = labeller(.default = label_wrap_gen(width = if (is_null(args[["wrap"]])) 20 else args[["wrap"]]))) +
-                theme(strip.background.x = element_blank(),
-                      strip.text.x = element_text(size = 11-.8*(length(which.stat)-1)),
-                      strip.placement.x = "outside")
-        }
-        else {
-            lp <- lp + facet_grid(f.build(".", facet), drop = FALSE) + labs(x = xlabs[which.stat])
-        }
-    }
-    else {
-        lp <- lp + facet_grid(. ~ Statistic, drop = FALSE, switch = "x", scales = "free_x",
-                              labeller = labeller(.default = label_wrap_gen(width = if (is_null(args[["wrap"]])) 20 else args[["wrap"]]))) +
-            theme(strip.background.x = element_blank(),
-                  strip.text.x = element_text(size = 11-.8*(length(which.stat)-1)),
-                  strip.placement.x = "outside")
-    }
-    return(lp)
+    
 }
 plot.bal.tab <- love.plot
