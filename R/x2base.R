@@ -2810,7 +2810,7 @@ x2base.default <- function(obj, ...) {
                               type = c("character", "numeric")),
               s.weights = list(name = c("s.weights", "sw", "sweights", "sampw"),
                                type = c("numeric")),
-              focal = list(name = c("focal"), 
+              focal = list(name = c("focal", "treatATT"), 
                            type = c("character", "numeric")),
               call = list(name = c("call"),
                           type = c("call")))
