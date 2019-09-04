@@ -93,16 +93,16 @@ For scenarios with binary point treatments and no subclasses, imputations, or cl
 \item{\code{SD.0.Un}: The standard deviation of the control group prior to adjusting.}
 \item{\code{M.1.Un}: The mean of the treated group prior to adjusting.}
 \item{\code{SD.1.Un}: The standard deviation of the treated group prior to adjusting.}
-\item{\code{Diff.Un}: The (standardized) difference in means between the two groups prior to adjusting.}
-\item{\code{V.Ratio.Un}: The ratio of the variances of the two groups prior to adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
+\item{\code{Diff.Un}: The (standardized) difference in means between the two groups prior to adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
+\item{\code{V.Ratio.Un}: The ratio of the variances of the two groups prior to adjusting. \code{NA} for binary variables.  If less than 1 and \code{abs = TRUE}, the reciprocal is reported.}
 \item{\code{KS.Un}: The KS statistic of the two groups prior to adjusting.  \code{NA} for binary variables.}
 \item{\code{M.0.Adj}: The mean of the control group after adjusting.}
 \item{\code{SD.0.Adj}: The standard deviation of the control group after adjusting.}
 \item{\code{M.1.Adj}: The mean of the treated group after adjusting.}
 \item{\code{SD.1.Adj}: The standard deviation of the treated group after adjusting.}
-\item{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting.}
+\item{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
 \item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{m.threshold}.  If \code{m.threshold} is \code{NULL}, this column will be \code{NA}.}
-\item{\code{V.Ratio.Adj}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1, the reciprocal is reported.}
+\item{\code{V.Ratio.Adj}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1 and \code{abs = TRUE}, the reciprocal is reported.}
 \item{\code{V.Threshold}: Whether or not the calculated variance ratio after adjusting exceeds or is within the threshold given by \code{v.threshold} for continuous variables.  If \code{v.threshold} is \code{NULL}, this column will be \code{NA}.}
 \item{\code{KS.Adj}: The KS statistic of the two groups after adjusting.  \code{NA} for binary variables.}
 \item{\code{KS.Threshold}: Whether or not the calculated KS statistic after adjusting exceeds or is within the threshold given by \code{ks.threshold} for continuous variables.  If \code{ks.threshold} is \code{NULL}, this column will be \code{NA}.}
@@ -115,7 +115,6 @@ For scenarios with binary point treatments and no subclasses, imputations, or cl
 \item{Max.Imbalance.KS}{If \code{ks.threshold} is specified, a table displaying the variable with the greatest KS statistic.}
 \item{Observations}{A table displaying the sample sizes before and after adjusting.}
 \item{call}{The original function call, if adjustment was performed by a function in another package.}
-\item{print.options}{A list of print options passed to \code{print.bal.tab}.}
 
 If the treatment is continuous, instead of producing mean differences, variance ratios, and KS statistics, \code{bal.tab()} will produce correlations between the covariates and the treatment. The corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.threshold" (and accordingly for the balance tally and maximum imbalance tables).
 
