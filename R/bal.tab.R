@@ -267,6 +267,33 @@ bal.tab.designmatch <- function(dm, ...) {
     class(dm) <- "designmatch"
     bal.tab.Match(dm, ...)
 }
+bal.tab.mimids <- function(mimids, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+    
+    args <- c(as.list(environment()), list(...))[-1]
+    
+    #Adjustments to arguments
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
+    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
+    
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
+    if (any(blank.args)) {
+        for (arg.name in names(blank.args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
+                args[[arg.name]] <- NULL
+            }
+        }
+    }
+    
+    #Initializing variables
+    X <- do.call("x2base.mimids", c(list(mimids), args), quote = TRUE)
+    
+    args <- args[names(args) %nin% names(X)]
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+                   quote = TRUE)
+    return(out)
+}
+bal.tab.wimids <- bal.tab.mimids
 
 #MSMs wth multiple time points
 bal.tab.formula.list <- function(formula.list, data = NULL, ...) {
