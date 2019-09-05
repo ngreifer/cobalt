@@ -71,7 +71,7 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
   \item{cluster}{
-either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{weightit} object. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{imp}{
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{weightit()}. See \code{\link{bal.tab.imp}} for details.
@@ -98,7 +98,7 @@ further arguments to control display of output. See \link[=options-display]{disp
 \details{
 \code{bal.tab.weightit()} generates a list of balance summaries for the \code{weightit} object given.
 
-All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 }
 \value{
