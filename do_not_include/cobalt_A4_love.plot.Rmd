@@ -32,6 +32,12 @@ w.out1 <- weightit(treat ~ age + educ + married + nodegree + race + re74 + re75,
                    data = lalonde, estimand = "ATE", method = "ps")
 ```
 
+Next, because in this example we want to display standardized mean difference for all of the covariates, let's set the global `binary` option to `"std"` so we don't have to type it every time.
+
+```{r}
+set.cobalt.options(binary = "std")
+```
+
 The most basic way to use `love.plot` is simply to call it as you would `bal.tab` on the output of the preprocessing function (in this case, `weightit`).
 
 ```{r}
@@ -113,7 +119,8 @@ Perhaps we want to display balance for a second set of weights, maybe using a di
 
 ```{r}
 w.out2 <- weightit(treat ~ age + educ + married + nodegree + race + re74 + re75,
-                   data = lalonde, estimand = "ATE", method = "cbps")
+                   data = lalonde, estimand = "ATE", method = "gbm", 
+                   stop.method = "ks.max")
 
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           data = lalonde,
@@ -140,12 +147,12 @@ Perhaps balance on mean difference is not enough, and you want to display balanc
 ```{r}
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           data = lalonde,
-          stat = "ks.statistics",
+          stat = c("mean.diffs", "ks.statistics"),
           weights = list(w1 = get.w(w.out1),
                          w2 = get.w(w.out2)),
           var.order = "unadjusted",
           line = TRUE, 
-          threshold = .1,
+          threshold = c(mean.diffs = .1),
           var.names = new.names,
           colors = c("red", "blue", "darkgreen"),
           shapes = c("triangle filled", "circle filled", "square filled"),
@@ -159,4 +166,4 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
 
 Notice that KS statistics are displayed only for variables for which it is computed (i.e., continuous variables). The binary variables don't even appear on the plot. If we wanted to have them appear as well with empty space where the point would be, we can request `no.missing = FALSE`. Below, we'll put two plots side-by-side, one for mean differences and one for KS statistics. We'll put the variables in their original order rather than order by the unadjustment statistic to ensure teh same variable order is present in both plots. We'll remove the lines connecting the points. Finally, we'll 
 
-[^1]: Older versions of `cobalt` required the first argument to be a call to `bal.tab()`; this is no longer required an in fact is not recommended because `love.plot` is more flexible when handling its own inputs. That said, `love.plot` calls `bal.tab` internally, so problems that arise may be due to problems with `bal.tab` rather than with `love.plot`. Sometimes the `bal.tab` object can take some time to be produced, in which case it might be useful to just run `bal.tab` once and supply its output to different calls of `love.plot` as you fiddle with its options, as `b <- bal.tab(w.out); love.plot(b)`. Note that doing so removes some of `love.plot` flexibility. The most important aspect is that `love.plot` when called with the first syntax can modify the implicit call to `bal.tab` to get everything it needs. For example, normally variance ratios are not present in `bal.tab` output, but if they are requested with `stat = "variance.ratios"` in `love.plot`, they will be produced and displayed correctly without additional input. When using the latter syntax, an error will occur saying that variance ratios were not present in the original `bal.tab` call. This can be mitigated by setting `quick = FALSE` or `disp.v.ratio = TRUE` in the call to `bal.tab` before entering its argument into `love.plot`.
+[^1]: Older versions of `cobalt` required the first argument to be a call to `bal.tab()`; this is no longer required and in fact is not recommended because `love.plot` is more flexible when handling its own inputs. That said, `love.plot` calls `bal.tab` internally, so problems that arise may be due to problems with `bal.tab` rather than with `love.plot`. Sometimes the `bal.tab` object can take some time to be produced, in which case it might be useful to just run `bal.tab` once and supply its output to different calls of `love.plot` as you fiddle with its options, as `b <- bal.tab(w.out); love.plot(b)`. Note that doing so removes some of `love.plot` flexibility. The most important aspect is that `love.plot` when called with the first syntax can modify the implicit call to `bal.tab` to get everything it needs. For example, normally variance ratios are not present in `bal.tab` output, but if they are requested with `stat = "variance.ratios"` in `love.plot`, they will be produced and displayed correctly without additional input. When using the latter syntax, an error will occur saying that variance ratios were not present in the original `bal.tab` call. This can be mitigated by setting `quick = FALSE` or `disp.v.ratio = TRUE` in the call to `bal.tab` before entering its argument into `love.plot`.
