@@ -306,7 +306,7 @@ library("MatchIt") #if not yet loaded
 m.out <- matchit(f.build("treat", covs), data = lalonde, 
                  method = "nearest", replace = TRUE)
 
-love.plot(m.out, threshold = .1)
+love.plot(m.out, binary = "std", threshold = .1)
 ```
 
 `love.plot()` takes as its arguments the same ones that would go into a call to `bal.tab()`. In addition, it can take as its first argument the output of a call to `bal.tab()`; this can be accomplished simply by inserting the `bal.tab()` call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument.  There are several other arguments, all of which control display, that are described below.
@@ -317,7 +317,7 @@ The default is to present the absolute mean differences as they are calculated i
 
 The `threshold` argument works similarly to `m.threshold`, `v.threshold`, and `ks.threshold` in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on which to evaluate the displayed balance measures. If these thresholds are specified in `bal.tab()`, `love.plot()` will use them in the resultant plot with the corresponding balance statistic. The `threshold` argument to `love.plot()` takes precedence.
 
-If mean difference are requested, `love.plot()` will use the mean differences as they are calculated by `bal.tab()` and presented in the mean differences columns of the balance table. See the section on using `bal.tab()` to see what the default calculations are for these values. If `abs = TRUE` in `love.plot()`, which is the default, the plot will display absolute mean differences, which can aid in display clarity since the magnitude is generally the more important aspect of the statistic^[The `abs` argument can be confusing; see `?love.plot` for complete details.]. If `abs = TRUE` in the call to `bal.tab()`, only absolute mean differences can be displayed.
+If mean difference are requested, `love.plot()` will use the mean differences as they are calculated by `bal.tab()` and presented in the mean differences columns of the balance table. See the section on using `bal.tab()` to see what the default calculations are for these values. If `abs = TRUE` in `love.plot()`, which is the default, the plot will display absolute mean differences, which can aid in display clarity since the magnitude is generally the more important aspect of the statistic^[The `abs` argument can be confusing; see `?love.plot` for complete details.].
 
 The order of the covariates displayed can be adjusted using the argument to `var.order`. If left empty or `NULL`, the covariates will be listed in alphabetical order. If `"adjusted"`, covariates will be ordered by the requested balance statistic of the adjusted sample. If `"unadjusted"`, covariates will be ordered by the requested balance statistic of the unadjusted sample, which tends to be more visually appealing. Abbreviations are allowed. The distance variable(s), if any, will always be displayed at the top. They can be omitted by setting `drop.distance = TRUE`. 
 
@@ -330,9 +330,9 @@ v <- data.frame(old = c("age", "educ", "race_black", "race_hispan",
                         "Hispanic", "White", "Married", "No Degree Earned", 
                         "Earnings 1974", "Earnings 1975", "Propensity Score"))
 
-love.plot(m.out, stat = "mean.diffs", threshold = .1, 
+love.plot(m.out, stat = "mean.diffs", threshold = .1, binary = "std",
           var.order = "unadjusted", var.names = v, abs = TRUE,
-          line = TRUE, limits = c(0, 1))
+          line = TRUE, limits = c(0, 1), grid = FALSE)
 ```
 
 This plot shows that balance was improved on almost all variables after adjustment, bringing all but one below the threshold of .1 for absolute mean differences.
@@ -341,7 +341,7 @@ A helper function, `var.names()` can be used to more easily create new variable 
 
 When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stat` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations.
 
-Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to some extent for presentation or publication. Several aspects of the appearance of the plot can be customized using the `love.plot()` syntax, including the size, shape, and color of the points, the title and subtitle of the plot, and whether to display lines connecting the points. See `?love.plot` for details. It may be challenging to make adjustments to these aspects using `ggplot2` syntax, so these arguments allow for some simple adjustments.
+Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to some extent for presentation or publication. Several aspects of the appearance of the plot can be customized using the `love.plot()` syntax, including the size, shape, and color of the points, the title and subtitle of the plot, whether to display gridlines, and whether to display lines connecting the points. See `?love.plot` for details. It may be challenging to make adjustments to these aspects using `ggplot2` syntax, so these arguments allow for some simple adjustments.
 
 ## Additional Features
 
@@ -435,7 +435,7 @@ Finally, we can use `love.plot()` to display balance across treatments. By defau
 
 ```{r, fig.width = 7}
 #Summarizing balance in a Love plot
-love.plot(W.out.mn, threshold = .1,
+love.plot(W.out.mn, threshold = .1, binary = "std",
           which.treat = .all, abs = FALSE)
 ```
 
@@ -467,7 +467,7 @@ love.plot(treat ~ covs0, data = lalonde,
           weights = data.frame(Matched = get.w(m.out),
                                IPW = get.w(W.out)),
           method = c("matching", "weighting"), 
-          var.order = "unadjusted",
+          var.order = "unadjusted", binary = "std",
           abs = TRUE, colors = c("red", "blue", "darkgreen"), 
           shapes = c("circle", "square", "triangle"))
 ```
