@@ -3,19 +3,21 @@
 
 Version 3.8.0
 
-* Added the ability to display balance on multiple measures (e.g., mean differences, variance ratios) at the same time with `love.plot()`.
-
-* Added vignette on using `love.plot()`.
+* Added the ability to display balance on multiple measures (e.g., mean differences, variance ratios, KS statistics) at the same time with `love.plot()`.
 
 * Bug fixes that make `bal.tab()` and `love.plot()` more usable within other functions and especially when called with `do.call()`.
 
-* Made it easier to get proper output when using `matchit()` with an argument ot `distance`. Include the original dataset in the `data` argument to get the variables to display correctly.
+* Made it easier to get proper output when using `matchit()` with an argument to `distance`. Include the original dataset in the `data` argument to get the variables to display correctly.
 
 * Changed the default shape in `love.plot()` to `"circle"`, which is a solid circle. I found this a prettier alternative to the open circle, especially on Windows. To get back open circles you set `shapes = "circle filled"` (yes, that is a bit confusing).
 
 * Added ability to hide the gridlines easily in `love.plot()`.
 
 * Changed the calculation of standard deviations (and standardized differences in proportion) for binary variables to be more in line with recommendations, as noted by @mbloechl05. Note this will make these values different from those in `MatchIt::summary` by a small amount.
+
+* The KS statistic is now computed for binary variables. It is simply the difference in proportion.
+
+* Added methods for objects from the `MatchIt.mice` package.
 
 * Other small bug fixes and improvements.
 
