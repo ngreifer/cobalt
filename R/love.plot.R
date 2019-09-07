@@ -4,7 +4,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                       abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
                       drop.distance = FALSE, agg.fun = c("range", "max", "mean"), 
                       line = FALSE, stars = "none", grid = TRUE, 
-                      colors = NULL, shapes = NULL, alpha = 1, size = 1, 
+                      colors = NULL, shapes = NULL, alpha = 1, size = 3, 
                       title, subtitle, sample.names, limits = NULL, 
                       ...) {
     
@@ -668,6 +668,15 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     
     #Setting up appearance
     
+    #Alpha (transparency)
+    if (is.numeric(alpha[1]) && 
+        !is.na(alpha[1]) && 
+        between(alpha[1], c(0,1))) alpha <- alpha[1]
+    else {
+        warning("The argument to alpha must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
+        alpha <- 1
+    }
+    
     #Color
     if (is_not_null(args[["colours"]])) colors <- args[["colours"]]
     
@@ -694,6 +703,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         
     }
+    colors[] <- vapply(colors, col_plus_alpha, character(1L), alpha = alpha)
     fill <- colors
     
     #Shapes
@@ -712,27 +722,18 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     #Size
     if (is.numeric(size[1])) size <- size[1]
     else {
-        warning("The argument to size must be a number. Using 1 instead.", call. = FALSE)
-        size <- 1
+        warning("The argument to size must be a number. Using 3 instead.", call. = FALSE)
+        size <- 3
     }
-    stroke <- rep(0, ntypes)
-    size <- 3*rep(size, ntypes)
+    stroke0 <- stroke <- rep(0, ntypes)
+    size0 <- size <- rep(size, ntypes)
     
     shapes.with.fill <- grepl("filled", shapes, fixed = TRUE)
     stroke[shapes.with.fill] <- size[shapes.with.fill]/3
-    size[shapes.with.fill] <- size[shapes.with.fill]*.58
+    size[shapes.with.fill] <- size[shapes.with.fill]* .58
     
     # stroke <- .8*size
-    
-    #Alpha (transparency)
-    if (is.numeric(alpha[1]) && 
-        !is.na(alpha[1]) && 
-        between(alpha[1], c(0,1))) alpha <- alpha[1]
-    else {
-        warning("The argument to alpha must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
-        alpha <- 1
-    }
-    
+
     if (is_not_null(facet)) {
         if (is_not_null(var.order) && "love.plot" %nin% class(var.order) && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
             warning("var.order cannot be set with faceted plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
@@ -1061,13 +1062,35 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             if (limits[[s]][2] <= baseline.xintercept) limits[[s]][2] <- baseline.xintercept - .05*limits[[s]][1]
             
             if (agg.range) {
-                if (any(SS[["min.stat"]] < limits[[s]][1], na.rm = TRUE) || any(SS[["max.stat"]] > limits[[s]][2], na.rm = TRUE)) {
-                    for (i in c("min.stat", "stat", "max.stat")) {
-                        SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
-                        SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
-                    }
-                    warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                    # for (i in c("min.stat", "mean.stat", "max.stat")) {
+                    #     if (any(SS[[i]] < limits[[s]][1], na.rm = TRUE)) {
+                    #         if (i == "mean.stat") SS[["on.border"]][SS[[i]] < limits[[s]][1]] <- TRUE
+                    #         if (i == "mean.stat") SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
+                    #         else SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
+                    #     }
+                    #     if (any(SS[[i]] > limits[[s]][2], na.rm = TRUE)) {
+                    #         if (i == "mean.stat") SS[["on.border"]][SS[[i]] > limits[[s]][2]] <- TRUE
+                    #         if (i == "mean.stat") SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
+                    #         else SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
+                    #         
+                    #         # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                    #     }
+                    # }
+                
+                if (any(SS[["mean.stat"]] < limits[[s]][1], na.rm = TRUE)) {
+                    SS[["on.border"]][SS[["stat"]] < limits[[s]][1]] <- TRUE
+                    SS[["mean.stat"]][SS[["mean.stat"]] < limits[[s]][1]] <- limits[[s]][1]
+                    SS[["max.stat"]][SS[["max.stat"]] < limits[[s]][1]] <- limits[[s]][1]
+                    SS[["min.stat"]][SS[["min.stat"]] < limits[[s]][1]] <- limits[[s]][1]
                 }
+                if (any(SS[["mean.stat"]] > limits[[s]][2], na.rm = TRUE)) {
+                    SS[["on.border"]][SS[["stat"]] > limits[[s]][2]] <- TRUE
+                    SS[["mean.stat"]][SS[["mean.stat"]] > limits[[s]][2]] <- limits[[s]][2]
+                    SS[["max.stat"]][SS[["max.stat"]] > limits[[s]][2]] <- limits[[s]][2]
+                    SS[["min.stat"]][SS[["min.stat"]] > limits[[s]][2]] <- limits[[s]][2]
+                    # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                }
+                    # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
             }
             else {
                 if (any(SS[["stat"]] < limits[[s]][1], na.rm = TRUE)) {
@@ -1096,15 +1119,16 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         lp <- ggplot(aes(y = var, x = stat, group = Sample), data = SS) +
             theme(panel.background = element_rect(fill = "white", color = "black"),
                   axis.text.x = element_text(color = "black"),
-                  axis.text.y = element_text(color = "black")
+                  axis.text.y = element_text(color = "black"),
+                  panel.border = element_rect(fill = NA, color = "black")
             ) +
             scale_shape_manual(values = shapes) +
             scale_size_manual(values = size) +
             scale_discrete_manual(aesthetics = "stroke", values = stroke) +
             scale_fill_manual(values = fill) +
             scale_color_manual(values = colors) +
-            scale_alpha_manual(values = c("FALSE" = alpha, "TRUE" = alpha*.5),
-                               guide = FALSE) +
+            # scale_alpha_manual(values = c("FALSE" = alpha, "TRUE" = alpha*.5),
+            #                    guide = FALSE) +
             labs(y = NULL, x = xlab)
         
         lp <- lp + geom_vline(xintercept = baseline.xintercept,
@@ -1116,21 +1140,28 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         
         if (agg.range) {
-            position.dodge <- ggstance::position_dodgev(.5*(size))
+            position.dodge <- ggstance::position_dodgev(.5*(size0[1]/3))
             if (line == TRUE) { #Add line except to distance
-                f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
+                f <- function(q) {q[["mean.stat"]][q$var %in% distance.names] <- NA; q}
                 lp <- lp + ggplot2::layer(geom = "path", data = f, position = position.dodge, stat = "identity",
-                                          aes(color = Sample), params = list(size = size*.8, na.rm = TRUE))
+                                          aes(x = mean.stat, color = Sample), params = list(size = size0[1]*.8/3, na.rm = TRUE))
             }
+
             lp <- lp +
                 ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat,
-                                              color = Sample), position = position.dodge, size = size,
-                                          alpha = alpha) +
-                geom_point(aes(y = var, x = mean.stat, shape = Sample, color = Sample, 
-                               alpha = factor(on.border)),
-                           fill = "white", size = 2*size, stroke = stroke, na.rm = TRUE,
+                                              color = Sample), position = position.dodge,
+                                          # alpha = alpha,
+                                          size = size0[1]*.8/3) +
+                geom_point(aes(y = var, 
+                               x = mean.stat, 
+                               shape = Sample,
+                               size = Sample,
+                               stroke = Sample,
+                               color = Sample),
+                           fill = "white", na.rm = TRUE,
                            # alpha = alpha,
                            position = position.dodge)
+            
         }
         else {
             if (is_null(subclass.names) || !attr(x, "print.options")$disp.subclass) {
@@ -1138,19 +1169,16 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                     f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
                     lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
                                               position = "identity", stat = "identity",
-                                              mapping = aes(shape = Sample,
-                                                            size = Sample,
-                                                            stroke = Sample,
-                                                            color = Sample,
-                                                            alpha = on.border),
-                                              params = list(na.rm = TRUE))
+                                              mapping = aes(color = Sample),
+                                              params = list(size = size0[1]*.8/3,
+                                                            na.rm = TRUE))
                 }
                 lp <- lp + geom_point(data = SS, aes(shape = Sample,
                                                      size = Sample,
                                                      stroke = Sample,
-                                                     color = Sample,
-                                                     alpha = on.border),
+                                                     color = Sample),
                                       fill = "white", 
+                                      # alpha = alpha,
                                       na.rm = TRUE)
                 
             }
@@ -1162,13 +1190,19 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                     lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a),
                                               position = "identity", stat = "identity",
                                               mapping = aes(color = Sample),
-                                              params = list(size = size*.8, na.rm = TRUE,
-                                                            alpha = alpha))
+                                              params = list(size = size*.8,
+                                                            # alpha = alpha, 
+                                                            na.rm = TRUE))
                 }
                 lp <- lp + geom_point(data = SS.u.a,
-                                      aes(shape = Sample, color = Sample),
-                                      size = 2*size, stroke = stroke, fill = "white", na.rm = TRUE,
-                                      alpha = alpha)
+                                      aes(shape = Sample,
+                                          size = Sample,
+                                          stroke = Sample,
+                                          color = Sample),
+                                      # size = 2*size, stroke = stroke, 
+                                      fill = "white",
+                                      # alpha = alpha, 
+                                      na.rm = TRUE)
                 lp <- lp + geom_text(data = SS[SS$Sample %nin% c("Unadjusted", "Adjusted"),],
                                      aes(label = gsub("Subclass ", "", Sample)),
                                      size = 2*size, na.rm = TRUE)
@@ -1205,6 +1239,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         else {
             lp <- lp + theme(legend.key=element_blank())
         }
+        
         class(lp) <- c(class(lp), "love.plot")
         plot.list[[s]] <- lp
     }
