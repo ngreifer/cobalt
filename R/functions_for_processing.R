@@ -362,6 +362,35 @@ subset_X <- function(X, subset = NULL) {
     }
     else X
 }
+imp.complete <- function(data) {
+    if (!inherits(data, "mids")) stop("'data' not of class 'mids'")
+    
+    single.complete <- function (data, where, imp, ell) {
+        if (is.null(where)) 
+            where <- is.na(data)
+        idx <- seq_len(ncol(data))[apply(where, 2, any)]
+        for (j in idx) {
+            if (is_null(imp[[j]])) data[where[, j], j] <- NA
+            else data[where[, j], j] <- imp[[j]][, ell]
+        }
+        return(data)
+    }
+    
+    m <- as.integer(data$m)
+    idx <- 1L:m
+    
+    mylist <- lapply(idx, function(i) single.complete(data$data, data$where, data$imp, i))
+    
+    cmp <- data.frame(.imp = rep(idx, each = nrow(data$data)), 
+                      .id = rep.int(1L:nrow(data$data), length(idx)), 
+                      do.call("rbind", mylist))
+    
+    if (is.integer(attr(data$data, "row.names"))) 
+        row.names(cmp) <- seq_len(nrow(cmp))
+    else row.names(cmp) <- as.character(seq_len(nrow(cmp)))
+    
+    return(cmp)
+}
 
 #get.C
 #Functions to turn input covariates into usable form
@@ -1939,6 +1968,13 @@ shapes.ok <- function(shapes, nshapes) {
 gg_color_hue <- function(n) {
     hues = seq(15, 375, length = n + 1)
     hcl(h = hues, l = 65, c = 100)[1:n]
+}
+col_plus_alpha <- function(col, alpha) {
+    colrgb <- col2rgb(col)
+    newcol <- rgb(red = (1 - alpha)*255 + alpha*colrgb["red", 1],
+                  green = (1 - alpha)*255 + alpha*colrgb["green", 1],
+                  blue = (1 - alpha)*255 + alpha*colrgb["blue", 1], max = 255)
+    return(newcol)
 }
 
 #bal.plot
