@@ -781,6 +781,11 @@ x2base.Match <- function(Match, ...) {
 x2base.formula <- function(formula, ...) {
     A <- list(...)
     
+    if ("data" %in% names(A) && inherits(A[["data"]], "mids")) {
+        A[["data"]] <- imp.complete(A[["data"]])
+        if (is_null(A[["imp"]])) A[["imp"]] <- A[["data"]][[".imp"]]
+    }
+    
     t.c <- get.covs.and.treat.from.formula(formula, A[["data"]], treat = A[["treat"]])
     covs <- t.c[["reported.covs"]]
     treat <- t.c[["treat"]]
@@ -846,14 +851,20 @@ x2base.data.frame <- function(covs, ...) {
         stop("covs data.frame must be specified.", call. = FALSE)
     }
     is_(covs, "data.frame", stop = TRUE)
-    if (is_not_null(data) && !is_(data, "data.frame")) {
-        warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
-        data <- NULL
-    }
-    # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
-    #     stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
-    # }
     
+    #Process data
+    if (is_not_null(data)) {
+        if (inherits(data, "mids")) {
+            data <- imp.complete(data)
+            if ("imp" %nin% names(A)) imp <- data[[".imp"]]
+        }
+        else if (!is_(data, "data.frame"))
+        {
+            warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            data <- NULL
+        }
+    }
+
     specified <- setNames(rep(FALSE, 3), c("match.strata", "subclass", "weights"))
     if (is_not_null(weights)) {
         if (!is_(weights, c("character", "numeric", "data.frame", "list"))) {
@@ -1093,7 +1104,7 @@ x2base.data.frame <- function(covs, ...) {
                                  }, numeric(1L))), c(vectors, data.frames))
     #Process imp
     if (is_not_null(imp)) {
-        if (is_(imp, c("numeric", "factor")) || (is.character(imp) && length(imp)>1)) {
+        if (is_(imp, c("numeric", "factor")) || (is.character(imp) && length(imp) > 1)) {
             imp <- imp
         }
         else if (is.character(imp) && length(imp)==1 && any(names(data) == imp)) {
@@ -1106,6 +1117,7 @@ x2base.data.frame <- function(covs, ...) {
         if (all_the_same(imp.lengths)) { #all the same
             for (i in vectors) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) { 
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                     if (lengths[i] == imp.lengths[1]) {
                         temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                order2 = seq_along(imp))
@@ -1124,15 +1136,16 @@ x2base.data.frame <- function(covs, ...) {
             }
             for (i in data.frames) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                     if (lengths[i] == imp.lengths[1]) {
                         temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                order2 = seq_along(imp))
-                        temp.var <- data.frame(sort(imp),rep(seq_len(lengths[i]), length(imp.lengths)),
+                        temp.var <- data.frame(sort(imp), rep(seq_len(lengths[i]), length(imp.lengths)),
                                                get(i)[rep(seq_len(lengths[i]), length(imp.lengths)), , drop = FALSE]
                         )
                         temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                             by.y = 1:2, sort = FALSE)
-                        assign(i, setNames(temp.merge[-c(1:3)][order(temp.merge[[3]]),], names(get(i))))
+                        assign(i, setNames(temp.merge[order(temp.merge[[3]]), -c(1:3), drop = FALSE], names(get(i))))
                     }
                     else {
                         problematic[i] <- TRUE
@@ -1168,7 +1181,7 @@ x2base.data.frame <- function(covs, ...) {
                                                              covs = covs
         ))
     }
-    
+   
     if (is_not_null(weights)) {
         if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
@@ -1745,9 +1758,10 @@ x2base.weightit <- function(weightit, ...) {
         
         imp.lengths <- vapply(unique(imp), function(i) sum(imp == i), numeric(1L))
         
-        if (all_the_same(imp.lengths)) {
+        if (all_the_same(imp.lengths)) { #all the same
             for (i in vectors) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) { 
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                     if (lengths[i] == imp.lengths[1]) {
                         temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                order2 = seq_along(imp))
@@ -1757,7 +1771,7 @@ x2base.weightit <- function(weightit, ...) {
                         )
                         temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                             by.y = 1:2, sort = FALSE)
-                        assign(i, temp.merge[[-c(1:3)]][order(temp.merge[[3]])])
+                        assign(i, temp.merge[[4]][order(temp.merge[[3]])])
                     }
                     else {
                         problematic[i] <- TRUE
@@ -1766,6 +1780,7 @@ x2base.weightit <- function(weightit, ...) {
             }
             for (i in data.frames) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                     if (lengths[i] == imp.lengths[1]) {
                         temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                order2 = seq_along(imp))
@@ -1774,7 +1789,7 @@ x2base.weightit <- function(weightit, ...) {
                         )
                         temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                             by.y = 1:2, sort = FALSE)
-                        assign(i, setNames(temp.merge[[-c(1:3)]][order(temp.merge[[3]])], names(get(i))))
+                        assign(i, setNames(temp.merge[order(temp.merge[[3]]), -c(1:3), drop = FALSE], names(get(i))))
                     }
                     else {
                         problematic[i] <- TRUE
@@ -1966,7 +1981,7 @@ x2base.designmatch <- function(dm, ...) {
     return(X)
     
 }
-x2base.mimids <- function(mimids, ...) {
+.x2base.mimids <- function(mimids, ...) {
     
     nimp <- length(mimids[[2]]) - 1
     if (nimp == 1) {
@@ -2049,7 +2064,30 @@ x2base.mimids <- function(mimids, ...) {
         discarded <- if ("discarded" %in% names(mimids[[2]][-1][[1]])) unlist(lapply(mimids[[2]][-1], function(x) x[["discarded"]])) else NULL
     }
     
+    #Process data
     data <- A$data
+    
+    if (is_not_null(data)) {
+        if (inherits(data, "mids")) {
+            data <- imp.complete(data)
+            if ("imp" %nin% names(A)) imp <- data[[".imp"]]
+        }
+        else if (!is_(data, "data.frame"))
+        {
+            warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            data <- NULL
+        }
+    }
+    
+    m.data1 <- do.call("rbind", lapply(mimids[[2]][-1], function(m) m$model$data))
+    m.data2 <- do.call("rbind", mimids[[4]][-1])
+    
+    subset <- A$subset
+    cluster <- A$cluster
+    s.d.denom <- A$s.d.denom
+    imp <- m.data2[[".imp"]]
+    weights[is.na(weights),] <- 0
+    
     treat <- unlist(lapply(mimids[[2]][-1], function(m) m[["treat"]]))
     covs <- do.call("rbind", lapply(1:nimp, function(i) {
         m <- mimids[[2]][-1][[i]]
@@ -2111,15 +2149,6 @@ x2base.mimids <- function(mimids, ...) {
         return(covs)
     }))
     
-    m.data1 <- do.call("rbind", lapply(mimids[[2]][-1], function(m) m$model$data))
-    m.data2 <- do.call("rbind", mimids[[4]][-1])
-    
-    subset <- A$subset
-    cluster <- A$cluster
-    s.d.denom <- A$s.d.denom
-    imp <- m.data2[[".imp"]]
-    weights[is.na(weights),] <- 0
-    
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
     #Process cluster
@@ -2173,9 +2202,10 @@ x2base.mimids <- function(mimids, ...) {
         
         imp.lengths <- vapply(unique(imp, nmax = nimp), function(i) sum(imp == i), numeric(1L))
         
-        if (all_the_same(imp.lengths)) {
+        if (all_the_same(imp.lengths)) { #all the same
             for (i in vectors) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) { 
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                     if (lengths[i] == imp.lengths[1]) {
                         temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                order2 = seq_along(imp))
@@ -2185,7 +2215,7 @@ x2base.mimids <- function(mimids, ...) {
                         )
                         temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                             by.y = 1:2, sort = FALSE)
-                        assign(i, temp.merge[[-c(1:3)]][order(temp.merge[[3]])])
+                        assign(i, temp.merge[[4]][order(temp.merge[[3]])])
                     }
                     else {
                         problematic[i] <- TRUE
@@ -2194,6 +2224,7 @@ x2base.mimids <- function(mimids, ...) {
             }
             for (i in data.frames) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                     if (lengths[i] == imp.lengths[1]) {
                         temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                order2 = seq_along(imp))
@@ -2202,7 +2233,7 @@ x2base.mimids <- function(mimids, ...) {
                         )
                         temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                             by.y = 1:2, sort = FALSE)
-                        assign(i, setNames(temp.merge[[-c(1:3)]][order(temp.merge[[3]])], names(get(i))))
+                        assign(i, setNames(temp.merge[order(temp.merge[[3]]), -c(1:3), drop = FALSE], names(get(i))))
                     }
                     else {
                         problematic[i] <- TRUE
@@ -3085,10 +3116,10 @@ x2base.default <- function(obj, ...) {
               formula.list = list(name = c("formula.list", "formula", "form"),
                                   type = c("list")),
               data = list(name = c("data"),
-                          type = c("data.frame")),
-              weights = list(name = c("weights", "w"),
+                          type = c("data.frame", "mids")),
+              weights = list(name = c("weights", "w", "wts"),
                              type = c("data.frame", "matrix", "numeric")),
-              distance = list(name = c("distance", "ps"),
+              distance = list(name = c("distance", "ps", "pscore","p.score", "propensity.score"),
                               type = c("data.frame", "matrix", "numeric")),
               distance.list = list(name = c("distance.list", "ps.list", "distance", "ps"),
                                    type = c("list")),
@@ -3162,7 +3193,14 @@ x2base.default <- function(obj, ...) {
         msm <- TRUE
     }
     
-    #data OK
+    #data
+    if (is_not_null(data)) {
+        if (inherits(data, "mids")) {
+            data <- imp.complete(data)
+            if ("imp" %nin% names(A)) A[["imp"]] <- data[[".imp"]]
+        }
+        data <- as.data.frame(data)
+    }
     
     #weights
     if (is_not_null(weights)) {
@@ -3514,7 +3552,7 @@ x2base.default <- function(obj, ...) {
                                      numeric(1L))), c(vectors, data.frames))
         #Process imp
         if (is_not_null(imp)) {
-            if (is.numeric(imp) || is.factor(imp) || (is.character(imp) && length(imp)>1)) {
+            if (is_(imp, c("numeric", "factor")) || (is.character(imp) && length(imp) > 1)) {
                 imp <- imp
             }
             else if (is.character(imp) && length(imp)==1 && any(names(data) == imp)) {
@@ -3527,6 +3565,7 @@ x2base.default <- function(obj, ...) {
             if (all_the_same(imp.lengths)) { #all the same
                 for (i in vectors) {
                     if (lengths[i] > 0 && lengths[i] != length(imp)) { 
+                        if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                         if (lengths[i] == imp.lengths[1]) {
                             temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                    order2 = seq_along(imp))
@@ -3536,7 +3575,7 @@ x2base.default <- function(obj, ...) {
                             )
                             temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                                 by.y = 1:2, sort = FALSE)
-                            assign(i, temp.merge[[-c(1:3)]][order(temp.merge[[3]])])
+                            assign(i, temp.merge[[4]][order(temp.merge[[3]])])
                         }
                         else {
                             problematic[i] <- TRUE
@@ -3545,6 +3584,7 @@ x2base.default <- function(obj, ...) {
                 }
                 for (i in data.frames) {
                     if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                        if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                         if (lengths[i] == imp.lengths[1]) {
                             temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
                                                    order2 = seq_along(imp))
@@ -3553,7 +3593,7 @@ x2base.default <- function(obj, ...) {
                             )
                             temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
                                                 by.y = 1:2, sort = FALSE)
-                            assign(i, setNames(temp.merge[[-c(1:3)]][order(temp.merge[[3]])], names(get(i))))
+                            assign(i, setNames(temp.merge[order(temp.merge[[3]]), -c(1:3), drop = FALSE], names(get(i))))
                         }
                         else {
                             problematic[i] <- TRUE
