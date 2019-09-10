@@ -9,7 +9,7 @@ Generates a "Love" plot graphically displaying covariate balance before and afte
 }
 \usage{
 love.plot(x, 
-    stat = c("mean.diffs", "variance.ratios", 
+    stats = c("mean.diffs", "variance.ratios", 
              "ks.statistics"), 
     threshold = NULL, 
     abs = TRUE, 
@@ -29,7 +29,7 @@ love.plot(x,
   \item{x}{
   the valid input to a call to \code{\link{bal.tab}()} (e.g., the output of a preprocessing function). Other arguments that would be supplied to \code{bal.tab()} can be entered with \code{...}. Can also be a \code{bal.tab} object, the output of a call to \code{bal.tab()}. See Examples. If \code{x} is not a \code{bal.tab} object, \code{love.plot()} calls \code{bal.tab()} with the arguments supplied.
 }
-  \item{stat}{
+  \item{stats}{
 \code{character}; which statistic(s) should be reported. For binary or multinomial treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed.
 }
   \item{threshold}{

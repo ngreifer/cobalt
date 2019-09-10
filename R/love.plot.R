@@ -1,11 +1,13 @@
 #To do: make sure limits work with facets and make sure subclassification works
 
-love.plot <- function(x, stat = "mean.diffs", threshold = NULL, 
+love.plot <- function(x, stats = "mean.diffs", threshold = NULL, 
                       abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
                       drop.distance = FALSE, agg.fun = c("range", "max", "mean"), 
                       line = FALSE, stars = "none", grid = TRUE, 
-                      colors = NULL, shapes = NULL, alpha = 1, size = 3, 
-                      title, subtitle, sample.names, limits = NULL, 
+                      colors = NULL, shapes = NULL, 
+                      alpha = 1, 
+                      size = 3, wrap = 30,
+                      title, subtitle, sample.names, limits = NULL, position = "right",
                       ...) {
     
     #Replace .all and .none with NULL and NA respectively
@@ -18,18 +20,18 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         return(eval(.call))
     }
     
-    #Re-call bal.tab with disp.v.ratio or disp.ks if stat = "v" or "k".
+    #Re-call bal.tab with disp.v.ratio or disp.ks if stats = "v" or "k".
     if (!exists(deparse(substitute(x)))) { #if x is not an object (i.e., is a function call)
         mc <- match.call()
         replace.args <- function(m) {
             #m_ is bal.tab call or list (for do.call)
-            if (any(sapply(stat, function(x) pmatch(x, "variance.ratios", 0L) != 0L))) {
+            if (any(sapply(stats, function(x) pmatch(x, "variance.ratios", 0L) != 0L))) {
                 if (!isTRUE(eval(m[["disp.v.ratio"]]))) {
                     m[["un"]] <- TRUE
                     m[["disp.v.ratio"]] <- TRUE
                 }
             }
-            if (any(sapply(stat, function(x) pmatch(x, "ks.statistics", 0L) != 0L))) {
+            if (any(sapply(stats, function(x) pmatch(x, "ks.statistics", 0L) != 0L))) {
                 if (!isTRUE(eval(m[["disp.ks"]]))) {
                     m[["un"]] <- TRUE
                     m[["disp.ks"]] <- TRUE
@@ -78,11 +80,11 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     args <- list(...)
     
     if (any(class(x) == "bal.tab.cont")) {
-        stat <- "correlations"
+        stats <- "correlations"
     }
-    else stat <- match_arg(stat, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+    else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
     
-    which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stat]
+    which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
     which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
     
     #shape (deprecated)
@@ -498,8 +500,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
     }
     else if (any(class(x) == "bal.tab.subclass")) {
-        if (any(stat == "variance.ratios")) stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
-        if (any(stat == "ks.statistics")) stop("KS statistics not currently supported for subclassification.", call. = FALSE)
+        if (any(stats == "variance.ratios")) stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
+        if (any(stats == "ks.statistics")) stop("KS statistics not currently supported for subclassification.", call. = FALSE)
         if (any(class(x) == "bal.tab.cont")) stop("Continuous treatments not currently supported for subclassification.", call. = FALSE)
         subclass.names <- names(x[["Subclass.Balance"]])
         sub.B <- do.call("cbind", lapply(subclass.names, function(s) {
@@ -516,8 +518,8 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         B <- cbind(x[["Balance"]], variable.names = row.names(x[["Balance"]]))
     }
     
-    if (is_not_null(facet) && length(stat) > 1) {
-        stop("stat can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment).", call. = FALSE)
+    if (is_not_null(facet) && length(stats) > 1) {
+        stop("stats can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment).", call. = FALSE)
     }
     
     #Process abs
@@ -658,11 +660,11 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         
         if (is_not_null(names(limits))) {
-            names(limits) <- stat[pmatch(names(limits), stat, duplicates.ok = TRUE)]
+            names(limits) <- stats[pmatch(names(limits), stats, duplicates.ok = TRUE)]
             limits <- limits[!is.na(names(limits))]
         }
         else {
-            names(limits) <- stat[1:length(limits)]
+            names(limits) <- stats[1:length(limits)]
         }
     }
     
@@ -748,14 +750,14 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                         variance.ratios = "v.threshold",
                         ks.statistics = "ks.threshold",
                         correlations = "r.threshold")
-    thresholds <- setNames(sapply(stat, function(i) {
+    thresholds <- setNames(sapply(stats, function(i) {
         if (is_not_null(attr(x, "print.options")[[stat2threshold[i]]])) {
             return(attr(x, "print.options")[[stat2threshold[i]]])
         }
         else {
             return(NA_real_)
         }
-    }), stat)
+    }), stats)
     
     if (is_not_null(threshold)) {
         if (!all(is.na(threshold)) && !is.numeric(threshold)) {
@@ -763,11 +765,11 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         
         if (is_not_null(names(threshold))) {
-            names(threshold) <- stat[pmatch(names(threshold), stat, duplicates.ok = TRUE)]
+            names(threshold) <- stats[pmatch(names(threshold), stats, duplicates.ok = TRUE)]
             threshold <- threshold[!is.na(names(threshold))]
         }
         else {
-            names(threshold) <- stat[1:length(threshold)]
+            names(threshold) <- stats[1:length(threshold)]
         }
         
         thresholds[names(threshold)] <- as.numeric(threshold)
@@ -779,9 +781,9 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
     else title <- as.character(title)
     # if (missing(subtitle)) subtitle <- as.character(subtitle)
     
-    plot.list <- setNames(vector("list", length(stat)), stat)
-    for (s in stat) {
-        variable.names <- B[["variable.names"]]
+    plot.list <- setNames(vector("list", length(stats)), stats)
+    for (s in stats) {
+        variable.names <- as.character(B[["variable.names"]])
         if (s == "mean.diffs") {
             binary <- attr(x, "print.options")$binary
             continuous <- attr(x, "print.options")$continuous
@@ -798,26 +800,25 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                 stars <- match_arg(stars, c("none", "std", "raw"))
                 if (stars == "none") {
                     warning("Standardized mean differences and raw mean differences are present in the same plot. \nUse the 'stars' argument to distinguish between them and appropriately label the x-axis.", call. = FALSE)
+                    xlab.diff <- "Mean Differences"
                 }
                 else {
                     if (length(args$star_char) == 1 && is.character(args$star_char)) star_char <- args$star_char
                     else star_char <- "*"
+                    
+                    vars_to_star <- setNames(rep(FALSE, nrow(B)), variable.names)
+                    if (stars == "std") {
+                        if (binary == "std") vars_to_star[variable.names[B[["Type"]] == "Binary"]] <- TRUE
+                        if (continuous == "std") vars_to_star[variable.names[B[["Type"]] != "Binary"]] <- TRUE
+                        xlab.diff <- "Mean Differences"
+                    }
+                    else if (stars == "raw") {
+                        if (binary == "raw") vars_to_star[variable.names[B[["Type"]] == "Binary"]] <- TRUE
+                        if (continuous == "raw") vars_to_star[variable.names[B[["Type"]] != "Binary"]] <- TRUE
+                        xlab.diff <- "Standardized Mean Differences"
+                    }
+                    variable.names[vars_to_star[variable.names]] <- paste0(variable.names[vars_to_star[variable.names]], star_char)
                 }
-                vars_to_star <- setNames(rep(FALSE, nrow(B)), B[["variable.names"]])
-                if (stars == "std") {
-                    if (attr(x, "print.options")$binary == "std") vars_to_star[B[["variable.names"]][B[["Type"]] == "Binary"]] <- TRUE
-                    if (attr(x, "print.options")$continuous == "std") vars_to_star[B[["variable.names"]][B[["Type"]] != "Binary"]] <- TRUE
-                    xlab.diff <- "Mean Differences"
-                }
-                else if (stars == "raw") {
-                    if (attr(x, "print.options")$binary == "raw") vars_to_star[B[["variable.names"]][B[["Type"]] == "Binary"]] <- TRUE
-                    if (attr(x, "print.options")$continuous == "raw") vars_to_star[B[["variable.names"]][B[["Type"]] != "Binary"]] <- TRUE
-                    xlab.diff <- "Standardized Mean Differences"
-                }
-                else {
-                    xlab.diff <- "Mean Differences"
-                }
-                variable.names <- paste0(B[["variable.names"]], ifelse(vars_to_star[B[["variable.names"]]], star_char, ""))
             }
         }
         
@@ -999,7 +1000,7 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             }
             SS[["Sample"]] <- factor(SS[["Sample"]])
             if (s == "mean.diffs" && any(base::abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
-            if (length(stat) == 1 && no.missing) SS <- SS[!is.na(SS[["stat"]]),]
+            if (length(stats) == 1 && no.missing) SS <- SS[!is.na(SS[["stat"]]),]
         }
         SS <- SS[order(SS[["var"]], na.last = FALSE),]
         SS[["var"]] <- factor(SS[["var"]])
@@ -1053,13 +1054,15 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         
         apply.limits <- FALSE
         SS[["on.border"]] <- FALSE
-        if (is_not_null(limits)) {
+        if (is_not_null(limits[[s]])) {
             if (limits[[s]][2] < limits[[s]][1]) {
                 limits[[s]] <- c(limits[[s]][2], limits[[s]][1])
             }
             
             if (limits[[s]][1] >= baseline.xintercept) limits[[s]][1] <- baseline.xintercept - .05*limits[[s]][2]
             if (limits[[s]][2] <= baseline.xintercept) limits[[s]][2] <- baseline.xintercept - .05*limits[[s]][1]
+            
+            if (identical(scale_Statistics, scale_x_log10)) limits[[s]][limits[[s]] <= 1e-2] <- 1e-2
             
             if (agg.range) {
                     # for (i in c("min.stat", "mean.stat", "max.stat")) {
@@ -1117,19 +1120,19 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         }
         
         lp <- ggplot(aes(y = var, x = stat, group = Sample), data = SS) +
-            theme(panel.background = element_rect(fill = "white", color = "black"),
+            theme(panel.background = element_rect(fill = "white"),
                   axis.text.x = element_text(color = "black"),
                   axis.text.y = element_text(color = "black"),
-                  panel.border = element_rect(fill = NA, color = "black")
+                  panel.border = element_rect(fill = NA, color = "black"),
+                  plot.background = element_blank(),
+                  legend.background = element_blank()
             ) +
             scale_shape_manual(values = shapes) +
             scale_size_manual(values = size) +
             scale_discrete_manual(aesthetics = "stroke", values = stroke) +
             scale_fill_manual(values = fill) +
             scale_color_manual(values = colors) +
-            # scale_alpha_manual(values = c("FALSE" = alpha, "TRUE" = alpha*.5),
-            #                    guide = FALSE) +
-            labs(y = NULL, x = xlab)
+            labs(y = NULL, x = wrap(xlab, wrap))
         
         lp <- lp + geom_vline(xintercept = baseline.xintercept,
                               linetype = 1, color = "gray5")
@@ -1150,7 +1153,6 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
             lp <- lp +
                 ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat,
                                               color = Sample), position = position.dodge,
-                                          # alpha = alpha,
                                           size = size0[1]*.8/3) +
                 geom_point(aes(y = var, 
                                x = mean.stat, 
@@ -1159,7 +1161,6 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                                stroke = Sample,
                                color = Sample),
                            fill = "white", na.rm = TRUE,
-                           # alpha = alpha,
                            position = position.dodge)
             
         }
@@ -1178,7 +1179,6 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                                                      stroke = Sample,
                                                      color = Sample),
                                       fill = "white", 
-                                      # alpha = alpha,
                                       na.rm = TRUE)
                 
             }
@@ -1191,7 +1191,6 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                                               position = "identity", stat = "identity",
                                               mapping = aes(color = Sample),
                                               params = list(size = size*.8,
-                                                            # alpha = alpha, 
                                                             na.rm = TRUE))
                 }
                 lp <- lp + geom_point(data = SS.u.a,
@@ -1199,13 +1198,11 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
                                           size = Sample,
                                           stroke = Sample,
                                           color = Sample),
-                                      # size = 2*size, stroke = stroke, 
                                       fill = "white",
-                                      # alpha = alpha, 
                                       na.rm = TRUE)
                 lp <- lp + geom_text(data = SS[SS$Sample %nin% c("Unadjusted", "Adjusted"),],
                                      aes(label = gsub("Subclass ", "", Sample)),
-                                     size = 2*size, na.rm = TRUE)
+                                     size = 2.5*size0[1]/3, na.rm = TRUE)
             }
             
             
@@ -1233,24 +1230,58 @@ love.plot <- function(x, stat = "mean.diffs", threshold = NULL,
         if (is_not_null(facet)) {
             lp <- lp + facet_grid(f.build(".", facet), drop = FALSE) + labs(x = xlab)
         }
-        if (s != last(stat)) {
-            lp <- lp + theme(legend.position = "none")
-        }
-        else {
+        # if (s != last(stats)) {
+            lp <- lp + theme(legend.position = position)
+        # }
+        # else {
             lp <- lp + theme(legend.key=element_blank())
-        }
+        # }
         
         class(lp) <- c(class(lp), "love.plot")
         plot.list[[s]] <- lp
     }
     
-    if (length(stat) > 1) {
-        p <- do.call(egg::ggarrange, c(list(plots = plot.list, nrow = 1, top = title), args))
-        return(invisible(p))
+    if (length(stats) > 1 || isTRUE(args$test)) {
+
+        # legend <- get_legend(plot.list[[1]])
+        # for (s in names(plot.list)) {
+        #     plot.list[[s]] <- plot.list[[s]] + theme(legend.position = "none")
+        # }
+        p <- ggarrange(plotlist = plot.list, common.legend = TRUE, legend = position, 
+                       align = "hv", nrow = 1)
+        if (is_not_null(subtitle)) {
+            p <- annotate_figure(p, top = text_grob(subtitle, size = 11))
+        }
+        p <- annotate_figure(p, top = text_grob(title, size = 13.2))
+
+        # if (position == "bottom") {
+        # p <- do.call(grid.arrange, c(plot.list, list(legend, ncol=2, nrow = 2,
+        #                                              layout_matrix = matrix(c(1,2,3,3), byrow = TRUE, nrow = 2),
+        #                                              widths = c(1, 1), heights = c(1, .08))))
+        # }
+        # else if (position == "top") {
+        #     p <- do.call(grid.arrange, c(list(legend), plot.list, list(ncol=2, nrow = 2,
+        #                                                  layout_matrix = matrix(c(1, 1,2,3), byrow = TRUE, nrow = 2),
+        #                                                  widths = c(1, 1), heights = c(.08, 1))))
+        # }
+        # else if (position == "right") {
+        #     p <- do.call(grid.arrange, c(plot.list, list(legend, ncol=3, nrow = 1, 
+        #                                                  layout_matrix = matrix(c(1,2,3), nrow = 1),
+        #                                                  widths = c(1,1,.5))))
+        # }
+        # else if (position == "none") {
+        #     p <- do.call(grid.arrange, c(plot.list, list(ncol=2, nrow = 1, 
+        #                                                  layout_matrix = matrix(c(1,2), nrow = 1),
+        #                                                  widths = c(1,1))))
+        # }
+        # p <- do.call(grid_arrange_shared_legend, c(list(plot.list, nrow = 1)))
+        # p <- do.call(egg::ggarrange, c(list(plots = plot.list, nrow = 1, top = title), args))
+        return(print(p))
     }
     else {
-        p <- plot.list[[1]] + labs(title = title) +
-            theme(plot.title = element_text(hjust = 0.5))
+  
+            p <- plot.list[[1]] + labs(title = title) +
+                theme(plot.title = element_text(hjust = 0.5))
         
         return(p)
     }
