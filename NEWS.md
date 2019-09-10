@@ -7,7 +7,7 @@ Version 3.8.0
 
 * Bug fixes that make `bal.tab()` and `love.plot()` more usable within other functions and especially when called with `do.call()`.
 
-* Made it easier to get proper output when using `matchit()` with an argument to `distance`. Include the original dataset in the `data` argument to get the variables to display correctly.
+* Made it easier to get proper `bal.tab` output when using `matchit()` with an argument to `distance` (in the call to `matchit()`). Include the original dataset in the `data` argument of `bal.tab()` to get the variables to display correctly.
 
 * Changed the default shape in `love.plot()` to `"circle"`, which is a solid circle. I found this a prettier alternative to the open circle, especially on Windows. To get back open circles you set `shapes = "circle filled"` (yes, that is a bit confusing).
 
@@ -18,6 +18,8 @@ Version 3.8.0
 * The KS statistic is now computed for binary variables. It is simply the difference in proportion.
 
 * Added methods for objects from the `MatchIt.mice` package.
+
+* Allowed some methods to accept `mids` objects (the output of a call to `mice::mice()`) in the `data` argument to supply multiply imputated data. This essentially replaces `data = complete(imp.out, "long"), imp = ".imp"` with `data = imp.put`, assuming `imp.out` is a `mids` object.
 
 * Other small bug fixes and improvements.
 
