@@ -24,7 +24,7 @@ Suggests:
     optweight,
     mice,
     mlogit (>= 0.3-0),
-    MatchIt.mice (>= 3.0.1)
+    MatchIt.mice (>= 3.0.1),
     knitr,
     rmarkdown
 License: GPL (>=2)
