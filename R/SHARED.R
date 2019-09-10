@@ -167,6 +167,12 @@ paste. <- function(..., collapse = NULL) {
     #Like paste0 but with sep = ".'
     paste(..., sep = ".", collapse = collapse)
 }
+wrap <- function(s, nchar, ...) {
+    vapply(s, function(s_) {
+        x <- strwrap(s_, width = nchar, ...)
+        paste(x, collapse = "\n")
+    }, character(1L))
+}
 
 #Numbers
 check_if_zero <- function(x) {
