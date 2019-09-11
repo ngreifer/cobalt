@@ -10,7 +10,7 @@ Imports:
     ggplot2 (>= 3.0.0),
     grid (>= 3.6.1),
     gtable (>= 0.3.0),
-    gridExtra (>= 2.3.0)
+    gridExtra (>= 2.3.0),
     crayon,
     backports (>= 1.1.1)
 Suggests:
