@@ -10,6 +10,8 @@
 \alias{get.w.optmatch}
 \alias{get.w.weightit}
 \alias{get.w.designmatch}
+\alias{get.w.mimids}
+\alias{get.w.wimids}
 
 \title{
 Extract Weights from Preprocessing Objects

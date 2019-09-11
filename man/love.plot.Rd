@@ -81,7 +81,7 @@ the shapes of the points on the plot. Must be one or two numbers between 1 and 2
   \item{size}{
 \code{numeric}; the size of the points on the plot. Defaults to 3. In previous version, the size was scaled by a factor of 3. Now \code{size} corresponds directly to the \code{size} aesthetic in \code{\link[ggplot2]{geom_point}}.
 }
-  \item{\code{wrap}}{
+  \item{wrap}{
 \code{numeric}; the number of characters at which to wrap axis labels to the next line. Defaults to 30. Decrease this if the axis labels are excessively long.
 }
   \item{var.names}{
