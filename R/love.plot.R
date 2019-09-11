@@ -1,14 +1,9 @@
-#To do: make sure limits work with facets and make sure subclassification works
-
-love.plot <- function(x, stats = "mean.diffs", threshold = NULL, 
-                      abs = TRUE, var.order = NULL, no.missing = TRUE, var.names = NULL, 
-                      drop.distance = FALSE, agg.fun = c("range", "max", "mean"), 
-                      line = FALSE, stars = "none", grid = TRUE, 
-                      colors = NULL, shapes = NULL, 
-                      alpha = 1, 
-                      size = 3, wrap = 30,
-                      title, subtitle, sample.names, limits = NULL, position = "right",
-                      ...) {
+love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL, 
+                      var.order = NULL, drop.missing = TRUE, drop.distance = FALSE, 
+                      threshold = NULL, line = FALSE, stars = "none", grid = TRUE, 
+                      limits = NULL, colors = NULL, shapes = NULL, alpha = 1, size = 3, 
+                      wrap = 30, var.names = NULL, title, sample.names, 
+                      position = "right", ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -98,7 +93,10 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
         if (i %in% names(args)) attr(x, "print.options")[[i]] <- args[[i]]
     }
     
+    #Using old argument names
     if (is_not_null(args$cluster.fun) && is_null(agg.fun)) agg.fun <- args$cluster.fun
+    if (is_not_null(args$no.missing)) drop.missing <- args$no.missing
+    
     Agg.Fun <- NULL
     subtitle <- NULL
     facet <- NULL
@@ -169,10 +167,10 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             #Agg.Fun <- switch(match_arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
-                subtitle <- paste0(which.stat2, " Range Across Time Points")
+                subtitle <- "Range Across Time Points"
             }
             else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Time Points")
+                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Time Points")
             }
             B <- cbind(x[["Balance.Across.Times"]],
                        variable.names = rownames(x[["Balance.Across.Times"]]))
@@ -272,12 +270,13 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             if (is_null(x[["Cluster.Balance.Across.Imputations"]])) {
                 stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and imp.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            Agg.Fun <- switch(tolower(match_arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
+                              mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
-                subtitle <- paste0(which.stat2, " Range Across Imputations")
+                subtitle <- "Range Across Imputations"
             }
             else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Imputations", sep = " ")
+                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Imputations", sep = " ")
             }
             B <- do.call("rbind", lapply(names(x[["Cluster.Balance.Across.Imputations"]])[cluster.names.good], 
                                          function(c) cbind(x[["Cluster.Balance.Across.Imputations"]][[c]][["Cluster.Balance"]], 
@@ -289,12 +288,13 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             if (is_null(x[["Imputation.Balance"]][[1]][["Cluster.Summary"]])) {
                 stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            Agg.Fun <- switch(tolower(match_arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
+                              mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
-                subtitle <- paste0(which.stat2, " Range Across Clusters")
+                subtitle <- "Range Across Clusters"
             }
             else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Clusters", sep = " ")
+                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Clusters", sep = " ")
             }
             B <- do.call("rbind", lapply(names(x[["Imputation.Balance"]])[imp.numbers.good], 
                                          function(i) cbind(x[["Imputation.Balance"]][[i]][["Cluster.Summary"]], 
@@ -307,12 +307,13 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
                 stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and cluster.summary or imp.summary were set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
             #Cluster.Fun <- switch(match_arg(cluster.fun), mean = "Mean", max = "Max", range = "Range")
-            Agg.Fun <- switch(tolower(match_arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
+                              mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
-                subtitle <- paste0(which.stat2, " Range Across Clusters and Imputations")
+                subtitle <- "Range Across Clusters and Imputations"
             }
             else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Clusters and Imputations", sep = " ")
+                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Clusters and Imputations", sep = " ")
             }
             B <- cbind(x[["Balance.Across.Imputations"]],
                        variable.names = row.names(x[["Balance.Across.Imputations"]]))
@@ -353,12 +354,13 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             if (is_null(x[["Balance.Across.Imputations"]])) {
                 stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and imp.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            Agg.Fun <- switch(tolower(match_arg(agg.fun)), mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
+                              mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
-                subtitle <- paste0(which.stat2, " Range Across Imputations")
+                subtitle <- "Range Across Imputations"
             }
             else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Imputations")
+                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Imputations")
             }
             B <- cbind(x[["Balance.Across.Imputations"]],
                        variable.names = rownames(x[["Balance.Across.Imputations"]]))
@@ -407,13 +409,13 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             if (is_null(x[["Cluster.Summary"]])) {
                 stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
             }
-            agg.fun <- tolower(match_arg(agg.fun))
-            Agg.Fun <- switch(agg.fun, mean = "Mean", max = "Max", range = "Range")
+            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
+                              mean = "Mean", max = "Max", range = "Range")
             if (Agg.Fun == "Range") {
-                subtitle <- paste0(which.stat2, " Range Across Clusters")
+                subtitle <- "Range Across Clusters"
             }
             else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), which.stat2, "Across Clusters")
+                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Clusters")
             }
             B <- cbind(x[["Cluster.Summary"]],
                        variable.names = rownames(x[["Cluster.Summary"]]))
@@ -490,10 +492,10 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             #Agg.Fun <- switch(match_arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
             Agg.Fun <- "Max"
             if (Agg.Fun == "Range") {
-                subtitle <- paste0(which.stat2, " Range Across Treatment", ifelse(attr(x, "print.options")$pairwise, " Pairs", "s"))
+                subtitle <- paste0("Range Across Treatment", ifelse(attr(x, "print.options")$pairwise, " Pairs", "s"))
             }
             else {
-                subtitle <- paste0(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), " ", which.stat2, " Across Treatment", ifelse(attr(x, "print.options")$pairwise, " Pairs", "s"))
+                subtitle <- paste0(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), " Across Treatment", ifelse(attr(x, "print.options")$pairwise, " Pairs", "s"))
             }
             B <- cbind(x[["Balance.Across.Pairs"]],
                        variable.names = rownames(x[["Balance.Across.Pairs"]]))
@@ -520,6 +522,10 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
     
     if (is_not_null(facet) && length(stats) > 1) {
         stop("stats can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment).", call. = FALSE)
+    }
+    
+    if (is_not_null(agg.fun) && config == "agg.none") {
+        warning("No aggregation will take place, so agg.fun will be ignored. Remember to set 'which.<ARG> = .none' to aggregate across <ARG>.", call. = FALSE)
     }
     
     #Process abs
@@ -705,7 +711,7 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
         }
         
     }
-    colors[] <- vapply(colors, col_plus_alpha, character(1L), alpha = alpha)
+    # colors[] <- vapply(colors, col_plus_alpha, character(1L), alpha = alpha)
     fill <- colors
     
     #Shapes
@@ -735,7 +741,7 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
     size[shapes.with.fill] <- size[shapes.with.fill]* .58
     
     # stroke <- .8*size
-
+    
     if (is_not_null(facet)) {
         if (is_not_null(var.order) && "love.plot" %nin% class(var.order) && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
             warning("var.order cannot be set with faceted plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
@@ -827,13 +833,14 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             SS <- do.call("rbind", 
                           lapply(c("Un", attr(x, "print.options")$weight.names),
                                  function(w) data.frame(var = variable.names,
+                                                        type = B[["Type"]],
                                                         min.stat = B[[paste.("Min", which.stat[s], w)]],
                                                         max.stat = B[[paste.("Max", which.stat[s], w)]],
                                                         mean.stat = B[[paste.("Mean", which.stat[s], w)]],
                                                         Sample = ifelse(w == "Un", "Unadjusted", 
                                                                         ifelse(w == "Adj", "Adjusted", w)),
                                                         row.names = NULL)))
-            
+
             if (is_not_null(facet)) {
                 if ("cluster" %in% facet) {
                     SS$cluster <- rep(B[["cluster"]], 1 + attr(x, "print.options")$nweights)
@@ -870,19 +877,18 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             dec <- FALSE
             
             if (is_not_null(var.order)) {
-                if (var.order %in% ua) {
-                    if (var.order %in% gone) {
-                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
-                        var.order <- character(0)
+                if ("love.plot" %in% class(var.order)) {
+                    old.vars <- levels(var.order$data$var)
+                    old.vars[endsWith(old.vars, "*")] <- gsub("*", "", old.vars[endsWith(old.vars, "*")], fixed = TRUE)
+                    if (any(SS[["var"]] %nin% old.vars)) {
+                        warning("The love.plot object in var.order doesn't have the same variables as the current input. Ignoring var.order.", call. = FALSE)
+                        var.order <- NULL
                     }
                     else {
-                        v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==var.order], decreasing = dec, na.last = FALSE)])
-                        SS[["var"]] <- factor(SS[["var"]], 
-                                              levels=c(v[v %nin% distance.names], 
-                                                       sort(distance.names, decreasing = TRUE)))
+                        SS[["var"]] <- factor(SS[["var"]], levels = old.vars[old.vars %in% SS[["var"]]])
                     }
                 }
-                else if (var.order == "alphabetical") {
+                else if (tolower(var.order) == "alphabetical") {
                     if ("time" %in% facet) {
                         covnames0 <- vector("list", length(unique(SS[["time"]])))
                         for (i in seq_along(covnames0)) {
@@ -893,11 +899,26 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
                                 covnames0[[i]] <- sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]), unlist(covnames0[seq_along(covnames0) < i])))
                             }
                         }
-                        covnames <- as.character(unlist(covnames0))
+                        covnames <- unlist(covnames0)
                     }
-                    else covnames <- as.character(sort(SS[["var"]]))
-                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
+                    else covnames <- sort(levels(SS[["var"]]))
+                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
+                    
                 }
+                else if (var.order %in% ua) {
+                    if (var.order %in% gone) {
+                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
+                        var.order <- NULL
+                    }
+                    else {
+                        v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]]==var.order], decreasing = dec, na.last = FALSE)])
+                        
+                        SS[["var"]] <- factor(SS[["var"]], 
+                                              levels=c(v[v %nin% distance.names], 
+                                                       sort(distance.names, decreasing = TRUE)))
+                    }
+                }
+                
             }
             if (is_null(var.order)) {
                 covnames <- as.character(unique(SS[["var"]]))
@@ -906,13 +927,14 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
             SS[["Sample"]] <- factor(SS[["Sample"]])
             if (s == "mean.diffs" && any(base::abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
-            if (no.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
+            if (length(stats) == 1 && drop.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
             SS[["stat"]] <- SS[["mean.stat"]]
         }
         else {
             SS <- do.call("rbind", 
                           lapply(c("Un", attr(x, "print.options")$weight.names),
                                  function(w) data.frame(var = variable.names,
+                                                        type = B[["Type"]],
                                                         stat = B[[ifelse(is_null(Agg.Fun), paste.(which.stat[s], w),
                                                                          paste.(Agg.Fun, which.stat[s], w))]],
                                                         Sample = ifelse(w == "Un", "Unadjusted", 
@@ -1000,8 +1022,9 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             }
             SS[["Sample"]] <- factor(SS[["Sample"]])
             if (s == "mean.diffs" && any(base::abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
-            if (length(stats) == 1 && no.missing) SS <- SS[!is.na(SS[["stat"]]),]
+            if (length(stats) == 1 && drop.missing) SS <- SS[!is.na(SS[["stat"]]),]
         }
+        
         SS <- SS[order(SS[["var"]], na.last = FALSE),]
         SS[["var"]] <- factor(SS[["var"]])
         
@@ -1065,20 +1088,20 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             if (identical(scale_Statistics, scale_x_log10)) limits[[s]][limits[[s]] <= 1e-2] <- 1e-2
             
             if (agg.range) {
-                    # for (i in c("min.stat", "mean.stat", "max.stat")) {
-                    #     if (any(SS[[i]] < limits[[s]][1], na.rm = TRUE)) {
-                    #         if (i == "mean.stat") SS[["on.border"]][SS[[i]] < limits[[s]][1]] <- TRUE
-                    #         if (i == "mean.stat") SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
-                    #         else SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
-                    #     }
-                    #     if (any(SS[[i]] > limits[[s]][2], na.rm = TRUE)) {
-                    #         if (i == "mean.stat") SS[["on.border"]][SS[[i]] > limits[[s]][2]] <- TRUE
-                    #         if (i == "mean.stat") SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
-                    #         else SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
-                    #         
-                    #         # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
-                    #     }
-                    # }
+                # for (i in c("min.stat", "mean.stat", "max.stat")) {
+                #     if (any(SS[[i]] < limits[[s]][1], na.rm = TRUE)) {
+                #         if (i == "mean.stat") SS[["on.border"]][SS[[i]] < limits[[s]][1]] <- TRUE
+                #         if (i == "mean.stat") SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
+                #         else SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
+                #     }
+                #     if (any(SS[[i]] > limits[[s]][2], na.rm = TRUE)) {
+                #         if (i == "mean.stat") SS[["on.border"]][SS[[i]] > limits[[s]][2]] <- TRUE
+                #         if (i == "mean.stat") SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
+                #         else SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
+                #         
+                #         # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                #     }
+                # }
                 
                 if (any(SS[["mean.stat"]] < limits[[s]][1], na.rm = TRUE)) {
                     SS[["on.border"]][SS[["stat"]] < limits[[s]][1]] <- TRUE
@@ -1093,7 +1116,7 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
                     SS[["min.stat"]][SS[["min.stat"]] > limits[[s]][2]] <- limits[[s]][2]
                     # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
                 }
-                    # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
+                # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
             }
             else {
                 if (any(SS[["stat"]] < limits[[s]][1], na.rm = TRUE)) {
@@ -1125,7 +1148,8 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
                   axis.text.y = element_text(color = "black"),
                   panel.border = element_rect(fill = NA, color = "black"),
                   plot.background = element_blank(),
-                  legend.background = element_blank()
+                  legend.background = element_blank(),
+                  legend.key = element_blank()
             ) +
             scale_shape_manual(values = shapes) +
             scale_size_manual(values = size) +
@@ -1145,15 +1169,21 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
         if (agg.range) {
             position.dodge <- ggstance::position_dodgev(.5*(size0[1]/3))
             if (line == TRUE) { #Add line except to distance
-                f <- function(q) {q[["mean.stat"]][q$var %in% distance.names] <- NA; q}
-                lp <- lp + ggplot2::layer(geom = "path", data = f, position = position.dodge, stat = "identity",
-                                          aes(x = mean.stat, color = Sample), params = list(size = size0[1]*.8/3, na.rm = TRUE))
+                f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
+                lp <- lp + ggplot2::layer(geom = "path", data = f, 
+                                          position = position.dodge, 
+                                          stat = "identity",
+                                          mapping = aes(x = mean.stat, color = Sample), 
+                                          params = list(size = size0[1]*.8/3, na.rm = TRUE,
+                                                        alpha = alpha))
             }
-
+            
             lp <- lp +
                 ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat,
                                               color = Sample), position = position.dodge,
-                                          size = size0[1]*.8/3) +
+                                          size = size0[1]*.8/3,
+                                          alpha = alpha,
+                                          na.rm = TRUE) +
                 geom_point(aes(y = var, 
                                x = mean.stat, 
                                shape = Sample,
@@ -1161,37 +1191,41 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
                                stroke = Sample,
                                color = Sample),
                            fill = "white", na.rm = TRUE,
+                           alpha = alpha,
                            position = position.dodge)
             
         }
         else {
             if (is_null(subclass.names) || !attr(x, "print.options")$disp.subclass) {
                 if (line == TRUE) { #Add line except to distance
-                    f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
+                    f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                     lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
                                               position = "identity", stat = "identity",
                                               mapping = aes(color = Sample),
                                               params = list(size = size0[1]*.8/3,
-                                                            na.rm = TRUE))
+                                                            na.rm = TRUE,
+                                                            alpha = alpha))
                 }
                 lp <- lp + geom_point(data = SS, aes(shape = Sample,
                                                      size = Sample,
                                                      stroke = Sample,
                                                      color = Sample),
                                       fill = "white", 
-                                      na.rm = TRUE)
+                                      na.rm = TRUE,
+                                      alpha = alpha)
                 
             }
             else {
                 SS.u.a <- SS[SS$Sample %in% c("Unadjusted", "Adjusted"),]
                 SS.u.a$Sample <- factor(SS.u.a$Sample)
                 if (line == TRUE) { #Add line except to distance
-                    f <- function(q) {q[["stat"]][q$var %in% distance.names] <- NA; q}
+                    f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                     lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a),
                                               position = "identity", stat = "identity",
                                               mapping = aes(color = Sample),
                                               params = list(size = size*.8,
-                                                            na.rm = TRUE))
+                                                            na.rm = TRUE,
+                                                            alpha = alpha))
                 }
                 lp <- lp + geom_point(data = SS.u.a,
                                       aes(shape = Sample,
@@ -1201,7 +1235,7 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
                                       fill = "white",
                                       na.rm = TRUE)
                 lp <- lp + geom_text(data = SS[SS$Sample %nin% c("Unadjusted", "Adjusted"),],
-                                     aes(label = gsub("Subclass ", "", Sample)),
+                                     mapping = aes(label = gsub("Subclass ", "", Sample)),
                                      size = 2.5*size0[1]/3, na.rm = TRUE)
             }
             
@@ -1227,63 +1261,102 @@ love.plot <- function(x, stats = "mean.diffs", threshold = NULL,
             lp <- lp + theme(panel.grid.major = element_line(color = "gray87"),
                              panel.grid.minor = element_line(color = "gray90"))
         }
+        
+        if (s != stats[1]) {
+            lp <- lp + theme(axis.text.y=element_blank(),
+                             axis.ticks.y=element_blank())
+        }
+        
         if (is_not_null(facet)) {
             lp <- lp + facet_grid(f.build(".", facet), drop = FALSE) + labs(x = xlab)
         }
-        # if (s != last(stats)) {
-            lp <- lp + theme(legend.position = position)
-        # }
-        # else {
-            lp <- lp + theme(legend.key=element_blank())
-        # }
         
         class(lp) <- c(class(lp), "love.plot")
         plot.list[[s]] <- lp
     }
     
-    if (length(stats) > 1 || isTRUE(args$test)) {
-
-        # legend <- get_legend(plot.list[[1]])
-        # for (s in names(plot.list)) {
-        #     plot.list[[s]] <- plot.list[[s]] + theme(legend.position = "none")
-        # }
-        p <- ggarrange(plotlist = plot.list, common.legend = TRUE, legend = position, 
-                       align = "hv", nrow = 1)
-        if (is_not_null(subtitle)) {
-            p <- annotate_figure(p, top = text_grob(subtitle, size = 11))
+    if (length(stats) > 1 || isTRUE(args$use.grid)) {
+        
+        if (!is.character(position) || length(position) > 1) {
+            position <- NA_character_
         }
-        p <- annotate_figure(p, top = text_grob(title, size = 13.2))
+        position <- match_arg(as.character(position), 
+                              c("right", "left", "top", "bottom", "none"))
+        
+        # p <- ggpubr::ggarrange(plotlist = plot.list, common.legend = TRUE, legend = position, 
+        #                align = "hv", nrow = 1)
+        # if (is_not_null(subtitle)) {
+        #     p <- ggpubr::annotate_figure(p, top = ggpubr::text_grob(subtitle, size = 11))
+        # }
+        # p <- ggpubr::annotate_figure(p, top = ggpubr::text_grob(title, size = 13.2))
+        # 
+        # P <- attr(P, "plots")
+        
+        plots.to.combine <- plot.list
+        for (i in seq_along(plots.to.combine)) {
+            if (i > 1) {
+                plots.to.combine[[i]] <- plots.to.combine[[i]] + 
+                    theme(axis.text.y=element_blank(),
+                          axis.ticks.y=element_blank(),
+                          legend.position = "none")
+            }
+            else {
+                plots.to.combine[[i]] <- plots.to.combine[[i]] + theme(legend.position = "none")
+            }
+        }
+        
+        g <- ggarrange_simple(plots = plots.to.combine, nrow = 1)
+        title.grob <- grid::textGrob(title, gp=grid::gpar(fontsize=13.2))
+        subtitle.grob <- grid::textGrob(subtitle, gp=grid::gpar(fontsize=13.2))
+        
+        if (position == "none") {
+            p <- gridExtra::arrangeGrob(grobs = list(g), nrow = 1)
+        }
+        else {
+            legg <- ggplot2::ggplotGrob(plots.to.combine[[1]] + theme(legend.position = position))
+            leg <- legg$grobs[[which(legg$layout$name == "guide-box")]]
+            
+            if (position == "left") {
+                p <- gridExtra::arrangeGrob(grobs = list(leg, g), nrow = 1, 
+                                            widths = grid::unit.c(sum(leg$widths), grid::unit(1, "npc") - sum(leg$widths)))
+            }
+            else if (position == "right") {
+                p <- gridExtra::arrangeGrob(grobs = list(g, leg), nrow = 1, 
+                                            widths = grid::unit.c(grid::unit(1, "npc") - sum(leg$widths), sum(leg$widths)))
+            }
+            else if (position == "top") {
+                p <- gridExtra::arrangeGrob(grobs = list(leg, g), nrow = 2,
+                                            heights = grid::unit.c(sum(leg$heights), grid::unit(1, "npc") - sum(leg$heights)))
+            }
+            else if (position == "bottom") {
+                p <- gridExtra::arrangeGrob(grobs = list(g, leg), nrow = 2,
+                                            heights = grid::unit.c(grid::unit(1, "npc") - sum(leg$heights), sum(leg$heights)))
+            }
+        }
+        
+        if (is_not_null(subtitle)) {
+            p <- gridExtra::arrangeGrob(p, top = subtitle.grob)
+        }
+        p <- gridExtra::arrangeGrob(p, top = title.grob)
+        
+        grid::grid.newpage()
+        grid::grid.draw(p)
+        
+        attr(p, "plots") <- plot.list
+        class(p) <- c(class(p), "love.plot")
 
-        # if (position == "bottom") {
-        # p <- do.call(grid.arrange, c(plot.list, list(legend, ncol=2, nrow = 2,
-        #                                              layout_matrix = matrix(c(1,2,3,3), byrow = TRUE, nrow = 2),
-        #                                              widths = c(1, 1), heights = c(1, .08))))
-        # }
-        # else if (position == "top") {
-        #     p <- do.call(grid.arrange, c(list(legend), plot.list, list(ncol=2, nrow = 2,
-        #                                                  layout_matrix = matrix(c(1, 1,2,3), byrow = TRUE, nrow = 2),
-        #                                                  widths = c(1, 1), heights = c(.08, 1))))
-        # }
-        # else if (position == "right") {
-        #     p <- do.call(grid.arrange, c(plot.list, list(legend, ncol=3, nrow = 1, 
-        #                                                  layout_matrix = matrix(c(1,2,3), nrow = 1),
-        #                                                  widths = c(1,1,.5))))
-        # }
-        # else if (position == "none") {
-        #     p <- do.call(grid.arrange, c(plot.list, list(ncol=2, nrow = 1, 
-        #                                                  layout_matrix = matrix(c(1,2), nrow = 1),
-        #                                                  widths = c(1,1))))
-        # }
-        # p <- do.call(grid_arrange_shared_legend, c(list(plot.list, nrow = 1)))
-        # p <- do.call(egg::ggarrange, c(list(plots = plot.list, nrow = 1, top = title), args))
-        return(print(p))
+        return(invisible(p))
     }
     else {
-  
-            p <- plot.list[[1]] + labs(title = title) +
-                theme(plot.title = element_text(hjust = 0.5))
+        
+        p <- plot.list[[1]] + 
+            labs(title = title, subtitle = subtitle) +
+            theme(plot.title = element_text(hjust = 0.5),
+                  plot.subtitle = element_text(hjust = 0.5),
+                  legend.position = position)
         
         return(p)
+        
     }
     
 }
