@@ -25,7 +25,7 @@ data("lalonde_mis")}
   }
 }
 \source{
-  \url{http://users.nber.org/~rdehejia/data/nswdata2.html}
+  \url{https://users.nber.org/~rdehejia/data/.nswdata2.html}
 }
 \references{
 Lalonde, R. (1986). Evaluating the econometric evaluations of training programs
