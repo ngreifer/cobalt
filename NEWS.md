@@ -21,7 +21,7 @@ Version 3.8.0
 
 * Allowed some methods to accept `mids` objects (the output of a call to `mice::mice()`) in the `data` argument to supply multiply imputated data. This essentially replaces `data = complete(imp.out, "long"), imp = ".imp"` with `data = imp.put`, assuming `imp.out` is a `mids` object.
 
-* Other small bug fixes and improvements.
+* Other bug fixes and improvements.
 
 Version 3.7.0
 
