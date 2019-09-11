@@ -840,7 +840,7 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
                                                         Sample = ifelse(w == "Un", "Unadjusted", 
                                                                         ifelse(w == "Adj", "Adjusted", w)),
                                                         row.names = NULL)))
-
+            
             if (is_not_null(facet)) {
                 if ("cluster" %in% facet) {
                     SS$cluster <- rep(B[["cluster"]], 1 + attr(x, "print.options")$nweights)
@@ -1179,11 +1179,12 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
             }
             
             lp <- lp +
-                ggstance::geom_linerangeh(aes(y = var, xmin = min.stat, xmax = max.stat,
-                                              color = Sample), position = position.dodge,
-                                          size = size0[1]*.8/3,
-                                          alpha = alpha,
-                                          na.rm = TRUE) +
+                geom_errorbarh(aes(y = var, xmin = min.stat, xmax = max.stat,
+                                   color = Sample), position = position.dodge,
+                               size = size0[1]*.8/3,
+                               alpha = alpha, 
+                               height = 0,
+                               na.rm = TRUE) +
                 geom_point(aes(y = var, 
                                x = mean.stat, 
                                shape = Sample,
@@ -1260,11 +1261,6 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
         else {
             lp <- lp + theme(panel.grid.major = element_line(color = "gray87"),
                              panel.grid.minor = element_line(color = "gray90"))
-        }
-        
-        if (s != stats[1]) {
-            lp <- lp + theme(axis.text.y=element_blank(),
-                             axis.ticks.y=element_blank())
         }
         
         if (is_not_null(facet)) {
@@ -1344,7 +1340,7 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
         
         attr(p, "plots") <- plot.list
         class(p) <- c(class(p), "love.plot")
-
+        
         return(invisible(p))
     }
     else {
