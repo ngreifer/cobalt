@@ -101,13 +101,13 @@ love.plot(m.out, cluster = "race")
 
 These plots function like those from using `love.plot()` with non-clustered data, except that they cannot be sorted based on the values of the balance statistics (they can still be sorted alphabetically, though). This is to ensure that the covariates line up across the plots. The same axis limits will apply to all plots.
 
-Second, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean or maximum) of the balance statistic for each covariate across clusters. To do this, `which.cluster` in the `love.plot` command must be set to `.none`. To change which aggregate function is displayed, use the argument to `agg.fun`, which may be "mean" or "max" ("mean" is the default). Below is an example:
+Second, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean or maximum) of the balance statistic for each covariate across clusters. To do this, `which.cluster` in the `love.plot` command must be set to `.none`. To change which aggregate function is displayed, use the argument to `agg.fun`, which may be "mean" or "max". Below is an example:
 
 ```{r}
 love.plot(m.out, cluster = "race", which.cluster = .none, agg.fun = "mean")
 ```
 
-A third option is to set `agg.fun = "range"`, which produces a similar plot as above except that the minimum and maximum values of the balance statistics for each covariate are displayed as well. See below for an example:
+A third option is to set `agg.fun = "range"` (the default), which produces a similar plot as above except that the minimum and maximum values of the balance statistics for each covariate are displayed as well. See below for an example:
 
 ```{r}
 love.plot(m.out, cluster = "race", which.cluster = .none, agg.fun = "range")
@@ -354,7 +354,7 @@ love.plot(treat ~ age + educ + married + nodegree + re74 + re75,
           which.imp = 1, which.cluster = .all)
 ```
 
-All configurations other than (3), (6), (7), and (9) involve aggregating, and so an argument to `agg.fun` should be specified (unless its default,`"mean"`, is desired); we recommend `"range"` in most cases.
+All configurations other than (3), (6), (7), and (9) involve aggregating, and so an argument to `agg.fun` should be specified (unless its default,`"range"`, is desired); we recommend `"range"` in most cases.
 
 ## Concluding Remarks
 

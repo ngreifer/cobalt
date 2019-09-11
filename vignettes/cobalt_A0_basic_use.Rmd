@@ -313,15 +313,15 @@ love.plot(m.out, binary = "std", threshold = .1)
 
 The output is a plot with the balance statistic on the X-axis and the covariates output in `bal.tab()` on the Y-axis. Each point represents the balance statistic for that covariate, colored based on whether it is calculated before or after adjustment. The dotted lines represent the threshold set in the `threshold` argument; if most or all of the points after adjustment are within the threshold, that is good evidence that balance has been achieved.
 
-The default is to present the absolute mean differences as they are calculated in the call to `bal.tab()`; by specifying `stat = "variance.ratios"` or `stat = "ks.statistics"` (abbreviations allowed), the user can request variance ratios or KS statistics instead. Because binary variables don't have variance ratios or KS statistics calculated, there will not be rows for these variables, but these rows can be added (with empty entries) to be in alignment with mean differences by setting `no.missing = FALSE`.
+The default is to present the absolute mean differences as they are calculated in the call to `bal.tab()`; by specifying `stats = "variance.ratios"` or `stats = "ks.statistics"` (abbreviations allowed), the user can request variance ratios or KS statistics instead or in addition. Because binary variables don't have variance ratios calculated, there will not be rows for these variables, but these rows can be added (with empty entries) to be in alignment with mean differences by setting `drop.missing = FALSE`.
 
 The `threshold` argument works similarly to `m.threshold`, `v.threshold`, and `ks.threshold` in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on which to evaluate the displayed balance measures. If these thresholds are specified in `bal.tab()`, `love.plot()` will use them in the resultant plot with the corresponding balance statistic. The `threshold` argument to `love.plot()` takes precedence.
 
 If mean difference are requested, `love.plot()` will use the mean differences as they are calculated by `bal.tab()` and presented in the mean differences columns of the balance table. See the section on using `bal.tab()` to see what the default calculations are for these values. If `abs = TRUE` in `love.plot()`, which is the default, the plot will display absolute mean differences, which can aid in display clarity since the magnitude is generally the more important aspect of the statistic^[The `abs` argument can be confusing; see `?love.plot` for complete details.].
 
-The order of the covariates displayed can be adjusted using the argument to `var.order`. If left empty or `NULL`, the covariates will be listed in alphabetical order. If `"adjusted"`, covariates will be ordered by the requested balance statistic of the adjusted sample. If `"unadjusted"`, covariates will be ordered by the requested balance statistic of the unadjusted sample, which tends to be more visually appealing. Abbreviations are allowed. The distance variable(s), if any, will always be displayed at the top. They can be omitted by setting `drop.distance = TRUE`. 
+The order of the covariates displayed can be adjusted using the argument to `var.order`. If left empty or `NULL`, the covariates will be listed in the order of the original dataset. If `"adjusted"`, covariates will be ordered by the requested balance statistic of the adjusted sample. If `"unadjusted"`, covariates will be ordered by the requested balance statistic of the unadjusted sample, which tends to be more visually appealing. Abbreviations are allowed. The distance variable(s), if any, will always be displayed at the top. They can be omitted by setting `drop.distance = TRUE`. 
 
-The plot uses the original variable names as they are given in the data set, which may not be the names desired for display in publication. By using the argument to `var.names`, users can specify their own variable names to be used instead. To specify new variable names with `var.names`, the user must enter an object containing the new variable names and, optionally, the old variable names to replace. For options of how to do so, see the help file for `love.plot()` with `?love.plot`. Below is an example, creating a publication-ready plot:
+The plot uses the original variable names as they are given in the data set, which may not be the names desired for display in publication. By using the argument to `var.names`, users can specify their own variable names to be used instead. To specify new variable names with `var.names`, the user must enter an object containing the new variable names and, optionally, the old variable names to replace. For options of how to do so, see the help file for `love.plot()` with `?love.plot`. Below is an example, creating a publication-ready plot with a few other arguments to customize output:
 
 ```{r, fig.width = 5}
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
@@ -330,18 +330,23 @@ v <- data.frame(old = c("age", "educ", "race_black", "race_hispan",
                         "Hispanic", "White", "Married", "No Degree Earned", 
                         "Earnings 1974", "Earnings 1975", "Propensity Score"))
 
-love.plot(m.out, stat = "mean.diffs", threshold = .1, binary = "std",
-          var.order = "unadjusted", var.names = v, abs = TRUE,
-          line = TRUE, limits = c(0, 1), grid = FALSE)
+love.plot(m.out, stats = c("mean.diffs", "ks.statistics"), 
+          threshold = c(mean.diffs = .1, ks.statistics = .05), 
+          binary = "std", abs = TRUE,
+          var.order = "unadjusted", var.names = v,
+          limits = c(0, 1), grid = FALSE, wrap = 20,
+          sample.names = c("Unmatched", "Matched"),
+          position = "top", shapes = c("circle", "triangle"),
+          colors = c("red", "blue"))
 ```
 
 This plot shows that balance was improved on almost all variables after adjustment, bringing all but one below the threshold of .1 for absolute mean differences.
 
 A helper function, `var.names()` can be used to more easily create new variable names when many variables are present. See `?var.names` for details.
 
-When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stat` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations.
+When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stats` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations.
 
-Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to some extent for presentation or publication. Several aspects of the appearance of the plot can be customized using the `love.plot()` syntax, including the size, shape, and color of the points, the title and subtitle of the plot, whether to display gridlines, and whether to display lines connecting the points. See `?love.plot` for details. It may be challenging to make adjustments to these aspects using `ggplot2` syntax, so these arguments allow for some simple adjustments.
+Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to some extent for presentation or publication. Several aspects of the appearance of the plot can be customized using the `love.plot()` syntax, including the size, shape, and color of the points, the title of the plot, whether to display gridlines, and whether to display lines connecting the points. See `?love.plot` for details. It may be challenging to make adjustments to these aspects using `ggplot2` syntax, so these arguments allow for some simple adjustments.
 
 ## Additional Features
 
@@ -351,7 +356,7 @@ Although the most common use of propensity scores is in the context of binary tr
 
 Bia & Mattei (2008) describe the use of the `gpscore` function in Stata, which appears to be highly effective for estimating and assessing dose-response functions for continuous treatments. In R, there are not many ways to estimate and condition on the propensity score in these contexts. It is possible, using the formulas described by Hirano & Imbens (2004), to generate the propensity scores manually and perform weighting, subclassification, or covariate adjustment on them. The `WeightIt` package supports continuous treatments with a variety of options, including the CBPS method implemented in the `CBPS` package and described by Fong & Imai (2014) and the GBM method implemented in `WeightIt` and described by Zhu, Coffman, & Ghosh (2015). The `balance()` function in the `CBPS` package assesses balance after propensity score weighting using `CBPS`.
 
-In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in Zhu et al. (2015), but not that described in Hirano & Imbens (2004) or implemented in `gpscore` (Bia & Mattei, 2008), which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator.
+In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in Zhu et al. (2015) and Austin (2018), but not that described in Hirano & Imbens (2004) or implemented in `gpscore` (Bia & Mattei, 2008), which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator, so correlations above 1 may be observed in rare cases.
 
 Below is an example of the workflow for using propensity scores for continuous treatments in the `WeightIt` package. To demonstrate, we use the `lalonde` package included in `cobalt`, using an arbitrary continuous variable as the treatment, though substantively this analysis makes little sense.
 
@@ -597,7 +602,7 @@ love.plot(ps.out, stop.method = "es.max",
           drop.distance = TRUE)
 ```
 
-A Love plot displays the same information, but allows for the clear display of both the balance statistic value and the variable name, unlike the line plot above which displays only the balance statistic value. The Love plot in `cobalt` allows for a great deal of flexibility in appearance, and can present variance ratios as well as mean differences. 
+A Love plot displays the same information, but allows for the clear display of both the balance statistic value and the variable name, unlike the line plot above which displays only the balance statistic value. The Love plot in `cobalt` allows for a great deal of flexibility in appearance, and can present variance ratios and KS statistics as well as mean differences. 
 
 ### Clusters
 
@@ -632,6 +637,8 @@ Austin, P. C. (2008). A critical appraisal of propensity-score matching in the m
 Austin, P. C. (2009). Balance diagnostics for comparing the distribution of baseline covariates between treatment groups in propensity-score matched samples. Statistics in Medicine, 28(25), 3083–3107. http://doi.org/10.1002/sim.3697
 
 Austin, P. C. (2011). An Introduction to Propensity Score Methods for Reducing the Effects of Confounding in Observational Studies. Multivariate Behavioral Research, 46(3), 399–424. http://doi.org/10.1080/00273171.2011.568786
+
+Austin, P. C. (2018). Assessing covariate balance when using the generalized propensity score with quantitative or continuous exposures. Statistical Methods in Medical Research, 0962280218756159. https://doi.org/10.1177/0962280218756159
 
 Austin, P. C., & Stuart, E. A. (2015). Moving towards best practice when using inverse probability of treatment weighting (IPTW) using the propensity score to estimate causal treatment effects in observational studies. Statistics in Medicine, 34(28), 3661–3679. http://doi.org/10.1002/sim.6607
 
