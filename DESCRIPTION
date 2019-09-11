@@ -11,6 +11,7 @@ Imports:
     grid (>= 3.6.1),
     gtable (>= 0.3.0),
     gridExtra (>= 2.3.0),
+    ggstance,
     crayon,
     backports (>= 1.1.1)
 Suggests:

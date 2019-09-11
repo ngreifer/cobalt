@@ -1969,13 +1969,6 @@ gg_color_hue <- function(n) {
     hues = seq(15, 375, length = n + 1)
     hcl(h = hues, l = 65, c = 100)[1:n]
 }
-col_plus_alpha <- function(col, alpha) {
-    colrgb <- col2rgb(col)
-    newcol <- rgb(red = (1 - alpha)*255 + alpha*colrgb["red", 1],
-                  green = (1 - alpha)*255 + alpha*colrgb["green", 1],
-                  blue = (1 - alpha)*255 + alpha*colrgb["blue", 1], max = 255)
-    return(newcol)
-}
 ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
     #A thin version of egg:ggarrange
     
