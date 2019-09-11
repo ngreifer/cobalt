@@ -1976,6 +1976,91 @@ col_plus_alpha <- function(col, alpha) {
                   blue = (1 - alpha)*255 + alpha*colrgb["blue", 1], max = 255)
     return(newcol)
 }
+ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
+    #A thin version of egg:ggarrange
+    
+    gtable_frame <- function (g, width = unit(1, "null"), height = unit(1, "null")) {
+        panels <- g[["layout"]][grepl("panel", g[["layout"]][["name"]]),]
+        pargins <- g[["layout"]][grepl("panel", g[["layout"]][["name"]]),]
+        ll <- unique(panels$l)
+        margins <- if (length(ll) == 1) unit(0, "pt") else g$widths[ll[-length(ll)] + 2]
+        tt <- unique(panels$t)
+        fixed_ar <- g$respect
+        if (fixed_ar) {
+            ar <- as.numeric(g$heights[tt[1]])/as.numeric(g$widths[ll[1]])
+            height <- width * (ar/length(ll))
+            g$respect <- FALSE
+        }
+        core <- g[seq(min(tt), max(tt)), seq(min(ll), max(ll))]
+        top <- g[seq(1, min(tt) - 1), seq(min(ll), max(ll))]
+        bottom <- g[seq(max(tt) + 1, nrow(g)), seq(min(ll), max(ll))]
+        left <- g[seq(min(tt), max(tt)), seq(1, min(ll) - 1)]
+        right <- g[seq(min(tt), max(tt)), seq(max(ll) + 1, ncol(g))]
+        fg <- grid::nullGrob()
+        if (length(left)) {
+            lg <- gtable::gtable_add_cols(left, unit(1, "null"), 0)
+            lg <- gtable::gtable_add_grob(lg, fg, 1, l = 1)
+        }
+        else {
+            lg <- fg
+        }
+        if (length(right)) {
+            rg <- gtable::gtable_add_cols(right, unit(1, "null"))
+            rg <- gtable::gtable_add_grob(rg, fg, 1, l = ncol(rg))
+        }
+        else {
+            rg <- fg
+        }
+        if (length(top)) {
+            tg <- gtable::gtable_add_rows(top, unit(1, "null"), 0)
+            tg <- gtable::gtable_add_grob(tg, fg, t = 1, l = 1)
+        }
+        else {
+            tg <- fg
+        }
+        if (length(bottom)) {
+            bg <- gtable::gtable_add_rows(bottom, unit(1, "null"), 
+                                          -1)
+            bg <- gtable::gtable_add_grob(bg, fg, t = nrow(bg), l = 1)
+        }
+        else {
+            bg <- fg
+        }
+        grobs <- list(fg, tg, fg, lg, core, rg, fg, bg, fg)
+        widths <- grid::unit.c(sum(left$widths), width, sum(right$widths))
+        heights <- grid::unit.c(sum(top$heights), height, sum(bottom$heights))
+        all <- gtable::gtable_matrix("all", grobs = matrix(grobs, ncol = 3, nrow = 3, byrow = TRUE), 
+                                     widths = widths, heights = heights)
+  
+        all[["layout"]][5, "name"] <- "panel"
+        if (fixed_ar) 
+            all$respect <- TRUE
+        all
+    }
+    
+    n <- length(plots)
+    
+    grobs <- lapply(plots, ggplot2::ggplotGrob)
+    
+    if (is_null(nrow) && is_null(ncol)) {
+        nm <- grDevices::n2mfrow(n)
+        nrow <- nm[1]
+        ncol <- nm[2]
+    }
+
+    hw <- lapply(rep(1, n), unit, "null")
+
+    fg <- lapply(seq_along(plots), function(i) gtable_frame(g = grobs[[i]], 
+                 width = hw[[i]], height = hw[[i]]))
+    
+    spl <- split(fg, rep(1, n))
+     
+    rows <- lapply(spl, function(r) do.call(gridExtra::gtable_cbind, r))
+    
+    gt <- do.call(gridExtra::gtable_rbind, rows)
+    
+    invisible(gt)
+}
 
 #bal.plot
 get.var.from.list.with.time <- function(var.name, covs.list) {
