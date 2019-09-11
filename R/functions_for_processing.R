@@ -363,7 +363,7 @@ subset_X <- function(X, subset = NULL) {
     else X
 }
 imp.complete <- function(data) {
-    if (!inherits(data, "mids")) stop("'data' not of class 'mids'")
+    if (!is_(data, "mids")) stop("'data' not of class 'mids'")
     
     single.complete <- function (data, where, imp, ell) {
         if (is.null(where)) 
