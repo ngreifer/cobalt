@@ -309,3 +309,13 @@ get.w.designmatch <- function(x, treat, ...) {
     
     return(match.strata2weights(q$group, treat))
 }
+get.w.mimids <- function(x, ...) {
+    weights <- unlist(lapply(x[[2]][-1], function(m) m[["weights"]]))
+    weights[is.na(weights),] <- 0
+    return(weights)
+}
+get.w.wimids <- function(x, ...) {
+    weights <- unlist(lapply(x[[4]][-1], function(m) m[["inverse.weights"]]))
+    weights[is.na(weights),] <- 0
+    return(weights)
+}
