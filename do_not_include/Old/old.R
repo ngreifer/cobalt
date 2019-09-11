@@ -159,3 +159,11 @@
                    quote = TRUE)
     return(out)
 }
+
+col_plus_alpha <- function(col, alpha) {
+    colrgb <- col2rgb(col)
+    newcol <- rgb(red = (1 - alpha)*255 + alpha*colrgb["red", 1],
+                  green = (1 - alpha)*255 + alpha*colrgb["green", 1],
+                  blue = (1 - alpha)*255 + alpha*colrgb["blue", 1], max = 255)
+    return(newcol)
+}

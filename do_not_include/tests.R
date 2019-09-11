@@ -2,6 +2,7 @@
 for (i in dir("R/")) source(paste0("R/", i))
 library(ggplot2)
 library(crayon)
+stop("Done sourcing.", call. = FALSE)
 
 #Tests things quickly
 #library("cobalt")
@@ -18,9 +19,12 @@ library("MatchIt")
 m1 <- matchit(f.build("treat", covs), data = lalonde, replace = T, ratio = 2, 
               discard = "both", reestimate = TRUE)
 bal.tab(m1, int = T, quick = T, v.threshold = 2, imbalanced.only = T)
+#MatchIt: matching w/ distance
+m1.1 <- matchit(f.build("treat", covs), data = lalonde, distance = runif(nrow(lalonde)))
+bal.tab(m1.1, data = lalonde)
 #MatchIt: matching w/Mahalanobis
 m2 <- matchit(f.build("treat", covs_[,-3]), data = lalonde_, distance = "mahalanobis")
-bal.tab(m2, int = T, quick = T, v.threshold = 2)
+bal.tab(m2, data = lalonde, int = T, quick = T, v.threshold = 2, addl = "race")
 #MatchIt: subclassification
 m3 <- matchit(f.build("treat", covs), data = lalonde, method = "subclass")
 bal.tab(m3, int = F, quick = T, v.threshold = 2, disp.subclass = T, ks.threshold = .1)
@@ -53,12 +57,12 @@ bal.tab(cbps.out, disp.bal.tab = T)
 cbps.out.e <- CBPS(f.build("treat", covs), data = lalonde, method = "exact")
 bal.tab(covs, lalonde$treat, weights = list("ps" = get.w(cbps.out),
                                             "exact" = get.w(cbps.out.e)),
-        method = "w", estimand = "att", disp.ks = T, disp.v.ratio = T)
+        method = "w", disp.ks = T, disp.v.ratio = T)
 #Matching
 library("Matching")
 p.score <- glm(f.build("treat", covs), 
                data = lalonde, family = "binomial")$fitted.values
-Match.out <- Match(Tr = lalonde$treat, X = p.score,
+Match.out <- Match(Tr = lalonde$treat, X = p.score, estimand = "ATE",
                    M = 1, replace = F, CommonSupport = T)
 bal.tab(Match.out, formula = f.build("treat", covs), data = lalonde)
 gen <- GenMatch(Tr = lalonde$treat, X = covs_,
@@ -119,12 +123,11 @@ lalonde$subclass <- findInterval(lalonde$distance,
 
 bal.tab(covs, treat = lalonde$treat, subclass = lalonde$subclass, 
         method = "subclassification", disp.subclass = TRUE, addl = covs$age^2,
-        m.threshold = .1, v.threshold = 2)
+        m.threshold = .1, v.threshold = 2, estimand = "ATT")
 #Entropy balancing
 library("ebal")
 e.out <- ebalance(lalonde$treat, cbind(covs_[,-3], age_2 = covs_$age^2, re74_2 = covs_$re74^2/1000, 
-                                       re75_2 = covs_$re75^2/1000, educ_2 = covs_$educ^2,
-                                       covs_$re75^3/1000000, covs_$age^3.5/1000))
+                                       re75_2 = covs_$re75^2/1000, educ_2 = covs_$educ^2))
 bal.tab(e.out, treat = lalonde$treat, covs = covs, disp.ks = T, disp.v.ratio = T)
 e.out.trim <- ebalance.trim(e.out)
 bal.tab(e.out.trim, treat = lalonde$treat, covs = covs, disp.ks = T, disp.v.ratio = T)
@@ -167,18 +170,18 @@ for (i in unique(imp.data$.imp)) {
 imp.data <- cbind(imp.data, ps = ps, match.weight = match.weight)
 
 bal.tab(f.build("treat", covs_mis), data = imp.data, weights = "match.weight", 
-        method = "matching", imp = ".imp", distance = "ps", which.imp = NULL,
+        method = "matching", imp = ".imp", distance = "ps", which.imp = .all,
         disp.ks = T)
 
 bal.tab(f.build("treat", covs_mis), data = imp.data, weights = "match.weight", 
         method = "matching", imp = ".imp", distance = "ps", which.imp = NULL,
-        cluster = "race", disp.ks = T)
+        cluster = "race", disp.v = T, abs = T)
 
 #With WeightIt
 library(WeightIt)
 W.imp <- weightit(f.build("treat", covs_mis), data = imp.data, estimand = "ATT",
-                  by = ".imp", method = "ps")
-bal.tab(W.imp, imp = ".imp")
+                  by = ".imp", method = "optweight", moments = 2)
+bal.tab(W.imp, imp = ".imp", disp.v.ratio = TRUE, abs = TRUE)
     
 #With continuous treatment
 imp.data <- complete(imp, "long", include = FALSE)
@@ -210,6 +213,16 @@ ps.out <- ps(f.build("treat", covs_mis), data = lalonde_mis,
              estimand = "ATE", verbose = FALSE, n.trees = 1000)
 bal.tab(ps.out)
 
+#MatchIt.mice
+library(MatchIt.mice)
+data("lalonde_mis")
+covs_mis <- subset(lalonde_mis, select = -c(re78, treat))
+imp <- mice(lalonde_mis, m = 3)
+mimids <- matchitmice(f.build("treat", covs_mis), data = imp, approach = "within")
+bal.tab(mimids)
+wimids <- weightitmice(f.build("treat", covs_mis), data = imp, approach = "within")
+bal.tab(wimids)
+
 #love.plot
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
                         "race_white", "married", "nodegree", "re74", "re75", "distance"),
@@ -217,17 +230,18 @@ v <- data.frame(old = c("age", "educ", "race_black", "race_hispan",
                         "Hispanic", "White", "Married", "No Degree Earned", 
                         "Earnings 1974", "Earnings 1975", "Propensity Score"))
 plot(bal.tab(m1), threshold = .1, limits = c(0, 1.5), var.names = v)
+love.plot(m1, stat = c("m", "v"), stars = "std", drop.distance = T)
 
-love.plot(bal.tab(m5, cluster = lalonde$school), stat = "ks", agg.fun = "range", which.cluster = NA)
-love.plot(bal.tab(cbps.out2.e), drop.distance = F, line = T, abs = T,
+love.plot(bal.tab(m1, cluster = lalonde$school), stat = "ks", agg.fun = "range", which.cluster = NA)
+love.plot(cbps.out2.e, drop.distance = F, line = T, abs = T,
           var.order = "u")
 love.plot(bal.tab(f.build("treat", covs_mis), data = imp.data, weights = "match.weight", 
                   method = "matching", imp = ".imp", distance = "ps"),
           agg.fun = "range")
-love.plot(bal.tab(f.build("treat", covs_mis), data = imp.data, weights = "match.weight", 
+love.plot(f.build("treat", covs_mis), data = imp.data, weights = "match.weight", 
                   method = "matching", imp = ".imp", distance = "ps",
-                  cluster = "race", which.cluster = 1:3),
-          agg.fun = "range", stat = "ks")
+                  cluster = "race", which.cluster = 1:3,
+          agg.fun = "range", stat = c("m", "ks"))
 #bal.plot
 bal.plot(m1, "age", which = "both")
 bal.plot(m1, "race")
@@ -238,9 +252,9 @@ bal.plot(cbps.out2, "race", which = "u")
 bal.plot(m3, "age", which.sub = 2)
 bal.plot(m3, "race", which.sub = 1:3, which = "both")
 bal.plot(m5, "age", cluster = lalonde$school, which.cluster = c("A", "B"), which = "both")
-bal.plot(m5, "race", cluster = lalonde$school, which.cluster = NULL)
+bal.plot(m5, "race", cluster = lalonde$school, which.cluster = .none)
 bal.plot(cbps.out2, "age", cluster = lalonde$school, which.cluster = c("A", "B"), which = "both")
-bal.plot(cbps.out2, "race", cluster = lalonde$school, which.cluster = NA)
+bal.plot(cbps.out2, "race", cluster = lalonde$school)
 bal.plot(f.build("treat", covs_mis), data = imp.data, weights = "match.weight", 
          method = "matching", imp = ".imp", var.name = "age", which = "b")
 bal.plot(f.build("treat", covs_mis), data = imp.data, weights = "match.weight", 
@@ -295,13 +309,23 @@ dmout <- bmatch(lalonde$treat,
 bal.tab(dmout, covs = covs, treat = lalonde$treat)
 bal.tab(dmout, formula = treat ~ covs, data = lalonde)
 
-
+#optweight (default method)
+library(optweight)
+W <- optweight(f.build("treat", covs), data = lalonde,
+              estimand = "ATT")
+bal.tab(W)
+W.cont <- optweight(f.build("re75", covs[-7]), data = lalonde)
+bal.tab(W.cont)
+W.mult <- optweight(f.build("race", covs[-3]), data = lalonde,
+                   estimand = "ATE",
+                   focal = "black")
+bal.tab(W.mult)
 
 #Multinomial
 lalonde$treat3 <- factor(ifelse(lalonde$treat == 1, "A", sample(c("B", "C"), nrow(lalonde), T)))
 bal.tab(f.build("treat3", covs), data = lalonde, focal = 1, which.treat = 1:3, m.threshold = .1)
 mnps3.out <- mnps(f.build("treat3", covs), data = lalonde, 
-                  stop.method = c("es.mean"), 
+                  stop.method = c("es.mean", "es.max"), 
                   estimand = "ATE", verbose = FALSE,
                   n.trees = 200)
 bal.tab(mnps3.out, which.treat = 1:3)
@@ -310,7 +334,7 @@ mnps3.att <- mnps(f.build("treat3", covs), data = lalonde,
                   stop.method = c("ks.max"), 
                   estimand = "ATT", verbose = FALSE,
                   treatATT = "B")
-bal.tab(mnps3.att, which.treat = NULL)
+bal.tab(mnps3.att, which.treat = .all)
 bal.plot(mnps3.att, var.name = "age")
 cbps.out3 <- CBPS(f.build("treat3", covs), data = lalonde)
 bal.tab(cbps.out3)
@@ -401,3 +425,13 @@ w4 <- weightitMSM(list(tx1 ~ use0 + gender + age,
                      verbose = FALSE,
                      method = "ps")
 target.bal.tab(w4, which.treat = NULL)
+
+
+a <- function() {
+    d <- lalonde
+lapply(1:3, function(i) {
+    lapply(1, function(x) {
+        b <- do.call(bal.tab, list(f.build("treat",covs), data = d), quote = T)
+    })
+})
+}
