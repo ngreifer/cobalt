@@ -579,7 +579,8 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
     s1 <- deparse(substitute(x))
     if (is_not_null(x)) {
         for (i in types) {
-            if (is_not_null(get0(paste.("is", i)))) {
+            if (i == "list") it.is <- is.vector(x, "list")
+            else if (is_not_null(get0(paste.("is", i)))) {
                 it.is <- get0(paste.("is", i))(x)
             }
             else it.is <- inherits(x, i)
