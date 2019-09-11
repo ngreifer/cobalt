@@ -4,7 +4,6 @@ import(grid)
 importFrom("utils", "combn", "data", "write.csv", "methods")
 importFrom("grDevices", "col2rgb", "hcl", "n2mfrow")
 importFrom("crayon", "italic", "underline")
-importFrom("methods", "is")
 importFrom("gtable", "gtable_col", "gtable_add_cols", "gtable_add_rows",
            "gtable_add_grob", "gtable_matrix")
 importFrom("gridExtra", "arrangeGrob", "gtable_cbind", "gtable_rbind")

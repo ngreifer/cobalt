@@ -3144,7 +3144,7 @@ x2base.default <- function(obj, ...) {
             for (j in Q[[i]][["name"]]) {
                 if (is_null(P[[i]])) {
                     if (is_not_null(obj[[j]])) {
-                        if (any(which.type <- vapply(Q[[i]][["type"]], function(x) methods::is(obj[[j]], x), logical(1L)))) {
+                        if (any(which.type <- vapply(Q[[i]][["type"]], function(x) inherits(obj[[j]], x), logical(1L)))) {
                             P[[i]] <- obj[[j]]
                             attr(P[[i]], "name") <- j
                             attr(P[[i]], "type") <- Q[[i]][["type"]][which.type]
@@ -3166,7 +3166,7 @@ x2base.default <- function(obj, ...) {
     
     #treat.list
     if (is_not_null(treat.list)) {
-        if (!all(sapply(treat.list, function(x) any(vapply(Q[["treat"]][["type"]], function(c) methods::is(x, c), logical(1L)))))) {
+        if (!all(sapply(treat.list, function(x) any(vapply(Q[["treat"]][["type"]], function(c) inherits(x, c), logical(1L)))))) {
             treat.list <- A[["treat.list"]]
         }
         msm <- TRUE
@@ -3177,7 +3177,7 @@ x2base.default <- function(obj, ...) {
     
     #covs.list
     if (is_not_null(covs.list)) {
-        if (!all(sapply(covs.list, function(x) any(vapply(Q[["covs"]][["type"]], function(c) methods::is(x, c), logical(1L)))))) {
+        if (!all(sapply(covs.list, function(x) any(vapply(Q[["covs"]][["type"]], function(c) inherits(x, c), logical(1L)))))) {
             covs.list <- A[["covs.list"]]
         }
         msm <- TRUE
@@ -3187,7 +3187,7 @@ x2base.default <- function(obj, ...) {
     
     #formula.list
     if (is_not_null(formula.list)) {
-        if (!all(sapply(formula.list, function(x) any(vapply(Q[["formula"]][["type"]], function(c) methods::is(x, c), logical(1L)))))) {
+        if (!all(sapply(formula.list, function(x) any(vapply(Q[["formula"]][["type"]], function(c) inherits(x, c), logical(1L)))))) {
             formula.list <- A[["formula.list"]]
         }
         msm <- TRUE
@@ -3220,7 +3220,7 @@ x2base.default <- function(obj, ...) {
     
     #distance.list
     if (is_not_null(distance.list)) {
-        if (!all(sapply(distance.list, function(x) any(vapply(Q[["distance"]][["type"]], function(c) methods::is(x, c), logical(1L)))))) {
+        if (!all(sapply(distance.list, function(x) any(vapply(Q[["distance"]][["type"]], function(c) inherits(x, c), logical(1L)))))) {
             distance.list <- A[["distance.list"]]
         }
         #msm <- TRUE
