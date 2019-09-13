@@ -127,3 +127,4 @@ wim.out <- weightitmice(treat ~ age + educ + race +
 bal.tab(wim.out)
 
 }
+\keyword{tables}
