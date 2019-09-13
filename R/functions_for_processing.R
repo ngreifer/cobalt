@@ -2110,6 +2110,10 @@ acceptable.options <- function() {
     packageStartupMessage(foo)
 }
 
+.onLoad <- function(libname, pkgname) {
+    backports::import(pkgname)
+}
+
 #To pass CRAN checks:
 utils::globalVariables(c("distance", "addl", "addl.list", "distance.list",
                          "quick", "treat", "Sample", "min.stat",
