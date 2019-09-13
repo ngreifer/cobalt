@@ -32,3 +32,4 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}}, \code{\link{bal.tab.list}}, \code{\link{print.bal.tab.msm}}
 }
+\keyword{tables}

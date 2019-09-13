@@ -55,3 +55,4 @@ set.cobalt.options(default = TRUE)
 # View all available options
 get.cobalt.options()
 }
+\keyword{support functions}

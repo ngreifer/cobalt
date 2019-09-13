@@ -118,3 +118,4 @@ out <- ate.weights(lalonde$treat, covs)
 
 bal.tab(out, un = TRUE)
 }
+\keyword{tables}

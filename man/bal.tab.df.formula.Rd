@@ -206,3 +206,4 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
       subclass = "subclass", method = "subclassification", 
       disp.subclass = TRUE, s.d.denom = "pooled")
 }
+\keyword{tables}

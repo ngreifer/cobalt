@@ -119,3 +119,4 @@ m.out2 <- matchit(treat ~ age + educ + race +
                   data = lalonde, method = "subclass")
 bal.tab(m.out2, disp.subclass = TRUE)
 }
+\keyword{tables}

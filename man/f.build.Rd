@@ -23,3 +23,4 @@ covs <- subset(lalonde, select = -c(treat, re78))
 lm(f.build("treat", covs), data = lalonde)
 }
 
+\keyword{support functions}

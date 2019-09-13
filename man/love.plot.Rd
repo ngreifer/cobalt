@@ -28,7 +28,9 @@ love.plot(x,
           var.names = NULL, 
           title, 
           sample.names, 
+          labels = FALSE,
           position = "right", 
+          themes = NULL,
           ...)
 }
 
@@ -67,7 +69,7 @@ when mean differences are to be displayed, which variable names should have a st
 \code{logical}; whether gridlines should be shown on the plot. Default is \code{TRUE}.
 }
   \item{limits}{
-\code{numeric}; the bounds for the x-axis of the plot. Must a vector of length 2 in ascending order. If values exceed the limits, they will be plotted at the edge.
+\code{numeric}; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of \code{stats} that is to have limits. If values exceed the limits, they will be plotted at the edge.
 }
   \item{colors}{
 the colors of the points on the plot. See 'Color Specification' at \code{\link[graphics]{par}} or the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill}{aesthetic specifications} page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.
@@ -93,8 +95,14 @@ an optional object providing alternate names for the variables in the plot, whic
   \item{sample.names}{
 \code{character}; new names to be given to the samples (i.e., in place of "Unadjusted" and "Adjusted"). For example, when matching it used, it may be useful to enter \code{c("Unmatched", "Matched")}.
 }
+  \item{labels}{
+\code{logical} or \code{character}; labels to give the plots when multiple \code{stats} are requested. If \code{TRUE}, the labels will be capital letters. Otherwise, must be a string with the same length as \code{stats}. This can be useful when the plots are to be used in an article.
+}
   \item{position}{
 \code{character}; the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2]{theme}}. When \code{stat} has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".
+}
+  \item{themes}{
+an optional list of \code{theme} objects to append to each individual plot. Each entry should be the output of a call to \code{\link[ggplot2]{theme}} in \pkg{ggplot2}. This is a way to customize the individual plots when multiple \code{stats} are requested since the final output is not a manipulable \code{ggplot} object. It can eb used with length-1 \code{stats}, but it probably makes more sense to just add the \code{theme()} call after \code{love.plot()}.
 }
   \item{...}{
 additional arguments passed to \code{bal.tab()} or options for display of the plot. The following related arguments are currently accepted:
@@ -138,7 +146,7 @@ The default is to display standardized mean differences for continuous variables
 \value{
 When \code{stats} has length 1, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot} provides automatically. 
 
-When \code{stat} has length greater than 1, the plot is constructed using \code{\link[gridExtra]{arrangeGrob}} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. The original plots are stored in the \code{"plots"} attribute of the output object.
+When \code{stat} has length greater than 1, the plot is constructed using \code{\link[gridExtra]{arrangeGrob}} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
 }
 \note{
 \code{love.plot} can also be called by using \code{plot} on a \code{bal.tab} object. That is, the \code{"love."} prefix is optional, unless it is being called directly on the preprocessing output objects.
@@ -193,3 +201,4 @@ love.plot(m.out1, stat = "mean.diffs", threshold = .1,
           stars = "raw", position = "top")
 
 }
+\keyword{plots}

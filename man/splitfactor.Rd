@@ -73,3 +73,4 @@ lalonde.unsplit <- unsplitfactor(lalonde.split, "race",
 all.equal(lalonde, lalonde.unsplit) #TRUE
 }
 
+\keyword{support functions}

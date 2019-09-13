@@ -183,3 +183,4 @@ dmout <- bmatch(lalonde$treat,
 bal.tab(dmout, treat = lalonde$treat, covs = covariates)
 }
 }
+\keyword{tables}

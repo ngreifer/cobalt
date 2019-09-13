@@ -141,3 +141,4 @@ w.out2 <- weightit(treat ~ age + educ + race +
                   estimand = "ATE")
 bal.tab(w.out2)
 }
+\keyword{tables}

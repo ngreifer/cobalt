@@ -180,3 +180,4 @@ bal.tab(list(tx1 ~ use0 + gender,
         addl.list = "age",
         un = TRUE)
 }
+\keyword{tables}

@@ -138,3 +138,4 @@ cbps.out <- CBPS(treat ~ age + educ + married + race +
              nodegree + re74 + re75, data = lalonde)
 bal.tab(cbps.out)
 }
+\keyword{tables}

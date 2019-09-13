@@ -185,3 +185,4 @@ bal.tab(ps.out, stop.method = "es.max", un = TRUE,
         m.threshold = .1, disp.ks = TRUE)
 }
 }
+\keyword{tables}

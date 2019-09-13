@@ -35,3 +35,4 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}}, \code{\link{bal.tab.data.frame}}, \code{\link{print.bal.tab.multi}}
 }
+\keyword{tables}

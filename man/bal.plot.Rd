@@ -129,3 +129,4 @@ bal.plot(m.out, "race", which = "both")
 bal.plot(m.out, "distance", which = "both", mirror = TRUE,
          type = "histogram", colors = c("white", "black"))
 }
+\keyword{plots}

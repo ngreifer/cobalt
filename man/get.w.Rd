@@ -104,3 +104,4 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
         estimand = "ATT")
 }
 }
+\keyword{support functions}
