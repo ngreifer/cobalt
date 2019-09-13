@@ -71,12 +71,12 @@ library("cobalt")
 library("MatchIt")
 data("lalonde", package = "cobalt")
 
-# Nearest neighbor matching with MatchIt
-m.out <- matchit(treat ~ age + educ + race + married + nodegree + re74 + re75, 
-    data = lalonde)
+#Nearest neighbor matching with MatchIt
+m.out <- matchit(treat ~ age + educ + race + married + nodegree +
+                     re74 + re75, data = lalonde)
 
-# Checking balance before and after matching:
-bal.tab(m.out, m.threshold = 0.1, un = TRUE)
+#Checking balance before and after matching:
+bal.tab(m.out, m.threshold = .1, un = TRUE)
 ```
 
     #> Call
@@ -112,23 +112,37 @@ bal.tab(m.out, m.threshold = 0.1, un = TRUE)
     #> Unmatched     244       0
 
 ``` r
-# Examining distributional balance with plots:
+#Examining distributional balance with plots:
 bal.plot(m.out, var.name = "educ")
-bal.plot(m.out, var.name = "distance", mirror = TRUE, type = "histogram")
+bal.plot(m.out, var.name = "distance",
+         mirror = TRUE, type = "histogram")
 ```
 
 ![](inst/figures/README-unnamed-chunk-3-1.png)
 ![](inst/figures/README-unnamed-chunk-3-2.png)
 
 ``` r
-# Generating a Love plot to report balance:
-love.plot(bal.tab(m.out), threshold = 0.1, abs = TRUE, var.order = "unadjusted")
+#Generating a Love plot to report balance:
+love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
+          threshold = c(m = .1, v = 2), abs = TRUE, 
+          binary = "std",
+          var.order = "unadjusted")
 ```
 
 <img src="inst/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 
 Please remember to cite this package when using it to analyze data. For
-example, in a manuscript, write: “Matching was performed using Matching
-(Sekhon, 2011), and covariate balance was assessed using cobalt
-(Greifer, 2018) in R (R Core team, 2018).” Use `citation("cobalt")` to
-generate a bibliographic reference for the `cobalt` package.
+example, in a manuscript, write: “Matching was performed using the
+Matching package (Sekhon, 2011), and covariate balance was assessed
+using cobalt (Greifer, 2019), both in R (R Core Team, 2019).” Use
+`citation("cobalt")` to generate a bibliographic reference for the
+`cobalt` package.
+
+Bugs appear in `cobalt` occasionally, often found by users. Please
+report any bugs at <https://github.com/ngreifer/cobalt/issues>. To
+install the latest development version of `cobalt`, which may have
+removed a bug you’re experiencing, use the following code:
+
+``` r
+devtools::install_github("ngreifer/cobalt")
+```

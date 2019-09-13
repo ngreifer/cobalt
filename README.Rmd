@@ -61,12 +61,15 @@ bal.plot(m.out, var.name = "distance",
 
 ```{r}
 #Generating a Love plot to report balance:
-love.plot(bal.tab(m.out), threshold = .1, abs = TRUE, var.order = "unadjusted")
+love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
+          threshold = c(m = .1, v = 2), abs = TRUE, 
+          binary = "std",
+          var.order = "unadjusted")
 ```
 
-Please remember to cite this package when using it to analyze data. For example, in a manuscript, write: "Matching was performed using Matching (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2018) in R (R Core team, 2018)." Use `citation("cobalt")` to generate a bibliographic reference for the `cobalt` package.
+Please remember to cite this package when using it to analyze data. For example, in a manuscript, write: "Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, `r format(Sys.Date(), "%Y")`), both in R (R Core Team, 2019)." Use `citation("cobalt")` to generate a bibliographic reference for the `cobalt` package.
 
-Bug appear in `cobalt` occasionally, often found by users. Please report any bugs at https://github.com/ngreifer/cobalt/issues. To install the latest development version of `cobalt`, which may have removed a bug you're experiencing, use the following code:
+Bugs appear in `cobalt` occasionally, often found by users. Please report any bugs at https://github.com/ngreifer/cobalt/issues. To install the latest development version of `cobalt`, which may have removed a bug you're experiencing, use the following code:
 ```{r, eval=FALSE}
 devtools::install_github("ngreifer/cobalt")
 ```
