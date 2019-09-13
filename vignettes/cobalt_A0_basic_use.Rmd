@@ -346,7 +346,7 @@ A helper function, `var.names()` can be used to more easily create new variable 
 
 When the treatment variable is continuous, `love.plot()` will display Pearson correlations between each covariate and treatment. The same arguments apply except that `stats` is ignored and `threshold` corresponds to `r.threshold`, the threshold for correlations.
 
-Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to some extent for presentation or publication. Several aspects of the appearance of the plot can be customized using the `love.plot()` syntax, including the size, shape, and color of the points, the title of the plot, whether to display gridlines, and whether to display lines connecting the points. See `?love.plot` for details. It may be challenging to make adjustments to these aspects using `ggplot2` syntax, so these arguments allow for some simple adjustments.
+Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` object, which means `ggplot2` users can modify the plot to some extent for presentation or publication. Several aspects of the appearance of the plot can be customized using the `love.plot()` syntax, including the size, shape, and color of the points, the title of the plot, whether to display gridlines, and whether to display lines connecting the points. See `?love.plot` for details. It may be challenging to make adjustments to these aspects using `ggplot2` syntax, so these arguments allow for some simple adjustments. See Appendix 4: Using `love.plot` To Generate Love Plots for information on more of `love.plot()`'s features.
 
 ## Additional Features
 
@@ -602,7 +602,7 @@ love.plot(ps.out, stop.method = "es.max",
           drop.distance = TRUE)
 ```
 
-A Love plot displays the same information, but allows for the clear display of both the balance statistic value and the variable name, unlike the line plot above which displays only the balance statistic value. The Love plot in `cobalt` allows for a great deal of flexibility in appearance, and can present variance ratios and KS statistics as well as mean differences. 
+A Love plot displays the same information, but allows for the clear display of both the balance statistic value and the variable name, unlike the line plot above which displays only the balance statistic value. The Love plot in `cobalt` allows for a great deal of flexibility in appearance, and can present variance ratios and KS statistics as well as mean differences. See Appendix 4: Using `love.plot` To Generate Love Plots for more of `love.plot()`'s capabilities.
 
 ### Clusters
 
