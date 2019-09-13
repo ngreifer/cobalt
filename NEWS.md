@@ -3,7 +3,12 @@
 
 Version 3.8.1
 
-* Changed `grid` version requirement
+* Added vignette for use of `love.plot`.
+
+* Changed `grid` version requirement.
+
+* Updated README.
+
 
 Version 3.8.0
 
