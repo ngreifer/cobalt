@@ -9,7 +9,7 @@ importFrom("gtable", "gtable_col", "gtable_add_cols", "gtable_add_rows",
 importFrom("gridExtra", "arrangeGrob", "gtable_cbind", "gtable_rbind")
 importFrom("ggstance", "position_dodgev")
 
-if (getRversion() < "3.5.0") importFrom("backports", "...elt", "...length")
+if (getRversion() < "3.5.0") importFrom("backports", "...elt", "...length", "isFALSE")
 
 export(bal.tab, bal.plot, love.plot, f.build, splitfactor, 
        unsplitfactor, get.w, var.names, set.cobalt.options,
