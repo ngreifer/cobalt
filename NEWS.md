@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+Version 3.8.1
+
+* Changed `grid` version requirement
+
 Version 3.8.0
 
 * Added the ability to display balance on multiple measures (e.g., mean differences, variance ratios, KS statistics) at the same time with `love.plot()`.
