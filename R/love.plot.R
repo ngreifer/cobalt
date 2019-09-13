@@ -2,8 +2,8 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
                       var.order = NULL, drop.missing = TRUE, drop.distance = FALSE, 
                       threshold = NULL, line = FALSE, stars = "none", grid = TRUE, 
                       limits = NULL, colors = NULL, shapes = NULL, alpha = 1, size = 3, 
-                      wrap = 30, var.names = NULL, title, sample.names, 
-                      position = "right", ...) {
+                      wrap = 30, var.names = NULL, title, sample.names, labels = FALSE,
+                      position = "right", themes = NULL, ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -787,6 +787,27 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
     else title <- as.character(title)
     # if (missing(subtitle)) subtitle <- as.character(subtitle)
     
+    #Process themes
+    if (is_not_null(themes)) {
+        if (!is.vector(themes, "list")) {
+            themes <- list(themes)
+        }
+        if (any(vapply(themes, 
+                       function(t) !all(c("theme", "gg") %in% class(t)), 
+                       logical(1L)))) {
+            warning("themes must be a list of \"theme\" objects. Ignoring themes.", call. = FALSE)
+            themes <- NULL
+        }
+        
+        if (is_not_null(names(themes))) {
+            names(themes) <- stats[pmatch(names(themes), stats, duplicates.ok = TRUE)]
+            themes <- themes[!is.na(names(themes))]
+        }
+        else {
+            names(themes) <- stats[1:length(themes)]
+        }
+    }
+    
     plot.list <- setNames(vector("list", length(stats)), stats)
     for (s in stats) {
         variable.names <- as.character(B[["variable.names"]])
@@ -1279,6 +1300,15 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
         position <- match_arg(as.character(position), 
                               c("right", "left", "top", "bottom", "none"))
         
+        #Process labels
+        if (isTRUE(labels)) labels <- LETTERS[seq_along(plot.list)]
+        else if (is_null(labels) || isFALSE(labels)) labels <- NULL
+        else if (!is.atomic(labels) || length(labels) != length(plot.list)) {
+            warning("labels must be TRUE or a string with the same length as stats. Ignoring labels.", call. = FALSE)
+            labels <- NULL
+        }
+        else labels <- as.character(labels)
+        
         # p <- ggpubr::ggarrange(plotlist = plot.list, common.legend = TRUE, legend = position, 
         #                align = "hv", nrow = 1)
         # if (is_not_null(subtitle)) {
@@ -1298,6 +1328,14 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
             }
             else {
                 plots.to.combine[[i]] <- plots.to.combine[[i]] + theme(legend.position = "none")
+            }
+            
+            if (is_not_null(labels)) {
+                plots.to.combine[[i]] <- plots.to.combine[[i]] + labs(title = labels[i])
+            }
+            
+            if (is_not_null(themes[[stats[i]]])) {
+                plots.to.combine[[i]] <- plots.to.combine[[i]] + themes[[stats[i]]]
             }
         }
         
@@ -1350,6 +1388,10 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
             theme(plot.title = element_text(hjust = 0.5),
                   plot.subtitle = element_text(hjust = 0.5),
                   legend.position = position)
+        
+        if (is_not_null(themes[[1]])) {
+            p <- p + themes[[1]]
+        }
         
         return(p)
         
