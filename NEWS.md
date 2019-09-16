@@ -9,6 +9,7 @@ Version 3.8.1
 
 * Updated README.
 
+* Fixed bugs that would occur when using `love.plot()` with various combinations of `var.order`, multiple `stats`, and `agg.fun = "range"`.
 
 Version 3.8.0
 
