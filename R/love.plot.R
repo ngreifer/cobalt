@@ -897,10 +897,12 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
             
             dec <- FALSE
             
+            if (is_not_null(plot.list[[1]])) var.order <- plot.list[[1]]
+            
             if (is_not_null(var.order)) {
                 if ("love.plot" %in% class(var.order)) {
                     old.vars <- levels(var.order$data$var)
-                    old.vars[endsWith(old.vars, "*")] <- gsub("*", "", old.vars[endsWith(old.vars, "*")], fixed = TRUE)
+                    old.vars[endsWith(old.vars, "*")] <- substr(old.vars[endsWith(old.vars, "*")], 1, nchar(old.vars[endsWith(old.vars, "*")])-1)
                     if (any(SS[["var"]] %nin% old.vars)) {
                         warning("The love.plot object in var.order doesn't have the same variables as the current input. Ignoring var.order.", call. = FALSE)
                         var.order <- NULL
@@ -932,7 +934,7 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
                         var.order <- NULL
                     }
                     else {
-                        v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]]==var.order], decreasing = dec, na.last = FALSE)])
+                        v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==var.order], decreasing = dec, na.last = FALSE)])
                         
                         SS[["var"]] <- factor(SS[["var"]], 
                                               levels=c(v[v %nin% distance.names], 
@@ -996,7 +998,7 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
             if (is_not_null(var.order)) {
                 if ("love.plot" %in% class(var.order)) {
                     old.vars <- levels(var.order$data$var)
-                    old.vars[endsWith(old.vars, "*")] <- gsub("*", "", old.vars[endsWith(old.vars, "*")], fixed = TRUE)
+                    old.vars[endsWith(old.vars, "*")] <- substr(old.vars[endsWith(old.vars, "*")], 1, nchar(old.vars[endsWith(old.vars, "*")])-1)
                     if (any(SS[["var"]] %nin% old.vars)) {
                         warning("The love.plot object in var.order doesn't have the same variables as the current input. Ignoring var.order.", call. = FALSE)
                         var.order <- NULL
@@ -1125,13 +1127,13 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
                 # }
                 
                 if (any(SS[["mean.stat"]] < limits[[s]][1], na.rm = TRUE)) {
-                    SS[["on.border"]][SS[["stat"]] < limits[[s]][1]] <- TRUE
+                    SS[["on.border"]][SS[["mean.stat"]] < limits[[s]][1]] <- TRUE
                     SS[["mean.stat"]][SS[["mean.stat"]] < limits[[s]][1]] <- limits[[s]][1]
                     SS[["max.stat"]][SS[["max.stat"]] < limits[[s]][1]] <- limits[[s]][1]
                     SS[["min.stat"]][SS[["min.stat"]] < limits[[s]][1]] <- limits[[s]][1]
                 }
                 if (any(SS[["mean.stat"]] > limits[[s]][2], na.rm = TRUE)) {
-                    SS[["on.border"]][SS[["stat"]] > limits[[s]][2]] <- TRUE
+                    SS[["on.border"]][SS[["mean.stat"]] > limits[[s]][2]] <- TRUE
                     SS[["mean.stat"]][SS[["mean.stat"]] > limits[[s]][2]] <- limits[[s]][2]
                     SS[["max.stat"]][SS[["max.stat"]] > limits[[s]][2]] <- limits[[s]][2]
                     SS[["min.stat"]][SS[["min.stat"]] > limits[[s]][2]] <- limits[[s]][2]
