@@ -601,7 +601,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
     if (is_not_null(distance)) {
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
         if (any(apply(distance, 2, function(x) anyNA(x)))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
-        C <- cbind(distance, C, row.names = NULL)
+        C <- cbind(as.matrix(distance), C, row.names = NULL)
         dist.co.names <- setNames(lapply(names(distance), function(x) setNames(list(x, "base"), c("component", "type"))), names(distance))
         co.names <- c(co.names, dist.co.names)
     }
@@ -1548,10 +1548,12 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     if (abs) a0 <- base::abs
     else a0 <- base::identity
     # if (!(!un && quick)) #Always calculate unadjusted corrs
-    B[["Corr.Un"]] <- a0(apply(C, 2, w.r, y = treat, s.weights = s.weights))
+    # B[["Corr.Un"]] <- a0(apply(C, 2, w.r, y = treat, s.weights = s.weights))
+    B[["Corr.Un"]] <- a0(col.w.r(C, y = treat, s.weights = s.weights))
     if (!no.adj) {
         for (i in weight.names) {
-            B[[paste.("Corr", i)]] <- a0(apply(C, 2, w.r, y = treat, w = weights[[i]], s.weights = s.weights))
+            # B[[paste.("Corr", i)]] <- a0(apply(C, 2, w.r, y = treat, w = weights[[i]], s.weights = s.weights))
+            B[[paste.("Corr", i)]] <- a0(col.w.r(C, y = treat, w = weights[[i]], s.weights = s.weights))
         }
     }
     
@@ -1607,7 +1609,8 @@ balance.table.subclass.cont <- function(C, weights = NULL, treat, subclass, r.th
         }
         
         #Correlations
-        SB[[i]][["Corr.Adj"]] <- apply(C, 2, function(x) w.r(x[in.subclass], y = treat[in.subclass]))
+        # SB[[i]][["Corr.Adj"]] <- apply(C, 2, function(x) w.r(x[in.subclass], y = treat[in.subclass]))
+        SB[[i]][["Corr.Adj"]] <- col.w.r(C[in.subclass,], y = treat[in.subclass])
         
     }
     
