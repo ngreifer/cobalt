@@ -518,23 +518,29 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
         else data <- do.call("cbind", unname(addl.dfs))
     }
     
-    new.form <- as.formula(paste("~", paste(rhs.term.labels, collapse = " + ")))
-    tt.covs <- terms(new.form)
-    
-    #Get model.frame, report error
-    mf.covs <- quote(stats::model.frame(tt.covs, data,
-                                        drop.unused.levels = TRUE,
-                                        na.action = "na.pass"))
-    
-    tryCatch({covs <- eval(mf.covs)},
-             error = function(e) {stop(conditionMessage(e), call. = FALSE)})
-    
-    if (is_not_null(treat.name) && treat.name %in% names(covs)) stop("The variable on the left side of the formula appears on the right side too.", call. = FALSE)
-    
-    if (is_null(rhs.vars.mentioned)) {
+    if (is_null(rhs.term.labels)) {
+        new.form <- as.formula("~ 1")
+        tt.covs <- terms(new.form)
         covs <- data.frame(Intercept = rep(1, if (is_null(treat)) 1 else length(treat)))
+        if (is_not_null(treat.name) && treat.name == "Intercept") {
+            names(covs) <- "Intercept_"
+        }
     }
-    else attr(tt.covs, "intercept") <- 0
+    else {
+        new.form <- as.formula(paste("~", paste(rhs.term.labels, collapse = " + ")))
+        tt.covs <- terms(new.form)
+        attr(tt.covs, "intercept") <- 0
+        
+        #Get model.frame, report error
+        mf.covs <- quote(stats::model.frame(tt.covs, data,
+                                            drop.unused.levels = TRUE,
+                                            na.action = "na.pass"))
+        
+        tryCatch({covs <- eval(mf.covs)},
+                 error = function(e) {stop(conditionMessage(e), call. = FALSE)})
+        
+        if (is_not_null(treat.name) && treat.name %in% names(covs)) stop("The variable on the left side of the formula appears on the right side too.", call. = FALSE)
+    }
     
     if (s <- !identical(sep, "")) {
         if (!is.character(sep) || length(sep) > 1) stop("sep must be a string of length 1.", call. = FALSE)
