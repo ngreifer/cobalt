@@ -224,7 +224,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, treat = NU
     estimand.specified <- is_not_null(estimand)
     
     if (s.d.denom.specified) {
-        try.s.d.denom <- tryCatch(match_arg(s.d.denom, c("treated", "control", "pooled"), several.ok = TRUE),
+        try.s.d.denom <- tryCatch(match_arg(s.d.denom, c("treated", "control", "pooled", "all"), several.ok = TRUE),
                                   error = function(cond) FALSE)
         if (any(try.s.d.denom == FALSE)) {
             check.estimand <- TRUE
@@ -315,7 +315,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, treat = NU
     if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep(s.d.denom, ncol(weights))
     
     if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
-        message("Warning: s.d.denom should be one of \"treated\", \"control\", or \"pooled\".\n         Using \"", word_list(s.d.denom), "\" instead.")
+        message("Warning: s.d.denom should be one of \"treated\", \"control\", \"pooled\", or \"all\".\n         Using \"", word_list(s.d.denom), "\" instead.")
     }
     else if (estimand.specified && bad.estimand) {
         message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(all_the_same(estimand), toupper(estimand)[1], word_list(toupper(estimand))), "\" instead.")
@@ -1025,6 +1025,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     #Set var type (binary/continuous)
     if (is_not_null(types)) B[["Type"]] <- types
     else B[["Type"]] <- get.types(C)
+    bin.vars <- B[["Type"]] == "Binary"
     
     #Means for each group
     # if (!((!un || !disp.means) && quick)) {
@@ -1053,18 +1054,13 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     }
     else binary <- match_arg(binary, c("raw", "std"))
     
-    sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else B[["Type"]] != "Binary"
+    sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
     # if (!((!un || !disp.sds) && quick)) {
     for (t in c(0, 1)) {
         sds <- rep(NA_real_, NCOL(C))
-        if (any(sd.computable & B[["Type"]] != "Binary")) {
-            sds[sd.computable & B[["Type"]] != "Binary"] <- sqrt(col.w.v(C[treat == t, sd.computable & B[["Type"]] != "Binary", drop = FALSE], 
-                                                                         w = s.weights[treat==t]))
-        }
-        if (any(sd.computable & B[["Type"]] == "Binary")) {
-            sds[sd.computable & B[["Type"]] == "Binary"] <- sqrt(col.w.v.bin(C[treat == t, sd.computable & B[["Type"]] == "Binary", drop = FALSE], 
-                                                                             w = s.weights[treat==t]))
-        }
+        sds[sd.computable] <- sqrt(col.w.v(C[treat == t, sd.computable, drop = FALSE],
+                                           w = s.weights[treat==t],
+                                           bin.vars = bin.vars[sd.computable]))
         B[[paste.("SD", t, "Un")]] <- sds
     }
     # if (!(!disp.pop && quick)) {
@@ -1078,14 +1074,9 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
         for (i in weight.names) {
             for (t in c(0, 1)) {
                 sds <- rep(NA_real_, NCOL(C))
-                if (any(sd.computable & B[["Type"]] != "Binary")) {
-                    sds[sd.computable & B[["Type"]] != "Binary"] <- sqrt(col.w.v(C[treat == t, sd.computable & B[["Type"]] != "Binary", drop = FALSE], 
-                                                                                 w = weights[[i]][treat==t]*s.weights[treat==t]))
-                }
-                if (any(sd.computable & B[["Type"]] == "Binary")) {
-                    sds[sd.computable & B[["Type"]] == "Binary"] <- sqrt(col.w.v.bin(C[treat == t, sd.computable & B[["Type"]] == "Binary", drop = FALSE], 
-                                                                                     w = weights[[i]][treat==t]*s.weights[treat==t]))
-                }
+                sds[sd.computable] <- sqrt(col.w.v(C[treat == t, sd.computable, drop = FALSE],
+                                                   w = weights[[i]][treat==t]*s.weights[treat==t],
+                                                   bin.vars = bin.vars[sd.computable]))
                 B[[paste.("SD", t, i)]] <- sds
             }
             # if (!(!disp.pop && quick)) {
@@ -1102,23 +1093,17 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     else a0 <- base::identity
     
     # if (!(!un && quick)) #Always compute unadjusted diffs
-    # B[["Diff.Un"]] <- a0(col.std.diff(C, treat = treat, weights = NULL, x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[1], no.weights = TRUE, s.weights = s.weights, pooled.sds = pooled.sds))
-    B[["Diff.Un"]] <- a0(std.diffs(m0 = B[["M.0.Un"]], 
-                                   s0 = B[["SD.0.Un"]], 
-                                   m1 = B[["M.1.Un"]], 
-                                   s1 = B[["SD.1.Un"]], 
-                                   x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[1], pooled.sds = pooled.sds))
+    B[["Diff.Un"]] <- col_w_smd(C, treat = treat, weights = NULL,
+                                std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                s.d.denom = if (is_null(pooled.sds)) s.d.denom[1] else pooled.sds,
+                                abs = abs, s.weights = s.weights, bin.vars = bin.vars)
     
     if (!no.adj) {
-        # for (j in seq_len(NCOL(weights))) {
-        #     B[[paste.("Diff", weight.names[j])]] <- a0(col.std.diff(C, treat = treat, weights = weights[[j]], x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[j], no.weights = FALSE, s.weights = s.weights, pooled.sds = pooled.sds))
-        # }
         for (i in weight.names) {
-            B[[paste.("Diff", i)]] <- a0(std.diffs(m0 = B[[paste.("M.0", i)]], 
-                                                   s0 = B[["SD.0.Un"]], 
-                                                   m1 = B[[paste.("M.1", i)]], 
-                                                   s1 = B[["SD.1.Un"]], 
-                                                   x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom[i], pooled.sds = pooled.sds))
+            B[[paste.("Diff", i)]] <- col_w_smd(C, treat = treat, weights = weights[[i]],
+                                                std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                                s.d.denom = if (is_null(pooled.sds)) s.d.denom[i] else pooled.sds,
+                                                abs = abs, s.weights = s.weights, bin.vars = bin.vars)
         }
     }
     
@@ -1149,11 +1134,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     #KS Statistics
     if (!(!disp.ks && quick)) {
         if (!(!un && quick)) {
-            B[["KS.Un"]] <- col.ks(C, treat, s.weights, B[["Type"]], no.weights = FALSE)
+            B[["KS.Un"]] <- col_w_ks(C, treat = treat, weights = NULL, s.weights = s.weights, bin.vars = bin.vars)
         }
         if (!no.adj) {
             for (j in seq_len(NCOL(weights))) {
-                B[[paste.("KS", weight.names[j])]] <- col.ks(C, treat, weights[[j]]*s.weights, B[["Type"]], no.weights = FALSE)
+                B[[paste.("KS", weight.names[j])]] <- col_w_ks(C, treat = treat, weights = weights[[j]], s.weights = s.weights, bin.vars = bin.vars)
             }
         }
     }
@@ -2027,7 +2012,7 @@ ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
         heights <- grid::unit.c(sum(top$heights), height, sum(bottom$heights))
         all <- gtable::gtable_matrix("all", grobs = matrix(grobs, ncol = 3, nrow = 3, byrow = TRUE), 
                                      widths = widths, heights = heights)
-  
+        
         all[["layout"]][5, "name"] <- "panel"
         if (fixed_ar) 
             all$respect <- TRUE
@@ -2043,14 +2028,14 @@ ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
         nrow <- nm[1]
         ncol <- nm[2]
     }
-
+    
     hw <- lapply(rep(1, n), unit, "null")
-
+    
     fg <- lapply(seq_along(plots), function(i) gtable_frame(g = grobs[[i]], 
-                 width = hw[[i]], height = hw[[i]]))
+                                                            width = hw[[i]], height = hw[[i]]))
     
     spl <- split(fg, rep(1, n))
-     
+    
     rows <- lapply(spl, function(r) do.call(gridExtra::gtable_cbind, r))
     
     gt <- do.call(gridExtra::gtable_rbind, rows)
