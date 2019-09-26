@@ -227,18 +227,6 @@ binarize <- function(variable, zero = NULL, one = NULL) {
 ESS <- function(w) {
     sum(w)^2/sum(w^2)
 }
-.center <- function(x, na.rm = TRUE, at = NULL) {
-    dimx <- dim(x)
-    if (length(dimx) == 2L) x <- apply(x, 2, center, na.rm = na.rm, at = at)
-    else if (length(dimx) > 2L) stop("x must be a numeric or matrix-like (not array).")
-    else if (!is.numeric(x)) warning("x is not numeric and will not be centered.")
-    else {
-        if (is_null(at)) at <- mean(x, na.rm = na.rm)
-        else if (!is.numeric(at)) stop("at must be numeric.")
-        x <- x - at
-    }
-    return(x)
-}
 center <- function(x, at = NULL, na.rm = TRUE) {
     if (is.data.frame(x)) {
         x <- as.matrix.data.frame(x)
@@ -263,75 +251,42 @@ w.m <- function(x, w = NULL, na.rm = TRUE) {
     w[is.na(x)] <- NA_real_
     return(sum(x*w, na.rm=na.rm)/sum(w, na.rm=na.rm))
 }
-.w.v <- function(x, w = NULL, na.rm = TRUE) {
-    w.cov(x, x, w = w, na.rm = na.rm)
-}
-.w.cov <- function(x, y, w = NULL, na.rm = TRUE, type = 3) {
-    
-    if (length(x) != length(y)) stop("x and y must the same length")
-    
-    if (is_null(w)) w <- rep(1, length(x))
-    else if (length(w) != length(x)) stop("weights must be same length as x and y")
-    
-    w[is.na(x) | is.na(y)] <- NA_real_
-    
-    wmx <- w.m(x, w, na.rm = na.rm)
-    wmy <- w.m(y, w, na.rm = na.rm)
-    
-    wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = na.rm) / w.cov.scale(w, na.rm = na.rm, type = type)
-    return(wcov)
-}
-.w.cov.scale <- function(w, type = 3, na.rm = TRUE) {
-    
-    sw <- sum(w, na.rm = na.rm)
-    n <- sum(!is.na(w))
-    vw1 <- sum((w - sw/n)^2, na.rm = na.rm)/n
-    # vw2 <- sum((w - sw/n)^2, na.rm = na.rm)/(n-1)
-    
-    if (type == 1) sw
-    else if (type == 2) sw - 1
-    else if (type == 3) sw*(n-1)/n - vw1*n/sw
-    # else if (type == 4) sw*(n-1)/n - vw2*n/sw
-    
-}
-.w.r <- function(x, y, w = NULL, s.weights = NULL) {
-    #Computes weighted correlation but using the unweighted (s.weighted) variances
-    #in the denominator.
-    if (is_null(s.weights)) s.weights <- rep(1, length(x))
-    else if (length(s.weights) != length(x)) stop("s.weights must be same length as x and y")
-    
-    s.weights[is.na(x) | is.na(y)] <- NA_real_
-    
-    w_ <- w*s.weights
-    
-    r <- w.cov(x, y, w_) / (sqrt(w.v(x, s.weights) * w.v(y, s.weights)))
-    
-    return(r)
-}
 col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
     if (is_null(w)) w <- 1
     w.sum <- colSums(w*!is.na(mat))
     return(colSums(mat*w, na.rm = na.rm)/w.sum)
 }
-.col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
-    if (is_null(w)) {
-        w <- rep(1, nrow(mat))
-    }
-    means <- col.w.m(mat, w, na.rm)
-    w.scale <- apply(mat, 2, function(x) w.cov.scale(w[!is.na(x)]))
-    vars <- colSums(w*center(mat, at = means)^2, na.rm = na.rm)/w.scale
-    
-    return(vars)
-}
-col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
+col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
     if (!is.matrix(mat)) {
-        if (is_null(w)) return(var(mat, na.rm = na.rm))
-        else mat <- matrix(mat, ncol = 1)
+        if (is.data.frame(mat)) {
+            if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                stop("mat must be a numeric matrix.")
+            }
+            else mat <- as.matrix.data.frame(mat)
+        }
+        else if (is.vector(mat, "numeric")) {
+            mat <- matrix(mat, ncol = 1)
+        }
+        else stop("mat must be a numeric matrix.")
     }
+    
+    if (is_null(bin.vars)) bin.vars <- rep(FALSE, ncol(mat))
+    else if (length(bin.vars) != ncol(mat) || any(is.na(as.logical(bin.vars)))) {
+        stop("bin.vars must be a logical vector with length equal to the number of columns of mat.", call. = FALSE)
+    }
+    bin.var.present <- any(bin.vars)
+    non.bin.vars.present <- any(!bin.vars)
+    
+    var <- setNames(numeric(ncol(mat)), colnames(mat))
     if (is_null(w)) {
-        den <- colSums(!is.na(mat)) - 1
-        var <- colSums(mat^2, na.rm = na.rm)/den -
-            (colSums(mat, na.rm = na.rm)/den)^2
+        if (non.bin.vars.present) {
+            den <- colSums(!is.na(mat[, !bin.vars, drop = FALSE])) - 1
+            var[!bin.vars] <- colSums(center(mat[, !bin.vars, drop = FALSE])^2, na.rm = na.rm)/den
+        }
+        if (bin.var.present) {
+            means <- colMeans(mat[, bin.vars, drop = FALSE], na.rm = na.rm)
+            var[bin.vars] <- means * (1 - means)
+        }
     }
     else if (na.rm && any(is.na(mat))) {
         n <- nrow(mat)
@@ -339,23 +294,30 @@ col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
         w[is.na(mat)] <- NA_real_
         s <- colSums(w, na.rm = na.rm)
         w <- mat_div(w, s)
-        x <- sqrt(w) * center(mat, at = colSums(w * mat, na.rm = na.rm))
-        var <- colSums(x*x, na.rm = na.rm)/(1 - colSums(w^2, na.rm = na.rm))
+        if (non.bin.vars.present) {
+            x <- sqrt(w[, !bin.vars, drop = FALSE]) * center(mat[, !bin.vars, drop = FALSE], 
+                                                             at = colSums(w[, !bin.vars, drop = FALSE] * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
+            var[!bin.vars] <- colSums(x*x, na.rm = na.rm)/(1 - colSums(w[, !bin.vars, drop = FALSE]^2, na.rm = na.rm))
+        }
+        if (bin.var.present) {
+            means <- colSums(w[, bin.vars, drop = FALSE] * mat[, bin.vars, drop = FALSE], na.rm = na.rm)
+            var[bin.vars] <- means * (1 - means)
+        }
     }
     else {
+        if (is_null(w)) w <- rep(1, nrow(mat))
         w <- w/sum(w)
-        x <- sqrt(w) * center(mat, at = colSums(w * mat, na.rm = na.rm))
-        var <- colSums(x*x, na.rm = na.rm)/(1 - sum(w^2))
+        if (non.bin.vars.present) {
+            x <- sqrt(w) * center(mat[, !bin.vars, drop = FALSE], 
+                                  at = colSums(w * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
+            var[!bin.vars] <- colSums(x*x, na.rm = na.rm)/(1 - sum(w^2))
+        }
+        if (bin.var.present) {
+            means <- colSums(w * mat[, bin.vars, drop = FALSE], na.rm = na.rm)
+            var[bin.vars] <- means * (1 - means)
+        }
     }
     return(var)
-}
-col.w.v.bin <- function(mat, w = NULL, na.rm = TRUE) {
-    if (is_null(w)) {
-        w <- rep(1, nrow(mat))
-    }
-    means <- col.w.m(mat, w, na.rm)
-    vars <- means * (1 - means)
-    return(vars)
 }
 col.w.cov <- function(mat, y, w = NULL, na.rm = TRUE) {
     if (!is.matrix(mat)) {
@@ -386,11 +348,12 @@ col.w.cov <- function(mat, y, w = NULL, na.rm = TRUE) {
     }
     return(cov)
 }
-col.w.r <- function(mat, y, w = NULL, s.weights = NULL, na.rm = TRUE) {
+col.w.r <- function(mat, y, w = NULL, s.weights = NULL, bin.vars = NULL, na.rm = TRUE) {
     if (is_null(w) && is_null(s.weights)) return(cor(mat, y, w, use = if (na.rm) "pair" else "everything"))
     else {
-        cov <- col.w.cov(mat, y, w, na.rm)
-        den <- sqrt(col.w.v(mat, s.weights, na.rm)) * sqrt(col.w.v(y, s.weights, na.rm))
+        cov <- col.w.cov(mat, y = y, w = w, na.rm = na.rm)
+        den <- sqrt(col.w.v(mat, w = s.weights, bin.vars = bin.vars, na.rm = na.rm)) * 
+            sqrt(col.w.v(y, w = s.weights, na.rm = na.rm))
         return(cov/den)
     }
 }
@@ -639,7 +602,10 @@ nunique.gt <- function(x, n, na.rm = TRUE) {
         else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
     }
 }
-all_the_same <- function(x) !any(x != x[1])
+all_the_same <- function(x) {
+    if (is.double(x)) check_if_zero(abs(max(x) - min(x)))
+    else !any(x != x[1])
+}
 is_binary <- function(x) !all_the_same(x) && all_the_same(x[x != x[1]])
 
 #R Processing
@@ -719,4 +685,81 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
 }
 last <- function(x) {
     x[[length(x)]]
+}
+
+#Defunct; delete if everything works without them
+.center <- function(x, na.rm = TRUE, at = NULL) {
+    dimx <- dim(x)
+    if (length(dimx) == 2L) x <- apply(x, 2, center, na.rm = na.rm, at = at)
+    else if (length(dimx) > 2L) stop("x must be a numeric or matrix-like (not array).")
+    else if (!is.numeric(x)) warning("x is not numeric and will not be centered.")
+    else {
+        if (is_null(at)) at <- mean(x, na.rm = na.rm)
+        else if (!is.numeric(at)) stop("at must be numeric.")
+        x <- x - at
+    }
+    return(x)
+}
+.w.v <- function(x, w = NULL, na.rm = TRUE) {
+    .w.cov(x, x, w = w, na.rm = na.rm)
+}
+.w.cov <- function(x, y, w = NULL, na.rm = TRUE, type = 3) {
+    
+    if (length(x) != length(y)) stop("x and y must the same length")
+    
+    if (is_null(w)) w <- rep(1, length(x))
+    else if (length(w) != length(x)) stop("weights must be same length as x and y")
+    
+    w[is.na(x) | is.na(y)] <- NA_real_
+    
+    wmx <- w.m(x, w, na.rm = na.rm)
+    wmy <- w.m(y, w, na.rm = na.rm)
+    
+    wcov <- sum(w*(x - wmx)*(y - wmy), na.rm = na.rm) / .w.cov.scale(w, na.rm = na.rm, type = type)
+    return(wcov)
+}
+.w.cov.scale <- function(w, type = 3, na.rm = TRUE) {
+    
+    sw <- sum(w, na.rm = na.rm)
+    n <- sum(!is.na(w))
+    vw1 <- sum((w - sw/n)^2, na.rm = na.rm)/n
+    # vw2 <- sum((w - sw/n)^2, na.rm = na.rm)/(n-1)
+    
+    if (type == 1) sw
+    else if (type == 2) sw - 1
+    else if (type == 3) sw*(n-1)/n - vw1*n/sw
+    # else if (type == 4) sw*(n-1)/n - vw2*n/sw
+    
+}
+.w.r <- function(x, y, w = NULL, s.weights = NULL) {
+    #Computes weighted correlation but using the unweighted (s.weighted) variances
+    #in the denominator.
+    if (is_null(s.weights)) s.weights <- rep(1, length(x))
+    else if (length(s.weights) != length(x)) stop("s.weights must be same length as x and y")
+    
+    s.weights[is.na(x) | is.na(y)] <- NA_real_
+    
+    w_ <- w*s.weights
+    
+    r <- .w.cov(x, y, w_) / (sqrt(.w.v(x, s.weights) * .w.v(y, s.weights)))
+    
+    return(r)
+}
+.col.w.v <- function(mat, w = NULL, na.rm = TRUE) {
+    if (is_null(w)) {
+        w <- rep(1, nrow(mat))
+    }
+    means <- col.w.m(mat, w, na.rm)
+    w.scale <- apply(mat, 2, function(x) .w.cov.scale(w[!is.na(x)]))
+    vars <- colSums(w*center(mat, at = means)^2, na.rm = na.rm)/w.scale
+    
+    return(vars)
+}
+.col.w.v.bin <- function(mat, w = NULL, na.rm = TRUE) {
+    if (is_null(w)) {
+        w <- rep(1, nrow(mat))
+    }
+    means <- col.w.m(mat, w, na.rm)
+    vars <- means * (1 - means)
+    return(vars)
 }
