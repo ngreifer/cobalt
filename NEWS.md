@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-Version 3.8.1
+Version 3.9.0
 
 * Added vignette for use of `love.plot`.
 
@@ -10,6 +10,8 @@ Version 3.8.1
 * Updated README.
 
 * Fixed bugs that would occur when using `love.plot()` with various combinations of `var.order`, multiple `stats`, and `agg.fun = "range"`.
+
+* Added balance summary functions `col_w_mean`, `col_w_smd`, `col_w_ks`, `col_w_ovl`, and `col_w_corr`. These make it easier to get quick, simple summaries of balance without calling `bal.tab`, for example, for use in programming other functions. Some of these are now used inside `bal.tab` to increase speed and simplify syntax.
 
 Version 3.8.0
 
