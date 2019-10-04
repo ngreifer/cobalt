@@ -346,19 +346,25 @@ get.X.class <- function(X) {
     return(X.class)
 }
 subset_X <- function(X, subset = NULL) {
-    if (is_not_null(subset) && !all(subset)) {
-        n <- length(subset)
-        subset_X_internal <- function(x, subset) {
-            if (is_not_null(x)) {
-                if (is.factor(x) && length(x) == n) factor(x[subset])
-                else if (is.atomic(x) && length(x) == n) x[subset]
-                else if ((is.matrix(x) || is.data.frame(x)) && nrow(x) == n) x[subset, , drop = FALSE]
-                else if (is.list(x)) lapply(x, subset_X_internal, subset = subset)
+    if (is_not_null(subset)) {
+        if (!any(subset)) {
+            stop("All subset set to FALSE.", call. = FALSE)
+        }
+        else if (!all(subset)) {
+            n <- length(subset)
+            subset_X_internal <- function(x, subset) {
+                if (is_not_null(x)) {
+                    if (is.factor(x) && length(x) == n) factor(x[subset])
+                    else if (is.atomic(x) && length(x) == n) x[subset]
+                    else if ((is.matrix(x) || is.data.frame(x)) && nrow(x) == n) x[subset, , drop = FALSE]
+                    else if (is.list(x)) lapply(x, subset_X_internal, subset = subset)
+                    else x
+                }
                 else x
             }
-            else x
+            lapply(X["weights"], subset_X_internal, subset)
         }
-        lapply(X["weights"], subset_X_internal, subset)
+        else X
     }
     else X
 }
