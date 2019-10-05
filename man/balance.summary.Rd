@@ -14,7 +14,6 @@ Compute balance statistics for covariates
 These functions quickly compute balance statistics for the given covariates. These functions are used in \code{\link{bal.tab}}, but they are available for use in programming without having to call \code{bal.tab()} to get them.
 \itemize{
 \item{\code{col_w_mean} computes the (weighted) means for a set of covariates and weights and is essentially a weighted version of \code{\link{colMeans}}.}
-\itemize{
 \item{\code{col_w_sd} computes the (weighted) standard deviations for a set of covariates and weights.}
 \item{\code{col_w_smd} computes the (weighted) (absolute) (standardized) difference in means for a set of covariates, a binary treatment, and weights.}
 \item{\code{col_w_vr} computes the (weighted) variance ratio for a set of covariates, a binary treatment, and weights.}
@@ -25,13 +24,31 @@ These functions quickly compute balance statistics for the given covariates. The
 }
 
 \usage{
-col_w_mean(mat, weights = NULL, s.weights = NULL, na.rm = TRUE, ...)
-col_w_sd(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, ...)
-col_w_smd(mat, treat, weights = NULL, std = TRUE, s.d.denom = "pooled", abs = FALSE, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, ...)
-col_w_vr(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, ...)
-col_w_ks(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NULL, ...)
-col_w_ovl(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NULL, integrate = FALSE, ...)
-col_w_corr(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, ...)
+col_w_mean(mat, weights = NULL, s.weights = NULL, 
+           na.rm = TRUE, ...)
+           
+col_w_sd(mat, weights = NULL, s.weights = NULL, 
+         bin.vars = NULL, na.rm = TRUE, ...)
+         
+col_w_smd(mat, treat, weights = NULL, std = TRUE, 
+          s.d.denom = "pooled", abs = FALSE, 
+          s.weights = NULL, bin.vars = NULL, 
+          na.rm = TRUE, ...)
+          
+col_w_vr(mat, treat, weights = NULL, abs = FALSE, 
+         s.weights = NULL, bin.vars = NULL, 
+         na.rm = TRUE, ...)
+         
+col_w_ks(mat, treat, weights = NULL, 
+         s.weights = NULL, bin.vars = NULL, ...)
+         
+col_w_ovl(mat, treat, weights = NULL, 
+         s.weights = NULL, bin.vars = NULL, 
+         integrate = FALSE, ...)
+         
+col_w_corr(mat, treat, weights = NULL, abs = FALSE, 
+           s.weights = NULL, bin.vars = NULL, 
+           na.rm = TRUE, ...)
 }
 
 \arguments{
