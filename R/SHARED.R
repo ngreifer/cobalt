@@ -686,6 +686,11 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
 last <- function(x) {
     x[[length(x)]]
 }
+len <- function(x, recursive = TRUE) {
+    if (is.vector(x, "list")) sapply(x, len)
+    else if (length(dim(x)) > 1) NROW(x)
+    else length(x)
+}
 
 #Defunct; delete if everything works without them
 .center <- function(x, na.rm = TRUE, at = NULL) {
