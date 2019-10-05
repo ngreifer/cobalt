@@ -123,9 +123,9 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     
     if (any(to.sd <- std & !zeros)) {
         if (length(s.d.denom) == 1L && (as.character(s.d.denom) %in% allowable.s.d.denoms || s.d.denom %in% unique.treats)) {
-            if (s.d.denom %in% unique.treats) s.d.denom <- col.w.v(mat[treat == s.d.denom, to.sd, drop = FALSE], 
+            if (s.d.denom %in% unique.treats) s.d.denom <- sqrt(col.w.v(mat[treat == s.d.denom, to.sd, drop = FALSE], 
                                                                    w = s.weights[treat == s.d.denom],
-                                                                   bin.vars = bin.vars[to.sd], na.rm = na.rm)
+                                                                   bin.vars = bin.vars[to.sd], na.rm = na.rm))
             if (s.d.denom == "pooled") s.d.denom <- sqrt(.5*(col.w.v(mat[treat == tval1, to.sd, drop = FALSE], 
                                                                      w = s.weights[treat == tval1],
                                                                      bin.vars = bin.vars[to.sd], na.rm = na.rm) +
@@ -135,12 +135,12 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
             else if (s.d.denom == "all") s.d.denom <- sqrt(col.w.v(mat[, to.sd, drop = FALSE], 
                                                                    w = s.weights,
                                                                    bin.vars = bin.vars[to.sd], na.rm = na.rm))
-            else if (s.d.denom == "treated") s.d.denom <- col.w.v(mat[treat == tval1, to.sd, drop = FALSE], 
+            else if (s.d.denom == "treated") s.d.denom <- sqrt(col.w.v(mat[treat == tval1, to.sd, drop = FALSE], 
                                                                   w = s.weights[treat == tval1],
-                                                                  bin.vars = bin.vars[to.sd], na.rm = na.rm)
-            else if (s.d.denom == "control") s.d.denom <- col.w.v(mat[treat != tval1, to.sd, drop = FALSE], 
+                                                                  bin.vars = bin.vars[to.sd], na.rm = na.rm))
+            else if (s.d.denom == "control") s.d.denom <- sqrt(col.w.v(mat[treat != tval1, to.sd, drop = FALSE], 
                                                                   w = s.weights[treat != tval1],
-                                                                  bin.vars = bin.vars[to.sd], na.rm = na.rm)
+                                                                  bin.vars = bin.vars[to.sd], na.rm = na.rm))
         }
         
         diffs[to.sd] <- diffs[to.sd]/s.d.denom
