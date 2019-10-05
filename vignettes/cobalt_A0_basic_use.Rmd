@@ -5,12 +5,12 @@ date: "`r Sys.Date()`"
 output: 
     html_vignette:
         df_print: kable
-
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Covariate Balance Tables and Plots: A Guide to the cobalt Package}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-
+editor_options: 
+  chunk_output_type: console
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE)
