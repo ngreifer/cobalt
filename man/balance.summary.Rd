@@ -25,30 +25,32 @@ These functions quickly compute balance statistics for the given covariates. The
 
 \usage{
 col_w_mean(mat, weights = NULL, s.weights = NULL, 
-           na.rm = TRUE, ...)
+           subset = NULL, na.rm = TRUE, ...)
            
 col_w_sd(mat, weights = NULL, s.weights = NULL, 
-         bin.vars = NULL, na.rm = TRUE, ...)
+         bin.vars = NULL, subset = NULL, na.rm = TRUE, ...)
          
 col_w_smd(mat, treat, weights = NULL, std = TRUE, 
           s.d.denom = "pooled", abs = FALSE, 
           s.weights = NULL, bin.vars = NULL, 
-          na.rm = TRUE, ...)
+          subset = NULL, na.rm = TRUE, ...)
           
 col_w_vr(mat, treat, weights = NULL, abs = FALSE, 
          s.weights = NULL, bin.vars = NULL, 
-         na.rm = TRUE, ...)
+         subset = NULL, na.rm = TRUE, ...)
          
 col_w_ks(mat, treat, weights = NULL, 
-         s.weights = NULL, bin.vars = NULL, ...)
+         s.weights = NULL, bin.vars = NULL, 
+         subset = NULL, na.rm = TRUE, ...)
          
 col_w_ovl(mat, treat, weights = NULL, 
          s.weights = NULL, bin.vars = NULL, 
-         integrate = FALSE, ...)
+         integrate = FALSE, subset = NULL, 
+         na.rm = TRUE, ...)
          
 col_w_corr(mat, treat, weights = NULL, abs = FALSE, 
            s.weights = NULL, bin.vars = NULL, 
-           na.rm = TRUE, ...)
+           subset = NULL, na.rm = TRUE, ...)
 }
 
 \arguments{
@@ -60,6 +62,9 @@ a numeric matrix or a data.frame containing the covariates for which the statist
 }
   \item{s.weights}{
 \code{numeric}; an optional set of sampling weights used to compute the weighted statistics. If weights are supplied through \code{weights}, \code{weights} and \code{s.weights} will be multiplied together prior to computing the weighted statistics. Some functions use \code{s.weights} in a particular way; for others, supplying \code{weights} and \code{s.weights} is equivalent to supplying their product to either \code{weights} or \code{s.weights}. See Details.
+}
+  \item{subset}{
+a \code{logical} vector with length equal to the number of rows of \code{mat} used to subset the data. See Details for notes on its use with \code{col_w_smd} and \code{col_w_corr}.
 }
   \item{na.rm}{
 \code{logical}; whether \code{NA}s should be ignored or not. If \code{FALSE}, any variable with any \code{NA}s will have its correspondoing statistic returned as \code{NA}. If \code{TRUE}, any variable with any \code{NA}s will have its correspondoing statistic computed as if the missing value were not there.
@@ -91,7 +96,7 @@ for all functions, additional arguments supplied to \code{\link{splitfactor}} wh
 
 \code{col_w_sd} computed column weighted standard deviations for a matrix of variables. \code{weights} and \code{s.weights} are multiplied together prior to being used, and there is no distinction between them. The variance of binary variables is computed as \eqn{p(1-p)}, where \code{p} is the (weighted) proportion of 1s, while the variance of continuous variables is computed using the standard formula; the standard deviation is the square root of this variance.
 
-\code{col_w_smd} computes the mean difference for each covariate between treatment groups defined by \code{treat}. These mean differences can be optionally be weighted, standardized, and/or in absolute value. The standardization factor is always computed using the unweighted standard deviation or variance when \code{s.weights} are absent, and is computed using the sampling weighted standard deviation or variance when \code{s.weights} are present. Note that unlike \code{bal.tab}, \code{col_w_smd} requires the user to specify whether each individual variable should be standardized rather than relying on \code{continuous} or \code{binary}. The mean difference is computed using the product of \code{weights} and \code{s.weights}, if specified. The variance of binary variables is computed as \eqn{p(1-p)}, where \code{p} is the (weighted) proportion of 1s, while the variance of continuous variables is computed using the standard formula. 
+\code{col_w_smd} computes the mean difference for each covariate between treatment groups defined by \code{treat}. These mean differences can be optionally be weighted, standardized, and/or in absolute value. The standardization factor is always computed using the unweighted standard deviation or variance when \code{s.weights} are absent, and is computed using the sampling weighted standard deviation or variance when \code{s.weights} are present. It is computed using the whole sample even when \code{subset} is used. Note that unlike \code{bal.tab}, \code{col_w_smd} requires the user to specify whether each individual variable should be standardized rather than relying on \code{continuous} or \code{binary}. The mean difference is computed using the product of \code{weights} and \code{s.weights}, if specified. The variance of binary variables is computed as \eqn{p(1-p)}, where \code{p} is the (weighted) proportion of 1s, while the variance of continuous variables is computed using the standard formula. 
 
 \code{col_w_vr} computes the variance ratio for each covariate between treatment groups defined by \code{treat}. When \code{abs = TRUE}, \code{max(out, 1/out)} is applied to the output so that the ratio is always greater than or equal to 1. For binary variables, the variance is computed as \eqn{p(1-p)}, where \code{p} is the (weighted) proportion of 1s, while the variance of continuous variables is computed using the standard formula. Note that in \code{bal.tab}, variance ratios are not computed for binary variables, while here, they are (but likely should not be interpreted). \code{weights} and \code{s.weights} are multiplied together prior to being used, and there is no distinction between them.
 
@@ -99,7 +104,7 @@ for all functions, additional arguments supplied to \code{\link{splitfactor}} wh
 
 \code{col_w_ovl} computes the complement of the overlapping coefficient as described by Franklin et al. (2014). It does so by computing the density of the covariate in the treated and control groups, then finding the area where those density overlap, and subtrcting that number from 1, yielding a value between 0 and 1 where 1 indicates complete imbalance, and 0 indicates perfect balance. \code{\link{density}} is used to model the density in each group. The bandwidth of the covariate in the smaller treatment group is used for both groups. The area of overlap can be computed using \code{integrate}, which quickly and accurately computes the integral, or using a midpoint Riemann sum with 1000 partitions, which approximates the area more slowly. A reason to prefer thr Riemann sum is that \code{integrate} can fail for unknown reasons. When \code{integrate = TRUE} and \code{integrate} fails, the resulting value will be \code{NA}. For binary variables, the complement of the overlapping coefficient is just the difference in proportions. \code{weights} and \code{s.weights} are multiplied together prior to being used, and there is no distinction between them. The weights are used to compute the weighted density by supplying them to the \code{weights} argument of \code{density}.
 
-\code{col_w_corr} computes the Pearson correlation between a continuous treatment and the covariates to assess balance for continuous treatments as recommended in Austin (2019). These correlations can optionally be weighted or in absolute value. The correlations are computed as the covariance between the treatment and covariate divided by a standardization factor, which is equal to the square root of the product of the variance of treatment and the variance of the covariate. The standardization factor is always computed using the unweighted variances when \code{s.weights} are absent, and is computed using the sampling weighted variances when \code{s.weights} are present. For this reason, the computed correlation can be greater than 1 or less than -1. The covariance is computed using the product of \code{weights} and \code{s.weights}, if specified. The variance of binary variables is computed as \eqn{p(1-p)}, where \code{p} is the (weighted) proportion of 1s, while the variance of continuous variables is computed using the standard formula. 
+\code{col_w_corr} computes the Pearson correlation between a continuous treatment and the covariates to assess balance for continuous treatments as recommended in Austin (2019). These correlations can optionally be weighted or in absolute value. The correlations are computed as the covariance between the treatment and covariate divided by a standardization factor, which is equal to the square root of the product of the variance of treatment and the variance of the covariate. The standardization factor is always computed using the unweighted variances when \code{s.weights} are absent, and is computed using the sampling weighted variances when \code{s.weights} are present. For this reason, the computed correlation can be greater than 1 or less than -1. The standardization factor is always computed using the whole sample even when \code{subset} is used. The covariance is computed using the product of \code{weights} and \code{s.weights}, if specified. The variance of binary variables is computed as \eqn{p(1-p)}, where \code{p} is the (weighted) proportion of 1s, while the variance of continuous variables is computed using the standard formula. 
 
 }
 \value{
