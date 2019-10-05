@@ -1036,7 +1036,8 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     #Means for each group
     # if (!((!un || !disp.means) && quick)) {
     for (t in c(0, 1)) {
-        B[[paste.("M", t, "Un")]] <- col.w.m(C[treat == t, , drop = FALSE], w = s.weights[treat==t])
+        B[[paste.("M", t, "Un")]] <- col_w_mean(C[treat == t, , drop = FALSE], weights = NULL,
+                                                s.weights = s.weights[treat==t])
     }
     # if (!(!disp.pop && quick)) {
     #     B[["M.Pop.Un"]] <- col.w.m(C, w = s.weights)
@@ -1046,7 +1047,8 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
         # if (!no.adj && !(!disp.means && quick)) {
         for (i in weight.names) {
             for (t in c(0, 1)) {
-                B[[paste.("M", t, i)]] <- col.w.m(C[treat == t, , drop = FALSE], w = weights[[i]][treat==t]*s.weights[treat==t])
+                B[[paste.("M", t, i)]] <- col_w_mean(C[treat == t, , drop = FALSE], weights = weights[[i]][treat==t],
+                                                     s.weights = s.weights[treat==t])
             }
             # if (!(!disp.pop && quick)) {
             #     B[[paste.("M.Pop.Un", i)]] <- col.w.m(C, w = weights[[i]]*s.weights)
@@ -1064,9 +1066,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     # if (!((!un || !disp.sds) && quick)) {
     for (t in c(0, 1)) {
         sds <- rep(NA_real_, NCOL(C))
-        sds[sd.computable] <- sqrt(col.w.v(C[treat == t, sd.computable, drop = FALSE],
-                                           w = s.weights[treat==t],
-                                           bin.vars = bin.vars[sd.computable]))
+        if (any(sd.computable)) {
+            sds[sd.computable] <- col_w_sd(C[treat == t, sd.computable, drop = FALSE],
+                                           weights = NULL, s.weights = s.weights[treat==t],
+                                           bin.vars = bin.vars[sd.computable])
+        }
         B[[paste.("SD", t, "Un")]] <- sds
     }
     # if (!(!disp.pop && quick)) {
@@ -1080,9 +1084,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
         for (i in weight.names) {
             for (t in c(0, 1)) {
                 sds <- rep(NA_real_, NCOL(C))
-                sds[sd.computable] <- sqrt(col.w.v(C[treat == t, sd.computable, drop = FALSE],
-                                                   w = weights[[i]][treat==t]*s.weights[treat==t],
-                                                   bin.vars = bin.vars[sd.computable]))
+                if (any(sd.computable)) {
+                    sds[sd.computable] <- col_w_sd(C[treat == t, sd.computable, drop = FALSE],
+                                                   weights = weights[[i]][treat==t], s.weights = s.weights[treat==t],
+                                                   bin.vars = bin.vars[sd.computable])
+                }
                 B[[paste.("SD", t, i)]] <- sds
             }
             # if (!(!disp.pop && quick)) {
@@ -1095,9 +1101,6 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     if (!any(sapply(B[startsWith(names(B), "SD.")], is.finite))) {disp.sds <- FALSE}
     
     #Mean differences
-    if (abs) a0 <- base::abs
-    else a0 <- base::identity
-    
     # if (!(!un && quick)) #Always compute unadjusted diffs
     B[["Diff.Un"]] <- col_w_smd(C, treat = treat, weights = NULL,
                                 std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
@@ -1114,24 +1117,24 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     }
     
     #Variance ratios
-    if (abs) v0 <- function(x) abs_(x, ratio = TRUE)
-    else v0 <- base::identity
-    
     if (!(!disp.v.ratio && quick)) {
         if (!(!un && quick)) {
-            # B[["V.Ratio.Un"]] <- v0(col.var.ratio(C, treat, s.weights, B[["Type"]], no.weights = FALSE))
-            B[["V.Ratio.Un"]] <- v0(var.ratios(s0 = B[["SD.0.Un"]], 
-                                               s1 = B[["SD.1.Un"]], 
-                                               x.types = B[["Type"]]))
+            vrs <- rep(NA_real_, NCOL(C))
+            if (any(!bin.vars)) {
+                vrs[!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat, weights = NULL, abs = abs, 
+                                           s.weights = s.weights, bin.vars = bin.vars[!bin.vars])
+            }
+            B[["V.Ratio.Un"]] <- vrs
         }
         if (!no.adj) {
-            # for (j in seq_len(NCOL(weights))) {
-            #     B[[paste.("V.Ratio", weight.names[j])]] <- v0(col.var.ratio(C, treat, weights[[j]]*s.weights, B[["Type"]], no.weights = FALSE))
-            # }
             for (i in weight.names) {
-                B[[paste.("V.Ratio", i)]] <- v0(var.ratios(s0 = B[[paste.("SD.0", i)]], 
-                                                           s1 = B[[paste.("SD.1", i)]], 
-                                                           x.types = B[["Type"]]))
+                vrs <- rep(NA_real_, NCOL(C))
+                if (any(!bin.vars)) {
+                    vrs[!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat, weights = weights[[i]], abs = abs, 
+                                               s.weights = s.weights, bin.vars = bin.vars[!bin.vars])
+                }
+                B[[paste.("V.Ratio", i)]] <- vrs
+                
             }
         }
     }
@@ -1143,8 +1146,8 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
             B[["KS.Un"]] <- col_w_ks(C, treat = treat, weights = NULL, s.weights = s.weights, bin.vars = bin.vars)
         }
         if (!no.adj) {
-            for (j in seq_len(NCOL(weights))) {
-                B[[paste.("KS", weight.names[j])]] <- col_w_ks(C, treat = treat, weights = weights[[j]], s.weights = s.weights, bin.vars = bin.vars)
+            for (i in weight.names) {
+                B[[paste.("KS", i)]] <- col_w_ks(C, treat = treat, weights = weights[[i]], s.weights = s.weights, bin.vars = bin.vars)
             }
         }
     }
@@ -1212,6 +1215,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     #Set var type (binary/continuous)
     if (is_not_null(types)) B[["Type"]] <- types
     else B[["Type"]] <- get.types(C)
+    bin.vars <- B[["Type"]] == "Binary"
     
     SB <- vector("list", nlevels(subclass))
     names(SB) <- levels(subclass)
@@ -1227,47 +1231,45 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
         SB[[i]] <- B
         in.subclass <- !is.na(subclass) & subclass==i
         
+        #Means for each group
         # if (!(!disp.means && quick)) {
         for (t in c(0,1)) {
-            SB[[i]][[paste.("M", t, "Adj")]] <- colMeans(C[treat==t & in.subclass, , drop = FALSE])
+            SB[[i]][[paste.("M", t, "Adj")]] <- col_w_mean(C, subset = treat==t & in.subclass)
         }
         # }
+        
+        #SDs for each group
         # if (!(!disp.sds && quick)) {
-        non.binary <- if (binary == "std") rep(TRUE, nrow(B)) else B[["Type"]] != "Binary"
-        un.sds <- setNames(vector("list", 2), c("0", "1"))
+        sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
         for (t in c(0, 1)) {
             sds <- rep(NA_real_, NCOL(C))
-            sds[non.binary] <- apply(C[treat == t & in.subclass, non.binary, drop = FALSE], 2, sd)
+            sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == t & in.subclass)
             SB[[i]][[paste.("SD", t, "Adj")]] <- sds
-            un.sds[[as.character(t)]] <- rep(NA_real_, NCOL(C))
-            un.sds[[as.character(t)]][non.binary] <- apply(C[treat == t, non.binary, drop = FALSE], 2, sd)
         }
         
         # }
         
-        
         #Mean differences
-        # SB[[i]][["Diff.Adj"]] <- col.std.diff(C, treat=treat, weights=NULL, subclass=subclass, which.sub=i, x.types=B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom, no.weights = TRUE)
-        SB[[i]][["Diff.Adj"]] <- std.diffs(m0 = SB[[i]][["M.0.Adj"]], 
-                                           s0 = un.sds[["0"]], 
-                                           m1 = SB[[i]][["M.1.Adj"]], 
-                                           s1 = un.sds[["1"]], 
-                                           x.types = B[["Type"]], continuous=continuous, binary=binary, s.d.denom=s.d.denom)
+        SB[[i]][["Diff.Adj"]] <- col_w_smd(C, treat = treat, weights = NULL,
+                                           std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                           s.d.denom = s.d.denom, abs = FALSE, s.weights = NULL, 
+                                           bin.vars = bin.vars, subset = in.subclass)
         
         #Variance ratios
-        if (abs) v0 <- function(x) abs_(x, ratio = TRUE)
-        else v0 <- base::identity
-        
         if (!(!disp.v.ratio && quick)) {
-            # SB[[i]][["V.Ratio.Adj"]] <- v0(col.var.ratio(C[in.subclass, ], treat = treat[in.subclass], weights = NULL, x.types = B[["Type"]], no.weights = TRUE))
-            SB[[i]][["V.Ratio.Adj"]] <- v0(var.ratios(s0 = SB[[i]][["SD.0.Adj"]], 
-                                                      s1 = SB[[i]][["SD.1.Adj"]], 
-                                                      x.types = B[["Type"]]))
+            vrs <- rep(NA_real_, NCOL(C))
+            if (any(!bin.vars)) {
+                vrs[!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat, weights = NULL, abs = abs, 
+                                           s.weights = NULL, bin.vars = bin.vars[!bin.vars],
+                                           subset = in.subclass)
+            }
+            SB[[i]][["V.Ratio.Adj"]] <- vrs
         }
         
         #KS Statistics
         if (!(!disp.ks && quick)) {
-            SB[[i]][["KS.Adj"]] <- col.ks(C[in.subclass, ], treat = treat[in.subclass], weights = NULL, x.types = B[["Type"]], no.weights = TRUE)
+            SB[[i]][["KS.Adj"]] <- col_w_ks(C, treat = treat, weights = NULL, s.weights = NULL, bin.vars = bin.vars,
+                                            subset = in.subclass)
         }
     }
     
@@ -1508,43 +1510,50 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     #Set var type (binary/continuous)
     if (is_not_null(types)) B[,"Type"] <- types
     else B[["Type"]] <- get.types(C)
+    bin.vars <- B[["Type"]] == "Binary"
     
     #Means
     if (!((!un || !disp.means) && quick)) {
-        B[["M.Un"]] <- col.w.m(C, w = s.weights)
+        B[["M.Un"]] <- col_w_mean(C, weights = NULL, s.weights = s.weights)
     }
     if (!no.adj && !(!disp.means && quick)) {
         for (i in weight.names) {
-            B[[paste.("M", i)]] <- col.w.m(C, w = weights[[i]]*s.weights)
+            B[[paste.("M", i)]] <- col_w_mean(C, weights = weights[[i]], s.weights = s.weights)
         }
     }
     
     #SDs
-    non.binary <- B[["Type"]] != "Binary"
+    sd.computable <- !bin.vars
     if (!((!un || !disp.sds) && quick)) {
         sds <- rep(NA_real_, NCOL(C))
-        sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = s.weights))
+        if (any(sd.computable)) {
+            sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE],
+                                           weights = NULL, s.weights = s.weights,
+                                           bin.vars = bin.vars[sd.computable])
+        }
         B[["SD.Un"]] <- sds
     }
     if (!no.adj && !(!disp.sds && quick)) {
         for (i in weight.names) {
             sds <- rep(NA_real_, NCOL(C))
-            sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = weights[[i]]*s.weights))
+            if (any(sd.computable)) {
+                sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE],
+                                               weights = weights[[i]], s.weights = s.weights,
+                                               bin.vars = bin.vars[sd.computable])
+            }
             B[[paste.("SD", i)]] <- sds
         }
     }
     if (!any(sapply(B[startsWith(names(B), "SD.")], is.finite))) {disp.sds <- FALSE}
     
     #Correlations
-    if (abs) a0 <- base::abs
-    else a0 <- base::identity
     # if (!(!un && quick)) #Always calculate unadjusted corrs
-    # B[["Corr.Un"]] <- a0(apply(C, 2, w.r, y = treat, s.weights = s.weights))
-    B[["Corr.Un"]] <- a0(col.w.r(C, y = treat, s.weights = s.weights))
+    B[["Corr.Un"]] <- col_w_corr(C, treat, weights = NULL, abs = abs, s.weights = s.weights, 
+                                 bin.vars = bin.vars, na.rm = TRUE)
     if (!no.adj) {
         for (i in weight.names) {
-            # B[[paste.("Corr", i)]] <- a0(apply(C, 2, w.r, y = treat, w = weights[[i]], s.weights = s.weights))
-            B[[paste.("Corr", i)]] <- a0(col.w.r(C, y = treat, w = weights[[i]], s.weights = s.weights))
+            B[[paste.("Corr", i)]]  <- col_w_corr(C, treat, weights = weights[[i]], abs = abs, s.weights = s.weights, 
+                                                  bin.vars = bin.vars, na.rm = TRUE)
         }
     }
     
