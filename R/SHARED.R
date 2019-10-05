@@ -264,7 +264,7 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
             }
             else mat <- as.matrix.data.frame(mat)
         }
-        else if (is.vector(mat, "numeric")) {
+        else if (is.numeric(mat)) {
             mat <- matrix(mat, ncol = 1)
         }
         else stop("mat must be a numeric matrix.")
