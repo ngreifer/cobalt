@@ -1,9 +1,6 @@
 #Balance functions for use in programming
 
-col_w_mean <- function(mat, weights = NULL, s.weights = NULL, na.rm = TRUE, ...) {
-    
-    if (is_null(weights)) weights <- rep(1, NROW(mat))
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(mat))
+col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.rm = TRUE, ...) {
     
     if (is.data.frame(mat)) {
         if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
@@ -19,19 +16,25 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, na.rm = TRUE, ...)
     else if (is.vector(mat, "numeric")) mat <- matrix(mat, ncol = 1)
     else if (!is.matrix(mat) || !is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
-    
-    if (!all_the_same(c(NROW(mat), length(weights), length(s.weights)))) {
-        stop("mat, weights, and s.weights (if supplied) must have the same number of units.")
+    possibly.supplied <- c("mat", "weights", "s.weights", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
     }
+    
+    if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
+    if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
     
     weights <- weights * s.weights
     
-    return(col.w.m(mat, w = weights, na.rm = na.rm))
+    return(col.w.m(mat[subset, , drop = FALSE], w = weights[subset], na.rm = na.rm))
 }
-col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, ...) {
-    
-    if (is_null(weights)) weights <- rep(1, NROW(mat))
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(mat))
+col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, subset = NULL, na.rm = TRUE, ...) {
     
     if (is.data.frame(mat)) {
         if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
@@ -53,16 +56,27 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, na.
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
     
-    if (!all_the_same(c(NROW(mat), length(weights), length(s.weights)))) {
-        stop("mat, weights, and s.weights (if supplied) must have the same number of units.")
+    possibly.supplied <- c("mat", "weights", "s.weights", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
     }
+    
+    if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
+    if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
     
     weights <- weights * s.weights
     
-    return(sqrt(col.w.v(mat, w = weights, bin.vars = bin.vars, na.rm = na.rm)))
+    return(sqrt(col.w.v(mat[subset, , drop = FALSE], w = weights[subset], 
+                        bin.vars = bin.vars, na.rm = na.rm)))
 }
 
-col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "pooled", abs = FALSE, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, ...) {
+col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "pooled", abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, na.rm = TRUE, ...) {
     allowable.s.d.denoms <- c("pooled", "all", "treated", "control")
     unique.treats <- unique(treat, nmax = 2)
     
@@ -102,12 +116,20 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
-    if (is_null(weights)) weights <- rep(1, NROW(mat))
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(mat))
     
-    if (!all_the_same(c(NROW(mat), length(treat), length(weights), length(s.weights)))) {
-        stop("mat, treat, weights, and s.weights (if supplied) must have the same number of units.")
+    possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
     }
+    
+    if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
+    if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
     
     weights <- weights * s.weights
     
@@ -116,16 +138,16 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     
     if (length(std) == 1L) std <- rep(std, NCOL(mat))
     
-    m1 <- col.w.m(mat[treat==tval1, , drop = FALSE], weights[treat==tval1], na.rm = na.rm)
-    m0 <- col.w.m(mat[treat!=tval1, , drop = FALSE], weights[treat!=tval1], na.rm = na.rm)
+    m1 <- col.w.m(mat[treat==tval1 & subset, , drop = FALSE], weights[treat==tval1 & subset], na.rm = na.rm)
+    m0 <- col.w.m(mat[treat!=tval1 & subset, , drop = FALSE], weights[treat!=tval1 & subset], na.rm = na.rm)
     diffs <- m1 - m0
     zeros <- check_if_zero(diffs)
     
     if (any(to.sd <- std & !zeros)) {
         if (length(s.d.denom) == 1L && (as.character(s.d.denom) %in% allowable.s.d.denoms || s.d.denom %in% unique.treats)) {
             if (s.d.denom %in% unique.treats) s.d.denom <- sqrt(col.w.v(mat[treat == s.d.denom, to.sd, drop = FALSE], 
-                                                                   w = s.weights[treat == s.d.denom],
-                                                                   bin.vars = bin.vars[to.sd], na.rm = na.rm))
+                                                                        w = s.weights[treat == s.d.denom],
+                                                                        bin.vars = bin.vars[to.sd], na.rm = na.rm))
             if (s.d.denom == "pooled") s.d.denom <- sqrt(.5*(col.w.v(mat[treat == tval1, to.sd, drop = FALSE], 
                                                                      w = s.weights[treat == tval1],
                                                                      bin.vars = bin.vars[to.sd], na.rm = na.rm) +
@@ -136,11 +158,11 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
                                                                    w = s.weights,
                                                                    bin.vars = bin.vars[to.sd], na.rm = na.rm))
             else if (s.d.denom == "treated") s.d.denom <- sqrt(col.w.v(mat[treat == tval1, to.sd, drop = FALSE], 
-                                                                  w = s.weights[treat == tval1],
-                                                                  bin.vars = bin.vars[to.sd], na.rm = na.rm))
+                                                                       w = s.weights[treat == tval1],
+                                                                       bin.vars = bin.vars[to.sd], na.rm = na.rm))
             else if (s.d.denom == "control") s.d.denom <- sqrt(col.w.v(mat[treat != tval1, to.sd, drop = FALSE], 
-                                                                  w = s.weights[treat != tval1],
-                                                                  bin.vars = bin.vars[to.sd], na.rm = na.rm))
+                                                                       w = s.weights[treat != tval1],
+                                                                       bin.vars = bin.vars[to.sd], na.rm = na.rm))
         }
         
         diffs[to.sd] <- diffs[to.sd]/s.d.denom
@@ -151,7 +173,7 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     return(setNames(diffs, colnames(mat)))
     
 }
-col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, ...) {
+col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, na.rm = TRUE, ...) {
     
     if (is.data.frame(mat)) {
         if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
@@ -168,7 +190,7 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
     else if (!is.matrix(mat) || !is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
     if (missing(treat) || !(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
-
+    
     if (!(is.atomic(abs) && length(abs) == 1L && !is.na(as.logical(abs)))) {
         stop("abs must be a logical of length 1.")
     }
@@ -178,14 +200,26 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
-    if (is_null(weights)) weights <- rep(1, NROW(mat))
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(mat))
     
-    if (!all_the_same(c(NROW(mat), length(treat), length(weights), length(s.weights)))) {
-        stop("mat, treat, weights, and s.weights (if supplied) must have the same number of units.")
+    possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
     }
     
+    if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
+    if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    
     weights <- weights * s.weights
+    
+    weights <- weights[subset]
+    treat <- treat[subset]
+    mat <- mat[subset, , drop = FALSE]
     
     if (abs) tval1 <- treat[1]
     else tval1 <- treat[binarize(treat)==1][1]
@@ -200,7 +234,7 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
     return(setNames(v.ratios, colnames(mat)))
     
 }
-col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NULL, ...) {
+col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NULL, subset = NULL, na.rm = TRUE, ...) {
     
     if (is.data.frame(mat)) {
         if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
@@ -222,44 +256,59 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NU
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
     if (!(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
-    if (is_null(weights)) weights <- rep(1, NROW(mat))
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(mat))
     
-    if (!all_the_same(c(NROW(mat), length(treat), length(weights), length(s.weights)))) {
-        stop("mat, treat, weights, and s.weights (if supplied) must have the same number of units.")
+    possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
     }
     
+    if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
+    if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    
     weights <- weights * s.weights
+    
+    weights <- weights[subset]
+    treat <- treat[subset]
+    mat <- mat[subset, , drop = FALSE]
     
     tval1 <- treat[1]
     ks <- rep(NA_real_, NCOL(mat))
     
     if (any(!bin.vars)) {
         weights_ <- weights
-        weights_[treat == tval1] <- weights[treat==tval1]/sum(weights[treat==tval1])
+        weights_[treat == tval1] <-  weights[treat == tval1]/sum(weights[treat == tval1])
         weights_[treat != tval1] <- -weights[treat != tval1]/sum(weights[treat != tval1])
-        ks[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2, function(x_) {
-            x <- x_[!is.na(x_)]
-            ordered.index <- order(x)
-            cumv <- abs(cumsum(weights_[ordered.index]))[diff(x[ordered.index]) != 0]
-            return(if (is_null(cumv)) 0 else max(cumv))
+        ks[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2, function(x) {
+            if (na.rm) x <- x[!is.na(x)]
+            if (!na.rm && anyNA(x)) return(NA_real_)
+            else {
+                ordered.index <- order(x)
+                cumv <- abs(cumsum(weights_[ordered.index]))[diff(x[ordered.index]) != 0]
+                return(if (is_null(cumv)) 0 else max(cumv))
+            }
         })
     }
     if (any(bin.vars)) {
-        ks[bin.vars] <- abs(col.w.m(mat[treat == tval1, bin.vars, drop = FALSE], weights[treat == tval1]) - 
-                                col.w.m(mat[treat != tval1, bin.vars, drop = FALSE], weights[treat != tval1]))
+        ks[bin.vars] <- abs(col.w.m(mat[treat == tval1, bin.vars, drop = FALSE], weights[treat == tval1], na.rm = na.rm) - 
+                                col.w.m(mat[treat != tval1, bin.vars, drop = FALSE], weights[treat != tval1], na.rm = na.rm))
     }
     return(setNames(ks, colnames(mat)))
     
 }
-col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NULL, integrate = FALSE, ...) {
+col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NULL, integrate = FALSE, subset = NULL, na.rm = TRUE, ...) {
     
     A <- list(...)
     if (is.data.frame(mat)) {
         if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
             A_ <- A[names(A) %in% names(formals(splitfactor)) & 
-                       names(A) %nin% c("data", "var.name", "drop.first",
-                                        "drop.level")]
+                        names(A) %nin% c("data", "var.name", "drop.first",
+                                         "drop.level")]
             mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
                                           A_))
         }
@@ -274,14 +323,26 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = N
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
     if (!(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
-    if (is_null(weights)) weights <- rep(1, NROW(mat))
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(mat))
     
-    if (!all_the_same(c(NROW(mat), length(treat), length(weights), length(s.weights)))) {
-        stop("mat, treat, weights, and s.weights (if supplied) must have the same number of units.")
+    possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
     }
     
+    if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
+    if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    
     weights <- weights * s.weights
+    
+    weights <- weights[subset]
+    treat <- treat[subset]
+    mat <- mat[subset, , drop = FALSE]
     
     tval1 <- treat[1]
     
@@ -294,43 +355,47 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = N
         A[names(A) %nin% names(formals(density.default))] <- NULL
         
         ovl[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2, function(cov) {
-            if (is.function(get0(paste0("bw.", A[["bw"]])))) {
-                A[["bw"]] <- get0(paste0("bw.", A[["bw"]]))(cov[treat == smallest.t])
-            }
+            if (na.rm) cov <- cov[!is.na(cov)]
+            if (!na.rm && anyNA(covs)) return(NA_real_)
             else {
-                stop(paste(A[["bw"]], "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
-            }
-            
-            f1 <- approxfun(do.call(density.default, c(list(cov[treat==tval1], 
-                                                            weights = weights[treat==tval1]/sum(weights[treat==tval1])), A)))
-            f0 <- approxfun(do.call(density.default, c(list(cov[treat!=tval1], 
-                                                            weights = weights[treat!=tval1]/sum(weights[treat!=tval1])), A)))
-            fn <- function(x) {
-                f1_ <- f1(x)
-                f1_[is.na(f1_)] <- 0
-                f0_ <- f0(x)
-                f0_[is.na(f0_)] <- 0
-                pmin(f1_, f0_)
-            }
-            min.c <- min(cov)
-            max.c <- max(cov)
-            range <- max.c - min.c
-            # min.c.ext <- min.c - .01 * range
-            # max.c.ext <- max.c + .01 * range
-            if (isTRUE(integrate)) {
+                if (is.function(get0(paste0("bw.", A[["bw"]])))) {
+                    A[["bw"]] <- get0(paste0("bw.", A[["bw"]]))(cov[treat == smallest.t])
+                }
+                else {
+                    stop(paste(A[["bw"]], "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
+                }
                 
-                s <- try(integrate(fn, lower = min.c,
-                                   upper = max.c)$value,
-                         silent = TRUE)
+                f1 <- approxfun(do.call(density.default, c(list(cov[treat==tval1], 
+                                                                weights = weights[treat==tval1]/sum(weights[treat==tval1])), A)))
+                f0 <- approxfun(do.call(density.default, c(list(cov[treat!=tval1], 
+                                                                weights = weights[treat!=tval1]/sum(weights[treat!=tval1])), A)))
+                fn <- function(x) {
+                    f1_ <- f1(x)
+                    f1_[is.na(f1_)] <- 0
+                    f0_ <- f0(x)
+                    f0_[is.na(f0_)] <- 0
+                    pmin(f1_, f0_)
+                }
+                min.c <- min(cov)
+                max.c <- max(cov)
+                range <- max.c - min.c
+                # min.c.ext <- min.c - .01 * range
+                # max.c.ext <- max.c + .01 * range
+                if (isTRUE(integrate)) {
+                    
+                    s <- try(integrate(fn, lower = min.c,
+                                       upper = max.c)$value,
+                             silent = TRUE)
+                }
+                else {
+                    seg <- seq(min.c, max.c, length = 1001)
+                    mids <- .5 * (seg[2:length(seg)] + seg[1:(length(seg)-1)])
+                    s <- sum(fn(mids))*(seg[2]-seg[1])
+                }
+                
+                if (inherits(s, "try-error"))  return(NA_real_)
+                else return(1 - s) #Reverse: measure imbalance
             }
-            else {
-                seg <- seq(min.c, max.c, length = 1001)
-                mids <- .5 * (seg[2:length(seg)] + seg[1:(length(seg)-1)])
-                s <- sum(fn(mids))*(seg[2]-seg[1])
-            }
-            
-            if (inherits(s, "try-error"))  NA_real_ 
-            else 1 - s #Reverse: measure imbalance
         })
     }
     if (any(bin.vars)) {
@@ -341,8 +406,8 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = N
     return(ovl)
     
 }
-col_w_corr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, ...) {
-
+col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", abs = FALSE, s.weights = NULL, bin.vars = NULL, na.rm = TRUE, subset = NULL, ...) {
+    
     if (is.data.frame(mat)) {
         if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
             A <- list(...)
@@ -366,16 +431,38 @@ col_w_corr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
-    if (is_null(weights)) weights <- rep(1, NROW(mat))
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(mat))
     
-    if (!all_the_same(c(NROW(mat), length(treat), length(weights), length(s.weights)))) {
-        stop("mat, treat, weights, and s.weights (if supplied) must have the same number of units.")
+    possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+    }
+    
+    if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
+    if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    
+    type <- match_arg(tolower(type), c("pearson", "spearman"))
+    if (type == "spearman") {
+        for (i in 1:ncol(mat)) mat[,i] <- rank(mat[,i], na.last = "keep")
+        treat <- rank(treat, na.last = "keep")
     }
     
     weights <- weights * s.weights
     
-    corrs <- col.w.r(mat, treat, w = weights, s.weights = s.weights, na.rm = na.rm)
+    if (all(subset)) {
+        corrs <- col.w.r(mat, treat, w = weights, s.weights = s.weights, bin.vars = bin.vars,
+                         na.rm = na.rm)
+    }
+    else {
+        cov <- col.w.cov(mat[subset, , drop = FALSE], y = treat[subset], w = weights[subset], na.rm = na.rm)
+        den <- sqrt(col.w.v(mat, w = s.weights, bin.vars = bin.vars, na.rm = na.rm)) * 
+            sqrt(col.w.v(treat, w = s.weights, na.rm = na.rm))
+    }
     
     if (abs) corrs <- abs(corrs)
     
