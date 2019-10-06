@@ -326,7 +326,7 @@ x2base.ps <- function(ps, ...) {
     X$method <- method
     X$s.weights <- s.weights
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -482,7 +482,7 @@ x2base.mnps <- function(mnps, ...) {
     X$focal <- focal
     X$method <- method
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -622,7 +622,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1203,7 +1203,7 @@ x2base.data.frame <- function(covs, ...) {
     X$s.weights <- s.weights
     X$focal <- focal
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1364,7 +1364,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     X$s.weights <- s.weights
     X$method <- method
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1479,7 +1479,7 @@ x2base.ebalance <- function(ebalance, ...) {
     X$method <- method
     X$cluster <- factor(cluster)
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1599,7 +1599,7 @@ x2base.optmatch <- function(optmatch, ...) {
     X$method <- "matching"
     X$cluster <- factor(cluster[d.reordered])
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     subset <- subset[d.reordered]
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -1811,7 +1811,7 @@ x2base.weightit <- function(weightit, ...) {
     X$focal <- focal
     X$call <- weightit$call
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -1943,7 +1943,7 @@ x2base.designmatch <- function(dm, ...) {
     X$cluster <- factor(cluster)
     
     X <- subset_X(X, in.matched)
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
+    
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -2249,7 +2249,6 @@ x2base.mimids <- function(mimids, ...) {
     X$call <- NULL
     X$subclass <- factor(subclass)
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
