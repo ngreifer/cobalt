@@ -874,7 +874,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
     if (is_not_null(cluster) && is_not_null(which.cluster)) in.cluster <- cluster == which.cluster
     else in.cluster <- rep(TRUE, length(treat))
     if (is_null(s.weights)) s.weights <- rep(1, length(treat))
-    if (is_null(discarded)) discarded <- rep(0, length(treat))
+    if (is_null(discarded)) discarded <- rep(FALSE, length(treat))
     
     if (length(method) == 1 && method == "subclassification") {
         if (is_null(subclass)) stop("subclass must be a vector of subclasses.")
@@ -910,43 +910,36 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
         nn[1, ] <- c(ESS(sw[t==0]), ESS(sw[t==1]))
         dimnames(nn) <- list(c("All"), 
                              c(treat.names[1], treat.names[2]))
-        if (nunique.gt(s.weights, 2) || !any(s.weights==1) || !all(s.weights %in% c(0,1))) {
+        if (nunique.gt(s.weights, 2) || !any(s.weights==1) || any(s.weights %nin% c(0,1))) {
             attr(nn, "ss.type") <- c("ess")
-            #attr(nn, "tag") <- "Effective sample sizes"
         }
         else {
-            # nn <- as.data.frame(matrix(0, ncol=2, nrow=1))
-            # nn[1, ] <- c(sum(in.cluster & treat==0), 
-            #              sum(in.cluster & treat==1))
-            # dimnames(nn) <- list(c("All"), 
-            #                      c("Control", "Treated"))
             attr(nn, "ss.type") <- c("ss")
-            #attr(nn, "tag") <- "Sample sizes"
         }
         
     }
     else if (NCOL(weights) == 1) {
         if (method=="matching") {
             nn <- as.data.frame(matrix(0, ncol=2, nrow=5))
-            # nn[1, ] <- c(sum(in.cluster & treat==0), sum(in.cluster & treat==1))
-            # nn[2, ] <- c(sum(in.cluster & treat==0 & weights>0), sum(in.cluster & treat==1 & weights>0))
-            # nn[3, ] <- c(sum(in.cluster & treat==0 & weights==0 & discarded==0), sum(in.cluster & treat==1 & weights==0 & discarded==0))
-            # nn[4, ] <- c(sum(in.cluster & treat==0 & weights==0 & discarded==1), sum(in.cluster & treat==1 & weights==0 & discarded==1))
             nn[1, ] <- c(sum(in.cluster & treat==0), 
                          sum(in.cluster & treat==1))
-            nn[2, ] <- c(sum(weights[in.cluster & treat==0, 1]), 
-                         sum(weights[in.cluster & treat==1, 1]))
+            nn[2, ] <- c(ESS(weights[in.cluster & treat==0, 1]), 
+                         ESS(weights[in.cluster & treat==1, 1]))
             nn[3, ] <- c(sum(in.cluster & treat==0 & weights[,1]>0), 
                          sum(in.cluster & treat==1 & weights[,1]>0))
             nn[4, ] <- c(sum(in.cluster & treat==0 & weights[,1]==0 & discarded==0), 
                          sum(in.cluster & treat==1 & weights[,1]==0 & discarded==0))
             nn[5, ] <- c(sum(in.cluster & treat==0 & weights[,1]==0 & discarded==1), 
                          sum(in.cluster & treat==1 & weights[,1]==0 & discarded==1))
-            dimnames(nn) <- list(c("All", "Matched", "Matched (Unweighted)", "Unmatched", "Discarded"), 
+            dimnames(nn) <- list(c("All", "Matched (ESS)", "Matched (Unweighted)", "Unmatched", "Discarded"), 
                                  c(treat.names[1], treat.names[2]))
             
             attr(nn, "ss.type") <- rep("ss", NROW(nn))
-            #attr(nn, "tag") <- "Sample sizes"
+            
+            if (!any(discarded)) {
+                attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
+                nn <- nn[rownames(nn) != "Discarded", ,drop = FALSE]
+            }
         }
         else if (method == "weighting") {
             
@@ -962,10 +955,12 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
                          sum(t==1 & dc==1))
             dimnames(nn) <- list(c("Unadjusted", "Adjusted", "Discarded"), 
                                  c(treat.names[1], treat.names[2]))
-            attr(nn, "ss.type") <- c("ss", "ess")
+            attr(nn, "ss.type") <- c("ss", "ess", "ss")
             
-            #attr(nn, "tag") <- "Effective sample sizes"
-            
+            if (!any(dc)) {
+                attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
+                nn <- nn[rownames(nn) != "Discarded", ,drop = FALSE]
+            }
         }
     }
     else {
@@ -976,8 +971,8 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
         nn[1, ] <- c(ESS(sw[t==0]), ESS(sw[t==1]))
         for (i in seq_len(NCOL(weights))) {
             if (method[i] == "matching") {
-                nn[1+i,] <- c(sum(weights[in.cluster & treat==0, i]), 
-                              sum(weights[in.cluster & treat==1, i]))
+                w <- weights[in.cluster, i]
+                nn[1+i,] <- c(ESS(w[t==0]), ESS(w[t==1]))
             }
             else if (method[i] == "weighting") {
                 w <- weights[in.cluster, i]
@@ -987,7 +982,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
         }
         dimnames(nn) <- list(c("All", names(weights)), 
                              c(treat.names[1], treat.names[2]))
-        attr(nn, "ss.type") <- c("ss", ifelse(method == "weighting", "ess", "ss"))
+        attr(nn, "ss.type") <- c("ss", rep("ess", length(method)))
         
     }
     if (length(attr(nn, "ss.type")) > 1 && all(attr(nn, "ss.type")[-1] == "ess")) {
