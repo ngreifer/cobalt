@@ -22,7 +22,7 @@ This is an introductory guide for the use of `cobalt` in most common scenarios. 
 
 Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
-Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2016), `ebal` (Hainmueller, 2014), `designmatch` (Zubizarreta, Kilcioglu, & Vielma, 2017), and `WeightIt` (Greifer, 2018); these together provide a near complete set of preprocessing tools in R to date.
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2019), `ebal` (Hainmueller, 2014), `designmatch` (Zubizarreta, Kilcioglu, & Vielma, 2018), and `WeightIt` (Greifer, 2019); these together provide a near complete set of preprocessing tools in R to date.
 
 The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
 
@@ -340,7 +340,7 @@ love.plot(m.out, stats = c("mean.diffs", "ks.statistics"),
           colors = c("red", "blue"))
 ```
 
-This plot shows that balance was improved on almost all variables after adjustment, bringing all but one below the threshold of .1 for absolute mean differences.
+This plot shows that balance was improved on almost all variables after adjustment, bringing all but two below the threshold of .1 for absolute mean differences.
 
 A helper function, `var.names()` can be used to more easily create new variable names when many variables are present. See `?var.names` for details.
 
@@ -620,6 +620,8 @@ As `cobalt` is updated to remain in line with methodological recommendations, th
 
 If you develop a new balance assessment tool, this may also be able to be integrated into `cobalt`, especially if it would be applicable to balance assessment generally in matching, weighting, or subclassification. Incorporating a new tool into `cobalt` may be a good way to broaden its use.
 
+`cobalt` includes a small suite of functions that compute balance statistics on matrixes of covariates with and without weights. These include `col_w_smd` for computing (standardized) mean differences, `col_w_vr` for computing variance ratios, `col_w_ks` for computing KS statistics, `col_w_ovl` for computing the complement of the overlap statistics (Franklin et al. 2014), and `col_w_corr` for computing treatment-covariate correlations. These all run fairly quickly but are still quite flexible, so they can be used to quickly and simply compute balance statistics in other packages. They are used internally in `bal.tab`, and they might be able to be used internally in other functions (e.g., to choose a tuning parameter based on a measure of balance). 
+
 ## Acknowledgments
 
 I thank Kirsten Kainz and Elizabeth Stuart for their support and advice on `cobalt`'s creation. I thank Zachary Fisher and Brian Barkley for their advice on developing an R package.
@@ -644,9 +646,11 @@ Austin, P. C., & Stuart, E. A. (2015). Moving towards best practice when using i
 
 Belitser, S. V., Martens, E. P., Pestman, W. R., Groenwold, R. H. H., de Boer, A., & Klungel, O. H. (2011). Measuring balance and model selection in propensity score methods. Pharmacoepidemiology and Drug Safety, 20(11), 1115–1129. http://doi.org/10.1002/pds.2188
 
-Fong, C., Ratkovic, M., Hazlett, C., Yang, X., & Imai, K. (2016). CBPS: Covariate Balancing Propensity Score. R package version 0.11. https://CRAN.R-project.org/package=CBPS
+Fong, C., Ratkovic, M., Hazlett, C., Yang, X., & Imai, K. (2019). CBPS: Covariate Balancing Propensity Score. R package version 0.21. https://CRAN.R-project.org/package=CBPS
 
-Greifer, N. (2017). WeightIt: Weighting for Covariate Balance in Observational Studies. R package version 0.1.0.
+Franklin, J. M., Rassen, J. A., Ackermann, D., Bartels, D. B., & Schneeweiss, S. (2014). Metrics for covariate balance in cohort studies of causal effects. Statistics in Medicine, 33(10), 1685–1699. https://doi.org/10.1002/sim.6058
+
+Greifer, N. (2019). WeightIt: Weighting for Covariate Balance in Observational Studies. R package version 0.6.0. https://CRAN.R-project.org/package=WeightIt
 
 Hainmueller, J. (2014). ebal: Entropy reweighting to create balanced samples. R package version 0.1-6. https://CRAN.R-project.org/package=ebal
 
@@ -676,22 +680,20 @@ Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). 
 
 Rosenbaum, P. R., & Rubin, D. B. (1983). The central role of the propensity score in observational studies for causal effects. Biometrika, 70(1), 41–55. http://doi.org/10.1093/biomet/70.1.41
 
-R Core Team (2018). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+R Core Team (2019). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 
-Rubin, D. B. (2001). Using Propensity Scores to Help Design Observational Studies: Application to the Tobacco Litigation. Health Services and Outcomes Research Methodology, 2(3-4), 169–188. http://doi.org/10.1023/A:1020363010465
+Rubin, D. B. (2001). Using Propensity Scores to Help Design Observational Studies: Application to the Tobacco Litigation. Health Services and Outcomes Research Methodology, 2(3-4), 169–188. https://doi.org/10.1023/A:1020363010465
 
 Sekhon, J. S. (2011). Multivariate and Propensity Score Matching Software with Automated Balance Optimization: The Matching Package for R. Journal of Statistical Software, 42(7), 1-52. http://www.jstatsoft.org/v42/i07/.
 
-Stuart, E. A. (2008). Developing practical recommendations for the use of propensity scores: Discussion of “A critical appraisal of propensity score matching in the medical literature between 1996 and 2003” by Peter Austin, Statistics in Medicine. Statistics in Medicine, 27(12), 2062–2065. http://doi.org/10.1002/sim.3207
+Stuart, E. A. (2008). Developing practical recommendations for the use of propensity scores: Discussion of “A critical appraisal of propensity score matching in the medical literature between 1996 and 2003” by Peter Austin, Statistics in Medicine. Statistics in Medicine, 27(12), 2062–2065. https://doi.org/10.1002/sim.3207
 
-Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1–21. http://doi.org/10.1214/09-STS313
+Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1–21. https://doi.org/10.1214/09-STS313
 
-Stuart, E. A., Lee, B. K., & Leacy, F. P. (2013). Prognostic score-based balance measures can be a useful diagnostic for propensity score methods in comparative effectiveness research. Journal of Clinical Epidemiology, 66(8), S84. http://dx.doi.org/10.1016/j.jclinepi.2013.01.013
+Stuart, E. A., Lee, B. K., & Leacy, F. P. (2013). Prognostic score-based balance measures can be a useful diagnostic for propensity score methods in comparative effectiveness research. Journal of Clinical Epidemiology, 66(8), S84. http://doi.org/10.1016/j.jclinepi.2013.01.013
 
-Thoemmes, F. J., & Kim, E. S. (2011). A Systematic Review of Propensity Score Methods in the Social Sciences. Multivariate Behavioral Research, 46(1), 90–118. http://doi.org/10.1080/00273171.2011.540475
-
-Zhao, Q., & Percival, D. (2015). Primal-dual Covariate Balance and Minimal Double Robustness via Entropy Balancing. arXiv preprint arXiv:1501.03571.
+Thoemmes, F. J., & Kim, E. S. (2011). A Systematic Review of Propensity Score Methods in the Social Sciences. Multivariate Behavioral Research, 46(1), 90–118. https://doi.org/10.1080/00273171.2011.540475
 
 Zhu, Y., Coffman, D. L., & Ghosh, D. (2015). A Boosting Algorithm for Estimating Generalized Propensity Scores with Continuous Treatments. Journal of Causal Inference, 3(1).
 
-Zubizarreta, J. R., Kilcioglu, C., and Vielma, J. P. (2017). designmatch: Matched Samples that are Balanced and Representative by Design. R package version 0.3.0.
+Zubizarreta, J. R., Kilcioglu, C., and Vielma, J. P. (2018). designmatch: Matched Samples that are Balanced and Representative by Design. R package version 0.3.1.
