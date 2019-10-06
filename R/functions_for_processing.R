@@ -1004,7 +1004,7 @@ max.imbal <- function(balance.table, col.name, thresh.col.name, ratio = FALSE) {
     return(maxed)
 }
 balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
-                          s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, pooled.sds = NULL, disp.pop = FALSE, pop.means = NULL, pop.sds = NULL, quick = TRUE) {
+                          s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, addl.sds = NULL, disp.pop = FALSE, pop.means = NULL, pop.sds = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
@@ -1099,14 +1099,15 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     # if (!(!un && quick)) #Always compute unadjusted diffs
     B[["Diff.Un"]] <- col_w_smd(C, treat = treat, weights = NULL,
                                 std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                s.d.denom = if (is_null(pooled.sds)) s.d.denom[1] else pooled.sds,
+                                s.d.denom = if (is_null(addl.sds)) s.d.denom[1] else addl.sds[[s.d.denom[1]]],
                                 abs = abs, s.weights = s.weights, bin.vars = bin.vars)
     
     if (!no.adj) {
         for (i in weight.names) {
             B[[paste.("Diff", i)]] <- col_w_smd(C, treat = treat, weights = weights[[i]],
                                                 std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                s.d.denom = if (is_null(pooled.sds)) s.d.denom[i] else pooled.sds,
+                                                s.d.denom = if (is_null(addl.sds[[s.d.denom[i]]])) s.d.denom[i] 
+                                                else addl.sds[[s.d.denom[i]]],
                                                 abs = abs, s.weights = s.weights, bin.vars = bin.vars)
         }
     }
