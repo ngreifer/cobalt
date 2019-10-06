@@ -109,7 +109,7 @@ whether mean differences for continuous variables should be standardized ("std")
 whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
 }
   \item{s.d.denom}{
-whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), or the pooled standard deviation ("pooled"), computed as the square root of the mean of the group variances. Abbreviations allowed. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{ps()} is the ATT and "pooled" if the estimand is the ATE.
+whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances) or the standard deviation in the full sample ("all"). Abbreviations allowed. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{ps()} is the ATT and "pooled" if the estimand is the ATE.
 }
   \item{m.threshold}{
 a numeric value for the threshold for mean differences. .1 is recommended. 
@@ -158,8 +158,11 @@ If clusters are specified, an object of class \code{"bal.tab.cluster"} containin
 
 If \code{mnps()} is used with multiple categorical treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
-If \code{ps.cont()} is used with continuous treatments, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
+If \code{ps.cont()} is used with continuous treatments, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment as colaculated using \code{\link{col_w_corr}}. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
 
+}
+\note{
+The function \code{bal.table} in \pkg{twang} performs a similar function. The variances used in the denominator of the standardized mean difference are weighted and computed using \code{survey::svyvar} in \pkg{twang} and are unweighted here (except when \code{s.weights} are specified, in which case \code{\link{col_w_sd}} is used). \pkg{twang} also uses "all" as the default \code{s.d.denom} when the estimand is the ATE; the default here is "pooled". For this reason, results may differ slightly between the two packages. 
 }
 
 \author{
