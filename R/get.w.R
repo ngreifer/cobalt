@@ -202,26 +202,29 @@ get.w.iptw <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
     
     return(w)
 }
-get.w.Match <- function(x,  ...) {
+get.w.Match <- function(x, ...) {
     M <- x
     nobs <- M$orig.nobs
-    weights.list <- index.list <- setNames(vector("list", 4), c("control", "treated", "unmatched", "dropped"))
+    ci <- M$index.control
+    ti <- M$index.treated
+    di <- M$index.dropped
     
-    index.list$control <- seq_len(nobs)[seq_len(nobs) %in% M$index.control]
-    index.list$treated <- seq_len(nobs)[seq_len(nobs) %in% M$index.treated]
-    index.list$unmatched <- seq_len(nobs)[!seq_len(nobs) %in% c(M$index.treated, M$index.control, M$index.dropped)]
-    index.list$dropped <- seq_len(nobs)[seq_len(nobs) %in% M$index.dropped]
+    tr <- rep(0, nobs)
     
-    weights.list$control <- weights.list$treated <- M$weights
-    weights.list$unmatched <- rep(0, sum(!seq_len(nobs) %in% c(M$index.treated, M$index.control, M$index.dropped)))
-    weights.list$dropped <- rep(0, length(M$index.dropped))
+    tr[ti] <- 1
+    tr[di] <- 1
     
-    data.list <- lapply(1:4, function(q) cbind(data.frame(index=index.list[[q]]), data.frame(weights=weights.list[[q]])))
-    o.data <- do.call(rbind, data.list)
-    o.data2 <- merge(unique(o.data[is.na(match(names(o.data), "weights"))]), 
-                     aggregate(weights~index, data=o.data, FUN=sum), 
-                     by="index")
-    return(o.data2$weights)
+    w <- rep(1, nobs)
+    cu <- which(tr != 1)
+    weight.by.c <- setNames(M$weights, ci)
+    
+    w[di] <- 0
+    w[cu] <- vapply(cu, function(x) {
+        sum(weight.by.c[names(weight.by.c) == as.character(x)])
+    }, numeric(1L))
+    
+
+    return(w)
 }
 get.w.CBPS <- function(x, estimand = NULL, ...) {
     c <- x
