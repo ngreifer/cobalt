@@ -48,9 +48,10 @@ col_w_ovl(mat, treat, weights = NULL,
          integrate = FALSE, subset = NULL, 
          na.rm = TRUE, ...)
          
-col_w_corr(mat, treat, weights = NULL, abs = FALSE, 
-           s.weights = NULL, bin.vars = NULL, 
-           subset = NULL, na.rm = TRUE, ...)
+col_w_corr(mat, treat, weights = NULL, type = "pearson",
+           abs = FALSE, s.weights = NULL, 
+           bin.vars = NULL, subset = NULL, na.rm = TRUE, 
+           ...)
 }
 
 \arguments{
@@ -76,7 +77,7 @@ a vector of treatment status for each individual. For \code{col_w_smd}, \code{co
 \code{logical}; for \code{col_w_smd}, whether the computed mean differences for each variable should be standardized. Can be either length 1, whereby all variables will be standardized or not, or length equal to the number of columns of \code{mat}, whereby only variables with a value of \code{TRUE} will be standardized. See Details.
 }
   \item{s.d.denom}{
-\code{character}; for \code{col_w_smd}, when \code{std} is \code{TRUE} for some variables, how the standardization factor should be computed. Allowable options include "treated", which uses the standard deviation of the variable in the treated group; "control", which uses the standard deviation of the variable in the control group; "pooled", which uses the square root of the average of the variances of the variable in the treated and control groups; and "all", which uses the standard deviation of the variable in the full sample. This has the same meaning as it does for \code{bal.tab}.
+for \code{col_w_smd}, when \code{std} is \code{TRUE} for some variables, how the standardization factor should be computed. Allowable options include "treated", which uses the standard deviation of the variable in the treated group; "control", which uses the standard deviation of the variable in the control group; "pooled", which uses the square root of the average of the variances of the variable in the treated and control groups; "all", which uses the standard deviation of the variable in the full sample; or the name of one of the treatment values, which uses the standard deviation of the variable in that treatment group. This has the same meaning as it does for \code{bal.tab}. Abbreviations allowed. This can also be supplied as a numeric vector of standard deviations with length equal to the number of columns of \code{mat}; the values will be used as the standardization factors.
 }
   \item{abs}{
 \code{logical}; for \code{col_w_smd} and \code{col_w_corr}, whether the returned statistics should be in absolute value (\code{TRUE}) or not. For \code{col_w_vr}, whether the ratio should always include the larger variance in the numerator, so that the ratio is always greater than or equal to 1. Default is \code{FALSE}.
@@ -84,11 +85,14 @@ a vector of treatment status for each individual. For \code{col_w_smd}, \code{co
   \item{bin.vars}{
 \code{logical}; a vector with length equal to the number of columns of \code{mat} denoting whether the corresponding variable is \code{binary} or not. All functions other than \code{col_w_mean} treat binary variables different from continuous variables. If \code{NULL}, the function will figure out which covariates are binary or not, which can increase computation time. See Details.
 }
+  \item{type}{
+the type of correlation to be computed. Allowable options include "pearson" and "spearman". When "spearman" is requested, the covariates and treatment are first turned into ranks using \code{\link{rank}} with \code{na.last = "keep"}.
+}
   \item{integrate}{
 \code{logical};for \code{col_w_ovl}, whether to use \code{\link{integrate}} to calculate the area of overlap. If \code{FALSE}, a midpoint Riemann sum with 1000 partitions will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts), but the integral can fail sometimes and thus is less stable. The default is to use the Riemann sum.
 }
   \item{...}{
-for all functions, additional arguments supplied to \code{\link{splitfactor}} when \code{mat} is a data.frame. \code{data}, \code{var.name}, \code{drop.first}, and \code{drop.level} are ignored. \code{drop.first} is automatically set to \code{"if2"}. For \code{col_w_ovl}, other arguments passed to \code{\link{density}} besides \code{x} and \code{weights}. Note that the default value for \code{bw} when unspecified is "nrd" rather than the default in \code{density}, which is "nrd0".
+for all functions, additional arguments supplied to \code{\link{splitfactor}} when \code{mat} is a data.frame. \code{data}, \code{var.name}, \code{drop.first}, and \code{drop.level} are ignored; \code{drop.first} is automatically set to \code{"if2"}. For \code{col_w_ovl}, other arguments passed to \code{\link{density}} besides \code{x} and \code{weights}. Note that the default value for \code{bw} when unspecified is "nrd" rather than the default in \code{density}, which is "nrd0".
 }
 }
 \details{
