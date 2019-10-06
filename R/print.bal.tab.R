@@ -215,10 +215,13 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         cat("\n")
     }
     if (is_not_null(nn)) {
-        for (i in rownames(x$Observations)) {
-            if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i, , drop = FALSE]
+        for (i in seq_len(NROW(x$Observations))) {
+            if (all(x$Observations[i,] == 0)) {
+                x$Observations <- x$Observations[-i, , drop = FALSE]
+                attr(x$Observations, "ss.type") <- attr(x$Observations, "ss.type")[-i]
+            }
         }
-        if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
+        if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
         cat(underline(attr(x$Observations, "tag")) %+% "\n")
         print.warning <- FALSE
         if (length(attr(x$Observations, "ss.type")) > 1 && nunique.gt(attr(x$Observations, "ss.type")[-1], 1)) {
@@ -692,7 +695,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             for (j in rownames(c.balance[[i]][["Observations"]])) {
                 if (all(c.balance[[i]][["Observations"]][j,] == 0)) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!=j,]
             }
-            if ("Matched (Unweighted)" %in% rownames(c.balance[[i]][["Observations"]]) && all(check_if_zero(c.balance[[i]][["Observations"]]["Matched",] - c.balance[[i]][["Observations"]]["Matched (Unweighted)",]))) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!="Matched (Unweighted)", , drop = FALSE]
+            if ("Matched (Unweighted)" %in% rownames(c.balance[[i]][["Observations"]]) && all(check_if_zero(c.balance[[i]][["Observations"]]["Matched (ESS)",] - c.balance[[i]][["Observations"]]["Matched (Unweighted)",]))) c.balance[[i]][["Observations"]] <- c.balance[[i]][["Observations"]][rownames(c.balance[[i]][["Observations"]])!="Matched (Unweighted)", , drop = FALSE]
             cat("\n" %+% underline(attr(c.balance[[i]][["Observations"]], "tag")) %+% "\n")
             print.warning <- FALSE
             if (length(attr(c.balance[[i]][["Observations"]], "ss.type")) > 1 && nunique.gt(attr(c.balance[[i]][["Observations"]], "ss.type")[-1], 1)) {
@@ -750,7 +753,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
-            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
+            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
             cat(underline(attr(x$Observations, "tag")) %+% "\n")
             print.warning <- FALSE
             if (length(attr(x$Observations, "ss.type")) > 1 && nunique.gt(attr(x$Observations, "ss.type")[-1], 1)) {
@@ -993,7 +996,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
-            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
+            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
             cat(underline(attr(x$Observations, "tag")) %+% "\n")
             print.warning <- FALSE
             if (length(attr(x$Observations, "ss.type")) > 1 && nunique.gt(attr(x$Observations, "ss.type")[-1], 1)) {
@@ -1308,7 +1311,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
                 for (j in rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])) {
                     if (all(i.balance.c.summary[[c]][["Cluster.Observations"]][j,] == 0)) i.balance.c.summary[[c]][["Cluster.Observations"]] <- i.balance.c.summary[[c]][["Cluster.Observations"]][rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])!=j,]
                 }
-                if ("Matched (Unweighted)" %in% rownames(i.balance.c.summary[[c]][["Cluster.Observations"]]) && all(check_if_zero(i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched",] - i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched (Unweighted)",]))) i.balance.c.summary[[c]][["Cluster.Observations"]] <- i.balance.c.summary[[c]][["Cluster.Observations"]][rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])!="Matched (Unweighted)", , drop = FALSE]
+                if ("Matched (Unweighted)" %in% rownames(i.balance.c.summary[[c]][["Cluster.Observations"]]) && all(check_if_zero(i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched (ESS)",] - i.balance.c.summary[[c]][["Cluster.Observations"]]["Matched (Unweighted)",]))) i.balance.c.summary[[c]][["Cluster.Observations"]] <- i.balance.c.summary[[c]][["Cluster.Observations"]][rownames(i.balance.c.summary[[c]][["Cluster.Observations"]])!="Matched (Unweighted)", , drop = FALSE]
                 cat("\n" %+% underline(attr(i.balance.c.summary[[c]][["Cluster.Observations"]], "tag")) %+% "\n")
                 print.warning <- FALSE
                 if (length(attr(i.balance.c.summary[[c]][["Cluster.Observations"]], "ss.type")) > 1 && nunique.gt(attr(i.balance.c.summary[[c]][["Cluster.Observations"]], "ss.type")[-1], 1)) {
@@ -1333,7 +1336,7 @@ print.bal.tab.imp.cluster <- function(x, disp.m.threshold = "as.is", disp.v.thre
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
-            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
+            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
             cat(underline(attr(x$Observations, "tag")) %+% "\n")
             print.warning <- FALSE
             if (length(attr(x$Observations, "ss.type")) > 1 && nunique.gt(attr(x$Observations, "ss.type")[-1], 1)) {
@@ -1588,7 +1591,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
-            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
+            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
             cat(underline(tag) %+% "\n")
             print.warning <- FALSE
             if (length(ss.type) > 1 && nunique.gt(ss.type[-1], 1)) {
@@ -1837,7 +1840,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
                 for (i in rownames(x$Observations[[ti]])) {
                     if (all(x$Observations[[ti]][i,] == 0)) x$Observations[[ti]] <- x$Observations[[ti]][rownames(x$Observations[[ti]])!=i,]
                 }
-                if ("Matched (Unweighted)" %in% rownames(x$Observations[[ti]]) && all(check_if_zero(x$Observations[[ti]]["Matched",] - x$Observations[[ti]]["Matched (Unweighted)",]))) x$Observations[[ti]] <- x$Observations[[ti]][rownames(x$Observations[[ti]])!="Matched (Unweighted)", , drop = FALSE]
+                if ("Matched (Unweighted)" %in% rownames(x$Observations[[ti]]) && all(check_if_zero(x$Observations[[ti]]["Matched (ESS)",] - x$Observations[[ti]]["Matched (Unweighted)",]))) x$Observations[[ti]] <- x$Observations[[ti]][rownames(x$Observations[[ti]])!="Matched (Unweighted)", , drop = FALSE]
                 if (length(attr(x$Observations[[ti]], "ss.type")) > 1 && nunique.gt(attr(x$Observations[[ti]], "ss.type")[-1], 1)) {
                     ess <- ifelse(attr(x$Observations[[ti]], "ss.type") == "ess", "*", "")
                     x$Observations[[ti]] <- setNames(cbind(x$Observations[[ti]], ess), c(names(x$Observations[[ti]]), ""))
@@ -2072,7 +2075,7 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
             for (i in rownames(x$Observations)) {
                 if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
             }
-            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
+            if ("Matched (Unweighted)" %in% rownames(x$Observations) && all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
             cat(underline(tag) %+% "\n")
             print.warning <- FALSE
             if (length(ss.type) > 1 && nunique.gt(ss.type[-1], 1)) {
