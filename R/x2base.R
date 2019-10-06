@@ -164,7 +164,6 @@ x2base.matchit <- function(m, ...) {
     X$call <- m$call
     X$subclass <- factor(subclass)
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
@@ -665,32 +664,10 @@ x2base.Match <- function(Match, ...) {
     method <- "matching"
     s.d.denom <- A$s.d.denom
     
-    treat0 <- t.c[["treat"]]
-    covs0  <- t.c[["covs"]]
+    treat <- t.c[["treat"]]
+    covs  <- t.c[["covs"]]
     
-    nobs <- nrow(covs0)
-    
-    #distance <- NULL
-    
-    data.list <- covs.list <- treat.list <- weights.list <- distance.list <- list(control=NA, treated=NA, unmatched=NA, dropped=NA)
-    
-    covs.list$control <- cbind(covs0[m$index.control, ], index=m$index.control)
-    covs.list$treated <- cbind(covs0[m$index.treat, ], index=m$index.treat)
-    covs.list$unmatched <- cbind(covs0[!seq_len(nobs) %in% c(m$index.treated, m$index.control, m$index.dropped), ], index=as.numeric(row.names(covs0)[!(1:nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]))
-    covs.list$dropped <- cbind(covs0[m$index.dropped, ], index=m$index.dropped)
-    
-    treat.list$control <- treat0[m$index.control]
-    treat.list$treated <- treat0[m$index.treat]
-    treat.list$unmatched <- treat0[!seq_len(nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]
-    treat.list$dropped <- treat0[m$index.dropped]
-    
-    weights.list$control <- weights.list$treated <- m$weights
-    weights.list$unmatched <- rep(0, length(treat0[!seq_len(nobs) %in% c(m$index.treated, m$index.control, m$index.dropped)]))
-    weights.list$dropped <- rep(0, length(m$index.dropped))
-    
-    data.list <- lapply(1:4, function(x) cbind(data.frame(treat=treat.list[[x]]), data.frame(weights=weights.list[[x]]), covs.list[[x]]))
-    o.data <- do.call(rbind, data.list)
-    o.data2 <- merge(unique(o.data[names(o.data) %nin% "weights"]), aggregate(weights~index, data=o.data, FUN=sum), by="index")
+    weights <- data.frame(weights = get.w.Match(m))
     
     cluster <- A$cluster
     subset <- A$subset
@@ -718,11 +695,8 @@ x2base.Match <- function(Match, ...) {
         }
     }
     
-    treat <- o.data2$treat
-    weights <- data.frame(weights = o.data2$weights)
-    covs <- o.data2[names(o.data2) %nin% c("treat", "weights", "index")]
-    dropped <- rep(0, length(treat))
-    if (is_not_null(m$index.dropped)) dropped[m$index.dropped] <- 1
+    dropped <- rep(FALSE, length(treat))
+    if (is_not_null(m$index.dropped)) dropped[m$index.dropped] <- TRUE
     
     #Process addl and distance
     for (i in c("addl", "distance")) {
@@ -754,11 +728,9 @@ x2base.Match <- function(Match, ...) {
     #Get s.d.denom
     X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
     
-    
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
-    
     
     X$treat <- treat
     X$weights <- weights
@@ -770,7 +742,6 @@ x2base.Match <- function(Match, ...) {
     X$method <- method
     X$cluster <- factor(cluster)
     
-    if (is_null(subset)) subset <- rep(TRUE, length(X$treat))
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
