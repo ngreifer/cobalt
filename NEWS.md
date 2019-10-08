@@ -11,7 +11,7 @@ Version 3.9.0
 
 * Fixed bugs that would occur when using `love.plot()` with various combinations of `var.order`, multiple `stats`, and `agg.fun = "range"`.
 
-* Fixed bugs that would occur when using `bal.tab()` without objects from the `Matching` package. Calculated statistics are now the same as those generated using `Matching::MatchBalance`. Changes based on updates to `get.w.Match()`.
+* Fixed bugs that would occur when using `bal.tab()` with objects from the `Matching` package. Calculated statistics are now the same as those generated using `Matching::MatchBalance`. Changes based on updates to `get.w.Match()`.
 
 * Added balance summary functions `col_w_mean`, `col_w_sd`, `col_w_smd`, `col_w_vr`, `col_w_ks`, `col_w_ovl`, and `col_w_corr`. These make it easier to get quick, simple summaries of balance without calling `bal.tab`, for example, for use in programming other functions. Some of these are now used inside `bal.tab` to increase speed and simplify internal syntax.
 

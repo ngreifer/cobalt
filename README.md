@@ -16,12 +16,13 @@ the balance assessment tools found in the R packages `twang`, `MatchIt`,
 `CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these
 packages and others, see the help file for `bal.tab()` with `?bal.tab`,
 which links to the methods used for each package. Each page has examples
-of how `bal.tab()` is used with the package. There are also four
-vignette detailing the use of `cobalt`, which can be accessed with
+of how `bal.tab()` is used with the package. There are also five
+vignettes detailing the use of `cobalt`, which can be accessed with
 `browseVignettes("cobalt")`: one for basic uses of `cobalt`, one for the
 use of `cobalt` with additional packages, one for the use of `cobalt`
 with multiply imputed and/or clustered data, one for the use of `cobalt`
-with longitudinal treatments. Currently, `cobalt` is compatible with
+with longitudinal treatments, and one for the use of `cobalt` to
+generate publication-ready plots. Currently, `cobalt` is compatible with
 output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`,
 `WeightIt`, and `designmatch`, as well as data not processed through
 these packages.
@@ -71,12 +72,12 @@ library("cobalt")
 library("MatchIt")
 data("lalonde", package = "cobalt")
 
-#Nearest neighbor matching with MatchIt
-m.out <- matchit(treat ~ age + educ + race + married + nodegree +
-                     re74 + re75, data = lalonde)
+# Nearest neighbor matching with MatchIt
+m.out <- matchit(treat ~ age + educ + race + married + nodegree + re74 + re75, 
+    data = lalonde)
 
-#Checking balance before and after matching:
-bal.tab(m.out, m.threshold = .1, un = TRUE)
+# Checking balance before and after matching:
+bal.tab(m.out, m.threshold = 0.1, un = TRUE)
 ```
 
     #> Call
@@ -106,27 +107,24 @@ bal.tab(m.out, m.threshold = .1, un = TRUE)
     #>  race_black    0.373 Not Balanced, >0.1
     #> 
     #> Sample sizes
-    #>           Control Treated
-    #> All           429     185
-    #> Matched       185     185
-    #> Unmatched     244       0
+    #>               Control Treated
+    #> All               429     185
+    #> Matched (ESS)     185     185
+    #> Unmatched         244       0
 
 ``` r
-#Examining distributional balance with plots:
+# Examining distributional balance with plots:
 bal.plot(m.out, var.name = "educ")
-bal.plot(m.out, var.name = "distance",
-         mirror = TRUE, type = "histogram")
+bal.plot(m.out, var.name = "distance", mirror = TRUE, type = "histogram")
 ```
 
 ![](inst/figures/README-unnamed-chunk-3-1.png)
 ![](inst/figures/README-unnamed-chunk-3-2.png)
 
 ``` r
-#Generating a Love plot to report balance:
-love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
-          threshold = c(m = .1, v = 2), abs = TRUE, 
-          binary = "std",
-          var.order = "unadjusted")
+# Generating a Love plot to report balance:
+love.plot(m.out, stats = c("mean.diffs", "variance.ratios"), threshold = c(m = 0.1, 
+    v = 2), abs = TRUE, binary = "std", var.order = "unadjusted")
 ```
 
 <img src="inst/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
