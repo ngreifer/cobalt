@@ -164,7 +164,7 @@ data.frame.process <- function(i, df, treat, covs, ...) {
         else {
             val.df <- process.val(val, i, treat, covs, ...)
         }
-        if (is_not_null(val.df)) { if (sum(is.na(val.df)) > 0) {
+        if (is_not_null(val.df)) { if (anyNA(val.df)) {
             stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
         }
     }
@@ -204,7 +204,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
                 else {
                     val.df <- process.val(val, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], ...)
                 }
-                if (is_not_null(val.df)) { if (sum(is.na(val.df)) > 0) {
+                if (is_not_null(val.df)) { if (anyNA(val.df)) {
                     stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
                 }
                 val.List[[ti]] <- val.df
@@ -1688,7 +1688,7 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
     if (!all(vapply(summary.tables, is_null, logical(1)))) {
         Brownames <- unique(do.call("c", lapply(summary.tables, rownames)))
         Bcolnames <- unique(do.call("c", lapply(summary.tables, colnames)))
-        cont.treat <- !is.na(charmatch("Mean.Corr.Un", Bcolnames))
+        cont.treat <- !anyNA(charmatch("Mean.Corr.Un", Bcolnames))
         if (length(weight.names) <= 1) weight.names <- "Adj"
         #imp.functions <- c("Min", "Mean", "Median", "Max")
         imp.functions <- c("Min", "Mean", "Max")

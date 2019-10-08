@@ -57,7 +57,7 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, sub
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
     if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || any(is.na(as.logical(bin.vars))) ||
+    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
@@ -104,18 +104,18 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
     if (missing(treat) || !(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
-    if (!is.atomic(std) || any(is.na(as.logical(std))) ||
+    if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
         stop("std must be a logical vector with length equal to 1 or the number of columns of mat.")
     }
     
     
-    if (!(is.atomic(abs) && length(abs) == 1L && !is.na(as.logical(abs)))) {
+    if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
         stop("abs must be a logical of length 1.")
     }
     
     if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || any(is.na(as.logical(bin.vars))) ||
+    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
@@ -206,12 +206,12 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
     
     if (missing(treat) || !(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
     
-    if (!(is.atomic(abs) && length(abs) == 1L && !is.na(as.logical(abs)))) {
+    if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
         stop("abs must be a logical of length 1.")
     }
     
     if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || any(is.na(as.logical(bin.vars))) ||
+    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
@@ -269,7 +269,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NU
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
     if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || any(is.na(as.logical(bin.vars))) ||
+    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
@@ -340,7 +340,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = N
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
     if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || any(is.na(as.logical(bin.vars))) ||
+    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
@@ -448,11 +448,11 @@ col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", abs = FALSE
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
     if (missing(treat) || !is.atomic(treat) || !is.numeric(treat)) stop("treat must be a numeric variable.")
-    if (!(is.atomic(abs) && length(abs) == 1L && !is.na(as.logical(abs)))) {
+    if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
         stop("abs must be a logical of length 1.")
     }
     if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || any(is.na(as.logical(bin.vars))) ||
+    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }

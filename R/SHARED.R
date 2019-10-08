@@ -173,15 +173,17 @@ wrap <- function(s, nchar, ...) {
         paste(x, collapse = "\n")
     }, character(1L))
 }
+strsplits <- function(x, splits, fixed = TRUE, ...) {
+    #Link strsplit but takes multiple split values.
+    #Only works for one string at a time (in x).
+    for (split in splits) x <- unlist(strsplit(x, split, fixed = TRUE, ...))
+    return(x[x != ""]) # Remove empty values
+}
 
 #Numbers
 check_if_zero <- function(x) {
     # this is the default tolerance used in all.equal
     tolerance <- .Machine$double.eps^0.5
-    # If the absolute deviation between the number and zero is less than
-    # the tolerance of the floating point arithmetic, then return TRUE.
-    # This means, to me, that I can treat the number as 0 rather than
-    # -3.20469e-16 or some such.
     abs(x - 0) < tolerance
 }
 between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
@@ -271,7 +273,7 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
     }
     
     if (is_null(bin.vars)) bin.vars <- rep(FALSE, ncol(mat))
-    else if (length(bin.vars) != ncol(mat) || any(is.na(as.logical(bin.vars)))) {
+    else if (length(bin.vars) != ncol(mat) || anyNA(as.logical(bin.vars))) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.", call. = FALSE)
     }
     bin.var.present <- any(bin.vars)
@@ -288,14 +290,14 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
             var[bin.vars] <- means * (1 - means)
         }
     }
-    else if (na.rm && any(is.na(mat))) {
-        n <- nrow(mat)
+    else if (na.rm && anyNA(mat)) {
+        # n <- nrow(mat)
         w <- array(w, dim = dim(mat))
         w[is.na(mat)] <- NA_real_
         s <- colSums(w, na.rm = na.rm)
         w <- mat_div(w, s)
         if (non.bin.vars.present) {
-            x <- sqrt(w[, !bin.vars, drop = FALSE]) * center(mat[, !bin.vars, drop = FALSE], 
+            x <- sqrt(w[, !bin.vars, drop = FALSE]) * center(mat[, !bin.vars, drop = FALSE],
                                                              at = colSums(w[, !bin.vars, drop = FALSE] * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
             var[!bin.vars] <- colSums(x*x, na.rm = na.rm)/(1 - colSums(w[, !bin.vars, drop = FALSE]^2, na.rm = na.rm))
         }
@@ -308,7 +310,7 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
         if (is_null(w)) w <- rep(1, nrow(mat))
         w <- w/sum(w)
         if (non.bin.vars.present) {
-            x <- sqrt(w) * center(mat[, !bin.vars, drop = FALSE], 
+            x <- sqrt(w) * center(mat[, !bin.vars, drop = FALSE],
                                   at = colSums(w * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
             var[!bin.vars] <- colSums(x*x, na.rm = na.rm)/(1 - sum(w^2))
         }
@@ -331,7 +333,7 @@ col.w.cov <- function(mat, y, w = NULL, na.rm = TRUE) {
         den <- colSums(!is.na(mat*y)) - 1
         cov <- colSums(center(mat, na.rm = na.rm)*center(y, na.rm = na.rm), na.rm = na.rm)/den
     }
-    else if (na.rm && any(is.na(mat))) {
+    else if (na.rm && anyNA(mat)) {
         n <- nrow(mat)
         w <- array(w, dim = dim(mat))
         w[is.na(mat)] <- NA_real_
@@ -352,7 +354,7 @@ col.w.r <- function(mat, y, w = NULL, s.weights = NULL, bin.vars = NULL, na.rm =
     if (is_null(w) && is_null(s.weights)) return(cor(mat, y, w, use = if (na.rm) "pair" else "everything"))
     else {
         cov <- col.w.cov(mat, y = y, w = w, na.rm = na.rm)
-        den <- sqrt(col.w.v(mat, w = s.weights, bin.vars = bin.vars, na.rm = na.rm)) * 
+        den <- sqrt(col.w.v(mat, w = s.weights, bin.vars = bin.vars, na.rm = na.rm)) *
             sqrt(col.w.v(y, w = s.weights, na.rm = na.rm))
         return(cov/den)
     }
@@ -646,7 +648,7 @@ probably.a.bug <- function() {
     stop(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function\n",
                 fun), call. = FALSE)
 }
-`%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
+`%nin%` <- function(x, table) anyNA(match(x, table, nomatch = NA_integer_))
 null_or_error <- function(x) {is_null(x) || class(x) == "try-error"}
 match_arg <- function(arg, choices, several.ok = FALSE) {
     #Replaces match.arg() but gives cleaner error message and processing

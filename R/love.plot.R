@@ -109,13 +109,13 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
     
     #NA = aggregate, NULL = individual
     null.cluster <- is_null(attr(x, "print.options")$which.cluster)
-    na.cluster <- !null.cluster && is.na(attr(x, "print.options")$which.cluster)
+    na.cluster <- !null.cluster && anyNA(attr(x, "print.options")$which.cluster)
     null.imp <- is_null(attr(x, "print.options")$which.imp)
-    na.imp <- !null.imp && is.na(attr(x, "print.options")$which.imp)
+    na.imp <- !null.imp && anyNA(attr(x, "print.options")$which.imp)
     null.treat <- is_null(attr(x, "print.options")$which.treat)
-    na.treat <- !null.treat && is.na(attr(x, "print.options")$which.treat)
+    na.treat <- !null.treat && anyNA(attr(x, "print.options")$which.treat)
     null.time <- is_null(attr(x, "print.options")$which.time)
-    na.time <- !null.time && is.na(attr(x, "print.options")$which.time)
+    na.time <- !null.time && anyNA(attr(x, "print.options")$which.time)
     
     config <- "agg.none"
     
@@ -678,7 +678,7 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
     
     #Alpha (transparency)
     if (is.numeric(alpha[1]) && 
-        !is.na(alpha[1]) && 
+        !anyNA(alpha[1]) && 
         between(alpha[1], c(0,1))) alpha <- alpha[1]
     else {
         warning("The argument to alpha must be a number between 0 and 1. Using 1 instead.", call. = FALSE)

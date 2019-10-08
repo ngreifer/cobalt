@@ -149,7 +149,7 @@ x2base.matchit <- function(m, ...) {
         stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as the original data set in the call to matchit()."), call. = FALSE)
     }
     
-    if (any(c(is.na(covs), is.na(addl)))) {
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -993,7 +993,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
     
-    if (sum(is.na(treat)) > 0)
+    if (anyNA(treat))
         stop("Missing values exist in treat.", call. = FALSE)
     
     if (is_binary(treat)) {
@@ -2233,7 +2233,7 @@ x2base.mimids <- function(mimids, ...) {
         stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
     }
     
-    if (any(c(is.na(covs), is.na(addl)))) {
+    if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
@@ -2588,7 +2588,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         }
         else stop("Each item in treat.list must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
         
-        if (sum(is.na(treat.list[[ti]])) > 0)
+        if (anyNA(treat.list[[ti]]))
             stop("Missing values exist in treat.list", call. = FALSE)
         
         if (is_binary(treat.list[[ti]])) {
@@ -3282,7 +3282,7 @@ x2base.default <- function(obj, ...) {
         }
         else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
         
-        if (sum(is.na(treat)) > 0)
+        if (anyNA(treat))
             stop("Missing values exist in treat.", call. = FALSE)
         
         if (nunique(treat) == 2) {
@@ -3630,7 +3630,7 @@ x2base.default <- function(obj, ...) {
             X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method)
         }
         
-        if (any(c(is.na(covs), is.na(addl)))) {
+        if (any(c(anyNA(covs), anyNA(addl)))) {
             warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
         }
         
@@ -3783,7 +3783,7 @@ x2base.default <- function(obj, ...) {
             }
             else stop("Each item in treat.list must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
             
-            if (sum(is.na(treat.list[[ti]])) > 0)
+            if (anyNA(treat.list[[ti]]))
                 stop("Missing values exist in treat.list", call. = FALSE)
             
             if (is_binary(treat.list[[ti]])) {

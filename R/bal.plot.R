@@ -157,7 +157,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             else {
                 if (is.numeric(which.imp)) {
                     if (all(which.imp %in% seq_len(nlevels(X$imp)))) {
-                        in.imp <- !is.na(X$imp) & sapply(X$imp, function(x) !is.na(match(x, levels(X$imp)[which.imp])))
+                        in.imp <- !is.na(X$imp) & X$imp %in% levels(X$imp)[which.imp]
                     }
                     else {
                         stop(paste0("The following inputs to which.imp do not correspond to given imputations:\n\t", word_list(which.imp[!which.imp %in% seq_len(nlevels(X$imp))])), call. = FALSE)
@@ -179,18 +179,18 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             else {
                 if (is.numeric(which.cluster)) {
                     if (all(which.cluster %in% seq_len(nlevels(X$cluster)))) {
-                        in.cluster <- !is.na(X$cluster) & sapply(X$cluster, function(x) !is.na(match(x, levels(X$cluster)[which.cluster])))
+                        in.cluster <- !is.na(X$cluster) & X$cluster %in% levels(X$cluster)[which.cluster]
                     }
                     else {
                         stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word_list(which.cluster[!which.cluster %in% seq_len(nlevels(X$cluster))])), call. = FALSE)
                     }
                 }
                 else if (is.character(which.cluster)) {
-                    if (all(!is.na(match(which.cluster, levels(X$cluster))))) {
-                        in.cluster <- !is.na(X$cluster) & sapply(X$cluster, function(x) !is.na(match(x, which.cluster)))
+                    if (which.cluster %in% levels(X$cluster)) {
+                        in.cluster <- !is.na(X$cluster) & X$cluster %in% which.cluster
                     }
                     else {
-                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word_list(which.cluster[is.na(match(which.cluster, levels(X$cluster)))])), call. = FALSE)
+                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word_list(which.cluster[which.cluster %nin% levels(X$cluster)])), call. = FALSE)
                     }
                 }
                 else stop("The argument to which.cluster must be the names or indices corresponding to the clusters for which distributions are to be displayed.", call. = FALSE)
@@ -380,14 +380,14 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 which.treat <- character(0)
             }
         }
-        else if (is.na(which.treat)) {
+        else if (anyNA(which.treat)) {
             which.treat <- character(0)
         }
         else {
             warning("The argument to which.treat must be NA, NULL, or a vector of treatment names or indices. All treatment groups will be displayed.", call. = FALSE)
             which.treat <- character(0)
         }
-        if (is_not_null(which.treat) && all(!is.na(which.treat))) D <- D[D$treat %in% which.treat,]
+        if (is_not_null(which.treat) && !anyNA(which.treat)) D <- D[D$treat %in% which.treat,]
         
         for (i in names(D)[sapply(D, is.factor)]) D[[i]] <- factor(D[[i]])
         

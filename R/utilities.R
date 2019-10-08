@@ -233,7 +233,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
             if (is_null(dropped.level)) {
                 k.levels0 <- sapply(names(var.to.combine), function(x) strsplit(x, paste0(v, sep), fixed = TRUE)[[1]][2])
                 
-                if (suppressWarnings(all(!is.na(as.numeric(k.levels0))))) {
+                if (suppressWarnings(!anyNA(as.numeric(k.levels0)))) {
                     dropped.level0 <- as.character(min(as.numeric(k.levels0)) - 1)
                     dropped.name <- paste0(v, sep, dropped.level0)
                 }
@@ -319,7 +319,7 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
         type <- possible.types[pmatch(type, possible.types)]
     }
     
-    if (is.na(type)) stop("type must be \"df\" or \"vec\"")
+    if (anyNA(type)) stop("type must be \"df\" or \"vec\"")
     else if (type == "df") {
         out <- data.frame(old = vars, new = vars, stringsAsFactors = FALSE, row.names = NULL)
     }
@@ -375,7 +375,7 @@ set.cobalt.options <- function(..., default = FALSE) {
         else {
             if (length(opts[[i]]) > 1 && i %nin% multiple.allowed) multiple.opts <- c(multiple.opts, i)
             if (mode(opts[[i]]) != mode(acceptable.options()[[i]]) || 
-                (!(is.character(opts[[i]]) && is.character(acceptable.options()[[i]]) && (i %in% any.string.allowed || !is.na(pmatch(opts[[i]], acceptable.options()[[i]])))) &&
+                (!(is.character(opts[[i]]) && is.character(acceptable.options()[[i]]) && (i %in% any.string.allowed || !anyNA(pmatch(opts[[i]], acceptable.options()[[i]])))) &&
                  !all(opts[[i]] %in% acceptable.options()[[i]]))) bad.opts <- c(bad.opts, i)
         }
     }
