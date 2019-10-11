@@ -1952,46 +1952,6 @@ x2base.designmatch <- function(dm, ...) {
     return(X)
     
 }
-.x2base.mimids <- function(mimids, ...) {
-    
-    nimp <- length(mimids[[2]]) - 1
-    if (nimp == 1) {
-        X <- x2base.matchit(mimids[[2]][-1][[1]])
-    }
-    else {
-        Xs <- vector("list", nimp)
-        for (i in 1:nimp) {
-            Xs[[i]] <- x2base.matchit(mimids[[2]][-1][[i]])
-            Xs[[i]][["imp"]] <- factor(rep(i, length(Xs[[i]][["treat"]])),
-                                       levels = as.character(seq_along(Xs)))
-        }
-        n <- length(Xs[[1]][["treat"]])
-        
-        X <- setNames(vector("list", length(Xs[[1]])),
-                      names(Xs[[1]]))
-        for (x in names(X)) {
-            if (is.data.frame(Xs[[1]][[x]]) || is.matrix(Xs[[1]][[x]])) {
-                X[[x]] <- do.call("rbind", lapply(Xs, function(x_) x_[[x]]))
-            }
-            else if (length(Xs[[1]][[x]]) == n) {
-                X[[x]] <- unlist(lapply(Xs, function(x_) x_[[x]]))
-            }
-            else {
-                X[[x]] <- Xs[[1]][[x]]
-            }
-        }
-        
-        class(X) <- "imp"
-    }
-    
-    if ("wimids" %in% class(mimids)) {
-        X$weights[] <- unlist(lapply(mimids[[4]][-1], function(i) i[["inverse.weights"]]))
-        X$s.d.denom <- "pooled"
-        X$method <- "weighting"
-    }
-    
-    return(X)
-}
 x2base.mimids <- function(mimids, ...) {
     
     A <- list(...)
@@ -2013,27 +1973,7 @@ x2base.mimids <- function(mimids, ...) {
                   X.names)
     
     #Initializing variables
-    nimp <- length(mimids[[4]]) - 1
-    
-    if (any(class(mimids) == "wimids")) {
-        subclass <- NULL
-        method <- "weighting"
-        estimand <- "ATE"
-        weights <- do.call("rbind", lapply(mimids[[4]][-1], function(x) x["inverse.weights"]))
-        m.distance <- data.frame(distance = unlist(lapply(mimids[[2]][-1], function(m) m[["distance"]])))
-        if ("average.distance" %in% names(mimids[[4]][-1][[1]])) {
-            m.distance$average.distance <- rep(rowMeans(do.call("cbind", lapply(mimids[[2]][-1], function(m) m[["distance"]]))), nimp)
-        }
-        discarded <- NULL
-    } else {
-        subclass <- NULL
-        method <- "matching"
-        estimand <- "ATT"
-        weights <- do.call("rbind", lapply(mimids[[2]][-1], function(x) data.frame(weights = x[["weights"]])))
-        m.distance <- data.frame(distance = unlist(lapply(mimids[[2]][-1], function(m) m[["distance"]])))
-        if ("average.distance" %in% names(mimids[[4]][-1][[1]])) names(m.distance) <- "ave.distance"
-        discarded <- if ("discarded" %in% names(mimids[[2]][-1][[1]])) unlist(lapply(mimids[[2]][-1], function(x) x[["discarded"]])) else NULL
-    }
+    m.data <- imp.complete(mimids[["original.datasets"]])
     
     #Process data
     data <- A$data
@@ -2041,7 +1981,7 @@ x2base.mimids <- function(mimids, ...) {
     if (is_not_null(data)) {
         if (is_(data, "mids")) {
             data <- imp.complete(data)
-            if ("imp" %nin% names(A)) imp <- data[[".imp"]]
+            # if ("imp" %nin% names(A)) imp <- data[[".imp"]]
         }
         else if (!is_(data, "data.frame"))
         {
@@ -2050,18 +1990,20 @@ x2base.mimids <- function(mimids, ...) {
         }
     }
     
-    m.data1 <- do.call("rbind", lapply(mimids[[2]][-1], function(m) m$model$data))
-    m.data2 <- do.call("rbind", mimids[[4]][-1])
-    
     subset <- A$subset
     cluster <- A$cluster
     s.d.denom <- A$s.d.denom
-    imp <- m.data2[[".imp"]]
-    weights[is.na(weights),] <- 0
+    estimand <- "ATT"
+    imp <- m.data[[".imp"]]
+    weights <- unlist(lapply(mimids[["models"]][-1], get.w.matchit))
+    method <- "matching"
+    subclass <- NULL
     
-    treat <- unlist(lapply(mimids[[2]][-1], function(m) m[["treat"]]))
-    covs <- do.call("rbind", lapply(1:nimp, function(i) {
-        m <- mimids[[2]][-1][[i]]
+    imps <- unique(imp, nmax = length(mimids[["models"]]) - 1L)
+    
+    treat <- unlist(lapply(mimids[["models"]][-1], function(m) m[["treat"]]))
+    covs <- do.call("rbind", lapply(imps, function(i) {
+        m <- mimids[["models"]][-1][[i]]
         if (is_not_null(m$model$model)) {
             if (nrow(m$model$model) == length(m$treat)) {
                 covs <- data.frame(m$model$model[, names(m$model$model) %in% attributes(terms(m$model))$term.labels])
@@ -2088,39 +2030,28 @@ x2base.mimids <- function(mimids, ...) {
                                       }),
                                factors.to.unsplit)
                 covs <- as.data.frame(m$X[, names(assign1)])
-                for (i in factors.to.unsplit) {
-                    covs <- unsplitfactor(covs, i, sep = "",
-                                          dropped.level = f0[[i]]$levels[f0[[i]]$faclev %nin% colnames(m$X)])
-                    if (dataClasses[i] == "logical") covs[[i]] <- as.logical(covs[[i]])
+                for (j in factors.to.unsplit) {
+                    covs <- unsplitfactor(covs, j, sep = "",
+                                          dropped.level = f0[[j]]$levels[f0[[j]]$faclev %nin% colnames(m$X)])
+                    if (dataClasses[j] == "logical") covs[[j]] <- as.logical(covs[[j]])
                 }
             }
-            
         }
-        else if (!anyNA(mimids[[4]][-1][[i]])) {
-            t.c <- get.covs.and.treat.from.formula(m$formula, data = mimids[[4]][-1][[i]])
+        else  {
+            t.c <- get.covs.and.treat.from.formula(m$formula, data = m.data[imp == i, , drop = FALSE])
             covs <- t.c[["reported.covs"]]
-        }
-        else if (is_not_null(data)) {
-            if (nrow(data) == length(mimids[[2]][-1][[i]][["treat"]])) {
-                t.c <- get.covs.and.treat.from.formula(m$formula, data = data)
-                covs <- t.c[["reported.covs"]]
-            }
-            else if (nrow(data) == length(treat)) {
-                t.c <- get.covs.and.treat.from.formula(m$formula, 
-                                                       data = data[((i-1)*length(mimids[[2]][-1][[i]][["treat"]]) + 1):(i*length(mimids[[2]][-1][[i]][["treat"]])), , drop = FALSE])
-                covs <- t.c[["reported.covs"]]
-            }
-            else {
-                covs <- data.frame(m$X)
-            }
-        }
-        else {
-            covs <- data.frame(m$X)
         }
         return(covs)
     }))
     
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    m.distance <- unlist(lapply(mimids[["models"]][-1], function(m) m[["distance"]]))
+    if (all(is.na(m.distance))) m.distance <- NULL
+    else m.distance <- data.frame(distance = m.distance)
+    
+    discarded <- unlist(lapply(mimids[["models"]][-1], function(m) m[["discarded"]]))
+    
+    if (anyNA(weights)) stop("NAs are not allowed in the weights.", call. = FALSE)
+    weights <- data.frame(weights = weights)
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -2131,8 +2062,8 @@ x2base.mimids <- function(mimids, ...) {
             if (any(names(data) == cluster)) {
                 cluster <- data[[cluster]]
             }
-            else if (any(names(m.data1) == cluster)) {
-                cluster <- m.data1[[cluster]]
+            else if (any(names(m.data) == cluster)) {
+                cluster <- m.data[[cluster]]
             }
         }
         else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
@@ -2151,7 +2082,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process addl and distance
     for (i in c("addl", "distance")) {
-        assign(i, data.frame.process(i, A[[i]], treat, covs, data, m.data1, m.data2))
+        assign(i, data.frame.process(i, A[[i]], treat, covs, data, m.data))
     }
 
     if (is_not_null(distance)) distance <- cbind(distance, m.distance)
@@ -2171,7 +2102,202 @@ x2base.mimids <- function(mimids, ...) {
     #Process imp further
     if (is_not_null(imp)) {
         
-        imp.lengths <- vapply(unique(imp, nmax = nimp), function(i) sum(imp == i), numeric(1L))
+        imp.lengths <- vapply(imps, function(i) sum(imp == i), numeric(1L))
+        
+        if (all_the_same(imp.lengths)) { #all the same
+            for (i in vectors) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) { 
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
+                    if (lengths[i] == imp.lengths[1]) {
+                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               order2 = seq_along(imp))
+                        
+                        temp.var <- data.frame(sort(imp), rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               get(i)[rep(seq_len(lengths[i]), length(imp.lengths))]
+                        )
+                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
+                                            by.y = 1:2, sort = FALSE)
+                        assign(i, temp.merge[[4]][order(temp.merge[[3]])])
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+            for (i in data.frames) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
+                    if (lengths[i] == imp.lengths[1]) {
+                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               order2 = seq_along(imp))
+                        temp.var <- data.frame(sort(imp),rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               get(i)[rep(seq_len(lengths[i]), length(imp.lengths)), , drop = FALSE]
+                        )
+                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
+                                            by.y = 1:2, sort = FALSE)
+                        assign(i, setNames(temp.merge[order(temp.merge[[3]]), -c(1:3), drop = FALSE], names(get(i))))
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+        }
+        else {
+            problematic <- lengths > 0 & lengths != length(imp)
+        }
+        if (any(problematic)) {
+            stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
+        }
+        else ensure.equal.lengths <- FALSE
+    }
+    
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames[data.frames!="covs"])) {
+            if (lengths[i] > 0 && lengths[i] != lengths["covs"]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as covs."), call. = FALSE)
+    }
+    
+    if (any(c(anyNA(covs), anyNA(addl)))) {
+        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+    }
+    
+    X$method <- method
+    X$treat <- treat
+    X$weights <- weights
+    X$discarded <- discarded
+    X$covs <- covs
+    X$distance <- distance
+    X$addl <- addl
+    X$cluster <- factor(cluster)
+    X$imp <- factor(imp)
+    X$call <- NULL
+    X$subclass <- factor(subclass)
+
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "imp"
+    
+    return(X)
+}
+x2base.wimids <- function(wimids, ...) {
+    
+    A <- list(...)
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
+    
+    #Initializing variables
+    w.data <- imp.complete(wimids[["original.datasets"]])
+    
+    #Process data
+    data <- A$data
+    
+    if (is_not_null(data)) {
+        if (is_(data, "mids")) {
+            data <- imp.complete(data)
+            # if ("imp" %nin% names(A)) imp <- data[[".imp"]]
+        }
+        else if (!is_(data, "data.frame"))
+        {
+            warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            data <- NULL
+        }
+    }
+    
+    subset <- A$subset
+    cluster <- A$cluster
+    s.d.denom <- A$s.d.denom
+    estimand <- unique(unlist(lapply(wimids[["models"]][-1], function(x) x$estimand)))
+    imp <- w.data[[".imp"]]
+    weights <- unlist(lapply(wimids[["models"]][-1], get.w.weightit))
+    method <- "weighting"
+    subclass <- NULL
+    
+    imps <- unique(imp, nmax = length(wimids[["models"]]) - 1L)
+    
+    treat <- unlist(lapply(wimids[["models"]][-1], function(m) m[["treat"]]))
+    covs <- do.call("rbind", lapply(wimids[["models"]][-1], function(m) m[["covs"]]))
+    
+    w.distance <- unlist(lapply(wimids[["models"]][-1], function(m) m[["ps"]]))
+    if (all(is.na(w.distance))) w.distance <- NULL
+    else w.distance <- data.frame(distance = w.distance)
+    
+    discarded <- unlist(lapply(wimids[["models"]][-1], function(m) m[["discarded"]]))
+    
+    if (anyNA(weights)) stop("NAs are not allowed in the weights.", call. = FALSE)
+    weights <- data.frame(weights = weights)
+    
+    #Process cluster
+    if (is_not_null(cluster)) {
+        if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
+            cluster <- cluster
+        }
+        else if (is.character(cluster) && length(cluster)==1) {
+            if (any(names(data) == cluster)) {
+                cluster <- data[[cluster]]
+            }
+            else if (any(names(w.data) == cluster)) {
+                cluster <- w.data[[cluster]]
+            }
+        }
+        else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
+    }
+    
+    #Process subset
+    if (is_not_null(subset)) {
+        if (!is_(subset, "logical")) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (anyNA(subset)) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
+    #Process addl and distance
+    for (i in c("addl", "distance")) {
+        assign(i, data.frame.process(i, A[[i]], treat, covs, data, w.data))
+    }
+    
+    if (is_not_null(distance)) distance <- cbind(distance, m.distance)
+    else distance <- w.distance
+    
+    #Get s.d.denom
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method = method)
+    
+    ensure.equal.lengths <- TRUE
+    vectors <- c("treat", "cluster", "subset")
+    data.frames <- c("covs", "weights", "distance", "addl")
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames))), c(vectors, data.frames))
+    lengths <- setNames(c(lengths(mget(vectors)), 
+                          vapply(data.frames, 
+                                 function(x) {if (is_null(get0(x))) 0 else nrow(get(x))
+                                 }, numeric(1L))), c(vectors, data.frames))
+    #Process imp further
+    if (is_not_null(imp)) {
+        
+        imp.lengths <- vapply(imps, function(i) sum(imp == i), numeric(1L))
         
         if (all_the_same(imp.lengths)) { #all the same
             for (i in vectors) {
@@ -2256,7 +2382,6 @@ x2base.mimids <- function(mimids, ...) {
     
     return(X)
 }
-x2base.wimids <- x2base.mimids
 
 #MSMs wth multiple time points
 x2base.iptw <- function(iptw, ...) {
