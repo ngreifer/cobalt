@@ -362,7 +362,7 @@ subset_X <- function(X, subset = NULL) {
                 }
                 else x
             }
-            lapply(X["weights"], subset_X_internal, subset)
+            lapply(X, subset_X_internal, subset)
         }
         else X
     }
