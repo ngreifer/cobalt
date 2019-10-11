@@ -515,7 +515,7 @@ The same logic applies to computing the standard deviations that appear in the d
 Note that when sampling weights are used, values for the unadjusted sample will be computed incorporating the sampling weights; in that sense, they are "adjusted" by the sampling weights. 
 
 ### Weighted Variance
-When using weighting or matching, summary values after adjustment are calculated by using weights generated from the matching or weighting process. For example, group means are computed using the standard formula for a weighted mean, incorporating the weighting or matching weights into the calculation. To estimate a weighted sample variance for use in variance ratios^[Standardized mean differences use only unweighted variance estimates; see section "Variance in Standardized Mean Differences and Correlations" for details.], sample standard deviations, or other stantistics in the presence of sampling weights, there are two formulas that have been proposed:
+When using weighting or matching, summary values after adjustment are calculated by using weights generated from the matching or weighting process. For example, group means are computed using the standard formula for a weighted mean, incorporating the weighting or matching weights into the calculation. To estimate a weighted sample variance for use in variance ratios^[Standardized mean differences use only unweighted variance estimates; see section "Variance in Standardized Mean Differences and Correlations" for details.], sample standard deviations, or other statistics in the presence of sampling weights, there are two formulas that have been proposed:
 
 1. $\frac{\sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2}{(\sum_{i=1}^{n} w_{i}) - 1}$
 

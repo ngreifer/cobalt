@@ -75,7 +75,7 @@ The output of \code{get.w()} can be used in calls to the formula and data frame 
 
 When sampling weights are used with \code{CBPS()} in \pkg{CBPS}, the returned weights will already have the sampling weights incorporated. To retrieve the balancing weights on their own, divide the returned weights by the original sampling weights. For other packages, the balancing weights are returned separately unless \code{s.weights = TRUE}, which means they must be multiplied by the sampling weights for effect estimation.
 
-When \code{Match()} in \pkg{Matching} is used with \code{CommonSupport = TRUE}, the returned weights will be incorrect. This option is not recommended by teh package authors.
+When \code{Match()} in \pkg{Matching} is used with \code{CommonSupport = TRUE}, the returned weights will be incorrect. This option is not recommended by the package authors.
 }
 \value{
 A vector or data frame of weights for each unit. These may be matching weights or balancing weights.

@@ -158,7 +158,7 @@ If clusters are specified, an object of class \code{"bal.tab.cluster"} containin
 
 If \code{mnps()} is used with multiple categorical treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
-If \code{ps.cont()} is used with continuous treatments, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment as colaculated using \code{\link{col_w_corr}}. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
+If \code{ps.cont()} is used with continuous treatments, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment as calculated using \code{\link{col_w_corr}}. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
 
 }
 \note{

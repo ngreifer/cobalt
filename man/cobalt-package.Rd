@@ -20,7 +20,7 @@ In addition to the main functions, there are also some helper functions that use
 \itemize{
 \item \code{\link{f.build}} - Create a formula (e.g., \code{Z ~ X1 + X2}) from strings or data frames to reduce programming burden.
 \item \code{\link{splitfactor}} - Split factors in data frame into dummy variables with flexibility in how categories are dropped.
-\item \code{\link{get.w}} - Extract weights from the output of a preprocessing function from another packahe (e.g., \pkg{MatchIt}, \pkg{twang}, or \pkg{Matching}).
+\item \code{\link{get.w}} - Extract weights from the output of a preprocessing function from another package (e.g., \pkg{MatchIt}, \pkg{twang}, or \pkg{Matching}).
 }
 }
 \section{Citing}{

@@ -78,7 +78,7 @@ the colors of the points on the plot. See 'Color Specification' at \code{\link[g
 the shapes of the points on the plot. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point}{aesthetic specifications} page for valid options. Values 15 to 25 are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 19 (\code{"circle filled"}).
 }
   \item{alpha}{
-\code{numeric}; the transperancy of the points. See \code{\link[ggplot2]{scale_alpha}}.
+\code{numeric}; the transperency of the points. See \code{\link[ggplot2]{scale_alpha}}.
 }
   \item{size}{
 \code{numeric}; the size of the points on the plot. Defaults to 3. In previous version, the size was scaled by a factor of 3. Now \code{size} corresponds directly to the \code{size} aesthetic in \code{\link[ggplot2]{geom_point}}.
@@ -102,14 +102,14 @@ an optional object providing alternate names for the variables in the plot, whic
 \code{character}; the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2]{theme}}. When \code{stat} has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".
 }
   \item{themes}{
-an optional list of \code{theme} objects to append to each individual plot. Each entry should be the output of a call to \code{\link[ggplot2]{theme}} in \pkg{ggplot2}. This is a way to customize the individual plots when multiple \code{stats} are requested since the final output is not a manipulable \code{ggplot} object. It can eb used with length-1 \code{stats}, but it probably makes more sense to just add the \code{theme()} call after \code{love.plot()}.
+an optional list of \code{theme} objects to append to each individual plot. Each entry should be the output of a call to \code{\link[ggplot2]{theme}} in \pkg{ggplot2}. This is a way to customize the individual plots when multiple \code{stats} are requested since the final output is not a manipulable \code{ggplot} object. It can be used with length-1 \code{stats}, but it probably makes more sense to just add the \code{theme()} call after \code{love.plot()}.
 }
   \item{...}{
 additional arguments passed to \code{bal.tab()} or options for display of the plot. The following related arguments are currently accepted:
 \describe{
   \item{\code{use.grid}}{whether to use \code{\link[gridExtra]{arrangeGrob}} in \code{gridExtra} to make the plot when \code{stats} has length 1. See section Value.}
   \item{\code{disp.subclass}}{whether to display individual subclasses if subclassification is used. Overrides the \code{disp.subclass} option in the original \code{bal.tab()} call if \code{x} is a \code{bal.tab} object.}
-  \item{\code{star_char}}{\code{character}; when \code{stars} are used, the character that should be the "star" nexted to the starred variables. The default is \code{"*"}. \code{"†"} or \code{"\u2020"} (i.e., dagger) might be appealing as well.}
+  \item{\code{star_char}}{\code{character}; when \code{stars} are used, the character that should be the "star" next to the starred variables. The default is \code{"*"}. \code{"†"} or \code{"\u2020"} (i.e., dagger) might be appealing as well.}
   }
 Additionally, any of the \code{which.} arguments used with clustered or multiply imputed data or longitudinal or multinomial treatments can be specified to display balance on selected groupings. Set to \code{.none} to aggregate across groups (in which \code{agg.fun} comes into effect) and set to \code{.all} to view all groups. See \code{display_options} for options, and see the vignette "Appendix 2: Using cobalt with Clustered and Multiply Imputed Data" for details and examples.
 }
@@ -140,7 +140,7 @@ There are several ways to specify alternate names for presentation in the displa
 
 When mean differences are to be displayed, \code{love.plot()} attempts to figure out the appropriate label for the x-axis. If all mean differences are standardized, the x-axis label will be "Standardized Mean Differences". If all mean differences are raw (i.e., unstandardized), the x-axis label will be "Mean Differences". Otherwise, \code{love.plot()} turns to the \code{stars} argument. If "raw", the x-axis label will be "Standardized Mean Differences" (i.e., because un-starred variables have standardized mean differences displayed). If "std", the x-axis label will be "Mean Differences" (i.e., because un-starred variables have raw mean differences displayed). If "none", the x-axis label will be "Mean Differences" and a warning will be issued recommending the use of \code{stars}. 
 
-The default is to display standardized mean differences for continuous variables, raw mean differences for binary variables, and no stars, so this warning will be issued in most default uses of \code{love.plot()}. The purpose of this is to correct behavior of previous versions of \pkg{cobalt} in which the default x-axis label was "Mean Differences", even when standardized mean differences were displayed, yielding a potentially misleading plot. This warning requires the user to think about what values are being displayed. The idea of using \code{stars} is that the user can, in a caption for the plot, explain that variables with an asterisk have standardized (or raw) mean diffences display, in contrast to un-starred variables.
+The default is to display standardized mean differences for continuous variables, raw mean differences for binary variables, and no stars, so this warning will be issued in most default uses of \code{love.plot()}. The purpose of this is to correct behavior of previous versions of \pkg{cobalt} in which the default x-axis label was "Mean Differences", even when standardized mean differences were displayed, yielding a potentially misleading plot. This warning requires the user to think about what values are being displayed. The idea of using \code{stars} is that the user can, in a caption for the plot, explain that variables with an asterisk have standardized (or raw) mean differences display, in contrast to un-starred variables.
 
 }
 \value{
