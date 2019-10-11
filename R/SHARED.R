@@ -648,7 +648,7 @@ probably.a.bug <- function() {
     stop(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function\n",
                 fun), call. = FALSE)
 }
-`%nin%` <- function(x, table) anyNA(match(x, table, nomatch = NA_integer_))
+`%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
 null_or_error <- function(x) {is_null(x) || class(x) == "try-error"}
 match_arg <- function(arg, choices, several.ok = FALSE) {
     #Replaces match.arg() but gives cleaner error message and processing
