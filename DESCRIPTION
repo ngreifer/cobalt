@@ -25,6 +25,7 @@ Suggests:
     designmatch,
     optweight,
     mice,
+    MatchThem,
     mlogit (>= 0.3-0),
     knitr,
     rmarkdown
