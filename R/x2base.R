@@ -2229,6 +2229,7 @@ x2base.wimids <- function(wimids, ...) {
     cluster <- A$cluster
     s.d.denom <- A$s.d.denom
     estimand <- unique(unlist(lapply(wimids[["models"]][-1], function(x) x$estimand)))
+    focal <- unique(unlist(lapply(wimids[["models"]][-1], function(x) x$focal)))
     imp <- w.data[[".imp"]]
     weights <- get.w.mimids(wimids)
     method <- "weighting"
@@ -2374,6 +2375,7 @@ x2base.wimids <- function(wimids, ...) {
     X$imp <- factor(imp)
     X$call <- NULL
     X$subclass <- factor(subclass)
+    X$focal <- focal
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)

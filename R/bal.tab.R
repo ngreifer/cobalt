@@ -297,7 +297,7 @@ bal.tab.mimids <- function(mimids, int = FALSE, poly = 1, distance = NULL, addl 
                    quote = TRUE)
     return(out)
 }
-bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
