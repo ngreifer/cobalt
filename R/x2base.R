@@ -1995,7 +1995,7 @@ x2base.mimids <- function(mimids, ...) {
     s.d.denom <- A$s.d.denom
     estimand <- "ATT"
     imp <- m.data[[".imp"]]
-    weights <- unlist(lapply(mimids[["models"]][-1], get.w.matchit))
+    weights <- get.w.mimids(mimids)
     method <- "matching"
     subclass <- NULL
     
@@ -2230,7 +2230,7 @@ x2base.wimids <- function(wimids, ...) {
     s.d.denom <- A$s.d.denom
     estimand <- unique(unlist(lapply(wimids[["models"]][-1], function(x) x$estimand)))
     imp <- w.data[[".imp"]]
-    weights <- unlist(lapply(wimids[["models"]][-1], get.w.weightit))
+    weights <- get.w.mimids(wimids)
     method <- "weighting"
     subclass <- NULL
     
