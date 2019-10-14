@@ -179,6 +179,10 @@ strsplits <- function(x, splits, fixed = TRUE, ...) {
     for (split in splits) x <- unlist(strsplit(x, split, fixed = TRUE, ...))
     return(x[x != ""]) # Remove empty values
 }
+c.factor <- function(..., recursive=TRUE) {
+    #c() for factors
+    unlist(list(...), recursive=recursive)
+}
 
 #Numbers
 check_if_zero <- function(x) {
@@ -190,7 +194,8 @@ between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
     if (!all(is.numeric(x))) stop("x must be a numeric vector.", call. = FALSE)
     if (length(range) != 2) stop("range must be of length 2.", call. = FALSE)
     if (anyNA(range) || !is.numeric(range)) stop("range must contain numeric entries only.", call. = FALSE)
-    range <- sort(range)
+    
+    if (range[2] < range[1]) range <- c(range[2], range[1])
     
     if (anyNA(x)) {
         if (length(na.action) != 1 || !is.atomic(na.action)) stop("na.action must be an atomic vector of length 1.", call. = FALSE)
@@ -689,10 +694,11 @@ last <- function(x) {
     x[[length(x)]]
 }
 len <- function(x, recursive = TRUE) {
-    if (is.vector(x, "list")) sapply(x, len)
+    if (is.vector(x, "list") && recursive) sapply(x, len)
     else if (length(dim(x)) > 1) NROW(x)
     else length(x)
 }
+
 
 #Defunct; delete if everything works without them
 .center <- function(x, na.rm = TRUE, at = NULL) {
