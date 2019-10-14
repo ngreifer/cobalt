@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+Version 3.10.0
+
+* Added support for `mimids` and `wimids` objects from `MatchThem`.
+
 Version 3.9.0
 
 * Added vignette for use of `love.plot`.
@@ -32,8 +36,6 @@ Version 3.8.0
 * Changed the calculation of standard deviations (and standardized differences in proportion) for binary variables to be more in line with recommendations, as noted by @mbloechl05. Note this will make these values different from those in `MatchIt::summary` by a small amount.
 
 * The KS statistic is now computed for binary variables. It is simply the difference in proportion.
-
-* Added methods for objects from the `MatchIt.mice` package.
 
 * Allowed some methods to accept `mids` objects (the output of a call to `mice::mice()`) in the `data` argument to supply multiply imputed data. This essentially replaces `data = complete(imp.out, "long"), imp = ".imp"` with `data = imp.put`, assuming `imp.out` is a `mids` object.
 
