@@ -1,12 +1,16 @@
-bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE, mirror = FALSE, type = c("density", "histogram"), colors = NULL) {
+bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, 
+                     imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE, 
+                     mirror = FALSE, type = c("density", "histogram"), colors = NULL, sample.names) {
     
     tryCatch(identity(obj), error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
-    if (any(sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all") || identical(as.character(.call[[x]]), ".none")))) {
-        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all"))] <- expression(NULL)
-        .call[sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".none"))] <- expression(NA)
+    .alls <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.all)), logical(1L))
+    .nones <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.none)), logical(1L))
+    if (any(c(.alls, .nones))) {
+        .call[.alls] <- expression(NULL)
+        .call[.nones] <- expression(NA)
         return(eval(.call))
     }
     
@@ -18,6 +22,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
     
     if (is_not_null(X$covs.list)) {
+        #Longitudinal
         if (missing(var.name)) {
             var.name <- names(X$covs.list[[1]])[1]
             message(paste0("No var.name was provided. Dispalying balance for ", var.name, "."))
@@ -26,8 +31,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         appears.in.time <- rep(TRUE, length(X$covs.list))
         for (i in seq_along(X$covs.list)) {
             if (var.name %in% names(X$covs.list[[i]])) var.list[[i]] <- X$covs.list[[i]][[var.name]]
-            else if (!is.null(X$addl.list) && var.name %in% names(X$addl.list[[i]])) var.list[[i]] <- X$addl[[var.name]]
-            else if (!is.null(X$distance.list) && var.name %in% names(X$distance.list[[i]])) var.list[[i]] <- X$distance.list[[i]][[var.name]]
+            else if (is_not_null(X$addl.list) && var.name %in% names(X$addl.list[[i]])) var.list[[i]] <- X$addl[[var.name]]
+            else if (is_not_null(X$distance.list) && var.name %in% names(X$distance.list[[i]])) var.list[[i]] <- X$distance.list[[i]][[var.name]]
             else appears.in.time[i] <- FALSE
         }
         if (all(sapply(var.list, is_null))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
@@ -39,15 +44,16 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (is_not_null(X$weights)) X$weights <- do.call("rbind", replicate(sum(appears.in.time), list(X$weights)))
     }
     else {
+        #Point treatment
         if (missing(var.name)) {
             var.name <- names(X$covs)[1]
             message(paste0("No var.name was provided. Dispalying balance for ", var.name, "."))
         }
         if (var.name %in% names(X$covs)) X$var <- X$covs[[var.name]]
-        else if (!is.null(X$addl) && var.name %in% names(X$addl)) X$var <- X$addl[[var.name]]
-        else if (!is.null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[[var.name]]
-        else if (!is.null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[[var.name]]
-        else if (!is.null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
+        else if (is_not_null(X$addl) && var.name %in% names(X$addl)) X$var <- X$addl[[var.name]]
+        else if (is_not_null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[[var.name]]
+        else if (is_not_null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[[var.name]]
+        else if (is_not_null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
         else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
     }
     
@@ -57,20 +63,24 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     if (is_not_null(args$kernel)) kernel <- args$kernel else kernel <- "gaussian"
     if (is_not_null(args$n)) n <- args$n else n <- 512
     
+    if (is_null(X$subclass)) weight.names <- names(X$weights)
+    else weight.names <- "adjusted"
+    
     if (missing(which)) {
         if (is_not_null(args$un)) {
             message("Note: \'un\' is deprecated; please use \'which\' for the same and added functionality.")
             if (args$un) which <- "unadjusted"
-            else which <- "adjusted"
+            else which <- weight.names
         }
         else {
-            which <- "adjusted"
+            which <- weight.names
         }
     }
     else {
         if (is_null(X$weights) && is_null(X$subclass)) which <- "unadjusted"
         else {
-            which <- match_arg(tolower(which), c("adjusted", "unadjusted", "both"))
+            which <- match_arg(tolower(which), unique(c("adjusted", "unadjusted", "both", weight.names)),
+                               several.ok = TRUE)
         }
     }
     
@@ -80,73 +90,52 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     facet <- NULL
     is.categorical.var <- is_binary(X$var) || is.factor(X$var) || is.character(X$var)
     
-    if (is_not_null(X$subclass)) {
-        if (which %in% c("adjusted", "both")) {
-            if (is_not_null(X$cluster)) stop("Subclasses are not supported with clusters.", call. = FALSE)
-            if (is_not_null(X$imp)) stop("Subclasses are not supported with multiple imputations.", call. = FALSE)
-            if (is_null(which.sub)) { 
-                which.sub <- levels(X$subclass)
-            }
-            if (is.numeric(which.sub) && any(which.sub %in% levels(X$subclass))) {
-                if (any(!which.sub %in% levels(X$subclass))) {
-                    w.l <- word_list(which.sub[!which.sub %in% levels(X$subclass)])
-                    warning(paste(w.l, ifelse(attr(w.l, "plural"), "do", "does"), "not correspond to any subclass in the object and will be ignored."), call. = FALSE)
-                    which.sub <- which.sub[which.sub %in% levels(X$subclass)]
-                }
-                in.sub <- !is.na(X$subclass) & X$subclass %in% which.sub
-                D <- setNames(as.data.frame(matrix(0, nrow = sum(in.sub), ncol = 4)),
-                              c("weights", "treat", "var", "subclass"))
-                D$weights <- rep(1, NROW(D))
-                D$treat <- X$treat[in.sub]
-                D$var <- X$var[in.sub]
-                D$subclass <- paste("Subclass", X$subclass[in.sub])
-                #title <- paste0(title, "\nin subclass ", which.sub)
-                subtitle <- NULL
-            }
-            else stop("The argument to which.sub must be a number vector corresponding to the subclass for which distributions are to be displayed.", call. = FALSE)
-            facet <- "subclass"
+    if (is_null(X$subclass) || (length(which) == 1 && which == "unadjusted")) {
+        if (is_not_null(which.sub) && !all(is.na(which.sub))) {
+            if (is_null(X$subclass)) warning("which.sub was specified but no subclasses were supplied. Ignoring which.sub.", call. = FALSE)
+            else warning("which.sub was specified but only the unadjusted sample was requested. Ignoring which.sub.", call. = FALSE)
         }
-        #D$weights <- rep(1, length(treat))
-        if (which == "both") {
-            D2 <- setNames(as.data.frame(matrix(0, nrow = length(X$treat), ncol = 4)),
-                           c("weights", "treat", "var", "subclass"))
-            D2$weights <- rep(1, NROW(D2))
-            D2$treat <- X$treat
-            D2$var <- X$var
-            D2$subclass <- rep("Unadjusted Sample", length(X$treat))
-            D <- rbind(D2, D, stringsAsFactors = TRUE)
-            D$subclass <- relevel(factor(D$subclass), "Unadjusted Sample")
-        }
-        
-    }
-    else if (is_null(X$subclass) && is_not_null(which.sub)) {
-        warning("which.sub was specified but no subclasses were supplied. Ignoring which.sub.", call. = FALSE)
-    }
-    else if (which == "unadjusted" && is_not_null(which.sub)) {
-        warning("which.sub was specified but the unadjusted sample was requested. Ignoring which.sub.", call. = FALSE)
-    }
-    
-    if ("subclass" %nin% facet) {
-        
+            
         facet <- "facet.which"
         
-        if (is_null(X$weights) || which == "unadjusted") {
-            X$weights <- data.frame(rep(1, length(X$treat)))
-            names(X$weights) <- "Unadjusted Sample"
-            #nweights <- 1
+        if ("both" %in% which) which <- c("Unadjusted Sample", weight.names)
+        else {
+            if ("adjusted" %in% which) which <- c(which[which != "adjusted"], weight.names)
+            if ("unadjusted" %in% which) which <- c("Unadjusted Sample", which[which != "unadjusted"])
         }
+        which <- unique(which)
+        
+        if (is_null(X$weights)) X$weights <- setNames(data.frame(rep(1, length(X$treat))),
+                                                      "Unadjusted Sample")
         else {
             if (ncol(X$weights) == 1) {
+                which[which != "Unadjusted Sample"] <- "Adjusted Sample"
                 names(X$weights) <- "Adjusted Sample"
             }
-            if (which == "both") {
-                X$weights <- setNames(cbind(rep(1, length(X$treat)), X$weights),
-                                      c("Unadjusted Sample", names(X$weights)))
-            }
+            
+            X$weights <- setNames(data.frame(rep(1, length(X$treat)),
+                                             X$weights),
+                                  c("Unadjusted Sample", names(X$weights)))
+            
+            
         }
         
-        nweights <- ncol(X$weights)
-        weight.names <- names(X$weights)
+        X$weights <- X$weights[which]
+        
+        #Process sample names
+        ntypes <- if (is_null(X$subclass)) length(which) else 2
+        nadj <- sum(which != "Unadjusted Sample")
+        if (!missing(sample.names)) {
+            if (!is.vector(sample.names, "character")) {
+                warning("The argument to sample.names must be a character vector. Ignoring sample.names.", call. = FALSE)
+                sample.names <- NULL
+            }
+            else if (length(sample.names) %nin% c(ntypes, nadj)) {
+                warning("The argument to sample.names must contain as many names as there are sample types, or one fewer. Ignoring sample.names.", call. = FALSE)
+                sample.names <- NULL
+            }
+        }
+        else sample.names <- NULL
         
         #NULL: all; NA: none
         in.imp <- rep(TRUE, length(X$var))
@@ -261,8 +250,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         nobs <- sum(in.imp & in.cluster & in.time)
         if (nobs == 0) stop("No observations to display.", call. = FALSE)
         
-        Q <- setNames(vector("list", nweights), weight.names)
-        for (i in weight.names) {
+        Q <- setNames(vector("list", ntypes), which)
+        for (i in which) {
             Q[[i]] <- setNames(as.data.frame(matrix(0, ncol = 7, nrow = nobs)),
                                c("imp", "cluster", "time", "treat", "var", "weights", "facet.which"))
             Q[[i]]$imp <- Q[[i]]$cluster <- Q[[i]]$time <- character(nobs)
@@ -276,19 +265,89 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             if ("time" %in% facet) Q[[i]]$time <- paste("Time", X$time[in.imp & in.cluster & in.time])
         }
         D <- do.call("rbind", Q)
-        D$facet.which <- factor(D$facet.which, levels = c(weight.names[weight.names == "Unadjusted Sample"],
-                                                          weight.names[weight.names != "Unadjusted Sample"]))
+        
+        D$facet.which <- factor(D$facet.which, levels = which)
+        
+        if (is_not_null(sample.names)) {
+            if (length(sample.names) == nadj) {
+                levels(D$facet.which)[levels(D$facet.which) != "Unadjusted Sample"] <- sample.names
+            }
+            else if (length(sample.names) == ntypes) {
+                levels(D$facet.which) <- sample.names
+            }
+        }
+        
+    }
+    else {
+        if (is_not_null(X$cluster)) stop("Subclasses are not supported with clusters.", call. = FALSE)
+        if (is_not_null(X$imp)) stop("Subclasses are not supported with multiple imputations.", call. = FALSE)
+        
+        #Get sub.names.good
+        sub.names <- levels(X$subclass)
+        
+        if (is_null(which.sub)) {
+            which.sub <- sub.names
+        }
+        else {
+            which.sub.original <- which.sub
+            if (anyNA(which.sub)) which.sub <- which.sub[!is.na(which.sub)]
+            
+            if (is_null(which.sub)) {
+                stop(paste0("The argument to which.sub cannot be .none or NA when which = \"", which, "\"."), call. = FALSE)
+            }
+            else if (is.character(which.sub)) {
+                which.sub <- which.sub[which.sub %in% sub.names]
+            }
+            else if (is.numeric(which.sub)) {
+                which.sub <- sub.names[which.sub[which.sub %in% seq_along(sub.names)]]
+            }
+            
+            if (is_null(which.sub)) {
+                stop("The argument to which.sub must be .none, .all, or the valid names or indices of subclasses.", call. = FALSE)
+            }
+            else if (any(which.sub.original %nin% which.sub)) {
+                w.l <- word_list(which.sub.original[which.sub.original %nin% which.sub])
+                warning(paste(w.l, ifelse(attr(w.l, "plural"), "do", "does"), "not correspond to any subclass in the object and will be ignored."), call. = FALSE)
+            }
+        }
+        
+        in.sub <- !is.na(X$subclass) & X$subclass %in% which.sub
+        D <- setNames(as.data.frame(matrix(0, nrow = sum(in.sub), ncol = 4)),
+                      c("weights", "treat", "var", "subclass"))
+        D$weights <- rep(1, NROW(D))
+        D$treat <- X$treat[in.sub]
+        D$var <- X$var[in.sub]
+        D$subclass <- paste("Subclass", X$subclass[in.sub])
+        #title <- paste0(title, "\nin subclass ", which.sub)
+        
+        if (which == "both") {
+            #Make unadjusted sample
+            D2 <- setNames(as.data.frame(matrix(0, nrow = length(X$treat), ncol = 4)),
+                           c("weights", "treat", "var", "subclass"))
+            D2$weights <- rep(1, NROW(D2))
+            D2$treat <- X$treat
+            D2$var <- X$var
+            D2$subclass <- rep("Unadjusted Sample", length(X$treat))
+            D <- rbind(D2, D, stringsAsFactors = TRUE)
+            D$subclass <- relevel(factor(D$subclass), "Unadjusted Sample")
+        }
+        
+        subtitle <- NULL
+        
+        facet <- "subclass"
         
     }
     
     if ("facet.which" %in% facet) {
-        if (nlevels(D$facet.which) == 1) {
+        if (length(which) == 1) {
             subtitle <- levels(D$facet.which)[1]
-            facet <- facet[!facet %in% "facet.which"]
+            facet <- facet[facet %nin% "facet.which"]
         }
     }
     
-    if (!is_binary(D$treat) && is.numeric(D$treat)) { #Continuous treatments
+    treat.type <- get.treat.type(assign.treat.type(D$treat))
+    
+    if (treat.type == "continuous") { #Continuous treatments
         if ("subclass" %in% facet) {
             if (is.categorical.var) {
                 weights <- with(D, ave(weights, subclass, var, FUN = function(x) x/sum(x)))
@@ -495,10 +554,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     if (is_not_null(facet)) {
         if (length(facet) >= 2) {
             if ("facet.which" %in% facet) {
-                facet.formula <- f.build("facet.which", facet[!facet %in% "facet.which"])
+                facet.formula <- f.build("facet.which", facet[facet %nin% "facet.which"])
             }
             else if ("imp" %in% facet) {
-                facet.formula <- f.build("imp", facet[!facet %in% "imp"])
+                facet.formula <- f.build("imp", facet[facet %nin% "imp"])
             }
             else {
                 facets <- data.frame(facet = facet, length = sapply(facet, function(x) nlevels(d[[x]])),
