@@ -123,7 +123,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         X$weights <- X$weights[which]
         
         #Process sample names
-        ntypes <- if (is_null(X$subclass)) length(which) else 2
+        ntypes <- length(which)
         nadj <- sum(which != "Unadjusted Sample")
         if (!missing(sample.names)) {
             if (!is.vector(sample.names, "character")) {
@@ -282,6 +282,24 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (is_not_null(X$cluster)) stop("Subclasses are not supported with clusters.", call. = FALSE)
         if (is_not_null(X$imp)) stop("Subclasses are not supported with multiple imputations.", call. = FALSE)
         
+        #Process sample names
+        ntypes <- as.numeric("both" %in% which)
+        if (!missing(sample.names)) {
+            if (which != "both") {
+                warning("sample.names can only be used with which = \"both\" or \"unadjusted\" to rename the unadjusted sample when called with subclasses. Ignoring sample.names.", call. = FALSE)
+                sample.names <- NULL
+            }
+            else if (!is.vector(sample.names, "character")) {
+                warning("The argument to sample.names must be a character vector. Ignoring sample.names.", call. = FALSE)
+                sample.names <- NULL
+            }
+            else if (length(sample.names) != ntypes) {
+                warning("The argument to sample.names must be of length 1 when called with subclasses. Ignoring sample.names.", call. = FALSE)
+                sample.names <- NULL
+            }
+        }
+        else sample.names <- NULL
+        
         #Get sub.names.good
         sub.names <- levels(X$subclass)
         
@@ -335,6 +353,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         subtitle <- NULL
         
         facet <- "subclass"
+        
+        if (is_not_null(sample.names)) {
+            levels(D$subclass)[levels(D$subclass) == "Unadjusted Sample"] <- sample.names
+        }
         
     }
     
