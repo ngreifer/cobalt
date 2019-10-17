@@ -64,7 +64,7 @@ Optional; either a vector or data.frame containing distance values (e.g., propen
 an optional data frame or the quoted names of additional covariates for which to present balance. These may be covariates included in the original dataset but not included in the call to \code{matchthem()} or \code{weightthem()}. If variable names are specified, \code{bal.tab()} will look first in the argument to \code{data}, if specified, and next in the \code{mimids} or \code{wimids} object.
 }
   \item{data}{
-an optional data frame or \code{mids} object containing variables that might be named in arguments to \code{distance}, \code{addl}, and \code{cluster}. If \code{method = "exact"} or \code{approach = "across"} were used in the call to \code{matchitmice()}, an argument to \code{data} should be specified. See Examples.
+an optional data frame or \code{mids} object containing variables that might be named in arguments to \code{distance}, \code{addl}, and \code{cluster}. See Examples.
 }
   \item{continuous}{
 whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
