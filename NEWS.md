@@ -5,6 +5,10 @@ Version 3.10.0
 
 * Added support for `mimids` and `wimids` objects from `MatchThem`.
 
+* Added `sample.names` argument in `bal.plot` in response to this [post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
+
+* Added functionality to the `which` argument in `bal.plot`, allowing more specificity when multipel weights are used.
+
 Version 3.9.0
 
 * Added vignette for use of `love.plot`.
