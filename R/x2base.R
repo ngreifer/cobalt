@@ -3262,89 +3262,89 @@ x2base.default <- function(obj, ...) {
     #treat OK
     
     #treat.list
-    if (is_not_null(treat.list)) {
-        if (!all(sapply(treat.list, function(x) any(vapply(Q[["treat"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
-            treat.list <- A[["treat.list"]]
+    if (is_not_null(A[["treat.list"]])) {
+        if (!all(sapply(A[["treat.list"]], function(x) any(vapply(Q[["treat"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
+            A[["treat.list"]] <- NULL
         }
-        msm <- TRUE
+        else msm <- TRUE
     }
     
     #covs 
-    if (is_not_null(covs)) covs <- as.data.frame(covs)
+    if (is_not_null(covs)) A[["covs"]] <- as.data.frame(A[["covs"]])
     
     #covs.list
-    if (is_not_null(covs.list)) {
-        if (!all(sapply(covs.list, function(x) any(vapply(Q[["covs"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
-            covs.list <- A[["covs.list"]]
+    if (is_not_null(A[["covs.list"]])) {
+        if (!all(sapply(A[["covs.list"]], function(x) any(vapply(Q[["covs"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
+            A[["covs.list"]] <- NULL
         }
-        msm <- TRUE
+        else msm <- TRUE
     }
     
     #formula OK
     
     #formula.list
-    if (is_not_null(formula.list)) {
-        if (!all(sapply(formula.list, function(x) any(vapply(Q[["formula"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
-            formula.list <- A[["formula.list"]]
+    if (is_not_null(A[["formula.list"]])) {
+        if (!all(sapply(A[["formula.list"]], function(x) any(vapply(Q[["formula"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
+            A[["formula.list"]] <- NULL
         }
-        msm <- TRUE
+        else msm <- TRUE
     }
     
     #data
-    if (is_not_null(data)) {
-        if (is_(data, "mids")) {
-            data <- imp.complete(data)
-            if ("imp" %nin% names(A)) A[["imp"]] <- data[[".imp"]]
+    if (is_not_null(A[["data"]])) {
+        if (is_(A[["data"]], "mids")) {
+            A[["data"]] <- imp.complete(A[["data"]])
+            if ("imp" %nin% names(A)) A[["imp"]] <- A[["data"]][[".imp"]]
         }
-        data <- as.data.frame(data)
+        A[["data"]] <- as.data.frame(A[["data"]])
     }
     
     #weights
-    if (is_not_null(weights)) {
-        if (is.vector(weights, "numeric")) weights <- data.frame(weights = weights)
-        else weights <- as.data.frame(weights)
+    if (is_not_null(A[["weights"]])) {
+        if (is.vector(A[["weights"]], "numeric")) A[["weights"]] <- data.frame(weights = A[["weights"]])
+        else A[["weights"]] <- as.data.frame(A[["weights"]])
     }
 
     #distance
-    if (is_not_null(distance)) {
-        if (is.numeric(distance)) {
-            if (is_not_null(attr(distance, "name"))) distance <- setNames(data.frame(distance),
-                                                                          attr(distance, "name"))
-            else distance <- data.frame(distance = distance)
+    if (is_not_null(A[["distance"]])) {
+        if (is.numeric(A[["distance"]])) {
+            if (is_not_null(attr(A[["distance"]], "name"))) A[["distance"]] <- setNames(data.frame(A[["distance"]]),
+                                                                          attr(A[["distance"]], "name"))
+            else A[["distance"]] <- data.frame(distance = A[["distance"]])
         }
-        else distance <- as.data.frame(distance)
+        else A[["distance"]] <- as.data.frame(A[["distance"]])
     }
     
     #distance.list
-    if (is_not_null(distance.list)) {
-        if (!all(sapply(distance.list, function(x) any(vapply(Q[["distance"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
-            distance.list <- A[["distance.list"]]
+    if (is_not_null(A[["distance.list"]])) {
+        if (!all(sapply(A[["distance.list"]], function(x) any(vapply(Q[["distance"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
+            A[["distance.list"]] <- NULL
         }
         #msm <- TRUE
     }
     
     #subclass
-    if (is_not_null(subclass)) subclass <- factor(subclass)
+    if (is_not_null(A[["subclass"]])) A[["subclass"]] <- factor(A[["subclass"]])
     
     #match.strata
-    if (is_not_null(match.strata)) match.strata <- factor(match.strata)
+    if (is_not_null(A[["match.strata"]])) A[["match.strata"]] <- factor(A[["match.strata"]])
     
     #estimand
-    if (is_not_null(estimand)) {
-        estimand.name <- attr(estimand, "name")
+    if (is_not_null(A[["estimand"]])) {
+        estimand.name <- attr(A[["estimand"]], "name")
         if (is_not_null(estimand.name) && toupper(estimand.name) == "ATT") {
-            if (estimand == 0) estimand <- "ATE"
-            else estimand <- "ATT"
+            if (A[["estimand"]] == 0) A[["estimand"]] <- "ATE"
+            else A[["estimand"]] <- "ATT"
         }
         else if (is_not_null(estimand.name) && toupper(estimand.name) == "ATE") {
-            if (estimand == 0) estimand <- "ATT"
-            else estimand <- "ATE"
+            if (A[["estimand"]] == 0) A[["estimand"]] <- "ATT"
+            else A[["estimand"]] <- "ATE"
         }
         else {
-            if (tolower(estimand) %in% c("att", "treat", "treated", "tr", "t", "atet")) estimand <- "ATT"
-            else if (tolower(estimand) %in% c("ate", "all")) estimand <- "ATE"
-            else if (tolower(estimand) %in% c("atc", "control", "untreated", "u", "c", "ctrl", "atu", "atec", "ateu")) estimand <- "ATC"
-            else estimand <- NULL
+            if (tolower(A[["estimand"]]) %in% c("att", "treat", "treated", "tr", "t", "atet")) A[["estimand"]] <- "ATT"
+            else if (tolower(A[["estimand"]]) %in% c("ate", "all")) A[["estimand"]] <- "ATE"
+            else if (tolower(A[["estimand"]]) %in% c("atc", "control", "untreated", "u", "c", "ctrl", "atu", "atec", "ateu")) A[["estimand"]] <- "ATC"
+            else A[["estimand"]] <- NULL
         }
     }
     
@@ -3356,8 +3356,8 @@ x2base.default <- function(obj, ...) {
     
     #model (only to extract data)
     if (is_not_null(obj[["model"]])) {
-        if (is_null(data) && "data" %in% names(obj[["model"]])) {
-            data <- obj[["model"]][["data"]]
+        if (is_null(A[["data"]]) && "data" %in% names(obj[["model"]])) {
+            A[["data"]] <- obj[["model"]][["data"]]
         }
     }
     
@@ -3369,6 +3369,12 @@ x2base.default <- function(obj, ...) {
         method <- A$method
         imp <- A$imp
         subset <- A$subset
+        data <- A$data
+        subclass <- A$subclass
+        match.strata <- A$match.strata
+        weights <- A$weights
+        s.weights <- A$s.weights
+        focal <- A$focal
         
         # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
         #     stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
@@ -3381,7 +3387,7 @@ x2base.default <- function(obj, ...) {
             stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
         }
         
-        t.c <- use.tc.fd(formula, data, treat, covs)
+        t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
         
         treat <- t.c[["treat"]]
         covs  <- t.c[["covs"]]
@@ -3754,7 +3760,7 @@ x2base.default <- function(obj, ...) {
         
         #Get s.d.denom
         if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
-            X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method)
+            X$s.d.denom <- get.s.d.denom(s.d.denom, A$estimand, weights, treat, focal, method)
         }
         
         if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -3784,6 +3790,12 @@ x2base.default <- function(obj, ...) {
         method <- A$method
         imp <- A$imp
         subset <- A$subset
+        formula.list <- A$formula.list
+        covs.list <- A$covs.list
+        treat.list <- A$treat.list
+        data <- A$data
+        weights <- A$weights
+        s.weights <- A$s.weights
         
         if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (is_not_null(s.weights) && any(vapply(s.weights, anyNA, logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
