@@ -10,7 +10,7 @@ Generates a "Love" plot graphically displaying covariate balance before and afte
 \usage{
 love.plot(x, 
           stats = "mean.diffs", 
-          abs = TRUE, 
+          abs, 
           agg.fun = NULL, 
           var.order = NULL, 
           drop.missing = TRUE, 
@@ -36,13 +36,13 @@ love.plot(x,
 
 \arguments{
   \item{x}{
-  the valid input to a call to \code{\link{bal.tab}()} (e.g., the output of a preprocessing function). Other arguments that would be supplied to \code{bal.tab()} can be entered with \code{...}. Can also be a \code{bal.tab} object, the output of a call to \code{bal.tab()}. See Examples. If \code{x} is not a \code{bal.tab} object, \code{love.plot()} calls \code{bal.tab()} with the arguments supplied.
+  the valid input to a call to \code{\link{bal.tab}()} (e.g., the output of a preprocessing function). Other arguments that would be supplied to \code{bal.tab()} can be entered with \code{...}. Can also be a \code{bal.tab} object, i.e., the output of a call to \code{bal.tab()}. See Examples. If \code{x} is not a \code{bal.tab} object, \code{love.plot()} calls \code{bal.tab()} with the arguments supplied.
 }
   \item{stats}{
-\code{character}; which statistic(s) should be reported. For binary or multinomial treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. When variance ratios are displayed, the x-axis will be on a log scale.
+\code{character}; which statistic(s) should be reported. For binary or multinomial treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. When variance ratios are displayed, the x-axis will be on a log scale so that .5 and 2 are equally far from 1.
 }
   \item{abs}{
-\code{logical}; whether to present the statistic in absolute value or not. For variance ratios, this will force all ratios to be greater than or equal to 1. If \code{x} is a \code{bal.tab} object, \code{love.plot()} might ignore \code{abs} depending on the original \code{bal.tab()} call.
+\code{logical}; whether to present the statistic in absolute value or not. For variance ratios, this will force all ratios to be greater than or equal to 1. If \code{x} is a \code{bal.tab} object, \code{love.plot()} might ignore \code{abs} depending on the original \code{bal.tab()} call. If unspecified, uses whatever was used in the call to \code{bal.tab()}.
 }
   \item{agg.fun}{
 if balance is to be displayed across clusters or imputations rather than within a single cluster or imputation, which summarizing function ("mean", "max", or "range") of the balance statistics should be used. If "range" is entered, \code{love.plot} will display a line from the min to the max with a point at the mean for each covariate. Abbreviations allowed; "range" is default. Remember to set \code{which.<ARG> = .none} (where \code{<ARG>} is the grouping argument, such as \code{cluster} or \code{imp}) to use \code{agg.fun}. See Details.
