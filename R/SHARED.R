@@ -654,6 +654,14 @@ probably.a.bug <- function() {
                 fun), call. = FALSE)
 }
 `%nin%` <- function(x, table) is.na(match(x, table, nomatch = NA_integer_))
+`%pin%` <- function(x, table) {
+    #Partial in. TRUE if x uniquely identifies values in table.
+    !is.na(pmatch(x, table))
+}
+`%cin%` <- function(x, table) {
+    #Partial in w/ charmatch. TRUE if x at all in table.
+    !is.na(pmatch(x, table))
+}
 null_or_error <- function(x) {is_null(x) || class(x) == "try-error"}
 match_arg <- function(arg, choices, several.ok = FALSE) {
     #Replaces match.arg() but gives cleaner error message and processing
