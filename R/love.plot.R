@@ -1,4 +1,4 @@
-love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL, 
+love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL, 
                       var.order = NULL, drop.missing = TRUE, drop.distance = FALSE, 
                       threshold = NULL, line = FALSE, stars = "none", grid = TRUE, 
                       limits = NULL, colors = NULL, shapes = NULL, alpha = 1, size = 3, 
@@ -20,13 +20,13 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
         mc <- match.call()
         replace.args <- function(m) {
             #m_ is bal.tab call or list (for do.call)
-            if (any(sapply(stats, function(x) pmatch(x, "variance.ratios", 0L) != 0L))) {
+            if (any(stats %pin% "variance.ratios")) {
                 if (!isTRUE(eval(m[["disp.v.ratio"]]))) {
                     m[["un"]] <- TRUE
                     m[["disp.v.ratio"]] <- TRUE
                 }
             }
-            if (any(sapply(stats, function(x) pmatch(x, "ks.statistics", 0L) != 0L))) {
+            if (any(stats %pin% "ks.statistics")) {
                 if (!isTRUE(eval(m[["disp.ks"]]))) {
                     m[["un"]] <- TRUE
                     m[["disp.ks"]] <- TRUE
@@ -42,7 +42,7 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
                 if (any(names(m) == "imp.fun")) m[["imp.fun"]] <- NULL
             }
             
-            m[["abs"]] <- abs
+            if (any(names(mc) %pin% "abs")) m[["abs"]] <- abs
             
             return(m)
         }
@@ -529,7 +529,11 @@ love.plot <- function(x, stats = "mean.diffs", abs = TRUE, agg.fun = NULL,
     }
     
     #Process abs
-    if (config == "agg.none") {
+    if (missing(abs)) {
+        if (is_null(attr(x, "print.options")[["abs"]])) abs <- TRUE
+        else abs <- attr(x, "print.options")[["abs"]]
+    }
+    else if (config == "agg.none") {
         if (!abs && !attr(x, "print.options")[["abs"]]) {
             abs <- FALSE
         }
