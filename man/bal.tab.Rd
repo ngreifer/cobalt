@@ -23,6 +23,8 @@ Generates balance statistics on covariates in relation to an observed treatment 
 }
 \item{\code{\link{bal.tab.designmatch}} for the method for objects returned by \pkg{designmatch}.
 }
+\item{\code{\link{bal.tab.mimids}} for the method for objects returned by \pkg{MatchThem}.
+}
 \item{\code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \code{\link{bal.tab.time.list}}.
 }
 \item{\code{\link{bal.tab.default}} for the method for objects that do not come from one of the explicitly supported conditioning packages.
