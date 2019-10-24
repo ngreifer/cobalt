@@ -878,9 +878,6 @@ x2base.data.frame <- function(covs, ...) {
                 message(word_list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                 match.strata <- subclass <- NULL
             }
-            else {
-                message("Assuming \"weighting\". If not, specify with an argument to method.")
-            }
             method <- "weighting"
         }
         else {
@@ -2636,9 +2633,6 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Getting method
     if (is_null(method)) {
         if (specified["weights"]) {
-            
-            #message("Assuming \"weighting\". If not, specify with an argument to method.")
-            
             method <- "weighting"
         }
         else {
@@ -3512,10 +3506,6 @@ x2base.default <- function(obj, ...) {
                     message(word_list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
                     match.strata <- subclass <- NULL
                 }
-                else {
-                    if (!any(c("optweight", "weightit") %in% class(obj))) {
-                        message("Assuming \"weighting\". If not, specify with an argument to method.")}
-                }
                 method <- "weighting"
             }
             else {
@@ -3843,9 +3833,6 @@ x2base.default <- function(obj, ...) {
         #Getting method
         if (is_null(method)) {
             if (specified["weights"]) {
-                
-                #message("Assuming \"weighting\". If not, specify with an argument to method.")
-                
                 method <- "weighting"
             }
             else {
@@ -3865,11 +3852,8 @@ x2base.default <- function(obj, ...) {
             else {
                 if (specified["weights"]) {
                     warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
-                    method <- "matching"
                 }
-                else {
-                    method <- "matching"
-                }
+                method <- "matching"
             }
         }
         else {
