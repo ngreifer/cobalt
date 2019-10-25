@@ -628,7 +628,8 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     
     #Process variable order
     if (is_not_null(var.order) && "love.plot" %nin% class(var.order)) {
-        if (attr(x, "print.options")$nweights == 0) {
+        if (is_null(attr(x, "print.options")$nweights) ||
+            attr(x, "print.options")$nweights == 0) {
             ua <- c("Unadjusted", "Alphabetical")
             names(ua) <- c("unadjusted", "alphabetical")
         }
