@@ -116,10 +116,10 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
             df[[i]] <- sapply(seq_along(df[[i]]), function(x) {
                 if (df[[i]][x] == "") ""
                 else if (lengths[x] <= 1) {
-                    paste0(c(df[[i]][x], rep(".", pad == 0), rep(pad, max(digits.r.of..) - digits.r.of..[x] + as.numeric(pad != 0))),
+                    paste0(c(df[[i]][x], rep(".", pad == 0), rep(pad, max_(digits.r.of..) - digits.r.of..[x] + as.numeric(pad != 0))),
                            collapse = "")
                 }
-                else paste0(c(df[[i]][x], rep(pad, max(digits.r.of..) - digits.r.of..[x])),
+                else paste0(c(df[[i]][x], rep(pad, max_(digits.r.of..) - digits.r.of..[x])),
                             collapse = "")
             })
         }
@@ -149,9 +149,9 @@ text_box_plot <- function(range.list, width = 12) {
     for (i in seq_len(nrow(d))) {
         spaces1 <- rescaled.range.list[[i]][1] - rescaled.full.range[1]
         #|
-        dashes <- max(0, diff(rescaled.range.list[[i]]) - 2)
+        dashes <- max_(0, diff(rescaled.range.list[[i]]) - 2)
         #|
-        spaces2 <- max(0, diff(rescaled.full.range) - (spaces1 + 1 + dashes + 1))
+        spaces2 <- max_(0, diff(rescaled.full.range) - (spaces1 + 1 + dashes + 1))
         
         d[i, 2] <- paste0(paste(rep(" ", spaces1), collapse = ""), "|", paste(rep("-", dashes), collapse = ""), "|", paste(rep(" ", spaces2), collapse = ""))
     }
@@ -205,6 +205,14 @@ between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
     
     return(out)
 }
+max_ <- function(x, na.rm = TRUE) {
+    if (!any(is.finite(x))) NA_real_
+    else max(x, na.rm = na.rm)
+}
+min_ <- function(x, na.rm = TRUE) {
+    if (!any(is.finite(x))) NA_real_
+    else min(x, na.rm = na.rm)
+}
 
 #Statistics
 binarize <- function(variable, zero = NULL, one = NULL) {
@@ -215,7 +223,7 @@ binarize <- function(variable, zero = NULL, one = NULL) {
     if (is_null(zero)) {
         if (is_null(one)) {
             if (0 %in% variable.numeric) zero <- 0
-            else zero <- min(variable.numeric, na.rm = TRUE)
+            else zero <- min_(variable.numeric)
         }
         else {
             if (one %in% levels(variable)) zero <- levels(variable)[levels(variable) != one]
@@ -609,11 +617,15 @@ nunique.gt <- function(x, n, na.rm = TRUE) {
         else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
     }
 }
-all_the_same <- function(x) {
-    if (is.double(x)) check_if_zero(abs(max(x) - min(x)))
+all_the_same <- function(x, na.rm = TRUE) {
+    if (na.rm && anyNA(x)) x <- x[!is.na(x)]
+    if (is.double(x)) check_if_zero(abs(max_(x) - min_(x)))
     else !any(x != x[1])
 }
-is_binary <- function(x) !all_the_same(x) && all_the_same(x[x != x[1]])
+is_binary <- function(x, na.rm = TRUE) {
+    if (na.rm && anyNA(x)) x <- x[!is.na(x)]
+    !all_the_same(x) && all_the_same(x[x != x[1]])
+}
 
 #R Processing
 is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
