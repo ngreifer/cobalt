@@ -28,7 +28,7 @@ Grouped data is similar to clustered data but has been treated differently in th
 
 Multiply imputed data occurs when some values of the covariates are missing, and multiple imputation has been performed to generate several data sets each with their own plausible values for the missing values. Missing data is a ubiquitous problem with large longitudinal data sets, which are popular for propensity score analysis. There are several choices researchers must make when addressing missing data; Cham and West (2016) discuss options researchers have to address the missingness. They recommend multiple imputation in most circumstances. Mitra and Reiter (2016) describe two ways to use propensity scores with multiply imputed data. The first, called the "within" method, is to perform a traditional analysis within each data set, and combine the effect estimates using the recommended rules for doing so. The second, called the "across" method, is to generate propensity scores within each imputed data set, but then to average the propensity score across data sets for each individual and use the averaged propensity scores to estimate a single effect. Guidelines for assessing balance in either scenario are absent; however, we recommend that balance assessment should involve all imputed data sets, by, for example, ensuring the average balance measure for each covariate across data sets is within some range of tolerance. `cobalt` allows for this kind of assessment, as well as balance assessment within each imputed data set.
 
-Each of `cobalt`'s primary functions (`bal.tab()`, `bal.plot()`, and `love.plot()`) have features to handle clustered and multiply imputed data sets, including data sets that are both clustered and multiply imputed (as occurred in Hughes, Chen, Thoemmes, & Kwok, 2010). The following sections describe for each data scenario the relevant features of each function. It should be noted that all examples and descriptions will be for data with binary treatments, but all the methods for continuous treatments also work in exactly the same way. Additionally, all examples use matching, either by specifying a `matchit` object or by specifying weights extracted from a `matchit` object; these methods are also applicable to weighting and matching strata as well, but not to subclassification. Subclassification and multinomial and longitudinal treatments are not yet supported for clustered or multiply imputed data.
+Each of `cobalt`'s primary functions (`bal.tab()`, `bal.plot()`, and `love.plot()`) have features to handle clustered and multiply imputed data sets, including data sets that are both clustered and multiply imputed (as occurred in Hughes, Chen, Thoemmes, & Kwok, 2010). The following sections describe for each data scenario the relevant features of each function. It should be noted that all examples and descriptions will be for data with binary treatments, but all the methods for continuous treatments also work in exactly the same way. Additionally, all examples use matching by specifying a `matchit` or `mimids` object; these methods are also applicable to weighting and matching strata as well, but not to subclassification. Subclassification and multinomial and longitudinal treatments are not yet supported for clustered or multiply imputed data.
 
 ## Clustered Data
 
@@ -119,7 +119,7 @@ Each point represents the mean balance statistic, and the bars represent interva
 
 Multiply imputed data works in a very similar way to clustered data, except the "grouping" variable refers to imputations rather than clusters. Thus, each row belongs to one imputation (i.e., the data set should be in "long" format). The data set used should only include the imputed data sets and not the original data set with missing values (unlike Stata's `mi` commands, which do require the original data set as well). The imputed data sets can be of different sizes (i.e., because matching reduced the size of each differently), but it is preferred that they are the same size and weights are used to indicate which units belong to the sample and which do not.
 
-In the example below, we will use a version of the Lalonde data set with some values missing. We will use the `mice` package (van Buuren & Groothuis-Oudshoorn, 2011) to implement multiple imputation with chained equations. We will demonstrate the "within"" approach first, where analyses take place within each data set, and the "across" approach second, where the estimated propensity scores are averaged across imputations. In both cases, we want to ensure that our estimated propensity scores yield balance on all imputations.
+In the example below, we will use a version of the Lalonde data set with some values missing. We will use the `mice` package (van Buuren & Groothuis-Oudshoorn, 2011) to implement multiple imputation with chained equations. We will perform the "within" approach, where analyses take place within each data set. After demonstrating this method using the `data.frame` method for `bal.tab`, we will use the much simpler methods for objects from `MatchThem`.
 
 ```{r}
 library("MatchIt"); library("cobalt"); library("mice")
@@ -164,6 +164,8 @@ To use `bal.tab()` with our imputed data sets, we need to use the `data.frame` o
 
 In many cases, not all variables are imputed, and often the treatment variable is not imputed. If each imputation as the same number of units, you can specify other arguments (e.g., treatment, distance) by specifying a vector of the length of one imputation, and this vector will be applied to all imputations. This will come in handy when each individual receives one average propensity score in the "across" method. To do this, the imputed data set must be sorted by imputation and unit ID.
 
+Note that the `data` argument can be supplied as a `mids` objects, the output of a call to `mice()`. In this case, an argument o `imp` is unnecessary because the input is automaticallu extracted from the `mids` object. When this is done, though, the argument to `weights` cannot be given as names of variables in the data and must be supplied as a vector or data.frames.
+
 ```{r}
 bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75, 
         data = imp.data, weights = "match.weight", method = "matching", 
@@ -182,31 +184,17 @@ bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
 
 As with clustered data, all `bal.tab()` options work as with non-imputed data. Indeed, the functions for clustered and imputed data are nearly identical except that for imputed data, `bal.tab()` computes the average sample size across imputations, whereas for clustered data, `bal.tab()` computes the total sample size across groups.
 
-Now, lets see how we might assess balance on the imputed data sets after generating an average propensity score for each unit across imputations:
+`MatchThem` is well suited for performing matching and weighting on multiply imputed datasets and make the input to `cobalt` functions much simpler. Below is an example of performing propensity score matching using `MatchThem`. We'll demonstrate the across approach, where an averaged propensity score is used rather than estimating a propensity score within each imputed dataset. `matchthem()` is essentially a wrapper for `matchit()` that takes in multiply imputed data (in the form of the output of a call to `mice()`) as input.
 
 ```{r}
-#Compute the average propensity for each ID
-imp.agg <- aggregate(ps ~ treat + .id, data = imp.data, FUN = mean)
-names(imp.agg)[names(imp.agg) == "ps"] <- "ps.ave"
-
-#Perform matching on the aggregated data
-m.out.ave <- matchit(treat ~ ps.ave, data = imp.agg, 
-                     distance = imp.agg$ps.ave)
-imp.agg$match.weight.ave <- m.out.ave$weights
+#Performing propensity score matching on an average propensity score
+library("MatchThem")
+mt.out <- matchthem(treat ~ age + educ + race + married + 
+                      nodegree + re74 + re75,
+                    datasets = imp, approach = "across")
+#Checking balance on the output object
+bal.tab(mt.out)
 ```
-
-To use `bal.tab()`, we can merge the original long multiply imputed data set with the aggregated data set so that the averaged propensity scores and estimated matching weights are supplied to each unit. Then, we use `bal.tab()` as usual, specifying an input to `imp`.
-
-```{r}
-#Merge the data sets; ps.ave and match.weight.ave will remain
-imp.data <- merge(imp.data, imp.agg, all.x = TRUE)
-
-bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75, 
-        data = imp.data, weights = "match.weight.ave", 
-        method = "matching", imp = ".imp")
-```
-
-For some variables, the minimum, mean, and maximum balance statistic will be the same. This will be the case for any variables that are not imputed, i.e., are the same across imputed data sets.
 
 `WeightIt` is well suited for estimating weights within multiple imputed data sets. Below is an example of estimating propensity score weights after multiple imputation using the same scenario as those above.
 
@@ -260,38 +248,32 @@ Often these ranges will be small if the imputed data sets are very similar to ea
 
 There are cases when data is both clustered and has been multiply imputed. See Enders, Mistler, & Keller (2016) for a discussion of multiply imputed, multilevel data. You can assess balance on this type of data with `cobalt` as well, though there may a lot to sift through (e.g., balance tables for each cluster for each imputation). Essentially, you can combine the syntax for clustered data and for imputed data to assess balance within and across clusters and imputations. For example, you may want to assess balance for each cluster but aggregating across imputations, or you may want to assess balance for each cluster within one imputation. Because there are many possible combinations, we will not describe them all here, but you should experiment with them as you see fit. In general, we recommend assessing balance aggregating across imputations, either within each cluster (e.g., for grouped data) or also aggregating across clusters (e.g., for multilevel data with many clusters), when possible.
 
-To demonstrate, we will combine the approaches above by using the data sets with missingness that we imputed above but examining balance within each race group. 
+To demonstrate, we will combine the approaches above by using the data sets with missingness that we imputed above but examining balance within each race group. We will use the `MatchThem` package to perform the matching in order to simplify the code.
 
 ```{r}
-library("MatchIt"); library("cobalt"); library("mice")
+library("MatchThem"); library("cobalt"); library("mice")
 data("lalonde_mis", package = "cobalt")
 
 #Generate imputed data sets
-m <- 5 #number of imputed data sets
+m <- 10 #number of imputed data sets
 imp <- mice(lalonde_mis, m = m, print = FALSE) 
-imp.data <- complete(imp, "long", include = FALSE)
 
-#Estimate propensity scores and perform matching within each one
-imp.data$match.weight <- rep(0, nrow(imp.data))
-for (i in unique(imp.data$.imp)) {
-    in.imp <- imp.data$.imp == i
-    m.out <- matchit(treat ~ race*(age + educ + married + nodegree + re74 + re75), 
-                     data = imp.data[in.imp,], method = "nearest", exact = "race", 
+#Estimate propensity scores and perform matching within each imputation
+#and each level of race
+mt.out <- matchthem(treat ~ race*(age + educ + married + nodegree + 
+                                    re74 + re75), 
+                     datasets = imp, method = "nearest", exact = "race", 
                      replace = TRUE, ratio = 2)
-    imp.data$match.weight[in.imp] <- m.out$weights
-}
 ```
 
-The object `imp.data` contains our data set, which is grouped by both imputation and race. Note above that within each imputation, we performed the same analysis as we did with non-imputed clustered data. There are other ways to do this, such as by creating groupings for each imputation and each cluster.
+The object `mt.out` contains our matched and imputed data set. 
 
 ### `bal.tab()`
 
-As mentioned above, there are many ways to examine balance in combinations of clusters and imputations. You will need to specify arguments to both `imp` and `cluster`, as well as to `which.imp`, `which.cluster`, `imp.summary`, and `cluster.summary`, if desired. The default is to display balance within each cluster aggregating over imputations and aggregating over imputations and clusters.
+As mentioned above, there are several ways to examine balance in combinations of clusters and imputations. You will need to specify arguments to `cluster`, as well as to `which.imp`, `which.cluster`, `imp.summary`, and `cluster.summary`, if desired. The default is to display balance within each cluster aggregating over imputations and aggregating over imputations and clusters.
 
 ```{r}
-bal.tab(treat ~ age + educ + married + nodegree + re74 + re75, 
-        data = imp.data, weights = "match.weight", method = "matching", 
-        imp = ".imp", cluster = "race")
+bal.tab(mt.out, cluster = "race")
 ```
 
 There are essentially 9 combinations of `which.imp` and `which.cluster` to use to display balance. `i` represents a vector (which may be of length 1) of imputation numbers, and `c` represents a vector (which may be of length 1) of cluster names or indices. In general, `.none` means to suppress display of individual clusters or imputations, and `.all` means to display all clusters or imputations.
@@ -315,9 +297,7 @@ As mentioned above, in general, you may be most interested in (4) if individual 
 As in other cases, `bal.plot()` can display distributional balance for one variable at a time in either multiple clusters or multiple imputations (bot not both). The syntax for `bal.plot()` is similar to that of `bal.tab()`, except that `imp.summary` and `cluster.summary` are ignored. Below is an example of examining balance for all clusters in one imputation:
 
 ```{r}
-bal.plot(treat ~ age + educ + married + nodegree + re74 + re75, 
-         data = imp.data, weights = "match.weight", method = "matching", 
-         imp = ".imp", cluster = "race", which.imp = 1, 
+bal.plot(mt.out, cluster = "race", which.imp = 1, 
          which.cluster = .all, var.name = "age")
 ```
 
@@ -341,16 +321,12 @@ Below are examples of (4) and (7):
 
 ```{r}
 #4)
-love.plot(treat ~ age + educ + married + nodegree + re74 + re75, 
-          data = imp.data, weights = "match.weight", 
-          method = "matching", imp = ".imp", cluster = "race", 
+love.plot(mt.out, cluster = "race", 
           which.imp = .none, which.cluster = .all, 
           agg.fun = "range")
 
 #7)
-love.plot(treat ~ age + educ + married + nodegree + re74 + re75, 
-          data = imp.data, weights = "match.weight", 
-          method = "matching", imp = ".imp", cluster = "race", 
+love.plot(mt.out, cluster = "race", 
           which.imp = 1, which.cluster = .all)
 ```
 
