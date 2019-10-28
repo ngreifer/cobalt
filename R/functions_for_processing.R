@@ -277,14 +277,14 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, treat = NU
             for (i in seq_len(ncol(weights))) {
                 if (is_null(method) || method[i] == "weighting") {
                     if (is_binary(treat)) {
-                        if (all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])]) &&
-                            !all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])])
+                        if (all_the_same(weights[[i]][treat==1]) &&
+                            !all_the_same(weights[[i]][treat==0])
                         ) { #if treated weights are the same and control weights differ; ATT
                             estimand[i] <- "att"
                             s.d.denom[i] <- "treated"
                         }
-                        else if (all_the_same(weights[[i]][treat==0 & !check_if_zero(weights[[i]])]) &&
-                                 !all_the_same(weights[[i]][treat==1 & !check_if_zero(weights[[i]])])
+                        else if (all_the_same(weights[[i]][treat==0]) &&
+                                 !all_the_same(weights[[i]][treat==1])
                         ) { #if control weights are the same and treated weights differ; ATC
                             estimand[i] <- "atc"
                             s.d.denom[i] <- "control"
