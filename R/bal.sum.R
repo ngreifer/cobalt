@@ -168,6 +168,11 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
             else if (s.d.denom == "control") s.d.denom <- sqrt(col.w.v(mat[treat != tval1, to.sd, drop = FALSE], 
                                                                        w = s.weights[treat != tval1],
                                                                        bin.vars = bin.vars[to.sd], na.rm = na.rm))
+            if (any(zero_sds <- check_if_zero(s.d.denom))) {
+                s.d.denom[zero_sds] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE][, zero_sds, drop = FALSE], 
+                                                    w = s.weights,
+                                                    bin.vars = bin.vars[to.sd][zero_sds], na.rm = na.rm))
+            }
         }
         else {
             if (!is.numeric(s.d.denom) || length(s.d.denom) %nin% c(sum(to.sd), length(diffs))) {
