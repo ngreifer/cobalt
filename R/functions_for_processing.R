@@ -529,7 +529,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
     if (NCOL(C) == 0) stop("There are no variables for which to display balance.", call. = FALSE)
     
     #Make sure categorical variable have missingness indicators done correctly
-    
+
     C <- C[!vapply(C, all_the_same, logical(1L))]
     C <- as.matrix(C)
     
@@ -833,7 +833,7 @@ col.ks <- function(mat, treat, weights, x.types, no.weights = FALSE) {
             x <- x_[!is.na(x_)]
             ordered.index <- order(x)
             cumv <- abs(cumsum(weights_[ordered.index]))[diff(x[ordered.index]) != 0]
-            return(if (is_null(cumv)) 0 else max(cumv))
+            return(if (is_null(cumv)) 0 else max_(cumv))
         })
     }
     if (any(binary)) {
@@ -847,7 +847,7 @@ col.ks <- function(mat, treat, weights, x.types, no.weights = FALSE) {
     ratios <- rep(NA_real_, NCOL(mat))
     non.binary <- x.types != "Binary"
     ratios[non.binary] <- col.w.v(mat[treat == 1, non.binary, drop = FALSE], w = weights[treat == 1]) / col.w.v(mat[treat == 0, non.binary, drop = FALSE], w = weights[treat == 0])
-    return(pmax(ratios, 1/ratios))
+    return(pmax(ratios, 1/ratios, na.rm = TRUE))
 }
 var.ratios <- function(s0, s1, x.types) {
     ratios <- rep(NA_real_, length(s0))
@@ -1753,11 +1753,7 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
     
     if (is_not_null(types)) B[["Type"]] <- types
     else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(bal.tab.multi.list, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
-    
-    max_ <- function(x, na.rm = TRUE) {
-        if (!any(is.finite(x))) NA_real_
-        else max(x, na.rm = na.rm)
-    }
+
     for (sample in c("Un", weight.names)) {
         if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
             B[[paste.("Max", "Diff", sample)]] <- vapply(Brownames, function(x) max_(sapply(bal.tab.multi.list, function(y) abs(y[[x, paste.("Diff", sample)]])), na.rm = TRUE), numeric(1))
@@ -1840,10 +1836,6 @@ balance.table.msm.summary <- function(bal.tab.msm.list, weight.names = NULL, no.
     
     B[["Times"]] <- Brownames.appear[Brownames]
     
-    max_ <- function(x, na.rm = TRUE) {
-        if (!any(is.finite(x))) NA_real_
-        else max(x, na.rm = na.rm)
-    }
     for (sample in c("Un", weight.names)) {
         if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
             if (cont.treat) {
