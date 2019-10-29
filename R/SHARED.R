@@ -561,7 +561,7 @@ assign.treat.type <- function(treat) {
     else if (nunique.treat < 2) {
         stop("The treatment must have at least two unique values.", call. = FALSE)
     }
-    else if (is.factor(treat) || is.character(treat)) {
+    else if (is_(treat, c("factor", "character"))) {
         treat.type <- "multinomial"
         treat <- factor(treat)
     }
