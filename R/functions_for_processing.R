@@ -23,48 +23,68 @@ is.time.list <- function(x) {
 }
 
 #x2base
-
-match.strata2weights <- function(match.strata, treat, estimand = "ATT") {
-    #Process match.strata into weights (similar to weight.subclass from MatchIt)
-
-    matched <- !is.na(match.strata)
-    match.strata <- factor(match.strata)
-    match.strata.matched <- factor(match.strata[matched])
+strata2weights <- function(strata, treat) {
+    #Process strata into weights (similar to weight.subclass from MatchIt)
+    
+    #Checks
+    if (!is_(strata, c("factor", "atomic"))) {
+        stop("strata must be an atomic vector or factor.", call. = FALSE)
+    }
+    #Process treat
+    if (missing(treat) || is_null(treat)) stop("treat must be specified.", call. = FALSE)
+    
+    if (is_(treat, c("numeric", "logical", "factor")) || (is.character(treat) && length(treat) > 1)) {
+        treat <- assign.treat.type(treat)
+        treat.type <- get.treat.type(treat)
+    }
+    else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
+    
+    if (anyNA(treat)) stop("Missing values exist in treat.", call. = FALSE)
+    
+    matched <- !is.na(strata)
+    strata <- factor(strata)
+    strata.matched <- factor(strata[matched])
     
     weights <- rep(0, length(treat))
-
-    sub.tab <- table(treat[matched], match.strata.matched)[,levels(match.strata.matched)]
-    totals <- colSums(sub.tab)
     
-    if (is_null(estimand) || anyNA(estimand)) estimand <- "ATE"
-    
-    if (estimand == "ATT") {
-        sub.weights <- setNames(sub.tab["1", levels(match.strata.matched)] / sub.tab["0", levels(match.strata.matched)], 
-                                levels(match.strata.matched))
-        weights[matched & treat == 1] <- 1
-        weights[matched & treat == 0] <- sub.weights[match.strata[matched & treat == 0]]
-    }
-    else if (estimand == "ATC") {
-        sub.weights <- setNames(sub.tab["0", levels(match.strata.matched)] / sub.tab["1", levels(match.strata.matched)], 
-                                levels(match.strata.matched))
-        weights[matched & treat == 1] <- sub.weights[match.strata[matched & treat == 1]]
-        weights[matched & treat == 0] <- 1
+    if (treat.type == "continuous") {
+        
+        stop("strata cannot be turned into weights for continuous treatments.", call. = FALSE)
     }
     else {
-        sub.weights.1 <- setNames(totals[levels(match.strata.matched)]/sub.tab["1", levels(match.strata.matched)], 
-                                  levels(match.strata.matched))
-        sub.weights.0 <- setNames(totals[levels(match.strata.matched)]/sub.tab["0", levels(match.strata.matched)], 
-                                  levels(match.strata.matched))
-        weights[matched & treat == 1] <- sub.weights.1[match.strata[matched & treat == 1]]
-        weights[matched & treat == 0] <- sub.weights.0[match.strata[matched & treat == 0]]
+        sub.tab <- table(treat[matched], strata.matched)[,levels(strata.matched)]
+        totals <- colSums(sub.tab)
+        
+        estimand <- get.estimand(subclass = strata, treat = treat)
+        
+        if (estimand == "ATT") {
+            sub.weights <- setNames(sub.tab["1", levels(strata.matched)] / sub.tab["0", levels(strata.matched)], 
+                                    levels(strata.matched))
+            weights[matched & treat == 1] <- 1
+            weights[matched & treat == 0] <- sub.weights[strata[matched & treat == 0]]
+        }
+        else if (estimand == "ATC") {
+            sub.weights <- setNames(sub.tab["0", levels(strata.matched)] / sub.tab["1", levels(strata.matched)], 
+                                    levels(strata.matched))
+            weights[matched & treat == 1] <- sub.weights[strata[matched & treat == 1]]
+            weights[matched & treat == 0] <- 1
+        }
+        else {
+            sub.weights.1 <- setNames(totals[levels(strata.matched)]/sub.tab["1", levels(strata.matched)], 
+                                      levels(strata.matched))
+            sub.weights.0 <- setNames(totals[levels(strata.matched)]/sub.tab["0", levels(strata.matched)], 
+                                      levels(strata.matched))
+            weights[matched & treat == 1] <- sub.weights.1[strata[matched & treat == 1]]
+            weights[matched & treat == 0] <- sub.weights.0[strata[matched & treat == 0]]
+        }
+        
+        if (all(check_if_zero(weights))) 
+            stop("No units were stratified", call. = FALSE)
+        else if (all(check_if_zero(weights[treat == 1])))
+            stop("No treated units were stratified", call. = FALSE)
+        else if (all(check_if_zero(weights[treat == 0])))
+            stop("No control units were stratified", call. = FALSE)
     }
-    
-    if (all(check_if_zero(weights))) 
-        stop("No units were matched", call. = FALSE)
-    else if (all(check_if_zero(weights[treat == 1])))
-        stop("No treated units were matched", call. = FALSE)
-    else if (all(check_if_zero(weights[treat == 0])))
-        stop("No control units were matched", call. = FALSE)
     return(weights)
 }
 use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, needs.treat = TRUE, needs.covs = TRUE) {
@@ -269,13 +289,14 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
         }
         if (is_not_null(subclass)) {
             treat <- binarize(treat)
-            sub.tab <- table(treat, subclass)
-            sub.tab <- matrix(c(sub.tab, table(subclass)[c("0", "1"), colnames(sub.tab)]),
-                              byrow = TRUE, nrow = 3, dimnames = list(c("0", "1", "Total"),
-                                                                      colnames(sub.tab)))
+            sub.tab <- table(treat, subclass)[c("0", "1"), ]
+            sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
+            dimnames(sub.tab) <- list(c("0", "1", "Total"), colnames(sub.tab))
+
             ranges <- apply(sub.tab, 1, function(x) mean.abs.dev(x)/sum(x))
             estimand <- switch(rownames(sub.tab)[which.min(ranges)],
                                "0" = "ATC", "1" = "ATT", "ATE")
+            s.d.denom <- switch(estimand, ATT = "treated", ATC = "control", "pooled")
         }
         else {
             s.d.denom <- estimand <- character(ncol(weights))
@@ -364,9 +385,9 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
         if (is_not_null(subclass)) {
             treat <- binarize(treat)
             sub.tab <- table(treat, subclass)[c("0", "1"), ]
-            sub.tab <- matrix(c(sub.tab, table(subclass)[colnames(sub.tab)]),
-                              byrow = TRUE, nrow = 3, dimnames = list(c("0", "1", "Total"),
-                                                                      colnames(sub.tab)))
+            sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
+            dimnames(sub.tab) <- list(c("0", "1", "Total"), colnames(sub.tab))
+            
             ranges <- apply(sub.tab, 1, function(x) mean.abs.dev(x)/sum(x))
             estimand <- switch(rownames(sub.tab)[which.min(ranges)],
                                "0" = "ATC", "1" = "ATT", "ATE")
