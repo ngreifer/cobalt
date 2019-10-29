@@ -23,19 +23,6 @@ x2base.matchit <- function(m, ...) {
     
     #Initializing variables
     
-    if (any(class(m) == "matchit.subclass")) {
-        subclass <- factor(m$subclass)
-        method <- "subclassification"
-    }
-    else if (any(class(m) == "matchit.full")) {
-        subclass <- NULL
-        method <- "weighting"
-    }
-    else {
-        subclass <- NULL
-        method <- "matching"
-    }
-    
     weights <- data.frame(weights = m$weights)
     treat <- m$treat
     data <- A$data
@@ -126,8 +113,22 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Get s.d.denom
-    estimand <- "ATT"
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method = method)
+    if (any(class(m) == "matchit.subclass")) {
+        subclass <- factor(m$subclass)
+        method <- "subclassification"
+        estimand <- get.estimand(subclass = subclass, treat = treat)
+    }
+    else if (any(class(m) == "matchit.full")) {
+        subclass <- NULL
+        method <- "weighting"
+        estimand <- "ATT"
+    }
+    else {
+        subclass <- NULL
+        method <- "matching"
+        estimand <- get.estimand(A$estimand, weights = weights, treat = treat)
+    }
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
     
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster", "treat", "subset", "subclass")
@@ -309,7 +310,7 @@ x2base.ps <- function(ps, ...) {
     }
     
     #Get s.d.denom
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
 
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -464,7 +465,7 @@ x2base.mnps <- function(mnps, ...) {
     
     #Get s.d.denom
     estimand <- mnps$estimand
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal)
     
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -726,7 +727,7 @@ x2base.Match <- function(Match, ...) {
     }
     
     #Get s.d.denom
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
     
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -1146,7 +1147,7 @@ x2base.data.frame <- function(covs, ...) {
     if (is_not_null(match.strata)) {
         weights <- data.frame(weights = match.strata2weights(match.strata = match.strata,
                                                              treat = treat,
-                                                             covs = covs
+                                                             estimand = estimand
         ))
     }
    
@@ -1180,7 +1181,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Get s.d.denom
     if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
-        X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method = method)
+        X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal)
     }
     
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -1340,7 +1341,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Get s.d.denom
     if (!any(class(cbps.fit) == "CBPSContinuous")) {
         if (is_binary(treat)) {
-            X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+            X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
         }
         else {
             X$s.d.denom <- "pooled"
@@ -1461,7 +1462,7 @@ x2base.ebalance <- function(ebalance, ...) {
     }
     
     #Get s.d.denom
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
     
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -1581,7 +1582,7 @@ x2base.optmatch <- function(optmatch, ...) {
     }
     
     #Get s.d.denom
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
     
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -1788,7 +1789,7 @@ x2base.weightit <- function(weightit, ...) {
     
     #Get s.d.denom
     if (treat.type != "continuous") {
-        X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal, method)
+        X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal)
     }
     
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -1923,7 +1924,7 @@ x2base.designmatch <- function(dm, ...) {
     }
     
     #Get s.d.denom
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
     
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -1990,7 +1991,8 @@ x2base.mimids <- function(mimids, ...) {
     subset <- A$subset
     cluster <- A$cluster
     s.d.denom <- A$s.d.denom
-    estimand <- "ATT"
+    # estimand <- "ATT"
+    estimand <- A$estimand
     imp <- m.data[[".imp"]]
     weights <- get.w.mimids(mimids)
     method <- "matching"
@@ -2086,7 +2088,7 @@ x2base.mimids <- function(mimids, ...) {
     else distance <- m.distance
     
     #Get s.d.denom
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method = method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
     
     ensure.equal.lengths <- TRUE
     vectors <- c("treat", "cluster", "subset")
@@ -2278,11 +2280,11 @@ x2base.wimids <- function(wimids, ...) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data, w.data))
     }
     
-    if (is_not_null(distance)) distance <- cbind(distance, m.distance)
+    if (is_not_null(distance)) distance <- cbind(distance, w.distance)
     else distance <- w.distance
     
     #Get s.d.denom
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL, method = method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat, focal = NULL)
     
     ensure.equal.lengths <- TRUE
     vectors <- c("treat", "cluster", "subset")
@@ -2545,7 +2547,7 @@ x2base.iptw <- function(iptw, ...) {
     }
     
     #Get s.d.denom
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat.list[[1]], focal = NULL, method)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, treat.list[[1]], focal = NULL)
     
     if (any(vapply(c(covs.list, addl.list), anyNA, logical(1L)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -3436,7 +3438,7 @@ x2base.default <- function(obj, ...) {
             
             subclass.weights <- match.strata2weights(match.strata = subclass,
                                                      treat = treat,
-                                                     covs = covs)
+                                                     estimand = estimand)
         }
         
         #Process match.strata
@@ -3451,7 +3453,7 @@ x2base.default <- function(obj, ...) {
             
             match.strata.weights <- match.strata2weights(match.strata = match.strata,
                                                          treat = treat,
-                                                         covs = covs)
+                                                         estimand = estimand)
         }
         
         specified <- setNames(rep(FALSE, 3), c("match.strata", "subclass", "weights"))
@@ -3478,15 +3480,13 @@ x2base.default <- function(obj, ...) {
         if (is_null(method)) {
             if (specified["match.strata"]) {
                 if (specified["subclass"]) {
-                    if (isTRUE(all.equal(match.strata.weights, subclass.weights, 
-                                         check.attributes = FALSE))) {
+                    if (all(check_if_zero(abs(match.strata.weights - subclass.weights)))) {
                         subclass.weights <- subclass <- NULL
                         specified["subclass"] <- FALSE
                     }
                 }
                 if (specified["weights"]) {
-                    if (ncol(weights) == 1 && isTRUE(all.equal(match.strata.weights, weights, 
-                                                               check.attributes = FALSE))) {
+                    if (ncol(weights) == 1 && all(check_if_zero(abs(match.strata.weights - weights)))) {
                         weights <- NULL
                         specified["weights"] <- FALSE
                     }
@@ -3750,7 +3750,7 @@ x2base.default <- function(obj, ...) {
         
         #Get s.d.denom
         if (is_binary(treat) || !is.numeric(treat)) { #non-continuous
-            X$s.d.denom <- get.s.d.denom(s.d.denom, A$estimand, weights, treat, focal, method)
+            X$s.d.denom <- get.s.d.denom(s.d.denom, A$estimand, weights, treat, focal)
         }
         
         if (any(c(anyNA(covs), anyNA(addl)))) {

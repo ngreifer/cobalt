@@ -283,15 +283,15 @@ get.w.ebalance <- function(x, treat, ...) {
     return(weights)
 }
 get.w.ebalance.trim <- get.w.ebalance
-get.w.optmatch <- function(x, ...) {
+get.w.optmatch <- function(x, estimand = "ATT", ...) {
     treat <- as.numeric(attr(x, "contrast.group"))
-    return(match.strata2weights(x, treat = treat, covs = NULL))
+    return(match.strata2weights(x, treat = treat, estimand = estimand))
 }
 get.w.weightit <- function(x, s.weights = FALSE, ...) {
     if (s.weights) return(x$weights * x$s.weights)
     else return(x$weights)
 }
-get.w.designmatch <- function(x, treat, ...) {
+get.w.designmatch <- function(x, treat, estimand = "ATT", ...) {
     dm <- x
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     if (length(dm[["group_id"]]) != length(dm[["t_id"]]) + length(dm[["c_id"]])) {
@@ -310,7 +310,7 @@ get.w.designmatch <- function(x, treat, ...) {
                all.x = TRUE, by = "id")
     q <- q[order(q$id), , drop = FALSE]
     
-    return(match.strata2weights(q$group, treat))
+    return(match.strata2weights(q$group, treat, estimand = estimand))
 }
 get.w.mimids <- function(x, ...) {
     weights <- unlist(lapply(x[["models"]][-1], function(m) get.w.matchit(m)))
