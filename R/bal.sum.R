@@ -136,7 +136,7 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     
     weights <- weights * s.weights
     
-    if (abs || !(length(s.d.denom) == 1L && as.character(s.d.denom) %in% c("treated", "control"))) tval1 <- treat[1]
+    if (abs && !(length(s.d.denom) == 1L && as.character(s.d.denom) %in% c("treated", "control"))) tval1 <- treat[1]
     else tval1 <- treat[binarize(treat)==1][1]
     
     if (length(std) == 1L) std <- rep(std, NCOL(mat))
