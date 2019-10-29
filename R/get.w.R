@@ -2,9 +2,12 @@ get.w <- function(x, ...) UseMethod("get.w")
 get.w.matchit <- function(x,...) {
     return(x$weights)
 }
-get.w.ps <- function(x, stop.method = NULL, estimand = NULL, s.weights = FALSE, ...) {
+get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
     ps <- x
-    estimand <- tolower(estimand)
+    
+    if (!missing(estimand)) estimand <- tolower(estimand)
+    else estimand <- NULL
+    
     if (is_not_null(stop.method)) {
         if (any(is.character(stop.method))) {
             rule1 <- names(ps$w)[pmatch(tolower(names(ps$w)), tolower(stop.method), 0L)]
@@ -226,13 +229,14 @@ get.w.Match <- function(x, ...) {
 
     return(w)
 }
-get.w.CBPS <- function(x, estimand = NULL, ...) {
+get.w.CBPS <- function(x, estimand, ...) {
     c <- x
     A <- list(...)
     if (is_null(A$use.weights)) use.weights <- TRUE
     else use.weights <- A$use.weights
     
-    estimand <- tolower(estimand)
+    if (!missing(estimand)) estimand <- tolower(estimand)
+    else estimand <- NULL
     
     if ("CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
         return(c$weights)
@@ -283,15 +287,15 @@ get.w.ebalance <- function(x, treat, ...) {
     return(weights)
 }
 get.w.ebalance.trim <- get.w.ebalance
-get.w.optmatch <- function(x, estimand = "ATT", ...) {
+get.w.optmatch <- function(x, ...) {
     treat <- as.numeric(attr(x, "contrast.group"))
-    return(match.strata2weights(x, treat = treat, estimand = estimand))
+    return(strata2weights(x, treat = treat))
 }
 get.w.weightit <- function(x, s.weights = FALSE, ...) {
     if (s.weights) return(x$weights * x$s.weights)
     else return(x$weights)
 }
-get.w.designmatch <- function(x, treat, estimand = "ATT", ...) {
+get.w.designmatch <- function(x, treat, ...) {
     dm <- x
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     if (length(dm[["group_id"]]) != length(dm[["t_id"]]) + length(dm[["c_id"]])) {
@@ -310,7 +314,7 @@ get.w.designmatch <- function(x, treat, estimand = "ATT", ...) {
                all.x = TRUE, by = "id")
     q <- q[order(q$id), , drop = FALSE]
     
-    return(match.strata2weights(q$group, treat, estimand = estimand))
+    return(strata2weights(q$group, treat))
 }
 get.w.mimids <- function(x, ...) {
     weights <- unlist(lapply(x[["models"]][-1], function(m) get.w.matchit(m)))
