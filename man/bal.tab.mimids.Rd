@@ -48,7 +48,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
 }
 
 \arguments{
-  \item{mimids}{
+  \item{mimids, wimids}{
 a \code{mimids} or \code{wimids} object; the output of a call to \code{matchthem()} or \code{weightthem()} from the \pkg{MatchThem} package.
 }
   \item{int}{
