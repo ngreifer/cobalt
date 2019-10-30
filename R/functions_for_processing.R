@@ -246,7 +246,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
             bad.s.d.denom <- TRUE
         }
         else {
-            if (length(try.s.d.denom) > 1 && length(try.s.d.denom) != ncol(weights)) {
+            if (length(try.s.d.denom) > 1 && length(try.s.d.denom) != NCOL(weights)) {
                 stop("s.d.denom must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
             }
             else s.d.denom <- try.s.d.denom
@@ -265,7 +265,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
                 # bad.estimand <- TRUE
             }
             else {
-                if (length(try.estimand) > 1 && length(try.estimand) != ncol(weights)) {
+                if (length(try.estimand) > 1 && length(try.estimand) != NCOL(weights)) {
                     stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
                 }
                 else s.d.denom <- vapply(try.estimand, switch, character(1L), ATT = "treated", ATC = "control", "pooled")
@@ -299,8 +299,8 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
             s.d.denom <- switch(estimand, ATT = "treated", ATC = "control", "pooled")
         }
         else {
-            s.d.denom <- estimand <- character(ncol(weights))
-            for (i in seq_len(ncol(weights))) {
+            s.d.denom <- estimand <- character(NCOL(weights))
+            for (i in seq_len(NCOL(weights))) {
                 if (is_binary(treat)) {
                     treat <- binarize(treat)
                     if (all_the_same(weights[[i]][treat==1]) &&
@@ -334,7 +334,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
             
         }
     }
-    if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep(s.d.denom, ncol(weights))
+    if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep(s.d.denom, NCOL(weights))
     
     if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
         message("Warning: s.d.denom should be one of \"treated\", \"control\", \"pooled\", or \"all\".\n         Using \"", word_list(s.d.denom), "\" instead.")
@@ -346,7 +346,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
         message("Note: estimand and s.d.denom not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word_list(toupper(estimand))), " and ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
     }
     
-    if (is_not_null(weights) && length(s.d.denom) != ncol(weights)) {
+    if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
         stop("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
     }
     return(s.d.denom)
