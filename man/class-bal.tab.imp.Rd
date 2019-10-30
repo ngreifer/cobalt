@@ -5,7 +5,7 @@
 \title{Using \code{bal.tab()} with Multiply Imputed Data}
 
 \description{
-When using \code{bal.tab()} with multiply imputed data, the output will be different from the case with a  single data set. Multiply imputed data can be used with the data.frame, formula, and \code{weightit} \code{bal.tab()} methods, and the \code{mimids} and \code{wimids} methods for \pkg{MatchThem} obejcts automatically incorporates multiple imputated data. This page outlines the outputs and options available with multiply imputed data.
+When using \code{bal.tab()} with multiply imputed data, the output will be different from the case with a single data set. Multiply imputed data can be used with the data.frame, formula, and \code{weightit} \code{bal.tab()} methods, and the \code{mimids} and \code{wimids} methods for \pkg{MatchThem} objects automatically incorporates multiply imputed data. This page outlines the outputs and options available with multiply imputed data.
 
 There are two main components of the output of \code{bal.tab()} with multiply imputed data: the within-imputation balance summaries and the across-imputation balance summary. The within-imputation balance summaries display balance for units within each imputed data set separately. In general, this will not be very useful because interest rarely lies in the qualities of any individual imputed data set.
 

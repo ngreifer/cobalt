@@ -52,7 +52,7 @@ multiple imputation, and data sets with a continuous treatment variable,
 all features that exist in very limited capacities or not at all in
 other packages.
 
-A large focus in devloping `cobalt` was to streamline output so that
+A large focus in developing `cobalt` was to streamline output so that
 only the most useful, non-redundant, and complete information is
 displayed, all at the user’s choice. Balance statistics are intuitive,
 methodologically informed, and simple to interpret. Visual displays of
@@ -61,7 +61,7 @@ removed. While other packages have focused their efforts on processing
 data, `cobalt` only assesses balance, and does so particularly well.
 
 New features are being added all the time, following the cutting edge of
-methodolgocial work on balance assessment. As new packages and methods
+methodological work on balance assessment. As new packages and methods
 are developed, `cobalt` will be ready to integrate them to further our
 goal of simple, unified balance assessment.
 

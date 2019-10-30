@@ -78,7 +78,7 @@ the colors of the points on the plot. See 'Color Specification' at \code{\link[g
 the shapes of the points on the plot. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point}{aesthetic specifications} page for valid options. Values 15 to 25 are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 19 (\code{"circle filled"}).
 }
   \item{alpha}{
-\code{numeric}; the transperency of the points. See \code{\link[ggplot2]{scale_alpha}}.
+\code{numeric}; the transparency of the points. See \code{\link[ggplot2]{scale_alpha}}.
 }
   \item{size}{
 \code{numeric}; the size of the points on the plot. Defaults to 3. In previous version, the size was scaled by a factor of 3. Now \code{size} corresponds directly to the \code{size} aesthetic in \code{\link[ggplot2]{geom_point}}.

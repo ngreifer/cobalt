@@ -68,7 +68,7 @@ a numeric matrix or a data.frame containing the covariates for which the statist
 a \code{logical} vector with length equal to the number of rows of \code{mat} used to subset the data. See Details for notes on its use with \code{col_w_smd} and \code{col_w_corr}.
 }
   \item{na.rm}{
-\code{logical}; whether \code{NA}s should be ignored or not. If \code{FALSE}, any variable with any \code{NA}s will have its correspondoing statistic returned as \code{NA}. If \code{TRUE}, any variable with any \code{NA}s will have its correspondoing statistic computed as if the missing value were not there.
+\code{logical}; whether \code{NA}s should be ignored or not. If \code{FALSE}, any variable with any \code{NA}s will have its corresponding statistic returned as \code{NA}. If \code{TRUE}, any variable with any \code{NA}s will have its correspondoing statistic computed as if the missing value were not there.
 }
   \item{treat}{
 a vector of treatment status for each individual. For \code{col_w_smd}, \code{col_w_vr}, \code{col_w_ks}, and \code{col_w_ovl}, \code{treat} should have exactly two unique values. For \code{col_w_corr}, \code{treat} should be a many-valued numeric vector.

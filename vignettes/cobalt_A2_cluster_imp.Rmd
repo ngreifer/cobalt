@@ -164,7 +164,7 @@ To use `bal.tab()` with our imputed data sets, we need to use the `data.frame` o
 
 In many cases, not all variables are imputed, and often the treatment variable is not imputed. If each imputation as the same number of units, you can specify other arguments (e.g., treatment, distance) by specifying a vector of the length of one imputation, and this vector will be applied to all imputations. This will come in handy when each individual receives one average propensity score in the "across" method. To do this, the imputed data set must be sorted by imputation and unit ID.
 
-Note that the `data` argument can be supplied as a `mids` objects, the output of a call to `mice()`. In this case, an argument o `imp` is unnecessary because the input is automaticallu extracted from the `mids` object. When this is done, though, the argument to `weights` cannot be given as names of variables in the data and must be supplied as a vector or data.frames.
+Note that the `data` argument can be supplied as a `mids` objects, the output of a call to `mice()`. In this case, an argument o `imp` is unnecessary because the input is automatically extracted from the `mids` object. When this is done, though, the argument to `weights` cannot be given as names of variables in the data and must be supplied as a vector or data.frames.
 
 ```{r}
 bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75, 
