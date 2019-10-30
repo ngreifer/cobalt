@@ -120,13 +120,12 @@ x2base.matchit <- function(m, ...) {
     else if (any(class(m) == "matchit.full")) {
         subclass <- NULL
         method <- "weighting"
-        estimand <- "ATT"
     }
     else {
         subclass <- NULL
         method <- "matching"
     }
-    X$s.d.denom <- get.s.d.denom(s.d.denom, estimand, weights, subclass, treat, focal = NULL)
+    X$s.d.denom <- get.s.d.denom(s.d.denom, A$estimand, weights, subclass, treat, focal = NULL)
     
     ensure.equal.lengths <- TRUE
     vectors <- c("cluster", "treat", "subset", "subclass")
@@ -3366,11 +3365,11 @@ x2base.default <- function(obj, ...) {
         weights <- A$weights
         s.weights <- A$s.weights
         focal <- A$focal
+        estimand <- A$estimand
         
         # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
         #     stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
         # }
-        
         
         
         t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
