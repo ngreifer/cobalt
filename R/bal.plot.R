@@ -73,7 +73,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             else which <- weight.names
         }
         else {
-            which <- weight.names
+            if (is_null(X$weights) && is_null(X$subclass)) which <- "unadjusted"
+            else which <- weight.names
         }
     }
     else {
@@ -283,9 +284,9 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (is_not_null(X$imp)) stop("Subclasses are not supported with multiple imputations.", call. = FALSE)
         
         #Process sample names
-        ntypes <- as.numeric("both" %in% which)
+        # ntypes <- as.numeric("both" %in% which)
         if (!missing(sample.names)) {
-            if (which != "both") {
+            if (which %nin% c("both", "unadjusted")) {
                 warning("sample.names can only be used with which = \"both\" or \"unadjusted\" to rename the unadjusted sample when called with subclasses. Ignoring sample.names.", call. = FALSE)
                 sample.names <- NULL
             }
@@ -293,7 +294,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 warning("The argument to sample.names must be a character vector. Ignoring sample.names.", call. = FALSE)
                 sample.names <- NULL
             }
-            else if (length(sample.names) != ntypes) {
+            else if (length(sample.names) != 1) {
                 warning("The argument to sample.names must be of length 1 when called with subclasses. Ignoring sample.names.", call. = FALSE)
                 sample.names <- NULL
             }
@@ -434,7 +435,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         else { #Continuous vars
             bp <- ggplot(d, mapping = aes(x = var, y = treat, weight = weights))
-            if (which == "unadjusted" || !isTRUE(size.weight)) bp <- bp + geom_point(alpha = .9)
+            if (identical(which, "Unadjusted Sample") || !isTRUE(size.weight)) bp <- bp + geom_point(alpha = .9)
             else bp <- bp + geom_point(aes(size = weights), alpha = .9)
             bp <- bp + geom_smooth(method = "loess", se = FALSE, alpha = .1) + 
                 geom_smooth(method = "lm", se = FALSE, linetype = 2, alpha = .4) + 
