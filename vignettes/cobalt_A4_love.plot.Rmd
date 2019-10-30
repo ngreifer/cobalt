@@ -18,9 +18,9 @@ editor_options:
 knitr::opts_chunk$set(message = FALSE, fig.width=6, fig.height = 4)
 ```
 
-This is a guide on how to use `love.plot` to its fullest potential, taking advantage of all of its many options and features. Other vignettes have described the basics of `love.plot`, but this guide goes more in depth. See the help file for `love.plot` with `?love.plot` for the full documentation.
+This is a guide on how to use `love.plot()` to its fullest potential, taking advantage of all of its many options and features. Other vignettes have described the basics of `love.plot()`, but this guide goes more in depth. See the help file for `love.plot()` with `?love.plot` for the full documentation.
 
-This document will only go over the options for `love.plot` with binary treatments. Many of the options apply to continuous and multinomial treatments and clustered and multiply imputed data as well. I'll use the Lalonde data and `WeightIt` for all examples. `WeightIt` performs a variety of weighting methods, including propensity score weighting, which, for simplicity, will be the focus here.
+This document will only go over the options for `love.plot()` with binary treatments. Many of the options apply to continuous and multinomial treatments and clustered and multiply imputed data as well. I'll use the Lalonde data and `WeightIt` for all examples. `WeightIt` performs a variety of weighting methods, including propensity score weighting, which, for simplicity, will be the focus here.
 
 First, let's load in the data set and estimate the weights.
 
@@ -39,13 +39,13 @@ Next, because in this example we want to display standardized mean difference fo
 set.cobalt.options(binary = "std")
 ```
 
-The most basic way to use `love.plot` is simply to call it as you would `bal.tab` on the output of the preprocessing function (in this case, `weightit`).
+The most basic way to use `love.plot()` is simply to call it as you would `bal.tab()` on the output of the preprocessing function (in this case, `weightit`).
 
 ```{r}
 love.plot(w.out1)
 ```
 
-We could also have supplied other arguments that would normally go in `bal.tab`[^1]:
+We could also have supplied other arguments that would normally go in `bal.tab()`[^1]:
 
 ```{r, eval = FALSE}
 #This produces the same output as the prior block but with 
@@ -55,12 +55,13 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75 +
           method = "weighting", estimand = "ATE")
 ```
 
-Let's start with some basic customizations. First, we'll remove the propensity score from the balance display by setting `drop.distance = TRUE`. We'll change the order the covariates so they are displayed in descending order of their unadjusted mean differences by setting `var.order = "unadjusted"`. We'll also add some lines to make the change in balance clearer by setting `line = TRUE`. Finally, we'll add a threshold line at 0.1 by setting `threshold = .1`.
+Let's start with some basic customizations. First, we'll remove the propensity score from the balance display by setting `drop.distance = TRUE`. We'll change the order the covariates so they are displayed in descending order of their unadjusted mean differences by setting `var.order = "unadjusted"`. We'll display the absolute mean difference by setting `abs = TRUE`. We'll also add some lines to make the change in balance clearer by setting `line = TRUE`. Finally, we'll add a threshold line at 0.1 by setting `threshold = .1`.
 
 ```{r}
 love.plot(w.out1, 
           drop.distance = TRUE, 
           var.order = "unadjusted",
+          abs = TRUE,
           line = TRUE, 
           threshold = .1)
 ```
@@ -86,6 +87,7 @@ We'll change the colors of the points and lines with the `colors` argument so th
 love.plot(w.out1, 
           drop.distance = TRUE, 
           var.order = "unadjusted",
+          abs = TRUE,
           line = TRUE, 
           threshold = .1,
           var.names = new.names,
@@ -101,6 +103,7 @@ library(ggplot2)
 love.plot(w.out1, 
           drop.distance = TRUE, 
           var.order = "unadjusted",
+          abs = TRUE,
           line = TRUE, 
           threshold = .1,
           var.names = new.names,
@@ -126,6 +129,7 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           weights = list(w1 = get.w(w.out1),
                          w2 = get.w(w.out2)),
           var.order = "unadjusted",
+          abs = TRUE,
           line = TRUE, 
           threshold = .1,
           var.names = new.names,
@@ -149,6 +153,7 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           weights = list(w1 = get.w(w.out1),
                          w2 = get.w(w.out2)),
           var.order = "unadjusted",
+          abs = TRUE,
           line = TRUE, 
           threshold = .1,
           var.names = new.names,
@@ -170,6 +175,7 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           weights = list(w1 = get.w(w.out1),
                          w2 = get.w(w.out2)),
           var.order = "unadjusted",
+          abs = TRUE,
           line = FALSE, 
           threshold = c(mean.diffs = .1,
                         ks = .05),

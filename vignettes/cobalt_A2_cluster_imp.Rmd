@@ -172,7 +172,7 @@ bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
         imp = ".imp")
 ```
 
-First, we see a balance summary across all the imputations This table presents the minimum, mean, and maximum balance statistics for each variable across imputations. Setting `un = TRUE` will also display the same values for the adjusted data set. With binary treatments, setting `disp.v.ratio = TRUE` or `v.threshold` to some number will display the same values for variance ratios. Setting `abs = TRUE` will make `bal.tab` report summaries of the absolute values of the balance statistics. This table functions in the same way as the table for balance across clusters. Below is the average sample size across clusters; in some matching and weighting schemes, the sample size (or effective sample size) may differ across imputations.
+First, we see a balance summary across all the imputations. This table presents the minimum, mean, and maximum balance statistics for each variable across imputations. Setting `un = TRUE` will also display the same values for the adjusted data set. With binary treatments, setting `disp.v.ratio = TRUE` or `v.threshold` to some number will display the same values for variance ratios. Setting `abs = TRUE` will make `bal.tab` report summaries of the absolute values of the balance statistics. This table functions in the same way as the table for balance across clusters. Below is the average sample size across clusters; in some matching and weighting schemes, the sample size (or effective sample size) may differ across imputations.
 
 To view balance on individual imputations, you can specify an imputation number to `which.imp`. To hide the balance summary across imputations, you can specify `imp.summary = FALSE`. 
 
@@ -213,12 +213,10 @@ Setting `by = ".imp"` requests that weights be estimated within each imputation 
 
 ### `bal.plot()`
 
-`bal.plot()` works with imputed data as it does with non-imputed data, except that multiple plots can be produced displaying balance for multiple imputations at a time. The arguments to `bal.plot()` are the same as those for `bal.tab()`, except that `imp.summary` is absent. Below is an example of the use of `bal.plot()` with imputed data, examining balance in the first imputation:
+`bal.plot()` works with imputed data as it does with non-imputed data, except that multiple plots can be produced displaying balance for multiple imputations at a time. The arguments to `bal.plot()` are the same as those for `bal.tab()`, except that `imp.summary` is absent. Below is an example of the use of `bal.plot()` with imputed and matched data from `MatchThem`, examining balance in the first imputation:
 
 ```{r}
-bal.plot(treat ~ age + educ + race + married + nodegree + re74 + re75, 
-         data = imp.data, weights = "match.weight", method = "matching", 
-         imp = ".imp", which.imp = 1, var.name = "age")
+bal.plot(mt.out, which.imp = 1, var.name = "age")
 ```
 
 When many imputations are generated, it is recommended not to plot all at the same time by specifying an argument to `which.imp`, as done above.
@@ -228,18 +226,14 @@ When many imputations are generated, it is recommended not to plot all at the sa
 `love.plot()` functions with imputed data as it does with clustered data. It is not recommended to display balance for multiple imputations at a time, and rather to display balance for just one representative imputation or to summarize balance across imputations. Below is an example of displaying balance for one imputation:
 
 ```{r}
-love.plot(treat ~ age + educ + race + married + nodegree + re74 + re75, 
-          data = imp.data, weights = "match.weight", method = "matching", 
-          imp = ".imp", which.imp = 1, 
+love.plot(mt.out, which.imp = 1, 
           var.order = "unadjusted", threshold = .2)
 ```
 
 As with clustered data, it is also possible to examine the range of balance statistics for each covariate across imputations by setting `agg.fun = "range"`:
 
 ```{r}
-love.plot(treat ~ age + educ + race + married + nodegree + re74 + re75, 
-          data = imp.data, weights = "match.weight", method = "matching", 
-          imp = ".imp", agg.fun = "range", threshold = .2)
+love.plot(mt.out, agg.fun = "range", threshold = .2)
 ```
 
 Often these ranges will be small if the imputed data sets are very similar to each other, but the more imputations are generated, the wider the ranges tend to be.
