@@ -5,9 +5,19 @@ Version 3.10.0
 
 * Added support for `mimids` and `wimids` objects from `MatchThem`.
 
-* Added `sample.names` argument in `bal.plot` in response to this [post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
+* Added `sample.names` argument in `bal.plot` in response to [this post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
 
-* Added functionality to the `which` argument in `bal.plot`, allowing more specificity when multipel weights are used.
+* Added functionality to the `which` argument in `bal.plot`, allowing more specificity when multiple sets of weights are used.
+
+* `bal.tab()` no longer tells you whether it assumes matching or weighting when certain non-package-related methods are used.
+
+* Estimands besides ATT can now be used with subclasses. The estimand can be inferred from the provided subclasses. Works with `match.strata` as well, which function like subclasses. In addition, it is not always assumed that `MatchIt` objects are targeting the ATT, for example, with subclassification or calipers.
+
+* Improved guessing of estimand when not provided.
+
+* The default in `love.plot()` for `abs` is now to be whatever it is in the (implicit) call to `bal.tab()`, which is usually `FALSE`. Previously `abs` was not aligned between `love.plot()` and `bal.tab()`.
+
+* Bug fixes here and there.
 
 Version 3.9.0
 
