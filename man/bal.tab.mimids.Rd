@@ -73,7 +73,7 @@ whether mean differences for continuous variables should be standardized ("std")
 whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
 }
   \item{s.d.denom}{
-whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances) or the standard deviation in the full sample ("all"). Abbreviations allowed. The default is "treated" for \code{mimids} objects and depends on the estimand for \code{wimids} objects.
+whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances), or the standard deviation in the full sample ("all"). Abbreviations allowed. The defaults depend on the options specified in the original function calls; see \code{\link{bal.tab.matchit}} and \code{\link{bal.tab.weightit}} for details on the defaults.
 }
   \item{m.threshold}{
 a numeric value for the threshold for mean differences. .1 is recommended. 
