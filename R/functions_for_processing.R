@@ -475,8 +475,7 @@ imp.complete <- function(data) {
     if (!is_(data, "mids")) stop("'data' not of class 'mids'")
     
     single.complete <- function (data, where, imp, ell) {
-        if (is.null(where)) 
-            where <- is.na(data)
+        if (is.null(where)) where <- is.na(data)
         idx <- seq_len(ncol(data))[apply(where, 2, any)]
         for (j in idx) {
             if (is_null(imp[[j]])) data[where[, j], j] <- NA
