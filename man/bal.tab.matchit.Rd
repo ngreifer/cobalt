@@ -55,7 +55,7 @@ whether mean differences for binary variables (i.e., difference in proportion) s
 whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances), or the standard deviation in the full sample ("all"). Abbreviations allowed. The default is "treated" when matching without calliper and "pooled" when matching with a calliper. When subclassification is used and \code{sub.by} is specified in the call to \code{matchit()}, the corresponding value will be used (except for \code{sub.by = "all"}, which triggers "pooled").
 }
   \item{m.threshold}{
-a numeric value for the threshold for mean differences. .1 is recommended. 
+a numeric value for the threshold for mean differences.
 }
   \item{v.threshold}{
 a numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.

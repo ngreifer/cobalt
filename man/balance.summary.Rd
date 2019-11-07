@@ -56,7 +56,7 @@ col_w_corr(mat, treat, weights = NULL, type = "pearson",
 
 \arguments{
   \item{mat}{
-a numeric matrix or a data.frame containing the covariates for which the statistic is to be computed. If a data.frame, \code{\link{splitfactor}} with \code{drop.firts = "if2"} will be called if any character or factor variables are present. This can slow down the function, so it's generally best to supply a numeric matrix. If a numeric vector is supplied, it will be converted to a 1-column matrix first.
+a numeric matrix or a data.frame containing the covariates for which the statistic is to be computed. If a data.frame, \code{\link{splitfactor}} with \code{drop.first = "if2"} will be called if any character or factor variables are present. This can slow down the function, so it's generally best to supply a numeric matrix. If a numeric vector is supplied, it will be converted to a 1-column matrix first.
 }
   \item{weights}{
 \code{numeric}; an optional set of weights used to compute the weighted statistics. If sampling weights are supplied through \code{s.weights}, the \code{weights} should not incorporate these weights, as \code{weights} and \code{s.weights} will be multiplied together prior to computing the weighted statistics.
@@ -112,7 +112,7 @@ for all functions, additional arguments supplied to \code{\link{splitfactor}} wh
 
 }
 \value{
-A vector of balance statistics, one for each variable in \code{mat}. If \code{mat} has column names, the output will be named as well
+A vector of balance statistics, one for each variable in \code{mat}. If \code{mat} has column names, the output will be named as well.
 }
 \references{
 Franklin, J. M., Rassen, J. A., Ackermann, D., Bartels, D. B., & Schneeweiss, S. (2014). Metrics for covariate balance in cohort studies of causal effects. \emph{Statistics in Medicine}, 33(10), 1685–1699. \doi{10.1002/sim.6058}
@@ -137,12 +137,12 @@ W <- weightit(treat ~ covs, method = "ps",
 weights <- W$weights
 
 round(data.frame(
-    m0 = col_w_mean(covs[treat == 0,], weights = weights[treat == 0]),
-    sd0 = col_w_sd(covs[treat == 0,], weights = weights[treat == 0],
-                   bin.vars = bin.vars),
-    m1 = col_w_mean(covs[treat == 1,], weights = weights[treat == 1]),
-    sd1 = col_w_sd(covs[treat == 1,], weights = weights[treat == 1],
-                   bin.vars = bin.vars),
+    m0 = col_w_mean(covs, weights = weights, subset = treat == 0),
+    sd0 = col_w_sd(covs, weights = weights,
+                   bin.vars = bin.vars, subset = treat == 0),
+    m1 = col_w_mean(covs, weights = weights, subset = treat == 1),
+    sd1 = col_w_sd(covs, weights = weights,
+                   bin.vars = bin.vars, subset = treat == 1),
     smd = col_w_smd(covs, treat = treat, weights = weights,
                      std = TRUE, bin.vars = bin.vars),
     vr = col_w_vr(covs, treat = treat, weights = weights,

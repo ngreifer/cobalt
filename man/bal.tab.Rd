@@ -9,7 +9,7 @@ Generates balance statistics on covariates in relation to an observed treatment 
 \itemize{
 \item{\code{\link{bal.tab.matchit}} for the method for objects returned by \pkg{MatchIt}.
 }
-\item{code{\link{bal.tab.weightit}} for the method for \code{weightit} and \code{weightitMSM} objects returned by \pkg{WeightIt}.
+\item{\code{\link{bal.tab.weightit}} for the method for \code{weightit} and \code{weightitMSM} objects returned by \pkg{WeightIt}.
 }
 \item{\code{\link{bal.tab.ps}} for the method for \code{ps}, \code{mnps}, and \code{iptw} objects returned by \pkg{twang} and for \code{ps.cont} objects returned by \pkg{WeightIt}.
 }

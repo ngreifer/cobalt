@@ -86,7 +86,7 @@ whether mean differences for binary variables (i.e., difference in proportion) s
 whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances) or the standard deviation in the full sample ("all"). Abbreviations allowed. If not specified, for \code{Match} objects, \code{bal.tab()} will use "treated" if the estimand of the call to \code{Match()} is the ATT, "pooled" if the estimand is the ATE, and "control" if the estimand is the ATC; for \code{optmatch}, \code{ebal}, and \code{designmatch} objects, \code{bal.tab()} will use "treated".
 }
   \item{m.threshold}{
-a numeric value for the threshold for mean differences. .1 is recommended. 
+a numeric value for the threshold for mean differences.
 }
   \item{v.threshold}{
 a numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.

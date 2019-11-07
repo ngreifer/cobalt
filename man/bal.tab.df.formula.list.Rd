@@ -80,7 +80,7 @@ whether mean differences for binary variables (i.e., difference in proportion) s
 a character vector denoting whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances) or the standard deviation in the full sample ("all"). Abbreviations allowed. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. If left blank and weights are supplied, \code{bal.tab()} will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply \code{s.d.denom} accordingly. If left blank, \code{bal.tab()} will try to use the \code{estimand} argument. It is recommended not to set this argument for longitudinal treatments.
 }
   \item{m.threshold}{
-a numeric value for the threshold for mean differences.  .1 is recommended.  
+a numeric value for the threshold for mean differences. 
 }
   \item{v.threshold}{
 a numeric value for the threshold for variance ratios.  Will automatically convert to the inverse if less than 1.
