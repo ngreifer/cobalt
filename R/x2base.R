@@ -1962,7 +1962,8 @@ x2base.mimids <- function(mimids, ...) {
                   X.names)
     
     #Initializing variables
-    m.data <- imp.complete(mimids[["original.datasets"]])
+    if (is_(mimids[["original.datasets"]], "mids")) m.data <- imp.complete(mimids[["original.datasets"]])
+    else m.data <- imp.complete(mimids$others$source)
     
     #Process data
     data <- A$data
@@ -2200,7 +2201,8 @@ x2base.wimids <- function(wimids, ...) {
                   X.names)
     
     #Initializing variables
-    w.data <- imp.complete(wimids[["original.datasets"]])
+    if (is_(wimids[["original.datasets"]], "mids")) w.data <- imp.complete(wimids[["original.datasets"]])
+    else w.data <- imp.complete(wimids$others$source)
     
     #Process data
     data <- A$data
