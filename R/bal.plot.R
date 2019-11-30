@@ -1,6 +1,7 @@
 bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, 
-                     imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, size.weight = FALSE, 
-                     mirror = FALSE, type = c("density", "histogram"), colors = NULL, sample.names) {
+                     imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, 
+                     mirror = FALSE, type = "density", colors = NULL, grid = TRUE, sample.names,
+                     position = "right", facet.formula = NULL, alpha.weight = TRUE) {
     
     tryCatch(identity(obj), error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -38,10 +39,11 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (all(sapply(var.list, is_null))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
         X$var <- unlist(var.list[appears.in.time])
         X$time <- rep(seq_along(X$covs.list)[appears.in.time], each = NROW(X$covs.list[[1]]))
+        X$treat.list <- lapply(X$treat.list, function(t) treat_names(t, "original")[t])
         X$treat <- unlist(X$treat.list[appears.in.time])
         if (is_not_null(names(X$treat.list))) treat.names <- names(X$treat.list)
         else treat.names <- seq_along(X$treat.list)
-        if (is_not_null(X$weights)) X$weights <- do.call("rbind", replicate(sum(appears.in.time), list(X$weights)))
+        if (is_not_null(X$weights)) X$weights <- do.call("rbind", lapply(1:sum(appears.in.time), function(i) X$weights))
     }
     else {
         #Point treatment
@@ -63,7 +65,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     if (is_not_null(args$kernel)) kernel <- args$kernel else kernel <- "gaussian"
     if (is_not_null(args$n)) n <- args$n else n <- 512
     
-    if (is_null(X$subclass)) weight.names <- names(X$weights)
+    if (is_null(X$subclass)) {
+        if (ncol(X$weights) == 1L) weight.names <- "adjusted"
+        else weight.names <- names(X$weights)
+    }
     else weight.names <- "adjusted"
     
     if (missing(which)) {
@@ -80,16 +85,21 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     else {
         if (is_null(X$weights) && is_null(X$subclass)) which <- "unadjusted"
         else {
-            which <- match_arg(tolower(which), unique(c("adjusted", "unadjusted", "both", weight.names)),
+            which <- tolower(which)
+            which <- match_arg(which, unique(c("adjusted", "unadjusted", "both", weight.names)),
                                several.ok = TRUE)
         }
+    }
+    
+    if (is_not_null(args$size.weight)) {
+        message("Note: \'size.weight\' is no longer allowed; please use \'alpha.weight\' for similar functionality.")
     }
     
     title <- paste0("Distributional Balance for \"", var.name, "\"")
     subtitle <- NULL
     
     facet <- NULL
-    is.categorical.var <- is_binary(X$var) || is.factor(X$var) || is.character(X$var)
+    is.categorical.var <- is.factor(X$var) || is.character(X$var) || is_binary(X$var) 
     
     if (is_null(X$subclass) || (length(which) == 1 && which == "unadjusted")) {
         if (is_not_null(which.sub) && !all(is.na(which.sub))) {
@@ -97,7 +107,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             else warning("which.sub was specified but only the unadjusted sample was requested. Ignoring which.sub.", call. = FALSE)
         }
             
-        facet <- "facet.which"
+        facet <- "which"
         
         if ("both" %in% which) which <- c("Unadjusted Sample", weight.names)
         else {
@@ -114,7 +124,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 names(X$weights) <- "Adjusted Sample"
             }
             
-            X$weights <- setNames(data.frame(rep(1, length(X$treat)),
+            X$weights <- setNames(data.frame(rep(max(X$weights), length(X$treat)),
                                              X$weights),
                                   c("Unadjusted Sample", names(X$weights)))
             
@@ -254,27 +264,27 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         Q <- setNames(vector("list", ntypes), which)
         for (i in which) {
             Q[[i]] <- setNames(as.data.frame(matrix(0, ncol = 7, nrow = nobs)),
-                               c("imp", "cluster", "time", "treat", "var", "weights", "facet.which"))
+                               c("imp", "cluster", "time", "treat", "var", "weights", "which"))
             Q[[i]]$imp <- Q[[i]]$cluster <- Q[[i]]$time <- character(nobs)
             Q[[i]]$treat <- X$treat[in.imp & in.cluster & in.time]
             Q[[i]]$var <- X$var[in.imp & in.cluster & in.time]
             Q[[i]]$weights <-  X$weights[in.imp & in.cluster & in.time, i]
-            Q[[i]]$facet.which <- rep(i, nobs)
+            Q[[i]]$which <- rep(i, nobs)
             
-            if ("imp" %in% facet) Q[[i]]$imp <- paste("Imputation", X$imp[in.imp & in.cluster & in.time])
-            if ("cluster" %in% facet) Q[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time])
-            if ("time" %in% facet) Q[[i]]$time <- paste("Time", X$time[in.imp & in.cluster & in.time])
+            if ("imp" %in% facet) Q[[i]]$imp <- paste("Imputation", X$imp[in.imp & in.cluster & in.time]) else Q[[i]]$imp <- NULL
+            if ("cluster" %in% facet) Q[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time]) else Q[[i]]$cluster <- NULL
+            if ("time" %in% facet) Q[[i]]$time <- paste("Time", X$time[in.imp & in.cluster & in.time]) else Q[[i]]$time <- NULL
         }
         D <- do.call("rbind", Q)
         
-        D$facet.which <- factor(D$facet.which, levels = which)
+        D$which <- factor(D$which, levels = which)
         
         if (is_not_null(sample.names)) {
             if (length(sample.names) == nadj) {
-                levels(D$facet.which)[levels(D$facet.which) != "Unadjusted Sample"] <- sample.names
+                levels(D$which)[levels(D$which) != "Unadjusted Sample"] <- sample.names
             }
             else if (length(sample.names) == ntypes) {
-                levels(D$facet.which) <- sample.names
+                levels(D$which) <- sample.names
             }
         }
         
@@ -361,43 +371,32 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
     }
     
-    if ("facet.which" %in% facet) {
-        if (length(which) == 1) {
-            subtitle <- levels(D$facet.which)[1]
-            facet <- facet[facet %nin% "facet.which"]
-        }
-    }
+    # if ("which" %in% facet) {
+    #     if (length(which) == 1) {
+    #         subtitle <- levels(D$which)[1]
+    #         facet <- facet[facet %nin% "which"]
+    #     }
+    # }
     
     treat.type <- get.treat.type(assign.treat.type(D$treat))
     
+    D <- D[order(D$var),]
+    
     if (treat.type == "continuous") { #Continuous treatments
-        if ("subclass" %in% facet) {
-            if (is.categorical.var) {
-                weights <- with(D, ave(weights, subclass, var, FUN = function(x) x/sum(x)))
-            }
-            else {
-                weights <- with(D, ave(weights, subclass, FUN = function(x) x/sum(x)))
-            }
-            d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
-        }
-        else {
-            if (is.categorical.var) {
-                weights <- with(D, ave(weights, cluster, imp, time, facet.which, var, FUN = function(x) x/sum(x)))
-            }
-            else {
-                weights <- with(D, ave(weights, cluster, imp, time, facet.which, FUN = function(x) x/sum(x)))
-            }
-            d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, time = D$time, facet.which = D$facet.which)
-            
+        
+        if (is.categorical.var) {
+            D$weights <- ave(D[["weights"]], 
+                             lapply(c("var", facet), function(f) D[[f]]), 
+                             FUN = function(x) x/sum(x))
         }
         
         if (is.categorical.var) { #Categorical vars
-            d$var <- factor(d$var)
-            cat.sizes <- tapply(rep(1, NROW(d)), d$var, sum)
+            D$var <- factor(D$var)
+            cat.sizes <- tapply(rep(1, NROW(D)), D$var, sum)
             smallest.cat <- names(cat.sizes)[which.min(cat.sizes)]
             if (is.character(bw)) {
                 if (is.function(get0(paste0("bw.", bw)))) {
-                    bw <- get0(paste0("bw.", bw))(d$treat[d$var == smallest.cat])
+                    bw <- get0(paste0("bw.", bw))(D$treat[D$var == smallest.cat])
                 }
                 else {
                     stop(paste(bw, "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
@@ -428,23 +427,33 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 
             }
             
-            bp <- ggplot(d, mapping = aes(treat, fill = var, weight = weights)) + 
+            bp <- ggplot(D, mapping = aes(x = treat, fill = var, weight = weights)) + 
                 geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) + 
                 labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
-                scale_fill_manual(values = colors) + geom_hline(yintercept = 0)
+                scale_fill_manual(values = colors) + geom_hline(yintercept = 0) +
+                scale_y_continuous(expand = expand_scale(mult = c(0, .05)))
         }
         else { #Continuous vars
-            bp <- ggplot(d, mapping = aes(x = var, y = treat, weight = weights))
-            if (identical(which, "Unadjusted Sample") || !isTRUE(size.weight)) bp <- bp + geom_point(alpha = .9)
-            else bp <- bp + geom_point(aes(size = weights), alpha = .9)
-            bp <- bp + geom_smooth(method = "loess", se = FALSE, alpha = .1) + 
-                geom_smooth(method = "lm", se = FALSE, linetype = 2, alpha = .4) + 
-                geom_hline(yintercept = w.m(d$treat, d$weights), linetype = 1, alpha = .9) + 
+            D$var.mean <- ave(D[["var"]], D[facet], FUN = mean)
+            D$treat.mean <- ave(D[["treat"]], D[facet], FUN = mean)
+            
+            bp <- ggplot(D, mapping = aes(x = var, y = treat, weight = weights))
+            
+            if (identical(which, "Unadjusted Sample") || isFALSE(alpha.weight)) bp <- bp + geom_point(alpha = .9)
+            else bp <- bp + geom_point(aes(alpha = weights), show.legend = FALSE) + 
+                    scale_alpha(range = c(.04, 1))
+            
+            bp <- bp + 
+                geom_smooth(method = "lm", se = FALSE, color = "firebrick2", alpha = .4, size = 1.5) + 
+                geom_smooth(method = "loess", se = FALSE, color = "royalblue1", alpha = .1, size = 1.5) +
+                # geom_smooth(method = "gam", se = FALSE, color = "royalblue1", alpha = .1, size = 1.5, formula = y ~ s(x, bs = "cs")) +
+                geom_hline(aes(yintercept = treat.mean), linetype = 1, alpha = .9) + 
+                geom_vline(aes(xintercept = var.mean), linetype = 1, alpha = .8) +
                 labs(y = "Treat", x = var.name, title = title, subtitle = subtitle)
         }
     }
     else { #Categorical treatments (multinomial supported)
-        D$treat <- factor(D$treat)
+        D$treat <- factor(treat_names(X$treat, "original")[D$treat])
         
         if (is_null(which.treat)) 
             which.treat <- character(0)
@@ -473,23 +482,12 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         for (i in names(D)[sapply(D, is.factor)]) D[[i]] <- factor(D[[i]])
         
-        if (is_not_null(facet)) {
-            if ("subclass" %in% facet) {
-                weights <- with(D, ave(weights, treat, subclass, FUN = function(x) x/sum(x)))
-                d <- data.frame(weights = weights, treat = D$treat, var = D$var, subclass = D$subclass)
-            }
-            else {
-                weights <- with(D, ave(weights, treat, cluster, imp, time, facet.which, FUN = function(x) x/sum(x)))
-                d <- data.frame(weights = weights, treat = D$treat, var = D$var, cluster = D$cluster, imp = D$imp, time = D$time, facet.which = D$facet.which)
-            }
-        }
-        else {
-            weights <- with(D, ave(weights, treat, FUN = function(x) x/sum(x)))
-            d <- data.frame(weights = weights, treat = D$treat, var = D$var)
-        }
+        D$weights <- ave(D[["weights"]], 
+                         lapply(c("treat", facet), function(f) D[[f]]), 
+                         FUN = function(x) x/sum(x))
         
         #Color
-        ntypes <- nlevels.treat <- nlevels(d$treat)
+        ntypes <- nlevels.treat <- nlevels(D$treat)
         if (is_not_null(args$colours)) colors <- args$colours
         
         if (is_null(colors)) {
@@ -510,80 +508,146 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 colors <- gg_color_hue(ntypes)
             }
         }
-        names(colors) <- levels(d$treat)
+        names(colors) <- levels(D$treat)
         
-        if (is_binary(d$var) || is.factor(d$var) || is.character(d$var)) { #Categorical vars
-            d$var <- factor(d$var)
-            bp <- ggplot(d, mapping = aes(x = var, fill = treat, weight = weights)) + 
+        if (is_binary(D$var) || is.factor(D$var) || is.character(D$var)) { #Categorical vars
+            D$var <- factor(D$var)
+            bp <- ggplot(D, mapping = aes(x = var, fill = treat, weight = weights)) + 
                 geom_bar(position = "dodge", alpha = .8, color = "black") + 
-                labs(x = var.name, y = "Proportion", fill = "Treat", title = title, subtitle = subtitle) + 
+                labs(x = var.name, y = "Proportion", fill = "Treatment", title = title, subtitle = subtitle) + 
                 scale_x_discrete(drop=FALSE) + scale_fill_manual(drop=FALSE, values = colors) +
-                geom_hline(yintercept = 0)
+                geom_hline(yintercept = 0) + 
+                scale_y_continuous(expand = expand_scale(mult = c(0, .05)))
         }
         else { #Continuous vars
-            t.sizes <- tapply(rep(1, NROW(d)), d$treat, sum)
-            smallest.t <- names(t.sizes)[which.min(t.sizes)]
-            if (is.character(bw)) {
-                if (is.function(get0(paste0("bw.", bw)))) {
-                    bw <- get0(paste0("bw.", bw))(d$var[d$treat == smallest.t])
-                }
-                else {
-                    stop(paste(bw, "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
-                }
+            
+            type <- match_arg(type, c("histogram", "density", "ecdf"))
+            
+            if (type %in% c("ecdf")) {
+                mirror <- FALSE
+                alpha <- 1
+                legend.alpha <- alpha
+                expandScale <- expand_scale(mult = .005)
             }
-
-            # bp <- ggplot(d, mapping = aes(var, fill = treat, weight = weights)) +
-            #     geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) +
-            #     labs(x = var.name, y = "Density", fill = "Treat", title = title, subtitle = subtitle)
-            
-            #colors <- setNames(gg_color_hue(nlevels.treat), levels(d$treat))
-            
-            if (nlevels.treat <= 2 && mirror == TRUE) {
+            else if (nlevels.treat <= 2 && mirror) {
                 posneg <- c(1, -1)
                 alpha <- .8
+                legend.alpha <- alpha
+                expandScale <- expand_scale(mult = .05)
             }
             else {
+                mirror <- FALSE
                 posneg <- rep(1, nlevels.treat)
                 alpha <- .4
+                legend.alpha <- alpha/nlevels.treat
+                expandScale <- expand_scale(mult = c(0, .05))
             }
-            type <- match_arg(type)
+            
             if (type == "histogram" && nlevels.treat <= 2) {
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
-                geom_fun <- function(t) geom_histogram(data = d[d$treat == levels(d$treat)[t],],
+                geom_fun <- function(t) geom_histogram(data = D[D$treat == levels(D$treat)[t],],
                                                        mapping = aes(x = var, y = posneg[t]*stat(count), weight = weights,
                                                                      fill = names(colors)[t]),
                                                        alpha = alpha, bins = args$bins, color = "black")
                 ylab <- "Proportion"
-                legend.alpha <- alpha
+                
+            }
+            else if (type %in% c("ecdf")) {
+                
+                D$cum.pt <- ave(D[["weights"]], 
+                                lapply(c("treat", facet), function(f) D[[f]]), 
+                                FUN = function(x) cumsum(x)/sum(x))
+                
+                #Pad 0 and 1
+                extra <- setNames(do.call(expand.grid, c(list(c("top", "bottom")),
+                                                lapply(c("treat", facet), function(i) levels(D[[i]])))),
+                                  c("pos_", "treat", facet))
+                
+                merge.extra <- data.frame(pos_ = c("top", "bottom"),
+                                           var = c(-Inf, Inf),
+                                           cum.pt = c(0, 1))
+                extra <- merge(extra, merge.extra)
+                extra[["pos_"]] <- NULL
+                
+                D[names(D) %nin% names(extra)] <- NULL
+                
+                D <- rbind(extra[names(D)], D)
+                
+                geom_fun <- function(t) {
+
+                    geom_step(data = D[D$treat == levels(D$treat)[t],],
+                              mapping = aes(x = var, y = cum.pt, color = names(colors)[t]))
+                    
+                }
+                ylab <- "Cumulative Proportion"
             }
             else {
-                geom_fun <- function(t) geom_density(data = d[d$treat == levels(d$treat)[t],],
+                t.sizes <- tapply(rep(1, NROW(D)), D$treat, sum)
+                smallest.t <- names(t.sizes)[which.min(t.sizes)]
+                if (is.character(bw)) {
+                    if (is.function(get0(paste0("bw.", bw)))) {
+                        bw <- get0(paste0("bw.", bw))(D$var[D$treat == smallest.t])
+                    }
+                    else {
+                        stop(paste(bw, "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
+                    }
+                }
+                
+                geom_fun <- function(t) geom_density(data = D[D$treat == levels(D$treat)[t],],
                                                      mapping = aes(x = var, y = posneg[t]*stat(density), weight = weights,
                                                                    fill = names(colors)[t]),
                                                      alpha = alpha, bw = bw, adjust = adjust,
                                                      kernel = kernel, n = n, trim = TRUE)
                 ylab <- "Density"
-                legend.alpha <- alpha/nlevels.treat
+                
             }
             
             bp <- Reduce("+", c(list(ggplot(),
-                                     labs(x = var.name, y = ylab, fill = "Treat", title = title, subtitle = subtitle)),
+                                     labs(x = var.name, y = ylab, title = title, subtitle = subtitle)),
                                 lapply(seq_len(nlevels.treat), geom_fun))) +
                 scale_fill_manual(values = colors, guide = guide_legend(override.aes = list(alpha = legend.alpha, size = .25))) +
-                geom_hline(yintercept = 0)
+                scale_color_manual(values = colors) +
+                labs(fill = "Treatment", color = "Treatment") + 
+                scale_y_continuous(expand = expandScale)
+            
+            if (mirror) bp <- bp + geom_hline(yintercept = 0)
         }
     }
     
+    #Themes
+    bp <- bp + theme(panel.background = element_rect(fill = "white", color = "black"),
+                     panel.border = element_rect(fill = NA, color = "black"),
+                     plot.background = element_blank(),
+                     legend.position = position,
+                     legend.key=element_rect(fill = "white", color = "black", size = .25))
+    if (isFALSE(grid)) {
+        bp <- bp + theme(panel.grid.major = element_blank(),
+                         panel.grid.minor = element_blank())
+    }
+    else {
+        bp <- bp + theme(panel.grid.major = element_line(color = "gray87"),
+                         panel.grid.minor = element_line(color = "gray90"))
+    }
+    
     if (is_not_null(facet)) {
-        if (length(facet) >= 2) {
-            if ("facet.which" %in% facet) {
-                facet.formula <- f.build("facet.which", facet[facet %nin% "facet.which"])
+        if (is_not_null(facet.formula)) {
+            if (!is.formula(facet.formula)) {
+                stop("facet.formula must be a formula.", call. = FALSE)
+            }
+            test.facet <- invisible(facet_grid(facet.formula))
+            if (any(c(names(test.facet$params$rows), names(test.facet$params$cols)) %nin% facet)) {
+                stop(paste("Only", word_list(facet, is.are = TRUE, quotes = TRUE), "allowed in facet.formula."), call. = FALSE)
+            }
+        }
+        else if (length(facet) >= 2) {
+            if ("which" %in% facet) {
+                facet.formula <- f.build("which", facet[facet %nin% "which"])
             }
             else if ("imp" %in% facet) {
                 facet.formula <- f.build("imp", facet[facet %nin% "imp"])
             }
             else {
-                facets <- data.frame(facet = facet, length = sapply(facet, function(x) nlevels(d[[x]])),
+                facets <- data.frame(facet = facet, length = vapply(facet, function(x) nlevels(D[[x]]), numeric(1L)),
                                      stringsAsFactors = FALSE)
                 facets <- facets[with(facets, order(length, facet, decreasing = c(FALSE, TRUE))), ]
                 facet.formula <- formula(facets)
@@ -592,5 +656,6 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         else facet.formula <- f.build(".", facet)
         bp <- bp + facet_grid(facet.formula, drop = FALSE, scales = ifelse("subclass" %in% facet, "free_x", "fixed"))
     }
+    
     return(bp)
 }
