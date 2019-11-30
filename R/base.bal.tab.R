@@ -6,6 +6,8 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
         stop("Treatment indicator must be a binary (0, 1) variable---i.e., treatment (1) or control (0)", call. = FALSE)
     }
     
+    if (!is_(treat, "processed.treat")) treat <- process_treat(treat)
+    
     check_if_zero_weights(weights, treat, treat.type = "cat")
     
     if (is_not_null(m.threshold)) m.threshold <- abs(m.threshold)

@@ -1637,15 +1637,8 @@ x2base.weightit <- function(weightit, ...) {
     if (any(d.e.in.w)) weightit.data <- do.call("cbind", unname(weightit[c("covs", "exact", "by", "moderator")[d.e.in.w]]))
     else weightit.data <- NULL
     
-    if (has.treat.type(treat)) {
-        treat.type <- get.treat.type(treat)
-    }
-    else if (is_not_null(weightit$treat.type)) {
-        treat.type <- weightit$treat.type
-    }
-    else {
-        treat.type <- get.treat.type(assign.treat.type(treat))
-    }
+    #Process treat
+    treat <- process_treat(treat, data)
     
     if (is_null(covs)) stop("No covariates were specified in the weightit object.", call. = FALSE)
     
@@ -1777,7 +1770,7 @@ x2base.weightit <- function(weightit, ...) {
     }
     
     #Get s.d.denom
-    if (treat.type != "continuous") {
+    if (get.treat.type(treat) != "continuous") {
         X$s.d.denom <- get.s.d.denom(s.d.denom, estimand = estimand, 
                                      weights = weights, treat = treat, 
                                      focal = focal)

@@ -80,6 +80,7 @@ process_treat <- function(treat, data = NULL) {
         treat_names(treat, "original") <- setNames(levels(treat), treat_names(treat))
     }
     attr(treat, "treat.type") <- treat.type
+    class(treat) <- c("processed.treat", class(treat))
     return(treat)
 }
 process_treat.list <- function(treat.list, data = NULL) {
@@ -157,6 +158,14 @@ treat_names <- function(treat, type) {
     if (!missing(type) && type %cin% "original") attr(treat, "treat_names_original")
     else attr(treat, "treat_names")
 }
+`[.processed.treat` <- function(x, ...) {
+    y <- NextMethod("[")
+    treat_names(y) <- treat_names(x)
+    treat_names(y, "original") <- treat_names(x, "original")
+    attr(y, "treat.type") <- attr(x, "treat.type")
+    class(y) <- class(x)
+    y
+}
 strata2weights <- function(strata, treat) {
     #Process strata into weights (similar to weight.subclass from MatchIt)
     
@@ -182,7 +191,7 @@ strata2weights <- function(strata, treat) {
         totals <- colSums(sub.tab)
         
         # estimand <- get.estimand(subclass = strata, treat = treat)
-        s.d.denom <- get.s.d.denom(NULL, subclass = strata, treat = treat, quielty = TRUE)
+        s.d.denom <- get.s.d.denom(NULL, subclass = strata, treat = treat, quietly = TRUE)
         
         if (s.d.denom %in% treat_names(treat)) {
             sub.weights <- setNames(sub.tab[s.d.denom, levels(strata.matched)] / sub.tab[treat_names(treat) != s.d.denom, levels(strata.matched)], 
@@ -399,10 +408,10 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
                 if (length(try.estimand) > 1 && length(try.estimand) != NCOL(weights)) {
                     stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
                 }
-                else s.d.denom <- vapply(try.estimand, switch, character(1L), 
+                else s.d.denom <- vapply(try.estimand, function(x) switch(x, 
                                          ATT = treat_names(treat)["treated"], 
                                          ATC = treat_names(treat)["control"], 
-                                         "pooled")
+                                         "pooled"), FUN.VALUE = character(1L))
             }
         }
         else {
