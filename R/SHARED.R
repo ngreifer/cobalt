@@ -219,19 +219,22 @@ binarize <- function(variable, zero = NULL, one = NULL) {
     nas <- is.na(variable)
     if (!is_binary(variable[!nas])) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
     if (is.character(variable)) variable <- factor(variable)
+    
     variable.numeric <- as.numeric(variable)
+    unique.vals <- unique(variable, nmax = 2)
+    
     if (is_null(zero)) {
         if (is_null(one)) {
             if (0 %in% variable.numeric) zero <- 0
             else zero <- min_(variable.numeric)
         }
         else {
-            if (one %in% levels(variable)) zero <- levels(variable)[levels(variable) != one]
+            if (one %in% unique.vals) zero <- unique.vals[unique.vals != one]
             else stop("The argument to \"one\" is not the name of a level of variable.", call. = FALSE)
         }
     }
     else {
-        if (zero %in% levels(variable)) zero <- zero
+        if (zero %in% unique.vals) zero <- zero
         else stop("The argument to \"zero\" is not the name of a level of variable.", call. = FALSE)
     }
     
@@ -394,7 +397,7 @@ abs_ <- function(x, ratio = FALSE) {
 
 #Formulas
 is.formula <- function(f, sides = NULL) {
-    res <- is.name(f[[1]])  && deparse(f[[1]]) %in% c( '~', '!') &&
+    res <- inherits(f, "formula") && is.name(f[[1]]) && deparse(f[[1]]) %in% c( '~', '!') &&
         length(f) >= 2
     if (is_not_null(sides) && is.numeric(sides) && sides %in% c(1,2)) {
         res <- res && length(f) == sides + 1
@@ -632,7 +635,7 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
     s1 <- deparse(substitute(x))
     if (is_not_null(x)) {
         for (i in types) {
-            if (i == "list") it.is <- is.vector(x, "list")
+            if (i == "list") it.is <- is.vector(clear_attr(x), "list")
             else if (is_not_null(get0(paste.("is", i)))) {
                 it.is <- get0(paste.("is", i))(x)
             }
@@ -658,6 +661,16 @@ is_null <- function(x) length(x) == 0L
 is_not_null <- function(x) !is_null(x)
 clear_null <- function(x) {
     x[vapply(x, is_null, logical(1L))] <- NULL
+    return(x)
+}
+clear_attr <- function(x, all = FALSE) {
+    if (all) {
+        attributes(x) <- NULL
+    }
+    else {
+        dont_clear <- c("names", "class", "dim", "dimnames", "row.names")
+        attributes(x)[names(attributes(x)) %nin% dont_clear] <- NULL
+    }
     return(x)
 }
 probably.a.bug <- function() {
@@ -718,7 +731,10 @@ len <- function(x, recursive = TRUE) {
     else if (length(dim(x)) > 1) NROW(x)
     else length(x)
 }
-
+na.rem <- function(x) {
+    #A faster na.omit for vectors
+    x[!is.na(x)]
+}
 
 #Defunct; delete if everything works without them
 .center <- function(x, na.rm = TRUE, at = NULL) {
