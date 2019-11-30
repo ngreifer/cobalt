@@ -19,11 +19,14 @@ bal.plot(obj,
     which.imp = NULL, 
     which.treat = NULL,
     which.time = NULL,
-    size.weight = FALSE,
     mirror = FALSE, 
-    type = c("density", "histogram"), 
+    type = "density", 
     colors = NULL,
-    sample.names)
+    grid = TRUE,
+    sample.names,
+    position = "right", 
+    facet.formula = NULL, 
+    alpha.weight = TRUE)
 }
 \arguments{
   \item{obj}{
@@ -59,21 +62,31 @@ which treatment groups to display. If \code{NULL} (the default) or \code{NA}, al
   \item{which.time}{
 for longitudinal treatments, which time points to display. Can be treatment names or time period indices. If \code{NULL} (the default) or \code{NA}, all time points are displayed.
 }
-  \item{size.weight}{
-\code{logical}; if both the treatment and the covariate are continuous, whether points should be sized according to their weight. 
-}
   \item{mirror}{
-\code{logical}; if the treatment is binary, whether to display mirrored densities/histograms or overlapping densities/histograms. Ignored otherwise. 
+\code{logical}; if the treatment is binary, the covariate is continuous, and densities or histograms are requested, whether to display mirrored densities/histograms or overlapping densities/histograms. Ignored otherwise. 
 }
   \item{type}{
-for binary and multinomial treatments, whether to display histograms or densities. The default is to display densities. Abbreviations are allowed.
+\code{character}; for binary and multinomial treatments, whether to display densities (\code{"density"}), histograms  (\code{"histogram"}), or empricial cumulative density function plots (\code{"ecdf"}). The default is to display densities. Abbreviations are allowed.
 }
   \item{colors}{
 a vector of colors for the plotted densities/histograms. See 'Color Specification' at \code{\link[graphics]{par}}. Defaults to the default \pkg{ggplot2} colors.
 }
+  \item{grid}{
+\code{logical}; whether gridlines should be shown on the plot. Default is \code{TRUE}.
+}
   \item{sample.names}{
 \code{character}; new names to be given to the samples (i.e., in place of "Unadjusted Sample" and "Adjusted Sample"). For example, when matching it used, it may be useful to enter \code{c("Unmatched", "Matched")}.
 }
+  \item{position}{
+the position of the legend. This can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2]{theme}}.
+}
+  \item{facet.formula}{
+a \code{formula} designating which facets should be on the rows and columns. This should be of the "historical" formula interface to \code{\link[ggplot2]{facet_grid}}. If of the form \code{a ~ b}, \code{a} will be faceted on the rows and \code{b} on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form \code{a ~ .} (i.e., with only \code{.} on the right-hand side). The allowable facets depend on which arguments have been supplied to \code{bal.plot}; possible values include \code{which}, \code{cluster}, \code{imp}, and (for longitudinal treatments) \code{time}. If \code{NULL}, \code{bal.plot} will decide what looks best; this argument exists in case you disagree with its choice.
+}
+  \item{alpha.weight}{
+\code{logical}; if both the treatment and the covariate are continuous, whether points should be shaded according to their weight. Fainter points are those that have smaller weights.
+}
+
 }
 \section{Additional Arguments}{
 \code{bal.plot()} works like \code{bal.tab()} in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional parameters are required in \code{\dots}. For details on what is required and allowed for each additional input and their defaults, see the help file for the \code{\link{bal.tab}} method associated with the input. The following are the required additional arguments based on each input type (optional arguments in parentheses):
@@ -104,7 +117,7 @@ For other objects processed through \code{bal.tab}'s default method, whichever a
 \details{
 \code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \code{\link[ggplot2]{geom_density}}, and histograms are created using \code{\link[ggplot2]{geom_histogram}}; for categorical treatments with categorical covariates, bar graphs are created using \code{\link[ggplot2]{geom_bar}}; for continuous treatments with continuous covariates, scatterplots are created using \code{\link[ggplot2]{geom_point}}.
 
-For continuous treatments with continuous covariates, three additional lines are presented for aid in balance assessment. The dashed blue line is the linear fit line. The solid blue line is a Loess fit curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "loess"}. The solid black line is a horizontal reference line intercepting the (weighted) treatment mean. Proximity of the fit lines to the reference line is indicative of independence between the covariate and treatment variable.
+For continuous treatments with continuous covariates, three additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smootheding curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "auto"}. The solid black line is a horizontal reference line intercepting the (weighted) treatment mean. Proximity of the fit lines to the reference line is indicative of independence between the covariate and treatment variable.
 
 When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or \code{which = "both"}, or when treatment is longitudinal), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{\link[ggplot2]{facet_grid}}. Subclassification cannot be used with clusters or multiply imputed data.
 }
@@ -121,16 +134,28 @@ Noah Greifer
 \code{\link{bal.tab}}
 }
 \examples{
-library(MatchIt); data("lalonde", package = "cobalt")
+data("lalonde", package = "cobalt")
 
 #Nearest Neighbor Matching
+library(MatchIt)
 m.out <- matchit(treat ~ age + educ + race + 
                  married + nodegree + re74 + re75, 
                  data = lalonde)
 
 bal.plot(m.out, "age", which = "both")
+bal.plot(m.out, "re74", which = "both", type = "ecdf")
 bal.plot(m.out, "race", which = "both")
 bal.plot(m.out, "distance", which = "both", mirror = TRUE,
          type = "histogram", colors = c("white", "black"))
+         
+#PS weighting with a continuous treatment
+library(WeightIt)
+w.out <- weightit(re75 ~ age + I(age^2) + educ + 
+                  race + married + nodegree,
+                  data = lalonde)
+                  
+bal.plot(w.out, "age", which = "both")
+bal.plot(w.out, "married", which = "both")
+
 }
 \keyword{plots}

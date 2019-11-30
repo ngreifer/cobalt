@@ -99,7 +99,7 @@ an optional object providing alternate names for the variables in the plot, whic
 \code{logical} or \code{character}; labels to give the plots when multiple \code{stats} are requested. If \code{TRUE}, the labels will be capital letters. Otherwise, must be a string with the same length as \code{stats}. This can be useful when the plots are to be used in an article.
 }
   \item{position}{
-\code{character}; the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2]{theme}}. When \code{stat} has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".
+the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2]{theme}}. When \code{stat} has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".
 }
   \item{themes}{
 an optional list of \code{theme} objects to append to each individual plot. Each entry should be the output of a call to \code{\link[ggplot2]{theme}} in \pkg{ggplot2}. This is a way to customize the individual plots when multiple \code{stats} are requested since the final output is not a manipulable \code{ggplot} object. It can be used with length-1 \code{stats}, but it probably makes more sense to just add the \code{theme()} call after \code{love.plot()}.
