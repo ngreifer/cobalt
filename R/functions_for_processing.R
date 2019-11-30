@@ -23,6 +23,140 @@ is.time.list <- function(x) {
 }
 
 #x2base
+process_treat <- function(treat, data = NULL) {
+    
+    if (is_null(treat)) stop("treat must be specified.", call. = FALSE)
+    
+    bad.treat <- FALSE
+    if (is.character(treat) && length(treat)==1L && is_not_null(data)) {
+        if (is_(data, "list")) {
+            for (i in seq_along(data)) {
+                if (is_(data[[i]], "matrix") && treat %in% colnames(data[[i]])) {
+                    treat <- data[[i]][,treat]
+                    break
+                }
+                else if (is_(data[[i]], "data.frame") && treat %in% names(data[[i]])) {
+                    treat <- data[[i]][[treat]]
+                    break
+                }
+                else if (i == length(data)) bad.treat <- TRUE
+            }
+        }
+        else if (is_(data, "matrix") && treat %in% colnames(data)) {
+            treat <- data[,treat]
+        }
+        else if (is_(data, "data.frame") && treat %in% names(data)) {
+            treat <- data[[treat]]
+        }
+        else bad.treat <- TRUE
+    }
+    else if (is_(treat, c("numeric", "logical", "character", "factor")) && length(treat) > 1L) {
+        treat <- treat
+    }
+    else {
+        bad.treat <- TRUE
+    }
+    
+    if (bad.treat) stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
+    
+    if (anyNA(treat)) stop("Missing values exist in treat.", call. = FALSE)
+    
+    treat <- assign.treat.type(treat)
+    treat.type <- get.treat.type(treat)
+    
+    if (treat.type == "binary") {
+        original_values <- sort(unique(treat, nmax = 2))
+        if (!anyNA(suppressWarnings(as.numeric(as.character(treat))))) {
+            treat <- factor(treat, levels = sort(unique(as.numeric(as.character(treat)), nmax = 2)), 
+                            labels = c("Control", "Treated"))
+        }
+        else treat <- factor(treat)
+        treat_names(treat) <- setNames(levels(treat), c("control", "treated"))
+        treat_names(treat, "original") <- setNames(original_values, treat_names(treat))
+    }
+    else if (treat.type == "multinomial") {
+        treat <- factor(treat)
+        treat_names(treat) <- setNames(levels(treat), levels(treat))
+        treat_names(treat, "original") <- setNames(levels(treat), treat_names(treat))
+    }
+    attr(treat, "treat.type") <- treat.type
+    return(treat)
+}
+process_treat.list <- function(treat.list, data = NULL) {
+    
+    if (is_null(treat.list)) stop("treat.list must be specified.", call. = FALSE)
+    if (!is.vector(treat.list, "list")) {
+        treat.list <- as.list(treat.list)
+    }
+    
+    for (ti in seq_along(treat.list)) {
+        bad.treat <- FALSE
+        if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1L && is_not_null(data)) {
+            if (is_(data, "list")) {
+                for (i in seq_along(data)) {
+                    if (is_(data[[i]], "matrix") && treat.list[[ti]] %in% colnames(data[[i]])) {
+                        treat.list[[ti]] <- data[[i]][,treat.list[[ti]]]
+                        break
+                    }
+                    else if (is_(data[[i]], "data.frame") && treat.list[[ti]] %in% names(data[[i]])) {
+                        treat.list[[ti]] <- data[[i]][[treat.list[[ti]]]]
+                        break
+                    }
+                    else if (i == length(data)) bad.treat <- TRUE
+                }
+            }
+            else if (is_(data, "matrix") && treat.list[[ti]] %in% colnames(data)) {
+                treat.list[[ti]] <- data[,treat.list[[ti]]]
+            }
+            else if (is_(data, "data.frame") && treat.list[[ti]] %in% names(data)) {
+                treat.list[[ti]] <- data[[treat.list[[ti]]]]
+            }
+            else bad.treat <- TRUE
+            names(treat.list)[ti] <- treat.list[[ti]]
+        }
+        else if (is_(treat.list[[ti]], c("numeric", "logical", "character", "factor")) && length(treat.list[[ti]]) > 1L) {
+            treat.list[[ti]] <- treat.list[[ti]]
+        }
+        else bad.treat <- TRUE
+        
+        if (is.numeric(treat.list[[ti]]) || is.factor(treat.list[[ti]]) || (is.character(treat.list[[ti]]) && length(treat.list[[ti]]) > 1)) {
+            #treat.list[[ti]] <- treat.list[[ti]]
+        }
+        else if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1 && any(names(data) == treat.list[[ti]])) {
+            names(treat.list)[ti] <- treat.list[[ti]]
+            treat.list[[ti]] <- data[[treat.list[[ti]]]]
+        }
+        else bad.treat <- TRUE
+        
+        if (bad.treat) stop("Each item in treat.list must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
+        
+        if (anyNA(treat.list[[ti]]))
+            stop("Missing values exist in treat.list", call. = FALSE)
+        
+        treat.list[[ti]] <- assign.treat.type(treat.list[[ti]])
+        treat.type <- get.treat.type(treat.list[[ti]])
+        
+        if (treat.type == "binary") {
+            treat.list[[ti]] <- factor(treat.list[[ti]])
+            treat_names(treat.list[[ti]]) <- setNames(levels(treat.list[[ti]]), c("control", "treated"))
+        }
+        else if (treat.type == "multinomial") {
+            treat.list[[ti]] <- factor(treat.list[[ti]])
+            treat_names(treat.list[[ti]]) <- setNames(levels(treat.list[[ti]]), levels(treat.list[[ti]]))
+        }
+        attr(treat.list[[ti]], "treat.type") <- treat.type
+    }
+    
+    return(treat.list)
+}
+`treat_names<-` <- function(treat, type, value) {
+    if (!missing(type) && type %cin% "original") `attr<-`(treat, "treat_names_original", value)
+    else `attr<-`(treat, "treat_names", value)
+}
+treat_names <- function(treat, type) {
+    if (!missing(type) && type %cin% "original") attr(treat, "treat_names_original")
+    else attr(treat, "treat_names")
+}
 strata2weights <- function(strata, treat) {
     #Process strata into weights (similar to weight.subclass from MatchIt)
     
@@ -31,15 +165,7 @@ strata2weights <- function(strata, treat) {
         stop("strata must be an atomic vector or factor.", call. = FALSE)
     }
     #Process treat
-    if (missing(treat) || is_null(treat)) stop("treat must be specified.", call. = FALSE)
-    
-    if (is_(treat, c("numeric", "logical", "factor")) || (is.character(treat) && length(treat) > 1)) {
-        treat <- assign.treat.type(treat)
-        treat.type <- get.treat.type(treat)
-    }
-    else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
-    
-    if (anyNA(treat)) stop("Missing values exist in treat.", call. = FALSE)
+    treat <- process_treat(treat)
     
     matched <- !is.na(strata)
     strata <- factor(strata)
@@ -47,7 +173,7 @@ strata2weights <- function(strata, treat) {
     
     weights <- rep(0, length(treat))
     
-    if (treat.type == "continuous") {
+    if (get.treat.type(treat) == "continuous") {
         
         stop("strata cannot be turned into weights for continuous treatments.", call. = FALSE)
     }
@@ -55,35 +181,33 @@ strata2weights <- function(strata, treat) {
         sub.tab <- table(treat[matched], strata.matched)[,levels(strata.matched)]
         totals <- colSums(sub.tab)
         
-        estimand <- get.estimand(subclass = strata, treat = treat)
+        # estimand <- get.estimand(subclass = strata, treat = treat)
+        s.d.denom <- get.s.d.denom(NULL, subclass = strata, treat = treat, quielty = TRUE)
         
-        if (estimand == "ATT") {
-            sub.weights <- setNames(sub.tab["1", levels(strata.matched)] / sub.tab["0", levels(strata.matched)], 
+        if (s.d.denom %in% treat_names(treat)) {
+            sub.weights <- setNames(sub.tab[s.d.denom, levels(strata.matched)] / sub.tab[treat_names(treat) != s.d.denom, levels(strata.matched)], 
                                     levels(strata.matched))
-            weights[matched & treat == 1] <- 1
-            weights[matched & treat == 0] <- sub.weights[strata[matched & treat == 0]]
+            weights[matched & treat == s.d.denom] <- 1
+            weights[matched & treat != s.d.denom] <- sub.weights[strata[matched & treat != s.d.denom]]
         }
-        else if (estimand == "ATC") {
-            sub.weights <- setNames(sub.tab["0", levels(strata.matched)] / sub.tab["1", levels(strata.matched)], 
-                                    levels(strata.matched))
-            weights[matched & treat == 1] <- sub.weights[strata[matched & treat == 1]]
-            weights[matched & treat == 0] <- 1
-        }
+        
         else {
-            sub.weights.1 <- setNames(totals[levels(strata.matched)]/sub.tab["1", levels(strata.matched)], 
-                                      levels(strata.matched))
-            sub.weights.0 <- setNames(totals[levels(strata.matched)]/sub.tab["0", levels(strata.matched)], 
-                                      levels(strata.matched))
-            weights[matched & treat == 1] <- sub.weights.1[strata[matched & treat == 1]]
-            weights[matched & treat == 0] <- sub.weights.0[strata[matched & treat == 0]]
+            for (tn in treat_names(treat)) {
+                sub.weights <- setNames(totals[levels(strata.matched)]/sub.tab[tn, levels(strata.matched)], 
+                                          levels(strata.matched))
+                weights[matched & treat == tn] <- sub.weights[strata[matched & treat == tn]]
+                
+            }
         }
         
         if (all(check_if_zero(weights))) 
             stop("No units were stratified", call. = FALSE)
-        else if (all(check_if_zero(weights[treat == 1])))
-            stop("No treated units were stratified", call. = FALSE)
-        else if (all(check_if_zero(weights[treat == 0])))
-            stop("No control units were stratified", call. = FALSE)
+        else {
+            for (tnn in names(treat_names(treat))) {
+                if (all(check_if_zero(weights[treat == treat_names(treat)[tnn]])))
+                    stop(paste("No", tnn, "units were stratified."), call. = FALSE)
+            }
+        }
     }
     return(weights)
 }
@@ -91,7 +215,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
     if (is_not_null(formula) && class(formula) == "formula") {
         D <- NULL
         if (is_not_null(data)) D <- data
-        if (is_not_null(covs)) if (is_not_null(D)) D <- cbind(D, covs) else D <- covs
+        if (is_not_null(covs)) {if (is_not_null(D)) D <- cbind(D, covs) else D <- covs}
         t.c <- get.covs.and.treat.from.formula(formula, D, treat = treat)
         t.c <- list(treat = t.c[["treat"]], covs = t.c[["reported.covs"]], treat.name = t.c[["treat.name"]])
         attr(t.c, "which") <- "fd"
@@ -233,15 +357,17 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
     }
     return(val.List)
 }
-get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL) {
+get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
     check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
     s.d.denom.specified <- is_not_null(s.d.denom)
     estimand.specified <- is_not_null(estimand)
     
     if (s.d.denom.specified) {
-        try.s.d.denom <- tryCatch(match_arg(s.d.denom, c("treated", "control", "pooled", "all"), several.ok = TRUE),
-                                  error = function(cond) FALSE)
-        if (any(try.s.d.denom == FALSE)) {
+        try.s.d.denom <- tryCatch(match_arg(tolower(s.d.denom), 
+                                            unique(c(tolower(treat_names(treat)), "treated", "control", "pooled", "all")), 
+                                                   several.ok = TRUE),
+                                  error = function(cond) NA_character_)
+        if (anyNA(try.s.d.denom)) {
             check.estimand <- TRUE
             bad.s.d.denom <- TRUE
         }
@@ -249,14 +375,19 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
             if (length(try.s.d.denom) > 1 && length(try.s.d.denom) != NCOL(weights)) {
                 stop("s.d.denom must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
             }
-            else s.d.denom <- try.s.d.denom
+            else {
+                if (try.s.d.denom %in% c("treated", "control")) {
+                    try.s.d.denom <- treat_names(treat)[try.s.d.denom]
+                }
+                s.d.denom <- try.s.d.denom
+            }
         }
     }
     else {
         check.estimand <- TRUE
     }
     
-    if (check.estimand == TRUE) {
+    if (check.estimand) {
         if (estimand.specified) {
             try.estimand <- tryCatch(match_arg(toupper(estimand), c("ATT", "ATC", "ATE"), several.ok = TRUE),
                                      error = function(cond) FALSE)
@@ -268,82 +399,63 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
                 if (length(try.estimand) > 1 && length(try.estimand) != NCOL(weights)) {
                     stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
                 }
-                else s.d.denom <- vapply(try.estimand, switch, character(1L), ATT = "treated", ATC = "control", "pooled")
+                else s.d.denom <- vapply(try.estimand, switch, character(1L), 
+                                         ATT = treat_names(treat)["treated"], 
+                                         ATC = treat_names(treat)["control"], 
+                                         "pooled")
             }
         }
         else {
             check.focal <- TRUE
         }
     }
-    if (check.focal == TRUE) {
+    if (check.focal) {
         if (is_not_null(focal)) {
-            s.d.denom <- "treated"
-            estimand <- "ATT"
+            s.d.denom <- focal
         }
         else check.weights <- TRUE
     }
-    if (check.weights == TRUE) {
+    if (check.weights) {
         if (is_null(weights) && is_null(subclass)) {
             s.d.denom <- "pooled"
-            estimand <- "ATE"
         }
         if (is_not_null(subclass)) {
-            treat <- binarize(treat)
-            sub.tab <- table(treat, subclass)[c("0", "1"), ]
+            sub.tab <- table(treat, subclass)[treat_names(treat), ]
             sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
-            dimnames(sub.tab) <- list(c("0", "1", "Total"), colnames(sub.tab))
+            dimnames(sub.tab) <- list(c(treat_names(treat), "pooled"), colnames(sub.tab))
 
             ranges <- apply(sub.tab, 1, function(x) mean.abs.dev(x)/sum(x))
-            estimand <- switch(rownames(sub.tab)[which.min(ranges)],
-                               "0" = "ATC", "1" = "ATT", "ATE")
-            s.d.denom <- switch(estimand, ATT = "treated", ATC = "control", "pooled")
+            s.d.denom <- rownames(sub.tab)[which.min(ranges)]
         }
         else {
-            s.d.denom <- estimand <- character(NCOL(weights))
+            s.d.denom <- estimand <- rep(NA_character_, NCOL(weights))
             for (i in seq_len(NCOL(weights))) {
-                if (is_binary(treat)) {
-                    treat <- binarize(treat)
-                    if (all_the_same(weights[[i]][treat==1]) &&
-                        !all_the_same(weights[[i]][treat==0])
-                    ) { #if treated weights are the same and control weights differ; ATT
-                        estimand[i] <- "ATT"
-                        s.d.denom[i] <- "treated"
-                    }
-                    else if (all_the_same(weights[[i]][treat==0]) &&
-                             !all_the_same(weights[[i]][treat==1])
-                    ) { #if control weights are the same and treated weights differ; ATC
-                        estimand[i] <- "ATC"
-                        s.d.denom[i] <- "control"
-                    }
-                    else {
-                        estimand[i] <- "ATE"
-                        s.d.denom[i] <- "pooled"
+                for (tn in treat_names(treat)) {
+                    if (all_the_same(weights[[i]][treat == tn]) &&
+                        !all_the_same(weights[[i]][treat != tn])) {
+                        s.d.denom[i] <- tn
+                        break
                     }
                 }
-                else {
-                    if (length(focal) == 1) {
-                        estimand[i] <- "ATT"
-                        s.d.denom[i] <- "treated"
-                    }
-                    else {
-                        estimand[i] <- "ATE"
-                        s.d.denom[i] <- "pooled"
-                    }
-                }
+                s.d.denom[is.na(s.d.denom)] <- "pooled"
             }
             
         }
     }
     if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep(s.d.denom, NCOL(weights))
     
-    if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
-        message("Warning: s.d.denom should be one of \"treated\", \"control\", \"pooled\", or \"all\".\n         Using \"", word_list(s.d.denom), "\" instead.")
-    }
-    else if (estimand.specified && bad.estimand) {
-        message("Warning: estimand should be one of \"ATT\", \"ATC\", or \"ATE\". Using \"", ifelse(all_the_same(estimand), toupper(estimand)[1], word_list(toupper(estimand))), "\" instead.")
-    }
-    else if (check.focal || check.weights) {
-        message("Note: estimand and s.d.denom not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word_list(toupper(estimand))), " and ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
+    if (!quietly) {
+        if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
+            message(paste0("Warning: s.d.denom should be one of ", word_list(unique(c(tolower(treat_names(treat)), "treated", "control", "pooled", "all")), "or", quotes = TRUE), 
+                           ".\n         Using ", word_list(s.d.denom, quotes = TRUE), " instead."))
+        }
+        else if (estimand.specified && bad.estimand) {
+            message(paste0("Warning: estimand should be one of ", word_list(c("ATT", "ATC", "ATE"), "or", quotes = TRUE), 
+                           ". Ignoring estimand."))
+        }
+        else if ((check.focal || check.weights) && s.d.denom %nin% treat_names(treat)) {
+            message("Note: s.d.denom not specified; assuming ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
+        }
     }
     
     if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
@@ -383,42 +495,28 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
             estimand <- "ATE"
         }
         if (is_not_null(subclass)) {
-            treat <- binarize(treat)
-            sub.tab <- table(treat, subclass)[c("0", "1"), ]
+            sub.tab <- table(treat, subclass)[treat_names(treat), ]
             sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
-            dimnames(sub.tab) <- list(c("0", "1", "Total"), colnames(sub.tab))
+            dimnames(sub.tab) <- list(c(treat_names(treat), "Total"), colnames(sub.tab))
             
             ranges <- apply(sub.tab, 1, function(x) mean.abs.dev(x)/sum(x))
-            estimand <- switch(rownames(sub.tab)[which.min(ranges)],
-                               "0" = "ATC", "1" = "ATT", "ATE")
+            min.range <- which.min(ranges)
+            if (rownames(sub.tab)[min.range] == treat_names(treat)["control"]) estimand <- "ATC"
+            else if (rownames(sub.tab)[min.range] == treat_names(treat)["treated"]) estimand <- "ATT"
+            else estimand <- "ATE"
+
         }
         else {
-            estimand <- character(ncol(weights))
-            for (i in seq_len(ncol(weights))) {
-                if (is_binary(treat)) {
-                    treat <- binarize(treat)
-                    if (all_the_same(weights[[i]][treat==1]) &&
-                        !all_the_same(weights[[i]][treat==0])
-                    ) { #if treated weights are the same and control weights differ; ATT
-                        estimand[i] <- "ATT"
-                    }
-                    else if (all_the_same(weights[[i]][treat==0]) &&
-                             !all_the_same(weights[[i]][treat==1])
-                    ) { #if control weights are the same and treated weights differ; ATC
-                        estimand[i] <- "ATC"
-                    }
-                    else {
-                        estimand[i] <- "ATE"
+            estimand <- rep(NA_character_, ncol(weights))
+            for (i in seq_len(NCOL(weights))) {
+                for (tnn in names(treat_names(treat))) {
+                    if (all_the_same(weights[[i]][treat == treat_names(treat)[tnn]]) &&
+                        !all_the_same(weights[[i]][treat != treat_names(treat)[tnn]])) {
+                        estimand[i] <- switch(tnn, "control" = "ATC", "treated" = "ATE")
+                        break
                     }
                 }
-                else {
-                    if (length(focal) == 1) {
-                        estimand[i] <- "ATT"
-                    }
-                    else {
-                        estimand[i] <- "ATE"
-                    }
-                }
+                estimand[is.na(estimand)] <- "ATE"
             }
             
         }
@@ -437,13 +535,13 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
 get.X.class <- function(X) {
     if (is_not_null(X[["imp"]])) {
         if (is_not_null(X[["treat.list"]])) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
-        else if (is_(X[["treat"]], c("factor", "character")) && !is_binary(X[["treat"]])) stop("Multiply imputed data is not yet supported with multinomial treatments.", call. = FALSE)
+        else if (get.treat.type(X[["treat"]]) == "multinomial") stop("Multiply imputed data is not yet supported with multinomial treatments.", call. = FALSE)
         else X.class <- "imp"
     }
     else if (is_not_null(X[["treat.list"]])) X.class <- "msm"
-    else if (is_binary(X[["treat"]])) X.class <- "binary"
-    else if (is_(X[["treat"]], c("factor", "character"))) X.class <- "multi"
-    else if (is.numeric(X[["treat"]])) X.class <- "cont"
+    else if (get.treat.type(X[["treat"]]) == "binary") X.class <- "binary"
+    else if (get.treat.type(X[["treat"]]) == "multinomial") X.class <- "multi"
+    else if (get.treat.type(X[["treat"]]) == "continuous") X.class <- "cont"
     else probably.a.bug()
     
     return(X.class)
@@ -770,23 +868,24 @@ remove.perfect.col <- function(C) {
 }
 
 #base.bal.tab
-check_if_zero_weights <- function(weights.df, treat, unique.treat = NULL, treat.type = "cat") {
+check_if_zero_weights <- function(weights.df, treat, treat.type = "cat") {
     #Checks if all weights are zero in each treat group for each set of weights
     if (treat.type == "cat") {
-        if (is_null(unique.treat)) unique.treat <- unique(treat)
-        w.t.mat <- expand.grid(colnames(weights.df), unique.treat, stringsAsFactors = FALSE)
+        w.t.mat <- expand.grid(colnames(weights.df), treat_names(treat), stringsAsFactors = FALSE)
+        w.t.mat <- setNames(cbind(w.t.mat, treat_names(treat, "original")[w.t.mat[,2]]),
+                            c("weight_names", "treat_names", "treat_names_original"))
         if (NROW(w.t.mat) > 0) {
-            problems <- vapply(seq_len(NROW(w.t.mat)), function(x) all(check_if_zero(weights.df[treat == w.t.mat[x,2], w.t.mat[x, 1]])), logical(1L))
+            problems <- vapply(seq_len(NROW(w.t.mat)), function(x) all(check_if_zero(weights.df[treat == w.t.mat[x, "treat_names"], w.t.mat[x, "weight_names"]])), logical(1L))
             if (any(problems)) {
                 prob.w.t.mat <- droplevels(w.t.mat[problems,])
                 if (NCOL(weights.df) == 1) {
-                    error <- paste0("All weights are zero when ", word_list(paste("treat =", prob.w.t.mat[, 2]), "or"), ".")
+                    error <- paste0("All weights are zero when treat is ", word_list(prob.w.t.mat[, "treat_names_original"], "or"), ".")
                 }
                 else {
-                    errors <- setNames(character(nlevels(prob.w.t.mat[,1])), levels(prob.w.t.mat[,1]))
+                    errors <- setNames(character(nlevels(prob.w.t.mat[,"weight_names"])), levels(prob.w.t.mat[,"weight_names"]))
                     
-                    for (i in levels(prob.w.t.mat[,1])) {
-                        errors[i] <- paste0("\"", i, "\" weights are zero when ", word_list(paste("treat =", prob.w.t.mat[prob.w.t.mat[,1] == i, 2]), "or"))
+                    for (i in levels(prob.w.t.mat[,"weight_names"])) {
+                        errors[i] <- paste0("\"", i, "\" weights are zero when treat is ", word_list(prob.w.t.mat[prob.w.t.mat[,"weight_names"] == i, "treat_names_original"], "or"))
                     }
                     errors <- paste(c("All", rep("all", length(errors)-1)), errors)
                     error <- paste0(word_list(errors, "and"), ".")
@@ -829,7 +928,7 @@ baltal <- function(threshold) {
     rownames(b) <- c(paste0("Balanced, <", thresh.val), paste0("Not Balanced, >", thresh.val))
     return(b)
 }
-samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), cluster = NULL, which.cluster = NULL, discarded = NULL, treat.names = c("Control", "Treated")) {
+samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), cluster = NULL, which.cluster = NULL, discarded = NULL) {
     #Computes sample size info. for unadjusted and adjusted samples.
     # method is what method the weights are to be used for. 
     # method="subclassification" is for subclass sample sizes only.
@@ -843,24 +942,22 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
         if (is_null(subclass)) stop("subclass must be a vector of subclasses.")
         qbins <- nlevels(subclass)
         
-        nn <- as.data.frame(matrix(0, 3, qbins))
+        nn <- as.data.frame(matrix(0, nrow = length(treat_names(treat)) + 1, ncol = qbins))
         
-        dimnames(nn) <- list(c(treat.names[1], treat.names[2], "Total"), 
+        dimnames(nn) <- list(c(treat_names(treat), "Total"), 
                              paste("Subclass", levels(subclass)))
         
         matched <- !is.na(subclass)
         k <- 0
         for (i in levels(subclass)) {
-            qi <- subclass[matched]==i
+            qi <- subclass[matched] == i
             qt <- treat[matched][qi]
-            if (sum(qt==1)<2|(sum(qt==0)<2)){
-                if (sum(qt==1)<2)
-                    warning("Not enough treatment units in subclass ", i, call. = FALSE)
-                else if (sum(qt==0)<2)
-                    warning("Not enough control units in subclass ", i, call. = FALSE)
+            for (tnn in names(treat_names(treat))) {
+                if (sum(qt==treat_names(treat)[tnn]) < 2)
+                    warning(paste0("Not enough ", tnn, " units in subclass ", i, "."), call. = FALSE)
             }
             k <- k + 1
-            nn[, k] <- c(sum(qt==0), sum(qt==1), length(qt))
+            nn[, k] <- c(vapply(treat_names(treat), function(tn) sum(qt==tn), numeric(1L)), length(qt))
         }
         attr(nn, "tag") <- "Sample sizes by subclass"
     }
@@ -869,10 +966,10 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
         t <- treat[in.cluster]
         sw <- s.weights[in.cluster]
         
-        nn <- as.data.frame(matrix(0, ncol = 2, nrow = 1))
-        nn[1, ] <- c(ESS(sw[t==0]), ESS(sw[t==1]))
+        nn <- as.data.frame(matrix(0, ncol = length(treat_names(treat)), nrow = 1))
+        nn[1, ] <- vapply(treat_names(treat), function(tn) ESS(sw[t==tn]), numeric(1L))
         dimnames(nn) <- list(c("All"), 
-                             c(treat.names[1], treat.names[2]))
+                             c(treat_names(treat)))
         if (nunique.gt(s.weights, 2) || !any(s.weights==1) || any(s.weights %nin% c(0,1))) {
             attr(nn, "ss.type") <- c("ess")
         }
@@ -883,19 +980,14 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
     }
     else if (NCOL(weights) == 1) {
         if (method=="matching") {
-            nn <- as.data.frame(matrix(0, ncol=2, nrow=5))
-            nn[1, ] <- c(sum(in.cluster & treat==0), 
-                         sum(in.cluster & treat==1))
-            nn[2, ] <- c(ESS(weights[in.cluster & treat==0, 1]), 
-                         ESS(weights[in.cluster & treat==1, 1]))
-            nn[3, ] <- c(sum(in.cluster & treat==0 & weights[,1]>0), 
-                         sum(in.cluster & treat==1 & weights[,1]>0))
-            nn[4, ] <- c(sum(in.cluster & treat==0 & weights[,1]==0 & discarded==0), 
-                         sum(in.cluster & treat==1 & weights[,1]==0 & discarded==0))
-            nn[5, ] <- c(sum(in.cluster & treat==0 & weights[,1]==0 & discarded==1), 
-                         sum(in.cluster & treat==1 & weights[,1]==0 & discarded==1))
+            nn <- as.data.frame(matrix(0, ncol=length(treat_names(treat)), nrow=5))
+            nn[1, ] <- vapply(treat_names(treat), function(tn) sum(in.cluster & treat==tn), numeric(1L))
+            nn[2, ] <- vapply(treat_names(treat), function(tn) ESS(weights[in.cluster & treat==tn, 1]), numeric(1L))
+            nn[3, ] <- vapply(treat_names(treat), function(tn) sum(in.cluster & treat==tn & weights[,1] > 0), numeric(1L))
+            nn[4, ] <- vapply(treat_names(treat), function(tn) sum(in.cluster & treat==tn & weights[,1]==0 & discarded==0), numeric(1L))
+            nn[5, ] <- vapply(treat_names(treat), function(tn) sum(in.cluster & treat==tn & weights[,1]==0 & discarded==1), numeric(1L))
             dimnames(nn) <- list(c("All", "Matched (ESS)", "Matched (Unweighted)", "Unmatched", "Discarded"), 
-                                 c(treat.names[1], treat.names[2]))
+                                 c(treat_names(treat)))
             
             attr(nn, "ss.type") <- rep("ss", NROW(nn))
             
@@ -911,13 +1003,12 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
             sw <- s.weights[in.cluster]
             dc <- discarded[in.cluster]
             
-            nn <- as.data.frame(matrix(0, ncol = 2, nrow = 3))
-            nn[1, ] <- c(ESS(sw[t==0]), ESS(sw[t==1]))
-            nn[2, ] <- c(ESS(w[t==0]*sw[t==0]), ESS(w[t==1]*sw[t==1]))
-            nn[3, ] <- c(sum(t==0 & dc==1), 
-                         sum(t==1 & dc==1))
+            nn <- as.data.frame(matrix(0, ncol = length(treat_names(treat)), nrow = 3))
+            nn[1, ] <- vapply(treat_names(treat), function(tn) ESS(sw[t==tn]), numeric(1L))
+            nn[2, ] <- vapply(treat_names(treat), function(tn) ESS(w[t==tn]*sw[t==tn]), numeric(1L))
+            nn[3, ] <- vapply(treat_names(treat), function(tn) sum(t==tn & dc==1), numeric(1L))
             dimnames(nn) <- list(c("Unadjusted", "Adjusted", "Discarded"), 
-                                 c(treat.names[1], treat.names[2]))
+                                 c(treat_names(treat)))
             attr(nn, "ss.type") <- c("ss", "ess", "ss")
             
             if (!any(dc)) {
@@ -930,21 +1021,21 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
         t <- treat[in.cluster]
         sw <- s.weights[in.cluster]
         
-        nn <- as.data.frame(matrix(0, ncol=2, nrow=1+NCOL(weights)))
-        nn[1, ] <- c(ESS(sw[t==0]), ESS(sw[t==1]))
+        nn <- as.data.frame(matrix(0, ncol=length(treat_names(treat)), nrow=1+NCOL(weights)))
+        nn[1, ] <- vapply(treat_names(treat), function(tn) ESS(sw[t==tn]), numeric(1L))
         for (i in seq_len(NCOL(weights))) {
             if (method[i] == "matching") {
                 w <- weights[in.cluster, i]
-                nn[1+i,] <- c(ESS(w[t==0]), ESS(w[t==1]))
+                nn[1+i,] <- vapply(treat_names(treat), function(tn) ESS(w[t==tn]), numeric(1L))
             }
             else if (method[i] == "weighting") {
                 w <- weights[in.cluster, i]
-                nn[1+i,] <- c(ESS(w[t==0]*sw[t==0]), ESS(w[t==1]*sw[t==1]))
+                nn[1+i,] <- vapply(treat_names(treat), function(tn) ESS(w[t==tn]*sw[t==tn]), numeric(1L))
             }
             
         }
         dimnames(nn) <- list(c("All", names(weights)), 
-                             c(treat.names[1], treat.names[2]))
+                             treat_names(treat))
         attr(nn, "ss.type") <- c("ss", rep("ess", length(method)))
         
     }
@@ -990,12 +1081,13 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     if (is_not_null(types)) B[["Type"]] <- types
     else B[["Type"]] <- get.types(C)
     bin.vars <- B[["Type"]] == "Binary"
+    tn01 <- setNames(treat_names(treat)[c("control", "treated")], 0:1)
     
     #Means for each group
     # if (!((!un || !disp.means) && quick)) {
-    for (t in c(0, 1)) {
-        B[[paste.("M", t, "Un")]] <- col_w_mean(C[treat == t, , drop = FALSE], weights = NULL,
-                                                s.weights = s.weights[treat==t])
+    for (t in c("0", "1")) {
+        B[[paste.("M", t, "Un")]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = NULL,
+                                                s.weights = s.weights[treat==tn01[t]])
     }
     # if (!(!disp.pop && quick)) {
     #     B[["M.Pop.Un"]] <- col.w.m(C, w = s.weights)
@@ -1004,9 +1096,9 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     if (!no.adj) {
         # if (!no.adj && !(!disp.means && quick)) {
         for (i in weight.names) {
-            for (t in c(0, 1)) {
-                B[[paste.("M", t, i)]] <- col_w_mean(C[treat == t, , drop = FALSE], weights = weights[[i]][treat==t],
-                                                     s.weights = s.weights[treat==t])
+            for (t in c("0", "1")) {
+                B[[paste.("M", t, i)]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = weights[[i]][treat==tn01[t]],
+                                                     s.weights = s.weights[treat==tn01[t]])
             }
             # if (!(!disp.pop && quick)) {
             #     B[[paste.("M.Pop.Un", i)]] <- col.w.m(C, w = weights[[i]]*s.weights)
@@ -1022,11 +1114,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
     # if (!((!un || !disp.sds) && quick)) {
-    for (t in c(0, 1)) {
+    for (t in c("0", "1")) {
         sds <- rep(NA_real_, NCOL(C))
         if (any(sd.computable)) {
-            sds[sd.computable] <- col_w_sd(C[treat == t, sd.computable, drop = FALSE],
-                                           weights = NULL, s.weights = s.weights[treat==t],
+            sds[sd.computable] <- col_w_sd(C[treat == tn01[t], sd.computable, drop = FALSE],
+                                           weights = NULL, s.weights = s.weights[treat==tn01[t]],
                                            bin.vars = bin.vars[sd.computable])
         }
         B[[paste.("SD", t, "Un")]] <- sds
@@ -1040,11 +1132,11 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     # if (!no.adj && !(!disp.sds && quick)) {
     if (!no.adj) {
         for (i in weight.names) {
-            for (t in c(0, 1)) {
+            for (t in c("0", "1")) {
                 sds <- rep(NA_real_, NCOL(C))
                 if (any(sd.computable)) {
-                    sds[sd.computable] <- col_w_sd(C[treat == t, sd.computable, drop = FALSE],
-                                                   weights = weights[[i]][treat==t], s.weights = s.weights[treat==t],
+                    sds[sd.computable] <- col_w_sd(C[treat == tn01[t], sd.computable, drop = FALSE],
+                                                   weights = weights[[i]][treat==tn01[t]], s.weights = s.weights[treat==tn01[t]],
                                                    bin.vars = bin.vars[sd.computable])
                 }
                 B[[paste.("SD", t, i)]] <- sds
@@ -1175,6 +1267,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     if (is_not_null(types)) B[["Type"]] <- types
     else B[["Type"]] <- get.types(C)
     bin.vars <- B[["Type"]] == "Binary"
+    tn01 <- setNames(treat_names(treat)[c("control", "treated")], 0:1)
     
     SB <- vector("list", nlevels(subclass))
     names(SB) <- levels(subclass)
@@ -1192,17 +1285,17 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
         
         #Means for each group
         # if (!(!disp.means && quick)) {
-        for (t in c(0,1)) {
-            SB[[i]][[paste.("M", t, "Adj")]] <- col_w_mean(C, subset = treat==t & in.subclass)
+        for (t in c("0", "1")) {
+            SB[[i]][[paste.("M", t, "Adj")]] <- col_w_mean(C, subset = treat==tn01[t] & in.subclass)
         }
         # }
         
         #SDs for each group
         # if (!(!disp.sds && quick)) {
         sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
-        for (t in c(0, 1)) {
+        for (t in c("0", "1")) {
             sds <- rep(NA_real_, NCOL(C))
-            sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == t & in.subclass)
+            sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == tn01[t] & in.subclass)
             SB[[i]][[paste.("SD", t, "Adj")]] <- sds
         }
         
@@ -1313,7 +1406,7 @@ balance.table.cluster.summary <- function(balance.table.clusters.list, weight.na
     names(B) <- Bcolnames
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(balance.table.clusters.list, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(balance.table.clusters.list, function(y) y[[x, "Type"]], character(1))))), use.names = FALSE)
     
     abs0 <- function(x) {if (abs) abs(x) else (x)}
     funs <- vfuns <- structure(vector("list", length(cluster.functions)), names = cluster.functions)
@@ -1608,7 +1701,7 @@ balance.table.imp.summary <- function(bal.tab.imp.list, weight.names = NULL, no.
     names(B) <- Bcolnames
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(sapply(bal.tab.imp.list, function(y) y[[x, "Type"]])); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(sapply(bal.tab.imp.list, function(y) y[[x, "Type"]])))), use.names = FALSE)
     
     abs0 <- function(x) {if (is_null(x)) NA_real_ else if (abs) abs(x) else (x)}
     funs <- vfuns <- structure(vector("list", length(imp.functions)), names = imp.functions)
@@ -1656,7 +1749,7 @@ balance.table.clust.imp.summary <- function(summary.tables, weight.names = NULL,
         dimnames(B) <- list(Brownames, Bcolnames)
         
         if (is_not_null(types)) B[["Type"]] <- types
-        else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(summary.tables, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
+        else B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(summary.tables, function(y) y[[x, "Type"]], character(1))))), use.names = FALSE)
         
         abs0 <- function(x) {if (abs) abs(x) else (x)}
         funs <- vfuns <- structure(vector("list", length(imp.functions)), names = imp.functions)
@@ -1711,7 +1804,7 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
     names(B) <- Bcolnames
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(bal.tab.multi.list, function(y) y[[x, "Type"]], character(1))); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(bal.tab.multi.list, function(y) y[[x, "Type"]], character(1))))), use.names = FALSE)
 
     for (sample in c("Un", weight.names)) {
         if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
@@ -1759,9 +1852,9 @@ balance.table.multi.summary <- function(bal.tab.multi.list, weight.names = NULL,
     
     return(B)
 }
-samplesize.multi <- function(bal.tab.multi.list, treat.names, focal) {
-    if (is_not_null(focal)) which <- c(treat.names[treat.names != focal], focal)
-    else which <- treat.names
+samplesize.multi <- function(bal.tab.multi.list, treat_names, focal = NULL) {
+    if (is_not_null(focal)) which <- c(treat_names[treat_names != focal], focal)
+    else which <- treat_names
     bal.tab.multi.list <- clear_null(bal.tab.multi.list)
     obs <- do.call("cbind", unname(lapply(bal.tab.multi.list, function(x) x[["Observations"]])))[, which]
     attr(obs, "tag") <- attr(bal.tab.multi.list[[1]][["Observations"]], "tag")
@@ -1791,7 +1884,7 @@ balance.table.msm.summary <- function(bal.tab.msm.list, weight.names = NULL, no.
     names(B) <- c("Times", Bcolnames)
     
     if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(lapply(Brownames, function(x) {u <- unique(vapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA_character_, character(1))); return(u[!is.na(u)])}), use.names = FALSE)
+    else B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA_character_, character(1))))), use.names = FALSE)
     
     B[["Times"]] <- Brownames.appear[Brownames]
     
@@ -1868,8 +1961,8 @@ samplesize.msm <- function(bal.tab.msm.list) {
 
 #base.bal.tab.target
 balance.table.target.summary <- balance.table.multi.summary
-samplesize.target <- function(bal.tab.target.list, treat.names, target.name) {
-    which <- treat.names[treat.names != target.name]
+samplesize.target <- function(bal.tab.target.list, treat_names, target.name) {
+    which <- treat_names[treat_names != target.name]
     obs <- do.call("cbind", unname(lapply(bal.tab.target.list, function(x) x[["Observations"]])))[, which]
     attr(obs, "tag") <- attr(bal.tab.target.list[[1]][["Observations"]], "tag")
     attr(obs, "ss.type") <- attr(bal.tab.target.list[[1]][["Observations"]], "ss.type")
