@@ -5,9 +5,17 @@ Version 3.10.0
 
 * Added support for `mimids` and `wimids` objects from `MatchThem`.
 
+* Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. In addition, `s.s.denom` can use the name of a treatment rather than just `"treated"` or `"control"`.
+
 * Added `sample.names` argument in `bal.plot` in response to [this post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
 
 * Added functionality to the `which` argument in `bal.plot`, allowing more specificity when multiple sets of weights are used.
+
+* Added `"ecdf"` option to `bal.plot` for categorical treatments with continuous covariates as an alternative to densities.
+
+* Major changes to appearance of `bal.plot` to be more in line with `love.plot`, including new `grid` and `position` options to control the presence of the grid and the position of the legend.
+
+* When using `bal.plot` with continuous treatments and continuous covariates, the points are shaded based on their weights; this beahvior is controlled by the new `alpha.weight` argument, which replaces teh functionality of `size.weight` (which was kind of ugly and not very informative). Now it's more apparent which points are influential in the weighted sample. In addition, a line illustrating the unweighted covariate mean is present.
 
 * `bal.tab()` no longer tells you whether it assumes matching or weighting when certain non-package-related methods are used.
 
