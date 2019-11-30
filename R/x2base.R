@@ -24,14 +24,18 @@ x2base.matchit <- function(m, ...) {
     #Initializing variables
     
     weights <- data.frame(weights = m$weights)
-    treat <- m$treat
     data <- A$data
+    m.data <- m$model$data
     subset <- A$subset
     cluster <- A$cluster
     s.d.denom <- A$s.d.denom
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     
+    #Process treat
+    treat <- process_treat(m$treat, data = list(data, m.data))
+    
+    #Process covs
     if (is_not_null(m$model$model)) {
         if (nrow(m$model$model) == length(treat)) {
             covs <- data.frame(m$model$model[, names(m$model$model) %in% attributes(terms(m$model))$term.labels])
@@ -73,8 +77,7 @@ x2base.matchit <- function(m, ...) {
     else {
         covs <- data.frame(m$X)
     }
-    m.data <- m$model$data
-    
+
     #Process cluster
     if (is_not_null(cluster)) {
         if (is.numeric(cluster) || is.factor(cluster) || (is.character(cluster) && length(cluster)>1)) {
@@ -112,7 +115,7 @@ x2base.matchit <- function(m, ...) {
         else distance <- data.frame(distance = m$distance)
     }
     
-    #Get s.d.denom
+    #Get method and s.d.denom
     if (any(class(m) == "matchit.subclass")) {
         subclass <- factor(m$subclass)
         method <- "subclassification"
@@ -223,8 +226,6 @@ x2base.ps <- function(ps, ...) {
     estimand <- ps$estimand
     
     weights <- data.frame(get.w(ps, s, estimand))
-    treat <- ps$treat
-    covs <- ps$data[, ps$gbm.obj$var.names, drop = FALSE]
     data <- A$data
     ps.data <- ps$data
     cluster <- A$cluster
@@ -236,6 +237,12 @@ x2base.ps <- function(ps, ...) {
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    
+    #Process treat
+    treat <- process_treat(ps$treat, data = list(data, ps.data))
+    
+    #Process covs
+    covs <- ps.data[, ps$gbm.obj$var.names, drop = FALSE]
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -385,9 +392,8 @@ x2base.mnps <- function(mnps, ...) {
     s <- mnps$stopMethods[match(tolower(rule1), tolower(mnps$stopMethods))]
     
     weights <- data.frame(get.w(mnps, s))
-    treat <- mnps$treatVar
-    covs <- mnps$data[mnps$psList[[1]]$gbm.obj$var.names]
     data <- A$data
+    mnps.data <- mnps$data
     cluster <- A$cluster
     subset <- A$subset
     s.weights <- mnps$sampw
@@ -398,8 +404,12 @@ x2base.mnps <- function(mnps, ...) {
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+
+    #Process treat
+    treat <- process_treat(mnps$treatVar, data = list(data, mnps.data))
     
-    mnps.data <- mnps$data
+    #Process covs
+    covs <- mnps$data[mnps$psList[[1]]$gbm.obj$var.names]
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -468,7 +478,6 @@ x2base.mnps <- function(mnps, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
@@ -479,7 +488,6 @@ x2base.mnps <- function(mnps, ...) {
     X$s.weights <- mnps$sampw
     X$focal <- focal
     X$method <- method
-    
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -541,8 +549,6 @@ x2base.ps.cont <- function(ps.cont, ...) {
     s <- names(ps.cont$w)[match(tolower(rule1), tolower(names(ps.cont$w)))]
     
     weights <- data.frame(get.w(ps.cont, s))
-    treat <- ps.cont$treat
-    covs <- ps.cont$data[, ps.cont$gbm.obj$var.names, drop = FALSE]
     data <- A$data
     ps.data <- ps.cont$data
     cluster <- A$cluster
@@ -552,6 +558,12 @@ x2base.ps.cont <- function(ps.cont, ...) {
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    
+    #Process treat
+    treat <- process_treat(ps.cont$treat, data = list(data, ps.data))
+    
+    #Process covs
+    covs <- ps.cont$data[, ps.cont$gbm.obj$var.names, drop = FALSE]
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -609,7 +621,6 @@ x2base.ps.cont <- function(ps.cont, ...) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
     }
     
-    
     X$weights <- weights
     X$treat <- treat
     X$distance <- distance
@@ -619,7 +630,6 @@ x2base.ps.cont <- function(ps.cont, ...) {
     X$cluster <- factor(cluster)
     X$method <- rep("weighting", ncol(weights))
     X$s.weights <- s.weights
-    
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -662,13 +672,16 @@ x2base.Match <- function(Match, ...) {
     method <- "matching"
     s.d.denom <- A$s.d.denom
     
-    treat <- t.c[["treat"]]
-    covs  <- t.c[["covs"]]
-    
     weights <- data.frame(weights = get.w.Match(m))
     
     cluster <- A$cluster
     subset <- A$subset
+    
+    #Process treat
+    treat <- process_treat(t.c[["treat"]], data = data)
+    
+    #Process covs
+    covs <- t.c[["covs"]]
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -815,7 +828,10 @@ x2base.data.frame <- function(covs, ...) {
     subset <- A$subset
     focal <- A$focal
     
-    #Checks
+    #Process treat
+    treat <- process_treat(treat, data)
+    
+    #Process covs
     if (is_null(covs)) {
         stop("covs data.frame must be specified.", call. = FALSE)
     }
@@ -829,7 +845,7 @@ x2base.data.frame <- function(covs, ...) {
         }
         else if (!is_(data, "data.frame"))
         {
-            warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
         }
     }
@@ -976,30 +992,6 @@ x2base.data.frame <- function(covs, ...) {
         stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
     }
     
-    #Process treat
-    if (is_null(treat)) stop("treat must be specified.", call. = FALSE)
-    
-    if (is.character(treat) && length(treat)==1 && treat %in% names(data)) {
-        treat <- data[[treat]]
-    }
-    else if (is_(treat, c("numeric", "logical", "factor")) || (is.character(treat) && length(treat) > 1)) {
-        treat <- treat
-    }
-    else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
-    
-    if (anyNA(treat))
-        stop("Missing values exist in treat.", call. = FALSE)
-    
-    treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type == "binary") {
-        treat <- binarize(treat)
-    }
-    else if (treat.type == "multinomial") {
-        treat <- factor(treat)
-    }
-    
     #Process weights, addl, and distance
     for (i in c("weights", "addl", "distance")) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data))
@@ -1143,7 +1135,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Check focal
-    if (is_not_null(focal) && treat.type != "continuous") {
+    if (is_not_null(focal) && get.treat.type(treat) != "continuous") {
         if (is.numeric(focal)) {
             if (focal <= nunique(treat)) focal <- levels(treat)[focal]
             else 
@@ -1151,7 +1143,7 @@ x2base.data.frame <- function(covs, ...) {
                             ", but there are only ", nunique(treat), " treatment groups."), call. = FALSE)
         }
         else {
-            if (focal %nin% levels(treat)) 
+            if (focal %nin% unique(treat)) 
                 stop(paste0("The name specified to focal is not the name of any treatment group."), call. = FALSE)
         }
     }
@@ -1177,7 +1169,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Get s.d.denom
-    if (treat.type != "continuous") {
+    if (get.treat.type(treat) != "continuous") {
         X$s.d.denom <- get.s.d.denom(s.d.denom, estimand = estimand, 
                                      weights = weights, subclass = subclass, 
                                      treat = treat, focal = focal)
@@ -1199,7 +1191,6 @@ x2base.data.frame <- function(covs, ...) {
     X$imp <- factor(imp)
     X$s.weights <- s.weights
     X$focal <- focal
-    
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
@@ -1228,10 +1219,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                  "subclass")
     X <- setNames(vector("list", length(X.names)),
                   X.names)
-    #Checks
-    
-    treat <- model.response(model.frame(cbps.fit$terms, cbps.fit$data))
-    covs <- cbps.fit$data[names(cbps.fit$data) %in% attributes(terms(cbps.fit))$term.labels]
+ 
     data <- A$data
     s.weights <- A$s.weights
     subset <- A$subset
@@ -1242,12 +1230,18 @@ x2base.CBPS <- function(cbps.fit, ...) {
     method <- "weighting"
     c.data <- cbps.fit$data
     
+    t.c <- use.tc.fd(cbps.fit$formula, c.data)
+    
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
-    treat <- assign.treat.type(treat)
-    treat.type <- {if ("CBPSContinuous" %in% class(cbps.fit)) "continuous" else get.treat.type(treat)}
+    #Process treat
+    treat <- process_treat(t.c[["treat"]], 
+                           data = list(data, c.data))
+
+    #Process covs
+    covs <- t.c[["covs"]]
     
     #Process sampling weights
     if (is_not_null(s.weights)) {
@@ -1300,7 +1294,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data, c.data))
     }
     
-    if (treat.type == "binary") {
+    if (get.treat.type(treat) == "binary") {
         if (all_the_same(cbps.fit$fitted.values)) {
             if (is_null(distance)) distance <- NULL
         }
@@ -1331,7 +1325,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     }
     
     #Get s.d.denom
-    if (treat.type != "continuous") {
+    if (get.treat.type(treat) != "continuous") {
         X$s.d.denom <- get.s.d.denom(s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = NULL)
     }
     
@@ -1379,24 +1373,25 @@ x2base.ebalance <- function(ebalance, ...) {
                  "subclass")
     X <- setNames(vector("list", length(X.names)),
                   X.names)
-    
-    #Get treat and covs
-    data <- A$data
-    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-    
+
     #Initializing variables
-    
-    treat <- t.c[["treat"]]
-    covs  <- t.c[["covs"]]
     cluster <- A$cluster
     subset <- A$subset
-    weights <- data.frame(weights = get.w(ebalance, treat))
     method <- "weighting"
     s.d.denom <- A$s.d.denom
     estimand <- "ATT"
+    data <- A$data
+    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    
+    #Process treat
+    treat <- process_treat(t.c[["treat"]], 
+                           data = data)
+    
+    #Process covs
+    covs <- t.c[["covs"]]
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -1420,6 +1415,9 @@ x2base.ebalance <- function(ebalance, ...) {
             subset[is.na(subset)] <- FALSE
         }
     }
+    
+    #Get weights
+    weights <- data.frame(weights = get.w(ebalance, treat))
     
     #Process addl and distance
     for (i in c("addl", "distance")) {
@@ -1496,19 +1494,21 @@ x2base.optmatch <- function(optmatch, ...) {
     X <- setNames(vector("list", length(X.names)),
                   X.names)
     
-    #Get treat and covs
-    data <- A$data
-    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-    
     #Initializing variables
-    treat <- binarize(t.c$treat)
-    covs  <- t.c$covs
     distance <- A$distance
     subset <- A$subset
     cluster <- A$cluster
     s.d.denom <- A$s.d.denom
     # estimand <- "ATT"
     method <- "matching"
+    data <- A$data
+    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
+    
+    #Process treat
+    treat <- process_treat(t.c[["treat"]], data = data)
+    
+    #Process covs
+    covs <- t.c[["covs"]]
     
     #Process match.strata (optmatch)
     if (length(optmatch) != length(treat) || length(optmatch) != nrow(covs)) {
@@ -1831,33 +1831,6 @@ x2base.designmatch <- function(dm, ...) {
     X <- setNames(vector("list", length(X.names)),
                   X.names)
     
-    #Get treat and covs
-    data <- A$data
-    
-    if (all(c("id_1", "id_2") %in% names(dm))) {
-        t.c <- use.tc.fd(A$formula, data, A$treat, A$covs, needs.treat = FALSE)
-        covs  <- t.c$covs
-        
-        if (anyDuplicated(c(dm[["id_1"]], dm[["id_2"]])) != 0) {
-            stop("Some units are used more than once. Balance cannot be checked.", call. = FALSE)
-        }
-        treat <- rep(NA_real_, nrow(covs))
-        treat[dm[["id_1"]]] <- 1
-        treat[dm[["id_2"]]] <- 0
-        
-        in.matched <- !is.na(treat)
-        weights <- NULL
-    }
-    else {
-        t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-        covs  <- t.c$covs
-        treat <- binarize(t.c$treat)
-        in.matched <- rep(TRUE, length(treat))
-        
-        weights <- data.frame(weights = get.w.designmatch(dm, treat))
-        
-    }
-    
     #Initializing variables
     distance <- A$distance
     subset <- A$subset
@@ -1865,6 +1838,34 @@ x2base.designmatch <- function(dm, ...) {
     estimand <- A$estimand
     s.d.denom <- A$s.d.denom
     method <- "matching"
+    data <- A$data
+    
+    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs, 
+                     needs.treat = all(c("id_1", "id_2") %in% names(dm)))
+    
+    #Process covs
+    covs <- t.c[["covs"]]
+    
+    if (all(c("id_1", "id_2") %in% names(dm))) {
+        if (anyDuplicated(c(dm[["id_1"]], dm[["id_2"]])) != 0) {
+            stop("Some units are used more than once. Balance cannot be checked.", call. = FALSE)
+        }
+        treat <- rep(NA_real_, nrow(covs))
+        treat[dm[["id_1"]]] <- 1
+        treat[dm[["id_2"]]] <- 0
+        
+        treat <- process_treat(t.c[["treat"]])
+        
+        in.matched <- !is.na(treat)
+        weights <- NULL
+    }
+    else {
+        treat <- process_treat(t.c[["treat"]], data = data)
+        in.matched <- rep(TRUE, length(treat))
+        
+        weights <- data.frame(weights = get.w.designmatch(dm, treat))
+        
+    }
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -1973,8 +1974,7 @@ x2base.mimids <- function(mimids, ...) {
             data <- imp.complete(data)
             # if ("imp" %nin% names(A)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
-        {
+        else if (!is_(data, "data.frame")) {
             warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
         }
@@ -1992,7 +1992,10 @@ x2base.mimids <- function(mimids, ...) {
     
     imps <- unique(imp, nmax = length(mimids[["models"]]) - 1L)
     
-    treat <- unlist(lapply(mimids[["models"]][-1], function(m) m[["treat"]]))
+    #Process treat
+    treat <- process_treat(unlist(lapply(mimids[["models"]][-1], function(m) m[["treat"]])))
+    
+    #Process covs
     covs <- do.call("rbind", lapply(imps, function(i) {
         m <- mimids[["models"]][-1][[i]]
         if (is_not_null(m$model$model)) {
@@ -2212,8 +2215,7 @@ x2base.wimids <- function(wimids, ...) {
             data <- imp.complete(data)
             # if ("imp" %nin% names(A)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
-        {
+        else if (!is_(data, "data.frame")) {
             warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
         }
@@ -2231,7 +2233,10 @@ x2base.wimids <- function(wimids, ...) {
     
     imps <- unique(imp, nmax = length(wimids[["models"]]) - 1L)
     
-    treat <- unlist(lapply(wimids[["models"]][-1], function(m) m[["treat"]]))
+    #Process treat
+    treat <- process_treat(unlist(lapply(wimids[["models"]][-1], function(m) m[["treat"]])))
+    
+    #Process covs
     covs <- do.call("rbind", lapply(wimids[["models"]][-1], function(m) m[["covs"]]))
     
     w.distance <- unlist(lapply(wimids[["models"]][-1], function(m) m[["ps"]]))
@@ -2433,8 +2438,7 @@ x2base.iptw <- function(iptw, ...) {
     estimand <- substr(toupper(s), nchar(s)-2, nchar(s))
     
     weights <- data.frame(get.w(iptw, s))
-    treat.list <- lapply(iptw$psList, function(x) x$treat)
-    covs.list <- lapply(iptw$psList, function(x) x$data[x$gbm.obj$var.names])
+ 
     subset <- A$subset
     data <- A$data
     cluster <- A$cluster
@@ -2447,6 +2451,12 @@ x2base.iptw <- function(iptw, ...) {
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    
+    #Process treat.list
+    treat.list <- lapply(iptw$psList, function(x) process_treat(x$treat))
+    
+    #Process covs.list
+    covs.list <- lapply(iptw$psList, function(x) x$data[x$gbm.obj$var.names])
     
     #Order covs.list
     all.covs <- unique(unlist(lapply(covs.list, names)))
@@ -2588,8 +2598,6 @@ x2base.data.frame.list <- function(covs.list, ...) {
     X <- setNames(vector("list", length(X.names)),
                   X.names)
     
-    covs.list <- covs.list
-    treat.list <- A$treat.list
     data <- A$data
     weights <- A$weights
     distance.list <- A$distance.list
@@ -2601,12 +2609,11 @@ x2base.data.frame.list <- function(covs.list, ...) {
     s.weights <- A$s.weights
     subset <- A$subset
     focal <- A$focal
-    ntimes <- length(covs.list)
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (is_not_null(s.weights) && any(vapply(s.weights, anyNA, logical(1L)))) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
-    #Checks
+    #Process covs
     if (is_null(covs.list)) {
         stop("covs.list must be specified.", call. = FALSE)
     }
@@ -2617,9 +2624,15 @@ x2base.data.frame.list <- function(covs.list, ...) {
         stop("Each item in covs.list must be a data frame.", call. = FALSE)
     }
     
-    if (is_not_null(data) && !is.data.frame(data)) {
-        warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execuction will halt.")
-        data <- NULL
+    all.covs <- unique(unlist(lapply(covs.list, names)))
+    covs.list <- lapply(covs.list, function(x) x[all.covs[all.covs %in% names(x)]])
+    ntimes <- length(covs.list)
+    
+    #Process treat
+    treat.list <- process_treat.list(A$treat.list, data)
+    
+    if (length(treat.list) != length(covs.list)) {
+        stop("treat.list must be a list of treatment statuses at each time point.", call. = FALSE)
     }
     
     specified <- setNames(rep(FALSE, 1), "weights")
@@ -2684,41 +2697,6 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     if (is_not_null(imp) && !is.character(imp) && !is.numeric(imp) && !is.factor(imp)) {
         stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
-    }
-    
-    #Order covs.list
-    all.covs <- unique(unlist(lapply(covs.list, names)))
-    covs.list <- lapply(covs.list, function(x) x[all.covs[all.covs %in% names(x)]])
-    
-    #Process treat
-    if (is_null(treat.list)) stop("treat.list must be specified.", call. = FALSE)
-    if (!is.vector(treat.list)) {
-        treat.list <- as.list(treat.list)
-    }
-    if (length(treat.list) != length(covs.list)) {
-        stop("treat.list must be a list of treatment statuses at each time point.", call. = FALSE)
-    }
-    
-    for (ti in seq_along(treat.list)) {
-        if (is.numeric(treat.list[[ti]]) || is.factor(treat.list[[ti]]) || (is.character(treat.list[[ti]]) && length(treat.list[[ti]]) > 1)) {
-            #treat.list[[ti]] <- treat.list[[ti]]
-        }
-        else if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1 && any(names(data) == treat.list[[ti]])) {
-            names(treat.list)[ti] <- treat.list[[ti]]
-            treat.list[[ti]] <- data[[treat.list[[ti]]]]
-        }
-        else stop("Each item in treat.list must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
-        
-        if (anyNA(treat.list[[ti]]))
-            stop("Missing values exist in treat.list", call. = FALSE)
-        
-        if (is_binary(treat.list[[ti]])) {
-            treat.list[[ti]] <- binarize(treat.list[[ti]])
-        }
-        else if (is.character(treat.list[[ti]])) {
-            treat.list[[ti]] <- factor(treat.list[[ti]])
-        }
-        treat.list[[ti]] <- assign.treat.type(treat.list[[ti]])
     }
     
     #Process weights
@@ -2886,29 +2864,32 @@ x2base.CBMSM <- function(cbmsm, ...) {
     covs <- cbmsm$data[names(cbmsm$data) %in% attributes(terms(cbmsm$model))$term.labels]
     weights <- data.frame(weights = get.w(cbmsm)[ID])
     ntimes <- length(times)
-    
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    
-    covs.list <- vector("list", ntimes)
-    for (ti in times) {
-        if (ti == 1) {
-            covs.list[[ti]] <- setNames(data.frame(covs[cbmsm$time == ti, , drop = FALSE][ID, , drop = FALSE]),
-                                        paste0(names(covs), "0"))
-        }
-        else {
-            covs.list[[ti]] <- cbind(covs.list[[ti - 1]], 
-                                     setNames(data.frame(cbmsm$y[cbmsm$time == ti - 1][ID], 
-                                                         covs[cbmsm$time == ti, , drop = FALSE][ID, , drop = FALSE]),
-                                              c(paste0("treat", ti - 1), paste0(names(covs), ti))))
-        }
-    }
-    
     cluster <- A$cluster
     subset <- A$subset
     data <- A$data
     
     cbmsm.data <- cbmsm$data[cbmsm$time == 1, , drop = FALSE][ID, , drop = FALSE]
+    
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    
+    #Process treat.list
+    treat.list <- process_treat.list(lapply(times, function(x) cbmsm$treat.hist[ID, x]),
+                                     data = list(data, cbmsm.data))
+    
+    #Process covs.list
+    covs.list <- lapply(times, function(ti) {
+        if (ti == 1) {
+            out <- setNames(data.frame(covs[cbmsm$time == ti, , drop = FALSE][ID, , drop = FALSE]),
+                                        paste0(names(covs), "0"))
+        }
+        else {
+            out <- cbind(covs.list[[ti - 1]], 
+                                     setNames(data.frame(cbmsm$y[cbmsm$time == ti - 1][ID], 
+                                                         covs[cbmsm$time == ti, , drop = FALSE][ID, , drop = FALSE]),
+                                              c(paste0("treat", ti - 1), paste0(names(covs), ti))))
+        }
+    })
     
     #Process cluster
     if (is_not_null(cluster)) {
@@ -3029,38 +3010,28 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     #Initializing variables
     estimand <- weightitMSM$estimand
     weights <- data.frame(weights = get.w(weightitMSM))
-    treat.list <- weightitMSM$treat.list
     covs.list <- weightitMSM$covs.list
     if (is_null(covs.list)) stop("No covariates were specified in the weightit object.", call. = FALSE)
     covs <- do.call("cbind", covs.list)
     s.weights <- weightitMSM$s.weights
     data <- A$data
+    weightitMSM.data <- weightitMSM$data
     cluster <- A$cluster
     imp <- A$imp
     subset <- A$subset
-    ntimes <- length(treat.list)
-    
+    ntimes <- length(covs.list)
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
-    weightitMSM.data <- weightitMSM$data
     d.e.in.w <- vapply(c("covs.list", "exact", "by", "moderator"), function(x) is_not_null(weightitMSM[[x]]), logical(1L))
-    if (any(d.e.in.w)) weightitMSM.data <- do.call("cbind", c(list(covs), weightitMSM[c("exact", "by", "moderator")])[d.e.in.w])
-    else weightitMSM.data <- NULL
+    if (any(d.e.in.w)) weightitMSM.data2 <- do.call("cbind", c(covs, weightitMSM[c("exact", "by", "moderator")])[d.e.in.w])
+    else weightitMSM.data2 <- NULL
     
-    if (all(vapply(treat.list, has.treat.type, logical(1L)))) {
-        treat.type <- vapply(treat.list, get.treat.type, character(1L))
-    }
-    else if (length(weightitMSM$treat.type) == length(treat.list)) {
-        treat.type <- weightitMSM$treat.type
-    }
-    else {
-        treat.type <- vapply(treat.list, function(treat) {
-            get.treat.type(assign.treat.type(treat))
-        }, character(1L))
-    } 
+    #Process treat.list
+    treat.list <- process_treat.list(weightitMSM$treat.list,
+                                     data = list(data, weightitMSM.data, weightitMSM.data2))
     
     #Order covs.list
     all.covs <- unique(unlist(lapply(covs.list, names)))
@@ -3080,6 +3051,9 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
             }
             else if (any(names(weightitMSM.data) == cluster)) {
                 cluster <- weightitMSM.data[[cluster]]
+            }
+            else if (any(names(weightitMSM.data2) == cluster)) {
+                cluster <- weightitMSM.data2[[cluster]]
             }
             else stop("The name supplied to cluster is not the name of a variable in any given data set.", call. = FALSE)
         }
@@ -3368,16 +3342,14 @@ x2base.default <- function(obj, ...) {
         s.weights <- A$s.weights
         focal <- A$focal
         estimand <- A$estimand
-        
-        # if (length(distance) > 0 && !is.character(distance) && !is.numeric(distance) && !is.data.frame(distance)) {
-        #     stop("The argument to distance must be a vector of distance scores or the (quoted) name of a variable in data that contains distance scores.", call. = FALSE)
-        # }
-        
-        
         t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
         
-        treat <- t.c[["treat"]]
-        covs  <- t.c[["covs"]]
+        #Process treat
+        treat <- process_treat(t.c[["treat"]], 
+                               data = data)
+        
+        #Process covs
+        covs <- t.c[["covs"]]
         
         #Checks
         if (is_null(covs)) {
@@ -3540,30 +3512,6 @@ x2base.default <- function(obj, ...) {
             stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
         }
         
-        #Process treat
-        if (is_null(treat)) stop("treat must be specified.", call. = FALSE)
-        
-        if (is.character(treat) && length(treat)==1 && treat %in% names(data)) {
-            treat <- data[[treat]]
-        }
-        else if (is_(treat, c("numeric", "logical", "factor")) || (is.character(treat) && length(treat) > 1)) {
-            treat <- treat
-        }
-        else stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
-        
-        if (anyNA(treat))
-            stop("Missing values exist in treat.", call. = FALSE)
-        
-        treat <- assign.treat.type(treat)
-        treat.type <- get.treat.type(treat)
-        
-        if (treat.type == "binary") {
-            treat <- binarize(treat)
-        }
-        else if (treat.type == "multinomial") {
-            treat <- factor(treat)
-        }
-        
         #Process weights, addl, and distance
         for (i in c("weights", "addl", "distance")) {
             assign(i, data.frame.process(i, A[[i]], treat, covs, data))
@@ -3707,7 +3655,7 @@ x2base.default <- function(obj, ...) {
         }
         
         #Check focal
-        if (is_not_null(focal) && treat.type != "continuous") {
+        if (is_not_null(focal) && get.treat.type(treat) != "continuous") {
             if (is.numeric(focal)) {
                 if (focal <= nunique(treat)) focal <- levels(treat)[focal]
                 else 
@@ -3741,7 +3689,7 @@ x2base.default <- function(obj, ...) {
         }
         
         #Get s.d.denom
-        if (treat.type != "continuous") {
+        if (get.treat.type(treat) != "continuous") {
             X$s.d.denom <- get.s.d.denom(s.d.denom, estimand = estimand, 
                                          weights = weights, subclass = subclass, 
                                          treat = treat, focal = focal)
@@ -3798,7 +3746,7 @@ x2base.default <- function(obj, ...) {
         
         ntimes <- length(covs.list)
         
-        #Checks
+        #Process covs.list
         if (is_null(covs.list)) {
             stop("A covariate list must be specified.", call. = FALSE)
         }
@@ -3808,10 +3756,15 @@ x2base.default <- function(obj, ...) {
         if (any(!vapply(covs.list, function(x) is.data.frame(x), logical(1L)))) {
             stop("Each item in covs.list must be a data frame.", call. = FALSE)
         }
+
+        all.covs <- unique(unlist(lapply(covs.list, names)))
+        covs.list <- lapply(covs.list, function(x) x[all.covs[all.covs %in% names(x)]])
         
-        if (is_not_null(data) && !is.data.frame(data)) {
-            warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execuction will halt.")
-            data <- NULL
+        #Process treat
+        treat.list <- process_treat.list(treat.list)
+        
+        if (length(treat.list) != length(covs.list)) {
+            stop("treat.list must be a list of treatment statuses at each time point.", call. = FALSE)
         }
         
         specified <- setNames(rep(FALSE, 1), "weights")
@@ -3875,39 +3828,6 @@ x2base.default <- function(obj, ...) {
             stop("The argument to imp must be a vector of imputation IDs or the (quoted) name of a variable in data that contains imputation IDs.", call. = FALSE)
         }
         
-        #Order covs.list
-        all.covs <- unique(unlist(lapply(covs.list, names)))
-        covs.list <- lapply(covs.list, function(x) x[all.covs[all.covs %in% names(x)]])
-        
-        #Process treat
-        if (is_null(treat.list)) stop("A treatment list must be specified.", call. = FALSE)
-        if (!is.vector(treat.list)) {
-            treat.list <- as.list(treat.list)
-        }
-        if (length(treat.list) != length(covs.list)) {
-            stop("treat.list must be a list of treatment statuses at each time point.", call. = FALSE)
-        }
-        
-        for (ti in seq_along(treat.list)) {
-            if (is.numeric(treat.list[[ti]]) || is.factor(treat.list[[ti]]) || (is.character(treat.list[[ti]]) && length(treat.list[[ti]]) > 1)) {
-                #treat.list[[ti]] <- treat.list[[ti]]
-            }
-            else if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1 && any(names(data) == treat.list[[ti]])) {
-                names(treat.list)[ti] <- treat.list[[ti]]
-                treat.list[[ti]] <- data[[treat.list[[ti]]]]
-            }
-            else stop("Each item in treat.list must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
-            
-            if (anyNA(treat.list[[ti]]))
-                stop("Missing values exist in treat.list", call. = FALSE)
-            
-            if (is_binary(treat.list[[ti]])) {
-                treat.list[[ti]] <- binarize(treat.list[[ti]])
-            }
-            else if (is.character(treat.list[[ti]])) {
-                treat.list[[ti]] <- factor(treat.list[[ti]])
-            }
-        }
         
         #Process weights
         for (i in c("weights")) {
