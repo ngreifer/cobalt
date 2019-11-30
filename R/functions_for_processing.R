@@ -399,10 +399,10 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
                 if (length(try.estimand) > 1 && length(try.estimand) != NCOL(weights)) {
                     stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
                 }
-                else s.d.denom <- vapply(try.estimand, switch, character(1L), 
+                else s.d.denom <- vapply(try.estimand, function(x) switch(x, 
                                          ATT = treat_names(treat)["treated"], 
                                          ATC = treat_names(treat)["control"], 
-                                         "pooled")
+                                         "pooled"), FUN.VALUE = character(1L))
             }
         }
         else {
