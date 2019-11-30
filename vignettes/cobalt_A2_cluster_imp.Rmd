@@ -187,11 +187,11 @@ As with clustered data, all `bal.tab()` options work as with non-imputed data. I
 `MatchThem` is well suited for performing matching and weighting on multiply imputed datasets and make the input to `cobalt` functions much simpler. Below is an example of performing propensity score matching using `MatchThem`. We'll demonstrate the across approach, where an averaged propensity score is used rather than estimating a propensity score within each imputed dataset. `matchthem()` is essentially a wrapper for `matchit()` that takes in multiply imputed data (in the form of the output of a call to `mice()`) as input.
 
 ```{r}
-#Performing propensity score matching on an average propensity score
+#Performing propensity score matching in each imputation
 library("MatchThem")
 mt.out <- matchthem(treat ~ age + educ + race + married + 
                       nodegree + re74 + re75,
-                    datasets = imp, approach = "across")
+                    datasets = imp, approach = "within")
 #Checking balance on the output object
 bal.tab(mt.out)
 ```
