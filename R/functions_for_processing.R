@@ -90,64 +90,16 @@ process_treat.list <- function(treat.list, data = NULL) {
         treat.list <- as.list(treat.list)
     }
     
-    for (ti in seq_along(treat.list)) {
-        bad.treat <- FALSE
+    treat.list.names <- vapply(seq_along(treat.list), function(ti) {
         if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1L && is_not_null(data)) {
-            if (is_(data, "list")) {
-                for (i in seq_along(data)) {
-                    if (is_(data[[i]], "matrix") && treat.list[[ti]] %in% colnames(data[[i]])) {
-                        treat.list[[ti]] <- data[[i]][,treat.list[[ti]]]
-                        break
-                    }
-                    else if (is_(data[[i]], "data.frame") && treat.list[[ti]] %in% names(data[[i]])) {
-                        treat.list[[ti]] <- data[[i]][[treat.list[[ti]]]]
-                        break
-                    }
-                    else if (i == length(data)) bad.treat <- TRUE
-                }
-            }
-            else if (is_(data, "matrix") && treat.list[[ti]] %in% colnames(data)) {
-                treat.list[[ti]] <- data[,treat.list[[ti]]]
-            }
-            else if (is_(data, "data.frame") && treat.list[[ti]] %in% names(data)) {
-                treat.list[[ti]] <- data[[treat.list[[ti]]]]
-            }
-            else bad.treat <- TRUE
-            names(treat.list)[ti] <- treat.list[[ti]]
+            treat.list[[ti]]
         }
-        else if (is_(treat.list[[ti]], c("numeric", "logical", "character", "factor")) && length(treat.list[[ti]]) > 1L) {
-            treat.list[[ti]] <- treat.list[[ti]]
-        }
-        else bad.treat <- TRUE
-        
-        if (is.numeric(treat.list[[ti]]) || is.factor(treat.list[[ti]]) || (is.character(treat.list[[ti]]) && length(treat.list[[ti]]) > 1)) {
-            #treat.list[[ti]] <- treat.list[[ti]]
-        }
-        else if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1 && any(names(data) == treat.list[[ti]])) {
-            names(treat.list)[ti] <- treat.list[[ti]]
-            treat.list[[ti]] <- data[[treat.list[[ti]]]]
-        }
-        else bad.treat <- TRUE
-        
-        if (bad.treat) stop("Each item in treat.list must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
-        
-        if (anyNA(treat.list[[ti]]))
-            stop("Missing values exist in treat.list", call. = FALSE)
-        
-        treat.list[[ti]] <- assign.treat.type(treat.list[[ti]])
-        treat.type <- get.treat.type(treat.list[[ti]])
-        
-        if (treat.type == "binary") {
-            treat.list[[ti]] <- factor(treat.list[[ti]])
-            treat_names(treat.list[[ti]]) <- setNames(levels(treat.list[[ti]]), c("control", "treated"))
-        }
-        else if (treat.type == "multinomial") {
-            treat.list[[ti]] <- factor(treat.list[[ti]])
-            treat_names(treat.list[[ti]]) <- setNames(levels(treat.list[[ti]]), levels(treat.list[[ti]]))
-        }
-        attr(treat.list[[ti]], "treat.type") <- treat.type
-    }
-    
+        else if (is_not_null(names(treat.list))) names(treat.list)[ti]
+        else as.character(ti)
+    }, character(1L))
+    treat.list <- lapply(treat.list, process_treat, data = data)
+    names(treat.list) <- treat.list.names
+ 
     return(treat.list)
 }
 `treat_names<-` <- function(treat, type, value) {
@@ -385,8 +337,8 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
                 stop("s.d.denom must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
             }
             else {
-                if (try.s.d.denom %in% c("treated", "control")) {
-                    try.s.d.denom <- treat_names(treat)[try.s.d.denom]
+                if (any(try.s.d.denom %in% c("treated", "control"))) {
+                    try.s.d.denom[try.s.d.denom %in% c("treated", "control")] <- treat_names(treat)[try.s.d.denom[try.s.d.denom %in% c("treated", "control")]]
                 }
                 s.d.denom <- try.s.d.denom
             }
@@ -399,8 +351,8 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
     if (check.estimand) {
         if (estimand.specified) {
             try.estimand <- tryCatch(match_arg(toupper(estimand), c("ATT", "ATC", "ATE"), several.ok = TRUE),
-                                     error = function(cond) FALSE)
-            if (any(try.estimand == FALSE)) {
+                                     error = function(cond) NA_character_)
+            if (anyNA(try.estimand)) {
                 check.focal <- TRUE
                 # bad.estimand <- TRUE
             }
@@ -428,7 +380,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
         if (is_null(weights) && is_null(subclass)) {
             s.d.denom <- "pooled"
         }
-        if (is_not_null(subclass)) {
+        else if (is_not_null(subclass)) {
             sub.tab <- table(treat, subclass)[treat_names(treat), ]
             sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
             dimnames(sub.tab) <- list(c(treat_names(treat), "pooled"), colnames(sub.tab))
@@ -437,21 +389,19 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
             s.d.denom <- rownames(sub.tab)[which.min(ranges)]
         }
         else {
-            s.d.denom <- estimand <- rep(NA_character_, NCOL(weights))
-            for (i in seq_len(NCOL(weights))) {
+            s.d.denom <- vapply(weights, function(w) {
                 for (tn in treat_names(treat)) {
-                    if (all_the_same(weights[[i]][treat == tn]) &&
-                        !all_the_same(weights[[i]][treat != tn])) {
-                        s.d.denom[i] <- tn
-                        break
+                    if (all_the_same(w[treat == tn]) &&
+                        !all_the_same(w[treat != tn])) {
+                        return(tn)
                     }
                 }
-                s.d.denom[is.na(s.d.denom)] <- "pooled"
-            }
-            
+                return(NA_character_)
+            }, character(1L))
+            s.d.denom[is.na(s.d.denom)] <- "pooled"
         }
     }
-    if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep(s.d.denom, NCOL(weights))
+    if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep.int(s.d.denom, NCOL(weights))
     
     if (!quietly) {
         if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
@@ -462,7 +412,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
             message(paste0("Warning: estimand should be one of ", word_list(c("ATT", "ATC", "ATE"), "or", quotes = TRUE), 
                            ". Ignoring estimand."))
         }
-        else if ((check.focal || check.weights) && s.d.denom %nin% treat_names(treat)) {
+        else if ((check.focal || check.weights) && any(s.d.denom %nin% treat_names(treat))) {
             message("Note: s.d.denom not specified; assuming ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
         }
     }
@@ -477,8 +427,8 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
     
     if (is_not_null(estimand)) {
         try.estimand <- tryCatch(match_arg(toupper(estimand), c("ATT", "ATC", "ATE"), several.ok = TRUE),
-                                 error = function(cond) FALSE)
-        if (any(try.estimand == FALSE)) {
+                                 error = function(cond) NA_character_)
+        if (anyNA(try.estimand)) {
             check.focal <- TRUE
             # bad.estimand <- TRUE
         }
@@ -503,7 +453,7 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
         if (is_null(weights) && is_null(subclass)) {
             estimand <- "ATE"
         }
-        if (is_not_null(subclass)) {
+        else if (is_not_null(subclass)) {
             sub.tab <- table(treat, subclass)[treat_names(treat), ]
             sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
             dimnames(sub.tab) <- list(c(treat_names(treat), "Total"), colnames(sub.tab))
@@ -516,21 +466,20 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
 
         }
         else {
-            estimand <- rep(NA_character_, ncol(weights))
-            for (i in seq_len(NCOL(weights))) {
+            estimand <- vapply(weights, function(w) {
                 for (tnn in names(treat_names(treat))) {
-                    if (all_the_same(weights[[i]][treat == treat_names(treat)[tnn]]) &&
-                        !all_the_same(weights[[i]][treat != treat_names(treat)[tnn]])) {
-                        estimand[i] <- switch(tnn, "control" = "ATC", "treated" = "ATE")
-                        break
+                    if (all_the_same(w[treat == treat_names(treat)[tnn]]) &&
+                        !all_the_same(w[treat != treat_names(treat)[tnn]])) {
+                        return(switch(tnn, "control" = "ATC", "treated" = "ATT", NA_character_))
                     }
                 }
-                estimand[is.na(estimand)] <- "ATE"
-            }
+                return(NA_character_)
+            }, character(1L))
+            estimand[is.na(estimand)] <- "ATE"
             
         }
     }
-    if (is_not_null(weights) && length(estimand) == 1) estimand <- rep(estimand, ncol(weights))
+    if (is_not_null(weights) && length(estimand) == 1) estimand <- rep.int(estimand, ncol(weights))
     
     if (!quietly && (check.focal || check.weights)) {
         message("Note: estimand not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word_list(toupper(estimand))), ".")
@@ -764,7 +713,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
             #Prevent duplicate var names with `sep`s
             nsep <- 1
             repeat {
-                all.possible.names <- outer(colnames(C), colnames(C), paste, sep = paste0(rep(A[["int_sep"]], nsep), collapse = ""))
+                all.possible.names <- outer(colnames(C), colnames(C), paste, sep = paste0(rep.int(A[["int_sep"]], nsep), collapse = ""))
                 if (!any(colnames(C) %in% all.possible.names)) break
                 else nsep <- nsep + 1
             }
@@ -775,7 +724,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
         }
         
         new <- int.poly.f(C, int = int, poly = poly, center = A[["center"]], 
-                          sep = rep(A[["int_sep"]], nsep), co.names = co.names)
+                          sep = rep.int(A[["int_sep"]], nsep), co.names = co.names)
         C <- cbind(C, new)
         co.names <- c(co.names, attr(new, "co.names"))
     }
@@ -801,7 +750,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
         C <- new.C
         missing.ind.C <- colnames(missing.ind)
         if (int) {
-            new <- int.poly.f(missing.ind, int = TRUE, poly = 1, sep = rep(A[["int_sep"]], nsep), co.names = miss.co.names)
+            new <- int.poly.f(missing.ind, int = TRUE, poly = 1, sep = rep.int(A[["int_sep"]], nsep), co.names = miss.co.names)
             C <- cbind(C, new)
             missing.ind.C <- c(missing.ind.C, colnames(new))
             miss.co.names <- c(miss.co.names, attr(new, "co.names"))
@@ -2002,7 +1951,7 @@ assign.shapes <- function(colors, default.shape = "circle") {
     if (nunique(colors) < length(colors)) {
         shapes <- seq_int_cycle(19, 19 + length(colors) - 1, max = 25)
     }
-    else shapes <- rep(default.shape, length(colors))
+    else shapes <- rep.int(default.shape, length(colors))
     return(shapes)
 }
 shapes.ok <- function(shapes, nshapes) {
@@ -2169,4 +2118,5 @@ acceptable.options <- function() {
 #To pass CRAN checks:
 utils::globalVariables(c("distance", "addl", "addl.list", "distance.list",
                          "quick", "treat", "Sample", "min.stat",
-                         "max.stat", "mean.stat", "count"))
+                         "max.stat", "mean.stat", "count",
+                         "cum.pt", "treat.mean", "var.mean"))
