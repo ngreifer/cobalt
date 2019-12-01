@@ -29,7 +29,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             message(paste0("No var.name was provided. Dispalying balance for ", var.name, "."))
         }
         var.list <- vector("list", length(X$covs.list))
-        appears.in.time <- rep(TRUE, length(X$covs.list))
+        appears.in.time <- rep.int(TRUE, length(X$covs.list))
         for (i in seq_along(X$covs.list)) {
             if (var.name %in% names(X$covs.list[[i]])) var.list[[i]] <- X$covs.list[[i]][[var.name]]
             else if (is_not_null(X$addl.list) && var.name %in% names(X$addl.list[[i]])) var.list[[i]] <- X$addl[[var.name]]
@@ -39,7 +39,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (all(sapply(var.list, is_null))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
         X$var <- unlist(var.list[appears.in.time])
         X$time <- rep(seq_along(X$covs.list)[appears.in.time], each = NROW(X$covs.list[[1]]))
-        X$treat.list <- lapply(X$treat.list, function(t) treat_names(t, "original")[t])
+        X$treat.list <- lapply(X$treat.list, function(t) if (get.treat.type(t) != "continuous") treat_names(t, "original")[t] else t)
         X$treat <- unlist(X$treat.list[appears.in.time])
         if (is_not_null(names(X$treat.list))) treat.names <- names(X$treat.list)
         else treat.names <- seq_along(X$treat.list)
@@ -57,6 +57,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         else if (is_not_null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[[var.name]]
         else if (is_not_null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
         else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
+        
+        if (get.treat.type(X$treat) != "continuous") X$treat <- treat_names(X$treat, "original")[X$treat]
     }
     
     #Density arguments supplied through ...
@@ -116,7 +118,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         which <- unique(which)
         
-        if (is_null(X$weights)) X$weights <- setNames(data.frame(rep(1, length(X$treat))),
+        if (is_null(X$weights)) X$weights <- setNames(data.frame(rep.int(1, length(X$treat))),
                                                       "Unadjusted Sample")
         else {
             if (ncol(X$weights) == 1) {
@@ -124,7 +126,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 names(X$weights) <- "Adjusted Sample"
             }
             
-            X$weights <- setNames(data.frame(rep(max(X$weights), length(X$treat)),
+            X$weights <- setNames(data.frame(rep.int(max(X$weights), length(X$treat)),
                                              X$weights),
                                   c("Unadjusted Sample", names(X$weights)))
             
@@ -149,7 +151,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         else sample.names <- NULL
         
         #NULL: all; NA: none
-        in.imp <- rep(TRUE, length(X$var))
+        in.imp <- rep.int(TRUE, length(X$var))
         if (is_not_null(X$imp)) {
             if (is_null(which.imp) || all(is.na(which.imp))) {
                 in.imp <- !is.na(X$imp)
@@ -171,7 +173,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             warning("which.imp was specified but no imp values were supplied. Ignoring which.imp.", call. = FALSE)
         }
         
-        in.cluster <- rep(TRUE, length(X$var))
+        in.cluster <- rep.int(TRUE, length(X$var))
         if (is_not_null(X$cluster)) {
             if (is_null(which.cluster)|| all(is.na(which.cluster))) {
                 in.cluster <- !is.na(X$cluster)
@@ -201,7 +203,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             warning("which.cluster was specified but no cluster values were supplied. Ignoring which.cluster.", call. = FALSE)
         }
         
-        in.time <- rep(TRUE, length(X$var))
+        in.time <- rep.int(TRUE, length(X$var))
         if (is_not_null(X$time)) {
             if (is_null(which.time) || all(is.na(which.time))) {
                 in.time <- !is.na(X$time)
@@ -269,13 +271,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             Q[[i]]$treat <- X$treat[in.imp & in.cluster & in.time]
             Q[[i]]$var <- X$var[in.imp & in.cluster & in.time]
             Q[[i]]$weights <-  X$weights[in.imp & in.cluster & in.time, i]
-            Q[[i]]$which <- rep(i, nobs)
+            Q[[i]]$which <- i
             
-            if ("imp" %in% facet) Q[[i]]$imp <- paste("Imputation", X$imp[in.imp & in.cluster & in.time]) else Q[[i]]$imp <- NULL
+            if ("imp" %in% facet) Q[[i]]$imp <- factor(paste("Imputation", X$imp[in.imp & in.cluster & in.time])) else Q[[i]]$imp <- NULL
             if ("cluster" %in% facet) Q[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time]) else Q[[i]]$cluster <- NULL
-            if ("time" %in% facet) Q[[i]]$time <- paste("Time", X$time[in.imp & in.cluster & in.time]) else Q[[i]]$time <- NULL
+            if ("time" %in% facet) Q[[i]]$time <- factor(paste("Time", X$time[in.imp & in.cluster & in.time])) else Q[[i]]$time <- NULL
         }
-        D <- do.call("rbind", Q)
+        D <- do.call(rbind, Q)
         
         D$which <- factor(D$which, levels = which)
         
@@ -386,7 +388,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         if (is.categorical.var) {
             D$weights <- ave(D[["weights"]], 
-                             lapply(c("var", facet), function(f) D[[f]]), 
+                             D[c("var", facet)], 
                              FUN = function(x) x/sum(x))
         }
         
@@ -453,7 +455,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
     }
     else { #Categorical treatments (multinomial supported)
-        D$treat <- factor(treat_names(X$treat, "original")[D$treat])
+        D$treat <- factor(D$treat)
         
         if (is_null(which.treat)) 
             which.treat <- character(0)
@@ -483,7 +485,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         for (i in names(D)[sapply(D, is.factor)]) D[[i]] <- factor(D[[i]])
         
         D$weights <- ave(D[["weights"]], 
-                         lapply(c("treat", facet), function(f) D[[f]]), 
+                         D[c("treat", facet)], 
                          FUN = function(x) x/sum(x))
         
         #Color
@@ -555,7 +557,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             else if (type %in% c("ecdf")) {
                 
                 D$cum.pt <- ave(D[["weights"]], 
-                                lapply(c("treat", facet), function(f) D[[f]]), 
+                                D[c("treat", facet)], 
                                 FUN = function(x) cumsum(x)/sum(x))
                 
                 #Pad 0 and 1
