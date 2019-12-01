@@ -1511,21 +1511,21 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     
     #Checks and Adjustments
     if (is_null(p.ops$which.treat)) 
-        which.treat <- p.ops$treat.names
+        which.treat <- p.ops$treat_names
     else if (anyNA(p.ops$which.treat)) {
         which.treat <- character(0)
         if (!p.ops$multi.summary) message("No treatment pairs will be displayed; displaying the summary across treatments.")
         p.ops$multi.summary <- TRUE
     }
     else if (is.numeric(p.ops$which.treat)) {
-        which.treat <- p.ops$treat.names[seq_along(p.ops$treat.names) %in% p.ops$which.treat]
+        which.treat <- p.ops$treat_names[seq_along(p.ops$treat_names) %in% p.ops$which.treat]
         if (is_null(which.treat)) {
             warning("No numbers in which.treat correspond to treatment values. No treatment pairs will be displayed.", call. = FALSE)
             which.treat <- character(0)
         }
     }
     else if (is.character(p.ops$which.treat)) {
-        which.treat <- p.ops$treat.names[p.ops$treat.names %in% p.ops$which.treat]
+        which.treat <- p.ops$treat_names[p.ops$treat_names %in% p.ops$which.treat]
         if (is_null(which.treat)) {
             warning("No names in which.treat correspond to treatment values. No treatment pairs will be displayed.", call. = FALSE)
             which.treat <- character(0)
@@ -1548,22 +1548,22 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     else {
         if (p.ops$pairwise) {
             if (length(which.treat) == 1) {
-                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) any(attr(m.balance[[x]], "print.options")$treat.names == which.treat))]
+                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) any(attr(m.balance[[x]], "print.options")$treat_names == which.treat))]
             }
             else {
-                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) all(attr(m.balance[[x]], "print.options")$treat.names %in% which.treat))]
+                disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) all(attr(m.balance[[x]], "print.options")$treat_names %in% which.treat))]
             }
         }
         else {
             if (length(which.treat) == 1) {
                 disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) {
-                    treat.names <- attr(m.balance[[x]], "print.options")$treat.names
-                    any(treat.names[treat.names != "Others"] == which.treat)})]
+                    treat_names <- attr(m.balance[[x]], "print.options")$treat_names
+                    any(treat_names[treat_names != "Others"] == which.treat)})]
             }
             else {
                 disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) {
-                    treat.names <- attr(m.balance[[x]], "print.options")$treat.names
-                    all(treat.names[treat.names != "Others"] %in% which.treat)})]
+                    treat_names <- attr(m.balance[[x]], "print.options")$treat_names
+                    all(treat_names[treat_names != "Others"] %in% which.treat)})]
             }
         }
     }
@@ -1578,8 +1578,8 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         if (p.ops$pairwise) cat(underline("Balance by treatment pair") %+% "\n")
         else cat(underline("Balance by treatment group") %+% "\n")
         for (i in disp.treat.pairs) {
-            headings[i] <- "\n - - - " %+% italic(attr(m.balance[[i]], "print.options")$treat.names[1] %+% " (0) vs. " %+%
-                                                      attr(m.balance[[i]], "print.options")$treat.names[2] %+% " (1)") %+% " - - - \n"
+            headings[i] <- "\n - - - " %+% italic(attr(m.balance[[i]], "print.options")$treat_names[1] %+% " (0) vs. " %+%
+                                                      attr(m.balance[[i]], "print.options")$treat_names[2] %+% " (1)") %+% " - - - \n"
             cat(headings[i])
             do.call(print, c(list(m.balance[[i]]), args))
         }
@@ -2023,21 +2023,21 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
     
     #Checks and Adjustments
     if (is_null(p.ops$which.treat)) 
-        which.treat <- p.ops$treat.names
+        which.treat <- p.ops$treat_names
     else if (anyNA(p.ops$which.treat)) {
         which.treat <- character(0)
         if (!p.ops$target.summary) message("No treatments will be displayed; displaying the summary across treatments.")
         p.ops$target.summary <- TRUE
     }
     else if (is.numeric(p.ops$which.treat)) {
-        which.treat <- p.ops$treat.names[seq_along(p.ops$treat.names) %in% p.ops$which.treat]
+        which.treat <- p.ops$treat_names[seq_along(p.ops$treat_names) %in% p.ops$which.treat]
         if (is_null(which.treat)) {
             warning("No numbers in which.treat correspond to treatment values. No treatments will be displayed.", call. = FALSE)
             which.treat <- character(0)
         }
     }
     else if (is.character(p.ops$which.treat)) {
-        which.treat <- p.ops$treat.names[p.ops$treat.names %in% p.ops$which.treat]
+        which.treat <- p.ops$treat_names[p.ops$treat_names %in% p.ops$which.treat]
         if (is_null(which.treat)) {
             warning("No names in which.treat correspond to treatment values. No treatments will be displayed.", call. = FALSE)
             which.treat <- character(0)
@@ -2058,7 +2058,7 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
         disp.treat.pairs <- character(0)
     }
     else {
-        disp.treat.pairs <- names(t.balance)[sapply(names(t.balance), function(x) any(attr(t.balance[[x]], "print.options")$treat.names %in% which.treat))]
+        disp.treat.pairs <- names(t.balance)[sapply(names(t.balance), function(x) any(attr(t.balance[[x]], "print.options")$treat_names %in% which.treat))]
     }
     
     #Printing output
@@ -2070,7 +2070,7 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
         headings <- setNames(character(length(disp.treat.pairs)), disp.treat.pairs)
         cat(underline("Target balance by treatment group") %+% "\n")
         for (i in disp.treat.pairs) {
-            headings[i] <- "\n - - - " %+% italic(attr(t.balance[[i]], "print.options")$treat.names[1] %+% " (0) vs. " %+%
+            headings[i] <- "\n - - - " %+% italic(attr(t.balance[[i]], "print.options")$treat_names[1] %+% " (0) vs. " %+%
                                                       p.ops$target.name %+% " (1)") %+% " - - - \n"
             cat(headings[i])
             do.call(print, c(list(t.balance[[i]]), args))
