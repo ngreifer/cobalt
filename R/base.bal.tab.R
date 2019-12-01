@@ -1,7 +1,7 @@
 base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL, covs, call = NULL, int = FALSE, poly = 1, addl = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), method, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), s.weights = NULL, discarded = NULL, abs = FALSE, quick = TRUE, addl.sds = NULL, ...) {
     #Preparations
     args <- list(...)
-   
+
     if (!is_binary(treat)) {
         stop("Treatment indicator must be a binary (0, 1) variable---i.e., treatment (1) or control (0)", call. = FALSE)
     }
@@ -744,12 +744,10 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         if (is.numeric(focal)) {
             focal <- levels(treat)[focal]
         }
-        if (is.character(focal)) {
-            treat <- relevel(treat, focal)
-        }
-        else {
+        if (!is.character(focal)) {
             stop("focal must be the name or index of the focal treatment group.", call. = FALSE)
         }
+
         treat.combinations <- lapply(levels(treat)[levels(treat) != focal], function(x) rev(c(focal, x)))
         pairwise <- TRUE
     }
