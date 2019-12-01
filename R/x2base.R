@@ -235,7 +235,7 @@ x2base.ps <- function(ps, ...) {
     method <- rep("weighting", ncol(weights))
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process treat
@@ -402,7 +402,7 @@ x2base.mnps <- function(mnps, ...) {
     method <- rep("weighting", ncol(weights))
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
 
     #Process treat
@@ -556,7 +556,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     s.weights <- ps.cont$sampw
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process treat
@@ -1160,7 +1160,7 @@ x2base.data.frame <- function(covs, ...) {
         if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
         
         if (length(method) == 1) {
-            method <- rep(method, ncol(weights))
+            method <- rep.int(method, ncol(weights))
         }
         else if (length(method) != ncol(weights)) {
             stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
@@ -1233,7 +1233,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     t.c <- use.tc.fd(cbps.fit$formula, c.data)
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process treat
@@ -1383,9 +1383,6 @@ x2base.ebalance <- function(ebalance, ...) {
     data <- A$data
     t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
     
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
-    
     #Process treat
     treat <- process_treat(t.c[["treat"]], 
                            data = data)
@@ -1416,13 +1413,15 @@ x2base.ebalance <- function(ebalance, ...) {
         }
     }
     
-    #Get weights
-    weights <- data.frame(weights = get.w(ebalance, treat))
-    
     #Process addl and distance
     for (i in c("addl", "distance")) {
         assign(i, data.frame.process(i, A[[i]], treat, covs, data))
     }
+    
+    #Process weights
+    weights <- data.frame(weights = get.w(ebalance, treat))
+    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     
     ensure.equal.lengths <- TRUE
     covs.data <- ifelse(attr(t.c, "which")=="fd", "data", "covs")
@@ -1630,7 +1629,7 @@ x2base.weightit <- function(weightit, ...) {
     method <- rep("weighting", ncol(weights))
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     d.e.in.w <- vapply(c("covs", "exact", "by", "moderator"), function(x) is_not_null(weightit[[x]]), logical(1L))
@@ -2442,7 +2441,7 @@ x2base.iptw <- function(iptw, ...) {
     method <- rep("weighting", ncol(weights))
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     #Process treat.list
@@ -2777,10 +2776,10 @@ x2base.data.frame.list <- function(covs.list, ...) {
     if (is_not_null(weights)) {
         if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (any(vapply(weights, function(x) any(!is.finite(x)), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
-        if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+        if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
         
         if (length(method) == 1) {
-            method <- rep(method, ncol(weights))
+            method <- rep.int(method, ncol(weights))
         }
         else if (length(method) != ncol(weights)) {
             stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
@@ -2864,7 +2863,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     cbmsm.data <- cbmsm$data[cbmsm$time == 1, , drop = FALSE][ID, , drop = FALSE]
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     
     #Process treat.list
     treat.list <- process_treat.list(lapply(times, function(x) cbmsm$treat.hist[ID, x]),
@@ -3015,7 +3014,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     ntimes <- length(covs.list)
     
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) stop("Negative weights are not allowed.", call. = FALSE)
+    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     if (is_not_null(s.weights) && anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
     
     d.e.in.w <- vapply(c("covs.list", "exact", "by", "moderator"), function(x) is_not_null(weightitMSM[[x]]), logical(1L))
@@ -3673,7 +3672,7 @@ x2base.default <- function(obj, ...) {
             if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
             
             if (length(method) == 1) {
-                method <- rep(method, ncol(weights))
+                method <- rep.int(method, ncol(weights))
             }
             else if (length(method) != ncol(weights)) {
                 stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
@@ -3908,7 +3907,7 @@ x2base.default <- function(obj, ...) {
                 stop("All weights must be numeric.", call. = FALSE)
             }
             if (length(method) == 1) {
-                method <- rep(method, ncol(weights))
+                method <- rep.int(method, ncol(weights))
             }
             else if (length(method) != ncol(weights)) {
                 stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
