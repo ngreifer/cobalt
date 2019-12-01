@@ -66,7 +66,7 @@ for longitudinal treatments, which time points to display. Can be treatment name
 \code{logical}; if the treatment is binary, the covariate is continuous, and densities or histograms are requested, whether to display mirrored densities/histograms or overlapping densities/histograms. Ignored otherwise. 
 }
   \item{type}{
-\code{character}; for binary and multinomial treatments, whether to display densities (\code{"density"}), histograms  (\code{"histogram"}), or empricial cumulative density function plots (\code{"ecdf"}). The default is to display densities. Abbreviations are allowed.
+\code{character}; for binary and multi-category treatments, whether to display densities (\code{"density"}), histograms  (\code{"histogram"}), or empricial cumulative density function plots (\code{"ecdf"}). The default is to display densities. Abbreviations are allowed.
 }
   \item{colors}{
 a vector of colors for the plotted densities/histograms. See 'Color Specification' at \code{\link[graphics]{par}}. Defaults to the default \pkg{ggplot2} colors.

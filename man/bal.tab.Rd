@@ -63,9 +63,9 @@ When subclassification is used, the balance tables for each subclass stored in \
 
 When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The correlation after adjustment is computed using \code{\link{col_w_corr}} as the weighted covariance between the covariate and treatment divided by the product of the standard deviations of the unweighted covariate and treatment, in an analogous way to how how the weighted standardized mean difference uses an unweighted measure of spread in its denominator, with the purpose of avoiding the analogous paradox (i.e., where the covariance decreases but is accompanied by a change in the standard deviations, thereby distorting the actual resulting balance computed using the weighted standard deviations).
 }
-\subsection{With Multinomial Point Treatments}{
+\subsection{With Multi-Category Point Treatments}{
 
-For information on using \code{bal.tab()} with multiple categorical treatments, see \code{\link{bal.tab.multi}}. Essentially, \code{bal.tab()} compares pairs of treatment groups in a standard way.
+For information on using \code{bal.tab()} with multi-category treatments, see \code{\link{bal.tab.multi}}. Essentially, \code{bal.tab()} compares pairs of treatment groups in a standard way.
 }
 \subsection{With Longitudinal Treatments}{
 

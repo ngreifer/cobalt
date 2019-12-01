@@ -67,7 +67,7 @@ bal.tab(list(iptwExWide[c("use0", "gender", "age")],
 
 First we see balance by time point. At each time point, a `bal.tab` object is produced for that time point. These function just like regular `bal.tab` objects. Next, we see a balance summary across all time points. This displays each variable, how many times it appears in balance tables, its type, and the greatest imbalance for that variable across all time points. Below this is a summary of sample sizes across time points.
 
-This output will appear no matter what the treatment types are (i.e., binary, continuous, multinomial), but for multinomial treatments or when the treatment types vary, no balance summary will be computed or displayed.
+This output will appear no matter what the treatment types are (i.e., binary, continuous, multi-category), but for multi-category treatments or when the treatment types vary, no balance summary will be computed or displayed.
 
 We can use `bal.tab()` with the `weightitMSM` object generated above. Setting `un = TRUE` would produce balance statistics before adjustment, like we did before.
 

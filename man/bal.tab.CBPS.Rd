@@ -78,7 +78,7 @@ either a vector containing cluster membership for each unit or a string containi
 Whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{focal}{
-The name of the focal treatment when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
+The name of the focal treatment when multi-category treatments are used. See \code{\link{bal.tab.multi}} for details.
 }
   \item{s.weights}{
 Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data} or the CBPS object. If the original call to \code{CBPS()} included sampling weights, they should be specified again here to ensure correct computation of balance statistics and unadjusted values. See Details below.
@@ -111,9 +111,9 @@ If clusters are specified, an object of class \code{"bal.tab.cluster"} containin
 
 If treatment is continuous, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
 
-If multiple categorical treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
+If multi-category treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
-If \code{CBPS()} is used with multiple categorical treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
+If \code{CBPS()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
 If \code{CBMSM()} is used for longitudinal treatments, an object of class \code{"bal.tab.msm"} containing balance summaries for each time period and a summary of balance across time periods. See \code{\link{bal.tab.msm}} for details.
 
@@ -126,7 +126,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 \code{\link{bal.tab.cluster}} for more information on clustered data.
-\code{\link{bal.tab.multi}} for more information on multiple categorical treatments.
+\code{\link{bal.tab.multi}} for more information on multi-category treatments.
 \code{\link{bal.tab.msm}} for more information on longitudinal treatments.
 }
 \examples{

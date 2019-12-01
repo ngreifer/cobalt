@@ -127,6 +127,7 @@ Noah Greifer
 }
 \examples{
 library(MatchThem)
+library(mice)
 data("lalonde_mis", package = "cobalt")
 
 #Imputing the missing data
@@ -138,11 +139,13 @@ mt.out1 <- matchthem(treat ~ age + educ + race +
                        data = imp, approach = "within")
 bal.tab(mt.out1)
 
+\dontrun{
 #Matching using across-imputation average propensity scores
 mt.out2 <- matchthem(treat ~ age + educ + race + 
                        married + nodegree + re74 + re75, 
                        data = imp, approach = "across")
 bal.tab(mt.out2)
+}
 
 #Weighting using within-imputation propensity scores
 wt.out <- weightthem(treat ~ age + educ + race + 

@@ -20,9 +20,9 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 }
 \item{disp.sds}{\code{logical}; whether to print the group standard deviations in balance output. Default is \code{FALSE}, so standard deviations are not displayed.
 }
-\item{disp.v.ratio}{\code{logical}; whether to display variance ratios in balance output for binary and multinomial treatments. Default is \code{FALSE}, so variance ratios are not displayed.
+\item{disp.v.ratio}{\code{logical}; whether to display variance ratios in balance output for binary and multi-category treatments. Default is \code{FALSE}, so variance ratios are not displayed.
 }
-\item{disp.ks}{\code{logical}; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multinomial treatments. Default is \code{FALSE}, so KS statistics are not displayed.
+\item{disp.ks}{\code{logical}; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multi-category treatments. Default is \code{FALSE}, so KS statistics are not displayed.
 }
 \item{disp.bal.tab}{\code{logical}; whether to display the table of balance statistics. Default is \code{TRUE}, so the balance table is displayed.
 }
@@ -33,7 +33,7 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 \bold{When subclassification is used}
 \item{disp.subclass}{\code{logical}; whether to display balance information for individual subclasses if subclassification is used in conditioning. See \code{\link{bal.tab.subclass}} for details. Default is \code{FALSE}, so individual subclasses are not displayed.
 }
-\bold{When the treatment is multinomial}
+\bold{When the treatment is multi-category}
 \item{which.treat}{For which treatments or treatment combinations balance tables should be displayed. If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, setting  \code{which.treat = "A"} will display "A vs. B" and "A vs. C", while setting \code{which.treat = c("A", "B")} will only display "A vs. B". \code{.none} indicates no treatment comparisons will be displayed, and \code{.all} indicates all treatment comparisons will be displayed. Default is \code{.none}. See \code{\link{bal.tab.multi}}.
 }
 \item{multi.summary}{\code{logical}; whether to display the balance summary across all treatment pairs. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. Default is \code{TRUE}, and if \code{which.treat} is \code{.none}, it will automatically be set to \code{TRUE}. See \code{\link{bal.tab.multi}}.

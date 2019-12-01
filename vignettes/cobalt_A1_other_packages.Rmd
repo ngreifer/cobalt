@@ -105,7 +105,7 @@ The other arguments to `bal.tab()` when using it with `twang` have the same form
 
 If sampling weights are used in the call to `ps()`, they will be automatically incorporated into the `bal.tab()` calculations for both the adjusted and unadjusted samples, just as `twang` does.
 
-`mnps` objects resulting from fitting models in `twang` with multinomial treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multinomial treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette. `ps.cont` objects resulting from using `ps.cont()` in `WeightIt`, which implements GBM for continuous treatments, are also compatible. See the section "Using `cobalt` with continuous treatments" in the main vignette.
+`mnps` objects resulting from fitting models in `twang` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette. `ps.cont` objects resulting from using `ps.cont()` in `WeightIt`, which implements GBM for continuous treatments, are also compatible. See the section "Using `cobalt` with continuous treatments" in the main vignette.
 ```{r, include=FALSE, eval=TRUE}
 knitr::opts_chunk$set(eval = TRUE)
 ```
@@ -166,7 +166,7 @@ knitr::opts_chunk$set(eval = TRUE)
 ```{r, include=FALSE}
 if (!"CBPS" %in% rownames(installed.packages())) knitr::opts_chunk$set(eval = FALSE)
 ```
-The `CBPS` (Covariate Balancing Propensity Score) package is a great tool for generating covariate balancing propensity scores, a class of propensity scores that are quite effective at balancing covariates among groups. `CBPS` includes functions for estimating propensity scores for binary, multinomial, and continuous treatments. `bal.tab()` functions similarly to `CBPS`'s `balance()` command. Below is a simple example of its use with a binary treatment:
+The `CBPS` (Covariate Balancing Propensity Score) package is a great tool for generating covariate balancing propensity scores, a class of propensity scores that are quite effective at balancing covariates among groups. `CBPS` includes functions for estimating propensity scores for binary, multi-category, and continuous treatments. `bal.tab()` functions similarly to `CBPS`'s `balance()` command. Below is a simple example of its use with a binary treatment:
 
 ```{r}
 library("CBPS")
@@ -185,7 +185,7 @@ The other arguments to `bal.tab()` when using it with `CBPS` have the same form 
 
 When using `CBPS` and `bal.tab()` with continuous treatments, the same guidelines apply as when using `bal.tab()` with continuous treatments without a conditioning package. See the section "Using cobalt with continuous treatments" in the main vignette for more details.
 
-`CBPSContinuous` objects resulting from fitting models in `CBPS` with continuous treatments are also compatible with `cobalt`. See the section "Using `cobalt` with continuous treatments" in the main vignette. `CBPS` objects resulting from fitting models in `CBPS` with multinomial treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multinomial treatments" in the main vignette. `CBMSM` objects resulting from fitting models in `CBPS` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette.
+`CBPSContinuous` objects resulting from fitting models in `CBPS` with continuous treatments are also compatible with `cobalt`. See the section "Using `cobalt` with continuous treatments" in the main vignette. `CBPS` objects resulting from fitting models in `CBPS` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `CBMSM` objects resulting from fitting models in `CBPS` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette.
 ```{r, include=FALSE, eval=TRUE}
 knitr::opts_chunk$set(eval = TRUE)
 ```

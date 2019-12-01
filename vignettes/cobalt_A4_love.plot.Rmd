@@ -20,7 +20,7 @@ knitr::opts_chunk$set(message = FALSE, fig.width=6, fig.height = 4)
 
 This is a guide on how to use `love.plot()` to its fullest potential, taking advantage of all of its many options and features. Other vignettes have described the basics of `love.plot()`, but this guide goes more in depth. See the help file for `love.plot()` with `?love.plot` for the full documentation.
 
-This document will only go over the options for `love.plot()` with binary treatments. Many of the options apply to continuous and multinomial treatments and clustered and multiply imputed data as well. I'll use the Lalonde data and `WeightIt` for all examples. `WeightIt` performs a variety of weighting methods, including propensity score weighting, which, for simplicity, will be the focus here.
+This document will only go over the options for `love.plot()` with binary treatments. Many of the options apply to continuous and multi-category treatments and clustered and multiply imputed data as well. I'll use the Lalonde data and `WeightIt` for all examples. `WeightIt` performs a variety of weighting methods, including propensity score weighting, which, for simplicity, will be the focus here.
 
 First, let's load in the data set and estimate the weights.
 
