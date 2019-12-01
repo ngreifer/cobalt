@@ -278,12 +278,14 @@ get.w.CBMSM <- function(x, ...) {
 get.w.ebalance <- function(x, treat, ...) {
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     
+    if (!is_(treat, "processed.treat")) treat <- process_treat(treat)
+    
     weights <- rep(1, length(treat))
     
-    if (length(x$w) != sum(treat == 0)) {
+    if (length(x$w) != sum(treat == treat_names(treat)["control"])) {
         stop("There are more control units in treat than weights in the ebalance object.", call. = FALSE)
     }
-    weights[treat == 0] <- x$w
+    weights[treat == treat_names(treat)["control"]] <- x$w
     return(weights)
 }
 get.w.ebalance.trim <- get.w.ebalance
