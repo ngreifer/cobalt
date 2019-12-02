@@ -234,8 +234,7 @@ binarize <- function(variable, zero = NULL, one = NULL) {
         }
     }
     else {
-        if (zero %in% unique.vals) zero <- zero
-        else stop("The argument to \"zero\" is not the name of a level of variable.", call. = FALSE)
+        if (zero %nin% unique.vals) stop("The argument to \"zero\" is not the name of a level of variable.", call. = FALSE)
     }
     
     newvar <- setNames(ifelse(!nas & variable.numeric == zero, 0L, 1L), names(variable))
@@ -439,7 +438,13 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     if (is.formula(tt, 2)) {
         resp.vars.mentioned <- as.character(tt)[2]
         resp.vars.failed <- vapply(resp.vars.mentioned, function(v) {
-            null_or_error(try(eval(parse(text=v)[[1]], data, env), silent = TRUE))
+            test <- tryCatch(eval(parse(text=v), data, env), error = function(e) e)
+            if (inherits(test, "simpleError")) {
+                if (conditionMessage(test) == paste0("object '", v, "' not found")) return(TRUE)
+                else stop(test)
+            }
+            else if (is_null(test)) return(TRUE)
+            else return(FALSE)
         }, logical(1L))
         
         if (any(resp.vars.failed)) {
@@ -464,7 +469,13 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     rhs.vars.mentioned.lang <- attr(tt.covs, "variables")[-1]
     rhs.vars.mentioned <- vapply(rhs.vars.mentioned.lang, deparse, character(1L))
     rhs.vars.failed <- vapply(rhs.vars.mentioned, function(v) {
-        null_or_error(try(eval(parse(text=v)[[1]], data, env), silent = TRUE))
+        test <- tryCatch(eval(parse(text=v), data, env), error = function(e) e)
+        if (inherits(test, "simpleError")) {
+            if (conditionMessage(test) == paste0("object '", v, "' not found")) return(TRUE)
+            else stop(test)
+        }
+        else if (is_null(test)) return(TRUE)
+        else return(FALSE)
     }, logical(1L))
     
     if (any(rhs.vars.failed)) {
@@ -477,16 +488,24 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     rhs.term.orders <- attr(tt.covs, "order")
     
     rhs.df <- vapply(rhs.vars.mentioned, function(v) {
-        d <- try(eval(parse(text=v)[[1]], data, env), silent = TRUE)
-        is.data.frame(d) || is.matrix(d)
+        is_(try(eval(parse(text=v)[[1]], data, env), silent = TRUE),
+            c("data.frame", "matrix", "rms"))
     }, logical(1L))
     
     if (any(rhs.df)) {
         if (any(rhs.vars.mentioned[rhs.df] %in% unlist(lapply(rhs.term.labels[rhs.term.orders > 1], function(x) strsplit(x, ":", fixed = TRUE))))) {
             stop("Interactions with data.frames are not allowed in the input formula.", call. = FALSE)
         }
-        addl.dfs <- setNames(lapply(rhs.vars.mentioned[rhs.df], function(x) {as.data.frame(eval(parse(text=x)[[1]], data, env))}),
-                             rhs.vars.mentioned[rhs.df])
+        addl.dfs <- setNames(lapply(rhs.vars.mentioned[rhs.df], function(x) {
+            df <- eval(parse(text=x)[[1]], data, env)
+            if (is_(df, "poly")) colnames(df) <- paste(x, colnames(df), sep = sep)
+            else if (is_(df, "rms")) {
+                if (length(dim(df)) == 2L) class(df) <- "matrix"
+                df <- setNames(as.data.frame(as.matrix(df)), attr(df, "colnames"))
+            } 
+            return(as.data.frame(df))
+        }),
+        rhs.vars.mentioned[rhs.df])
         
         for (i in rhs.term.labels[rhs.term.labels %in% rhs.vars.mentioned[rhs.df]]) {
             ind <- which(rhs.term.labels == i)
@@ -508,7 +527,15 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
         }
     }
     else {
-        new.form <- as.formula(paste("~", paste(rhs.term.labels, collapse = " + ")))
+        new.form.char <- paste("~", paste(vapply(rhs.term.labels, function(x) {
+            try.form <- try(as.formula(paste("~", x)), silent = TRUE)
+            if (null_or_error(try.form) || grepl("^", x, fixed = TRUE)) {
+                paste0("`", x, "`") 
+            }
+            else x
+        } , character(1L)), collapse = " + "))
+        
+        new.form <- as.formula(new.form.char)
         tt.covs <- terms(new.form)
         attr(tt.covs, "intercept") <- 0
         
