@@ -1073,7 +1073,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     if (is_not_null(types)) B[["Type"]] <- types
     else B[["Type"]] <- get.types(C)
     bin.vars <- B[["Type"]] == "Binary"
-    tn01 <- setNames(treat_vals(treat)[c("control", "treated")], 0:1)
+    tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
     
     #Means for each group
     # if (!((!un || !disp.means) && quick)) {
@@ -1260,7 +1260,7 @@ balance.table.subclass <- function(C, weights = NULL, treat, subclass, continuou
     if (is_not_null(types)) B[["Type"]] <- types
     else B[["Type"]] <- get.types(C)
     bin.vars <- B[["Type"]] == "Binary"
-    tn01 <- setNames(treat_vals(treat)[c("control", "treated")], 0:1)
+    tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
     
     SB <- vector("list", nlevels(subclass))
     names(SB) <- levels(subclass)
