@@ -170,15 +170,15 @@ strata2weights <- function(strata, treat) {
         # estimand <- get.estimand(subclass = strata, treat = treat)
         s.d.denom <- get.s.d.denom(NULL, subclass = strata, treat = treat, quietly = TRUE)
         
-        if (s.d.denom %in% treat_names(treat)) {
-            sub.weights <- setNames(sub.tab[s.d.denom, levels(strata.matched)] / sub.tab[treat_names(treat) != s.d.denom, levels(strata.matched)], 
+        if (s.d.denom %in% treat_vals(treat)) {
+            sub.weights <- setNames(sub.tab[s.d.denom, levels(strata.matched)] / sub.tab[treat_vals(treat) != s.d.denom, levels(strata.matched)], 
                                     levels(strata.matched))
             weights[matched & treat == s.d.denom] <- 1
             weights[matched & treat != s.d.denom] <- sub.weights[strata[matched & treat != s.d.denom]]
         }
         
         else {
-            for (tn in treat_names(treat)) {
+            for (tn in treat_vals(treat)) {
                 sub.weights <- setNames(totals[levels(strata.matched)]/sub.tab[tn, levels(strata.matched)], 
                                         levels(strata.matched))
                 weights[matched & treat == tn] <- sub.weights[strata[matched & treat == tn]]
@@ -190,7 +190,7 @@ strata2weights <- function(strata, treat) {
             stop("No units were stratified", call. = FALSE)
         else {
             for (tnn in names(treat_names(treat))) {
-                if (all(check_if_zero(weights[treat == treat_names(treat)[tnn]])))
+                if (all(check_if_zero(weights[treat == treat_vals(treat)[treat_names(treat)[tnn]]])))
                     stop(paste("No", tnn, "units were stratified."), call. = FALSE)
             }
         }
@@ -488,22 +488,22 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
             estimand <- "ATE"
         }
         else if (is_not_null(subclass)) {
-            sub.tab <- table(treat, subclass)[treat_names(treat), ]
+            sub.tab <- table(treat, subclass)[treat_vals(treat), ]
             sub.tab <- rbind(sub.tab, table(subclass)[colnames(sub.tab)])
-            dimnames(sub.tab) <- list(c(treat_names(treat), "Total"), colnames(sub.tab))
+            dimnames(sub.tab) <- list(c(treat_vals(treat), "Total"), colnames(sub.tab))
             
             ranges <- apply(sub.tab, 1, function(x) mean.abs.dev(x)/sum(x))
             min.range <- which.min(ranges)
-            if (rownames(sub.tab)[min.range] == treat_names(treat)["control"]) estimand <- "ATC"
-            else if (rownames(sub.tab)[min.range] == treat_names(treat)["treated"]) estimand <- "ATT"
+            if (rownames(sub.tab)[min.range] == treat_vals(treat)[treat_names(treat)["control"]]) estimand <- "ATC"
+            else if (rownames(sub.tab)[min.range] == treat_vals(treat)[treat_names(treat)["treated"]]) estimand <- "ATT"
             else estimand <- "ATE"
             
         }
         else {
             estimand <- vapply(weights, function(w) {
                 for (tnn in names(treat_names(treat))) {
-                    if (all_the_same(w[treat == treat_names(treat)[tnn]]) &&
-                        !all_the_same(w[treat != treat_names(treat)[tnn]])) {
+                    if (all_the_same(w[treat == treat_vals(treat)[treat_names(treat)[tnn]]]) &&
+                        !all_the_same(w[treat != treat_vals(treat)[treat_names(treat)[tnn]]])) {
                         return(switch(tnn, "control" = "ATC", "treated" = "ATT", NA_character_))
                     }
                 }
