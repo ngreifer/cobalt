@@ -403,6 +403,20 @@ is.formula <- function(f, sides = NULL) {
     }
     return(res)
 }
+subbars <- function(term) {
+    if (is.name(term) || !is.language(term))
+        return(term)
+    if (length(term) == 2) {
+        term[[2]] <- subbars(term[[2]])
+        return(term)
+    }
+    
+    if (is.call(term) && (term[[1]] == as.name("|") || term[[1]] == as.name("||"))) {
+        term[[1]] <- as.name("+")
+    }
+    for (j in 2:length(term)) term[[j]] <- subbars(term[[j]])
+    return(term)
+}
 
 #treat/covs
 get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep = "", ...) {
@@ -425,6 +439,10 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     }
     
     env <- environment(f)
+    
+    if (!is.formula(f)) stop("f must be a formula.")
+    
+    eval.model.matrx <- identical(f, f <- subbars(f))
     
     tryCatch(tt <- terms(f, data = data),
              error = function(e) {
@@ -502,7 +520,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
             else if (is_(df, "rms")) {
                 if (length(dim(df)) == 2L) class(df) <- "matrix"
                 df <- setNames(as.data.frame(as.matrix(df)), attr(df, "colnames"))
-            } 
+            }
             return(as.data.frame(df))
         }),
         rhs.vars.mentioned[rhs.df])
@@ -530,7 +548,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
         new.form.char <- paste("~", paste(vapply(rhs.term.labels, function(x) {
             try.form <- try(as.formula(paste("~", x)), silent = TRUE)
             if (null_or_error(try.form) || (grepl("^", x, fixed = TRUE) && !startsWith(x, "I("))) {
-                paste0("`", x, "`") 
+                paste0("`", x, "`")
             }
             else x
         } , character(1L)), collapse = " + "))
@@ -543,36 +561,41 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
         mf.covs <- quote(stats::model.frame(tt.covs, data,
                                             drop.unused.levels = TRUE,
                                             na.action = "na.pass"))
-       
+        
         tryCatch({covs <- eval(mf.covs)},
                  error = function(e) {stop(conditionMessage(e), call. = FALSE)})
         
         if (is_not_null(treat.name) && treat.name %in% names(covs)) stop("The variable on the left side of the formula appears on the right side too.", call. = FALSE)
     }
     
-    if (s <- !identical(sep, "")) {
-        if (!is.character(sep) || length(sep) > 1) stop("sep must be a string of length 1.", call. = FALSE)
-        original.covs.levels <- setNames(vector("list", ncol(covs)), names(covs))
-        for (i in names(covs)) {
-            if (is.character(covs[[i]])) covs[[i]] <- factor(covs[[i]])
-            if (is.factor(covs[[i]])) {
-                original.covs.levels[[i]] <- levels(covs[[i]])
-                levels(covs[[i]]) <- paste0(sep, original.covs.levels[[i]])
+    if (eval.model.matrx) {
+        if (s <- !identical(sep, "")) {
+            if (!is.character(sep) || length(sep) > 1) stop("sep must be a string of length 1.", call. = FALSE)
+            original.covs.levels <- setNames(vector("list", ncol(covs)), names(covs))
+            for (i in names(covs)) {
+                if (is.character(covs[[i]])) covs[[i]] <- factor(covs[[i]])
+                if (is.factor(covs[[i]])) {
+                    original.covs.levels[[i]] <- levels(covs[[i]])
+                    levels(covs[[i]]) <- paste0(sep, original.covs.levels[[i]])
+                }
+            }
+        }
+        
+        #Get full model matrix with interactions too
+        covs.matrix <- model.matrix(tt.covs, data = covs,
+                                    contrasts.arg = lapply(Filter(is.factor, covs),
+                                                           contrasts, contrasts=FALSE))
+        
+        if (s) {
+            for (i in names(covs)) {
+                if (is.factor(covs[[i]])) {
+                    levels(covs[[i]]) <- original.covs.levels[[i]]
+                }
             }
         }
     }
-    
-    #Get full model matrix with interactions too
-    covs.matrix <- model.matrix(tt.covs, data = covs,
-                                contrasts.arg = lapply(Filter(is.factor, covs),
-                                                       contrasts, contrasts=FALSE))
-    
-    if (s) {
-        for (i in names(covs)) {
-            if (is.factor(covs[[i]])) {
-                levels(covs[[i]]) <- original.covs.levels[[i]]
-            }
-        }
+    else {
+        covs.matrix <- NULL
     }
     
     if (!terms) attr(covs, "terms") <- NULL
