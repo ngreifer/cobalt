@@ -529,7 +529,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     else {
         new.form.char <- paste("~", paste(vapply(rhs.term.labels, function(x) {
             try.form <- try(as.formula(paste("~", x)), silent = TRUE)
-            if (null_or_error(try.form) || grepl("^", x, fixed = TRUE)) {
+            if (null_or_error(try.form) || (grepl("^", x, fixed = TRUE) && !startsWith(x, "I("))) {
                 paste0("`", x, "`") 
             }
             else x
@@ -543,7 +543,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
         mf.covs <- quote(stats::model.frame(tt.covs, data,
                                             drop.unused.levels = TRUE,
                                             na.action = "na.pass"))
-        
+       
         tryCatch({covs <- eval(mf.covs)},
                  error = function(e) {stop(conditionMessage(e), call. = FALSE)})
         
