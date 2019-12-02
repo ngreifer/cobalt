@@ -83,8 +83,8 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, sub
 }
 
 col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "pooled", abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, na.rm = TRUE, ...) {
-    allowable.s.d.denoms <- c("pooled", "all", "treated", "control")
-    unique.treats <- as.character(unique(treat, nmax = 2))
+    # allowable.s.d.denoms <- c("pooled", "all", "weighted")
+    # if (length(treat_names(treat)) == 2) allowable.s.d.denoms <- c(allowable.s.d.denoms, "treated", "control")
     
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
@@ -103,18 +103,17 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     }
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
-    if (missing(treat) || !(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
+    if (missing(treat) || !(is.factor(treat) || is.atomic(treat))) stop("treat must be an atomic vector or factor.")
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
         stop("std must be a logical vector with length equal to 1 or the number of columns of mat.")
     }
     
-    
     if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
         stop("abs must be a logical of length 1.")
     }
     
-    if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
+    if (is_null(bin.vars)) bin.vars <- apply(mat[subset, ,drop = FALSE], 2, is_binary)
     else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
              length(bin.vars) != NCOL(mat)) {
         stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
@@ -130,25 +129,32 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     
     if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
-    
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
     else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
     
-    weights <- weights * s.weights
+    if (!is_binary(treat[subset])) stop("treat must be a binary variable.")
     
-    if (abs && !(length(s.d.denom) == 1L && as.character(s.d.denom) %in% c("treated", "control"))) tval1 <- treat[1]
-    else tval1 <- treat[binarize(treat)==1][1]
+    weights <- weights * s.weights
     
     if (length(std) == 1L) std <- rep(std, NCOL(mat))
     
-    m1 <- col.w.m(mat[treat==tval1 & subset, , drop = FALSE], weights[treat==tval1 & subset], na.rm = na.rm)
-    m0 <- col.w.m(mat[treat!=tval1 & subset, , drop = FALSE], weights[treat!=tval1 & subset], na.rm = na.rm)
+    tval1_0 <- treat[1]
+    
+    m1 <- col.w.m(mat[treat==tval1_0 & subset, , drop = FALSE], weights[treat==tval1_0 & subset], na.rm = na.rm)
+    m0 <- col.w.m(mat[treat!=tval1_0 & subset, , drop = FALSE], weights[treat!=tval1_0 & subset], na.rm = na.rm)
     diffs <- m1 - m0
     zeros <- check_if_zero(diffs)
     
     if (any(to.sd <- std & !zeros)) {
-        if (is.atomic(s.d.denom) && length(s.d.denom) == 1L) {
-            s.d.denom <- match_arg(as.character(s.d.denom), c(allowable.s.d.denoms, unique.treats))
+        if (is.character(s.d.denom) && length(s.d.denom) == 1L) {
+            
+            unique.treats <- if (is_(treat, "processed.treat")) as.character(treat_vals(treat)) else as.character(unique(treat[subset], nmax = 2))
+
+            s.d.denom <- get.s.d.denom(as.character(s.d.denom), weights = weights[subset], treat = treat[subset])
+            
+            if (abs && !(length(s.d.denom) == 1L && s.d.denom %in% c("treated", "control"))) tval1 <- treat[1]
+            else if (s.d.denom %in% unique.treats) tval1 <- s.d.denom
+            else tval1 <- treat[subset][binarize(treat[subset])==1][1]
             
             if (s.d.denom %in% unique.treats) s.d.denom <- sqrt(col.w.v(mat[treat == s.d.denom, to.sd, drop = FALSE], 
                                                                         w = s.weights[treat == s.d.denom],
@@ -168,6 +174,11 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
             else if (s.d.denom == "control") s.d.denom <- sqrt(col.w.v(mat[treat != tval1, to.sd, drop = FALSE], 
                                                                        w = s.weights[treat != tval1],
                                                                        bin.vars = bin.vars[to.sd], na.rm = na.rm))
+            else if (s.d.denom == "weighted") s.d.denom <- sqrt(col.w.v(mat[, to.sd, drop = FALSE], 
+                                                                   w = weights,
+                                                                   bin.vars = bin.vars[to.sd], na.rm = na.rm))
+            else stop("s.d.denom is not an allowed value.")
+            
             if (any(zero_sds <- check_if_zero(s.d.denom))) {
                 s.d.denom[zero_sds] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE][, zero_sds, drop = FALSE], 
                                                     w = s.weights,
@@ -176,17 +187,24 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
         }
         else {
             if (!is.numeric(s.d.denom) || length(s.d.denom) %nin% c(sum(to.sd), length(diffs))) {
-                stop(paste0("s.d.denom must be one of ", word_list(c(allowable.s.d.denoms, unique.treats), and.or = "or", quotes = TRUE), 
-                            " or a numeric vector of with length equal to the number of columns of mat"))
+                stop("s.d.denom must be an allowable value or a numeric vector of with length equal to the number of columns of mat. See ?col_w_smd for allowable values.")
             }
             else if (length(s.d.denom) == length(diffs)) s.d.denom <- s.d.denom[to.sd]
+            
+            if (abs) tval1 <- tval1_0
+            else tval1 <- treat[subset][binarize(treat[subset])==1][1]
         }
         
         diffs[to.sd] <- diffs[to.sd]/s.d.denom
     }
+    else {
+        if (abs) tval1 <- tval1_0
+        else tval1 <- treat[subset][binarize(treat[subset])==1][1]
+    }
     
     if (abs) diffs <- abs(diffs)
-    
+    else if (tval1 != tval1_0) diffs <- -1*diffs
+
     return(setNames(diffs, colnames(mat)))
     
 }

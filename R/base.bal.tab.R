@@ -105,7 +105,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
                                            weight.names = names(weights),
-                                           treat_names = treat_names(treat),
+                                           treat_names = treat_vals(treat),
                                            co.names = co.names)
             class(out) <- c("bal.tab.cluster", "bal.tab")
         }
@@ -206,7 +206,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                                                continuous = continuous,
                                                binary = binary,
                                                quick = quick,
-                                               treat_names = treat_names(treat),
+                                               treat_names = treat_vals(treat),
                                                co.names = co.names)
                 class(out) <- c("bal.tab.subclass", "bal.tab")
             }
@@ -291,7 +291,7 @@ base.bal.tab.binary <- function(weights, treat, distance = NULL, subclass = NULL
                                            quick = quick,
                                            nweights = ifelse(no.adj, 0, ncol(weights)),
                                            weight.names = names(weights),
-                                           treat_names = treat_names(treat),
+                                           treat_names = treat_vals(treat),
                                            co.names = co.names)
             class(out) <- "bal.tab"
         }
@@ -766,15 +766,18 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
         names(out) <- out.names
         
         addl.sds <- list()
-        if (any(s.d.denom %in% c("pooled", "all"))) {
-            if (any(s.d.denom == "pooled")) {
+        if (any(s.d.denom == "pooled")) {
+            C <- get.C(covs = covs, int = int, poly = poly, addl = addl, distance = distance, ...)
+            addl.sds[["pooled"]] <- sqrt(rowMeans(do.call("cbind", lapply(treat_vals(treat), function(tn) col_w_sd(C, s.weights, subset = treat == tn)^2))))
+        }
+        if (any(s.d.denom == "all")) {
+            C <- get.C(covs = covs, int = int, poly = poly, addl = addl, distance = distance, ...)
+            addl.sds[["all"]] <- col_w_sd(C, s.weights)
+        }
+        for (tn in treat_vals(treat)) {
+            if (any(s.d.denom == tn)) {
                 C <- get.C(covs = covs, int = int, poly = poly, addl = addl, distance = distance, ...)
-                addl.sds[["pooled"]] <- sqrt(rowMeans(do.call("cbind", lapply(levels(treat), function(t) col.w.v(C[treat == t, , drop = FALSE], 
-                                                                                                       s.weights[treat == t])))))
-            }
-            if (any(s.d.denom == "all")) {
-                C <- get.C(covs = covs, int = int, poly = poly, addl = addl, distance = distance, ...)
-                addl.sds[["all"]] <- sqrt(col.w.v(C, s.weights))
+                addl.sds[[tn]] <- col_w_sd(C, s.weights, subset = treat == tn)
             }
         }
         
@@ -783,7 +786,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
             balance.tables <- lapply(treat.combinations, function(t) do.call("base.bal.tab.binary", c(list(weights = weights[treat %in% t, , drop = FALSE], treat = factor(treat[treat %in% t], t), distance = distance[treat %in% t, , drop = FALSE], subclass = subclass[treat %in% t], covs = covs[treat %in% t, , drop = FALSE], call = NULL, int = int, poly = poly, addl = addl[treat %in% t, , drop = FALSE], continuous = continuous, binary = binary, s.d.denom = s.d.denom, m.threshold = m.threshold, v.threshold = v.threshold, ks.threshold = ks.threshold, imbalanced.only = imbalanced.only, un = un, disp.means = disp.means, disp.sds = disp.sds, disp.v.ratio = disp.v.ratio, disp.ks = disp.ks, disp.subclass = disp.subclass, disp.bal.tab = disp.bal.tab, method = method, cluster = cluster[treat %in% t], which.cluster = which.cluster, cluster.summary = cluster.summary, s.weights = s.weights[treat %in% t], discarded = discarded[treat %in% t], quick = quick, addl.sds = addl.sds), args), quote = TRUE))
         }
         else {
-            if (any(treat_names(treat) == "Others")) stop ("\"Others\" cannot be the name of a treatment level. Please rename your treatments.", call. = FALSE)
+            if (any(treat_vals(treat) == "Others")) stop ("\"Others\" cannot be the name of a treatment level. Please rename your treatments.", call. = FALSE)
             args <- args[names(args) %nin% names(formals(base.bal.tab.binary))]
             balance.tables <- lapply(treat.combinations, function(t) {
                 treat_ <- factor(treat, levels = c(levels(treat), "Others"))
@@ -833,7 +836,7 @@ base.bal.tab.multi <- function(weights, treat, distance = NULL, subclass = NULL,
                                        disp.bal.tab = disp.bal.tab,
                                        nweights = ifelse(no.adj, 0, ncol(weights)),
                                        weight.names = names(weights),
-                                       treat_names = treat_names(treat),
+                                       treat_names = treat_vals(treat),
                                        which.treat = which.treat,
                                        multi.summary = multi.summary,
                                        pairwise = pairwise,

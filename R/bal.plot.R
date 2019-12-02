@@ -20,7 +20,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     obj <- is.designmatch(obj)
     obj <- is.time.list(obj)
 
-    X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "treated") #s.d.denom to avoid x2base warning
+    X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "pooled") #s.d.denom to avoid x2base warning
     
     if (is_not_null(X$covs.list)) {
         #Longitudinal
@@ -39,7 +39,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (all(sapply(var.list, is_null))) stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
         X$var <- unlist(var.list[appears.in.time])
         X$time <- rep(seq_along(X$covs.list)[appears.in.time], each = NROW(X$covs.list[[1]]))
-        X$treat.list <- lapply(X$treat.list, function(t) if (get.treat.type(t) != "continuous") treat_names(t, "original")[t] else t)
+        X$treat.list <- lapply(X$treat.list, function(t) if (get.treat.type(t) != "continuous") treat_vals(t)[t] else t)
         X$treat <- unlist(X$treat.list[appears.in.time])
         if (is_not_null(names(X$treat.list))) treat.names <- names(X$treat.list)
         else treat.names <- seq_along(X$treat.list)
@@ -58,7 +58,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         else if (is_not_null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
         else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
         
-        if (get.treat.type(X$treat) != "continuous") X$treat <- treat_names(X$treat, "original")[X$treat]
+        if (get.treat.type(X$treat) != "continuous") X$treat <- treat_vals(X$treat)[X$treat]
     }
     
     #Density arguments supplied through ...
