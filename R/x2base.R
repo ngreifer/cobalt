@@ -960,7 +960,7 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     else {
-        specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
+        specified.method <- match_arg(A$method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
         if (any(specified.method == "subclassification") || specified["subclass"]) {
             stop("Subclassification cannot be specified along with other methods.", call. = FALSE)
         }
@@ -1812,7 +1812,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process covs
     covs <- do.call("rbind", lapply(levels(imp), function(i) {
-        m <- mimids[["models"]][-1][[i]]
+        m <- mimids[["models"]][-1][[as.numeric(i)]]
         if (is_not_null(m$model$model)) {
             if (nrow(m$model$model) == length(m$treat)) {
                 covs <- data.frame(m$model$model[, names(m$model$model) %in% attributes(terms(m$model))$term.labels])
@@ -3043,7 +3043,7 @@ x2base.default <- function(obj, ...) {
             specified["match.strata"] <- TRUE
         }
         
-        if (is_null(A$method)) {
+        if (is_null(method <- A$method)) {
             if (specified["match.strata"]) {
                 if (sum(specified) > 1) {
                     message(word_list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
@@ -3070,8 +3070,8 @@ x2base.default <- function(obj, ...) {
                 method <- "matching"
             }
         }
-        else if (length(A$method) == 1) {
-            specified.method <- match_arg(A$method, c("weighting", "matching", "subclassification"))
+        else if (length(method) == 1) {
+            specified.method <- match_arg(method, c("weighting", "matching", "subclassification"))
             if (specified.method == "weighting") {
                 if (specified["weights"]) {
                     if (sum(specified) > 1) {
