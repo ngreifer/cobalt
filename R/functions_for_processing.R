@@ -35,39 +35,9 @@ process_treat <- function(treat, data = NULL) {
             attr(treat, at) <- attrs[[at]]
     }
     else {
-        bad.treat <- FALSE
-        if (is.character(treat) && length(treat)==1L && is_not_null(data)) {
-            if (is_(data, "list")) {
-                for (i in seq_along(data)) {
-                    if (is_(data[[i]], "matrix") && treat %in% colnames(data[[i]])) {
-                        treat <- data[[i]][,treat]
-                        break
-                    }
-                    else if (is_(data[[i]], "data.frame") && treat %in% names(data[[i]])) {
-                        treat <- data[[i]][[treat]]
-                        break
-                    }
-                    else if (i == length(data)) bad.treat <- TRUE
-                }
-            }
-            else if (is_(data, "matrix") && treat %in% colnames(data)) {
-                treat <- data[,treat]
-            }
-            else if (is_(data, "data.frame") && treat %in% names(data)) {
-                treat <- data[[treat]]
-            }
-            else bad.treat <- TRUE
-        }
-        else if (is_(treat, c("numeric", "logical", "character", "factor")) && length(treat) > 1L) {
-            treat <- treat
-        }
-        else {
-            bad.treat <- TRUE
-        }
-        
-        if (bad.treat) stop("The argument to treat must be a vector of treatment statuses or the (quoted) name of a variable in data that contains treatment status.", call. = FALSE)
-        
-        if (anyNA(treat)) stop("Missing values exist in treat.", call. = FALSE)
+        treat <- vector.process(treat, name = "treat", 
+                                which = "treatment statuses", 
+                                data = data, missing.okay = FALSE)
         
         treat <- assign.treat.type(treat)
         treat.type <- get.treat.type(treat)
@@ -143,6 +113,44 @@ treat_vals <- function(treat) {
 }
 `[.unprocessed.treat` <- `[.processed.treat`
 
+initialize_X <- function() {
+    X.names <- c("covs",
+                 "treat",
+                 "weights",
+                 "distance",
+                 "addl",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
+    return(X)
+}
+initialize_X_msm <- function() {
+    X.names <- c("covs.list",
+                 "treat.list",
+                 "weights",
+                 "distance.list",
+                 "addl.list",
+                 "s.d.denom",
+                 "call",
+                 "cluster",
+                 "imp",
+                 "s.weights",
+                 "focal",
+                 "discarded",
+                 "method",
+                 "subclass")
+    X <- setNames(vector("list", length(X.names)),
+                  X.names)
+    return(X)
+}
 strata2weights <- function(strata, treat) {
     #Process strata into weights (similar to weight.subclass from MatchIt)
     
@@ -343,6 +351,43 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
     }
     return(val.List)
 }
+vector.process <- function(vec, name = deparse(substitute(vec)), which = name, data = NULL, missing.okay = FALSE) {
+    bad.vec <- FALSE
+    if (is.character(vec) && length(vec)==1L && is_not_null(data)) {
+        if (is_(data, "list")) {
+            for (i in seq_along(data)) {
+                if (is_(data[[i]], "matrix") && vec %in% colnames(data[[i]])) {
+                    vec <- data[[i]][,vec]
+                    break
+                }
+                else if (is_(data[[i]], "data.frame") && vec %in% names(data[[i]])) {
+                    vec <- data[[i]][[vec]]
+                    break
+                }
+                else if (i == length(data)) bad.vec <- TRUE
+            }
+        }
+        else if (is_(data, "matrix") && vec %in% colnames(data)) {
+            vec <- data[,vec]
+        }
+        else if (is_(data, "data.frame") && vec %in% names(data)) {
+            vec <- data[[vec]]
+        }
+        else bad.vec <- TRUE
+    }
+    else if (is_(vec, c("atomic", "factor")) && length(vec) > 1L) {
+        vec <- vec
+    }
+    else {
+        bad.vec <- TRUE
+    }
+    
+    if (bad.vec) stop(paste0("The argument to ", name, " must be a vector of ", which, " or the (quoted) name of a variable in data that contains ", which, "."), call. = FALSE)
+    
+    if (!missing.okay && anyNA(vec)) stop(paste0("Missing values exist in ", name, "."), call. = FALSE)
+    
+    return(vec)
+} 
 get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
     check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
     s.d.denom.specified <- is_not_null(s.d.denom)
@@ -525,12 +570,11 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
     return(estimand)
 }
 get.X.class <- function(X) {
-    if (is_not_null(X[["imp"]])) {
-        if (is_not_null(X[["treat.list"]])) stop("Multiply imputed data is not yet supported with longitudinal treatments.", call. = FALSE)
-        else if (get.treat.type(X[["treat"]]) == "multinomial") stop("Multiply imputed data is not yet supported with multinomial treatments.", call. = FALSE)
+    if (is_not_null(X[["treat.list"]])) X.class <- "msm"
+    else if (is_not_null(X[["imp"]])) {
+        if (get.treat.type(X[["treat"]]) == "multinomial") stop("Multiply imputed data is not yet supported with multinomial treatments.", call. = FALSE)
         else X.class <- "imp"
     }
-    else if (is_not_null(X[["treat.list"]])) X.class <- "msm"
     else if (get.treat.type(X[["treat"]]) == "binary") X.class <- "binary"
     else if (get.treat.type(X[["treat"]]) == "multinomial") X.class <- "multi"
     else if (get.treat.type(X[["treat"]]) == "continuous") X.class <- "cont"
@@ -588,6 +632,95 @@ imp.complete <- function(data) {
     else row.names(cmp) <- as.character(seq_len(nrow(cmp)))
     
     return(cmp)
+}
+length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL, imp = NULL, data = NULL, original.call.to = NULL, env = sys.frame(-1)) {
+    #Processes imp and assigns it to imp in env
+    #Processes vectors, data.frames, and lists for length
+    #If object correspond to one imputation, assigns expanded object in env 
+    
+    ensure.equal.lengths <- TRUE
+    problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
+    lengths <- setNames(c(vapply(vectors, 
+                                 function(x) {len(get0(x, envir = env, inherits = FALSE))
+                                 }, numeric(1L)), 
+                          vapply(data.frames, 
+                                 function(x) {len(get0(x, envir = env, inherits = FALSE))
+                                 }, numeric(1L)),
+                          vapply(lists, function(x) {
+                              if (!exists(x, envir = env, inherits = FALSE)) 0 
+                              else max(vapply(get(x, envir = env, inherits = FALSE), len, numeric(1L)))
+                          }, numeric(1L))), 
+                        c(vectors, data.frames, lists))
+    
+    #Process imp further
+    if (is_not_null(imp)) {
+        
+        imp.lengths <- vapply(levels(imp), function(i) sum(imp == i), numeric(1L))
+        
+        if (all_the_same(imp.lengths)) { #all the same
+            for (i in vectors) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) { 
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
+                    if (lengths[i] == imp.lengths[1]) {
+                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               order2 = seq_along(imp))
+                        
+                        temp.var <- data.frame(sort(imp), rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               get(i, envir = env, inherits = FALSE)[rep(seq_len(lengths[i]), length(imp.lengths))]
+                        )
+                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
+                                            by.y = 1:2, sort = FALSE)
+                        assign(i, temp.merge[[4]][order(temp.merge[[3]])], pos = env)
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+            for (i in data.frames) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
+                    if (lengths[i] == imp.lengths[1]) {
+                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               order2 = seq_along(imp))
+                        temp.var <- data.frame(sort(imp),rep(seq_len(lengths[i]), length(imp.lengths)),
+                                               get(i, envir = env, inherits = FALSE)[rep(seq_len(lengths[i]), length(imp.lengths)), , drop = FALSE]
+                        )
+                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
+                                            by.y = 1:2, sort = FALSE)
+                        assign(i, setNames(temp.merge[order(temp.merge[[3]]), -c(1:3), drop = FALSE], names(get(i, envir = env, inherits = FALSE))), envir = env)
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+        }
+        else {
+            problematic <- lengths > 0 & lengths != length(imp)
+        }
+        if (any(problematic)) {
+            stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as imp."), call. = FALSE)
+        }
+        else ensure.equal.lengths <- FALSE
+        
+        assign("imp", imp, envir = env)
+    }
+    
+    #Ensure all input lengths are the same.
+    if (ensure.equal.lengths) {
+        for (i in c(vectors, data.frames, lists)) {
+            if (lengths[i] > 0 && lengths[i] != lengths[data.frames[1]]) {
+                problematic[i] <- TRUE
+            }
+        }
+    }
+    if (any(problematic)) {
+        if (is_null(original.call.to)) anchor <- c(lists, data.frames, vectors)[1]
+        else anchor <- paste("in the original call to", original.call.to)
+        
+        stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as ", anchor, "."), call. = FALSE)
+    }
 }
 
 #get.C
