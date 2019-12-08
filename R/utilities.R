@@ -107,13 +107,12 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         drop <- character(0)
         x <- factor(data[names(data) == v][[1]], exclude = NULL)
         na.level <- is.na(levels(x))
-        levels(x) <- paste0(sep, levels(x))
-        data[names(data) == v][[1]] <- x
-        
+
         skip <- FALSE
         if (nlevels(x) > 1) {
-            k <- model.matrix(as.formula(paste0("~`", v, "`- 1")), data = data)
-            colnames(k) <- gsub("`", colnames(k), replacement = "")
+            k <- matrix(0, nrow = nrow(data), ncol = nlevels(x), 
+                        dimnames = list(NULL, paste(v, levels(x), sep = sep)))
+            for (i in seq_len(ncol(k))) k[x == levels(x)[i], i] <- 1
             
             if (any(na.level)) {
                 if (drop.na[v]) {
@@ -130,7 +129,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             }
             else {
                 k <- matrix(1, ncol = 1, nrow = length(x))
-                colnames(k) <- paste0(v, levels(x)[1])
+                colnames(k) <- paste(v, levels(x)[1], sep = sep)
             }
         }
         
@@ -156,21 +155,21 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             }
             if (drop.na[v]) dropl[na.level] <- TRUE
             
-            k <- k[,!dropl, drop = FALSE]
+            k <- as.data.frame.matrix(k[,!dropl, drop = FALSE], row.names = rownames(data))
             
             if (ncol(data) == 1) {
-                data <- data.frame(k, row.names = rownames(data))
+                data <- k
             }
             else if (replace) {
                 if (match(v, names(data)) == 1){
-                    data <- cbind(k, data[names(data)!=v], row.names = rownames(data))
+                    data <- data.frame(k, data[names(data)!=v], row.names = rownames(data))
                 }
                 else if (match(v, names(data)) == ncol(data)) {
-                    data <- cbind(data[names(data)!=v], k, row.names = rownames(data))
+                    data <- data.frame(data[names(data)!=v], k, row.names = rownames(data))
                 }
                 else {
                     where <- match(v, names(data))
-                    data <- cbind(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = rownames(data))
+                    data <- data.frame(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = rownames(data))
                 }
             }
             else {
