@@ -2661,7 +2661,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     #Process data and get imp
     weightitMSM.data <- weightitMSM$data
     d.e.in.w <- vapply(c("covs.list", "exact", "by", "moderator"), function(x) is_not_null(weightitMSM[[x]]), logical(1L))
-    if (any(d.e.in.w)) weightitMSM.data2 <- do.call("cbind", c(covs, weightitMSM[c("exact", "by", "moderator")])[d.e.in.w])
+    if (any(d.e.in.w)) weightitMSM.data2 <- do.call("cbind", c(do.call(cbind, weightitMSM$covs.list), weightitMSM[c("exact", "by", "moderator")])[d.e.in.w])
     else weightitMSM.data2 <- NULL
     
     imp <- A$imp
@@ -2731,7 +2731,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     }
     
     #Process weights
-    data.frame(weights = get.w(weightitMSM))
+    weights <- data.frame(weights = get.w(weightitMSM))
     if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
     if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
     
