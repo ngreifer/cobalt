@@ -170,13 +170,14 @@ x2base.matchit <- function(m, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "binary"
     
@@ -341,13 +342,14 @@ x2base.ps <- function(ps, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "binary"
     
@@ -494,13 +496,14 @@ x2base.mnps <- function(mnps, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "multi"
     
@@ -647,13 +650,14 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "cont"
     
@@ -777,13 +781,14 @@ x2base.Match <- function(Match, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "binary"
     
@@ -1084,13 +1089,14 @@ x2base.data.frame <- function(covs, ...) {
 
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- get.X.class(X)
     
@@ -1229,13 +1235,14 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- get.X.class(X)
     
@@ -1359,13 +1366,14 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "binary"
     
@@ -1488,13 +1496,14 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "binary"
     
@@ -1619,13 +1628,14 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- get.X.class(X)
     
@@ -1749,13 +1759,14 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "binary"
     
@@ -1926,13 +1937,14 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "imp"
     
@@ -2058,13 +2070,14 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process output
     X <- initialize_X()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "imp"
     
@@ -2247,13 +2260,14 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process output
     X <- initialize_X_msm()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- get.X.class(X)
     
@@ -2454,13 +2468,14 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process output
     X <- initialize_X_msm()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- "msm"
     
@@ -2625,13 +2640,14 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process output
     X <- initialize_X_msm()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- get.X.class(X)
     
@@ -2772,13 +2788,14 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process output
     X <- initialize_X_msm()
+    X.names <- names(X)
     
-    for (i in names(X)) {
+    for (i in X.names) {
         X[[i]] <- get0(i, inherits = FALSE)
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[names(X)], names(X))
+    X <- setNames(X[X.names], X.names)
     
     class(X) <- get.X.class(X)
     
@@ -3249,13 +3266,14 @@ x2base.default <- function(obj, ...) {
         
         #Process output
         X <- initialize_X()
+        X.names <- names(X)
         
-        for (i in names(X)) {
+        for (i in X.names) {
             X[[i]] <- get0(i, inherits = FALSE)
         }
         
         X <- subset_X(X, subset)
-        X <- setNames(X[names(X)], names(X))
+        X <- setNames(X[X.names], X.names)
         
         class(X) <- get.X.class(X)
         
@@ -3466,13 +3484,14 @@ x2base.default <- function(obj, ...) {
         
         #Process output
         X <- initialize_X_msm()
+        X.names <- names(X)
         
-        for (i in names(X)) {
+        for (i in X.names) {
             X[[i]] <- get0(i, inherits = FALSE)
         }
         
         X <- subset_X(X, subset)
-        X <- setNames(X[names(X)], names(X))
+        X <- setNames(X[X.names], X.names)
         
         class(X) <- "msm"
     }
