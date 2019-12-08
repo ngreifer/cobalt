@@ -490,7 +490,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
             message(paste0("Warning: estimand should be one of ", word_list(c("ATT", "ATC", "ATE"), "or", quotes = TRUE), 
                            ". Ignoring estimand."))
         }
-        else if ((check.focal || check.weights) && any(s.d.denom %nin% treat_names(treat))) {
+        else if ((check.focal || check.weights) && any(s.d.denom %nin% treat_vals(treat))) {
             message("Note: s.d.denom not specified; assuming ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
         }
     }
@@ -647,7 +647,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
                                  function(x) {len(get0(x, envir = env, inherits = FALSE))
                                  }, numeric(1L)),
                           vapply(lists, function(x) {
-                              if (!exists(x, envir = env, inherits = FALSE)) 0 
+                              if (is_null(get0(x, envir = env, inherits = FALSE))) 0 
                               else max(vapply(get(x, envir = env, inherits = FALSE), len, numeric(1L)))
                           }, numeric(1L))), 
                         c(vectors, data.frames, lists))
@@ -710,7 +710,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
     #Ensure all input lengths are the same.
     if (ensure.equal.lengths) {
         for (i in c(vectors, data.frames, lists)) {
-            if (lengths[i] > 0 && lengths[i] != lengths[data.frames[1]]) {
+            if (lengths[i] > 0 && lengths[i] != lengths[c(lists, data.frames, vectors)[1]]) {
                 problematic[i] <- TRUE
             }
         }
