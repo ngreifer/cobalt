@@ -568,7 +568,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     }
     
     #Process treat
-    treat <- process_treat(ps$treat, data = list(data, ps.data))
+    treat <- process_treat(ps.cont$treat, data = list(data, ps.data))
     
     #Process covs
     covs <- ps.cont$data[, ps.cont$gbm.obj$var.names, drop = FALSE]
