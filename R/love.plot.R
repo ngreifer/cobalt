@@ -74,7 +74,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     
     args <- list(...)
     
-    if (any(class(x) == "bal.tab.cont")) {
+    if ("bal.tab.cont" %nin% class(x)) {
         stats <- "correlations"
     }
     else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
