@@ -25,14 +25,14 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
     if (is.data.frame(data)) {
         data <- as.data.frame(data)
         if (check) {
-            factor.names <- names(data)[vapply(data, function(x) is.factor(x) || is.character(x), logical(1L))]
+            factor.names <- names(data)[vapply(data, is_, logical(1L), c("factor", "character"))]
             if (missing(var.name)) {
                 var.name <- factor.names
             }
             else if (is.character(var.name)) {
                 if (any(var.name %in% factor.names)) {
-                    if (any(!var.name %in% factor.names)) {
-                        not.in.factor.names <- var.name[!var.name %in% factor.names]
+                    if (any(var.name %nin% factor.names)) {
+                        not.in.factor.names <- var.name[var.name %nin% factor.names]
                         warning(paste(word_list(not.in.factor.names, "and", is.are = TRUE), 
                                       "not the name(s) of factor variable(s) in data and will not be split."), 
                                 call. = FALSE)
@@ -162,18 +162,22 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             }
             else if (replace) {
                 if (match(v, names(data)) == 1){
-                    data <- data.frame(k, data[names(data)!=v], row.names = rownames(data))
+                    data <- setNames(data.frame(k, data[names(data)!=v], row.names = rownames(data)),
+                                     c(names(k), names(data)[names(data)!=v]))
                 }
                 else if (match(v, names(data)) == ncol(data)) {
-                    data <- data.frame(data[names(data)!=v], k, row.names = rownames(data))
+                    data <- setNames(data.frame(data[names(data)!=v], k, row.names = rownames(data)),
+                                     c(names(data)[names(data)!=v], names(k)))
                 }
                 else {
                     where <- match(v, names(data))
-                    data <- data.frame(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = rownames(data))
+                    data <- setNames(data.frame(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = rownames(data)),
+                                     c(names(data)[1:(where-1)], names(k), names(data)[(where+1):ncol(data)]))
                 }
             }
             else {
-                data <- data.frame(data, k, row.names = rownames(data))
+                data <- setNames(data.frame(data, k, row.names = rownames(data)),
+                                 c(names(data), names(k)))
             }
             
         }
