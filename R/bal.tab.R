@@ -42,7 +42,9 @@ bal.tab.matchit <- function(m, int = FALSE, poly = 1, distance = NULL, addl = NU
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -68,7 +70,9 @@ bal.tab.ps <- function(ps, stop.method, int = FALSE, poly = 1, distance = NULL, 
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -94,7 +98,9 @@ bal.tab.mnps <- function(mnps, stop.method, int = FALSE, poly = 1, distance = NU
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     
     return(out)
@@ -121,7 +127,9 @@ bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distanc
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -147,7 +155,9 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -173,7 +183,9 @@ bal.tab.formula <- function(formula, data = NULL, ...) {
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     
     return(out)
@@ -199,7 +211,9 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     
     return(out)
@@ -230,7 +244,9 @@ bal.tab.CBPS <- function(cbps, int = FALSE, poly = 1, distance = NULL, addl = NU
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -256,7 +272,9 @@ bal.tab.weightit <- function(weightit, int = FALSE, poly = 1, distance = NULL, a
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -293,7 +311,9 @@ bal.tab.mimids <- function(mimids, int = FALSE, poly = 1, distance = NULL, addl 
 
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -319,7 +339,9 @@ bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl 
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -346,7 +368,9 @@ bal.tab.formula.list <- function(formula.list, data = NULL, ...) {
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -371,7 +395,9 @@ bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, w
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -392,15 +418,14 @@ bal.tab.iptw <- function(iptw, stop.method, int = FALSE, poly = 1, distance.list
         }
     }
     
-    if (is_not_null(args$cluster)) stop("Clusters are not yet supported with longitudinal treatments.", call. = FALSE)
-    if (is_not_null(args$imp)) stop("Multiply imputed data sets are not yet supported with longitudinal treatments.", call. = FALSE)
-    
     #Initializing variables
     X <- do.call("x2base.iptw", c(list(iptw), args), quote = TRUE)
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -430,7 +455,9 @@ bal.tab.default <- function(obj, ...) {
     
     args[names(args) %in% names(X)] <- NULL
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(X, args),
+    X <- assign.X.class(X)
+    
+    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
                    quote = TRUE)
     
     return(out)
