@@ -25,7 +25,7 @@ is.time.list <- function(x) {
 #x2base
 process_treat <- function(treat, data = NULL) {
     
-    if (is_null(treat)) stop("treat must be specified.", call. = FALSE)
+    if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     
     if (inherits(treat, "unprocessed.treat")) {
         attrs <- attributes(treat)
@@ -569,18 +569,21 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
     }
     return(estimand)
 }
-get.X.class <- function(X) {
-    if (is_not_null(X[["treat.list"]])) X.class <- "msm"
-    else if (is_not_null(X[["imp"]])) {
-        if (get.treat.type(X[["treat"]]) == "multinomial") stop("Multiply imputed data is not yet supported with multinomial treatments.", call. = FALSE)
-        else X.class <- "imp"
-    }
-    else if (get.treat.type(X[["treat"]]) == "binary") X.class <- "binary"
+assign.X.class <- function(X) {
+    if (is_not_null(X[["treat"]]) && !has.treat.type(X[["treat"]])) X[["treat"]] <- assign.treat.type(X[["treat"]])
+    
+    if (is_not_null(X[["subclass"]])) X.class <- "subclass"
+    else if (is_not_null(X[["cluster"]]) && nlevels(X[["cluster"]]) > 1) X.class <- "cluster"
+    else if (is_not_null(X[["covs.list"]])) X.class <- "msm"
     else if (get.treat.type(X[["treat"]]) == "multinomial") X.class <- "multi"
+    else if (is_not_null(X[["imp"]]) && nlevels(X[["imp"]]) > 1) X.class <- "imp"
+    else if (get.treat.type(X[["treat"]]) == "binary") X.class <- "binary"
     else if (get.treat.type(X[["treat"]]) == "continuous") X.class <- "cont"
     else probably.a.bug()
     
-    return(X.class)
+    class(X) <- X.class
+    
+    return(X)
 }
 subset_X <- function(X, subset = NULL) {
     if (is_not_null(subset)) {
@@ -1010,9 +1013,9 @@ remove.perfect.col <- function(C) {
 }
 
 #base.bal.tab
-check_if_zero_weights <- function(weights.df, treat, treat.type = "cat") {
+check_if_zero_weights <- function(weights.df, treat = NULL) {
     #Checks if all weights are zero in each treat group for each set of weights
-    if (treat.type == "cat") {
+    if (is_not_null(treat)) {
         w.t.mat <- expand.grid(colnames(weights.df), treat_vals(treat), stringsAsFactors = FALSE)
         colnames(w.t.mat) <- c("weight_names", "treat_vals")
         
@@ -1036,7 +1039,7 @@ check_if_zero_weights <- function(weights.df, treat, treat.type = "cat") {
             }
         }
     }
-    else if (treat.type == "cont") {
+    else {
         if (length(colnames(weights.df)) > 0) {
             problems <- vapply(colnames(weights.df), function(wn) all(check_if_zero(weights.df[, wn])), logical(1L))
             if (any(problems)) {
@@ -1057,8 +1060,6 @@ check_if_zero_weights <- function(weights.df, treat, treat.type = "cat") {
             }
         }
     }
-    else stop("treat.type must be either \"cat\" or \"cont\".")
-    
 }
 baltal <- function(threshold) {
     #threshold: vector of threshold values (i.e., "Balanced"/"Not Balanced")
