@@ -43,7 +43,9 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         X$treat <- unlist(X$treat.list[appears.in.time])
         if (is_not_null(names(X$treat.list))) treat.names <- names(X$treat.list)
         else treat.names <- seq_along(X$treat.list)
-        if (is_not_null(X$weights)) X$weights <- do.call("rbind", lapply(1:sum(appears.in.time), function(i) X$weights))
+        if (is_not_null(X$weights)) X$weights <- X$weights[rep(seq_len(nrow(X$weights)), sum(appears.in.time)), , drop = FALSE]
+        if (is_not_null(X$cluster)) X$cluster <- X$cluster[rep(seq_along(X$cluster), sum(appears.in.time))]
+        if (is_not_null(X$imp)) X$imp <- X$imp[rep(seq_along(X$imp), sum(appears.in.time))]
     }
     else {
         #Point treatment
@@ -68,7 +70,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     if (is_not_null(args$n)) n <- args$n else n <- 512
     
     if (is_null(X$subclass)) {
-        if (ncol(X$weights) == 1L) weight.names <- "adjusted"
+        if (NCOL(X$weights) == 1L) weight.names <- "adjusted"
         else weight.names <- names(X$weights)
     }
     else weight.names <- "adjusted"
@@ -126,9 +128,11 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 names(X$weights) <- "Adjusted Sample"
             }
             
-            X$weights <- setNames(data.frame(rep.int(max(X$weights), length(X$treat)),
-                                             X$weights),
-                                  c("Unadjusted Sample", names(X$weights)))
+            if ("Unadjusted Sample" %in% which) {
+                X$weights <- setNames(data.frame(rep.int(max(X$weights), length(X$treat)),
+                                                 X$weights),
+                                      c("Unadjusted Sample", names(X$weights)))
+            }
             
             
         }
@@ -265,17 +269,17 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         Q <- setNames(vector("list", ntypes), which)
         for (i in which) {
-            Q[[i]] <- setNames(as.data.frame(matrix(0, ncol = 7, nrow = nobs)),
-                               c("imp", "cluster", "time", "treat", "var", "weights", "which"))
-            Q[[i]]$imp <- Q[[i]]$cluster <- Q[[i]]$time <- character(nobs)
+            Q[[i]] <- setNames(as.data.frame(matrix(0, ncol = 4, nrow = nobs)),
+                               c("treat", "var", "weights", "which"))
             Q[[i]]$treat <- X$treat[in.imp & in.cluster & in.time]
             Q[[i]]$var <- X$var[in.imp & in.cluster & in.time]
             Q[[i]]$weights <-  X$weights[in.imp & in.cluster & in.time, i]
             Q[[i]]$which <- i
             
-            if ("imp" %in% facet) Q[[i]]$imp <- factor(paste("Imputation", X$imp[in.imp & in.cluster & in.time])) else Q[[i]]$imp <- NULL
-            if ("cluster" %in% facet) Q[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time]) else Q[[i]]$cluster <- NULL
-            if ("time" %in% facet) Q[[i]]$time <- factor(paste("Time", X$time[in.imp & in.cluster & in.time])) else Q[[i]]$time <- NULL
+            #Add columns for additional facets
+            if ("imp" %in% facet) Q[[i]]$imp <- factor(paste("Imputation", X$imp[in.imp & in.cluster & in.time]))
+            if ("cluster" %in% facet) Q[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time])
+            if ("time" %in% facet) Q[[i]]$time <- factor(paste("Time", X$time[in.imp & in.cluster & in.time]))
         }
         D <- do.call(rbind, Q)
         
@@ -639,6 +643,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             test.facet <- invisible(facet_grid(facet.formula))
             if (any(c(names(test.facet$params$rows), names(test.facet$params$cols)) %nin% facet)) {
                 stop(paste("Only", word_list(facet, is.are = TRUE, quotes = TRUE), "allowed in facet.formula."), call. = FALSE)
+            }
+            if ("which" %nin% c(names(test.facet$params$rows), names(test.facet$params$cols))) {
+                if (length(which) > 1) stop("\"which\" must be in the facet formula when the which argument refers to more than one sample.", call. = FALSE)
+                else message(paste0("Displaying balance for the ", if (which %in% c("Adjusted Sample", "Unadjusted Sample")) tolower(which) else paste(which, "sample"), "."))
             }
         }
         else if (length(facet) >= 2) {
