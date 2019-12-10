@@ -1,9 +1,11 @@
 `cobalt` News and Updates
 ======
 
-Version 3.10.0
+Version 4.0.0
 
 * Added support for `mimids` and `wimids` objects from `MatchThem`.
+
+* Major restructuring so that clusters, longitudinal treatments, multi-category treatments, and multiply imputed data can all be used with each other. These are layers in the following order: clusters, time points, treatments categories, and impuations. Summaries across these layers are handled slightly differently then how they used to be; importantly, summaries are not nested, and only the lowest layer present can have a summary. For example, if multiply imputed data is used with multi-category treatments, there will be a summary across imputations (the lowest layer) but not across treatment pairs.
 
 * Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. 
 
@@ -19,7 +21,7 @@ Version 3.10.0
 
 * When using `bal.plot` with continuous treatments and continuous covariates, the points are shaded based on their weights; this beahvior is controlled by the new `alpha.weight` argument, which replaces the functionality of `size.weight` (which was kind of ugly and not very informative). Now it's more apparent which points are influential in the weighted sample. In addition, a line illustrating the unweighted covariate mean is present.
 
-* Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.) (the `rms` package must be loaded to use these latter ones).
+* Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.).
 
 * `bal.tab()` no longer tells you whether it assumes matching or weighting when certain non-package-related methods are used.
 
@@ -28,6 +30,8 @@ Version 3.10.0
 * Improved guessing of estimand when not provided.
 
 * The default in `love.plot()` for `abs` is now to be whatever it is in the (implicit) call to `bal.tab()`, which is usually `FALSE`. Previously `abs` was not aligned between `love.plot()` and `bal.tab()`.
+
+* Speedup of `splitfactor()`.
 
 * Bug fixes here and there.
 
