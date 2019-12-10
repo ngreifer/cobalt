@@ -608,15 +608,16 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
 assign.treat.type <- function(treat) {
     #Returns treat with treat.type attribute
     nunique.treat <- nunique(treat)
-    if (nunique.treat == 2) {
-        treat.type <- "binary"
-    }
-    else if (nunique.treat < 2) {
+    
+    if (nunique.treat < 2) {
         stop("The treatment must have at least two unique values.", call. = FALSE)
+    }
+    else if (nunique.treat == 2) {
+        treat.type <- "binary"
     }
     else if (is_(treat, c("factor", "character"))) {
         treat.type <- "multinomial"
-        treat <- factor(treat)
+        if (!is_(treat, "processed.treat")) treat <- factor(treat)
     }
     else {
         treat.type <- "continuous"
