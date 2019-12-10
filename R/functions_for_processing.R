@@ -625,7 +625,7 @@ imp.complete <- function(data) {
     
     cmp <- data.frame(.imp = rep(idx, each = nrow(data$data)), 
                       .id = rep.int(1L:nrow(data$data), length(idx)), 
-                      do.call("rbind", mylist))
+                      do.call(rbind, mylist))
     
     if (is.integer(attr(data$data, "row.names"))) 
         row.names(cmp) <- seq_len(nrow(cmp))
@@ -658,19 +658,15 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
         imp.lengths <- vapply(levels(imp), function(i) sum(imp == i), numeric(1L))
         
         if (all_the_same(imp.lengths)) { #all the same
+            unsorted.imp <- is.unsorted(imp)
             for (i in vectors) {
                 if (lengths[i] > 0 && lengths[i] != length(imp)) { 
                     if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                     if (lengths[i] == imp.lengths[1]) {
-                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
-                                               order2 = seq_along(imp))
-                        
-                        temp.var <- data.frame(sort(imp), rep(seq_len(lengths[i]), length(imp.lengths)),
-                                               get(i, envir = env, inherits = FALSE)[rep(seq_len(lengths[i]), length(imp.lengths))]
-                        )
-                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
-                                            by.y = 1:2, sort = FALSE)
-                        assign(i, temp.merge[[4]][order(temp.merge[[3]])], pos = env)
+                        i_obj <- get(i, envir = env, inherits = FALSE)
+                        new_i <- i_obj[rep(seq_along(i_obj), length(imp.lengths))]
+                        if (unsorted.imp) {for (i_ in levels(imp)) new_i[imp == i_] <- i_obj}
+                        assign(i, new_i, pos = env)
                     }
                     else {
                         problematic[i] <- TRUE
@@ -681,14 +677,35 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
                 if (lengths[i] > 0 && lengths[i] != length(imp)) {
                     if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
                     if (lengths[i] == imp.lengths[1]) {
-                        temp.imp <- data.frame(imp = imp, order = rep(seq_len(lengths[i]), length(imp.lengths)),
-                                               order2 = seq_along(imp))
-                        temp.var <- data.frame(sort(imp),rep(seq_len(lengths[i]), length(imp.lengths)),
-                                               get(i, envir = env, inherits = FALSE)[rep(seq_len(lengths[i]), length(imp.lengths)), , drop = FALSE]
-                        )
-                        temp.merge <- merge(temp.imp, temp.var, by.x = c("imp", "order"), 
-                                            by.y = 1:2, sort = FALSE)
-                        assign(i, setNames(temp.merge[order(temp.merge[[3]]), -c(1:3), drop = FALSE], names(get(i, envir = env, inherits = FALSE))), envir = env)
+                        i_obj <- get(i, envir = env, inherits = FALSE)
+                        new_i <- i_obj[rep(seq_len(nrow(i_obj)), length(imp.lengths)), , drop = FALSE]
+                        if (unsorted.imp) {for (i_ in levels(imp)) new_i[imp == i_,] <- i_obj}
+                        assign(i, new_i, pos = env)
+                    }
+                    else {
+                        problematic[i] <- TRUE
+                    }
+                }
+            }
+            for (i in lists) {
+                if (lengths[i] > 0 && lengths[i] != length(imp)) {
+                    if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
+                    if (lengths[i] == imp.lengths[1]) {
+                        assign(i, lapply(get(i, envir = env, inherits = FALSE), function(j) {
+                            if (is_(j, c("atomic", "factor"))) {
+                                newj <- j[rep(seq_along(j), length(imp.lengths))]
+                                if (unsorted.imp) {for (i_ in levels(imp)) newj[imp == i_] <- j}
+                                return(newj)
+                            }
+                            else if (is_(j, c("data.frame", "matrix"))) {
+                                newj <- j[rep(seq_len(nrow(j)), length(imp.lengths)), , drop = FALSE]
+                                if (unsorted.imp) {for (i_ in levels(imp)) newj[imp == i_,] <- j}
+                                return(newj)
+                            }
+                            else {
+                                stop(paste(i, "can only contain vectors or data.frames."), call. = FALSE)
+                            }
+                        }), pos = env)
                     }
                     else {
                         problematic[i] <- TRUE
@@ -704,7 +721,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
         }
         else ensure.equal.lengths <- FALSE
         
-        assign("imp", imp, envir = env)
+        assign("imp", imp, pos = env)
     }
     
     #Ensure all input lengths are the same.
