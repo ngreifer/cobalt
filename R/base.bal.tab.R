@@ -917,13 +917,14 @@ base.bal.tab.msm <- function(weights = NULL, treat.list, distance.list = NULL, s
             if (is_not_null(imp)) {
                 args <- args[names(args) %nin% names(formals(base.bal.tab.imp))]
                 args_not_subsetted <- ls()[ls() %nin% c("treat", "distance",
-                                                        "covs", "addl")]
+                                                        "covs", "addl", "call")]
                 base_args <- mget(args_not_subsetted[args_not_subsetted %in% names(formals(base.bal.tab.imp))])
                 out[["Time.Balance"]][[ti]] <- do.call(base.bal.tab.imp, 
                                                        c(list(treat = treat.list[[ti]], 
                                                               distance = distance.list[[ti]], 
                                                               covs = covs.list[[ti]], 
-                                                              addl = addl.list[[ti]]), 
+                                                              addl = addl.list[[ti]],
+                                                              call = NULL), 
                                                          base_args,
                                                          args), quote = TRUE)
             }
