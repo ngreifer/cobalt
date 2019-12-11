@@ -651,8 +651,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         for (i in which.cluster) {
 
             cat("\n - - - " %+% italic("Cluster: " %+% names(c.balance)[i]) %+% " - - - \n")
-            
-            do.call(print, c(list(c.balance[[i]]), args))
+            do.call(print, c(list(c.balance[[i]]), p.ops))
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
