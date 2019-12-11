@@ -73,15 +73,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     }
     
     args <- list(...)
-    
-    if ("bal.tab.cont" %in% class(x)) {
-        stats <- "correlations"
-    }
-    else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
-    
-    which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
-    which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
-    
+
     #shape (deprecated)
     #un.color (deprecated)
     #adj.color (deprecated)
@@ -99,409 +91,16 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     
     Agg.Fun <- NULL
     subtitle <- NULL
-    facet <- NULL
     
-    cluster.names.good <- NULL
-    imp.numbers.good <- NULL
-    treat.names.good <- NULL; disp.treat.pairs <- NULL
-    time.names.good <- NULL
+    #Figure out plot type
     subclass.names <- NULL
     
     #NA = aggregate, NULL = individual
-    null.cluster <- is_null(attr(x, "print.options")$which.cluster)
-    na.cluster <- !null.cluster && anyNA(attr(x, "print.options")$which.cluster)
-    null.imp <- is_null(attr(x, "print.options")$which.imp)
-    na.imp <- !null.imp && anyNA(attr(x, "print.options")$which.imp)
-    null.treat <- is_null(attr(x, "print.options")$which.treat)
-    na.treat <- !null.treat && anyNA(attr(x, "print.options")$which.treat)
-    null.time <- is_null(attr(x, "print.options")$which.time)
-    na.time <- !null.time && anyNA(attr(x, "print.options")$which.time)
     
     config <- "agg.none"
     
     #Get B and config
-    if (any(class(x) == "bal.tab.msm")) {
-        #Get time.names.good
-        time.names <- names(x[["Time.Balance"]])
-        if (na.time) {
-            config <- "agg.time"
-            time.names.good <- NULL
-        }
-        else if (null.time) {
-            config <- "agg.none"
-            time.names.good <- setNames(rep(TRUE, length(time.names)), time.names)
-        }
-        else if (is.character(attr(x, "print.options")$which.time)) {
-            time.names.good <- sapply(time.names, function(x) any(sapply(attr(x, "print.options")$which.time, function(y) identical(x, y))))
-            if (any(time.names.good)) {
-                config <- "agg.none"
-            }
-            else {
-                stop("Make sure the arguments to which.time are valid treatment names or time point indices.", call. = FALSE)
-            }
-        }
-        else if (is.numeric(attr(x, "print.options")$which.time)) {
-            time.names.good <- setNames(seq_along(x$Time.Balance) %in% attr(x, "print.options")$which.time, time.names)
-            if (any(time.names.good)) {
-                config <- "agg.none"
-            }
-            else {
-                stop("Make sure the arguments to which.time are valid treatment names or time point indices.", call. = FALSE)
-            }
-        }
-        else stop("The argument to which.time must be .none, .all, or the names of treatments or indices of time points.", call. = FALSE)
-        
-        
-        #Get B from x
-        if (config == "agg.none") {
-            B <- do.call("rbind", lapply(names(x[["Time.Balance"]])[time.names.good], 
-                                         function(t) cbind(x[["Time.Balance"]][[t]][["Balance"]],
-                                                           time = t,
-                                                           variable.names = rownames(x[["Time.Balance"]][[t]][["Balance"]]))))
-            facet <- "time"
-        }
-        else if (config == "agg.time") {
-            if (is_null(x[["Balance.Across.Times"]])) {
-                stop("Cannot aggregate across time periods without a balance summary across time periods.\nThis may be because multinomial treatments were used, multiple treatment types were used,\nor quick was set to TRUE and msm.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
-            }
-            #Agg.Fun <- switch(match_arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
-            Agg.Fun <- "Max"
-            if (Agg.Fun == "Range") {
-                subtitle <- "Range Across Time Points"
-            }
-            else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Time Points")
-            }
-            B <- cbind(x[["Balance.Across.Times"]],
-                       variable.names = rownames(x[["Balance.Across.Times"]]))
-        }
-    }
-    else if (any(class(x) == "bal.tab.imp.cluster")) {
-        #Get imp.numbers.good
-        imp.numbers <- seq_along(x[["Imputation.Balance"]])
-        if (na.imp) {
-            imp.numbers.good <- NULL
-        }
-        else if (null.imp) {
-            imp.numbers.good <- setNames(rep(TRUE, length(imp.numbers)), imp.numbers)
-        }
-        else if (is.numeric(attr(x, "print.options")$which.imp)) {
-            imp.numbers.good <- setNames(imp.numbers %in% attr(x, "print.options")$which.imp, imp.numbers)
-        }
-        else stop("The argument to which.imp must be .none, .all, or the indices of imputations.", call. = FALSE)
-        
-        #Get cluster.names.good
-        cluster.names <- names(x[["Cluster.Balance.Across.Imputations"]])
-        if (na.cluster) {
-            cluster.names.good <- NULL
-        }
-        else if (null.cluster) {
-            cluster.names.good <- setNames(rep(TRUE, length(cluster.names)), cluster.names)
-        }
-        else if (is.character(attr(x, "print.options")$which.cluster)) {
-            cluster.names.good <- sapply(cluster.names, function(n) any(sapply(attr(x, "print.options")$which.cluster, function(y) identical(n, y))))
-        }
-        else if (is.numeric(attr(x, "print.options")$which.cluster)) {
-            cluster.names.good <- setNames(seq_along(x$Cluster.Balance) %in% attr(x, "print.options")$which.cluster, cluster.names)
-        }
-        else stop("The argument to which.cluster must be .none, .all, or the names or indices of clusters.", call. = FALSE)
-        
-        #Set configuration type of B using which.imp and which.cluster
-        if (na.imp) { #aggregate over all imps
-            if (na.cluster) {
-                config <- "agg.all"
-            }
-            else { #1, #6
-                if (any(cluster.names.good)) {
-                    config <- "agg.imp"
-                }
-                else {
-                    stop("Make sure the arguments to which.cluster are valid names or indices of clusters.", call. = FALSE)
-                }
-                
-            }
-        }
-        else if (sum(imp.numbers.good) == 1) {
-            if (na.cluster) {
-                config <- "agg.cluster"
-            }
-            else { 
-                if (any(cluster.names.good)) {
-                    config <- "agg.none"
-                }
-                else {
-                    stop("Make sure the arguments to which.cluster are valid names or indices of clusters.", call. = FALSE)
-                }
-            }
-        }
-        else if (sum(imp.numbers.good) > 1) {
-            if (na.cluster) {
-                config <- "agg.cluster"
-            }
-            else if (sum(cluster.names.good) == 1) {
-                config <- "agg.none"
-            }
-            else {
-                stop("At least one of which.cluster or which.imp must be .none or of length 1.", call. = FALSE)
-            }
-        }
-        else {
-            stop("Make sure the arguments to which.imp are valid imputation indices.", call. = FALSE)
-        }
-        
-        #Get B from x based on configuration
-        if (config == "agg.none") {
-            B <- do.call("rbind", lapply(names(x[["Imputation.Balance"]])[imp.numbers.good],
-                                         function(i) do.call("rbind", lapply(names(x[["Imputation.Balance"]][[i]][["Cluster.Balance"]])[cluster.names.good],
-                                                                             function(y) cbind(x[["Imputation.Balance"]][[i]][["Cluster.Balance"]][[y]][["Balance"]],
-                                                                                               cluster = y,
-                                                                                               imp = paste("Imputation:", i),
-                                                                                               variable.names = rownames(x[["Imputation.Balance"]][[i]][["Cluster.Balance"]][[y]][["Balance"]]))))))
-            if (sum(imp.numbers.good) == 1) {
-                facet <- "cluster"
-                subtitle <- paste("Imputation:", imp.numbers[imp.numbers.good])
-            }
-            else {
-                facet <- "imp"
-                subtitle <- paste("Cluster:", cluster.names[cluster.names.good])
-            }
-        }
-        else if (config == "agg.imp") {
-            if (is_null(x[["Cluster.Balance.Across.Imputations"]])) {
-                stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and imp.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
-            }
-            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
-                              mean = "Mean", max = "Max", range = "Range")
-            if (Agg.Fun == "Range") {
-                subtitle <- "Range Across Imputations"
-            }
-            else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Imputations", sep = " ")
-            }
-            B <- do.call("rbind", lapply(names(x[["Cluster.Balance.Across.Imputations"]])[cluster.names.good], 
-                                         function(c) cbind(x[["Cluster.Balance.Across.Imputations"]][[c]][["Cluster.Balance"]], 
-                                                           cluster = c, 
-                                                           variable.names = rownames(x[["Cluster.Balance.Across.Imputations"]][[c]][["Cluster.Balance"]]))))
-            facet <- "cluster"
-        }
-        else if (config == "agg.cluster") {
-            if (is_null(x[["Imputation.Balance"]][[1]][["Cluster.Summary"]])) {
-                stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
-            }
-            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
-                              mean = "Mean", max = "Max", range = "Range")
-            if (Agg.Fun == "Range") {
-                subtitle <- "Range Across Clusters"
-            }
-            else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Clusters", sep = " ")
-            }
-            B <- do.call("rbind", lapply(names(x[["Imputation.Balance"]])[imp.numbers.good], 
-                                         function(i) cbind(x[["Imputation.Balance"]][[i]][["Cluster.Summary"]], 
-                                                           imp = paste("Imputation:", i), 
-                                                           variable.names = rownames(x[["Imputation.Balance"]][[i]][["Cluster.Summary"]]))))
-            facet <- "imp"
-        }
-        else if (config == "agg.all") {
-            if (is_null(x[["Balance.Across.Imputations"]])) {
-                stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and cluster.summary or imp.summary were set to FALSE in the original bal.tab() call.", call. = FALSE)
-            }
-            #Cluster.Fun <- switch(match_arg(cluster.fun), mean = "Mean", max = "Max", range = "Range")
-            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
-                              mean = "Mean", max = "Max", range = "Range")
-            if (Agg.Fun == "Range") {
-                subtitle <- "Range Across Clusters and Imputations"
-            }
-            else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Clusters and Imputations", sep = " ")
-            }
-            B <- cbind(x[["Balance.Across.Imputations"]],
-                       variable.names = row.names(x[["Balance.Across.Imputations"]]))
-            facet <- NULL
-        }
-    }
-    else if (any(class(x) == "bal.tab.imp")) {
-        #Get imp.numbers.good
-        imp.numbers <- seq_along(x[["Imputation.Balance"]])
-        if (na.imp) {
-            config <- "agg.imp"
-            imp.numbers.good <- NULL
-        }
-        else if (null.imp) {
-            config <- "agg.none"
-            imp.numbers.good <- setNames(rep(TRUE, length(imp.numbers)), imp.numbers)
-        }
-        else if (is.numeric(attr(x, "print.options")$which.imp)) {
-            imp.numbers.good <- setNames(imp.numbers %in% attr(x, "print.options")$which.imp, imp.numbers)
-            if (any(imp.numbers.good)) {
-                config <- "agg.none"
-            }
-            else {
-                stop("Make sure the arguments to which.imp are valid imputation indices.", call. = FALSE)
-            }
-        }
-        else stop("The argument to which.imp must be .none, .all, or the indices of imputations.", call. = FALSE)
-        
-        #Get B from x
-        if (config == "agg.none") {
-            B <- do.call("rbind", lapply(names(x[["Imputation.Balance"]])[imp.numbers.good], 
-                                         function(i) cbind(x[["Imputation.Balance"]][[i]][["Balance"]],
-                                                           imp = paste("Imputation:", i),
-                                                           variable.names = rownames(x[["Imputation.Balance"]][[i]][["Balance"]]))))
-            facet <- "imp"
-        }
-        else if (config == "agg.imp") {
-            if (is_null(x[["Balance.Across.Imputations"]])) {
-                stop("Cannot aggregate across imputations without a balance summary across imputations.\nThis may be because quick was set to TRUE and imp.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
-            }
-            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
-                              mean = "Mean", max = "Max", range = "Range")
-            if (Agg.Fun == "Range") {
-                subtitle <- "Range Across Imputations"
-            }
-            else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Imputations")
-            }
-            B <- cbind(x[["Balance.Across.Imputations"]],
-                       variable.names = rownames(x[["Balance.Across.Imputations"]]))
-        }
-    }
-    else if (any(class(x) == "bal.tab.cluster")) {
-        #Get cluster.names.good
-        cluster.names <- names(x[["Cluster.Balance"]])
-        if (na.cluster) {
-            config <- "agg.cluster"
-            cluster.names.good <- NULL
-        }
-        else if (null.cluster) {
-            config <- "agg.none"
-            cluster.names.good <- setNames(rep(TRUE, length(cluster.names)), cluster.names)
-        }
-        else if (is.character(attr(x, "print.options")$which.cluster)) {
-            cluster.names.good <- sapply(cluster.names, function(c) any(sapply(attr(x, "print.options")$which.cluster, function(y) identical(c, y))))
-            if (any(cluster.names.good)) {
-                config <- "agg.none"
-            }
-            else {
-                stop("Make sure the arguments to which.cluster are valid cluster names or indices.", call. = FALSE)
-            }
-        }
-        else if (is.numeric(attr(x, "print.options")$which.cluster)) {
-            cluster.names.good <- setNames(seq_along(x$Cluster.Balance) %in% attr(x, "print.options")$which.cluster, cluster.names)
-            if (any(cluster.names.good)) {
-                config <- "agg.none"
-            }
-            else {
-                stop("Make sure the arguments to which.cluster are valid cluster names or indices.", call. = FALSE)
-            }
-        }
-        else stop("The argument to which.cluster must be .none, .all, or the names or indices of clusters.", call. = FALSE)
-        
-        #Get B from x
-        if (config == "agg.none") {
-            B <- do.call("rbind", lapply(names(x[["Cluster.Balance"]])[cluster.names.good], 
-                                         function(c) cbind(x[["Cluster.Balance"]][[c]][["Balance"]],
-                                                           cluster = c,
-                                                           variable.names = rownames(x[["Cluster.Balance"]][[c]][["Balance"]]))))
-            facet <- "cluster"
-        }
-        else if (config == "agg.cluster") {
-            if (is_null(x[["Cluster.Summary"]])) {
-                stop("Cannot aggregate across clusters without a balance summary across clusters.\nThis may be because quick was set to TRUE and cluster.summary set to FALSE in the original bal.tab() call.", call. = FALSE)
-            }
-            Agg.Fun <- switch(tolower(match_arg(agg.fun, c("range", "max", "mean"))), 
-                              mean = "Mean", max = "Max", range = "Range")
-            if (Agg.Fun == "Range") {
-                subtitle <- "Range Across Clusters"
-            }
-            else {
-                subtitle <- paste(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), "Across Clusters")
-            }
-            B <- cbind(x[["Cluster.Summary"]],
-                       variable.names = rownames(x[["Cluster.Summary"]]))
-        }
-    }
-    else if (any(class(x) == "bal.tab.multi")) {
-        #Get cluster.names.good
-        treat.names <- attr(x, "print.options")$treat.names
-        if (na.treat) {
-            config <- "agg.pair"
-            treat.names.good <- NULL
-        }
-        else if (null.treat) {
-            config <- "agg.none"
-            treat.names.good <- rep(TRUE, length(treat.names))
-        }
-        else if (is.character(attr(x, "print.options")$which.treat)) {
-            treat.names.good <- treat.names %in% attr(x, "print.options")$which.treat
-            if (any(treat.names.good)) {
-                config <- "agg.none"
-            }
-            else {
-                stop("Make sure the arguments to which.treat are valid treatment names or indices.", call. = FALSE)
-            }
-        }
-        else if (is.numeric(attr(x, "print.options")$which.treat)) {
-            treat.names.good <- seq_along(treat.names) %in% attr(x, "print.options")$which.treat
-            if (any(treat.names.good)) {
-                config <- "agg.none"
-            }
-            else {
-                stop("Make sure the arguments to which.cluster are valid cluster names or indices.", call. = FALSE)
-            }
-        }
-        else stop("The argument to which.cluster must be .none, .all, or the names or indices of clusters.", call. = FALSE)
-        
-        
-        if (na.treat) {
-            disp.treat.pairs <- character(0)
-        }
-        else {
-            if (attr(x, "print.options")$pairwise) {
-                if (sum(treat.names.good) == 1) {
-                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) any(attr(x[["Pair.Balance"]][[p]], "print.options")$treat.names == attr(x, "print.options")$treat.names[treat.names.good]))]
-                }
-                else {
-                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) all(attr(x[["Pair.Balance"]][[p]], "print.options")$treat.names %in% attr(x, "print.options")$treat.names[treat.names.good]))]
-                }
-            }
-            else {
-                if (sum(treat.names.good) == 1) {
-                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) {
-                        treat.names <- attr(x[["Pair.Balance"]][[p]], "print.options")$treat.namestreat.names
-                        any(treat.names[treat.names != "Others"] == attr(x, "print.options")$treat.names[treat.names.good])})]
-                }
-                else {
-                    disp.treat.pairs <- names(x[["Pair.Balance"]])[sapply(names(x[["Pair.Balance"]]), function(p) {
-                        treat.names <- attr(x[["Pair.Balance"]][[p]], "print.options")$treat.namestreat.names
-                        all(treat.names[treat.names != "Others"] %in% attr(x, "print.options")$treat.names[treat.names.good])})]
-                }
-            }
-            
-        }
-        
-        #Get B from x
-        if (config == "agg.none") {
-            B <- do.call("rbind", lapply(disp.treat.pairs,
-                                         function(p) cbind(x[["Pair.Balance"]][[p]][["Balance"]],
-                                                           treat.pair = p,
-                                                           variable.names = rownames(x[["Pair.Balance"]][[p]][["Balance"]]))))
-            facet <- "treat.pair"
-        }
-        else if (config == "agg.pair") {
-            #Agg.Fun <- switch(match_arg(agg.fun), mean = "Mean", max = "Max", range = "Range")
-            Agg.Fun <- "Max"
-            if (Agg.Fun == "Range") {
-                subtitle <- paste0("Range Across Treatment", ifelse(attr(x, "print.options")$pairwise, " Pairs", "s"))
-            }
-            else {
-                subtitle <- paste0(ifelse(Agg.Fun == "Mean", "Average", Agg.Fun), " Across Treatment", ifelse(attr(x, "print.options")$pairwise, " Pairs", "s"))
-            }
-            B <- cbind(x[["Balance.Across.Pairs"]],
-                       variable.names = rownames(x[["Balance.Across.Pairs"]]))
-        }
-    }
-    else if (any(class(x) == "bal.tab.subclass")) {
+    if (any(class(x) == "bal.tab.subclass")) {
         if (any(stats == "variance.ratios")) stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
         if (any(stats == "ks.statistics")) stop("KS statistics not currently supported for subclassification.", call. = FALSE)
         if (any(class(x) == "bal.tab.cont")) stop("Continuous treatments not currently supported for subclassification.", call. = FALSE)
@@ -517,7 +116,150 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         subtitle <- "Across Subclasses"
     }
     else {
-        B <- cbind(x[["Balance"]], variable.names = row.names(x[["Balance"]]))
+        B_list <- unpack_bal.tab(x)
+        namesep <- attr(B_list, "namesep")
+        class_sequence <- attr(B_list, "class_sequence")
+        if (is_not_null(class_sequence)) {
+            facet_mat <- do.call(rbind, strsplit(names(B_list), namesep, fixed = TRUE))
+            facet <- unname(vapply(class_sequence, switch, character(1L),
+                                          bal.tab.cluster = "cluster",
+                                          bal.tab.msm = "time",
+                                          bal.tab.multi = "treat",
+                                          bal.tab.imp = "imp", NULL))
+            dimnames(facet_mat) <- list(names(B_list), facet)
+
+            for (b in seq_along(B_list)) {
+                B_list[[b]][["variable.names"]] <- rownames(B_list[[b]])
+                for (i in facet) {
+                    if (i == "imp") B_list[[b]][[i]] <- paste("Imputation:", facet_mat[b, i])
+                    else B_list[[b]][[i]] <- facet_mat[b, i]
+                }
+            }
+            
+            #Process which. so that B_list can be shortened
+            agg.over <- character(0)
+            for (i in facet) {
+                which. <- attr(x, "print.options")[[paste0("which.", i)]]
+                if (is_null(which.)) {
+                    
+                }
+                else if (anyNA(which.)) {
+                    agg.over <- c(agg.over, i)
+                }
+                else {
+                    if (is.numeric(which.) && max(which.) <= nunique(facet_mat[,i])) {
+                        facet_mat <- facet_mat[facet_mat[,i] %in% sort(unique(facet_mat[,i]))[which.], ,drop = FALSE]
+                    }
+                    else if (is.character(which.) && all(which. %in% unique(facet_mat[,i]))) {
+                        facet_mat <- facet_mat[facet_mat[,i] %in% which., ,drop = FALSE]
+                    }
+                    else stop(paste0("The argument to which.", i, " must be .none, .all, or the appropriate levels."), call. = FALSE)
+                }
+            }
+            B_list <- B_list[names(B_list) %in% rownames(facet_mat)]
+            
+            if (any(startsWith(names(B_list[[1]]), "Corr."))) {
+                stats <- "correlations"
+            }
+            else {
+                stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+            }
+            which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
+            which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
+            
+            
+            stat.cols <- expand.grid_string(which.stat,
+                                            c("Un", attr(x, "print.options")[["weight.names"]]),
+                                            collapse = ".")
+            cols.to.keep <- c("variable.names", "Type", facet, stat.cols)
+            
+            for (b in seq_along(B_list)) {
+                B_list[[b]] <- B_list[[b]][cols.to.keep]
+            }
+            
+            B_stack <- do.call(rbind, c(B_list, list(make.row.names = FALSE)))
+            
+            if (is_not_null(agg.over)) {
+                if (is_null(agg.fun)) agg.fun <- "range"
+                Agg.Fun <- firstup(agg.fun <- match_arg(tolower(agg.fun), c("range", "max", "mean")))
+                facet <- facet[facet %nin% agg.over]
+                
+                aggregate_B <- function(FUN, B) {
+                    FUNtext <- FUN
+                    B_agged <- aggregate(B[stat.cols], 
+                                         by = B[c("variable.names", "Type", facet)], 
+                                         FUN = FUN)
+                    names(B_agged)[names(B_agged) %in% stat.cols] <- paste.(firstup(FUNtext), names(B_agged)[names(B_agged) %in% stat.cols])
+                    return(B_agged)
+                }
+                
+                if (agg.fun == "range") {
+                    B <- Reduce(function(x, y) merge(x, y, by = c("variable.names", "Type", facet), 
+                                                     sort = FALSE),
+                                      lapply(c("min", "mean", "max"), aggregate_B, B_stack))
+                }
+                else {
+                    B <- aggregate_B(agg.fun, B_stack)
+                }
+                
+                subtitle1 <- paste0(Agg.Fun, " across ", word_list(vapply(agg.over, switch, character(1L),
+                                                                          "cluster" = "clusters",
+                                                                          "time" = "time points",
+                                                                          "treat" = "treatment pairs",
+                                                                          "imp" = "imputations")))
+                config <- paste.("agg", agg.over)
+            }
+            else {
+                B <- B_stack
+                subtitle1 <- NULL
+                config <- "agg.none"
+            }
+            
+            one.level.facet <- facet[vapply(B[facet], all_the_same, logical(1L))]
+            if (is_not_null(one.level.facet)) {
+                subtitle2 <- paste(vapply(one.level.facet, function(olf) {
+                    paste(firstup(olf), B[1,olf], sep = ": ")
+                }, character(1L)), collapse = ", ")
+            }
+            else subtitle2 <- NULL
+            
+            B[names(B) %in% one.level.facet] <- NULL
+            
+            if (sum(facet %nin% one.level.facet) > 1) stop(paste("At least one of", word_list(paste.("which", facet), "or"), "must be .none or of length 1."), call. = FALSE)
+            
+            facet <- facet[facet %nin% one.level.facet]
+            
+            subtitle <- paste(c(subtitle1, subtitle2), collapse = "\n")
+            
+            #one.level.facet - go in subtitle
+            #facet - go in facet
+            #agg.over - aggregated (e.g., averaged) over
+            
+        }
+        else {
+            B <- data.frame(B_list, variable.names = rownames(B_list))
+            
+            facet <- one.level.facet <- agg.over <- NULL
+
+            if (any(startsWith(names(B), "Corr."))) {
+                stats <- "correlations"
+            }
+            else {
+                stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+            }
+            which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
+            which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
+            
+            stat.cols <- expand.grid_string(which.stat,
+                                            c("Un", attr(x, "print.options")[["weight.names"]]),
+                                            collapse = ".")
+            cols.to.keep <- c("variable.names", "Type", stat.cols)
+            B <- B[cols.to.keep]
+            
+            config <- "agg.none"
+            
+            subtitle <- NULL
+        }
     }
     
     if (is_not_null(facet) && length(stats) > 1) {
@@ -532,22 +274,6 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     if (missing(abs)) {
         if (is_null(attr(x, "print.options")[["abs"]])) abs <- TRUE
         else abs <- attr(x, "print.options")[["abs"]]
-    }
-    else if (config == "agg.none") {
-        if (!abs && !attr(x, "print.options")[["abs"]]) {
-            abs <- FALSE
-        }
-        else {
-            if (!abs && attr(x, "print.options")[["abs"]])
-                warning("abs is TRUE in the bal.tab object; ignoring abs in the call to love.plot().", call. = FALSE)
-            abs <- TRUE
-        }
-    }
-    else if (config %in% c("agg.time", "agg.pair")) {
-        abs <- TRUE
-    }
-    else if (config %in% c("agg.imp", "agg.cluster", "agg.all")) {
-        abs <- attr(x, "print.options")[["abs"]]
     }
     
     #Process variable names
@@ -748,13 +474,13 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     # stroke <- .8*size
     
     if (is_not_null(facet)) {
-        if (is_not_null(var.order) && "love.plot" %nin% class(var.order) && tolower(var.order) != "alphabetical" && (sum(cluster.names.good) > 1 || sum(imp.numbers.good) > 1 || length(disp.treat.pairs) > 1 || sum(time.names.good) > 1)) {
+        if (is_not_null(var.order) && "love.plot" %nin% class(var.order) && tolower(var.order) != "alphabetical") {
             warning("var.order cannot be set with faceted plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
             var.order <- NULL
         }
     }
     
-    agg.range <- is_not_null(Agg.Fun) && Agg.Fun == "Range"
+    agg.range <- isTRUE(Agg.Fun == "Range")
     
     #Process thresholds
     stat2threshold <- c(mean.diffs = "m.threshold",
@@ -863,22 +589,10 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
                                                         min.stat = B[[paste.("Min", which.stat[s], w)]],
                                                         max.stat = B[[paste.("Max", which.stat[s], w)]],
                                                         mean.stat = B[[paste.("Mean", which.stat[s], w)]],
-                                                        Sample = ifelse(w == "Un", "Unadjusted", 
-                                                                        ifelse(w == "Adj", "Adjusted", w)),
+                                                        Sample = switch(w, "Un"= "Unadjusted", 
+                                                                        "Adj" = "Adjusted", w),
+                                                        B[facet],
                                                         row.names = NULL)))
-            
-            if (is_not_null(facet)) {
-                if ("cluster" %in% facet) {
-                    SS$cluster <- rep(B[["cluster"]], 1 + attr(x, "print.options")$nweights)
-                }
-                if ("imp" %in% facet) {
-                    SS$imp <- rep(B[["imp"]], 1 + attr(x, "print.options")$nweights)
-                }
-                if ("treat.pair" %in% facet) {
-                    SS$treat.pair <- rep(B[["treat.pair"]], 1 + attr(x, "print.options")$nweights)
-                }
-            }
-            
             
             if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) 
                 stop(paste("No balance statistics to display. This can occur when", 
@@ -965,17 +679,10 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
                                                         type = B[["Type"]],
                                                         stat = B[[ifelse(is_null(Agg.Fun), paste.(which.stat[s], w),
                                                                          paste.(Agg.Fun, which.stat[s], w))]],
-                                                        Sample = ifelse(w == "Un", "Unadjusted", 
-                                                                        ifelse(w == "Adj", "Adjusted", w)),
+                                                        Sample = switch(w, "Un"= "Unadjusted", 
+                                                                        "Adj" = "Adjusted", w),
+                                                        B[facet],
                                                         row.names = NULL)))
-            
-            if (is_not_null(facet)) {
-                for (i in c("cluster", "imp", "treat.pair", "time")) {
-                    if (i %in% facet) {
-                        SS[[i]] <- rep(B[[i]], 1 + attr(x, "print.options")$nweights)
-                    }
-                }
-            }
             
             missing.stat <- all(is.na(SS[["stat"]]))
             if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), 
@@ -1116,20 +823,6 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             if (identical(scale_Statistics, scale_x_log10)) limits[[s]][limits[[s]] <= 1e-2] <- 1e-2
             
             if (agg.range) {
-                # for (i in c("min.stat", "mean.stat", "max.stat")) {
-                #     if (any(SS[[i]] < limits[[s]][1], na.rm = TRUE)) {
-                #         if (i == "mean.stat") SS[["on.border"]][SS[[i]] < limits[[s]][1]] <- TRUE
-                #         if (i == "mean.stat") SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
-                #         else SS[[i]][SS[[i]] < limits[[s]][1]] <- limits[[s]][1]
-                #     }
-                #     if (any(SS[[i]] > limits[[s]][2], na.rm = TRUE)) {
-                #         if (i == "mean.stat") SS[["on.border"]][SS[[i]] > limits[[s]][2]] <- TRUE
-                #         if (i == "mean.stat") SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
-                #         else SS[[i]][SS[[i]] > limits[[s]][2]] <- limits[[s]][2]
-                #         
-                #         # warning("Some points will be removed from the plot by the limits.", call. = FALSE)
-                #     }
-                # }
                 
                 if (any(SS[["mean.stat"]] < limits[[s]][1], na.rm = TRUE)) {
                     SS[["on.border"]][SS[["mean.stat"]] < limits[[s]][1]] <- TRUE
