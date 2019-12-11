@@ -289,24 +289,7 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
         else vars <- vapply(b[["print.options"]][["co.names"]], function(x) paste(x[["component"]], collapse = ""), character(1))
     }
     else {
-        vars <- NULL
-        var.containers <- c(quote(b[["Balance"]]),
-                            quote(b[["Cluster.Balance"]][[1]][["Balance"]]),
-                            quote(b[["Subclass.Balance"]][[1]]),
-                            quote(b[["Imputation.Balance"]][[1]][["Balance"]]),
-                            quote(b[["Imputation.Balance"]][[1]][["Cluster.Balance"]][[1]][["Balance"]]),
-                            quote(b[["Pair.Balance"]][[1]]),
-                            quote(b[["Time.Balance"]][[1]][["Balance"]]))
-        for (i in var.containers) {
-            obj <- eval(i)
-            if (is_not_null(obj)) {
-                vars <- rownames(obj)
-                break
-            }
-            else obj <- NULL
-        }
-        if (is_null(vars)) stop("No variable names were found in the object. It is probably not a bal.tab object.", call. = FALSE)
-        if (minimal) warning("minimal is being set to FALSE because the part of the object required for it to be TRUE is missing.", call. = FALSE)
+        stop("No variable names were found in the object. It is probably not a bal.tab object.", call. = FALSE)
     }
     
     if (is_not_null(file)) {
