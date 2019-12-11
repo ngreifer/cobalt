@@ -5,7 +5,7 @@ Version 4.0.0
 
 * Added support for `mimids` and `wimids` objects from `MatchThem`.
 
-* Major restructuring so that clusters, longitudinal treatments, multi-category treatments, and multiply imputed data can all be used with each other. These are layers in the following order: clusters, time points, treatments categories, and impuations. Summaries across these layers are handled slightly differently then how they used to be; importantly, summaries are not nested, and only the lowest layer present can have a summary. For example, if multiply imputed data is used with multi-category treatments, there will be a summary across imputations (the lowest layer) but not across treatment pairs.
+* Major restructuring so that clusters, longitudinal treatments, multi-category treatments, and multiply imputed data can all be used with each other. These are layers in the following order: clusters, time points, treatments categories, and impuations. Summaries across these layers are handled slightly differently then how they used to be; importantly, summaries are not nested, and only the lowest layer present can have a summary. For example, if multiply imputed data is used with multi-category treatments, there will be a summary across imputations (the lowest layer) but not across treatment pairs. `love.plot` allows multiple forms of faceting and is extremely fleixble in this regard.
 
 * Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. 
 
