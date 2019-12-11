@@ -1535,51 +1535,7 @@ balance.table.across.subclass <- function(balance.table, balance.table.subclass.
     if (is_not_null(m.threshold)) B.A.df[["M.Threshold"]] <- ifelse(B.A.df[["Type"]]=="Distance", "", paste0(ifelse(is.finite(B.A.df[["Diff.Adj"]]) & abs_(B.A.df[["Diff.Adj"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold))
     return(B.A.df)
 }
-balance.table.cluster.summary <- function(balance.table.clusters.list, weight.names = NULL, no.adj = FALSE, abs = FALSE, quick = TRUE, types = NULL) {
-    
-    balance.table.clusters.list <- clear_null(balance.table.clusters.list)
-    cont.treat <- "Corr.Un" %in% unique(do.call("c", lapply(balance.table.clusters.list, names)))
-    if (no.adj) weight.names <- "Adj"
-    
-    Brownames <- unique(do.call("c", lapply(balance.table.clusters.list, rownames)))
-    #cluster.functions <- c("Min", "Mean", "Median", "Max")
-    cluster.functions <- c("Min", "Mean", "Max")
-    stats <- if (cont.treat) "Corr" else c("Diff", "V.Ratio", "KS")
-    Bcolnames <- c("Type", apply(expand.grid(cluster.functions, stats, c("Un", weight.names)), 1, paste, collapse = "."))
-    B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
-    names(B) <- Bcolnames
-    
-    if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(balance.table.clusters.list, function(y) y[[x, "Type"]], character(1))))), use.names = FALSE)
-    
-    abs0 <- function(x) {if (abs) abs(x) else (x)}
-    funs <- vfuns <- structure(vector("list", length(cluster.functions)), names = cluster.functions)
-    for (Fun in cluster.functions) {
-        funs[[Fun]] <- function(x, ...) {
-            if (!any(is.finite(x))) NA_real_
-            else get(tolower(Fun))(x, ...)
-        }
-        vfuns[[Fun]] <- function(x, ...) {
-            if (!any(is.finite(x))) NA_real_
-            else if (Fun == "Mean") geom.mean(x, ...)
-            else get(tolower(Fun))(x, ...)
-        }
-        for (sample in c("Un", weight.names)) {
-            if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
-                if (cont.treat) {
-                    B[[paste.(Fun, "Corr", sample)]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) abs0(y[[x, paste.("Corr", sample)]])), na.rm = TRUE), numeric(1))
-                }
-                else {
-                    B[[paste.(Fun, "Diff", sample)]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) abs0(y[[x, paste.("Diff", sample)]])), na.rm = TRUE), numeric(1))
-                    B[[paste.(Fun, "V.Ratio", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else vfuns[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste.("V.Ratio", sample)]]), na.rm = TRUE), numeric(1))
-                    B[[paste.(Fun, "KS", sample)]] <- vapply(Brownames, function(x) funs[[Fun]](sapply(balance.table.clusters.list, function(y) y[[x, paste.("KS", sample)]]), na.rm = TRUE), numeric(1))
-                }            
-            }
-        }
-    }
-    
-    return(B)
-}
+
 
 #base.bal.tab.cont
 samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), cluster = NULL, which.cluster = NULL, discarded = NULL) {
@@ -2103,6 +2059,8 @@ samplesize.msm <- function(bal.tab.msm.list) {
     return(obs)
 }
 
+balance.table.cluster.summary <- balance.table.imp.summary
+
 #base.bal.tab.target
 balance.table.target.summary <- balance.table.multi.summary
 samplesize.target <- function(bal.tab.target.list, treat_names, target.name) {
@@ -2240,6 +2198,85 @@ ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
     gt <- do.call(gridExtra::gtable_rbind, rows)
     
     invisible(gt)
+}
+unpack_bal.tab <- function(b) {
+    unpack_bal.tab_internal <- function(b) {
+        if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return(b[["Balance"]])
+        else {
+            b_ <- b[[which(endsWith(names(b), ".Balance"))]]
+            
+            b_list <- lapply(b_, function(i) {
+                if (is_(i, c("bal.tab.bin", "bal.tab.cont"))) return(i[["Balance"]])
+                else return(unpack_bal.tab_internal(i))
+            })
+            return(b_list)
+        }
+    }
+    LinearizeNestedList <- function(NList, NameSep) {
+        # LinearizeNestedList:
+        #
+        # https://sites.google.com/site/akhilsbehl/geekspace/
+        #         articles/r/linearize_nested_lists_in_r
+        #
+        # Akhil S Bhel
+        # 
+        
+        if (is.data.frame(NList)) return(NList)
+        
+        A <- 1
+        B <- length(NList)
+        
+        while (A <= B) {
+            Element <- NList[[A]]
+            EName <- names(NList)[A]
+            if (is.list(Element)) {
+                
+                if (A == 1) {
+                    Before <- NULL
+                } else {
+                    Before <- NList[1:(A - 1)]
+                }
+                if (A == B) {
+                    After <- NULL
+                } else {
+                    After <- NList[(A + 1):B]
+                }
+                
+                if (is.data.frame(Element)) {
+                    Jump <- 1
+                } else {
+                    NList[[A]] <- NULL
+                    
+                    Element <- LinearizeNestedList(Element, NameSep)
+                    names(Element) <- paste(EName, names(Element), sep=NameSep)
+                    Jump <- length(Element)
+                    NList <- c(Before, Element, After)
+                }
+            } else {
+                Jump <- 1
+            }
+            A <- A + Jump
+            B <- length(NList)
+        }
+        return(NList)
+    }
+    class_sequence <- function(b) {
+        if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return(NULL)
+        else {
+            b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1]]
+            return(c(class(b)[1], class_sequence(b_)))
+        }
+    }
+    
+    namesep <- paste(c("|", do.call(c, lapply(1:20, function(i) sample(LETTERS, 1))), "|"), collapse = "")
+    
+    out_ <- unpack_bal.tab_internal(b)
+    out <- LinearizeNestedList(out_, NameSep = namesep)
+    
+    attr(out, "namesep") <- namesep
+    attr(out, "class_sequence") <- class_sequence(b)
+    
+    return(out)
 }
 
 #bal.plot
