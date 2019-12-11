@@ -161,7 +161,7 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
                    quote = TRUE)
     return(out)
 }
-bal.tab.formula <- function(formula, data = NULL, ...) {
+bal.tab.formula <- function(formula, data = NULL, weights = NULL, distance = NULL, subclass = NULL, match.strata = NULL, method, int = FALSE, poly = 1, addl = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, estimand = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
