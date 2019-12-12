@@ -1,6 +1,6 @@
 bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, 
                      imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, 
-                     mirror = FALSE, type = "density", colors = NULL, grid = TRUE, sample.names,
+                     mirror = FALSE, type = "density", colors = NULL, grid = FALSE, sample.names,
                      position = "right", facet.formula = NULL, alpha.weight = TRUE) {
     
     tryCatch(identity(obj), error = function(e) stop(conditionMessage(e), call. = FALSE))
