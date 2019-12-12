@@ -1,6 +1,6 @@
 love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL, 
                       var.order = NULL, drop.missing = TRUE, drop.distance = FALSE, 
-                      threshold = NULL, line = FALSE, stars = "none", grid = TRUE, 
+                      threshold = NULL, line = FALSE, stars = "none", grid = FALSE, 
                       limits = NULL, colors = NULL, shapes = NULL, alpha = 1, size = 3, 
                       wrap = 30, var.names = NULL, title, sample.names, labels = FALSE,
                       position = "right", themes = NULL, ...) {
@@ -92,12 +92,11 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     Agg.Fun <- NULL
     subtitle <- NULL
     
-    #Figure out plot type
-    subclass.names <- NULL
-    
-    #NA = aggregate, NULL = individual
-    
-    config <- "agg.none"
+    #Process abs
+    if (missing(abs)) {
+        if (is_null(attr(x, "print.options")[["abs"]])) abs <- TRUE
+        else abs <- attr(x, "print.options")[["abs"]]
+    }
     
     #Get B and config
     if (any(class(x) == "bal.tab.subclass")) {
@@ -114,13 +113,15 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         if (attr(x, "print.options")$disp.subclass) attr(x, "print.options")$weight.names <- c("Adj", paste("Subclass", subclass.names))
         else attr(x, "print.options")$weight.names <- "Adj"
         subtitle <- "Across Subclasses"
+        config <- "agg.none"
     }
     else {
         B_list <- unpack_bal.tab(x)
         namesep <- attr(B_list, "namesep")
         class_sequence <- attr(B_list, "class_sequence")
         if (is_not_null(class_sequence)) {
-            facet_mat <- do.call(rbind, strsplit(names(B_list), namesep, fixed = TRUE))
+            #Multiple layers present
+            facet_mat <- as.matrix(do.call(rbind, strsplit(names(B_list), namesep, fixed = TRUE)))
             facet <- unname(vapply(class_sequence, switch, character(1L),
                                           bal.tab.cluster = "cluster",
                                           bal.tab.msm = "time",
@@ -141,20 +142,41 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             for (i in facet) {
                 which. <- attr(x, "print.options")[[paste0("which.", i)]]
                 if (is_null(which.)) {
-                    
+                    #All levels; facet_mat stays the same.
                 }
                 else if (anyNA(which.)) {
                     agg.over <- c(agg.over, i)
                 }
                 else {
-                    if (is.numeric(which.) && max(which.) <= nunique(facet_mat[,i])) {
-                        facet_mat <- facet_mat[facet_mat[,i] %in% sort(unique(facet_mat[,i]))[which.], ,drop = FALSE]
+                    if (i == "treat") {
+                        treat_levels <- attr(x, "print.options")$treat_names_multi
+                        if (is.numeric(which.)) which. <- treat_levels[which.]
+                        if (any(which. %nin% treat_levels)) stop("All values in which.treat must be names or indices of treatment levels.", call. = FALSE)
+                        if (attr(x, "print.options")$pairwise) {
+                            vs.combs <- cbind(vs.tmp <- as.matrix(expand.grid(treat_levels, treat_levels, stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)), 
+                                              apply(vs.tmp, 1, paste, collapse = " vs. "))
+                            vs.combs <- vs.combs[vs.combs[,3] %in% facet_mat[, i],]
+                            if (length(which.) == 1) facet_mat <- facet_mat[facet_mat[,i] %in% vs.combs[,3][vs.combs[,1] == which. | vs.combs[,2] == which.], , drop = FALSE]
+                            else facet_mat <- facet_mat[facet_mat[,i] %in% vs.combs[,3][vs.combs[,1] %in% which. & vs.combs[,2] %in% which.], , drop = FALSE]
+                        }
+                        else {
+                            vs.combs <- cbind(vs.tmp <- as.matrix(data.frame("Others", treat_levels, stringsAsFactors = FALSE)), 
+                                              apply(vs.tmp, 1, paste, collapse = " vs. "))
+                            vs.combs <- vs.combs[vs.combs[,3] %in% facet_mat[, i],]
+                            facet_mat <- facet_mat[facet_mat[,i] %in% vs.combs[,3][vs.combs[,2] %in% which.], , drop = FALSE]
+                        }
                     }
-                    else if (is.character(which.) && all(which. %in% unique(facet_mat[,i]))) {
-                        facet_mat <- facet_mat[facet_mat[,i] %in% which., ,drop = FALSE]
+                    else {
+                        if (is.numeric(which.) && max(which.) <= nunique(facet_mat[,i])) {
+                            facet_mat <- facet_mat[facet_mat[,i] %in% sort(unique(facet_mat[,i]))[which.], ,drop = FALSE]
+                        }
+                        else if (is.character(which.) && all(which. %in% unique(facet_mat[,i]))) {
+                            facet_mat <- facet_mat[facet_mat[,i] %in% which., ,drop = FALSE]
+                        }
+                        else stop(paste0("The argument to which.", i, " must be .none, .all, or the desired levels or indices of ", switch(i, time = "time points", i), "."), call. = FALSE)
                     }
-                    else stop(paste0("The argument to which.", i, " must be .none, .all, or the appropriate levels."), call. = FALSE)
                 }
+
             }
             B_list <- B_list[names(B_list) %in% rownames(facet_mat)]
             
@@ -180,16 +202,23 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             B_stack <- do.call(rbind, c(B_list, list(make.row.names = FALSE)))
             
             if (is_not_null(agg.over)) {
-                if (is_null(agg.fun)) agg.fun <- "range"
-                Agg.Fun <- firstup(agg.fun <- match_arg(tolower(agg.fun), c("range", "max", "mean")))
+                if (is_null(agg.fun)) {
+                    if (any(c("treat", "time") %in% agg.over)) agg.fun <- "max"
+                    else agg.fun <- "range"
+                }
+                agg.fun <- tolower(agg.fun)
+                Agg.Fun <- firstup(agg.fun <- match_arg(agg.fun, c("range", "max", "mean")))
+                if (agg.fun == "max") abs <- TRUE
+                
+                if (abs) B_stack[stat.cols] <- lapply(stat.cols, function(sc) abs_(B_stack[[sc]], ratio = startsWith(sc, "V.Ratio")))
+                
                 facet <- facet[facet %nin% agg.over]
                 
                 aggregate_B <- function(FUN, B) {
-                    FUNtext <- FUN
                     B_agged <- aggregate(B[stat.cols], 
                                          by = B[c("variable.names", "Type", facet)], 
                                          FUN = FUN)
-                    names(B_agged)[names(B_agged) %in% stat.cols] <- paste.(firstup(FUNtext), names(B_agged)[names(B_agged) %in% stat.cols])
+                    names(B_agged)[names(B_agged) %in% stat.cols] <- paste.(firstup(FUN), names(B_agged)[names(B_agged) %in% stat.cols])
                     return(B_agged)
                 }
                 
@@ -237,11 +266,12 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             
         }
         else {
+            #Single-layer bal.tab
             B <- data.frame(B_list, variable.names = rownames(B_list))
             
             facet <- one.level.facet <- agg.over <- NULL
 
-            if (any(startsWith(names(B), "Corr."))) {
+            if (is_(x, "bal.tab.cont")) {
                 stats <- "correlations"
             }
             else {
@@ -260,6 +290,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             
             subtitle <- NULL
         }
+        subclass.names <- NULL
     }
     
     if (is_not_null(facet) && length(stats) > 1) {
@@ -268,12 +299,6 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     
     if (is_not_null(agg.fun) && config == "agg.none") {
         warning("No aggregation will take place, so agg.fun will be ignored. Remember to set 'which.<ARG> = .none' to aggregate across <ARG>.", call. = FALSE)
-    }
-    
-    #Process abs
-    if (missing(abs)) {
-        if (is_null(attr(x, "print.options")[["abs"]])) abs <- TRUE
-        else abs <- attr(x, "print.options")[["abs"]]
     }
     
     #Process variable names
@@ -700,8 +725,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             }
             
             if (abs) {
-                if (s == "variance.ratios") SS[["stat"]] <- pmax(SS[["stat"]], 1/SS[["stat"]])
-                else if (s == "mean.diffs") SS[["stat"]] <- base::abs(SS[["stat"]])
+                SS[["stat"]] <- abs_(SS[["stat"]], ratio = s == "variance.ratios")
             }
             dec <- FALSE
             
