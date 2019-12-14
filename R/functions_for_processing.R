@@ -424,7 +424,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
     if (check.estimand) {
         if (estimand.specified) {
             if (!treat.is.processed) treat <- process_treat(treat)
-            try.estimand <- tryCatch(match_arg(toupper(estimand), c("ATT", "ATC", "ATE"), several.ok = TRUE),
+            try.estimand <- tryCatch(match_arg(toupper(estimand), c("ATT", "ATC", "ATE", "ATO", "ATM"), several.ok = TRUE),
                                      error = function(cond) NA_character_)
             if (anyNA(try.estimand)) {
                 check.focal <- TRUE
@@ -440,6 +440,8 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
                 else s.d.denom <- vapply(try.estimand, function(x) switch(x, 
                                                                           ATT = treat_vals(treat)[treat_names(treat)["treated"]], 
                                                                           ATC = treat_vals(treat)[treat_names(treat)["control"]], 
+                                                                          ATO = "weighted",
+                                                                          ATM = "weighted",
                                                                           "pooled"), FUN.VALUE = character(1L))
             }
         }
@@ -1061,6 +1063,71 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
         }
     }
 }
+compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = NULL, to.sd = rep(TRUE, ncol(mat)), na.rm = TRUE) {
+    denoms <- rep(1, ncol(mat))
+    if (is.character(s.d.denom) && length(s.d.denom) == 1L) {
+        
+        if (is_null(bin.vars)) {
+            bin.vars <- rep(FALSE, ncol(mat))
+            bin.vars[to.sd] <- apply(mat[subset, to.sd,drop = FALSE], 2, is_binary)
+        }
+        else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
+                 length(bin.vars) != ncol(mat)) {
+            stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
+        }
+        
+        possibly.supplied <- c("mat", "treat", "weighted.weights", "s.weights", "subset")
+        lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                            possibly.supplied)
+        supplied <- lengths > 0
+        if (!all_the_same(lengths[supplied])) {
+            stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+        }
+        
+        if (lengths["weighted.weights"] == 0) weighted.weights <- rep(1, NROW(mat))
+        if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+        if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+        else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+        
+        unique.treats <- if (is_(treat, "processed.treat") && all(subset)) as.character(treat_vals(treat)) else as.character(unique(treat[subset]))
+        
+        s.d.denom <- get.s.d.denom(as.character(s.d.denom), weights = weighted.weights[subset], treat = treat[subset])
+        
+        if (s.d.denom %in% c("treated", "control")) s.d.denom <- treat_vals(treat)[treat_names(treat)[s.d.denom]]
+        
+        treat <- as.character(treat)
+        
+        if (s.d.denom %in% unique.treats) denoms[to.sd] <- sqrt(col.w.v(mat[treat == s.d.denom, to.sd, drop = FALSE], 
+                                                                    w = s.weights[treat == s.d.denom],
+                                                                    bin.vars = bin.vars, na.rm = na.rm))
+
+        else if (s.d.denom == "pooled") denoms[to.sd] <- sqrt(Reduce("+", lapply(unique.treats, 
+                                                                        function(t) col.w.v(mat[treat == t, to.sd, drop = FALSE], 
+                                                                                            w = s.weights[treat == t],
+                                                                                            bin.vars = bin.vars[to.sd], na.rm = na.rm))) / length(unique.treats))
+        else if (s.d.denom == "all") denoms[to.sd] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE], 
+                                                               w = s.weights,
+                                                               bin.vars = bin.vars[to.sd], na.rm = na.rm))
+        else if (s.d.denom == "weighted") denoms[to.sd] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE], 
+                                                                    w = weighted.weights * s.weights,
+                                                                    bin.vars = bin.vars[to.sd], na.rm = na.rm))
+        else stop("s.d.denom is not an allowed value.")
+        
+        if (any(zero_sds <- check_if_zero(denoms[to.sd]))) {
+            denoms[to.sd][zero_sds] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE][, zero_sds, drop = FALSE], 
+                                                w = s.weights,
+                                                bin.vars = bin.vars[to.sd][zero_sds], na.rm = na.rm))
+        }
+    }
+    else {
+        if (!is.numeric(s.d.denom) || length(s.d.denom) %nin% c(sum(to.sd), ncol(mat))) {
+            stop("s.d.denom must be an allowable value or a numeric vector of with length equal to the number of columns of mat. See ?col_w_smd for allowable values.")
+        }
+        else if (length(s.d.denom) == sum(to.sd)) denoms[to.sd] <- s.d.denom
+        else denoms <- s.d.denom
+    }
+    return(denoms)
+}
 baltal <- function(threshold) {
     #threshold: vector of threshold values (i.e., "Balanced"/"Not Balanced")
     threshnames <- names(table(threshold))
@@ -1201,7 +1268,7 @@ max.imbal <- function(balance.table, col.name, thresh.col.name, ratio = FALSE) {
     return(maxed)
 }
 balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
-                          s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, addl.sds = NULL, disp.pop = FALSE, pop.means = NULL, pop.sds = NULL, quick = TRUE) {
+                          s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
@@ -1227,25 +1294,17 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
     
     #Means for each group
-    # if (!((!un || !disp.means) && quick)) {
     for (t in c("0", "1")) {
         B[[paste.("M", t, "Un")]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = NULL,
                                                 s.weights = s.weights[treat==tn01[t]])
     }
-    # if (!(!disp.pop && quick)) {
-    #     B[["M.Pop.Un"]] <- col.w.m(C, w = s.weights)
-    # }
-    # }
+
     if (!no.adj) {
-        # if (!no.adj && !(!disp.means && quick)) {
         for (i in weight.names) {
             for (t in c("0", "1")) {
                 B[[paste.("M", t, i)]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = weights[[i]][treat==tn01[t]],
                                                      s.weights = s.weights[treat==tn01[t]])
             }
-            # if (!(!disp.pop && quick)) {
-            #     B[[paste.("M.Pop.Un", i)]] <- col.w.m(C, w = weights[[i]]*s.weights)
-            # }
         }
     }
     
@@ -1256,7 +1315,6 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     else binary <- match_arg(binary, c("raw", "std"))
     
     sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
-    # if (!((!un || !disp.sds) && quick)) {
     for (t in c("0", "1")) {
         sds <- rep(NA_real_, NCOL(C))
         if (any(sd.computable)) {
@@ -1266,13 +1324,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
         }
         B[[paste.("SD", t, "Un")]] <- sds
     }
-    # if (!(!disp.pop && quick)) {
-    #     sds <- rep(NA_real_, NCOL(C))
-    #     sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = s.weights))
-    #     B[["SD.Pop.Un"]] <- sds
-    # }
-    # }
-    # if (!no.adj && !(!disp.sds && quick)) {
+
     if (!no.adj) {
         for (i in weight.names) {
             for (t in c("0", "1")) {
@@ -1284,29 +1336,22 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
                 }
                 B[[paste.("SD", t, i)]] <- sds
             }
-            # if (!(!disp.pop && quick)) {
-            #     sds <- rep(NA_real_, NCOL(C))
-            #     sds[non.binary] <- sqrt(col.w.v(C[, non.binary, drop = FALSE], w = weights[[i]]*s.weights))
-            #     B[[paste.("SD.Pop", i)]] <- sds
-            # }
         }
     }
-    if (!any(sapply(B[startsWith(names(B), "SD.")], is.finite))) {disp.sds <- FALSE}
+    if (all(vapply(B[startsWith(names(B), "SD.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.sds <- FALSE}
     
     #Mean differences
-    # if (!(!un && quick)) #Always compute unadjusted diffs
-    
-    B[["Diff.Un"]] <- col_w_smd(C, treat = treat, weights = NULL,
+    B[["Diff.Un"]] <- col_w_smd(C, treat = treat, weights = NULL, 
                                 std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                s.d.denom = if (is_null(addl.sds)) s.d.denom[1] else addl.sds[[s.d.denom[1]]],
-                                abs = abs, s.weights = s.weights, bin.vars = bin.vars)
+                                s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
+                                abs = abs, s.weights = s.weights, bin.vars = bin.vars,
+                                weighted.weights = weights[[1]])
     
     if (!no.adj) {
         for (i in weight.names) {
             B[[paste.("Diff", i)]] <- col_w_smd(C, treat = treat, weights = weights[[i]],
                                                 std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                s.d.denom = if (is_null(addl.sds[[s.d.denom[i]]])) s.d.denom[i] 
-                                                else addl.sds[[s.d.denom[i]]],
+                                                s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
                                                 abs = abs, s.weights = s.weights, bin.vars = bin.vars)
         }
     }
@@ -1333,7 +1378,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
             }
         }
     }
-    if (!any(sapply(B[startsWith(names(B), "V.Ratio.")], is.finite))) {disp.v.ratio <- FALSE; v.threshold <- NULL}
+    if (all(vapply(B[startsWith(names(B), "V.Ratio.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.v.ratio <- FALSE; v.threshold <- NULL}
     
     #KS Statistics
     if (!(!disp.ks && quick)) {
@@ -1346,7 +1391,7 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
             }
         }
     }
-    if (!any(sapply(B[startsWith(names(B), "KS.")], is.finite))) {disp.ks <- FALSE; ks.threshold <- NULL}
+    if (all(vapply(B[startsWith(names(B), "KS.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.ks <- FALSE; ks.threshold <- NULL}
     
     
     if (is_not_null(m.threshold)) {
@@ -1535,7 +1580,6 @@ balance.table.across.subclass <- function(balance.table, balance.table.subclass.
     if (is_not_null(m.threshold)) B.A.df[["M.Threshold"]] <- ifelse(B.A.df[["Type"]]=="Distance", "", paste0(ifelse(is.finite(B.A.df[["Diff.Adj"]]) & abs_(B.A.df[["Diff.Adj"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold))
     return(B.A.df)
 }
-
 
 #base.bal.tab.cont
 samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), cluster = NULL, which.cluster = NULL, discarded = NULL) {
