@@ -9,7 +9,7 @@ When using \code{bal.tab()} with clustered data, the output will be different fr
 
 There are two main components of the output of \code{bal.tab()} with clustered data: the within-cluster balance summaries and the across-cluster balance summary. The within-cluster balance summaries display balance for units within each cluster separately.
 
-The across-cluster balance summary pools information across the within-cluster balance summaries to simplify balance assessment. It provides a combination (e.g., mean or maximum) of each balance statistic for each covariate across all clusters. This allows you to see how bad the worst imbalance is and what balance looks like on average.
+The across-cluster balance summary pools information across the within-cluster balance summaries to simplify balance assessment. It provides a combination (e.g., mean or maximum) of each balance statistic for each covariate across all clusters. This allows you to see how bad the worst imbalance is and what balance looks like on average. The balance summary will not be computed if longitudinal treatments, multi-category treatments, or multiply imputed data are used.
 }
 \arguments{
 There are four arguments for each \code{bal.tab()} method that can handle clustered data: \code{cluster}, \code{which.cluster}, \code{cluster.summary}, and \code{cluster.fun}.

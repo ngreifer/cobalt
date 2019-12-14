@@ -80,7 +80,7 @@ either a vector containing imputation indices for each unit or a string containi
 whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{focal}{
-Currently ignored.
+Currently ignored (because the value is set in the original to \code{weightit()}).
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
@@ -104,15 +104,13 @@ The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold
 \value{
 For point treatments, if clusters and imputations are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{weightit} object. See \code{\link{bal.tab}} for details.
 
+If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations. See \code{\link{bal.tab.imp}} for details.
+
+If \code{weightit()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison. See \code{\link{bal.tab.multi}} for details.
+
+If \code{weightitMSM()} is used for longitudinal treatments, an object of class \code{"bal.tab.msm"} containing balance summaries for each time period. See \code{\link{bal.tab.msm}} for details.
+
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
-
-If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See \code{\link{bal.tab.imp}} for details.
-
-If both clusters and imputations are specified, an object of class \code{"bal.tab.imp.cluster"} containing summaries between and across all clusters and imputations.
-
-If \code{weightit()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
-
-If \code{weightitMSM()} is used for longitudinal treatments, an object of class \code{"bal.tab.msm"} containing balance summaries for each time period and a summary of balance across time periods. See \code{\link{bal.tab.msm}} for details.
 }
 
 \author{
@@ -121,8 +119,6 @@ Noah Greifer
 
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
-\code{\link{bal.tab.cluster}} for more information on clustered data.
-\code{\link{bal.tab.msm}} for more information on longitudinal treatments.
 }
 \examples{
 library(WeightIt); data("lalonde", package = "cobalt")
