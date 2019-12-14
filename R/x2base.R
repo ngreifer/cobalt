@@ -639,7 +639,8 @@ x2base.ps.cont <- function(ps.cont, ...) {
     }
     
     #Get s.d.denom
-
+    s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+    
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -1079,6 +1080,9 @@ x2base.data.frame <- function(covs, ...) {
                                    weights = weights, subclass = subclass, 
                                    treat = treat, focal = focal)
     }
+    else {
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -1223,6 +1227,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Get s.d.denom
     if (get.treat.type(treat) != "continuous") {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
+    else {
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
     }
     
     #Missing values warning
@@ -1616,6 +1623,9 @@ x2base.weightit <- function(weightit, ...) {
     #Get s.d.denom
     if (get.treat.type(treat) != "continuous") {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
+    else {
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
     }
     
     #Missing values warning
@@ -2058,7 +2068,12 @@ x2base.wimids <- function(wimids, ...) {
     focal <- unique(unlist(lapply(wimids[["models"]][-1], function(w) w[["focal"]])))
     
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if (get.treat.type(treat) != "continuous") {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
+    else {
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -2456,7 +2471,12 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+    if (all(vapply(treat.list, get.treat.type, character(1L)) != "continuous")) {
+        s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+    }
+    else {
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+    }
     
     #Missing values warning
     if (any(c(any(vapply(covs.list, anyNA, logical(1L))), any(vapply(addl.list, anyNA, logical(1L)))))) {
@@ -2628,7 +2648,12 @@ x2base.CBMSM <- function(cbmsm, ...) {
     }
     
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+    if (all(vapply(treat.list, get.treat.type, character(1L)) != "continuous")) {
+        s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+    }
+    else {
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+    }
     
     #Missing values warning
     if (any(c(any(vapply(covs.list, anyNA, logical(1L))), any(vapply(addl.list, anyNA, logical(1L)))))) {
@@ -2776,7 +2801,12 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     }
     
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+    if (all(vapply(treat.list, get.treat.type, character(1L)) != "continuous")) {
+        s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+    }
+    else {
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+    }
     
     #Missing values warning
     if (any(c(any(vapply(covs.list, anyNA, logical(1L))), any(vapply(addl.list, anyNA, logical(1L)))))) {
@@ -3255,6 +3285,9 @@ x2base.default <- function(obj, ...) {
                                          weights = weights, subclass = subclass, 
                                          treat = treat, focal = focal)
         }
+        else {
+            s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        }
         
         #Missing values warning
         if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -3472,7 +3505,12 @@ x2base.default <- function(obj, ...) {
         }
         
         #Get s.d.denom
-        s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+        if (all(vapply(treat.list, get.treat.type, character(1L)) != "continuous")) {
+            s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+        }
+        else {
+            s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        }
         
         #Missing values warning
         if (any(c(any(vapply(covs.list, anyNA, logical(1L))), any(vapply(addl.list, anyNA, logical(1L)))))) {
