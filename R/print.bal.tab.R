@@ -176,64 +176,64 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     
     if (is_not_null(baltal.r)) {
         cat(underline("Balance tally for correlations") %+% "\n")
-        print.data.frame_(x$Balanced.Corr)
+        print.data.frame_(baltal.r)
         cat("\n")
     }
     if (is_not_null(maximbal.r)) {
         cat(underline("Variable with the greatest treatment correlation") %+% "\n")
-        print.data.frame_(round_df_char(x$Max.Imbalance.Corr, digits), row.names = FALSE)
+        print.data.frame_(round_df_char(maximbal.r, digits), row.names = FALSE)
         cat("\n")
     }
     if (is_not_null(baltal.m)) {
         cat(underline("Balance tally for mean differences") %+% "\n")
-        print.data.frame_(x$Balanced.Means)
+        print.data.frame_(baltal.m)
         cat("\n")
     }
     if (is_not_null(maximbal.m)) {
         cat(underline("Variable with the greatest mean difference") %+% "\n")
-        print.data.frame_(round_df_char(x$Max.Imbalance.Means, digits), row.names = FALSE)
+        print.data.frame_(round_df_char(maximbal.m, digits), row.names = FALSE)
         cat("\n")
     }
     if (is_not_null(baltal.v)) {
         cat(underline("Balance tally for variance ratios") %+% "\n")
-        print.data.frame_(x$Balanced.Variances, digits)
+        print.data.frame_(baltal.v, digits)
         cat("\n")
     }
     if (is_not_null(maximbal.v)) {
         cat(underline("Variable with the greatest variance ratio") %+% "\n")
-        print.data.frame_(round_df_char(x$Max.Imbalance.Variances, digits), row.names = FALSE)
+        print.data.frame_(round_df_char(maximbal.v, digits), row.names = FALSE)
         cat("\n")
     }
     if (is_not_null(baltal.ks)) {
         cat(underline("Balance tally for KS statistics") %+% "\n")
-        print.data.frame_(x$Balanced.KS, digits)
+        print.data.frame_(baltal.ks, digits)
         cat("\n")
     }
     if (is_not_null(maximbal.ks)) {
         cat(underline("Variable with the greatest KS statistic") %+% "\n")
-        print.data.frame_(round_df_char(x$Max.Imbalance.KS, digits), row.names = FALSE)
+        print.data.frame_(round_df_char(maximbal.ks, digits), row.names = FALSE)
         cat("\n")
     }
     if (is_not_null(nn)) {
-        for (i in seq_len(NROW(x$Observations))) {
-            if (all(x$Observations[i,] == 0)) {
-                x$Observations <- x$Observations[-i, , drop = FALSE]
-                attr(x$Observations, "ss.type") <- attr(x$Observations, "ss.type")[-i]
+        for (i in seq_len(NROW(nn))) {
+            if (all(nn[i,] == 0)) {
+                nn <- nn[-i, , drop = FALSE]
+                attr(nn, "ss.type") <- attr(nn, "ss.type")[-i]
             }
         }
-        if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(x$Observations)) && 
-            all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) {
-            x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
-            rownames(x$Observations)[rownames(x$Observations) == "Matched (ESS)"] <- "Matched"
+        if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
+            all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
+            nn <- nn[rownames(nn)!="Matched (Unweighted)", , drop = FALSE]
+            rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
         }
-        cat(underline(attr(x$Observations, "tag")) %+% "\n")
+        cat(underline(attr(nn, "tag")) %+% "\n")
         print.warning <- FALSE
-        if (length(attr(x$Observations, "ss.type")) > 1 && nunique.gt(attr(x$Observations, "ss.type")[-1], 1)) {
-            ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
-            x$Observations <- setNames(cbind(x$Observations, ess), c(names(x$Observations), ""))
+        if (length(attr(nn, "ss.type")) > 1 && nunique.gt(attr(nn, "ss.type")[-1], 1)) {
+            ess <- ifelse(attr(nn, "ss.type") == "ess", "*", "")
+            nn <- setNames(cbind(nn, ess), c(names(nn), ""))
             print.warning <- TRUE
         }
-        print.data.frame_(round_df_char(x$Observations, digits = max(0, digits-1)))
+        print.data.frame_(round_df_char(nn, digits = max(0, digits-1)))
         if (print.warning) cat(italic("* indicates effective sample size"))
     }
     invisible(x)
@@ -459,22 +459,22 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         }
         
         if (is_not_null(nn)) {
-            for (i in rownames(x$Observations)) {
-                if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
+            for (i in rownames(nn)) {
+                if (all(nn[i,] == 0)) nn <- nn[rownames(nn)!=i,]
             }
-            if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(x$Observations)) && 
-                all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) {
-                x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
-                rownames(x$Observations)[rownames(x$Observations) == "Matched (ESS)"] <- "Matched"
+            if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
+                all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
+                nn <- nn[rownames(nn)!="Matched (Unweighted)", , drop = FALSE]
+                rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
             }
-            cat(underline(attr(x$Observations, "tag")) %+% "\n")
+            cat(underline(attr(nn, "tag")) %+% "\n")
             print.warning <- FALSE
-            if (length(attr(x$Observations, "ss.type")) > 1 && nunique.gt(attr(x$Observations, "ss.type")[-1], 1)) {
-                ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
-                x$Observations <- setNames(cbind(x$Observations, ess), c(names(x$Observations), ""))
+            if (length(attr(nn, "ss.type")) > 1 && nunique.gt(attr(nn, "ss.type")[-1], 1)) {
+                ess <- ifelse(attr(nn, "ss.type") == "ess", "*", "")
+                nn <- setNames(cbind(nn, ess), c(names(nn), ""))
                 print.warning <- TRUE
             }
-            print.data.frame_(round_df_char(x$Observations, digits = max(0, digits-1)))
+            print.data.frame_(round_df_char(nn, digits = max(0, digits-1)))
             if (print.warning) cat(italic("* indicates effective sample size"))
         }
     }
@@ -706,22 +706,22 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         }
         
         if (is_not_null(nn)) {
-            for (i in rownames(x$Observations)) {
-                if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
+            for (i in rownames(nn)) {
+                if (all(nn[i,] == 0)) nn <- nn[rownames(nn)!=i,]
             }
-            if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(x$Observations)) && 
-                all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) {
-                x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
-                rownames(x$Observations)[rownames(x$Observations) == "Matched (ESS)"] <- "Matched"
+            if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
+                all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
+                nn <- nn[rownames(nn)!="Matched (Unweighted)", , drop = FALSE]
+                rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
             }
-            cat(underline(attr(x$Observations, "tag")) %+% "\n")
+            cat(underline(attr(nn, "tag")) %+% "\n")
             print.warning <- FALSE
-            if (length(attr(x$Observations, "ss.type")) > 1 && nunique.gt(attr(x$Observations, "ss.type")[-1], 1)) {
-                ess <- ifelse(attr(x$Observations, "ss.type") == "ess", "*", "")
-                x$Observations <- setNames(cbind(x$Observations, ess), c(names(x$Observations), ""))
+            if (length(attr(nn, "ss.type")) > 1 && nunique.gt(attr(nn, "ss.type")[-1], 1)) {
+                ess <- ifelse(attr(nn, "ss.type") == "ess", "*", "")
+                nn <- setNames(cbind(nn, ess), c(names(nn), ""))
                 print.warning <- TRUE
             }
-            print.data.frame_(round_df_char(x$Observations, digits = max(0, digits-1)))
+            print.data.frame_(round_df_char(nn, digits = max(0, digits-1)))
             if (print.warning) cat(italic("* indicates effective sample size"))
         }
     }
@@ -964,24 +964,24 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         }
         
         if (is_not_null(nn)) {
-            tag <- attr(x$Observations, "tag")
-            ss.type <- attr(x$Observations, "ss.type")
-            for (i in rownames(x$Observations)) {
-                if (all(x$Observations[i,] == 0)) x$Observations <- x$Observations[rownames(x$Observations)!=i,]
+            tag <- attr(nn, "tag")
+            ss.type <- attr(nn, "ss.type")
+            for (i in rownames(nn)) {
+                if (all(nn[i,] == 0)) nn <- nn[rownames(nn)!=i,]
             }
-            if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(x$Observations)) && 
-                all(check_if_zero(x$Observations["Matched (ESS)",] - x$Observations["Matched (Unweighted)",]))) {
-                x$Observations <- x$Observations[rownames(x$Observations)!="Matched (Unweighted)", , drop = FALSE]
-                rownames(x$Observations)[rownames(x$Observations) == "Matched (ESS)"] <- "Matched"
+            if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
+                all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
+                nn <- nn[rownames(nn)!="Matched (Unweighted)", , drop = FALSE]
+                rownames(nn)[rownames(nn) == "Matched (ESS)"] <- "Matched"
             }
             cat(underline(tag) %+% "\n")
             print.warning <- FALSE
             if (length(ss.type) > 1 && nunique.gt(ss.type[-1], 1)) {
                 ess <- ifelse(ss.type == "ess", "*", "")
-                x$Observations <- setNames(cbind(x$Observations, ess), c(names(x$Observations), ""))
+                nn <- setNames(cbind(nn, ess), c(names(nn), ""))
                 print.warning <- TRUE
             }
-            print.data.frame_(round_df_char(x$Observations, digits = max(0, digits-1)))
+            print.data.frame_(round_df_char(nn, digits = max(0, digits-1)))
             if (print.warning) cat(italic("* indicates effective sample size"))
         }
     }
@@ -1215,24 +1215,24 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         
         if (is_not_null(nn)) {
             print.warning <- FALSE
-            cat(underline(attr(x$Observations[[1]], "tag")) %+% "\n")
+            cat(underline(attr(nn[[1]], "tag")) %+% "\n")
             
-            for (ti in seq_along(x$Observations)) {
+            for (ti in seq_along(nn)) {
                 cat(" - " %+% italic("Time " %+% as.character(ti)) %+% "\n")
-                for (i in rownames(x$Observations[[ti]])) {
-                    if (all(x$Observations[[ti]][i,] == 0)) x$Observations[[ti]] <- x$Observations[[ti]][rownames(x$Observations[[ti]])!=i,]
+                for (i in rownames(nn[[ti]])) {
+                    if (all(nn[[ti]][i,] == 0)) nn[[ti]] <- nn[[ti]][rownames(nn[[ti]])!=i,]
                 }
-                if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(x$Observations[[ti]])) && 
-                    all(check_if_zero(x$Observations[[ti]]["Matched (ESS)",] - x$Observations[[ti]]["Matched (Unweighted)",]))) {
-                    x$Observations[[ti]] <- x$Observations[[ti]][rownames(x$Observations[[ti]])!="Matched (Unweighted)", , drop = FALSE]
-                    rownames(x$Observations[[ti]])[rownames(x$Observations[[ti]]) == "Matched (ESS)"] <- "Matched"
+                if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn[[ti]])) && 
+                    all(check_if_zero(nn[[ti]]["Matched (ESS)",] - nn[[ti]]["Matched (Unweighted)",]))) {
+                    nn[[ti]] <- nn[[ti]][rownames(nn[[ti]])!="Matched (Unweighted)", , drop = FALSE]
+                    rownames(nn[[ti]])[rownames(nn[[ti]]) == "Matched (ESS)"] <- "Matched"
                 }
-                if (length(attr(x$Observations[[ti]], "ss.type")) > 1 && nunique.gt(attr(x$Observations[[ti]], "ss.type")[-1], 1)) {
-                    ess <- ifelse(attr(x$Observations[[ti]], "ss.type") == "ess", "*", "")
-                    x$Observations[[ti]] <- setNames(cbind(x$Observations[[ti]], ess), c(names(x$Observations[[ti]]), ""))
+                if (length(attr(nn[[ti]], "ss.type")) > 1 && nunique.gt(attr(nn[[ti]], "ss.type")[-1], 1)) {
+                    ess <- ifelse(attr(nn[[ti]], "ss.type") == "ess", "*", "")
+                    nn[[ti]] <- setNames(cbind(nn[[ti]], ess), c(names(nn[[ti]]), ""))
                     print.warning <- TRUE
                 }
-                print.data.frame_(round_df_char(x$Observations[[ti]], digits = max(0, digits-1)))
+                print.data.frame_(round_df_char(nn[[ti]], digits = max(0, digits-1)))
             }
             
             if (print.warning) cat(italic("* indicates effective sample size"))
@@ -1412,18 +1412,30 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                 keep.row <- rowSums(apply(b.a.subclass[grepl(".Threshold", names(b.a.subclass), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
             }
             else keep.row <- rep(TRUE, nrow(b.a.subclass))
-            a.s.keep <- as.logical(c(TRUE, 
-                                     p.ops$un && p.ops$disp.means, 
-                                     p.ops$un && p.ops$disp.sds, 
-                                     p.ops$un && p.ops$disp.means, 
-                                     p.ops$un && p.ops$disp.sds,
-                                     p.ops$un, 
-                                     p.ops$un && p.ops$disp.v.ratio,
-                                     p.ops$un && p.ops$disp.ks,
-                                     p.ops$disp.adj && p.ops$disp.means, 
-                                     p.ops$disp.adj && p.ops$disp.means, 
-                                     p.ops$disp.adj, 
-                                     is_not_null(p.ops$m.threshold)))
+
+            a.s.keep <- setNames(as.logical(c(TRUE, 
+                                          p.ops$un && p.ops$disp.means, 
+                                          p.ops$un && p.ops$disp.sds, 
+                                          p.ops$un && p.ops$disp.means, 
+                                          p.ops$un && p.ops$disp.sds, 
+                                          p.ops$un, 
+                                          p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$m.threshold),
+                                          p.ops$un && p.ops$disp.v.ratio, 
+                                          p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
+                                          p.ops$un && p.ops$disp.ks, 
+                                          p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$ks.threshold),
+                                          rep(c(p.ops$disp.adj && p.ops$disp.means, 
+                                                p.ops$disp.adj && p.ops$disp.sds, 
+                                                p.ops$disp.adj && p.ops$disp.means, 
+                                                p.ops$disp.adj && p.ops$disp.sds, 
+                                                p.ops$disp.adj, 
+                                                p.ops$disp.adj && is_not_null(p.ops$m.threshold), 
+                                                p.ops$disp.adj && p.ops$disp.v.ratio, 
+                                                p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
+                                                p.ops$disp.adj && p.ops$disp.ks, 
+                                                p.ops$disp.adj && is_not_null(p.ops$ks.threshold)), 
+                                              1 + !p.ops$disp.adj))),
+                             names(b.a.subclass))
             
             cat(underline("Balance measures across subclasses") %+% "\n")
             if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
@@ -1473,8 +1485,8 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     }
     
     if (is_not_null(s.nn)) {
-        cat(underline(attr(x$Subclass.Observations, "tag")) %+% "\n")
-        print.data.frame_(round_df_char(x$Subclass.Observations, digits = max(0, digits-1)))
+        cat(underline(attr(s.nn, "tag")) %+% "\n")
+        print.data.frame_(round_df_char(s.nn, digits = max(0, digits-1)))
     }
     
     invisible(x)
