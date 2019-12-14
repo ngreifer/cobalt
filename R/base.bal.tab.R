@@ -2,7 +2,7 @@ base.bal.tab <- function(X, ...) {
     UseMethod("base.bal.tab")
 }
 
-base.bal.tab.binary <- function(X, int = FALSE, poly = 1, addl = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, addl.sds = NULL, ...) {
+base.bal.tab.binary <- function(X, int = FALSE, poly = 1, addl = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
     A <- list(...)
 
@@ -57,7 +57,7 @@ base.bal.tab.binary <- function(X, int = FALSE, poly = 1, addl = NULL, continuou
                                       continuous, binary, m.threshold = m.threshold, v.threshold = v.threshold, 
                                       ks.threshold = ks.threshold, un = un, disp.means = disp.means, 
                                       disp.sds = disp.sds, disp.v.ratio = disp.v.ratio, disp.ks = disp.ks, 
-                                      abs = abs, no.adj = no.adj, quick = quick, addl.sds = addl.sds)
+                                      abs = abs, no.adj = no.adj, quick = quick, s.d.denom.list = X$s.d.denom.list)
     
     #Reassign disp... and ...threshold based on balance table output
     for (i in names(attr(out[["Balance"]], "disp"))) {
@@ -321,12 +321,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat = NA, multi.summa
             A$r.threshold <- NULL
         }
     }
-    if (is_null(X$weights)) {
-        un <- TRUE
-        no.adj <- TRUE
-    }
-    else {
-        no.adj <- FALSE
+    if (is_not_null(X$weights))  {
         check_if_zero_weights(X$weights, X$treat)
         if (ncol(X$weights) == 1) names(X$weights) <- "Adj"
     }
@@ -359,18 +354,16 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat = NA, multi.summa
     out <- vector("list", length(out.names))
     names(out) <- out.names
     
-    A$addl.sds <- list()
     C <- do.call(get.C, c(X, A))
-    if (any(X$s.d.denom == "pooled")) {
-        A$addl.sds[["pooled"]] <- sqrt(rowMeans(do.call(cbind, lapply(treat_vals(X$treat), function(tn) col_w_sd(C, X$s.weights, subset = X$treat == tn)^2))))
+    bin.vars <- apply(C, 2, is_binary)
+    if (is_null(X$weights)) {
+        X$s.d.denom.list <- list(compute_s.d.denom(C, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, bin.vars = bin.vars))
     }
-    if (any(X$s.d.denom == "all")) {
-        A$addl.sds[["all"]] <- col_w_sd(C, X$s.weights)
-    }
-    for (tn in treat_vals(X$treat)) {
-        if (any(X$s.d.denom == tn)) {
-            A$addl.sds[[tn]] <- col_w_sd(C, X$s.weights, subset = X$treat == tn)
-        }
+    else {
+        X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom), function(i) compute_s.d.denom(C, X$treat,
+                                                                                  s.d.denom = X$s.d.denom[i], s.weights = X$s.weights, 
+                                                                                  bin.vars = bin.vars, weighted.weights = X$weights[[i]])),
+                                     names(X$s.d.denom))
     }
     
     if (pairwise || is_not_null(X$focal)) {
@@ -419,6 +412,8 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat = NA, multi.summa
                                        which.treat = which.treat,
                                        multi.summary = multi.summary,
                                        pairwise = pairwise))
+    
+    attr(out, "print.options")[["treat_names"]] <- NULL
     
     class(out) <- c("bal.tab.multi", "bal.tab")
     
