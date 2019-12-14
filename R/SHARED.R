@@ -710,6 +710,17 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
 }
 is_null <- function(x) length(x) == 0L
 is_not_null <- function(x) !is_null(x)
+if_null_then <- function(x1 = NULL, x2 = NULL, ...) {
+    if (is_not_null(x1)) x1
+    else if (is_not_null(x2)) x2
+    else {
+        for (k in ...length()) {
+            if (is_not_null(...elt(k))) return(...elt(k))
+        }
+        return(..1)
+    }
+    
+}
 clear_null <- function(x) {
     x[vapply(x, is_null, logical(1L))] <- NULL
     return(x)
