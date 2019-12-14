@@ -2,7 +2,7 @@ base.bal.tab <- function(X, ...) {
     UseMethod("base.bal.tab")
 }
 
-base.bal.tab.binary <- function(X, int = FALSE, poly = 1, addl = NULL, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.binary <- function(X, int = FALSE, poly = 1, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
     A <- list(...)
 
@@ -130,7 +130,7 @@ base.bal.tab.binary <- function(X, int = FALSE, poly = 1, addl = NULL, continuou
 
     return(out)
 }
-base.bal.tab.cont <- function(X, int = FALSE, poly = 1, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.cont <- function(X, int = FALSE, poly = 1, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "std"), r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     
     #Preparations
     A <- list(...)
@@ -169,7 +169,12 @@ base.bal.tab.cont <- function(X, int = FALSE, poly = 1, r.threshold = NULL, imba
     C <- get.C(covs = X$covs, int = int, poly = poly, addl = X$addl, distance = X$distance, ...)
     co.names <- attr(C, "co.names")
     
-    out[["Balance"]] <- balance.table.cont(C, weights = X$weights, treat = X$treat, s.weights = X$s.weights, r.threshold = r.threshold, un = un, disp.means = disp.means, disp.sds = disp.sds, abs = abs, no.adj = no.adj, quick = quick)
+    out[["Balance"]] <- balance.table.cont(C, weights = X$weights, treat = X$treat, 
+                                           s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
+                                           continuous = continuous, binary = binary, 
+                                           r.threshold = r.threshold, un = un, 
+                                           disp.means = disp.means, disp.sds = disp.sds, abs = abs, 
+                                           no.adj = no.adj, quick = quick)
     
     #Reassign disp... and ...threshold based on balance table output
     for (i in names(attr(out[["Balance"]], "disp"))) {
@@ -214,6 +219,8 @@ base.bal.tab.cont <- function(X, int = FALSE, poly = 1, r.threshold = NULL, imba
                                        disp.sds = disp.sds,
                                        disp.adj=!no.adj,
                                        disp.bal.tab = disp.bal.tab,
+                                       continuous = continuous,
+                                       binary = binary,
                                        abs = abs,
                                        quick = quick,
                                        nweights = if (no.adj) 0 else ncol(X$weights),

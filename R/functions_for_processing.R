@@ -503,6 +503,39 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
     
     return(s.d.denom)
 }
+get.s.d.denom.cont <- function(s.d.denom, weights = NULL, quietly = FALSE) {
+    bad.s.d.denom <- FALSE
+    s.d.denom.specified <- is_not_null(s.d.denom)
+
+    if (s.d.denom.specified) {
+        allowable.s.d.denoms <- c("all", "weighted")
+
+        if (length(s.d.denom) > 1 && length(s.d.denom) != NCOL(weights)) {
+            stop("s.d.denom must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+        }
+        
+        s.d.denom <- match_arg(s.d.denom, unique(allowable.s.d.denoms), 
+                               several.ok = TRUE)
+    }
+    else {
+        s.d.denom <- "all"
+    }
+
+    if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep.int(s.d.denom, ncol(weights))
+    
+    if (!quietly) {
+        if (s.d.denom.specified && bad.s.d.denom) {
+            message(paste0("Warning: s.d.denom should be ", word_list(unique(allowable.s.d.denoms), "or", quotes = TRUE), 
+                           ".\n         Using ", word_list(s.d.denom, quotes = TRUE), " instead."))
+        }
+    }
+    
+    if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
+        stop("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+    }
+    
+    return(s.d.denom)
+}
 get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL, quietly = TRUE) {
     check.weights <- check.focal <- FALSE
     
@@ -1685,7 +1718,7 @@ samplesize.cont <- function(treat, weights = NULL, subclass = NULL, s.weights = 
     
     return(nn)
 }
-balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, target.means = NULL, target.sds = NULL, quick = TRUE) {
+balance.table.cont <- function(C, weights, treat, continuous, binary, s.d.denom, r.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
@@ -1715,7 +1748,12 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     }
     
     #SDs
-    sd.computable <- !bin.vars
+    if (missing(binary) || is_null(binary)) {
+        binary <- match_arg(getOption("cobalt_binary", "std"), c("raw", "std"))
+    }
+    else binary <- match_arg(binary, c("std", "raw"))
+    
+    sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
     if (!((!un || !disp.sds) && quick)) {
         sds <- rep(NA_real_, NCOL(C))
         if (any(sd.computable)) {
@@ -1739,12 +1777,16 @@ balance.table.cont <- function(C, weights, treat, r.threshold = NULL, un = FALSE
     if (!any(sapply(B[startsWith(names(B), "SD.")], is.finite))) {disp.sds <- FALSE}
     
     #Correlations
-    # if (!(!un && quick)) #Always calculate unadjusted corrs
     B[["Corr.Un"]] <- col_w_corr(C, treat, weights = NULL, abs = abs, s.weights = s.weights, 
-                                 bin.vars = bin.vars, na.rm = TRUE)
+                                 std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                 s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
+                                 bin.vars = bin.vars, weighted.weights = weights[[1]], na.rm = TRUE)
     if (!no.adj) {
         for (i in weight.names) {
-            B[[paste.("Corr", i)]]  <- col_w_corr(C, treat, weights = weights[[i]], abs = abs, s.weights = s.weights, 
+            B[[paste.("Corr", i)]]  <- col_w_corr(C, treat, weights = weights[[i]], 
+                                                  std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                                  s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
+                                                  abs = abs, s.weights = s.weights, 
                                                   bin.vars = bin.vars, na.rm = TRUE)
         }
     }
