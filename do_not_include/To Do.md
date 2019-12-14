@@ -1,8 +1,6 @@
 Things to Do
 ======
 
-* Add method for multinomial treatments with multiply imputed data
-
 * Add method to add own balance function. Could be supplied as a name (e.g., skew.diff) that takes in several arguments: treat, covs (or maybe one cov), weights, and maybe other arguments.
 
 * Add ability to submit multiple objects at the same time rather than by using df/formula and providing weights.
