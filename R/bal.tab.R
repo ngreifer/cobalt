@@ -44,7 +44,7 @@ bal.tab.matchit <- function(m, int = FALSE, poly = 1, distance = NULL, addl = NU
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -72,7 +72,7 @@ bal.tab.ps <- function(ps, stop.method, int = FALSE, poly = 1, distance = NULL, 
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -100,12 +100,12 @@ bal.tab.mnps <- function(mnps, stop.method, int = FALSE, poly = 1, distance = NU
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     
     return(out)
 }
-bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, r.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, r.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -129,7 +129,7 @@ bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distanc
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -157,7 +157,7 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -185,7 +185,7 @@ bal.tab.formula <- function(formula, data = NULL, weights = NULL, distance = NUL
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     
     return(out)
@@ -213,7 +213,7 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     
     return(out)
@@ -246,7 +246,7 @@ bal.tab.CBPS <- function(cbps, int = FALSE, poly = 1, distance = NULL, addl = NU
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -274,7 +274,7 @@ bal.tab.weightit <- function(weightit, int = FALSE, poly = 1, distance = NULL, a
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -313,11 +313,11 @@ bal.tab.mimids <- function(mimids, int = FALSE, poly = 1, distance = NULL, addl 
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
-bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -341,7 +341,7 @@ bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl 
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -370,7 +370,7 @@ bal.tab.formula.list <- function(formula.list, data = NULL, ...) {
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -397,7 +397,7 @@ bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, w
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -425,7 +425,7 @@ bal.tab.iptw <- function(iptw, stop.method, int = FALSE, poly = 1, distance.list
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -457,7 +457,7 @@ bal.tab.default <- function(obj, ...) {
     
     X <- assign.X.class(X)
     
-    out <- do.call(paste.("base.bal.tab", class(X)), c(list(X), args),
+    out <- do.call(base.bal.tab, c(list(X), args),
                    quote = TRUE)
     
     return(out)
