@@ -996,7 +996,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Process match.strata
-    if (is_not_null(match.strata <- A$match.strata)) {
+    else if (is_not_null(match.strata <- A$match.strata)) {
         match.strata <- vector.process(match.strata, 
                                        data = data,
                                        name = "match.strata", 
@@ -1007,8 +1007,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Process weights
-    weights <- data.frame.process("weights", A[["weights"]], treat, covs, data)
-    if (is_not_null(weights)) {
+    else if (is_not_null(weights <- data.frame.process("weights", A[["weights"]], treat, covs, data))) {
         
         if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
         if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
@@ -1101,8 +1100,6 @@ x2base.data.frame <- function(covs, ...) {
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
-    
-    class(X) <- get.X.class(X)
     
     return(X)
 }
@@ -1250,8 +1247,6 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
-    
-    class(X) <- get.X.class(X)
     
     return(X)
 }
@@ -1646,8 +1641,6 @@ x2base.weightit <- function(weightit, ...) {
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
-    
-    class(X) <- get.X.class(X)
     
     return(X)
 }
@@ -2284,8 +2277,6 @@ x2base.iptw <- function(iptw, ...) {
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
-    class(X) <- get.X.class(X)
-    
     return(X)
 }
 x2base.data.frame.list <- function(covs.list, ...) {
@@ -2674,8 +2665,6 @@ x2base.CBMSM <- function(cbmsm, ...) {
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
-    class(X) <- get.X.class(X)
-    
     return(X)
 }
 x2base.weightitMSM <- function(weightitMSM, ...) {
@@ -2826,8 +2815,6 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
-    
-    class(X) <- get.X.class(X)
     
     return(X)
 }
@@ -3307,8 +3294,6 @@ x2base.default <- function(obj, ...) {
         
         X <- subset_X(X, subset)
         X <- setNames(X[X.names], X.names)
-        
-        class(X) <- get.X.class(X)
         
     }
     else {
