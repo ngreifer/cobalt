@@ -534,6 +534,8 @@ get.s.d.denom.cont <- function(s.d.denom, weights = NULL, quietly = FALSE) {
         stop("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
     }
     
+    if (is_not_null(weights)) names(s.d.denom) <- names(weights)
+    
     return(s.d.denom)
 }
 get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL, quietly = TRUE) {
@@ -1244,7 +1246,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
                                      c(treat_names(treat)))
                 attr(nn, "ss.type") <- c("ss", "ess", "ss")
                 
-                if (!any(dc)) {
+                if (!any(discarded)) {
                     attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
                     nn <- nn[rownames(nn) != "Discarded", ,drop = FALSE]
                 }
@@ -1292,7 +1294,9 @@ balance.table <- function(C, weights, treat, continuous, binary, s.d.denom, m.th
     
     if (no.adj) weight.names <- "Adj"
     else weight.names <- names(weights)
-    names(s.d.denom) <- weight.names
+    
+    if (is_not_null(s.d.denom.list)) names(s.d.denom.list) <- weight.names
+    if (is_not_null(s.d.denom)) names(s.d.denom) <- weight.names
     
     #B=Balance frame
     Bnames <- c("Type", 
@@ -1681,6 +1685,9 @@ balance.table.cont <- function(C, weights, treat, continuous, binary, s.d.denom,
     if (no.adj) weight.names <- "Adj"
     else weight.names <- names(weights)
     
+    if (is_not_null(s.d.denom.list)) names(s.d.denom.list) <- weight.names
+    if (is_not_null(s.d.denom)) names(s.d.denom) <- weight.names
+    
     #B=Balance frame
     Bnames <- c("Type", 
                 apply(expand.grid(c("M", "SD", "Corr", "R.Threshold"),
@@ -1835,7 +1842,8 @@ balance.summary <- function(bal.tab.list, Agg.Fun, weight.names = NULL, no.adj =
     bal.tab.list <- clear_null(bal.tab.list)
     
     Brownames <- unique(unlist(lapply(bal.tab.list, rownames)))
-    Agg.Fun <- match_arg(Agg.Fun, c("Min", "Mean", "Max"), several.ok = TRUE)
+    agg.fun <- tolower(Agg.Fun)
+    Agg.Fun <- firstup(match_arg(agg.fun, c("min", "mean", "max"), several.ok = TRUE))
     stats <- if (cont.treat) "Corr" else c("Diff", "V.Ratio", "KS")
     Bcolnames <- c("Type", apply(expand.grid(Agg.Fun, stats, c("Un", weight.names)), 1, paste, collapse = "."))
     B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
