@@ -414,7 +414,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         for (i in which.cluster) {
 
             cat("\n - - - " %+% italic("Cluster: " %+% names(c.balance)[i]) %+% " - - - \n")
-            do.call(print, c(list(c.balance[[i]]), p.ops))
+            do.call(print, c(list(c.balance[[i]]), args), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -660,7 +660,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         cat(underline("Balance by imputation") %+% "\n")
         for (i in which.imp) {
             cat("\n - - - " %+% italic("Imputation " %+% names(i.balance)[i]) %+% " - - - \n")
-            do.call(print, c(list(i.balance[[i]]), args))
+            do.call(print, c(list(i.balance[[i]]), args), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -668,7 +668,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     
     if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
         IF <- setNames(imp.funs %in% p.ops$imp.fun, imp.funs)
-        if ("bal.tab.cont" %in% class(x)) { #continuous
+        if ("bal.tab.cont" %in% class(i.balance[[1]])) { #continuous
             s.keep <- as.logical(c(TRUE, 
                                    p.ops$un && IF["min"],
                                    p.ops$un && IF["mean"],
@@ -892,9 +892,9 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         p.ops$multi.summary <- TRUE
     }
     
-    if (p.ops$multi.summary && is_null(m.balance.summary)) {
-        warning("No summary across treatment pairs was produced. This can occur if multi.summary is FALSE and quick is TRUE.", call. = FALSE)
-    }
+    # if (p.ops$multi.summary && is_null(m.balance.summary)) {
+    #     warning("No summary across treatment pairs was produced. This can occur if multi.summary is FALSE and quick is TRUE.", call. = FALSE)
+    # }
     
     if (is_null(which.treat)) {
         disp.treat.pairs <- character(0)
@@ -935,7 +935,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
             headings[i] <- "\n - - - " %+% italic(attr(m.balance[[i]], "print.options")$treat_names[1] %+% " (0) vs. " %+%
                                                       attr(m.balance[[i]], "print.options")$treat_names[2] %+% " (1)") %+% " - - - \n"
             cat(headings[i])
-            do.call(print, c(list(m.balance[[i]]), args))
+            do.call(print, c(list(m.balance[[i]]), args), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(max(nchar(headings))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -1172,7 +1172,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         cat(underline("Balance by Time Point") %+% "\n")
         for (i in which.time) {
             cat("\n - - - " %+% italic("Time: " %+% as.character(i)) %+% " - - - \n")
-            do.call(print, c(list(x = msm.balance[[i]]), args))
+            do.call(print, c(list(x = msm.balance[[i]]), args), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Time: ", i, " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
