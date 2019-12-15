@@ -3,25 +3,29 @@
 
 Version 4.0.0
 
+**Major Updates**
 * Added support for `mimids` and `wimids` objects from `MatchThem`.
 
-* Major restructuring so that clusters, longitudinal treatments, multi-category treatments, and multiply imputed data can all be used with each other. These are layers in the following order: clusters, time points, treatments categories, and impuations. Summaries across these layers are handled slightly differently then how they used to be; importantly, summaries are not nested, and only the lowest layer present can have a summary. For example, if multiply imputed data is used with multi-category treatments, there will be a summary across imputations (the lowest layer) but not across treatment pairs. `love.plot` allows multiple forms of faceting and is extremely fleixble in this regard.
+* Major restructuring so that clusters, longitudinal treatments, multi-category treatments, and multiply imputed data can all be used with each other. These are layers in the following order: clusters, time points, treatment categories, and imputations. Summaries across these layers are handled slightly differently from how they used to be; importantly, summaries are not nested, and only the lowest layer present can have a summary. For example, if multiply imputed data is used with multi-category treatments, there will be a summary across imputations (the lowest layer) but not across treatment pairs. `love.plot` allows multiple forms of faceting and aggregating and is extremely flexible in this regard.
+
+* Major changes to appearance of `bal.plot()` to be more in line with `love.plot()`, including new `grid` and `position` options to control the presence of the grid and the position of the legend.
+
+* Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.).
+
+**Minor Updates and Bug Fixes**
+* `s.d.denom` can now use the name of a treatment rather than just `"treated"` or `"control"`. In addition, `s.d.denom` can be `"weighted"` to use the weighted sample's standardization factors, an option available for continuous treatments, too.
+
+* For continuous treatments, `continuous` and `binary` can be set to `"raw"` in `bal.tab()` and `std` can be set to `FALSE` in `col_w_corr()` to request treatment-covariate covariances instead of correlations.
 
 * Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. 
-
-* `s.d.denom` can now use the name of a treatment rather than just `"treated"` or `"control"`.
 
 * Added `sample.names` argument in `bal.plot` in response to [this post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
 
 * Added functionality to the `which` argument in `bal.plot`, allowing more specificity when multiple sets of weights are used.
 
-* Added `"ecdf"` option to `bal.plot` for categorical treatments with continuous covariates to display empirical cumulative density plots as an alternative to density plots.
+* Added `type = "ecdf"` option to `bal.plot` for categorical treatments with continuous covariates to display empirical cumulative density plots as an alternative to density plots.
 
-* Major changes to appearance of `bal.plot` to be more in line with `love.plot`, including new `grid` and `position` options to control the presence of the grid and the position of the legend.
-
-* When using `bal.plot` with continuous treatments and continuous covariates, the points are shaded based on their weights; this beahvior is controlled by the new `alpha.weight` argument, which replaces the functionality of `size.weight` (which was kind of ugly and not very informative). Now it's more apparent which points are influential in the weighted sample. In addition, a line illustrating the unweighted covariate mean is present.
-
-* Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.).
+* When using `bal.plot` with continuous treatments and continuous covariates, the points are shaded based on their weights; this behavior is controlled by the new `alpha.weight` argument, which replaces the functionality of `size.weight` (which was kind of ugly and not very informative) and is `TRUE` by default. Now it's more apparent which points are influential in the weighted sample. In addition, a line illustrating the unweighted covariate mean is present.
 
 * `bal.tab()` no longer tells you whether it assumes matching or weighting when certain non-package-related methods are used.
 
@@ -31,9 +35,15 @@ Version 4.0.0
 
 * The default in `love.plot()` for `abs` is now to be whatever it is in the (implicit) call to `bal.tab()`, which is usually `FALSE`. Previously `abs` was not aligned between `love.plot()` and `bal.tab()`.
 
+* The default of the `grid` argument is now `FALSE` in `bal.plot()` and `love.plot()`. Previously it was `TRUE`. This make the plots cleaner at the outset.
+
 * Speedup of `splitfactor()`.
 
-* Bug fixes here and there.
+* All functions work better inside other functions like `lapply()` or `purrr::map()`, thanks to @the-Zian.
+
+* Updates to the vignettes; Appendix 2 is particularly different.
+
+* Other bug fixes and performance improvements here and there.
 
 Version 3.9.0
 
