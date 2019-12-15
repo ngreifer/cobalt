@@ -151,7 +151,7 @@ base.bal.tab.cont <- function(X, int = FALSE, poly = 1, continuous = getOption("
     else {
         no.adj <- FALSE
         check_if_zero_weights(X$weights)
-        if (ncol(weights) == 1) names(X$weights) <- "Adj"
+        if (ncol(X$weights) == 1) names(X$weights) <- "Adj"
     }
     if (is_null(X$s.weights)) {
         X$s.weights <- rep(1, length(X$treat))
@@ -282,7 +282,7 @@ base.bal.tab.imp <- function(X, imp = NULL, which.imp = NA, imp.summary = getOpt
     #Create summary of lists
     
     if (imp.summary || !A$quick) {
-        out[["Balance.Across.Imputations"]] <- balance.summary(bal.tab.imp.list = out[["Imputation.Balance"]], 
+        out[["Balance.Across.Imputations"]] <- balance.summary(out[["Imputation.Balance"]], 
                                                                weight.names = names(X$weights),
                                                                Agg.Fun = if_null_then(A$imp.fun, c("Min", "Mean", "Max")),
                                                                no.adj = is_null(X$weights),
@@ -304,7 +304,7 @@ base.bal.tab.imp <- function(X, imp = NULL, which.imp = NA, imp.summary = getOpt
     
     return(out)
 }
-base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat = NA, multi.summary = getOption("cobalt_multi.summary", TRUE), ...) {
+base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = getOption("cobalt_multi.summary", TRUE), ...) {
     A <- list(...)
     
     X$treat <- process_treat(X$treat)
@@ -400,6 +400,14 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat = NA, multi.summa
     }
     
     out[["Pair.Balance"]] <- balance.tables
+    
+    if (missing(which.treat)) {
+        if (is_null(X$imp)) {
+            which.treat <- NA
+            multi.summary <- FALSE
+        }
+        else which.treat <- NULL
+    }
     
     if ((multi.summary || !A$quick) && is_null(X$imp)) {
         out[["Balance.Across.Pairs"]] <- balance.summary(balance.tables, 
