@@ -4,8 +4,8 @@ base.bal.tab <- function(X, ...) {
 
 base.bal.tab.binary <- function(X, int = FALSE, poly = 1, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
-    A <- list(...)
-    
+    A <- clear_null(list(...))
+ 
     X$treat <- process_treat(X$treat) 
     
     if (get.treat.type(X$treat) != "binary") {
@@ -133,7 +133,7 @@ base.bal.tab.binary <- function(X, int = FALSE, poly = 1, continuous = getOption
 base.bal.tab.cont <- function(X, int = FALSE, poly = 1, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "std"), r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     
     #Preparations
-    A <- list(...)
+    A <- clear_null(list(...))
     
     X$treat <- process_treat(X$treat) 
     
@@ -230,8 +230,8 @@ base.bal.tab.cont <- function(X, int = FALSE, poly = 1, continuous = getOption("
     
     return(out)
 }
-base.bal.tab.imp <- function(X, imp = NULL, which.imp = NA, imp.summary = getOption("cobalt_imp.summary", TRUE), imp.fun = getOption("cobalt_imp.fun", NULL), ...) {
-    A <- list(...)
+base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_imp.summary", TRUE), imp.fun = getOption("cobalt_imp.fun", NULL), ...) {
+    A <- clear_null(list(...))
     
     X$treat <- process_treat(X$treat)
     
@@ -274,7 +274,7 @@ base.bal.tab.imp <- function(X, imp = NULL, which.imp = NA, imp.summary = getOpt
     out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) {
         X_i <- assign.X.class(subset_X(X, imp == i)) 
         X_i$call <- NULL
-        do.call(base.bal.tab, c(list(X_i), A), quote = TRUE)
+        do.call(base.bal.tab, c(list(X_i), A[names(A) %nin% names(X_i)]), quote = TRUE)
     })
     
     names(out[["Imputation.Balance"]]) <- levels(imp)
@@ -305,7 +305,7 @@ base.bal.tab.imp <- function(X, imp = NULL, which.imp = NA, imp.summary = getOpt
     return(out)
 }
 base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = getOption("cobalt_multi.summary", TRUE), ...) {
-    A <- list(...)
+    A <- clear_null(list(...))
     
     X$treat <- process_treat(X$treat)
     
@@ -378,7 +378,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
         balance.tables <- lapply(treat.combinations, function(t) {
             X_t <- assign.X.class(subset_X(X, X$treat %in% t))
             X_t$call <- NULL
-            do.call(base.bal.tab, c(list(X_t), A), quote = TRUE)
+            do.call(base.bal.tab, c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
         })
     }
     else {
@@ -391,7 +391,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
             X_t$treat <- treat_
             X_t <- assign.X.class(X_t)
             X_t$call <- NULL
-            do.call(base.bal.tab, c(list(X_t), A), quote = TRUE)
+            do.call(base.bal.tab, c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
         })
     }
     
@@ -443,7 +443,7 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     #cov.list should be a list of covariate data.frames, one for each time period; 
     #   should include all covs from previous time points, but no treatment statuses
     
-    A <- list(...)
+    A <- clear_null(list(...))
     
     X$treat.list <- process_treat.list(X$treat)
     
@@ -484,16 +484,17 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     #Get list of bal.tabs for each time period
     out[["Time.Balance"]] <- lapply(seq_along(X$covs.list), function(ti) {
         X_ti <- X
-        X_ti[c("covs", "treat", "addl", "distance")] <- list(
+        X_ti <- c(X_ti, list(
             covs = X_ti$covs.list[[ti]], 
             treat = X_ti$treat.list[[ti]], 
             addl = X_ti$addl.list[[ti]], 
             distance = X_ti$distance.list[[ti]]
-        )
+        ))
         X_ti[c("covs.list", "treat.list", "addl.list", "distance.list")] <- NULL
         X_ti$call <- NULL
         X_ti <- assign.X.class(X_ti)
-        do.call(base.bal.tab, c(list(X_ti), A), quote = TRUE)
+        
+        do.call(base.bal.tab, c(list(X_ti), A[names(A) %nin% names(X_ti)]), quote = TRUE)
     })
     
     if (length(names(X$treat.list)) == length(X$treat.list)) {
@@ -501,7 +502,7 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     }
     else names(out[["Time.Balance"]]) <- seq_along(X$treat.list)
     
-    if (!(A$quick && !msm.summary) && all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(imp)) {
+    if (!(A$quick && !msm.summary) && all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X$imp)) {
         out[["Balance.Across.Times"]] <- balance.table.msm.summary(out[["Time.Balance"]],
                                                          weight.names = names(X$weights),
                                                          no.adj = is_null(X$weights),
@@ -522,11 +523,10 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     
     class(out) <- c("bal.tab.msm", "bal.tab")
     
-    
     return(out)
 }
-base.bal.tab.cluster <- function(X, cluster = NULL, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), ...) {
-    A <- list(...)
+base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), ...) {
+    A <- clear_null(list(...))
     
     #Preparations
     if (is_not_null(A$m.threshold)) A$m.threshold <- abs(A$m.threshold)
@@ -567,7 +567,7 @@ base.bal.tab.cluster <- function(X, cluster = NULL, which.cluster = NULL, cluste
     out[["Cluster.Balance"]] <- lapply(levels(cluster), function(cl) {
         X_cl <- assign.X.class(subset_X(X, cluster == cl)) 
         X_cl$call <- NULL
-        do.call(base.bal.tab, c(list(X_cl), A), quote = TRUE)
+        do.call(base.bal.tab, c(list(X_cl), A[names(A) %nin% names(X_cl)]), quote = TRUE)
     })
     
     names(out[["Cluster.Balance"]]) <- levels(cluster)
@@ -600,7 +600,7 @@ base.bal.tab.cluster <- function(X, cluster = NULL, which.cluster = NULL, cluste
 
 base.bal.tab.subclass <- function(X, int = FALSE, poly = 1, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.v.ratio = getOption("cobalt_disp.v.ratio", FALSE), disp.ks = getOption("cobalt_disp.ks", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
-    A <- list(...)
+    A <- clear_null(list(...))
     
     if (!is_(X$treat, "processed.treat")) X$treat <- process_treat(X$treat) 
     
