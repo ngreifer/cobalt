@@ -133,7 +133,8 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             for (b in seq_along(B_list)) {
                 B_list[[b]][["variable.names"]] <- rownames(B_list[[b]])
                 for (i in facet) {
-                    if (i == "imp") B_list[[b]][[i]] <- paste("Imputation:", facet_mat[b, i])
+                    if (i == "imp") B_list[[b]][[i]] <- factor(paste("Imputation:", facet_mat[b, i]),
+                                                               levels = paste("Imputation:", sort(unique(as.numeric(facet_mat[b, i])))))
                     else B_list[[b]][[i]] <- facet_mat[b, i]
                 }
             }
@@ -169,6 +170,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
                     }
                     else {
                         if (is.numeric(which.) && max(which.) <= nunique(facet_mat[,i])) {
+                            if (i == "imp") facet_mat <- facet_mat[facet_mat[,i] %in% as.character(which.), ,drop = FALSE]
                             facet_mat <- facet_mat[facet_mat[,i] %in% sort(unique(facet_mat[,i]))[which.], ,drop = FALSE]
                         }
                         else if (is.character(which.) && all(which. %in% unique(facet_mat[,i]))) {
@@ -179,7 +181,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
                 }
 
             }
-            B_list <- B_list[names(B_list) %in% rownames(facet_mat)]
+            B_list <- B_list[rownames(facet_mat)]
             
             if (any(startsWith(names(B_list[[1]]), "Corr."))) {
                 stats <- "correlations"
