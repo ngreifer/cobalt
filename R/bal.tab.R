@@ -250,7 +250,7 @@ bal.tab.CBPS <- function(cbps, int = FALSE, poly = 1, distance = NULL, addl = NU
                    quote = TRUE)
     return(out)
 }
-bal.tab.weightit <- function(weightit, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL,  continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ... ) {
+bal.tab.weightit <- function(weightit, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ... ) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
