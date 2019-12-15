@@ -34,7 +34,7 @@ The output is a \code{bal.tab.subclass} object, which inherits from \code{bal.ta
 }}
 
 \item{Balance.Across.Subclass}{A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted). See \code{\link{bal.tab}} for details on what this includes.}
-}}
+}
 
 \author{
 Noah Greifer 
