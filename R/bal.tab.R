@@ -13,7 +13,7 @@ bal.tab <- function(...) {
     if (any(c(.alls, .nones))) {
         .call[.alls] <- expression(NULL)
         .call[.nones] <- expression(NA)
-        return(eval(.call))
+        return(eval.parent(.call))
     }
     
     UseMethod("bal.tab", .obj)

@@ -12,7 +12,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     if (any(c(.alls, .nones))) {
         .call[.alls] <- expression(NULL)
         .call[.nones] <- expression(NA)
-        return(eval(.call))
+        return(eval.parent(.call))
     }
     
     #Re-call bal.tab with disp.v.ratio or disp.ks if stats = "v" or "k".
@@ -33,14 +33,15 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
                 }
             }
             
-            if (any(names(m) == "cluster")) {
-                m[["cluster.summary"]] <- TRUE
-                if (any(names(m) == "cluster.fun")) m[["cluster.fun"]] <- NULL
-            }
-            if (any(names(m) == "imp")) {
-                m[["imp.summary"]] <- TRUE
-                if (any(names(m) == "imp.fun")) m[["imp.fun"]] <- NULL
-            }
+            # if (any(names(m) == "cluster")) {
+            #     m[["cluster.summary"]] <- TRUE
+            #     if (any(names(m) == "cluster.fun")) m[["cluster.fun"]] <- NULL
+            # }
+            # if (any(names(m) == "imp")) {
+            #     m[["imp.summary"]] <- TRUE
+            #     if (any(names(m) == "imp.fun")) m[["imp.fun"]] <- NULL
+            # }
+            if (any(names(m) == "agg.fun")) m[["agg.fun"]] <- NULL
             
             if (any(names(mc) %pin% "abs")) m[["abs"]] <- abs
             
@@ -49,14 +50,14 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         
         if (deparse(mc[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) { #if x i bal.tab call
             mc[["x"]] <- replace.args(mc[["x"]])
-            x <- eval(mc[["x"]])
+            x <- eval.parent(mc[["x"]])
             
         }
         else if (deparse(mc[["x"]][[1]]) == "do.call") { #if x is do.call
             d <- match.call(eval(mc[["x"]][[1]]), mc[["x"]])
             if (deparse(d[["what"]]) %in% c("bal.tab", methods("bal.tab"))) {
                 d[["args"]] <- replace.args(d[["args"]])
-                x <- eval(d)
+                x <- eval.parent(d)
             }
         }
     }
@@ -69,7 +70,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         m.l <- m; 
         m.l[["x"]] <- m.b
         
-        return(eval(m.l))
+        return(eval.parent(m.l))
     }
     
     args <- list(...)
