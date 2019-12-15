@@ -12,7 +12,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     if (any(c(.alls, .nones))) {
         .call[.alls] <- expression(NULL)
         .call[.nones] <- expression(NA)
-        return(eval(.call))
+        return(eval.parent(.call))
     }
     
     args <- list(...)
@@ -20,7 +20,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     obj <- is.designmatch(obj)
     obj <- is.time.list(obj)
 
-    X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "pooled") #s.d.denom to avoid x2base warning
+    X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "all") #s.d.denom to avoid x2base warning
     
     if (is_not_null(X$covs.list)) {
         #Longitudinal
@@ -396,6 +396,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                              FUN = function(x) x/sum(x))
         }
         
+        D$treat <- as.numeric(D$treat)
+        
         if (is.categorical.var) { #Categorical vars
             D$var <- factor(D$var)
             cat.sizes <- tapply(rep(1, NROW(D)), D$var, sum)
@@ -651,7 +653,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         else if (length(facet) >= 2) {
             if ("which" %in% facet) {
-                facet.formula <- f.build("which", facet[facet %nin% "which"])
+                facet.formula <- f.build(facet[facet %nin% "which"], "which")
             }
             else if ("imp" %in% facet) {
                 facet.formula <- f.build("imp", facet[facet %nin% "imp"])
