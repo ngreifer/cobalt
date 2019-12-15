@@ -195,11 +195,11 @@ base.bal.tab.cont <- function(X, int = FALSE, poly = 1, continuous = getOption("
                 out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[paste.(s[["Threshold"]], "Un")]])
                 out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Un"), paste.(s[["Threshold"]], "Un"), ratio = s$Stat == "V.Ratio")
             }
-            else if (ncol(weights) == 1) {
+            else if (ncol(X$weights) == 1) {
                 out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[s[["Threshold"]]]])
                 out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]], ratio = s$Stat == "V.Ratio")
             }
-            else if (ncol(weights) > 1) {
+            else if (ncol(X$weights) > 1) {
                 out[[paste.("Balanced", s[["Names"]])]] <- setNames(do.call("cbind", lapply(names(X$weights), function(x) baltal(out[["Balance"]][[paste.(s[["Threshold"]], x)]]))),
                                                                     names(X$weights))
                 out[[paste.("Max.Imbalance", s[["Names"]])]] <- cbind(Weights = names(X$weights),
