@@ -67,7 +67,7 @@ bal.tab(list(iptwExWide[c("use0", "gender", "age")],
 
 First we see balance by time point. At each time point, a `bal.tab` object is produced for that time point. These function just like regular `bal.tab` objects. Next, we see a balance summary across all time points. This displays each variable, how many times it appears in balance tables, its type, and the greatest imbalance for that variable across all time points. Below this is a summary of sample sizes across time points.
 
-This output will appear no matter what the treatment types are (i.e., binary, continuous, multi-category), but for multi-category treatments or when the treatment types vary, no balance summary will be computed or displayed.
+This output will appear no matter what the treatment types are (i.e., binary, continuous, multi-category), but for multi-category treatments or when the treatment types vary or for multiply imputed data, no balance summary will be computed or displayed.
 
 We can use `bal.tab()` with the `weightitMSM` object generated above. Setting `un = TRUE` would produce balance statistics before adjustment, like we did before.
 
@@ -93,7 +93,7 @@ We can compare distributions of covariates across treatment groups for each time
 bal.plot(Wmsm, var.name = "age", which = "both")
 ```
 
-balance for variables that only appear in certain time points will only be displayed at those time points:
+Balance for variables that only appear in certain time points will only be displayed at those time points:
 
 ```{r, fig.height=4}
 bal.plot(Wmsm, var.name = "tx1", which = "both")
@@ -105,7 +105,7 @@ Finally, we'll examine using `love.plot()` with longitudinal treatments to displ
 
 ## `love.plot()`
 
-`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `.none`, the summary across time points is displayed. The `agg.fun` argument is automatically set to `"max"` and cannot be changed.
+`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `.none`, the summary across time points is displayed. The `agg.fun` argument is set to `"max"` by default.
 
 ```{r}
 love.plot(Wmsm, abs = TRUE)

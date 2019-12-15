@@ -241,6 +241,37 @@ The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`
 ```{r, include=FALSE}
 knitr::opts_chunk$set(eval = TRUE)
 ```
+
+### Using `bal.tab()` with `MatchThem`
+```{r, include=FALSE}
+if (!"MatchThem" %in% rownames(installed.packages())) knitr::opts_chunk$set(eval = FALSE)
+```
+The `MatchThem` package is essentially a wrapper for `matchit()` from `MatchIt` and `weightit()` from `WeightIt` but for use with multiply imputed data. Using `bal.tab()` on `mimids` or `wimids` objects from `MatchThem` activates the features that accompany multiply imputed data; balance is assessed within each imputed dataset and aggregated across imputations. See `?bal.tab.imp` or the accompanying Appendix 2 for more information about using `cobalt` with multiply imputed data. Below is a simple example of using `bal.tab()` with `MatchThem`:
+```{r}
+library("MatchThem"); library("mice")
+data("lalonde_mis", package = "cobalt")
+
+#Generate imputed data sets
+m <- 10 #number of imputed data sets
+imp.out <- mice(lalonde_mis, m = m, print = FALSE) 
+
+#Matching for balance on covariates
+wt.out <- weightthem(treat ~ age + educ + married +
+                       race + re74 + re75, 
+                     datasets = imp.out,
+                     approach = "within", 
+                     method = "ps",
+                     estimand = "ATE")
+
+bal.tab(wt.out)
+```
+
+The input is similar to that for using `bal.tab()` with `MatchIt` or `WeightIt`.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE)
+```
+
 ### Using `bal.tab()` with other packages
 
 It is possible to use `bal.tab` with objects that don't come from these packages using the `default` method. If an object that doesn't correspond to the output from one of the specifically supported packages is passed as the first argument to `bal.tab`, `bal.tab` will do its best to process that object as if it did come from a supported package. It will search through the components of the object for items with names like `"treat"`, `"covs"`, `"data"`, `"weights"`, etc., that have the correct object types. Any additional arguments can be specified by the user. 
