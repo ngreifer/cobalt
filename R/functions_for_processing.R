@@ -1842,10 +1842,27 @@ balance.summary <- function(bal.tab.list, Agg.Fun, weight.names = NULL, no.adj =
     bal.tab.list <- clear_null(bal.tab.list)
     
     Brownames <- unique(unlist(lapply(bal.tab.list, rownames)))
+    
     agg.fun <- tolower(Agg.Fun)
     Agg.Fun <- firstup(match_arg(agg.fun, c("min", "mean", "max"), several.ok = TRUE))
+    
     stats <- if (cont.treat) "Corr" else c("Diff", "V.Ratio", "KS")
-    Bcolnames <- c("Type", apply(expand.grid(Agg.Fun, stats, c("Un", weight.names)), 1, paste, collapse = "."))
+    
+    if (length(Agg.Fun) > 1) {
+        Bcolnames <- c("Type", apply(expand.grid(Agg.Fun, stats, c("Un", weight.names)), 1, paste, collapse = "."))
+    }
+    else {
+        if (cont.treat) {
+            Bcolnames <- c("Type", expand.grid_string(c(paste.(Agg.Fun, "Corr"), "R.Threshold"), 
+                                                      c("Un", weight.names), collapse = "."))
+        }
+        else {
+            Bcolnames <- c("Type", expand.grid_string(c(paste.(Agg.Fun, "Diff"), "M.Threshold", 
+                                                        paste.(Agg.Fun, "V.Ratio"), "V.Threshold", 
+                                                        paste.(Agg.Fun, "KS"), "KS.Threshold"), 
+                                                      c("Un", weight.names), collapse = "."))
+        }
+    }
     B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
     names(B) <- Bcolnames
     
@@ -1899,7 +1916,7 @@ balance.summary <- function(bal.tab.list, Agg.Fun, weight.names = NULL, no.adj =
                 }
                 else {
                     for (i in weight.names) {
-                        B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.(Agg.Fun, "Diff", "i")]]), paste0(ifelse(abs_(B[[paste.(Agg.Fun, "Diff", "i")]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
+                        B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.(Agg.Fun, "Diff", i)]]), paste0(ifelse(abs_(B[[paste.(Agg.Fun, "Diff", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
                     }
                 }
             }
