@@ -13,12 +13,14 @@ Version 4.0.0
 * Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.).
 
 **Minor Updates and Bug Fixes**
+***`s.d.denom` and `estimand`***
 * `s.d.denom` can now use the name of a treatment rather than just `"treated"` or `"control"`. In addition, `s.d.denom` can be `"weighted"` to use the weighted sample's standardization factors, an option available for continuous treatments, too.
 
-* For continuous treatments, `continuous` and `binary` can be set to `"raw"` in `bal.tab()` and `std` can be set to `FALSE` in `col_w_corr()` to request treatment-covariate covariances instead of correlations.
+* Improved guessing of the estimand when not provided.
 
-* Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. 
+* Estimands besides ATT can now be used with subclasses. The estimand can be inferred from the provided subclasses. Works with `match.strata` as well, which function like subclasses. In addition, it is not always assumed that `MatchIt` objects are targeting the ATT, for example, with subclassification or calipers.
 
+***`bal.plot`***
 * Added `sample.names` argument in `bal.plot` in response to [this post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
 
 * Added functionality to the `which` argument in `bal.plot`, allowing more specificity when multiple sets of weights are used.
@@ -27,15 +29,19 @@ Version 4.0.0
 
 * When using `bal.plot` with continuous treatments and continuous covariates, the points are shaded based on their weights; this behavior is controlled by the new `alpha.weight` argument, which replaces the functionality of `size.weight` (which was kind of ugly and not very informative) and is `TRUE` by default. Now it's more apparent which points are influential in the weighted sample. In addition, a line illustrating the unweighted covariate mean is present.
 
+* The default of the `grid` argument is now `FALSE` in `bal.plot()` and `love.plot()`. Previously it was `TRUE`. This make the plots cleaner at the outset.
+
+***Other improvements***
+
+* Added new function `col_w_cov()` to compute treatment-covariate covariances (i.e., unstandardized correlations) for continuous treatments. `continuous` and `binary` can be set to `"raw"` in `bal.tab()` and `std` can be set to `FALSE` in `col_w_cov()` to request treatment-covariate covariances instead of correlations. `col_w_corr()` is now a wrapper for `col_w_cov()` with `std = TRUE`. To get more fuctionality out of the `std` argument (e.g., to standardize the covariances for some covariates but not others), use `col_w_cov()`. 
+
+* Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. 
+
 * `bal.tab()` no longer tells you whether it assumes matching or weighting when certain non-package-related methods are used.
 
-* Estimands besides ATT can now be used with subclasses. The estimand can be inferred from the provided subclasses. Works with `match.strata` as well, which function like subclasses. In addition, it is not always assumed that `MatchIt` objects are targeting the ATT, for example, with subclassification or calipers.
-
-* Improved guessing of estimand when not provided.
+* Improvements to assessment of subclass balance. For binary treatments, balance statistics other than mean differences can now be requested. The across-subclass balance summary uses subclassification weights (processed in the same way `match.strata` is) instead of simply taking a weighted average across subclasses (which is not valid for non-additive statistics like variance ratios or KS statistics). For continuous treatments, a balance summary across subclasses can now be produced. This uses a weighted average of the subclass-specific balance statistics.
 
 * The default in `love.plot()` for `abs` is now to be whatever it is in the (implicit) call to `bal.tab()`, which is usually `FALSE`. Previously `abs` was not aligned between `love.plot()` and `bal.tab()`.
-
-* The default of the `grid` argument is now `FALSE` in `bal.plot()` and `love.plot()`. Previously it was `TRUE`. This make the plots cleaner at the outset.
 
 * Speedup of `splitfactor()`.
 
