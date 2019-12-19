@@ -284,9 +284,9 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
 }
 
 var.names <- function(b, type, file = NULL, minimal = FALSE) {
-    if (is_not_null(b[["print.options"]][["co.names"]])) {
-        if (minimal) vars <- unique(unlist(lapply(b[["print.options"]][["co.names"]], function(x) x[["component"]][x[["type"]] == "base"])))
-        else vars <- vapply(b[["print.options"]][["co.names"]], function(x) paste(x[["component"]], collapse = ""), character(1))
+    if (is_not_null(attr(b, "print.options")[["co.names"]])) {
+        if (minimal) vars <- unique(unlist(lapply(attr(b, "print.options")[["co.names"]], function(x) x[["component"]][x[["type"]] == "base"])))
+        else vars <- vapply(attr(b, "print.options")[["co.names"]], function(x) paste(x[["component"]], collapse = ""), character(1))
     }
     else {
         stop("No variable names were found in the object. It is probably not a bal.tab object.", call. = FALSE)
