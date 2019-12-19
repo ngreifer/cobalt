@@ -1357,6 +1357,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         baltal.ks <- NULL
         maximbal.ks <- NULL
     }
+    
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
         p.ops$disp.bal.tab <- disp.bal.tab
@@ -1428,7 +1429,20 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                 keep.row <- rowSums(apply(b.a.subclass[grepl(".Threshold", names(b.a.subclass), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
             }
             else keep.row <- rep(TRUE, nrow(b.a.subclass))
-
+            if ("bal.tab.cont" %in% class(x)) {
+                a.s.keep <- setNames(as.logical(c(TRUE, 
+                                                  p.ops$un && p.ops$disp.means,
+                                                  p.ops$un && p.ops$disp.sds,
+                                                  p.ops$un, 
+                                                  p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$r.threshold), 
+                                                  rep(c(p.ops$disp.adj && p.ops$disp.means,
+                                                        p.ops$disp.adj && p.ops$disp.sds,
+                                                        p.ops$disp.adj, 
+                                                        p.ops$disp.adj && is_not_null(p.ops$r.threshold)), 
+                                                      p.ops$disp.adj))),
+                                     names(b.a.subclass))
+            }
+            else {
             a.s.keep <- setNames(as.logical(c(TRUE, 
                                           p.ops$un && p.ops$disp.means, 
                                           p.ops$un && p.ops$disp.sds, 
@@ -1450,8 +1464,9 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                                                 p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
                                                 p.ops$disp.adj && p.ops$disp.ks, 
                                                 p.ops$disp.adj && is_not_null(p.ops$ks.threshold)), 
-                                              1 + !p.ops$disp.adj))),
+                                              p.ops$disp.adj))),
                              names(b.a.subclass))
+            }
             
             cat(underline("Balance measures across subclasses") %+% "\n")
             if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
