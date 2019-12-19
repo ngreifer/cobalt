@@ -406,7 +406,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = N
     return(ovl)
     
 }
-col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", std = TRUE, s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
+col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE, s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
     
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
@@ -484,6 +484,12 @@ col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", std = TRUE,
     
     return(setNames(covars, colnames(mat)))
     
+}
+col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
+    .call <- match.call(expand.dots = TRUE)
+    .call[[1]] <- quote(cobalt::col_w_cov)
+    .call[["std"]] <- quote(TRUE)
+    eval.parent(.call)
 }
 
 #Scalar balance functions 
