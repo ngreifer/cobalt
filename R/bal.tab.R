@@ -20,7 +20,7 @@ bal.tab <- function(...) {
 }
 
 #Point treatments
-bal.tab.matchit <- function(m, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.matchit <- function(m, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -48,7 +48,7 @@ bal.tab.matchit <- function(m, int = FALSE, poly = 1, distance = NULL, addl = NU
                    quote = TRUE)
     return(out)
 }
-bal.tab.ps <- function(ps, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.ps <- function(ps, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -76,7 +76,7 @@ bal.tab.ps <- function(ps, stop.method, int = FALSE, poly = 1, distance = NULL, 
                    quote = TRUE)
     return(out)
 }
-bal.tab.mnps <- function(mnps, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.mnps <- function(mnps, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -105,7 +105,7 @@ bal.tab.mnps <- function(mnps, stop.method, int = FALSE, poly = 1, distance = NU
     
     return(out)
 }
-bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, r.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, r.threshold = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -133,7 +133,7 @@ bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distanc
                    quote = TRUE)
     return(out)
 }
-bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = NULL, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = NULL, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -161,7 +161,7 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
                    quote = TRUE)
     return(out)
 }
-bal.tab.formula <- function(formula, data = NULL, weights = NULL, distance = NULL, subclass = NULL, match.strata = NULL, method, int = FALSE, poly = 1, addl = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, estimand = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.formula <- function(formula, data = NULL, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -222,7 +222,7 @@ bal.tab.numeric <- function(treat, covs, ...) {
     bal.tab(covs, treat = treat, ...)
 }
 bal.tab.factor <- bal.tab.character <- bal.tab.logical <- bal.tab.numeric
-bal.tab.CBPS <- function(cbps, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.CBPS <- function(cbps, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -374,7 +374,7 @@ bal.tab.formula.list <- function(formula.list, data = NULL, ...) {
                    quote = TRUE)
     return(out)
 }
-bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, weights = NULL, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, method, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, pairwise = TRUE, s.weights = NULL, estimand = "ATE", abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, weights = NULL, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, method, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, estimand = "ATE", abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
@@ -401,7 +401,7 @@ bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, w
                    quote = TRUE)
     return(out)
 }
-bal.tab.iptw <- function(iptw, stop.method, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.iptw <- function(iptw, stop.method, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
     
