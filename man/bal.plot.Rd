@@ -13,16 +13,16 @@ bal.plot(obj,
     ..., 
     which, 
     which.sub = NULL, 
-    cluster = NULL, 
+    cluster = NULL,
     which.cluster = NULL, 
-    imp = NULL, 
+    imp = NULL,
     which.imp = NULL, 
     which.treat = NULL,
     which.time = NULL,
     mirror = FALSE, 
     type = "density", 
     colors = NULL,
-    grid = TRUE,
+    grid = FALSE,
     sample.names,
     position = "right", 
     facet.formula = NULL, 
@@ -66,7 +66,7 @@ for longitudinal treatments, which time points to display. Can be treatment name
 \code{logical}; if the treatment is binary, the covariate is continuous, and densities or histograms are requested, whether to display mirrored densities/histograms or overlapping densities/histograms. Ignored otherwise. 
 }
   \item{type}{
-\code{character}; for binary and multi-category treatments, whether to display densities (\code{"density"}), histograms  (\code{"histogram"}), or empricial cumulative density function plots (\code{"ecdf"}). The default is to display densities. Abbreviations are allowed.
+\code{character}; for binary and multi-category treatments with a continuous covariate, whether to display densities (\code{"density"}), histograms  (\code{"histogram"}), or empricial cumulative density function plots (\code{"ecdf"}). The default is to display densities. Abbreviations are allowed.
 }
   \item{colors}{
 a vector of colors for the plotted densities/histograms. See 'Color Specification' at \code{\link[graphics]{par}}. Defaults to the default \pkg{ggplot2} colors.
@@ -84,7 +84,7 @@ the position of the legend. This can be any value that would be appropriate as a
 a \code{formula} designating which facets should be on the rows and columns. This should be of the "historical" formula interface to \code{\link[ggplot2]{facet_grid}}. If of the form \code{a ~ b}, \code{a} will be faceted on the rows and \code{b} on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form \code{a ~ .} (i.e., with only \code{.} on the right-hand side). The allowable facets depend on which arguments have been supplied to \code{bal.plot}; possible values include \code{which}, \code{cluster}, \code{imp}, and (for longitudinal treatments) \code{time}. If \code{NULL}, \code{bal.plot} will decide what looks best; this argument exists in case you disagree with its choice.
 }
   \item{alpha.weight}{
-\code{logical}; if both the treatment and the covariate are continuous, whether points should be shaded according to their weight. Fainter points are those that have smaller weights.
+\code{logical}; if both the treatment and the covariate are continuous, whether points should be shaded according to their weight. Fainter points are those that have smaller weights. Default is \code{TRUE}.
 }
 
 }
@@ -111,13 +111,15 @@ For \code{data.frame}s: \code{treat}, (\code{data}), \code{weights}, (\code{dist
 
 For \code{designmatch} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
+For \code{mimids} and \code{wimids} objects: None, but an argument to \code{which.imp} should be specified.
+
 For other objects processed through \code{bal.tab}'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
 
 }
 \details{
 \code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \code{\link[ggplot2]{geom_density}}, and histograms are created using \code{\link[ggplot2]{geom_histogram}}; for categorical treatments with categorical covariates, bar graphs are created using \code{\link[ggplot2]{geom_bar}}; for continuous treatments with continuous covariates, scatterplots are created using \code{\link[ggplot2]{geom_point}}.
 
-For continuous treatments with continuous covariates, three additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smootheding curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "auto"}. The solid black line is a horizontal reference line intercepting the (weighted) treatment mean. Proximity of the fit lines to the reference line is indicative of independence between the covariate and treatment variable.
+For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smootheding curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "auto"}. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.
 
 When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or \code{which = "both"}, or when treatment is longitudinal), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{\link[ggplot2]{facet_grid}}. Subclassification cannot be used with clusters or multiply imputed data.
 }

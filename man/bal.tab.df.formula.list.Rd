@@ -26,6 +26,8 @@ Generates balance statistics for data coming from a longitudinal treatment scena
     v.threshold = NULL, 
     ks.threshold = NULL, 
     r.threshold = NULL, 
+    cluster = NULL, 
+    imp = NULL, 
     pairwise = TRUE, 
     s.weights = NULL, 
     estimand = "ATE",
@@ -49,7 +51,7 @@ treatment status for each unit at each time point. This can be specified as a li
 a list of formulas with the treatment for each time period on the left and the covariates for which balance is to be displayed on the right. An argument to \code{data} is required unless all objects in the formulas exist in the environment.
 }
    \item{data}{
-for \code{bal.tab.data.frame.list}: optional; a data frame containing variables with the names used in \code{treat.list}, \code{weights}, \code{distance.list}, and/or \code{addl.list}, if any. For \code{bal.tab.formula.list}: required; a data frame containing all covariates named in the formulas and variables with the names used in the arguments mentioned above. If all objects in the \code{formula.list} formulas are present in the environment, can be omitted. \code{data} must be in the "wide" format, with one row per unit.
+for \code{bal.tab.data.frame.list}: optional; a data frame containing variables with the names used in \code{treat.list}, \code{weights}, \code{distance.list}, and/or \code{addl.list}, if any. For \code{bal.tab.formula.list}: required; a data frame containing all covariates named in the formulas and variables with the names used in the arguments mentioned above. If all objects in the \code{formula.list} formulas are present in the environment, can be omitted. \code{data} must be in the "wide" format, with one row per unit. Can also be \code{mids} object, the output of a call to \code{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
 }
 
   \item{weights}{
@@ -91,6 +93,12 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
   \item{r.threshold}{
 a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
+  \item{cluster}{
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link{bal.tab.cluster}} for details.
+}
+  \item{imp}{
+either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
+}
   \item{pairwise}{
 whether balance should be computed for pairs of treatments or for each treatment against all others combined when treatment is multinomial. See \code{\link{bal.tab.multi}} for details. 
 }
@@ -114,7 +122,7 @@ For \code{bal.tab.formula.list}, other arguments to be passed to \code{bal.tab.d
 }
 }
 \details{
-\code{bal.tab.formula.list()} and \code{bal.tab.data.frame.list()} generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the \code{weightitMSM} documentation for an example of how to transform long data into wide data using \code{\link{reshape}}. 
+\code{bal.tab.formula.list()} and \code{bal.tab.data.frame.list()} generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the \code{\link[WeightIt]{weightitMSM}} documentation for an example of how to transform long data into wide data using \code{\link{reshape}}. 
 
 All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}.  The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold.  Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.  When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 

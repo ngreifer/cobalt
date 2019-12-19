@@ -18,7 +18,7 @@ love.plot(x,
           threshold = NULL, 
           line = FALSE, 
           stars = "none", 
-          grid = TRUE, 
+          grid = FALSE, 
           limits = NULL, 
           colors = NULL, 
           shapes = NULL, 
@@ -66,7 +66,7 @@ a \code{character} or \code{love.plot} object; how to order the variables in the
 when mean differences are to be displayed, which variable names should have a star (i.e., an asterisk) next to them. Allowable values are "none", "std" (for variables with mean differences that have been standardized), or "raw" (for variables with mean differences that have not been standardized). If "raw", the x-axis title will be "Standardized Mean Differences". Otherwise, it will be "Mean Differences". Ignored when mean difference are not displayed. See Details for an explanation of the purpose of this option.
 }
   \item{grid}{
-\code{logical}; whether gridlines should be shown on the plot. Default is \code{TRUE}.
+\code{logical}; whether gridlines should be shown on the plot. Default is \code{FALSE}.
 }
   \item{limits}{
 \code{numeric}; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of \code{stats} that is to have limits. If values exceed the limits, they will be plotted at the edge.

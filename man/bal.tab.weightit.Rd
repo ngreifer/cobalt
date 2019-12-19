@@ -47,13 +47,13 @@ optional; either a vector or data.frame containing distance values (e.g., propen
 an optional data frame or the quoted names of additional covariates for which to present balance. These may be covariates included in the original dataset but not included in the call to \code{weightit()}. If variable names are specified, \code{bal.tab()} will look first in the argument to \code{data}, if specified, and next in the \code{weightit} object. For \code{weightitMSM} objects, must be a list of additional covariate values described above, with one list entry per time period.
 }
   \item{data}{
-an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, and \code{cluster}. Can also be  \code{mids} object, the output of a call to \code{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
+an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, \code{cluster}, and \code{imp}. Can also be \code{mids} object, the output of a call to \code{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
 }
   \item{continuous}{
-whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
+whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}} and \code{\link{col_w_corr}}.
 }
   \item{binary}{
-whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
+whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}} and \code{\link{col_w_corr}}.
 }
   \item{s.d.denom}{
 whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances) or the standard deviation in the full sample ("all"). Can also be the name of the treatment group or "focal" if \code{focal} is specified in the original call to \code{weightit}. Abbreviations allowed. If not specified, \code{bal.tab()} will figure out which one is best based on the estimand of the \code{weightit} object: if ATT, "treated"; if ATC, "control", otherwise "pooled".

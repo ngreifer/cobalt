@@ -38,6 +38,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
     m.threshold = NULL, 
     v.threshold = NULL, 
     ks.threshold = NULL,
+    r.threshold = NULL,
     cluster = NULL, 
     pairwise = TRUE, 
     focal = NULL, 
@@ -83,6 +84,9 @@ a numeric value for the threshold for variance ratios. Will automatically conver
 }
   \item{ks.threshold}{
 a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
+}
+  \item{r.threshold}{
+a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{mimids} or \code{wimids} object. See \code{\link{bal.tab.cluster}} for details.

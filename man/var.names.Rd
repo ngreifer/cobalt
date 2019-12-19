@@ -35,7 +35,7 @@ Not all programs can properly read the Unicode characters for the polynomial ter
 }
 
 \examples{
-data(lalonde)
+data(lalonde, package = "cobalt")
 
 b1 <- bal.tab(treat ~ age + race + married, data = lalonde,
              int = TRUE)

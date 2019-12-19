@@ -100,7 +100,7 @@ a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be bet
 A numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
 }
   \item{cluster}{
-either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in data or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link{bal.tab.cluster}} for details.
 }
   \item{imp}{
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
