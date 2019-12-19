@@ -639,7 +639,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     }
     
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+    s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -812,7 +812,7 @@ x2base.formula <- function(formula, ...) {
     A[["covs"]] <- NULL
     A[["treat"]] <- NULL
     
-    X <- do.call("x2base.data.frame", c(list(covs = covs, treat = treat), A))
+    X <- do.call(x2base.data.frame, c(list(covs = covs, treat = treat), A))
     return(X)
 }
 x2base.data.frame <- function(covs, ...) {
@@ -984,7 +984,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
-    
+
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         subclass <- vector.process(subclass, 
@@ -993,6 +993,7 @@ x2base.data.frame <- function(covs, ...) {
                                    which = "subclass membership",
                                    missing.okay = TRUE)
         subclass <- factor(subclass)
+        weights <- NULL
     }
     
     #Process match.strata
@@ -1005,7 +1006,6 @@ x2base.data.frame <- function(covs, ...) {
         weights <- data.frame(weights = strata2weights(match.strata,
                                                        treat = treat))
     }
-    
     #Process weights
     else if (is_not_null(weights <- data.frame.process("weights", A[["weights"]], treat, covs, data))) {
         
@@ -1080,7 +1080,7 @@ x2base.data.frame <- function(covs, ...) {
                                    treat = treat, focal = focal)
     }
     else {
-        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
     #Missing values warning
@@ -1226,7 +1226,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
     }
     else {
-        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
     #Missing values warning
@@ -1620,7 +1620,7 @@ x2base.weightit <- function(weightit, ...) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
     }
     else {
-        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
     #Missing values warning
@@ -2065,7 +2065,7 @@ x2base.wimids <- function(wimids, ...) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
     }
     else {
-        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
     #Missing values warning
@@ -2466,7 +2466,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
     }
     else {
-        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
     #Missing values warning
@@ -2643,7 +2643,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
         s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
     }
     else {
-        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
     #Missing values warning
@@ -2794,7 +2794,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
     }
     else {
-        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
     #Missing values warning
@@ -3273,7 +3273,7 @@ x2base.default <- function(obj, ...) {
                                          treat = treat, focal = focal)
         }
         else {
-            s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+            s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
         }
         
         #Missing values warning
@@ -3494,7 +3494,7 @@ x2base.default <- function(obj, ...) {
             s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
         else {
-            s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights)
+            s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
         }
         
         #Missing values warning
