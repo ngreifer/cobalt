@@ -5,7 +5,7 @@
 \alias{col_w_vr}
 \alias{col_w_ks}
 \alias{col_w_ovl}
-\alias{col_w_corr}
+\alias{col_w_cov}
 \alias{col_w_corr}
 
 \title{
