@@ -610,6 +610,8 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
     return(estimand)
 }
 assign.X.class <- function(X) {
+    X <- clear_null(X)
+    
     if (is_not_null(X[["treat"]]) && !has.treat.type(X[["treat"]])) X[["treat"]] <- assign.treat.type(X[["treat"]])
     
     if (is_not_null(X[["subclass"]])) {
@@ -1304,7 +1306,7 @@ balance.summary <- function(bal.tab.list, Agg.Fun, weight.names = NULL, no.adj =
 }
 
 #base.bal.tab.bin
-balance.table.bin <- function(C, weights, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
+balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
                           s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
@@ -1587,7 +1589,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
 }
 
 #base.bal.tab.cont
-balance.table.cont <- function(C, weights, treat, continuous, binary, s.d.denom, r.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
+balance.table.cont <- function(C, weights = NULL, treat, continuous, binary, s.d.denom, r.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
