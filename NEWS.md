@@ -33,7 +33,7 @@ Version 4.0.0
 
 ***Other improvements***
 
-* Added new function `col_w_cov()` to compute treatment-covariate covariances (i.e., unstandardized correlations) for continuous treatments. `continuous` and `binary` can be set to `"raw"` in `bal.tab()` and `std` can be set to `FALSE` in `col_w_cov()` to request treatment-covariate covariances instead of correlations. `col_w_corr()` is now a wrapper for `col_w_cov()` with `std = TRUE`. To get more fuctionality out of the `std` argument (e.g., to standardize the covariances for some covariates but not others), use `col_w_cov()`. 
+* Added new function `col_w_cov()` to compute treatment-covariate covariances (i.e., unstandardized correlations) for continuous treatments. `continuous` and `binary` can be set to `"raw"` in `bal.tab()` and `std` can be set to `FALSE` in `col_w_cov()` to request treatment-covariate covariances instead of correlations. `col_w_corr()` is now a wrapper for `col_w_cov()` with `std = TRUE`. To get more functionality out of the `std` argument (e.g., to standardize the covariances for some covariates but not others), use `col_w_cov()`. 
 
 * Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. 
 

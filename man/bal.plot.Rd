@@ -66,7 +66,7 @@ for longitudinal treatments, which time points to display. Can be treatment name
 \code{logical}; if the treatment is binary, the covariate is continuous, and densities or histograms are requested, whether to display mirrored densities/histograms or overlapping densities/histograms. Ignored otherwise. 
 }
   \item{type}{
-\code{character}; for binary and multi-category treatments with a continuous covariate, whether to display densities (\code{"density"}), histograms  (\code{"histogram"}), or empricial cumulative density function plots (\code{"ecdf"}). The default is to display densities. Abbreviations are allowed.
+\code{character}; for binary and multi-category treatments with a continuous covariate, whether to display densities (\code{"density"}), histograms  (\code{"histogram"}), or empirical cumulative density function plots (\code{"ecdf"}). The default is to display densities. Abbreviations are allowed.
 }
   \item{colors}{
 a vector of colors for the plotted densities/histograms. See 'Color Specification' at \code{\link[graphics]{par}}. Defaults to the default \pkg{ggplot2} colors.
@@ -119,7 +119,7 @@ For other objects processed through \code{bal.tab}'s default method, whichever a
 \details{
 \code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \code{\link[ggplot2]{geom_density}}, and histograms are created using \code{\link[ggplot2]{geom_histogram}}; for categorical treatments with categorical covariates, bar graphs are created using \code{\link[ggplot2]{geom_bar}}; for continuous treatments with continuous covariates, scatterplots are created using \code{\link[ggplot2]{geom_point}}.
 
-For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smootheding curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "auto"}. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.
+For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smoothing curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "auto"}. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.
 
 When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or \code{which = "both"}, or when treatment is longitudinal), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{\link[ggplot2]{facet_grid}}. Subclassification cannot be used with clusters or multiply imputed data.
 }

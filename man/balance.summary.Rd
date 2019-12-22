@@ -18,7 +18,7 @@ These functions quickly compute balance statistics for the given covariates. The
 \item{\code{col_w_sd} computes the (weighted) standard deviations for a set of covariates and weights.}
 \item{\code{col_w_smd} computes the (weighted) (absolute) (standardized) difference in means for a set of covariates, a binary treatment, and weights.}
 \item{\code{col_w_vr} computes the (weighted) variance ratio for a set of covariates, a binary treatment, and weights.}
-\item{\code{col_w_ks} computes the (weighted) Komogorov-Smirnov (KS) statistic for a set of covariates, a binary treatment, and weights.}
+\item{\code{col_w_ks} computes the (weighted) Kolmogorov-Smirnov (KS) statistic for a set of covariates, a binary treatment, and weights.}
 \item{\code{col_w_ovl} computes the complement of the (weighted) overlapping coefficient for a set of covariates, a binary treatment, and weights (based on Franklin et al, 2014).}
 \item{\code{col_w_cov} and \code{col_w_corr} compute the (weighted) (absolute) treatment-covariate covariance or correlation for a set of covariates, a continuous treatment, and weights.}
 }

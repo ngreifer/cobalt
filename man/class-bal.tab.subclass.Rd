@@ -9,7 +9,7 @@ When using \code{bal.tab()} with subclassified data, i.e., data split into subcl
 
 There are two main components of the output of \code{bal.tab()} with subclassified data: the balance within subclasses and the balance summary across subclasses. The within-subclass balance displays essentially are standard balance displays for each subclass, except that only "adjusted" values are available, because the subclassification itself is the adjustment.
 
-The balance summary is, for each variable, a weighted average of the balance statistics across subclasses. This is computed internally by assigning each individual a weight based on their subclass and treatment group membership and then computing weighted balance sttaistics as usual with these weights. This summary is the same one would get if subclasses were supplied to the \code{match.strata} argument rather than to \code{subclass}. Because the means and mean differences are additive, their computed values will be weighted averages of the subclass-specific values, but for other statistics, the computed values will not be. 
+The balance summary is, for each variable, a weighted average of the balance statistics across subclasses. This is computed internally by assigning each individual a weight based on their subclass and treatment group membership and then computing weighted balance statistics as usual with these weights. This summary is the same one would get if subclasses were supplied to the \code{match.strata} argument rather than to \code{subclass}. Because the means and mean differences are additive, their computed values will be weighted averages of the subclass-specific values, but for other statistics, the computed values will not be. 
 
 }
 \arguments{
