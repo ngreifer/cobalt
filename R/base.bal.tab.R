@@ -53,7 +53,8 @@ base.bal.tab.binary <- function(X, int = FALSE, poly = 1, continuous = getOption
     C <- get.C(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, ...)
     co.names <- attr(C, "co.names")
     
-    out[["Balance"]] <- balance.table.bin(C, X$weights, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
+    out[["Balance"]] <- balance.table.bin(C, weights = X$weights, treat = X$treat, 
+                                          s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
                                           continuous, binary, m.threshold = m.threshold, v.threshold = v.threshold, 
                                           ks.threshold = ks.threshold, un = un, disp.means = disp.means, 
                                           disp.sds = disp.sds, disp.v.ratio = disp.v.ratio, disp.ks = disp.ks, 
