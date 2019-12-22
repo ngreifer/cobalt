@@ -192,7 +192,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                     }
                 }
                 else if (is.character(which.cluster)) {
-                    if (which.cluster %in% levels(X$cluster)) {
+                    if (all(which.cluster %in% levels(X$cluster))) {
                         in.cluster <- !is.na(X$cluster) & X$cluster %in% which.cluster
                     }
                     else {
@@ -551,7 +551,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 expandScale <- expand_scale(mult = c(0, .05))
             }
             
-            if (type == "histogram" && nlevels.treat <= 2) {
+            if (type == "histogram") {
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
                 geom_fun <- function(t) geom_histogram(data = D[D$treat == levels(D$treat)[t],],
                                                        mapping = aes(x = var, y = posneg[t]*stat(count), weight = weights,
