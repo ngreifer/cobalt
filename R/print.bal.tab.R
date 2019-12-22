@@ -408,9 +408,9 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         which.cluster <- seq_along(c.balance)
     }
     
-    if (p.ops$cluster.summary && is_null(c.balance.summary)) {
-        warning("No summary across clusters was produced. This can occur if cluster.summary is FALSE and quick is TRUE.", call. = FALSE)
-    }
+    # if (p.ops$cluster.summary && is_null(c.balance.summary)) {
+    #     warning("No summary across clusters was produced. This can occur if cluster.summary is FALSE and quick is TRUE.", call. = FALSE)
+    # }
     
     #Printing
     if (is_not_null(call)) {
@@ -663,9 +663,9 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         p.ops$imp.summary <- TRUE
     }
     
-    if (p.ops$imp.summary && is_null(i.balance.summary)) {
-        warning("No summary across imputations was produced. This can occur if imp.summary is FALSE and quick is TRUE.", call. = FALSE)
-    }
+    # if (p.ops$imp.summary && is_null(i.balance.summary)) {
+    #     warning("No summary across imputations was produced. This can occur if imp.summary is FALSE and quick is TRUE.", call. = FALSE)
+    # }
     
     #Printing output
     if (is_not_null(call)) {
@@ -1175,9 +1175,9 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         p.ops$msm.summary <- TRUE
     }
     
-    if (p.ops$msm.summary && is_null(msm.balance.summary)) {
-        warning("No summary across time points was produced. This can occur if msm.summary is FALSE and quick is TRUE or if the treatments are not all binary or all continuous.", call. = FALSE)
-    }
+    # if (p.ops$msm.summary && is_null(msm.balance.summary)) {
+    #     warning("No summary across time points was produced. This can occur if msm.summary is FALSE and quick is TRUE or if the treatments are not all binary or all continuous.", call. = FALSE)
+    # }
     
     #Printing output
     if (is_not_null(call)) {
