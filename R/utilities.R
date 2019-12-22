@@ -9,10 +9,13 @@ f.build <- function(y, rhs) {
     }
     else stop("Right hand side argument to f.build() must be a vector of variable names or a data set with named variables.", call. = FALSE)
     
-    if (missing(y) || identical(y, "")) y <- NULL
-    else if (!is.character(y) || length(y) > 1) stop ("Response argument to f.build() must be the quoted name of the response variable.", call. = FALSE)
+    if (missing(y) || is_null(y) || identical(y, "")) y <- NULL
+    else if (!is.atomic(y) || !is.character(y)) stop ("Response argument to f.build() must be a string containing the response variable.", call. = FALSE)
     
-    f <- reformulate(vars, y)
+    f <- formula(paste(
+       paste(y, collapse = " + ") , "~", paste(vars, collapse = " + ")
+    ))
+    # f <- reformulate(vars, y)
     return(f)
 }
 splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = NULL, drop.first = TRUE, drop.singleton = FALSE, drop.na = TRUE, check = TRUE) {
