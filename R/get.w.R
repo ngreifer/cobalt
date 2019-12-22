@@ -301,18 +301,11 @@ get.w.designmatch <- function(x, treat, ...) {
     dm <- x
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
     if (length(dm[["group_id"]]) != length(dm[["t_id"]]) + length(dm[["c_id"]])) {
-        ratio <- length(dm[["c_id"]])/length(dm[["t_id"]])
-        if (check_if_zero(ratio - as.integer(ratio))) {
-            dm[["group_id"]] <- c(seq_along(dm[["t_id"]]),
-                                  rep(seq_along(dm[["c_id"]]), each = as.integer(ratio)))
-        }
-        else {
-            stop("There is a problem with the group_id value in the designmatch output. Matched sets cannot be determined.", call. = FALSE)
-        }
+        stop("designmatch objects without 1:1 matching cannot be used.", call. = FALSE)
     }
     q <- merge(data.frame(id = seq_along(treat)), 
                data.frame(id = c(dm[["t_id"]], dm[["c_id"]]),
-                          group = dm[["group_id"]]),
+                          group = factor(dm[["group_id"]])),
                all.x = TRUE, by = "id")
     q <- q[order(q$id), , drop = FALSE]
     
