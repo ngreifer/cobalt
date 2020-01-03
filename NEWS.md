@@ -10,7 +10,7 @@ Version 4.0.0
 
 * Major changes to appearance of `bal.plot()` to be more in line with `love.plot()`, including new `grid` and `position` options to control the presence of the grid and the position of the legend.
 
-* Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.).
+* Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.) (the `rms` package must be loaded to use these latter ones) and the `basis`-class-generating functions from the `splines` package (i.e., `bs()` and `ns()`). A bug in an early version of ths was found by @ahinton-mmc.
 
 **Minor Updates and Bug Fixes**
 ***`s.d.denom` and `estimand`***
