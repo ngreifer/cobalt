@@ -35,6 +35,8 @@ Version 4.0.0
 
 * Added new function `col_w_cov()` to compute treatment-covariate covariances (i.e., unstandardized correlations) for continuous treatments. `continuous` and `binary` can be set to `"raw"` in `bal.tab()` and `std` can be set to `FALSE` in `col_w_cov()` to request treatment-covariate covariances instead of correlations. `col_w_corr()` is now a wrapper for `col_w_cov()` with `std = TRUE`. To get more functionality out of the `std` argument (e.g., to standardize the covariances for some covariates but not others), use `col_w_cov()`. 
 
+* Balance summary functions (e.g., `col_w_sd()`, `col_w_smd()`, etc.) process binary variables slightly differently. If `bin.vars` is missing, the function will figure out which variables are binary. If `NULL`, it will be assumed no variables are binary. Entering values for `bin.vars` can be done more flexibly. When a factor variable is supplied as part of `mat` and is split internally by `splitfactor()`, extra values will be automatically added to `bin.vars` with the newly created dummies considered binary variables. If you don't want the dummies of your split factor variables to be considered binary, split them youself with `splitfactor()` outside of the balance summary function.
+
 * Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. 
 
 * `bal.tab()` no longer tells you whether it assumes matching or weighting when certain non-package-related methods are used.
@@ -46,6 +48,8 @@ Version 4.0.0
 * `s.weights` can now be manually supplied to methods that usually come with their own sampling weights, such as `twang` and `WeightIt`.
 
 * Speedup of `splitfactor()`.
+
+* `splitfactor()` now has a `split.with` option to split one or more vectors in concert with the data set being split.
 
 * All functions work better inside other functions like `lapply()` or `purrr::map()`, thanks to @the-Zian.
 
