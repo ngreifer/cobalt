@@ -13,12 +13,12 @@ f.build <- function(y, rhs) {
     else if (!is.atomic(y) || !is.character(y)) stop ("Response argument to f.build() must be a string containing the response variable.", call. = FALSE)
     
     f <- formula(paste(
-       paste(y, collapse = " + ") , "~", paste(vars, collapse = " + ")
+        paste(y, collapse = " + ") , "~", paste(vars, collapse = " + ")
     ))
     # f <- reformulate(vars, y)
     return(f)
 }
-splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = NULL, drop.first = TRUE, drop.singleton = FALSE, drop.na = TRUE, check = TRUE) {
+splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = NULL, drop.first = TRUE, drop.singleton = FALSE, drop.na = TRUE, split.with = NULL, check = TRUE) {
     #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
     #Retains all categories unless only 2 levels, in which case only the second level is retained.
     #If variable only has one level, will delete.
@@ -50,7 +50,8 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
                 stop("var.name must be a character vector of the name(s) of factor variable(s) in data.", call. = FALSE)
             }
             if (is_null(factor.names)) {
-                stop("There are no factor variables to split in data.", call. = FALSE)
+                warning("There are no factor variables to split in data.", call. = FALSE)
+                return(data)
             }
         }
         else {
@@ -73,6 +74,21 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             }
         }
         
+        if (is_not_null(split.with)) {
+            if (is_(split.with, "list")) {
+                if (any(vapply(split.with, function(x) !is_(x, c("atomic", "factor")), logical(1L)))) 
+                    stop("All entries in split.with must must be atomic vectors or factors.", call. = FALSE)
+                if (any(vapply(split.with, function(x) length(x) != ncol(data), logical(1L)))) 
+                    stop("All entries in split.with must have length equal to the number of columns of data.", call. = FALSE)
+            }
+            else {
+                if (!is_(split.with, c("atomic", "factor")))
+                    stop("split.with must must be an atomic vector or factor or list thereof.", call. = FALSE)
+                if (length(split.with) != ncol(data))
+                    stop("split.with must have length equal to the number of columns of data.", call. = FALSE)
+                split.with <- list(split.with)
+            }
+        }
     }
     else if (is.atomic(data)) {
         dep <- deparse(substitute(data))
@@ -96,6 +112,22 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             stop("var.name must be an atomic or factor vector of length 1 with the stem of the new variable.", call. = FALSE)
         }
         var.name <- names(data)
+        
+        if (is_not_null(split.with)) {
+            if (is_(split.with, "list")) {
+                if (any(vapply(split.with, function(x) !is_(x, c("atomic", "factor")), logical(1L)))) 
+                    stop("All entries in split.with must must be atomic vectors or factors.", call. = FALSE)
+                if (any(vapply(split.with, function(x) length(x) != ncol(data), logical(1L)))) 
+                    stop("All entries in split.with must have length 1.", call. = FALSE)
+            }
+            else {
+                if (!is_(split.with, c("atomic", "factor")))
+                    stop("split.with must must be an atomic vector or factor or list thereof.", call. = FALSE)
+                if (length(split.with) != ncol(data))
+                    stop("split.with must have length 1.", call. = FALSE)
+                split.with <- list(split.with)
+            }
+        }
     }
     else {
         stop("data must a be a data.frame or an atomic vector.", call. = FALSE)
@@ -110,7 +142,7 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
         drop <- character(0)
         x <- factor(data[names(data) == v][[1]], exclude = NULL)
         na.level <- is.na(levels(x))
-
+        
         skip <- FALSE
         if (nlevels(x) > 1) {
             k <- matrix(0, nrow = nrow(data), ncol = nlevels(x), 
@@ -160,33 +192,68 @@ splitfactor <- function(data, var.name, replace = TRUE, sep = "_", drop.level = 
             
             k <- as.data.frame.matrix(k[,!dropl, drop = FALSE], row.names = rownames(data))
             
+            if (is_not_null(split.with)) {
+                for (i in seq_along(split.with)) names(split.with[[i]]) <- names(data)
+            }
+            
             if (ncol(data) == 1) {
                 data <- k
+                if (is_not_null(split.with)) {
+                    for (i in seq_along(split.with)) {
+                        split.with[[i]] <- rep(split.with[[i]][v], ncol(k))
+                        names(split.with[[i]]) <- names(data)
+                    }
+                }
             }
             else if (replace) {
                 if (match(v, names(data)) == 1){
                     data <- setNames(data.frame(k, data[names(data)!=v], row.names = rownames(data)),
                                      c(names(k), names(data)[names(data)!=v]))
+                    if (is_not_null(split.with)) {
+                        for (i in seq_along(split.with)) {
+                            split.with[[i]] <- c(rep(split.with[[i]][v], ncol(k)), split.with[[i]][names(split.with[[i]]) %nin% v])
+                            names(split.with[[i]]) <- names(data)
+                        }
+                    }
                 }
                 else if (match(v, names(data)) == ncol(data)) {
                     data <- setNames(data.frame(data[names(data)!=v], k, row.names = rownames(data)),
                                      c(names(data)[names(data)!=v], names(k)))
+                    if (is_not_null(split.with)) {
+                        for (i in seq_along(split.with)) {
+                            split.with[[i]] <- c(split.with[[i]][names(split.with[[i]]) %nin% v], rep(split.with[[i]][v], ncol(k)))
+                            names(split.with[[i]]) <- names(data)
+                        }
+                    }
                 }
                 else {
                     where <- match(v, names(data))
                     data <- setNames(data.frame(data[1:(where-1)], k, data[(where+1):ncol(data)], row.names = rownames(data)),
                                      c(names(data)[1:(where-1)], names(k), names(data)[(where+1):ncol(data)]))
+                    if (is_not_null(split.with)) {
+                        for (i in seq_along(split.with)) {
+                            split.with[[i]] <- c(split.with[[i]][1:(where-1)], rep(split.with[[i]][v], ncol(k)), split.with[[i]][(where+1):length(split.with[[i]])])
+                            names(split.with[[i]]) <- names(data)
+                        }
+                    }
                 }
             }
             else {
                 data <- setNames(data.frame(data, k, row.names = rownames(data)),
                                  c(names(data), names(k)))
+                if (is_not_null(split.with)) {
+                    for (i in seq_along(split.with)) {
+                        split.with[[i]] <- c(split.with[[i]], rep(split.with[[i]][v], ncol(k)))
+                        names(split.with[[i]]) <- names(data)
+                    }
+                }
             }
             
         }
         
     }
     
+    attr(data, "split.with") <- split.with
     return(data)
 }
 unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.level = NULL, dropped.na = TRUE) {
@@ -204,6 +271,7 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         warning("dopped.level must be an atomic vector of length 1 containing the value of the dropped category of the split variable. It will be ignored.", call. = FALSE, immediate. = TRUE)
         dropped.level <- NULL
     }
+    
     not.the.stem <- character(0)
     
     for (v in var.name) {
@@ -271,10 +339,10 @@ unsplitfactor <- function(data, var.name, replace = TRUE, sep = "_", dropped.lev
         if (replace) {
             where <- which(names(data) %in% c(names(var.to.combine), NA.column))
             
-            data[[min(where)]] <- k
-            remove.cols <- where[where!=min(where)]
+            data[[where[1]]] <- k
+            remove.cols <- where[where != where[1]]
             if (is_not_null(remove.cols)) data <- data[-remove.cols]
-            names(data)[min(where)] <- v
+            names(data)[where[1]] <- v
         }
         else {
             data <- cbind(data, setNames(data.frame(k), v))
@@ -353,7 +421,7 @@ set.cobalt.options <- function(..., default = FALSE) {
         return.to.default <- setdiff(names(acceptable.options()), names(opts))
     }
     else return.to.default <- NULL
-
+    
     multiple.opts <- NULL
     bad.opts <- NULL
     for (i in names(opts)) {

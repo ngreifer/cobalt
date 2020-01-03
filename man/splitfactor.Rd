@@ -9,7 +9,8 @@
 splitfactor(data, var.name, replace = TRUE, sep = "_", 
             drop.level = NULL, drop.first = TRUE, 
             drop.singleton = FALSE, 
-            drop.na = TRUE, check = TRUE)
+            drop.na = TRUE, split.with = NULL,
+            check = TRUE)
 
 unsplitfactor(data, var.name, replace = TRUE, sep = "_", 
                 dropped.level = NULL, dropped.na = TRUE)
@@ -39,6 +40,9 @@ Whether to drop a factor variable if it only has one level.
 \item{drop.na}{
 If \code{NA}s are present in the variable, how to handle them. If \code{TRUE}, no new dummy will be created for \code{NA} values, but all created dummies will have \code{NA} where the original variable was \code{NA}. If \code{FALSE}, \code{NA} will be treated like any other factor level, given its own column, and the other dummies will have a value of 0 where the original variable is \code{NA}.
 }
+\item{split.with}{
+A list of vectors or factors with lengths equal to the number of columns of \code{data} that are to be split in the same way \code{data} is. See Details.
+}
 \item{check}{
 Whether to make sure the variables specified in \code{var.name} are actually factor (or character) variables. If splitting non-factor (or non-character) variables into dummies, set \code{check = FALSE}. If \code{check = FALSE} and \code{data} is a data frame, an argument to \code{var.name} must be specified.
 }
@@ -51,6 +55,8 @@ If \code{TRUE}, will assume that \code{NA}s in the variables to be unsplit corre
 }
 \details{
 If there are \code{NA}s in the variable to be split, the new variables created by \code{splitfactor()} will have \code{NA} where the original variable is \code{NA}.
+
+If \code{split.with} is supplied, the elements will be split in the same way \code{data} is. For example, if \code{data} contained a 4-level factor that was to be split, the entries of \code{split.with} at the same index as the factor and would be duplicated so that resulting entries will have the same length as the number of columns of \code{data} after being split. The resulting values are stored in the \code{"split.with""} attribute of the output object. See Examples.
 }
 \value{
 For \code{splitfactor()}, a data frame containing the original data set with the newly created dummies. For \code{unsplitfactor()}. a data frame containing the original data set with the newly created factor variables.
@@ -71,6 +77,15 @@ lalonde.unsplit <- unsplitfactor(lalonde.split, "race",
                         dropped.level = "black")
 
 all.equal(lalonde, lalonde.unsplit) #TRUE
+
+# Demonstrating the use of split.with:
+to.split <- list(letters[1:ncol(lalonde)],
+                 1:ncol(lalonde))
+                 
+lalonde.split <- splitfactor(lalonde, split.with = to.split,
+                             drop.first = FALSE)
+attr(lalonde.split, "split.with")
+
 }
 
 \keyword{support functions}
