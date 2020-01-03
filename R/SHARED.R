@@ -183,6 +183,11 @@ c.factor <- function(..., recursive=TRUE) {
     #c() for factors
     unlist(list(...), recursive=recursive)
 }
+can_str2num <- function(x) {
+    nas <- is.na(x)
+    suppressWarnings(x_num <- as.numeric(x))
+    return(!anyNA(x_num[!nas]))
+}
 
 #Numbers
 check_if_zero <- function(x) {
@@ -516,11 +521,11 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
         }
         addl.dfs <- setNames(lapply(rhs.vars.mentioned[rhs.df], function(x) {
             df <- eval(parse(text=x)[[1]], data, env)
-            if (is_(df, "poly")) colnames(df) <- paste(x, colnames(df), sep = sep)
-            else if (is_(df, "rms")) {
+            if (is_(df, "rms")) {
                 if (length(dim(df)) == 2L) class(df) <- "matrix"
                 df <- setNames(as.data.frame(as.matrix(df)), attr(df, "colnames"))
             }
+            else if (can_str2num(colnames(df))) colnames(df) <- paste(x, colnames(df), sep = sep)
             return(as.data.frame(df))
         }),
         rhs.vars.mentioned[rhs.df])
@@ -635,7 +640,7 @@ process.s.weights <- function(s.weights, data = NULL) {
     #Process s.weights
     if (is_not_null(s.weights)) {
         if (!(is.character(s.weights) && length(s.weights) == 1) && !is.numeric(s.weights)) {
-            stop("The argument to s.weights must be a vector or data frame of sampling weights or the (quoted) names of variables in data that contain sampling weights.", call. = FALSE)
+            stop("The argument to s.weights must be a vector or data frame of sampling weights or the (quoted) names of the variable in data that contains sampling weights.", call. = FALSE)
         }
         if (is.character(s.weights) && length(s.weights)==1) {
             if (is_null(data)) {
@@ -647,6 +652,7 @@ process.s.weights <- function(s.weights, data = NULL) {
             else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
         }
     }
+    else s.weights <- NULL
     return(s.weights)
 }
 
