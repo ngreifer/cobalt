@@ -2350,6 +2350,34 @@ print.data.frame_ <- function(x, ...) {
     }
 }
 
+#Balance summary
+process.bin.vars <- function(bin.vars, mat) {
+    if (missing(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
+    else if (is_null(bin.vars)) bin.vars <- rep(FALSE, ncol(mat))
+    else {
+        if (!is_(bin.vars, c("logical", "numeric", "character"))) stop("bin.vars must be a logical, numeric, or character vector.")
+        if (is.logical(bin.vars)) {
+            bin.vars[is.na(bin.vars)] <- FALSE
+            if (length(bin.vars) != ncol(mat)) stop("If bin.vars is logical, it must have length equal to the number of columns of mat.")
+        }
+        else if (is.numeric(bin.vars)) {
+            bin.vars <- bin.vars[!is.na(bin.vars) & bin.vars != 0]
+            if (any(bin.vars < 0) && any(bin.vars > 0)) stop("Positive and negative indices cannot be mixed with bin.vars.")
+            if (any(abs(bin.vars) > ncol(mat))) stop("If bin.vars is numeric, none of its values can exceed the number of columns of mat.")
+            logical.bin.vars <- rep(any(bin.vars < 0), ncol(mat))
+            logical.bin.vars[abs(bin.vars)] <- !logical.bin.vars[abs(bin.vars)]
+            bin.vars <- logical.bin.vars
+        }
+        else if (is.character(bin.vars)) {
+            bin.vars <- bin.vars[!is.na(bin.vars) & bin.vars != ""]
+            if (is_null(colnames(mat))) stop("If bin.vars is character, mat must have column names.")
+            if (any(bin.vars %nin% colnames(mat))) stop("If bin.vars is character, all its values must be column names of mat.")
+            bin.vars <- colnames(mat) %in% bin.vars
+        }
+    }
+    return(bin.vars)
+}
+
 #set.cobalt.options
 acceptable.options <- function() {
     TF <- c(TRUE, FALSE)
