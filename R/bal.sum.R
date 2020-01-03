@@ -2,15 +2,11 @@
 
 col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.rm = TRUE, ...) {
     
+    needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
             if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
-                A <- list(...)
-                A <- A[names(A) %in% names(formals(splitfactor)) & 
-                           names(A) %nin% c("data", "var.name", "drop.first",
-                                            "drop.level")]
-                mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
-                                              A))
+                needs.splitting <- TRUE
             }
             else mat <- as.matrix(mat)
         }
@@ -18,6 +14,15 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
         else stop("mat must be a data.frame or numeric matrix.")
     }
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    
+    if (needs.splitting) {
+        A <- list(...)
+        A <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
+                                      A))
+    }
     
     possibly.supplied <- c("mat", "weights", "s.weights", "subset")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -37,17 +42,13 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
     
     return(col.w.m(mat[subset, , drop = FALSE], w = weights[subset], na.rm = na.rm))
 }
-col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, subset = NULL, na.rm = TRUE, ...) {
+col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = NULL, na.rm = TRUE, ...) {
     
+    needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
-            if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
-                A <- list(...)
-                A <- A[names(A) %in% names(formals(splitfactor)) & 
-                           names(A) %nin% c("data", "var.name", "drop.first",
-                                            "drop.level")]
-                mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
-                                              A))
+            if (any(to.split <- vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                needs.splitting <- TRUE
             }
             else mat <- as.matrix(mat)
         }
@@ -56,10 +57,18 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, sub
     }
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
-    if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
-             length(bin.vars) != NCOL(mat)) {
-        stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
+    bin.vars <- process.bin.vars(bin.vars, mat)
+    
+    if (needs.splitting) {
+        bin.vars[to.split] <- TRUE
+        A <- list(...)
+        A <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+                                           split.with = bin.vars),
+                                      A))
+        bin.vars <- attr(mat, "split.with")[[1]]
     }
     
     possibly.supplied <- c("mat", "weights", "s.weights", "subset")
@@ -82,19 +91,15 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars = NULL, sub
                         bin.vars = bin.vars, na.rm = na.rm)))
 }
 
-col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "pooled", abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
+col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "pooled", abs = FALSE, s.weights = NULL, bin.vars, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
     # allowable.s.d.denoms <- c("pooled", "all", "weighted")
     # if (length(treat_names(treat)) == 2) allowable.s.d.denoms <- c(allowable.s.d.denoms, "treated", "control")
     
+    needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
-            if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
-                A <- list(...)
-                A <- A[names(A) %in% names(formals(splitfactor)) & 
-                           names(A) %nin% c("data", "var.name", "drop.first",
-                                            "drop.level")]
-                mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
-                                              A))
+            if (any(to.split <- vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                needs.splitting <- TRUE
             }
             else mat <- as.matrix(mat)
         }
@@ -102,6 +107,20 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
         else stop("mat must be a data.frame or numeric matrix.")
     }
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    
+    bin.vars <- process.bin.vars(bin.vars, mat)
+    
+    if (needs.splitting) {
+        bin.vars[to.split] <- TRUE
+        A <- list(...)
+        A <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+                                           split.with = bin.vars),
+                                      A))
+        bin.vars <- attr(mat, "split.with")[[1]]
+    }
     
     if (missing(treat) || !(is.factor(treat) || is.atomic(treat))) stop("treat must be an atomic vector or factor.")
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
@@ -128,12 +147,6 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     
     if (!is_binary(treat[subset])) stop("treat must be a binary variable.")
     
-    if (is_null(bin.vars)) bin.vars <- apply(mat[subset, ,drop = FALSE], 2, is_binary)
-    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
-             length(bin.vars) != NCOL(mat)) {
-        stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
-    }
-
     weights <- weights * s.weights
     
     if (length(std) == 1L) std <- rep(std, NCOL(mat))
@@ -147,10 +160,10 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     
     if (any(to.sd <- std & !zeros)) {
         denoms <- compute_s.d.denom(mat, treat = treat, 
-                                              s.d.denom = s.d.denom, s.weights = s.weights, 
-                                              bin.vars = bin.vars, subset = subset, to.sd = to.sd,
-                                              weighted.weights = weighted.weights, na.rm = na.rm)
-
+                                    s.d.denom = s.d.denom, s.weights = s.weights, 
+                                    bin.vars = bin.vars, subset = subset, to.sd = to.sd,
+                                    weighted.weights = weighted.weights, na.rm = na.rm)
+        
         diffs[to.sd] <- diffs[to.sd]/denoms[to.sd]
     }
 
@@ -163,17 +176,13 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     return(setNames(diffs, colnames(mat)))
     
 }
-col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, na.rm = TRUE, ...) {
+col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars, subset = NULL, na.rm = TRUE, ...) {
     
+    needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
-            if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
-                A <- list(...)
-                A <- A[names(A) %in% names(formals(splitfactor)) & 
-                           names(A) %nin% c("data", "var.name", "drop.first",
-                                            "drop.level")]
-                mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
-                                              A))
+            if (any(to.split <- vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                needs.splitting <- TRUE
             }
             else mat <- as.matrix(mat)
         }
@@ -182,16 +191,24 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
     }
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
+    bin.vars <- process.bin.vars(bin.vars, mat)
+    
+    if (needs.splitting) {
+        bin.vars[to.split] <- TRUE
+        A <- list(...)
+        A <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+                                           split.with = bin.vars),
+                                      A))
+        bin.vars <- attr(mat, "split.with")[[1]]
+    }
+    
     if (missing(treat) || !(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
     
     if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
         stop("abs must be a logical of length 1.")
-    }
-    
-    if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
-             length(bin.vars) != NCOL(mat)) {
-        stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
@@ -227,17 +244,13 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
     return(setNames(v.ratios, colnames(mat)))
     
 }
-col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NULL, subset = NULL, na.rm = TRUE, ...) {
+col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, subset = NULL, na.rm = TRUE, ...) {
     
+    needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
-            if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
-                A <- list(...)
-                A <- A[names(A) %in% names(formals(splitfactor)) & 
-                           names(A) %nin% c("data", "var.name", "drop.first",
-                                            "drop.level")]
-                mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
-                                              A))
+            if (any(to.split <- vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                needs.splitting <- TRUE
             }
             else mat <- as.matrix(mat)
         }
@@ -246,11 +259,20 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NU
     }
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
-    if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
-             length(bin.vars) != NCOL(mat)) {
-        stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
+    bin.vars <- process.bin.vars(bin.vars, mat)
+    
+    if (needs.splitting) {
+        bin.vars[to.split] <- TRUE
+        A <- list(...)
+        A <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+                                           split.with = bin.vars),
+                                      A))
+        bin.vars <- attr(mat, "split.with")[[1]]
     }
+    
     if (!(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
@@ -297,18 +319,14 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NU
     return(setNames(ks, colnames(mat)))
     
 }
-col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = NULL, integrate = FALSE, subset = NULL, na.rm = TRUE, ...) {
+col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, integrate = FALSE, subset = NULL, na.rm = TRUE, ...) {
     
     A <- list(...)
+    needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
-            if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
-                A <- list(...)
-                A <- A[names(A) %in% names(formals(splitfactor)) & 
-                           names(A) %nin% c("data", "var.name", "drop.first",
-                                            "drop.level")]
-                mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
-                                              A))
+            if (any(to.split <- vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                needs.splitting <- TRUE
             }
             else mat <- as.matrix(mat)
         }
@@ -317,11 +335,20 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = N
     }
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
-    if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
-             length(bin.vars) != NCOL(mat)) {
-        stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
+    bin.vars <- process.bin.vars(bin.vars, mat)
+    
+    if (needs.splitting) {
+        bin.vars[to.split] <- TRUE
+        B <- A
+        B <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+                                           split.with = bin.vars),
+                                      B))
+        bin.vars <- attr(mat, "split.with")[[1]]
     }
+    
     if (!(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
@@ -406,17 +433,13 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars = N
     return(ovl)
     
 }
-col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE, s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
+col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE, s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
     
+    needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
-            if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
-                A <- list(...)
-                A <- A[names(A) %in% names(formals(splitfactor)) & 
-                           names(A) %nin% c("data", "var.name", "drop.first",
-                                            "drop.level")]
-                mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
-                                              A))
+            if (any(to.split <- vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                needs.splitting <- TRUE
             }
             else mat <- as.matrix(mat)
         }
@@ -425,6 +448,20 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     }
     else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
     
+    bin.vars <- process.bin.vars(bin.vars, mat)
+    
+    if (needs.splitting) {
+        bin.vars[to.split] <- TRUE
+        A <- list(...)
+        A <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+                                           split.with = bin.vars),
+                                      A))
+        bin.vars <- attr(mat, "split.with")[[1]]
+    }
+    
     if (missing(treat) || !is.atomic(treat) || !is.numeric(treat)) stop("treat must be a numeric variable.")
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
@@ -432,11 +469,6 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     }
     if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
         stop("abs must be a logical of length 1.")
-    }
-    if (is_null(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
-    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
-             length(bin.vars) != NCOL(mat)) {
-        stop("bin.vars must be a logical vector with length equal to the number of columns of mat.")
     }
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
@@ -485,7 +517,7 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     return(setNames(covars, colnames(mat)))
     
 }
-col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
+col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
     .call <- match.call(expand.dots = TRUE)
     .call[[1]] <- quote(cobalt::col_w_cov)
     .call[["std"]] <- quote(TRUE)

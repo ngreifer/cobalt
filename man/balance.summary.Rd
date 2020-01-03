@@ -29,36 +29,36 @@ col_w_mean(mat, weights = NULL, s.weights = NULL,
            subset = NULL, na.rm = TRUE, ...)
            
 col_w_sd(mat, weights = NULL, s.weights = NULL, 
-         bin.vars = NULL, subset = NULL, na.rm = TRUE, ...)
+         bin.vars, subset = NULL, na.rm = TRUE, ...)
          
 col_w_smd(mat, treat, weights = NULL, std = TRUE, 
           s.d.denom = "pooled", abs = FALSE, 
-          s.weights = NULL, bin.vars = NULL, 
+          s.weights = NULL, bin.vars, 
           subset = NULL, weighted.weights = weights, 
           na.rm = TRUE, ...)
           
 col_w_vr(mat, treat, weights = NULL, abs = FALSE, 
-         s.weights = NULL, bin.vars = NULL, 
+         s.weights = NULL, bin.vars, 
          subset = NULL, na.rm = TRUE, ...)
          
 col_w_ks(mat, treat, weights = NULL, 
-         s.weights = NULL, bin.vars = NULL, 
+         s.weights = NULL, bin.vars, 
          subset = NULL, na.rm = TRUE, ...)
          
 col_w_ovl(mat, treat, weights = NULL, 
-         s.weights = NULL, bin.vars = NULL, 
+         s.weights = NULL, bin.vars, 
          integrate = FALSE, subset = NULL, 
          na.rm = TRUE, ...)
          
 col_w_cov(mat, treat, weights = NULL, type = "pearson",
           std = FALSE, s.d.denom = "all", abs = FALSE, 
-          s.weights = NULL, bin.vars = NULL, 
+          s.weights = NULL, bin.vars, 
           subset = NULL, weighted.weights = weights, 
           na.rm = TRUE, ...)
            
 col_w_corr(mat, treat, weights = NULL, type = "pearson",
            s.d.denom = "all", abs = FALSE, 
-           s.weights = NULL, bin.vars = NULL, 
+           s.weights = NULL, bin.vars, 
            subset = NULL, weighted.weights = weights, 
            na.rm = TRUE, ...)
 }
@@ -92,7 +92,7 @@ for \code{col_w_smd} and \code{col_w_cov} when \code{std} is \code{TRUE} for som
 \code{logical}; for \code{col_w_smd}, \code{col_w_cov}, and \code{col_w_corr}, whether the returned statistics should be in absolute value (\code{TRUE}) or not. For \code{col_w_vr}, whether the ratio should always include the larger variance in the numerator, so that the ratio is always greater than or equal to 1. Default is \code{FALSE}.
 }
   \item{bin.vars}{
-\code{logical}; a vector with length equal to the number of columns of \code{mat} denoting whether the corresponding variable is \code{binary} or not. All functions other than \code{col_w_mean} treat binary variables different from continuous variables. If \code{NULL}, the function will figure out which covariates are binary or not, which can increase computation time. See Details.
+a vector used to denote whether each variable is binary or not. Can be a \code{logical} vector with length equal to the number of columns of \code{mat} or a vector of numeric indices or character names of the binary variables. If missing (the default), the function will figure out which covariates are binary or not, which can increase computation time. If \code{NULL}, it will be assumed no variables are binary. All functions other than \code{col_w_mean} treat binary variables different from continuous variables. If a factor or character variable is in \code{mat}, all the dummies created will automatically be marked as binary, but it should still receive an entry when \code{bin.vars} is supplied as \code{logical}.
 }
   \item{weighted.weights}{
 for \code{col_w_smd}, \code{col_w_cov}, and \code{col_w_corr}, when \code{std = TRUE} and \code{s.d.denom = "weighted"}, a vector of weights to be applied to the computation of the denominator standard deviation. If not specified, will use the argument to \code{weights}. When \code{s.d.denom} is not "weighted", this is ignored. The main purpose of this is to allow \code{weights} to be \code{NULL} while weighting the denominator standard deviations for assessing balance in the unweighted sample but using the standard deviations of the weighted sample.
