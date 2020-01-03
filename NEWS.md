@@ -43,6 +43,8 @@ Version 4.0.0
 
 * The default in `love.plot()` for `abs` is now to be whatever it is in the (implicit) call to `bal.tab()`, which is usually `FALSE`. Previously `abs` was not aligned between `love.plot()` and `bal.tab()`.
 
+* `s.weights` can now be manually supplied to methods that usually come with their own sampling weights, such as `twang` and `WeightIt`.
+
 * Speedup of `splitfactor()`.
 
 * All functions work better inside other functions like `lapply()` or `purrr::map()`, thanks to @the-Zian.
