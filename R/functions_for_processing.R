@@ -151,6 +151,14 @@ initialize_X_msm <- function() {
                   X.names)
     return(X)
 }
+weight.check <- function(w) {
+    wname <- deparse(substitute(w))
+    if (!is.list(w)) w <- list(w)
+    if (any(vapply(w, anyNA, logical(1L)))) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
+    if (any(vapply(w, function(x) any(!is.numeric(x)), logical(1L)))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)
+    if (any(vapply(w, function(x) any(!is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
+    if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found."), call. = FALSE)
+}
 strata2weights <- function(strata, treat) {
     #Process strata into weights (similar to weight.subclass from MatchIt)
     

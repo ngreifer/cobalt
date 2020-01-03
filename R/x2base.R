@@ -115,7 +115,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process weights
     weights <- data.frame(weights = m$weights)
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    weight.check(weights)
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -286,13 +286,18 @@ x2base.ps <- function(ps, ...) {
     }
     
     #Process weights
-    weights <- data.frame(get.w(ps, s, estimand))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(get.w(ps, s, estimand)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
-    if (is_not_null(s.weights <- ps$sampw)) {
-        if (anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, ps$sampw))) {
+        s.weights <- vector.process(s.weights, 
+                                    data = list(data, ps.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
     }
 
     #Process cluster
@@ -442,13 +447,18 @@ x2base.mnps <- function(mnps, ...) {
     }
     
     #Process weights
-    weights <- data.frame(get.w(mnps, s))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(get.w(mnps, s)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
-    if (is_not_null(s.weights <- mnps$sampw)) {
-        if (anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, mnps$sampw))) {
+        s.weights <- vector.process(s.weights, 
+                                    data = list(data, mnps.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
@@ -595,13 +605,18 @@ x2base.ps.cont <- function(ps.cont, ...) {
     }
     
     #Process weights
-    weights <- data.frame(get.w(ps.cont, s))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(get.w(ps.cont, s)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
-    if (is_not_null(s.weights <- ps.cont$sampw)) {
-        if (anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, ps.cont$sampw))) {
+        s.weights <- vector.process(s.weights, 
+                                    data = list(data, ps.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
@@ -725,8 +740,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process weights
     weights <- data.frame(weights = get.w.Match(Match))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    weight.check(weights)
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -1009,9 +1023,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process weights
     else if (is_not_null(weights <- data.frame.process("weights", A[["weights"]], treat, covs, data))) {
         
-        if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-        if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
-        if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+        weight.check(weights)
         
         if (length(method) == 1) {
             method <- rep.int(method, ncol(weights))
@@ -1028,6 +1040,7 @@ x2base.data.frame <- function(covs, ...) {
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
@@ -1172,9 +1185,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
@@ -1183,7 +1196,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                                   name = "s.weights", 
                                   which = "sampling weights",
                                   missing.okay = FALSE)
-        
+        weight.check(s.weights)
         weights <- weights/s.weights #Because CBPS weights contain s.weights in them
     }
     
@@ -1309,9 +1322,9 @@ x2base.ebalance <- function(ebalance, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w(ebalance, treat))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w(ebalance, treat)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
@@ -1320,6 +1333,7 @@ x2base.ebalance <- function(ebalance, ...) {
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
@@ -1442,9 +1456,9 @@ x2base.optmatch <- function(optmatch, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w.optmatch(optmatch))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w.optmatch(optmatch)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -1575,12 +1589,19 @@ x2base.weightit <- function(weightit, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w(weightit))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w(weightit)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
-    s.weights <- weightit$s.weights
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, weightit$s.weights))) {
+        s.weights <- vector.process(s.weights, 
+                                    data = list(data, weightit.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
+    }
     
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
@@ -1706,9 +1727,9 @@ x2base.designmatch <- function(dm, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w.designmatch(dm, treat))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w.designmatch(dm, treat)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -1884,8 +1905,9 @@ x2base.mimids <- function(mimids, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w.mimids(mimids))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w.mimids(mimids)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -2021,11 +2043,19 @@ x2base.wimids <- function(wimids, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w.wimids(wimids))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w.wimids(wimids)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
-    s.weights <- unlist(lapply(wimids[["models"]][-1], function(w) w[["s.weights"]]))
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, unlist(lapply(wimids[["models"]][-1], function(w) w[["s.weights"]]))))) {
+        s.weights <- vector.process(s.weights, 
+                                    data = list(data, w.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
+    }
     
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
@@ -2211,13 +2241,18 @@ x2base.iptw <- function(iptw, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w(iptw, s))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w(iptw, s)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
-    if (is_not_null(s.weights <- iptw$psList[[1]]$sampw)) {
-        if (anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, iptw$psList[[1]]$sampw))) {
+        s.weights <- vector.process(s.weights, 
+                                    data = list(data, ps.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
@@ -2410,13 +2445,13 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     #Process weights
-    weights <- data.frame.process("weights", 
+    if (is_not_null(weights <- data.frame.process("weights", 
                                   A[["weights"]], 
                                   do.call("cbind", treat.list), 
                                   do.call("cbind", covs.list), 
-                                  data)
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+                                  data))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -2425,6 +2460,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                   name = "s.weights", 
                                   which = "sampling weights",
                                   missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
@@ -2594,9 +2630,9 @@ x2base.CBMSM <- function(cbmsm, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w(cbmsm)[ID])
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w(cbmsm)[ID]))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -2745,13 +2781,18 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w(weightitMSM))
-    if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-    if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+    if (is_not_null(weights <- data.frame(weights = get.w(weightitMSM)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
-    if (is_not_null(s.weights <- weightitMSM$s.weights)) {
-        if (anyNA(s.weights)) stop("NAs are not allowed in the sampling weights.", call. = FALSE)
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, weightitMSM$s.weights))) {
+        s.weights <- vector.process(s.weights, 
+                                    data = list(data, weightitMSM.data, weightitMSM.data2),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
@@ -3199,12 +3240,9 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process weights
-        weights <- data.frame.process("weights", A[["weights"]], treat, covs, data)
-        if (is_not_null(weights)) {
+        if (is_not_null(weights <- data.frame.process("weights", A[["weights"]], treat, covs, data))) {
             
-            if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-            if (any(vapply(weights, function(x) !is.numeric(x), logical(1L)))) stop("All weights must be numeric.", call. = FALSE)
-            if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+            weight.check(weights)
             
             if (length(method) == 1) {
                 method <- rep.int(method, ncol(weights))
@@ -3221,6 +3259,7 @@ x2base.default <- function(obj, ...) {
                                         name = "s.weights", 
                                         which = "sampling weights",
                                         missing.okay = FALSE)
+            weight.check(s.weights)
         }
         
         #Process cluster
@@ -3443,8 +3482,7 @@ x2base.default <- function(obj, ...) {
                                       do.call("cbind", treat.list), 
                                       do.call("cbind", covs.list), 
                                       data)
-        if (any(vapply(weights, anyNA, logical(1L)))) stop("NAs are not allowed in the weights.", call. = FALSE)
-        if (any(vapply(weights, function(x) any(x < 0), logical(1L)))) warning("Negative weights found.", call. = FALSE)
+        weight.check(weights)
         
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
