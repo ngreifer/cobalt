@@ -6,27 +6,21 @@
 \code{splitfactor()} splits factor variables into dummy (0/1) variables. This can be useful when functions do not process factor variables well or require numeric matrices to operate. \code{unsplitfactor()} combines dummy variables into factor variables, undoing the operation of \code{splitfactor()}.
 }
 \usage{
-splitfactor(data, var.name, replace = TRUE, sep = "_", 
-            drop.level = NULL, drop.first = TRUE, 
-            drop.singleton = FALSE, 
-            drop.na = TRUE, split.with = NULL,
-            check = TRUE)
+splitfactor(data, var.name, drop.level = NULL, 
+            drop.first = TRUE, drop.singleton = FALSE, 
+            drop.na = TRUE, sep = "_", replace = TRUE, 
+            split.with = NULL, check = TRUE)
 
-unsplitfactor(data, var.name, replace = TRUE, sep = "_", 
-                dropped.level = NULL, dropped.na = TRUE)
+unsplitfactor(data, var.name, dropped.level = NULL, 
+              dropped.na = TRUE, sep = "_", 
+              replace = TRUE)
 }
 \arguments{
 \item{data}{
 A data.frame containing the variables to be split or unsplit. In \code{splitfactor()}, can be a factor variable to be split.
 }
 \item{var.name}{
-For \code{splitfactor()}, the names of the factor variables to split. If not specified, will split all factor variables in \code{data}. If \code{data} is a factor, the stem for each of the new variables to be created. For \code{unsplitfactor()}, the name of the previously split factor.
-}
-\item{replace}{
-Whether to replace the original variable(s) with the new variable(s) (\code{TRUE}) or the append the newly created variable(s) to the end of the data set (\code{FALSE}).
-}
-\item{sep}{
-A character separating the the stem from the value of the variable for each dummy. For example, for \code{"race_black"}, \code{sep = "_"}.
+For \code{splitfactor()}, the names of the factor variables to split. If not specified, will split all factor variables in \code{data}. If \code{data} is a factor, the stem for each of the new variables to be created. For \code{unsplitfactor()}, the name of the previously split factor. If not specified and \code{data} is the output of a call to \code{splitfactor}, all previously split variables will be unsplit.
 }
 \item{drop.level}{
 The name of a level of \code{var.name} for which to drop the dummy variable. Only works if there is only one variable to be split.
@@ -40,6 +34,12 @@ Whether to drop a factor variable if it only has one level.
 \item{drop.na}{
 If \code{NA}s are present in the variable, how to handle them. If \code{TRUE}, no new dummy will be created for \code{NA} values, but all created dummies will have \code{NA} where the original variable was \code{NA}. If \code{FALSE}, \code{NA} will be treated like any other factor level, given its own column, and the other dummies will have a value of 0 where the original variable is \code{NA}.
 }
+\item{sep}{
+A character separating the the stem from the value of the variable for each dummy. For example, for \code{"race_black"}, \code{sep = "_"}.
+}
+\item{replace}{
+Whether to replace the original variable(s) with the new variable(s) (\code{TRUE}) or the append the newly created variable(s) to the end of the data set (\code{FALSE}).
+}
 \item{split.with}{
 A list of vectors or factors with lengths equal to the number of columns of \code{data} that are to be split in the same way \code{data} is. See Details.
 }
@@ -47,7 +47,7 @@ A list of vectors or factors with lengths equal to the number of columns of \cod
 Whether to make sure the variables specified in \code{var.name} are actually factor (or character) variables. If splitting non-factor (or non-character) variables into dummies, set \code{check = FALSE}. If \code{check = FALSE} and \code{data} is a data frame, an argument to \code{var.name} must be specified.
 }
 \item{dropped.level}{
-The value of the original factor variable whose dummy was dropped when the variable was split. If left empty and a dummy was dropped, the resulting factor will have the value \code{NA} instead of the dropped value. Can only be specified when one factor is to be unsplit.
+The value of each original factor variable whose dummy was dropped when the variable was split. If left empty and a dummy was dropped, the resulting factor will have the value \code{NA} instead of the dropped value. There should be one entry per variable to unsplit. If no dummy was dropped for a variable, an entry is still required, but it will be ignored.
 }
 \item{dropped.na}{
 If \code{TRUE}, will assume that \code{NA}s in the variables to be unsplit correspond to \code{NA} in the unsplit factor (i.e., that \code{drop.na = TRUE} was specified in \code{split.factor()}). If \code{FALSE}, will assume there is a dummy called "var.name_stem_NA" (e.g., "x_NA") that contains 1s where the unsplit factor should be \code{NA} (i.e., that \code{drop.na = FALSE} was specified in \code{split.factor()}. If \code{NA}s are stored in a different column with the same stem, e.g., "x_miss", that name (e.g., "miss") can be entered instead.
@@ -56,7 +56,9 @@ If \code{TRUE}, will assume that \code{NA}s in the variables to be unsplit corre
 \details{
 If there are \code{NA}s in the variable to be split, the new variables created by \code{splitfactor()} will have \code{NA} where the original variable is \code{NA}.
 
-If \code{split.with} is supplied, the elements will be split in the same way \code{data} is. For example, if \code{data} contained a 4-level factor that was to be split, the entries of \code{split.with} at the same index as the factor and would be duplicated so that resulting entries will have the same length as the number of columns of \code{data} after being split. The resulting values are stored in the \code{"split.with""} attribute of the output object. See Examples.
+When using \code{unsplitfactor} on a data.frame that was generated with \code{splitfactor}, the arguments \code{dropped.na}, and \code{sep} are unnecessary.
+
+If \code{split.with} is supplied, the elements will be split in the same way \code{data} is. For example, if \code{data} contained a 4-level factor that was to be split, the entries of \code{split.with} at the same index as the factor and would be duplicated so that resulting entries will have the same length as the number of columns of \code{data} after being split. The resulting values are stored in the \code{"split.with"} attribute of the output object. See Examples.
 }
 \value{
 For \code{splitfactor()}, a data frame containing the original data set with the newly created dummies. For \code{unsplitfactor()}. a data frame containing the original data set with the newly created factor variables.
