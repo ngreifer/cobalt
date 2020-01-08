@@ -10,7 +10,7 @@ Version 4.0.0
 
 * Major changes to appearance of `bal.plot()` to be more in line with `love.plot()`, including new `grid` and `position` options to control the presence of the grid and the position of the legend.
 
-* Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.) (the `rms` package must be loaded to use these latter ones) and the `basis`-class-generating functions from the `splines` package (i.e., `bs()` and `ns()`). A bug in an early version of ths was found by @ahinton-mmc.
+* Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.) (the `rms` package must be loaded to use these latter ones) and the `basis`-class-generating functions from the `splines` package (i.e., `bs()` and `ns()`). A bug in an early version of this was found by @ahinton-mmc.
 
 **Minor Updates and Bug Fixes**
 ***`s.d.denom` and `estimand`***
@@ -35,7 +35,7 @@ Version 4.0.0
 
 * Added new function `col_w_cov()` to compute treatment-covariate covariances (i.e., unstandardized correlations) for continuous treatments. `continuous` and `binary` can be set to `"raw"` in `bal.tab()` and `std` can be set to `FALSE` in `col_w_cov()` to request treatment-covariate covariances instead of correlations. `col_w_corr()` is now a wrapper for `col_w_cov()` with `std = TRUE`. To get more functionality out of the `std` argument (e.g., to standardize the covariances for some covariates but not others), use `col_w_cov()`. 
 
-* Balance summary functions (e.g., `col_w_sd()`, `col_w_smd()`, etc.) process binary variables slightly differently. If `bin.vars` is missing, the function will figure out which variables are binary. If `NULL`, it will be assumed no variables are binary. Entering values for `bin.vars` can be done more flexibly. When a factor variable is supplied as part of `mat` and is split internally by `splitfactor()`, extra values will be automatically added to `bin.vars` with the newly created dummies considered binary variables. If you don't want the dummies of your split factor variables to be considered binary, split them youself with `splitfactor()` outside of the balance summary function.
+* Balance summary functions (e.g., `col_w_sd()`, `col_w_smd()`, etc.) process binary variables slightly differently. If `bin.vars` is missing, the function will figure out which variables are binary. If `NULL`, it will be assumed no variables are binary. Entering values for `bin.vars` can be done more flexibly. When a factor variable is supplied as part of `mat` and is split internally by `splitfactor()`, extra values will be automatically added to `bin.vars` with the newly created dummies considered binary variables.
 
 * Bug fixes when binary factor treatments are used, thanks to Moaath Mustafa Ali. 
 
@@ -50,6 +50,8 @@ Version 4.0.0
 * Speedup of `splitfactor()`.
 
 * `splitfactor()` now has a `split.with` option to split one or more vectors in concert with the data set being split.
+
+* `splitfactor()` and `unsplitfactor()` are a little smarter and more in sync.
 
 * All functions work better inside other functions like `lapply()` or `purrr::map()`, thanks to @the-Zian.
 
