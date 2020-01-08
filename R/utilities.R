@@ -154,8 +154,8 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
                 else k[is.na(x), i] <- 1L
             }
             
-            if (is_not_null(na.level)) {
-                if (drop.na[v]) k[is.na(x), na.level] <-  NA_integer_
+            if (na.level > 0) {
+                if (drop.na[v]) k[is.na(x), -na.level] <-  NA_integer_
             }
             else drop.na[v] <- FALSE
             
@@ -171,9 +171,10 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
             }
         }
         
+        dropl <- setNames(rep(FALSE, ncol(k)), new.levels)
         if (is_not_null(drop.level)) {
             if (is.character(drop.level) && length(drop.level) == 1 && drop.level %in% new.levels) {
-                drop <- drop.level
+                dropl[drop.level] <- TRUE
             }
             else {
                 stop(paste("drop must be the name of a level of", v, "that is to be dropped."), call. = FALSE)
@@ -182,14 +183,10 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
         else {
             if ((ncol(k) == 2 && (drop.first == "if2" || drop.first == TRUE)) ||
                 (ncol(k) > 2 && drop.first == TRUE)) {
-                drop <- new.levels[1]
+                dropl[1] <- TRUE
             }
         }
         
-        dropl <- rep(FALSE, ncol(k))
-        if (is_not_null(drop)) {
-            dropl[-na.level][new.levels[-na.level] %in% drop] <- TRUE
-        }
         if (drop.na[v]) dropl[na.level] <- TRUE
         
         k <- as.data.frame.matrix(k, row.names = rownames(data))
