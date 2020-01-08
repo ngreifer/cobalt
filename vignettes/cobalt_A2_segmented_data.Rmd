@@ -146,7 +146,7 @@ There are a few ways to use `bal.tab()` with our imputed data sets. When using t
 
 `which.imp`, `imp.summary`, and `imp.fun` affect display only and can also be set as global options by using `set.cobalt.options()` like the corresponding cluster options.
 
-In many cases, not all variables are imputed, and often the treatment variable is not imputed. If each imputation as the same number of units, you can specify other arguments (e.g., treatment, distance) by specifying an object of the length of one imputation, and this vector will be applied to all imputations. This will come in handy when supplying additional covariates that weren't involved in the imputation or propensity score estimation through `addl`. To do this, the imputed data set must be sorted by imputation and unit ID.
+In many cases, not all variables are imputed, and often the treatment variable is not imputed. If each imputation has the same number of units, you can specify other arguments (e.g., treatment, distance) by specifying an object of the length of one imputation, and this vector will be applied to all imputations. This will come in handy when supplying additional covariates that weren't involved in the imputation or propensity score estimation through `addl`. To do this, the imputed data set must be sorted by imputation and unit ID.
 
 Because we're using a `wimids` object, we can just call `bal.tab()` with it as the first argument.
 
