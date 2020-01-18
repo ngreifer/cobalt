@@ -1,6 +1,14 @@
 `cobalt` News and Updates
 ======
 
+Version 4.1.0
+
+* Added support for `sbwcau` objects from `sbw`.
+
+* Added `disp.diff` option to control display of (standardized) mean differences. The option functions just like `disp.v.ratio` and `disp.ks` except that it is `TRUE` by default.
+
+* Fixed a bug when using the default `bal.tab` method with objects containing longitudinal treatments.
+
 Version 4.0.0
 
 **Major Updates**
