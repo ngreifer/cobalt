@@ -18,7 +18,7 @@ knitr::opts_chunk$set(message = FALSE)
 library("cobalt")
 ```
 
-This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A Guide to the cobalt Package". It contains descriptions and demonstrations of several utility functions in `cobalt` and the use of `bal.tab()` with `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, and `designmatch`. Note that `MatchIt` can perform most of the functions that `Matching` and `optmatch` can, and `WeightIt` completely subsumes and expands the capabilities of `twang`, `CBPS`, and `ebal`. Because `cobalt` has been optimized to work with `MatchIt` and `WeightIt`, it is recommended to use those packages to simplify preprocessing and balance assessment, but we recognize users may prefer to use the packages described in this vignette.
+This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A Guide to the cobalt Package". It contains descriptions and demonstrations of several utility functions in `cobalt` and the use of `bal.tab()` with `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, and `sbw`. Note that `MatchIt` can perform most of the functions that `Matching` and `optmatch` can, and `WeightIt` can perform most of the functions that  `twang`, `CBPS`, `ebal`, abd `sbw` can. Because `cobalt` has been optimized to work with `MatchIt` and `WeightIt`, it is recommended to use those packages to simplify preprocessing and balance assessment, but we recognize users may prefer to use the packages described in this vignette.
 
 ## Utilities
 
@@ -69,7 +69,7 @@ lalonde.unsplit <- unsplitfactor(lalonde.split, "race",
 head(lalonde.unsplit)
 ```
 
-Notice the original data set and the unsplit data set look identical.
+Notice the original data set and the unsplit data set look identical. If the input to `unsplitfactor()` is the output of a call to `splitfactor()` (as it was here), you don't need to tell `unsplitfactor()` the name of the split variable or the value of the dropped level. It was done here for illustration purposes.
 
 ### `get.w()`
 
@@ -237,6 +237,35 @@ bal.tab(dmout, treat = lalonde$treat, covs = covs0)
 ```
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `designmatch()` output object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates. The output is similar to that of `optmatch`.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE)
+```
+
+### Using `bal.tab()` with `sbw`
+```{r, include=FALSE}
+if (!"sbw" %in% rownames(installed.packages())) knitr::opts_chunk$set(eval = FALSE)
+```
+The `sbw` package implements optimization-based weighting to estimate weights that satisfy certain balance constraints and have minimal variance. `bal.tab()` functions similarly to `sbw`'s `summarize()` command but provides additional flexibility and convenience. Below is a simple example of using `bal.tab()` with `sbw`:
+```{r}
+library("sbw")
+data("lalonde", package = "cobalt") #If not yet loaded
+lalonde_split <- splitfactor(lalonde, drop.first = "if2")
+cov.names <- c("age", "educ", "race_black", "race_hispan", 
+               "race_white", "married", "nodegree", 
+               "re74", "re75")
+
+#Estimating balancing weights for the ATT
+sbw.out <- sbw(lalonde_split,
+               ind = "treat",
+               bal = list(bal_cov = cov.names,
+                          bal_alg = FALSE, 
+                          bal_tol = .001),
+               par = list(par_est = "att"))
+bal.tab(sbw.out, un = TRUE, disp.means = TRUE)
+```
+
+The output is similar to the output of a call to `summarize()`. Rather than stack several balance tables vertically, each with their own balance summary, here they are displayed horizontally. Note that due to differences in how `sbw` and `cobalt` compute the standardization factor in the standardized mean difference, values may not be identical between `bal.tab()` and `summarize()`. Also note that `bal.tab()`'s default is to display raw rather than standardized mean differences for binary variables. 
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(eval = TRUE)
