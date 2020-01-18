@@ -22,7 +22,7 @@ This is an introductory guide for the use of `cobalt` in most common scenarios. 
 
 Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
-Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2019), `ebal` (Hainmueller, 2014), `designmatch` (Zubizarreta, Kilcioglu, & Vielma, 2018), and `WeightIt` (Greifer, 2019); these together provide a near complete set of preprocessing tools in R to date.
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2019), `ebal` (Hainmueller, 2014), `sbw` (Zubizarreta & Li, 2019), `designmatch` (Zubizarreta, Kilcioglu, & Vielma, 2018), and `WeightIt` (Greifer, 2019); these together provide a near complete set of preprocessing tools in R to date.
 
 The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
 
@@ -47,13 +47,13 @@ When using `cobalt`, please cite your use of it along with the conditioning pack
 
 For example, if you use `Matching` for propensity score estimation and matching and `cobalt` for balance assessment and/or reporting, a possible citation might go as follows: 
 
-> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, `r format(Sys.Date(), "%Y")`), both in R (R Core Team, 2019).
+> Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, `r format(Sys.Date(), "%Y")`), both in R (R Core Team, `r R.version$year`).
 
 ## Why `cobalt`?
 
 If most of the major conditioning packages contain functions to assess balance, why use `cobalt` at all? `cobalt` arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. However, some users of these packages may be completely satisfied with their capabilities and comfortable with their output; for them, `cobalt` still has value in its unique plotting capabilities that make use of `ggplot2` in R.
 
-The following are some reasons why `cobalt` may be attractive to users of `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, `WeightIt`, and other conditioning packages:
+The following are some reasons why `cobalt` may be attractive to users of `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `sbw`, `designmatch`, `WeightIt`, and other conditioning packages:
 
 #### Visual clarity
 
@@ -108,14 +108,14 @@ For simplicity, the description of the use of `bal.tab()` will be most complete 
 
 ```{r}
 data("lalonde", package = "cobalt") #If not yet loaded
-covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 # Generating ATT weights as specified in Austin (2011)
-lalonde$p.score <- glm(f.build("treat", covs0), data = lalonde, 
+lalonde$p.score <- glm(f.build("treat", covs), data = lalonde, 
                        family = "binomial")$fitted.values
 lalonde$att.weights <- with(lalonde, treat + (1-treat)*p.score/(1-p.score))
 
-bal.tab(covs0, treat = lalonde$treat, weights = lalonde$att.weights,
+bal.tab(covs, treat = lalonde$treat, weights = lalonde$att.weights,
         method = "weighting")
 
 ```
@@ -127,7 +127,7 @@ There are several ways to specify input to `bal.tab()` when using data outside a
 Another way to specify input to `bal.tab()` is to use the formula interface. Below is an example of its use:
 
 ```{r}
-bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
         distance = "p.score", method = "weighting")
 ```
 
@@ -138,7 +138,7 @@ An argument to `method` must be specified for `bal.tab()` to process the data co
 By default, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab` or "Details on Calculations" below. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` and/or `continuous` to `"raw"` or `"std"`. These can also be set as global options by using, for example, `set.cobalt.options(binary = "std")`, which allows the user not to type a non-default option every time they call `bal.tab`.
 
 ```{r}
-bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
         method = "weighting", binary = "std", continuous = "std")
 ```
 
@@ -146,7 +146,7 @@ Users can specify additional variables for which to display balance using the ar
 
 ```{r}
 # Balance on all covariates in data set, including interactions and squares
-bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
         method = "weighting", addl = c("nodegree", "married"), 
         int = TRUE, poly = 2)
 ```
@@ -163,7 +163,7 @@ Next is `un`, which controls whether the statistics to be displayed should be di
 
 ```{r}
 # Balance tables with variance ratios and statistics for the unadjusted sample
-bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
         method = "weighting", disp.v.ratio = TRUE, un = TRUE)
 ```
 
@@ -179,7 +179,7 @@ When `ks.threshold` is specified, the same additional output is created as above
 
 ```{r}
 # Balance tables with thresholds for mean differences and variance ratios
-bal.tab(treat ~ covs0, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
         method = "weighting", m.threshold = .1, v.threshold = 2)
 ```
 
@@ -195,7 +195,7 @@ lalonde$p.score2 <- glm(treat ~ age + I(age^2) + race + educ + re74,
                         data = lalonde, family = "binomial")$fitted.values
 lalonde$att.weights2 <- with(lalonde, treat + (1-treat)*p.score2/(1-p.score2))
 
-bal.tab(treat ~ covs0, data = lalonde, weights = c("att.weights", "att.weights2"),
+bal.tab(treat ~ covs, data = lalonde, weights = c("att.weights", "att.weights2"),
         method = "weighting", estimand = "ATT")
 ```
 
@@ -205,7 +205,7 @@ To examine balance within each subclass, the user can specify `disp.subclass = T
 
 ```{r}
 # Subclassification for ATT with 6 subclasses
-lalonde$p.score <- glm(f.build("treat", covs0), data = lalonde, 
+lalonde$p.score <- glm(f.build("treat", covs), data = lalonde, 
                        family = "binomial")$fitted.values
 nsub <- 5 #number of subclasses
 lalonde$subclass <- findInterval(lalonde$p.score, 
@@ -213,7 +213,7 @@ lalonde$subclass <- findInterval(lalonde$p.score,
                                           seq(0, 1, length.out = nsub + 1)), 
                                  all.inside = TRUE)
 
-bal.tab(treat ~ covs0, data = lalonde, subclass = "subclass", 
+bal.tab(treat ~ covs, data = lalonde, subclass = "subclass", 
         method = "subclassification", disp.subclass = TRUE)
 ```
 
@@ -227,11 +227,11 @@ When using `bal.tab()` with `MatchIt`, fewer arguments need to be specified beca
 
 ```{r}
 data("lalonde", package = "cobalt")
-covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 # Nearest neighbor 2:1 matching with replacement
 library("MatchIt") #if not yet loaded
-m.out <- matchit(f.build("treat", covs0), data = lalonde, method = "nearest", 
+m.out <- matchit(f.build("treat", covs), data = lalonde, method = "nearest", 
                  ratio = 1,  replace = TRUE)
 
 bal.tab(m.out)
@@ -248,10 +248,10 @@ The `WeightIt` package is a convenient wrapper for the weighting functions of se
 ```{r}
 library("WeightIt")
 data("lalonde", package = "cobalt") #If not yet loaded
-covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 #Generating propensity score weights for the ATT
-W.out <- weightit(treat ~ covs0, data = lalonde,
+W.out <- weightit(treat ~ covs, data = lalonde,
                   method = "ps", estimand = "ATT")
 
 bal.tab(W.out)
@@ -448,7 +448,7 @@ love.plot(W.out.mn, threshold = .1, binary = "std",
 It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
 
 ```{r}
-bal.tab(treat ~ covs0, data = lalonde, 
+bal.tab(treat ~ covs, data = lalonde, 
         weights = data.frame(Matched = get.w(m.out),
                              IPW = get.w(W.out)),
         method = c("matching", "weighting"), 
@@ -458,7 +458,7 @@ bal.tab(treat ~ covs0, data = lalonde,
 To use `bal.plot()`, the same syntax can be used:
 
 ```{r, fig.width=7}
-bal.plot(treat ~ covs0, data = lalonde, 
+bal.plot(treat ~ covs, data = lalonde, 
          weights = data.frame(Matched = get.w(m.out),
                               IPW = get.w(W.out)),
          method = c("matching", "weighting"), 
@@ -468,7 +468,7 @@ bal.plot(treat ~ covs0, data = lalonde,
 With `love.plot()`, `var.order` can be `"unadjusted"`, `"alphabetical"`, or one of the names of the weights to order the variables. Also, `colors` and `shapes` should have the same length as the number of weights or have length 1.
 
 ```{r, fig.width=5}
-love.plot(treat ~ covs0, data = lalonde, 
+love.plot(treat ~ covs, data = lalonde, 
           weights = data.frame(Matched = get.w(m.out),
                                IPW = get.w(W.out)),
           method = c("matching", "weighting"), 
@@ -590,8 +590,8 @@ Love plots and other similar plots that graphically display covariate balance be
 ```{r, echo = FALSE, fig.show = 'hold', fig.width = 5, warning=FALSE}
 library("twang")
 data("lalonde", package = "cobalt") ##If not yet loaded
-covs0 <- subset(lalonde, select = -c(treat, re78, nodegree, married))
-ps.out <- ps(f.build("treat", covs0), data = lalonde, 
+covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
+ps.out <- ps(f.build("treat", covs), data = lalonde, 
              stop.method = "es.max", 
              estimand = "ATT", n.trees = 100, verbose = FALSE)
 plot(ps.out, plots = "es", subset = 1)

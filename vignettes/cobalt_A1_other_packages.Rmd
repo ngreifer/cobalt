@@ -307,7 +307,7 @@ It is possible to use `bal.tab` with objects that don't come from these packages
 
 The goal of the `default` method is to allow package authors to rely on `cobalt` as a substitute for any balancing function they might otherwise write. By ensuring compatibility with the `default` method, package authors can have their users simply supply the output of a compatible function into `cobalt` functions without having to write a specific method in `cobalt`. A package author would need to make sure the output of their package contained enough information with correctly named components; if so, `cobalt` functions can be used as conveniently with the output as it is with specifically supported packages.
 
-Below, we demonstrate this capability with the output of `optweight`, which performs a version of propensity score weighting using optimization. No `bal.tab` method has been written with `optweight` output in mind; rather, `optweight` was written to have output compatible with the `default` method of `bal.tab`.
+Below, we demonstrate this capability with the output of `optweight`, which performs a version of propensity score weighting using optimization, similar to `sbw`. No `bal.tab` method has been written with `optweight` output in mind; rather, `optweight` was written to have output compatible with the `default` method of `bal.tab`.
 
 ```{r, include=FALSE}
 if (!"optweight" %in% rownames(installed.packages())) knitr::opts_chunk$set(eval = FALSE)
