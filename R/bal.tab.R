@@ -3,8 +3,8 @@ bal.tab <- function(...) {
     if (...length() == 0L) stop("No arguments were supplied.", call. = FALSE)
     .obj <- ...elt(1)
 
-    .obj <- is.designmatch(.obj)
-    .obj <- is.time.list(.obj)
+    .obj <- process_designmatch(.obj)
+    .obj <- process_time.list(.obj)
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -336,6 +336,34 @@ bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl 
     
     #Initializing variables
     X <- do.call("x2base.wimids", c(list(wimids), args), quote = TRUE)
+    
+    args[names(args) %in% names(X)] <- NULL
+    
+    X <- assign.X.class(X)
+    
+    out <- do.call(base.bal.tab, c(list(X), args),
+                   quote = TRUE)
+    return(out)
+}
+bal.tab.sbwcau <- function(sbwcau, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+    
+    args <- c(as.list(environment()), list(...))[-1]
+    
+    #Adjustments to arguments
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
+    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
+    
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
+    if (any(blank.args)) {
+        for (arg.name in names(blank.args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
+                args[[arg.name]] <- NULL
+            }
+        }
+    }
+    
+    #Initializing variables
+    X <- do.call("x2base.sbwcau", c(list(sbwcau), args), quote = TRUE)
     
     args[names(args) %in% names(X)] <- NULL
     

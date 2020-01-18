@@ -2121,6 +2121,137 @@ x2base.wimids <- function(wimids, ...) {
     
     return(X)
 }
+x2base.sbwcau <- function(sbwcau, ...) {
+    A <- list(...)
+    
+    #Process matchit
+    
+    #Process data and get imp
+    sbw.data <- sbwcau$dat_weights[names(sbwcau$dat_weights) != "weights"]
+    imp <- A$imp
+    if (is_not_null(data <- A$data)) {
+        if (is_(data, "mids")) {
+            data <- imp.complete(data)
+            if (is_null(imp)) imp <- data[[".imp"]]
+        }
+        else if (!is_(data, "data.frame"))
+        {
+            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            data <- NULL
+        }
+    }
+    
+    #Process imp
+    if (is_not_null(imp)) {
+        imp <- vector.process(imp, 
+                              name = "imp", 
+                              which = "imputation identifiers", 
+                              data = list(data, sbw.data), 
+                              missing.okay = FALSE)
+        imp <- factor(imp)
+    }
+    
+    #Process treat
+    treat <- process_treat(sbwcau[["ind"]], data = list(data, sbw.data))
+    
+    #Process covs
+    covs <- sbw.data[sbwcau[["bal"]][["bal_cov"]]]
+    
+    #Get estimand
+    estimand <- sbwcau[["par"]][["par_est"]]
+    
+    #Get method
+    method <- "weighting"
+
+    #Process addl 
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, sbw.data)
+    
+    #Process distance
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, sbw.data)
+    
+    #Process subclass
+    if (is_not_null(subclass <- A$subclass)) {
+        stop("match.strata are not allowed with sbwcau objects.", call. = FALSE)
+    }
+    
+    #Process match.strata
+    if (is_not_null(match.strata <- A$match.strata)) {
+        stop("match.strata are not allowed with sbwcau objects.", call. = FALSE)
+    }
+    
+    #Process weights
+    weights <- data.frame(weights = sbwcau[["dat_weights"]][["weights"]])
+    weight.check(weights)
+    
+    #Process s.weights
+    if (is_not_null(s.weights <- A$sampw)) {
+        s.weights <- vector.process(s.weights, 
+                                    data = data,
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
+    }
+    
+    #Process cluster
+    if (is_not_null(cluster <- A$cluster)) {
+        cluster <- vector.process(cluster, 
+                                  data = list(data, sbw.data),
+                                  name = "cluster", 
+                                  which = "cluster membership",
+                                  missing.okay = FALSE)
+        cluster <- factor(cluster)
+    }
+    
+    #Process subset
+    if (is_not_null(subset <- A$subset)) {
+        if (!is.logical(subset)) {
+            stop("The argument to subset must be a logical vector.", call. = FALSE)
+        }
+        if (anyNA(subset)) {
+            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+            subset[is.na(subset)] <- FALSE
+        }
+    }
+    
+    #Process discarded
+
+    #Process imp and length
+    length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                       data.frames = c("covs", "weights", "distance", "addl"),
+                       imp = imp,
+                       original.call.to = "sbw()")
+    
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with sbwcau objects.", call. = FALSE)
+    }
+    
+    #Get s.d.denom
+    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    
+    #Missing values warning
+    if (any(c(anyNA(covs), anyNA(addl)))) {
+        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+    }
+    
+    #Get call
+
+    #Process output
+    X <- initialize_X()
+    X.names <- names(X)
+    
+    for (i in X.names) {
+        X[[i]] <- get0(i, inherits = FALSE)
+    }
+    
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "binary"
+    
+    return(X)
+}
 
 #MSMs wth multiple time points
 x2base.iptw <- function(iptw, ...) {
@@ -2346,7 +2477,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     if (is_null(covs.list)) {
         stop("covs.list must be specified.", call. = FALSE)
     }
-    if (!is.vector(covs.list, "list")) {
+    if (!is_(covs.list, "list")) {
         stop("covs.list must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
     }
     if (any(!vapply(covs.list, is.data.frame, logical(1L)))) {
@@ -3378,7 +3509,7 @@ x2base.default <- function(obj, ...) {
         if (is_null(covs.list <- A$covs.list)) {
             stop("covs.list must be specified.", call. = FALSE)
         }
-        if (!is.vector(covs.list, "list")) {
+        if (!is_(covs.list, "list")) {
             stop("covs.list must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
         }
         if (any(!vapply(covs.list, is.data.frame, logical(1L)))) {
