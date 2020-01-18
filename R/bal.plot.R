@@ -17,8 +17,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     args <- list(...)
     
-    obj <- is.designmatch(obj)
-    obj <- is.time.list(obj)
+    obj <- process_designmatch(obj)
+    obj <- process_time.list(obj)
 
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "all") #s.d.denom to avoid x2base warning
     
