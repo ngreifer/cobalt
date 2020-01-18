@@ -911,7 +911,7 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
                 C <- splitfactor(C, i, replace = TRUE, sep = A[["factor_sep"]], drop.first = FALSE, 
                                  drop.singleton = FALSE)
                 newly.added.names <- names(C)[names(C) %nin% old.C.names]
-                vars.w.missing[i, "placed.after"] <- newly.added.names[length(newly.added.names)]
+                vars.w.missing[i, "placed.after"] <- last(newly.added.names)
                 co.names <- c(co.names, setNames(lapply(newly.added.names, function(x) {
                     split.points <- c(nchar(i), nchar(i) + nchar(A[["factor_sep"]]))
                     split.names <- substring(x,
@@ -1314,7 +1314,7 @@ balance.summary <- function(bal.tab.list, Agg.Fun, weight.names = NULL, no.adj =
 }
 
 #base.bal.tab.bin
-balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, 
+balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.diff = TRUE, disp.v.ratio = FALSE, disp.ks = FALSE, 
                           s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
@@ -1330,7 +1330,8 @@ balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.
                                     # "M.Pop", "SD.Pop", 
                                     "Diff", "M.Threshold", 
                                     # "Diff.0.Pop", "Diff.1.Pop", 
-                                    "V.Ratio", "V.Threshold", "KS", "KS.Threshold"),
+                                    "V.Ratio", "V.Threshold", 
+                                    "KS", "KS.Threshold"),
                                   c("Un", weight.names)), 1, paste, collapse = "."))
     B <- as.data.frame(matrix(nrow = NCOL(C), ncol = length(Bnames)))
     colnames(B) <- Bnames
@@ -1390,20 +1391,23 @@ balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.
     if (all(vapply(B[startsWith(names(B), "SD.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.sds <- FALSE}
     
     #Mean differences
-    B[["Diff.Un"]] <- col_w_smd(C, treat = treat, weights = NULL, 
-                                std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
-                                abs = abs, s.weights = s.weights, bin.vars = bin.vars,
-                                weighted.weights = weights[[1]])
-    
-    if (!no.adj) {
-        for (i in weight.names) {
-            B[[paste.("Diff", i)]] <- col_w_smd(C, treat = treat, weights = weights[[i]],
-                                                std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
-                                                abs = abs, s.weights = s.weights, bin.vars = bin.vars)
+    if (!(!disp.diff && quick)) {
+        B[["Diff.Un"]] <- col_w_smd(C, treat = treat, weights = NULL, 
+                                    std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                    s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
+                                    abs = abs, s.weights = s.weights, bin.vars = bin.vars,
+                                    weighted.weights = weights[[1]])
+        
+        if (!no.adj) {
+            for (i in weight.names) {
+                B[[paste.("Diff", i)]] <- col_w_smd(C, treat = treat, weights = weights[[i]],
+                                                    std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                                    s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
+                                                    abs = abs, s.weights = s.weights, bin.vars = bin.vars)
+            }
         }
     }
+    if (all(vapply(B[startsWith(names(B), "Diff.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.diff <- FALSE; m.threshold <- NULL}
     
     #Variance ratios
     if (!(!disp.v.ratio && quick)) {
@@ -1487,6 +1491,7 @@ balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.
                                ks = ks.threshold)
     attr(B, "disp") <- c(means = disp.means,
                          sds = disp.sds,
+                         diff = disp.diff,
                          v.ratio = disp.v.ratio,
                          ks = disp.ks)
     

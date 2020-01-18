@@ -1,4 +1,4 @@
-print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.diff = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", digits = max(3, getOption("digits") - 3), ...) {
 
     call <- x$call
     balance <- x$Balance
@@ -20,42 +20,49 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
-            warning("un cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("un cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$un <- un
     }
     if (!identical(disp.means, "as.is")) {
-        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.means == FALSE && disp.means == TRUE) {
-            warning("disp.means cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.means cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.means <- disp.means
     }
     if (!identical(disp.sds, "as.is")) {
-        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.sds == FALSE && disp.sds == TRUE) {
-            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.sds <- disp.sds
     }
+    if (!identical(disp.diff, "as.is")) {
+        if (!is.logical(disp.diff)) stop("disp.diff must be TRUE, FALSE, or \"as.is\".")
+        if (p.ops$quick && p.ops$disp.diff == FALSE && disp.diff == TRUE) {
+            warning("disp.diff cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$disp.diff <- disp.diff
+    }
     if (!identical(disp.v.ratio, "as.is")) {
-        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.v.ratio == FALSE && disp.v.ratio == TRUE) {
-            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.v.ratio <- disp.v.ratio
     }
     if (!identical(disp.ks, "as.is")) {
-        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.ks == FALSE && disp.ks == TRUE) {
-            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.ks <- disp.ks
     }
     if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
             p.ops$r.threshold <- NULL
             baltal.r <- NULL
@@ -63,7 +70,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         }
     }
     if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
             p.ops$m.threshold <- NULL
             baltal.m <- NULL
@@ -71,7 +78,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         }
     }
     if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
             p.ops$v.threshold <- NULL
             baltal.v <- NULL
@@ -84,7 +91,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         maximbal.v <- NULL
     }
     if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
             p.ops$ks.threshold <- NULL
             baltal.ks <- NULL
@@ -97,12 +104,12 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         maximbal.ks <- NULL
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -138,7 +145,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
                                       p.ops$un && p.ops$disp.sds, 
                                       p.ops$un && p.ops$disp.means, 
                                       p.ops$un && p.ops$disp.sds, 
-                                      p.ops$un, 
+                                      p.ops$un && p.ops$disp.diff, 
                                       p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$m.threshold),
                                       p.ops$un && p.ops$disp.v.ratio, 
                                       p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
@@ -148,7 +155,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
                                             p.ops$disp.adj && p.ops$disp.sds, 
                                             p.ops$disp.adj && p.ops$disp.means, 
                                             p.ops$disp.adj && p.ops$disp.sds, 
-                                            p.ops$disp.adj, 
+                                            p.ops$disp.adj && p.ops$disp.diff, 
                                             p.ops$disp.adj && is_not_null(p.ops$m.threshold), 
                                             p.ops$disp.adj && p.ops$disp.v.ratio, 
                                             p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
@@ -170,7 +177,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         
         cat(underline("Balance Measures") %+% "\n")
         if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-        else print.data.frame_(round_df_char(balance[keep.row, keep], digits))
+        else print.data.frame_(round_df_char(balance[keep.row, keep, drop = FALSE], digits))
         cat("\n")
     }
     
@@ -238,7 +245,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.diff = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
 
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -263,55 +270,62 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
-            warning("un cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("un cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$un <- un
     }
     if (!identical(disp.means, "as.is")) {
-        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.means == FALSE && disp.means == TRUE) {
-            warning("disp.means cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.means cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.means <- disp.means
     }
     if (!identical(disp.sds, "as.is")) {
-        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.sds == FALSE && disp.sds == TRUE) {
-            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.sds <- disp.sds
     }
+    if (!identical(disp.diff, "as.is")) {
+        if (!is.logical(disp.diff)) stop("disp.diff must be TRUE, FALSE, or \"as.is\".")
+        if (p.ops$quick && p.ops$disp.diff == FALSE && disp.diff == TRUE) {
+            warning("disp.diff cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$disp.diff <- disp.diff
+    }
     if (!identical(disp.v.ratio, "as.is")) {
-        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.v.ratio == FALSE && disp.v.ratio == TRUE) {
-            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.v.ratio <- disp.v.ratio
     }
     if (!identical(disp.ks, "as.is")) {
-        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.ks == FALSE && disp.ks == TRUE) {
-            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.ks <- disp.ks
     }
     if (!identical(cluster.summary, "as.is")) {
-        if (!is.logical(cluster.summary)) stop("cluster.summary must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(cluster.summary)) stop("cluster.summary must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$cluster.summary == FALSE && cluster.summary == TRUE) {
-            warning("cluster.summary cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("cluster.summary cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$cluster.summary <- cluster.summary
     }
     if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
             p.ops$m.threshold <- NULL
         }
     }
     if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
             p.ops$v.threshold <- NULL
         }
@@ -320,7 +334,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         p.ops$v.threshold <- NULL
     }
     if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
             p.ops$ks.threshold <- NULL
         }
@@ -329,18 +343,18 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         p.ops$ks.threshold <- NULL
     }
     if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
             p.ops$r.threshold <- NULL
         }
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -422,7 +436,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         for (i in which.cluster) {
 
             cat("\n - - - " %+% italic("Cluster: " %+% names(c.balance)[i]) %+% " - - - \n")
-            do.call(print, c(list(c.balance[[i]]), args), quote = TRUE)
+            do.call(print, c(list(c.balance[[i]]), p.ops), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -441,18 +455,18 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         }
         else {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && CF["min"],
-                                   p.ops$un && CF["mean"],
-                                   p.ops$un && CF["max"],
+                                   p.ops$un && p.ops$disp.diff && CF["min"],
+                                   p.ops$un && p.ops$disp.diff && CF["mean"],
+                                   p.ops$un && p.ops$disp.diff && CF["max"],
                                    p.ops$un && p.ops$disp.v.ratio && CF["min"],
                                    p.ops$un && p.ops$disp.v.ratio && CF["mean"],
                                    p.ops$un && p.ops$disp.v.ratio && CF["max"],
                                    p.ops$un && p.ops$disp.ks && CF["min"],
                                    p.ops$un && p.ops$disp.ks && CF["mean"],
                                    p.ops$un && p.ops$disp.ks && CF["max"],
-                                   rep(c(p.ops$disp.adj && CF["min"],
-                                         p.ops$disp.adj && CF["mean"],
-                                         p.ops$disp.adj && CF["max"],
+                                   rep(c(p.ops$disp.adj && p.ops$disp.diff && CF["min"],
+                                         p.ops$disp.adj && p.ops$disp.diff && CF["mean"],
+                                         p.ops$disp.adj && p.ops$disp.diff && CF["max"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && CF["min"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && CF["mean"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && CF["max"],
@@ -462,7 +476,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         }
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all clusters") %+% "\n")
-            print.data.frame_(round_df_char(c.balance.summary[, s.keep], digits))
+            print.data.frame_(round_df_char(c.balance.summary[, s.keep, drop = FALSE], digits))
             cat("\n")
         }
         
@@ -489,7 +503,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     
     invisible(x)
 }
-print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.imp, imp.summary = "as.is", imp.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.diff = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.imp, imp.summary = "as.is", imp.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -514,55 +528,62 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
-            warning("un cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("un cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$un <- un
     }
     if (!identical(disp.means, "as.is")) {
-        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.means == FALSE && disp.means == TRUE) {
-            warning("disp.means cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.means cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.means <- disp.means
     }
     if (!identical(disp.sds, "as.is")) {
-        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.sds == FALSE && disp.sds == TRUE) {
-            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.sds <- disp.sds
     }
+    if (!identical(disp.diff, "as.is")) {
+        if (!is.logical(disp.diff)) stop("disp.diff must be TRUE, FALSE, or \"as.is\".")
+        if (p.ops$quick && p.ops$disp.diff == FALSE && disp.diff == TRUE) {
+            warning("disp.diff cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$disp.diff <- disp.diff
+    }
     if (!identical(disp.v.ratio, "as.is")) {
-        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.v.ratio == FALSE && disp.v.ratio == TRUE) {
-            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.v.ratio <- disp.v.ratio
     }
     if (!identical(disp.ks, "as.is")) {
-        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.ks == FALSE && disp.ks == TRUE) {
-            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.ks <- disp.ks
     }
     if (!identical(imp.summary, "as.is")) {
-        if (!is.logical(imp.summary)) stop("imp.summary must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(imp.summary)) stop("imp.summary must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$imp.summary == FALSE && imp.summary == TRUE) {
-            warning("imp.summary cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("imp.summary cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$imp.summary <- imp.summary
     }
     if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
             p.ops$m.threshold <- NULL
         }
     }
     if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
             p.ops$v.threshold <- NULL
             baltal.v <- NULL
@@ -575,7 +596,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         maximbal.v <- NULL
     }
     if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
             p.ops$ks.threshold <- NULL
             baltal.ks <- NULL
@@ -588,18 +609,18 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         maximbal.ks <- NULL
     }
     if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
             p.ops$r.threshold <- NULL
         }
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -676,7 +697,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         cat(underline("Balance by imputation") %+% "\n")
         for (i in which.imp) {
             cat("\n - - - " %+% italic("Imputation " %+% names(i.balance)[i]) %+% " - - - \n")
-            do.call(print, c(list(i.balance[[i]]), args), quote = TRUE)
+            do.call(print, c(list(i.balance[[i]]), p.ops), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -695,18 +716,18 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         }
         else { #binary
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && IF["min"],
-                                   p.ops$un && IF["mean"],
-                                   p.ops$un && IF["max"],
+                                   p.ops$un && p.ops$disp.diff && IF["min"],
+                                   p.ops$un && p.ops$disp.diff && IF["mean"],
+                                   p.ops$un && p.ops$disp.diff && IF["max"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["min"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["mean"],
                                    p.ops$un && p.ops$disp.v.ratio && IF["max"],
                                    p.ops$un && p.ops$disp.ks && IF["min"],
                                    p.ops$un && p.ops$disp.ks && IF["mean"],
                                    p.ops$un && p.ops$disp.ks && IF["max"],
-                                   rep(c(p.ops$disp.adj && IF["min"],
-                                         p.ops$disp.adj && IF["mean"],
-                                         p.ops$disp.adj && IF["max"],
+                                   rep(c(p.ops$disp.adj && p.ops$disp.diff && IF["min"],
+                                         p.ops$disp.adj && p.ops$disp.diff && IF["mean"],
+                                         p.ops$disp.adj && p.ops$disp.diff && IF["max"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["min"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["mean"],
                                          p.ops$disp.adj && p.ops$disp.v.ratio && IF["max"],
@@ -745,7 +766,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     invisible(x)
     
 }
-print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.diff = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -770,55 +791,62 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
-            warning("un cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("un cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$un <- un
     }
     if (!identical(disp.means, "as.is")) {
-        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.means == FALSE && disp.means == TRUE) {
-            warning("disp.means cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.means cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.means <- disp.means
     }
     if (!identical(disp.sds, "as.is")) {
-        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.sds == FALSE && disp.sds == TRUE) {
-            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.sds <- disp.sds
     }
+    if (!identical(disp.diff, "as.is")) {
+        if (!is.logical(disp.diff)) stop("disp.diff must be TRUE, FALSE, or \"as.is\".")
+        if (p.ops$quick && p.ops$disp.diff == FALSE && disp.diff == TRUE) {
+            warning("disp.diff cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$disp.diff <- disp.diff
+    }
     if (!identical(disp.v.ratio, "as.is")) {
-        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.v.ratio == FALSE && disp.v.ratio == TRUE) {
-            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.v.ratio <- disp.v.ratio
     }
     if (!identical(disp.ks, "as.is")) {
-        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.ks == FALSE && disp.ks == TRUE) {
-            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.ks <- disp.ks
     }
     if (!identical(multi.summary, "as.is")) {
-        if (!is.logical(multi.summary)) stop("multi.summary must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(multi.summary)) stop("multi.summary must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$multi.summary == FALSE && multi.summary == TRUE) {
-            warning("multi.summary cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("multi.summary cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$multi.summary <- multi.summary
     }
     if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
             p.ops$m.threshold <- NULL
         }
     }
     if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
             p.ops$v.threshold <- NULL
             baltal.v <- NULL
@@ -831,7 +859,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         maximbal.v <- NULL
     }
     if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
             p.ops$ks.threshold <- NULL
             baltal.ks <- NULL
@@ -844,13 +872,13 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         maximbal.ks <- NULL
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (is_not_null(m.balance.summary)) {
         if (p.ops$disp.bal.tab) {
             if (!identical(imbalanced.only, "as.is")) {
-                if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+                if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\".")
                 p.ops$imbalanced.only <- imbalanced.only
             }
             if (p.ops$imbalanced.only) {
@@ -951,7 +979,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
             headings[i] <- "\n - - - " %+% italic(attr(m.balance[[i]], "print.options")$treat_names[1] %+% " (0) vs. " %+%
                                                       attr(m.balance[[i]], "print.options")$treat_names[2] %+% " (1)") %+% " - - - \n"
             cat(headings[i])
-            do.call(print, c(list(m.balance[[i]]), args), quote = TRUE)
+            do.call(print, c(list(m.balance[[i]]), p.ops), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(max(nchar(headings))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -959,13 +987,13 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     
     if (isTRUE(as.logical(p.ops$multi.summary)) && is_not_null(m.balance.summary)) {
         s.keep <- as.logical(c(TRUE, 
-                               p.ops$un,
+                               p.ops$un && p.ops$disp.diff,
                                p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$m.threshold),
                                p.ops$un && p.ops$disp.v.ratio, 
                                p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
                                p.ops$un && p.ops$disp.ks, 
                                p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$ks.threshold),
-                               rep(c(p.ops$disp.adj, 
+                               rep(c(p.ops$disp.adj && p.ops$disp.diff, 
                                      p.ops$disp.adj && is_not_null(p.ops$m.threshold), 
                                      p.ops$disp.adj && p.ops$disp.v.ratio, 
                                      p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
@@ -975,7 +1003,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all treatment pairs") %+% "\n")
             if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-            else print.data.frame_(round_df_char(m.balance.summary[keep.row, s.keep], digits))
+            else print.data.frame_(round_df_char(m.balance.summary[keep.row, s.keep, drop = FALSE], digits))
             cat("\n")
         }
         
@@ -1005,7 +1033,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     invisible(x)
     
 }
-print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.diff = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -1031,55 +1059,62 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
-            warning("un cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("un cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$un <- un
     }
     if (!identical(disp.means, "as.is")) {
-        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.means == FALSE && disp.means == TRUE) {
-            warning("disp.means cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.means cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.means <- disp.means
     }
     if (!identical(disp.sds, "as.is")) {
-        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.sds == FALSE && disp.sds == TRUE) {
-            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.sds <- disp.sds
     }
+    if (!identical(disp.diff, "as.is")) {
+        if (!is.logical(disp.diff)) stop("disp.diff must be TRUE, FALSE, or \"as.is\".")
+        if (p.ops$quick && p.ops$disp.diff == FALSE && disp.diff == TRUE) {
+            warning("disp.diff cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$disp.diff <- disp.diff
+    }
     if (!identical(disp.v.ratio, "as.is")) {
-        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.v.ratio == FALSE && disp.v.ratio == TRUE) {
-            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.v.ratio <- disp.v.ratio
     }
     if (!identical(disp.ks, "as.is")) {
-        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.ks == FALSE && disp.ks == TRUE) {
-            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.ks <- disp.ks
     }
     if (!identical(msm.summary, "as.is")) {
-        if (!is.logical(msm.summary)) stop("msm.summary must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(msm.summary)) stop("msm.summary must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$msm.summary == FALSE && msm.summary == TRUE) {
-            warning("msm.summary cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("msm.summary cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$msm.summary <- msm.summary
     }
     if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
             p.ops$m.threshold <- NULL
         }
     }
     if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
             p.ops$v.threshold <- NULL
             baltal.v <- NULL
@@ -1092,7 +1127,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         maximbal.v <- NULL
     }
     if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
             p.ops$ks.threshold <- NULL
             baltal.ks <- NULL
@@ -1105,18 +1140,18 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         maximbal.ks <- NULL
     }
     if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
             p.ops$r.threshold <- NULL
         }
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -1188,7 +1223,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         cat(underline("Balance by Time Point") %+% "\n")
         for (i in which.time) {
             cat("\n - - - " %+% italic("Time: " %+% as.character(i)) %+% " - - - \n")
-            do.call(print, c(list(x = msm.balance[[i]]), args), quote = TRUE)
+            do.call(print, c(list(x = msm.balance[[i]]), p.ops), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Time: ", i, " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -1208,13 +1243,13 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         else { #binary
             s.keep <- as.logical(c(TRUE, 
                                    TRUE,
-                                   p.ops$un,
+                                   p.ops$un && p.ops$disp.diff,
                                    p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$m.threshold),
                                    p.ops$un && p.ops$disp.v.ratio, 
                                    p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
                                    p.ops$un && p.ops$disp.ks, 
                                    p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$ks.threshold),
-                                   rep(c(p.ops$disp.adj, 
+                                   rep(c(p.ops$disp.adj && p.ops$disp.diff, 
                                          p.ops$disp.adj && is_not_null(p.ops$m.threshold), 
                                          p.ops$disp.adj && p.ops$disp.v.ratio, 
                                          p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
@@ -1258,7 +1293,7 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     invisible(x)
 }
 
-print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", disp.diff = "as.is", disp.v.ratio = "as.is", disp.ks = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     call <- x$call
     s.balance <- x$Subclass.Balance
@@ -1281,42 +1316,49 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
-            warning("un cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("un cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$un <- un
     }
     if (!identical(disp.means, "as.is")) {
-        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.means)) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.means == FALSE && disp.means == TRUE) {
-            warning("disp.means cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.means cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.means <- disp.means
     }
     if (!identical(disp.sds, "as.is")) {
-        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.sds)) stop("disp.sds must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.sds == FALSE && disp.sds == TRUE) {
-            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.sds cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.sds <- disp.sds
     }
+    if (!identical(disp.diff, "as.is")) {
+        if (!is.logical(disp.diff)) stop("disp.diff must be TRUE, FALSE, or \"as.is\".")
+        if (p.ops$quick && p.ops$disp.diff == FALSE && disp.diff == TRUE) {
+            warning("disp.diff cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$disp.diff <- disp.diff
+    }
     if (!identical(disp.v.ratio, "as.is")) {
-        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.v.ratio == FALSE && disp.v.ratio == TRUE) {
-            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.v.ratio <- disp.v.ratio
     }
     if (!identical(disp.ks, "as.is")) {
-        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$disp.ks == FALSE && disp.ks == TRUE) {
-            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original object.", call. = FALSE)
+            warning("disp.ks cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp.ks <- disp.ks
     }
     if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
             p.ops$r.threshold <- NULL
             baltal.r.subclass <- NULL
@@ -1324,7 +1366,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         }
     }
     if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
             p.ops$m.threshold <- NULL
             baltal.m.subclass <- NULL
@@ -1332,7 +1374,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         }
     }
     if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
             p.ops$v.threshold <- NULL
             baltal.v <- NULL
@@ -1345,7 +1387,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         maximbal.v <- NULL
     }
     if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\"")
+        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
         if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
             p.ops$ks.threshold <- NULL
             baltal.ks <- NULL
@@ -1359,12 +1401,12 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     }
     
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\"")
+            if (!is.logical(imbalanced.only)) stop("imbalanced.only must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -1380,7 +1422,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
     else p.ops$imbalanced.only <- FALSE
     
     if (!identical(disp.subclass, "as.is")) {
-        if (!is.logical(disp.subclass)) stop("disp.subclass must be TRUE, FALSE, or \"as.is\"")
+        if (!is.logical(disp.subclass)) stop("disp.subclass must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.subclass <- disp.subclass
     }
     
@@ -1403,11 +1445,11 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                                        p.ops$disp.sds, 
                                        p.ops$disp.means, 
                                        p.ops$disp.sds, 
-                                       p.ops$disp.adj, 
+                                       p.ops$disp.adj && p.ops$disp.diff, 
                                        is_not_null(p.ops$m.threshold), 
-                                       p.ops$disp.adj  &&  p.ops$disp.v.ratio, 
+                                       p.ops$disp.adj && p.ops$disp.v.ratio, 
                                        is_not_null(p.ops$v.threshold), 
-                                       p.ops$disp.adj  &&  p.ops$disp.ks, 
+                                       p.ops$disp.adj && p.ops$disp.ks, 
                                        is_not_null(p.ops$ks.threshold)))
             }
             cat(underline("Balance by subclass"))
@@ -1448,7 +1490,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                                           p.ops$un && p.ops$disp.sds, 
                                           p.ops$un && p.ops$disp.means, 
                                           p.ops$un && p.ops$disp.sds, 
-                                          p.ops$un, 
+                                          p.ops$un && p.ops$disp.diff, 
                                           p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$m.threshold),
                                           p.ops$un && p.ops$disp.v.ratio, 
                                           p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
@@ -1458,7 +1500,7 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
                                                 p.ops$disp.adj && p.ops$disp.sds, 
                                                 p.ops$disp.adj && p.ops$disp.means, 
                                                 p.ops$disp.adj && p.ops$disp.sds, 
-                                                p.ops$disp.adj, 
+                                                p.ops$disp.adj && p.ops$disp.diff, 
                                                 p.ops$disp.adj && is_not_null(p.ops$m.threshold), 
                                                 p.ops$disp.adj && p.ops$disp.v.ratio, 
                                                 p.ops$disp.adj && is_not_null(p.ops$v.threshold), 

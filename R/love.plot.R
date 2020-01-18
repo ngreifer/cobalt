@@ -20,6 +20,12 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         mc <- match.call()
         replace.args <- function(m) {
             #m_ is bal.tab call or list (for do.call)
+            if (any(stats %pin% "mean.diffs")) {
+                if (!isTRUE(eval(m[["disp.diff"]]))) {
+                    m[["un"]] <- TRUE
+                    m[["disp.diff"]] <- TRUE
+                }
+            }
             if (any(stats %pin% "variance.ratios")) {
                 if (!isTRUE(eval(m[["disp.v.ratio"]]))) {
                     m[["un"]] <- TRUE
@@ -372,7 +378,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         recode.labels <- setNames(names(co.names), 
                                   vapply(co.names, function(x) paste0(x[["component"]], collapse = ""), character(1L)))
         
-        B[["variable.names"]] <- do.call(f.recode, c(list(B[["variable.names"]]), as.list(recode.labels)))
+        B[["variable.names"]] <- do.call(f.recode, c(list(B[["variable.names"]]), recode.labels))
     }
     
     distance.names <- as.character(unique(B[["variable.names"]][B[["Type"]] == "Distance"], nmax = sum(B[["Type"]] == "Distance")))
@@ -570,43 +576,6 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     plot.list <- setNames(vector("list", length(stats)), stats)
     for (s in stats) {
         variable.names <- as.character(B[["variable.names"]])
-        if (s == "mean.diffs") {
-            binary <- attr(x, "print.options")$binary
-            continuous <- attr(x, "print.options")$continuous
-            #All std, no std, some std
-            if ((binary == "std" || sum(B[["Type"]] == "Binary") == 0) && 
-                (continuous == "std" || sum(B[["Type"]] != "Binary") == 0)) {
-                xlab.diff <- "Standardized Mean Differences"
-            } 
-            else if ((binary == "raw" || sum(B[["Type"]] == "Binary") == 0) && 
-                     (continuous == "raw" || sum(B[["Type"]] != "Binary") == 0)) {
-                xlab.diff <- "Mean Differences"
-            }
-            else {
-                stars <- match_arg(stars, c("none", "std", "raw"))
-                if (stars == "none") {
-                    warning("Standardized mean differences and raw mean differences are present in the same plot. \nUse the 'stars' argument to distinguish between them and appropriately label the x-axis.", call. = FALSE)
-                    xlab.diff <- "Mean Differences"
-                }
-                else {
-                    if (length(args$star_char) == 1 && is.character(args$star_char)) star_char <- args$star_char
-                    else star_char <- "*"
-                    
-                    vars_to_star <- setNames(rep(FALSE, nrow(B)), variable.names)
-                    if (stars == "std") {
-                        if (binary == "std") vars_to_star[variable.names[B[["Type"]] == "Binary"]] <- TRUE
-                        if (continuous == "std") vars_to_star[variable.names[B[["Type"]] != "Binary"]] <- TRUE
-                        xlab.diff <- "Mean Differences"
-                    }
-                    else if (stars == "raw") {
-                        if (binary == "raw") vars_to_star[variable.names[B[["Type"]] == "Binary"]] <- TRUE
-                        if (continuous == "raw") vars_to_star[variable.names[B[["Type"]] != "Binary"]] <- TRUE
-                        xlab.diff <- "Standardized Mean Differences"
-                    }
-                    variable.names[vars_to_star[variable.names]] <- paste0(variable.names[vars_to_star[variable.names]], star_char)
-                }
-            }
-        }
         
         #Get SS
         if (agg.range) {
@@ -624,13 +593,13 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             
             if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) 
                 stop(paste("No balance statistics to display. This can occur when", 
-                           switch(s, variance.ratios = "disp.v.ratio", ks.statistics = "disp.ks"), 
+                           switch(s, mean.diffs = "disp.diff", variance.ratios = "disp.v.ratio", ks.statistics = "disp.ks"), 
                            "= FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             
             missing.stat <- all(is.na(SS[["mean.stat"]]))
             if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), 
-                                          " cannot be displayed. This can occur when ", 
-                                          word_list(paste.("disp", tolower(which.stat[s])), and.or = "and", is.are = TRUE), 
+                                          "s cannot be displayed. This can occur when ", 
+                                          word_list(switch(s, mean.diffs = "disp.diff", variance.ratios = "disp.v.ratio", ks.statistics = "disp.ks"), and.or = "and", is.are = TRUE), 
                                           " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             
             gone <- character(0)
@@ -714,9 +683,9 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             
             missing.stat <- all(is.na(SS[["stat"]]))
             if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), 
-                                          " cannot be displayed. This can occur when ", 
-                                          word_list(paste.("disp", tolower(which.stat[s])), and.or = "and"), 
-                                          " are FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+                                          "s cannot be displayed. This can occur when ", 
+                                          word_list(switch(s, mean.diffs = "disp.diff", variance.ratios = "disp.v.ratio", ks.statistics = "disp.ks"), and.or = "and", is.are = TRUE), 
+                                          " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             
             gone <- character(0)
             for (i in levels(SS$Sample)) {
@@ -792,6 +761,45 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         
         #Make the plot
         #library(ggplot2)
+        if (s == "mean.diffs") {
+            binary <- attr(x, "print.options")$binary
+            continuous <- attr(x, "print.options")$continuous
+            #All std, no std, some std
+            if ((binary == "std" || sum(B[["Type"]] == "Binary") == 0) && 
+                (continuous == "std" || sum(B[["Type"]] != "Binary") == 0)) {
+                xlab.diff <- "Standardized Mean Differences"
+            } 
+            else if ((binary == "raw" || sum(B[["Type"]] == "Binary") == 0) && 
+                     (continuous == "raw" || sum(B[["Type"]] != "Binary") == 0)) {
+                xlab.diff <- "Mean Differences"
+            }
+            else {
+                stars <- match_arg(stars, c("none", "std", "raw"))
+                if (stars == "none") {
+                    warning("Standardized mean differences and raw mean differences are present in the same plot. \nUse the 'stars' argument to distinguish between them and appropriately label the x-axis.", call. = FALSE)
+                    xlab.diff <- "Mean Differences"
+                }
+                else {
+                    if (length(args$star_char) == 1 && is.character(args$star_char)) star_char <- args$star_char
+                    else star_char <- "*"
+                    
+                    vars_to_star <- setNames(rep(FALSE, nrow(B)), variable.names)
+                    if (stars == "std") {
+                        if (binary == "std") vars_to_star[variable.names[B[["Type"]] == "Binary"]] <- TRUE
+                        if (continuous == "std") vars_to_star[variable.names[B[["Type"]] != "Binary"]] <- TRUE
+                        xlab.diff <- "Mean Differences"
+                    }
+                    else if (stars == "raw") {
+                        if (binary == "raw") vars_to_star[variable.names[B[["Type"]] == "Binary"]] <- TRUE
+                        if (continuous == "raw") vars_to_star[variable.names[B[["Type"]] != "Binary"]] <- TRUE
+                        xlab.diff <- "Standardized Mean Differences"
+                    }
+                    new.variable.names <- setNames(variable.names, variable.names)
+                    names(new.variable.names)[vars_to_star[variable.names]] <- paste0(variable.names[vars_to_star[variable.names]], star_char)
+                    SS[["var"]] <- do.call(f.recode, c(list(SS[["var"]]), new.variable.names))
+                }
+            }
+        }
         
         baseline.xintercept <- switch(s, 
                                       "mean.diffs" = 0, 

@@ -22,6 +22,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
     disp.sds = "as.is",
+    disp.diff = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     digits = max(3, getOption("digits") - 3), 
@@ -37,6 +38,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
     disp.sds = "as.is",
+    disp.diff = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     disp.subclass = "as.is", 
@@ -53,6 +55,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
     disp.sds = "as.is",
+    disp.diff = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.cluster, 
@@ -71,6 +74,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
     disp.sds = "as.is",
+    disp.diff = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.imp, 
@@ -88,6 +92,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is", 
     disp.means = "as.is", 
     disp.sds = "as.is",
+    disp.diff = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.treat, 
@@ -105,6 +110,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is", 
     disp.means = "as.is", 
     disp.sds = "as.is",
+    disp.diff = "as.is",
     disp.v.ratio = "as.is", 
     disp.ks = "as.is", 
     which.cluster, 
@@ -144,6 +150,9 @@ whether to print the group means in balance output.
 }
   \item{disp.sds}{
 whether to print the group standard deviations in balance output.
+}
+  \item{disp.diff}{
+whether to display (standardized) mean differences in balance output.
 }
   \item{disp.v.ratio}{
 whether to display variance ratios in balance output.

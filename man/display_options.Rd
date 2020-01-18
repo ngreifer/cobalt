@@ -9,9 +9,11 @@ Several additional arguments can be passed to \code{bal.tab()} that control the 
 
 Not all arguments are applicable to all uses of \code{bal.tab()}; for example, \code{disp.subclass}, which controls whether individual subclasses are displayed when subclassification is used, won't do anything when subclassification is not used.
 
-Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting any of these arguments to \code{FALSE} can prevent some values from being computed, which can have unintended effects. For example, setting \code{quick = TRUE} and \code{un = FALSE} in \code{bal.tab} and then using \code{love.plot} on the output will yield an error because \code{love.plot} depends on the computation of the unadjusted balance statistics, which are not computed when \code{quick = TRUE} and \code{un = FALSE}.
+Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting any of these arguments to \code{FALSE} can prevent some values from being computed, which can have unintended effects.
 }
 \arguments{
+\item{disp.bal.tab}{\code{logical}; whether to display the table of balance statistics. Default is \code{TRUE}, so the balance table is displayed.
+}
 \item{imbalanced.only}{\code{logical}; whether to display only the covariates that failed to meet at least one of balance thresholds. Default is \code{FALSE}, so all covariates are displayed.
 }
 \item{un}{\code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample. Default is \code{FALSE}, so only the statistics for the adjusted sample are displayed.
@@ -20,11 +22,11 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 }
 \item{disp.sds}{\code{logical}; whether to print the group standard deviations in balance output. Default is \code{FALSE}, so standard deviations are not displayed.
 }
+\item{disp.diff}{\code{logical}; whether to display (standardized) mean differences in balance output for binary and multi-category treatments. Default is \code{TRUE}, so mean differences are displayed.
+}
 \item{disp.v.ratio}{\code{logical}; whether to display variance ratios in balance output for binary and multi-category treatments. Default is \code{FALSE}, so variance ratios are not displayed.
 }
 \item{disp.ks}{\code{logical}; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multi-category treatments. Default is \code{FALSE}, so KS statistics are not displayed.
-}
-\item{disp.bal.tab}{\code{logical}; whether to display the table of balance statistics. Default is \code{TRUE}, so the balance table is displayed.
 }
 \item{factor_sep}{\code{character}; the string used to separate factor variables from their levels when variable names are printed. Default is \code{"_"}.
 }
@@ -59,12 +61,12 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 }
 
 \details{
-These arguments used to be named arguments to \code{bal.tab}, but were relegated to arguments passed through \code{...} to consolidate documentation and make it easier to add new features and options. For users of previous versions of \pkg{cobalt}, nothing should change as far as how the arguments are used, but new options may be added.
-
 In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \code{\link{set.cobalt.options}} and retrieve it using \code{\link{get.cobalt.options}}. Note that global options cannot be set for \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.
 }
 \note{
-When calling \code{bal.tab()} using \code{\link{do.call}}, if you are using \code{.all} or \code{.none} as arguments, you need to use \code{\link{alist}} rather than \code{list} to group the arguments. For example, \code{do.call(bal.tab, list(., which.cluster = .none))} will produce an error, but \code{do.call(bal.tab, alist(., which.cluster = .none))} should work correctly.
+These arguments used to be named arguments to \code{bal.tab}, but were relegated to arguments passed through \code{...} to consolidate documentation and make it easier to add new features and options. For users of previous versions of \pkg{cobalt}, nothing should change as far as how the arguments are used, but new options may be added.
+
+When calling \code{bal.tab()} using \code{\link{do.call}}, if you are using \code{.all} or \code{.none} as inputs to arguments, you need to use \code{\link{alist}} rather than \code{list} to group the arguments. For example, \code{do.call(bal.tab, list(., which.cluster = .none))} will produce an error, but \code{do.call(bal.tab, alist(., which.cluster = .none))} should work correctly.
 }
 
 \seealso{
