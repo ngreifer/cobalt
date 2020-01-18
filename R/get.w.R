@@ -321,3 +321,6 @@ get.w.wimids <- function(x, ...) {
     weights[is.na(weights)] <- 0
     return(weights)
 }
+get.w.sbwcau <- function(x, ...) {
+    return(x[["dat_weights"]][["weights"]])
+}
