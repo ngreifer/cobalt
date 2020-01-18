@@ -114,7 +114,7 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = m$weights)
+    weights <- data.frame(weights = get.w(m))
     weight.check(weights)
     
     #Process s.weights
@@ -2180,8 +2180,9 @@ x2base.sbwcau <- function(sbwcau, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = sbwcau[["dat_weights"]][["weights"]])
-    weight.check(weights)
+    if (is_not_null(weights <- data.frame(weights = get.w(sbwcau)))) {
+        weight.check(weights)
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
