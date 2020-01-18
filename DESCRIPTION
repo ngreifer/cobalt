@@ -29,6 +29,7 @@ Suggests:
     optweight,
     mice,
     MatchThem,
+    sbw,
     mlogit (>= 0.3-0),
     knitr,
     rmarkdown
