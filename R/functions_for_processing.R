@@ -1,5 +1,5 @@
 #bal.tab
-is.designmatch <- function(x) {
+process_designmatch <- function(x) {
     dm.b.names <- c("obj_total", "obj_dist_mat", "t_id", 
                     "c_id", "group_id", "time")
     dm.n.names <- c("obj_total", "obj_dist_mat", "id_1", 
@@ -10,8 +10,8 @@ is.designmatch <- function(x) {
     }
     return(x)
 }
-is.time.list <- function(x) {
-    if (is.vector(x, mode = "list")) {
+process_time.list <- function(x) {
+    if (is_(x, "list")) {
         if (all(vapply(x, is.formula, logical(1)))) {
             class(x) <- c("formula.list", "time.list", class(x))
         }
@@ -75,7 +75,7 @@ unprocess_treat <- function(treat) {
 process_treat.list <- function(treat.list, data = NULL) {
     
     if (is_null(treat.list)) stop("treat.list must be specified.", call. = FALSE)
-    if (!is.vector(treat.list, "list")) {
+    if (!is_(treat.list, "list")) {
         treat.list <- as.list(treat.list)
     }
     
@@ -287,7 +287,7 @@ data.frame.process <- function(i, df, treat, covs, ...) {
     val <- df
     val.df <- NULL
     if (is_not_null(val)) {
-        if (is.vector(val, mode = "list")) {
+        if (is_(val, "list")) {
             val.list <- lapply(val, function(x) process.val(x, i, treat, covs, ...))
             if (is_null(names(val.list)) || "" %in% names(val.list)) {
                 stop(paste("All entries in", i, "must have names."), call. = FALSE)
@@ -330,7 +330,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
             val <- val.List[[ti]]
             val.df <- NULL
             if (is_not_null(val)) {
-                if (is.vector(val, mode = "list")) {
+                if (is_(val, "list")) {
                     val.list <- lapply(val, function(x) process.val(x, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], ...))
                     val.list <- lapply(seq_along(val.list), function(x) {
                         if (NCOL(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
