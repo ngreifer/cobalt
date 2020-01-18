@@ -7,6 +7,8 @@ Version 4.1.0
 
 * Added `disp.diff` option to control display of (standardized) mean differences. The option functions just like `disp.v.ratio` and `disp.ks` except that it is `TRUE` by default.
 
+* Added `disp.means` option to `bal.plot` to display the mean of the covariate as a line on density plots and histograms.
+
 * Fixed a bug when using the default `bal.tab` method with objects containing longitudinal treatments.
 
 Version 4.0.0

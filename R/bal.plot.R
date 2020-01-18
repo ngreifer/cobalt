@@ -1,7 +1,7 @@
 bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, 
                      imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, 
                      mirror = FALSE, type = "density", colors = NULL, grid = FALSE, sample.names,
-                     position = "right", facet.formula = NULL, alpha.weight = TRUE) {
+                     position = "right", facet.formula = NULL, disp.means = FALSE, alpha.weight = TRUE) {
     
     tryCatch(identity(obj), error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -552,11 +552,24 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             
             if (type == "histogram") {
+                if (disp.means) {
+                    D$var.mean <- ave(D[c("var", "weights")], D[c("treat", facet)], 
+                                      FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
+                }
+                
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
-                geom_fun <- function(t) geom_histogram(data = D[D$treat == levels(D$treat)[t],],
+                geom_fun <- function(t) {
+                    out <- list(geom_histogram(data = D[D$treat == levels(D$treat)[t],],
                                                        mapping = aes(x = var, y = posneg[t]*stat(count), weight = weights,
                                                                      fill = names(colors)[t]),
-                                                       alpha = alpha, bins = args$bins, color = "black")
+                                                       alpha = alpha, bins = args$bins, color = "black"),
+                                NULL)
+                    if (disp.means) out[[2]] <-
+                            geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
+                                         mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
+                                         color = if (mirror) "black" else colors[[t]])
+                    out
+                }
                 ylab <- "Proportion"
                 
             }
@@ -601,21 +614,35 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                     }
                 }
                 
-                geom_fun <- function(t) geom_density(data = D[D$treat == levels(D$treat)[t],],
+                if (disp.means) {
+                    D$var.mean <- ave(D[c("var", "weights")], D[c("treat", facet)], 
+                                      FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
+                }
+                
+                geom_fun <- function(t) {
+                    out <- list(
+                    geom_density(data = D[D$treat == levels(D$treat)[t],],
                                                      mapping = aes(x = var, y = posneg[t]*stat(density), weight = weights,
                                                                    fill = names(colors)[t]),
                                                      alpha = alpha, bw = bw, adjust = adjust,
-                                                     kernel = kernel, n = n, trim = TRUE)
+                                                     kernel = kernel, n = n, trim = TRUE),
+                    NULL)
+                    if (disp.means) out[[2]] <-
+                    geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
+                                 mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
+                                 color = if (mirror) "black" else colors[[t]])
+                    out
+                }
                 ylab <- "Density"
                 
             }
             
-            bp <- Reduce("+", c(list(ggplot(),
-                                     labs(x = var.name, y = ylab, title = title, subtitle = subtitle)),
-                                lapply(seq_len(nlevels.treat), geom_fun))) +
+            bp <- Reduce("+", c(list(ggplot()),
+                                do.call(c, lapply(seq_len(nlevels.treat), geom_fun)))) +
                 scale_fill_manual(values = colors, guide = guide_legend(override.aes = list(alpha = legend.alpha, size = .25))) +
                 scale_color_manual(values = colors) +
-                labs(fill = "Treatment", color = "Treatment") + 
+                labs(x = var.name, y = ylab, title = title, subtitle = subtitle,
+                     fill = "Treatment", color = "Treatment") + 
                 scale_y_continuous(expand = expandScale)
             
             if (mirror) bp <- bp + geom_hline(yintercept = 0)

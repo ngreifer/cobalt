@@ -26,6 +26,7 @@ bal.plot(obj,
     sample.names,
     position = "right", 
     facet.formula = NULL, 
+    disp.means = FALSE,
     alpha.weight = TRUE)
 }
 \arguments{
@@ -82,6 +83,9 @@ the position of the legend. This can be any value that would be appropriate as a
 }
   \item{facet.formula}{
 a \code{formula} designating which facets should be on the rows and columns. This should be of the "historical" formula interface to \code{\link[ggplot2]{facet_grid}}. If of the form \code{a ~ b}, \code{a} will be faceted on the rows and \code{b} on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form \code{a ~ .} (i.e., with only \code{.} on the right-hand side). The allowable facets depend on which arguments have been supplied to \code{bal.plot}; possible values include \code{which}, \code{cluster}, \code{imp}, and (for longitudinal treatments) \code{time}. If \code{NULL}, \code{bal.plot} will decide what looks best; this argument exists in case you disagree with its choice.
+}
+  \item{disp.means}{
+\code{logical}; for a categorical treatment with a continuous covariate, whether a line should be drawn for each treatment level denoting the (weighted) mean of the covariate. Ignored if \code{type} is not "density" or "histogram". Default is \code{FALSE}.
 }
   \item{alpha.weight}{
 \code{logical}; if both the treatment and the covariate are continuous, whether points should be shaded according to their weight. Fainter points are those that have smaller weights. Default is \code{TRUE}.
