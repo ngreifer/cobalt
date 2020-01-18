@@ -96,7 +96,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
         if (missing(var.name)) {
             names(data) <- dep
         }
-        else if (is.vector(var.name) && (is.atomic(var.name) || is.factor(var.name))) {
+        else if (is.atomic(var.name) || is.factor(var.name)) {
             if (is_null(var.name)) {
                 names(data) <- dep
             }
