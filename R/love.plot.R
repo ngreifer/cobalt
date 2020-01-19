@@ -20,24 +20,8 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         mc <- match.call()
         replace.args <- function(m) {
             #m_ is bal.tab call or list (for do.call)
-            if (any(stats %pin% "mean.diffs")) {
-                if (!isTRUE(eval(m[["disp.diff"]]))) {
-                    m[["un"]] <- TRUE
-                    m[["disp.diff"]] <- TRUE
-                }
-            }
-            if (any(stats %pin% "variance.ratios")) {
-                if (!isTRUE(eval(m[["disp.v.ratio"]]))) {
-                    m[["un"]] <- TRUE
-                    m[["disp.v.ratio"]] <- TRUE
-                }
-            }
-            if (any(stats %pin% "ks.statistics")) {
-                if (!isTRUE(eval(m[["disp.ks"]]))) {
-                    m[["un"]] <- TRUE
-                    m[["disp.ks"]] <- TRUE
-                }
-            }
+            m[["un"]] <- TRUE
+            m[["stats"]] <- stats
             
             # if (any(names(m) == "cluster")) {
             #     m[["cluster.summary"]] <- TRUE
@@ -106,10 +90,7 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
     }
     
     #Get B and config
-    if (any(class(x) == "bal.tab.subclass")) {
-        if (any(stats == "variance.ratios")) stop("Variance ratios not currently supported for subclassification.", call. = FALSE)
-        if (any(stats == "ks.statistics")) stop("KS statistics not currently supported for subclassification.", call. = FALSE)
-        if (any(class(x) == "bal.tab.cont")) stop("Continuous treatments not currently supported for subclassification.", call. = FALSE)
+    if ("bal.tab.subclass" %in% class(x)) {
         subclass.names <- names(x[["Subclass.Balance"]])
         sub.B <- do.call("cbind", lapply(subclass.names, function(s) {
             sub <- x[["Subclass.Balance"]][[s]]
@@ -121,6 +102,16 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         else attr(x, "print.options")$weight.names <- "Adj"
         subtitle <- "Across Subclasses"
         config <- "agg.none"
+        facet <- NULL
+        
+        if (any(startsWith(names(B), "Corr."))) {
+            stats <- "correlations"
+        }
+        else {
+            stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+        }
+        which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
+        which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
     }
     else {
         B_list <- unpack_bal.tab(x)
@@ -670,16 +661,18 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             SS[["stat"]] <- SS[["mean.stat"]]
         }
         else {
+            
             SS <- do.call("rbind", 
                           lapply(c("Un", attr(x, "print.options")$weight.names),
                                  function(w) data.frame(var = variable.names,
                                                         type = B[["Type"]],
                                                         stat = B[[ifelse(is_null(Agg.Fun), paste.(which.stat[s], w),
                                                                          paste.(Agg.Fun, which.stat[s], w))]],
-                                                        Sample = switch(w, "Un"= "Unadjusted", 
+                                                        Sample = switch(w, "Un"= "Unadjusted",
                                                                         "Adj" = "Adjusted", w),
                                                         B[facet],
-                                                        row.names = NULL)))
+                                                        row.names = NULL)
+                                 ))
             
             missing.stat <- all(is.na(SS[["stat"]]))
             if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), 
