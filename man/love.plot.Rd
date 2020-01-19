@@ -9,7 +9,7 @@ Generates a "Love" plot graphically displaying covariate balance before and afte
 }
 \usage{
 love.plot(x, 
-          stats = "mean.diffs", 
+          stats, 
           abs, 
           agg.fun = NULL, 
           var.order = NULL, 

@@ -1,4 +1,4 @@
-love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL, 
+love.plot <- function(x, stats, abs, agg.fun = NULL, 
                       var.order = NULL, drop.missing = TRUE, drop.distance = FALSE, 
                       threshold = NULL, line = FALSE, stars = "none", grid = FALSE, 
                       limits = NULL, colors = NULL, shapes = NULL, alpha = 1, size = 3, 
@@ -15,22 +15,16 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         return(eval.parent(.call))
     }
     
+    if (missing(stats)) stats <- NULL
+    
     #Re-call bal.tab with disp.v.ratio or disp.ks if stats = "v" or "k".
     if (!exists(deparse(substitute(x)))) { #if x is not an object (i.e., is a function call)
         mc <- match.call()
         replace.args <- function(m) {
             #m_ is bal.tab call or list (for do.call)
             m[["un"]] <- TRUE
-            m[["stats"]] <- stats
+            if (is_not_null(stats)) m[["stats"]] <- stats
             
-            # if (any(names(m) == "cluster")) {
-            #     m[["cluster.summary"]] <- TRUE
-            #     if (any(names(m) == "cluster.fun")) m[["cluster.fun"]] <- NULL
-            # }
-            # if (any(names(m) == "imp")) {
-            #     m[["imp.summary"]] <- TRUE
-            #     if (any(names(m) == "imp.fun")) m[["imp.fun"]] <- NULL
-            # }
             if (any(names(m) == "agg.fun")) m[["agg.fun"]] <- NULL
             
             if (any(names(mc) %pin% "abs")) m[["abs"]] <- abs
@@ -89,6 +83,18 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         else abs <- attr(x, "print.options")[["abs"]]
     }
     
+    #Process stats
+    if (attr(x, "print.options")$type == "cont") {
+        if (is_null(stats)) stats <- attr(x, "print.options")$stats
+        stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
+    }
+    else {
+        if (is_null(stats)) stats <- attr(x, "print.options")$stats
+        stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+    }
+    which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
+    which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
+    
     #Get B and config
     if ("bal.tab.subclass" %in% class(x)) {
         subclass.names <- names(x[["Subclass.Balance"]])
@@ -103,15 +109,6 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
         subtitle <- "Across Subclasses"
         config <- "agg.none"
         facet <- NULL
-        
-        if (any(startsWith(names(B), "Corr."))) {
-            stats <- "correlations"
-        }
-        else {
-            stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
-        }
-        which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
-        which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
     }
     else {
         B_list <- unpack_bal.tab(x)
@@ -179,16 +176,6 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
 
             }
             B_list <- B_list[rownames(facet_mat)]
-            
-            if (any(startsWith(names(B_list[[1]]), "Corr."))) {
-                stats <- "correlations"
-            }
-            else {
-                stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
-            }
-            which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
-            which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
-            
             
             stat.cols <- expand.grid_string(which.stat,
                                             c("Un", attr(x, "print.options")[["weight.names"]]),
@@ -271,15 +258,6 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             
             facet <- one.level.facet <- agg.over <- NULL
 
-            if (is_(x, "bal.tab.cont")) {
-                stats <- "correlations"
-            }
-            else {
-                stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
-            }
-            which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
-            which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
-            
             stat.cols <- expand.grid_string(which.stat,
                                             c("Un", attr(x, "print.options")[["weight.names"]]),
                                             collapse = ".")
@@ -590,7 +568,10 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             missing.stat <- all(is.na(SS[["mean.stat"]]))
             if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), 
                                           "s cannot be displayed. This can occur when ", 
-                                          word_list(switch(s, mean.diffs = "disp.diff", variance.ratios = "disp.v.ratio", ks.statistics = "disp.ks"), and.or = "and", is.are = TRUE), 
+                                          word_list(switch(s, mean.diffs = "disp.diff", 
+                                                           variance.ratios = "disp.v.ratio", 
+                                                           ks.statistics = "disp.ks", 
+                                                           correlations = "disp.corr"), and.or = "and", is.are = TRUE), 
                                           " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             
             gone <- character(0)
@@ -677,7 +658,10 @@ love.plot <- function(x, stats = "mean.diffs", abs, agg.fun = NULL,
             missing.stat <- all(is.na(SS[["stat"]]))
             if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), 
                                           "s cannot be displayed. This can occur when ", 
-                                          word_list(switch(s, mean.diffs = "disp.diff", variance.ratios = "disp.v.ratio", ks.statistics = "disp.ks"), and.or = "and", is.are = TRUE), 
+                                          word_list(switch(s, mean.diffs = "disp.diff", 
+                                                           variance.ratios = "disp.v.ratio",
+                                                           ks.statistics = "disp.ks", 
+                                                           correlations = "disp.corr"), and.or = "and", is.are = TRUE), 
                                           " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             
             gone <- character(0)
