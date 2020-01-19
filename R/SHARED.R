@@ -786,23 +786,24 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
     if (is.null(arg))
         return(choices[1L])
     else if (!is.character(arg))
-        stop(paste0("'", arg.name, "' must be NULL or a character vector"), call. = FALSE)
+        stop(paste0("The argument to '", arg.name, "' must be NULL or a character vector"), call. = FALSE)
     if (!several.ok) {
         if (identical(arg, choices))
             return(arg[1L])
         if (length(arg) > 1L)
-            stop(paste0("'", arg.name, "' must be of length 1"), call. = FALSE)
+            stop(paste0("The argument to '", arg.name, "' must be of length 1"), call. = FALSE)
     }
     else if (is_null(arg))
-        stop(paste0("'", arg.name, "' must be of length >= 1"), call. = FALSE)
+        stop(paste0("The argument to '", arg.name, "' must be of length >= 1"), call. = FALSE)
 
     i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
     if (all(i == 0L))
-        stop(paste0("'", arg.name, "' should be one of ", word_list(choices, and.or = "or", quotes = TRUE), "."),
+        stop(paste0("The argument to '", arg.name, "' should be ", if (length(choices) > 1) "one of " else "", 
+                    word_list(choices, and.or = "or", quotes = TRUE), "."),
              call. = FALSE)
     i <- i[i > 0L]
     if (!several.ok && length(i) > 1)
-        stop("there is more than one match in 'match_arg'")
+        stop("There is more than one match in 'match_arg'")
     choices[i]
 }
 last <- function(x) {
