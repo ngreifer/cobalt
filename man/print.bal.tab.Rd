@@ -22,9 +22,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
     disp.sds = "as.is",
-    disp.diff = "as.is",
-    disp.v.ratio = "as.is", 
-    disp.ks = "as.is", 
+    stats = "as.is",
     digits = max(3, getOption("digits") - 3), 
     ...)
 
@@ -38,9 +36,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
     disp.sds = "as.is",
-    disp.diff = "as.is",
-    disp.v.ratio = "as.is", 
-    disp.ks = "as.is", 
+    stats = "as.is",
     disp.subclass = "as.is", 
     digits = max(3, getOption("digits") - 3), 
     ...)
@@ -55,9 +51,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
     disp.sds = "as.is",
-    disp.diff = "as.is",
-    disp.v.ratio = "as.is", 
-    disp.ks = "as.is", 
+    stats = "as.is",
     which.cluster, 
     cluster.summary = "as.is", 
     cluster.fun = "as.is", 
@@ -74,9 +68,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is",
     disp.means = "as.is", 
     disp.sds = "as.is",
-    disp.diff = "as.is",
-    disp.v.ratio = "as.is", 
-    disp.ks = "as.is", 
+    stats = "as.is",
     which.imp, 
     imp.summary = "as.is", 
     imp.fun = "as.is", 
@@ -92,9 +84,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is", 
     disp.means = "as.is", 
     disp.sds = "as.is",
-    disp.diff = "as.is",
-    disp.v.ratio = "as.is", 
-    disp.ks = "as.is", 
+    stats = "as.is",
     which.treat, 
     multi.summary = "as.is", 
     digits = max(3, getOption("digits") - 3), 
@@ -110,9 +100,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     disp.bal.tab = "as.is", 
     disp.means = "as.is", 
     disp.sds = "as.is",
-    disp.diff = "as.is",
-    disp.v.ratio = "as.is", 
-    disp.ks = "as.is", 
+    stats = "as.is",
     which.cluster, 
     cluster.summary = "as.is", 
     cluster.fun = "as.is", 
@@ -151,14 +139,8 @@ whether to print the group means in balance output.
   \item{disp.sds}{
 whether to print the group standard deviations in balance output.
 }
-  \item{disp.diff}{
-whether to display (standardized) mean differences in balance output.
-}
-  \item{disp.v.ratio}{
-whether to display variance ratios in balance output.
-}
-  \item{disp.ks}{
-whether to display KS statistics in balance output.
+  \item{stats}{
+\code{character}; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print} unless \code{quick = FALSE} in the original call.
 }
   \item{digits}{
 the number of digits to display.

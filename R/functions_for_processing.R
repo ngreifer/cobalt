@@ -127,7 +127,8 @@ initialize_X <- function() {
                  "focal",
                  "discarded",
                  "method",
-                 "subclass")
+                 "subclass",
+                 "stats")
     X <- setNames(vector("list", length(X.names)),
                   X.names)
     return(X)
@@ -146,7 +147,8 @@ initialize_X_msm <- function() {
                  "focal",
                  "discarded",
                  "method",
-                 "subclass")
+                 "subclass",
+                 "stats")
     X <- setNames(vector("list", length(X.names)),
                   X.names)
     return(X)
@@ -491,23 +493,23 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
     }
     if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep.int(s.d.denom, NCOL(weights))
     
-    if (!quietly) {
-        if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
-            message(paste0("Warning: s.d.denom should be one of ", word_list(unique(c(unique.treats, allowable.s.d.denoms)), "or", quotes = TRUE), 
-                           ".\n         Using ", word_list(s.d.denom, quotes = TRUE), " instead."))
-        }
-        else if (estimand.specified && bad.estimand) {
-            message(paste0("Warning: estimand should be one of ", word_list(c("ATT", "ATC", "ATE"), "or", quotes = TRUE), 
-                           ". Ignoring estimand."))
-        }
-        else if ((check.focal || check.weights) && any(s.d.denom %nin% treat_vals(treat))) {
-            message("Note: s.d.denom not specified; assuming ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
-        }
+    if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
+        attr(s.d.denom, "note") <- paste0("Warning: s.d.denom should be one of ", word_list(unique(c(unique.treats, allowable.s.d.denoms)), "or", quotes = TRUE), 
+                                          ".\n         Using ", word_list(s.d.denom, quotes = TRUE), " instead.")
+    }
+    else if (estimand.specified && bad.estimand) {
+        attr(s.d.denom, "note") <- paste0("Warning: estimand should be one of ", word_list(c("ATT", "ATC", "ATE"), "or", quotes = TRUE), 
+                                          ". Ignoring estimand.")
+    }
+    else if ((check.focal || check.weights) && any(s.d.denom %nin% treat_vals(treat))) {
+        attr(s.d.denom, "note") <- paste0("Note: s.d.denom not specified; assuming ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
     }
     
     if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
         stop("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
     }
+    
+    if (!quietly && is_not_null(attr(s.d.denom, "note"))) message(attr(s.d.denom, "note"))
     
     return(s.d.denom)
 }
@@ -794,6 +796,25 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
         else anchor <- paste("in the original call to", original.call.to)
         
         stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as ", anchor, "."), call. = FALSE)
+    }
+}
+process_stats <- function(stats = NULL, treat) {
+    if (is_(treat, "list")) {
+        return(unique(unlist(lapply(treat, process_stats))))
+    }
+    else {
+        if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+        treat.type <- get.treat.type(treat)
+        
+        if (treat.type %in% c("binary", "multinomial")) {
+            if (is_null(stats)) stats <- getOption("cobalt_stats", "mean.diffs")
+            stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+        }
+        else if (treat.type %in% c("continuous")) {
+            if (is_null(stats)) stats <- getOption("cobalt_stats", "correlations")
+            stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
+        }
+        return(unique(stats))
     }
 }
 
@@ -1314,7 +1335,7 @@ balance.summary <- function(bal.tab.list, Agg.Fun, weight.names = NULL, no.adj =
 }
 
 #base.bal.tab.bin
-balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.diff = TRUE, disp.v.ratio = FALSE, disp.ks = FALSE, 
+balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, stats = NULL, 
                           s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
@@ -1391,7 +1412,7 @@ balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.
     if (all(vapply(B[startsWith(names(B), "SD.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.sds <- FALSE}
     
     #Mean differences
-    if (!(!disp.diff && quick)) {
+    if (!quick || "mean.diffs" %in% stats) {
         B[["Diff.Un"]] <- col_w_smd(C, treat = treat, weights = NULL, 
                                     std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
                                     s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
@@ -1407,10 +1428,10 @@ balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.
             }
         }
     }
-    if (all(vapply(B[startsWith(names(B), "Diff.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.diff <- FALSE; m.threshold <- NULL}
+    if (all(vapply(B[startsWith(names(B), "Diff.")], function(x) all(!is.finite(x)), logical(1L)))) {stats <- stats[stats != "mean.diffs"]; m.threshold <- NULL}
     
     #Variance ratios
-    if (!(!disp.v.ratio && quick)) {
+    if (!quick || "variance.ratios" %in% stats) {
         if (!(!un && quick)) {
             vrs <- rep(NA_real_, NCOL(C))
             if (any(!bin.vars)) {
@@ -1431,10 +1452,10 @@ balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.
             }
         }
     }
-    if (all(vapply(B[startsWith(names(B), "V.Ratio.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.v.ratio <- FALSE; v.threshold <- NULL}
+    if (all(vapply(B[startsWith(names(B), "V.Ratio.")], function(x) all(!is.finite(x)), logical(1L)))) {stats <- stats[stats != "variance.ratios"]; v.threshold <- NULL}
     
     #KS Statistics
-    if (!(!disp.ks && quick)) {
+    if (!quick || "ks.statistics" %in% stats) {
         if (!(!un && quick)) {
             B[["KS.Un"]] <- col_w_ks(C, treat = treat, weights = NULL, s.weights = s.weights, bin.vars = bin.vars)
         }
@@ -1444,7 +1465,7 @@ balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.
             }
         }
     }
-    if (all(vapply(B[startsWith(names(B), "KS.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.ks <- FALSE; ks.threshold <- NULL}
+    if (all(vapply(B[startsWith(names(B), "KS.")], function(x) all(!is.finite(x)), logical(1L)))) {stats <- stats[stats != "ks.statistics"] <- FALSE; ks.threshold <- NULL}
     
     
     if (is_not_null(m.threshold)) {
@@ -1490,10 +1511,8 @@ balance.table.bin <- function(C, weights = NULL, treat, continuous, binary, s.d.
                                v = v.threshold,
                                ks = ks.threshold)
     attr(B, "disp") <- c(means = disp.means,
-                         sds = disp.sds,
-                         diff = disp.diff,
-                         v.ratio = disp.v.ratio,
-                         ks = disp.ks)
+                         sds = disp.sds)
+    attr(B, "stats") <- stats
     
     return(B)
 }
@@ -1602,7 +1621,7 @@ samplesize <- function(treat, weights = NULL, subclass = NULL, s.weights = NULL,
 }
 
 #base.bal.tab.cont
-balance.table.cont <- function(C, weights = NULL, treat, continuous, binary, s.d.denom, r.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
+balance.table.cont <- function(C, weights = NULL, treat, continuous, binary, s.d.denom, r.threshold = NULL, un = FALSE, disp.means = FALSE, disp.sds = FALSE, disp.corr = TRUE, s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, types = NULL, s.d.denom.list = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
@@ -1664,19 +1683,22 @@ balance.table.cont <- function(C, weights = NULL, treat, continuous, binary, s.d
     if (!any(sapply(B[startsWith(names(B), "SD.")], is.finite))) {disp.sds <- FALSE}
     
     #Correlations
-    B[["Corr.Un"]] <- col_w_cov(C, treat, weights = NULL, abs = abs, s.weights = s.weights, 
-                                 std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                 s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
-                                 bin.vars = bin.vars, weighted.weights = weights[[1]], na.rm = TRUE)
-    if (!no.adj) {
-        for (i in weight.names) {
-            B[[paste.("Corr", i)]]  <- col_w_cov(C, treat, weights = weights[[i]], 
-                                                  std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                  s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
-                                                  abs = abs, s.weights = s.weights, 
-                                                  bin.vars = bin.vars, na.rm = TRUE)
+    if (!(!disp.corr && quick)) {
+        B[["Corr.Un"]] <- col_w_cov(C, treat, weights = NULL, abs = abs, s.weights = s.weights, 
+                                    std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                    s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
+                                    bin.vars = bin.vars, weighted.weights = weights[[1]], na.rm = TRUE)
+        if (!no.adj) {
+            for (i in weight.names) {
+                B[[paste.("Corr", i)]]  <- col_w_cov(C, treat, weights = weights[[i]], 
+                                                     std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                                     s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
+                                                     abs = abs, s.weights = s.weights, 
+                                                     bin.vars = bin.vars, na.rm = TRUE)
+            }
         }
     }
+    if (all(vapply(B[startsWith(names(B), "Corr.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.corr <- FALSE; r.threshold <- NULL}
     
     if (is_not_null(r.threshold)) {
         if (no.adj) {
@@ -1693,7 +1715,8 @@ balance.table.cont <- function(C, weights = NULL, treat, continuous, binary, s.d
     
     attr(B, "thresholds") <- c(r = r.threshold)
     attr(B, "disp") <- c(means = disp.means,
-                         sds = disp.sds)
+                         sds = disp.sds,
+                         corr = disp.corr)
     return(B)
     
 }
@@ -1926,7 +1949,7 @@ samplesize.across.clusters <- function(obs.list) {
 }
 
 #base.bal.tab.subclass
-balance.table.subclass.bin <- function(C, weights = NULL, treat, subclass, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, disp.means = FALSE, disp.sds = FALSE, disp.v.ratio = FALSE, disp.ks = FALSE, s.weights = rep(1, length(treat)), types = NULL, abs = FALSE, quick = TRUE) {
+balance.table.subclass.bin <- function(C, weights = NULL, treat, subclass, continuous, binary, s.d.denom, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, disp.means = FALSE, disp.sds = FALSE, disp.diff = TRUE, disp.v.ratio = FALSE, disp.ks = FALSE, s.weights = rep(1, length(treat)), types = NULL, abs = FALSE, quick = TRUE) {
     #Creates list SB of balance tables for each subclass
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
@@ -1969,10 +1992,12 @@ balance.table.subclass.bin <- function(C, weights = NULL, treat, subclass, conti
         }
         
         #Mean differences
+        if (!(!disp.diff && quick)) {
         SB[[i]][["Diff.Adj"]] <- col_w_smd(C, treat = treat, weights = NULL,
                                            std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
                                            s.d.denom = s.d.denom, abs = FALSE, s.weights = NULL, 
                                            bin.vars = bin.vars, subset = in.subclass)
+        }
         
         #Variance ratios
         if (!(!disp.v.ratio && quick)) {
@@ -2030,12 +2055,13 @@ balance.table.subclass.bin <- function(C, weights = NULL, treat, subclass, conti
                                 ks = ks.threshold)
     attr(SB, "disp") <- c(means = disp.means,
                           sds = disp.sds,
+                          diff = disp.diff,
                           v.ratio = disp.v.ratio,
                           ks = disp.ks)
     
     return(SB)
 }
-balance.table.subclass.cont <- function(C, weights = NULL, treat, subclass, continuous, binary, r.threshold = NULL, disp.means = FALSE, disp.sds = FALSE, s.weights = rep(1, length(treat)), types = NULL, abs = FALSE, quick = TRUE) {
+balance.table.subclass.cont <- function(C, weights = NULL, treat, subclass, continuous, binary, r.threshold = NULL, disp.means = FALSE, disp.sds = FALSE, disp.corr = TRUE, s.weights = rep(1, length(treat)), types = NULL, abs = FALSE, quick = TRUE) {
     #Creates list SB of balance tables for each subclass
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
@@ -2072,12 +2098,14 @@ balance.table.subclass.cont <- function(C, weights = NULL, treat, subclass, cont
         SB[[i]][["SD.Adj"]] <- sds
         
         #Correlations
+        if (!(!disp.corr && quick)) {
         SB[[i]][["Corr.Adj"]] <- col_w_cov(C, treat, weights = NULL, abs = abs, 
                                            std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
                                            s.d.denom = "all",
                                            bin.vars = bin.vars, 
                                            subset = in.subclass, 
                                            na.rm = TRUE)
+        }
         
     }
     
@@ -2095,7 +2123,8 @@ balance.table.subclass.cont <- function(C, weights = NULL, treat, subclass, cont
     
     attr(SB, "thresholds") <- c(r = r.threshold)
     attr(SB, "disp") <- c(means = disp.means,
-                          sds = disp.sds)
+                          sds = disp.sds,
+                          disp.corr = disp.corr)
     
     return(SB)
 }
@@ -2386,7 +2415,8 @@ process.bin.vars <- function(bin.vars, mat) {
 #set.cobalt.options
 acceptable.options <- function() {
     TF <- c(TRUE, FALSE)
-    return(list(un = TF,
+    return(list(stats = c("mean.diffs"),
+                un = TF,
                 continuous = c("raw", "std"),
                 binary = c("raw", "std"),
                 imbalanced.only = TF,

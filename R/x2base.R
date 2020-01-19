@@ -157,8 +157,13 @@ x2base.matchit <- function(m, ...) {
         stop("focal is not allowed with matchit objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -215,7 +220,7 @@ x2base.ps <- function(ps, ...) {
     }
     
     s <- names(ps$w)[match(tolower(rule1), tolower(names(ps$w)))]
-
+    
     #Process data and get imp
     ps.data <- ps$data
     imp <- A$imp
@@ -299,7 +304,7 @@ x2base.ps <- function(ps, ...) {
                                     missing.okay = FALSE)
         weight.check(s.weights)
     }
-
+    
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
@@ -334,9 +339,14 @@ x2base.ps <- function(ps, ...) {
         stop("focal is not allowed with ps objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
-
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
+    
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
         warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
@@ -493,8 +503,13 @@ x2base.mnps <- function(mnps, ...) {
     #Process focal
     focal <- mnps$treatATT
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -584,7 +599,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     covs <- ps.cont$data[, ps.cont$gbm.obj$var.names, drop = FALSE]
     
     #Get estimand
-
+    
     #Get method
     method <- rep("weighting", length(s))
     
@@ -653,8 +668,13 @@ x2base.ps.cont <- function(ps.cont, ...) {
         stop("focal is not allowed with ps.cont objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
+    if ("correlations" %in% stats) {
+        s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -783,8 +803,13 @@ x2base.Match <- function(Match, ...) {
         stop("focal is not allowed with Match objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -998,7 +1023,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
-
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         subclass <- vector.process(subclass, 
@@ -1086,13 +1111,16 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    if (get.treat.type(treat) != "continuous") {
+    if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, 
                                    weights = weights, subclass = subclass, 
                                    treat = treat, focal = focal)
     }
-    else {
+    else if ("correlations" %in% stats) {
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
@@ -1102,7 +1130,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Get call
-
+    
     #Process output
     X <- initialize_X()
     X.names <- names(X)
@@ -1192,10 +1220,10 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
         s.weights <- vector.process(s.weights, 
-                                  data = list(data, c.data),
-                                  name = "s.weights", 
-                                  which = "sampling weights",
-                                  missing.okay = FALSE)
+                                    data = list(data, c.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
         weight.check(s.weights)
         weights <- weights/s.weights #Because CBPS weights contain s.weights in them
     }
@@ -1234,11 +1262,14 @@ x2base.CBPS <- function(cbps.fit, ...) {
         stop("focal is not allowed with CBPS objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    if (get.treat.type(treat) != "continuous") {
+    if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
     }
-    else {
+    else if ("correlations" %in% stats) {
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
@@ -1370,8 +1401,13 @@ x2base.ebalance <- function(ebalance, ...) {
         stop("focal is not allowed with ebalance objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -1401,7 +1437,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process optmatch
     if (all(is.na(optmatch))) stop("'optmatch' object contains no valid matches")
-
+    
     #Process data and get imp
     imp <- A$imp
     if (is_not_null(data <- A$data)) {
@@ -1499,8 +1535,13 @@ x2base.optmatch <- function(optmatch, ...) {
         stop("focal is not allowed with optmatch objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -1636,11 +1677,14 @@ x2base.weightit <- function(weightit, ...) {
     #Process focal
     focal <- weightit$focal
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    if (get.treat.type(treat) != "continuous") {
+    if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
     }
-    else {
+    else if ("correlations" %in% stats) {
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
@@ -1770,8 +1814,13 @@ x2base.designmatch <- function(dm, ...) {
         stop("focal is not allowed with designmatch objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -1949,8 +1998,13 @@ x2base.mimids <- function(mimids, ...) {
         stop("focal is not allowed with mimids objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -1979,7 +2033,7 @@ x2base.wimids <- function(wimids, ...) {
     A <- list(...)
     
     #Process wimids
-     
+    
     #Process data and get imp
     if (is_(wimids[["original.datasets"]], "mids")) w.data <- imp.complete(wimids[["original.datasets"]])
     else w.data <- imp.complete(wimids$others$source)
@@ -2090,11 +2144,14 @@ x2base.wimids <- function(wimids, ...) {
     #Process focal
     focal <- unique(unlist(lapply(wimids[["models"]][-1], function(w) w[["focal"]])))
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    if (get.treat.type(treat) != "continuous") {
+    if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
     }
-    else {
+    else if ("coreelations" %in% stats) {
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
@@ -2162,7 +2219,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     #Get method
     method <- "weighting"
-
+    
     #Process addl 
     addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, sbw.data)
     
@@ -2216,7 +2273,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     }
     
     #Process discarded
-
+    
     #Process imp and length
     length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
                        data.frames = c("covs", "weights", "distance", "addl"),
@@ -2228,8 +2285,13 @@ x2base.sbwcau <- function(sbwcau, ...) {
         stop("focal is not allowed with sbwcau objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
     
     #Missing values warning
     if (any(c(anyNA(covs), anyNA(addl)))) {
@@ -2237,7 +2299,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     }
     
     #Get call
-
+    
     #Process output
     X <- initialize_X()
     X.names <- names(X)
@@ -2422,8 +2484,13 @@ x2base.iptw <- function(iptw, ...) {
         stop("focal is not allowed with iptw objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat.list)
+    
     #Get s.d.denom
-    s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+    }
     
     #Missing values warning
     if (any(c(any(vapply(covs.list, anyNA, logical(1L))), any(vapply(addl.list, anyNA, logical(1L)))))) {
@@ -2578,20 +2645,20 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process weights
     if (is_not_null(weights <- data.frame.process("weights", 
-                                  A[["weights"]], 
-                                  do.call("cbind", treat.list), 
-                                  do.call("cbind", covs.list), 
-                                  data))) {
+                                                  A[["weights"]], 
+                                                  do.call("cbind", treat.list), 
+                                                  do.call("cbind", covs.list), 
+                                                  data))) {
         weight.check(weights)
     }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
         s.weights <- vector.process(s.weights, 
-                                  data = data,
-                                  name = "s.weights", 
-                                  which = "sampling weights",
-                                  missing.okay = FALSE)
+                                    data = data,
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
         weight.check(s.weights)
     }
     
@@ -2629,11 +2696,14 @@ x2base.data.frame.list <- function(covs.list, ...) {
         stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat.list)
+    
     #Get s.d.denom
-    if (all(vapply(treat.list, get.treat.type, character(1L)) != "continuous")) {
+    if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
     }
-    else {
+    else if ("correlations" %in% stats){
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
@@ -2806,11 +2876,14 @@ x2base.CBMSM <- function(cbmsm, ...) {
         stop("focal is not allowed with CBMSM objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat.list)
+    
     #Get s.d.denom
-    if (all(vapply(treat.list, get.treat.type, character(1L)) != "continuous")) {
+    if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
     }
-    else {
+    else if ("correlations" %in% stats) {
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
@@ -2962,11 +3035,14 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         stop("focal is not allowed with weightitMSM objects.", call. = FALSE)
     }
     
+    #Process stats
+    stats <- process_stats(A[["stats"]], treat = treat.list)
+    
     #Get s.d.denom
-    if (all(vapply(treat.list, get.treat.type, character(1L)) != "continuous")) {
+    if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
     }
-    else {
+    else if ("correlations" %in% stats) {
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
     }
     
@@ -3123,12 +3199,12 @@ x2base.default <- function(obj, ...) {
         if (is.vector(A[["weights"]], "numeric")) A[["weights"]] <- data.frame(weights = A[["weights"]])
         else A[["weights"]] <- as.data.frame(A[["weights"]])
     }
-
+    
     #distance
     if (is_not_null(A[["distance"]])) {
         if (is.numeric(A[["distance"]])) {
             if (is_not_null(attr(A[["distance"]], "name"))) A[["distance"]] <- setNames(data.frame(A[["distance"]]),
-                                                                          attr(A[["distance"]], "name"))
+                                                                                        attr(A[["distance"]], "name"))
             else A[["distance"]] <- data.frame(distance = A[["distance"]])
         }
         else A[["distance"]] <- as.data.frame(A[["distance"]])
@@ -3437,13 +3513,16 @@ x2base.default <- function(obj, ...) {
             }
         }
         
+        #Process stats
+        stats <- process_stats(A[["stats"]], treat = treat)
+        
         #Get s.d.denom
-        if (get.treat.type(treat) != "continuous") {
+        if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, 
-                                         weights = weights, subclass = subclass, 
-                                         treat = treat, focal = focal)
+                                       weights = weights, subclass = subclass, 
+                                       treat = treat, focal = focal)
         }
-        else {
+        else if ("correlations" %in% stats) {
             s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
         }
         
@@ -3475,7 +3554,7 @@ x2base.default <- function(obj, ...) {
         ntimes.guess <- max(initial.list.lengths)
         if (is_null(A$treat.list)) A$treat.list <- vector("list", length(ntimes.guess)) 
         if (is_null(A$covs.list)) A$covs.list <- vector("list", length(ntimes.guess)) 
-
+        
         #Process data and get imp
         imp <- A$imp
         if (is_not_null(data <- A$data)) {
@@ -3659,11 +3738,14 @@ x2base.default <- function(obj, ...) {
             stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
         }
         
+        #Process stats
+        stats <- process_stats(A[["stats"]], treat = treat.list)
+        
         #Get s.d.denom
-        if (all(vapply(treat.list, get.treat.type, character(1L)) != "continuous")) {
+        if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
-        else {
+        else if ("correlations" %in% stats) {
             s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
         }
         

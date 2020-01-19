@@ -22,11 +22,13 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 }
 \item{disp.sds}{\code{logical}; whether to print the group standard deviations in balance output. Default is \code{FALSE}, so standard deviations are not displayed.
 }
-\item{disp.diff}{\code{logical}; whether to display (standardized) mean differences in balance output for binary and multi-category treatments. Default is \code{TRUE}, so mean differences are displayed.
+\item{stats}{\code{character}; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed.
 }
-\item{disp.v.ratio}{\code{logical}; whether to display variance ratios in balance output for binary and multi-category treatments. Default is \code{FALSE}, so variance ratios are not displayed.
+\item{disp.diff}{\code{logical}; whether to display (standardized) mean differences in balance output for binary and multi-category treatments. Default is \code{TRUE}, so mean differences are displayed. Soon to be deprecated; use \code{stats} instead.
 }
-\item{disp.ks}{\code{logical}; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multi-category treatments. Default is \code{FALSE}, so KS statistics are not displayed.
+\item{disp.v.ratio}{\code{logical}; whether to display variance ratios in balance output for binary and multi-category treatments. Default is \code{FALSE}, so variance ratios are not displayed. Soon to be deprecated; use \code{stats} instead.
+}
+\item{disp.ks}{\code{logical}; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multi-category treatments. Default is \code{FALSE}, so KS statistics are not displayed. Soon to be deprecated; use \code{stats} instead.
 }
 \item{factor_sep}{\code{character}; the string used to separate factor variables from their levels when variable names are printed. Default is \code{"_"}.
 }
@@ -64,8 +66,6 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \code{\link{set.cobalt.options}} and retrieve it using \code{\link{get.cobalt.options}}. Note that global options cannot be set for \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.
 }
 \note{
-These arguments used to be named arguments to \code{bal.tab}, but were relegated to arguments passed through \code{...} to consolidate documentation and make it easier to add new features and options. For users of previous versions of \pkg{cobalt}, nothing should change as far as how the arguments are used, but new options may be added.
-
 When calling \code{bal.tab()} using \code{\link{do.call}}, if you are using \code{.all} or \code{.none} as inputs to arguments, you need to use \code{\link{alist}} rather than \code{list} to group the arguments. For example, \code{do.call(bal.tab, list(., which.cluster = .none))} will produce an error, but \code{do.call(bal.tab, alist(., which.cluster = .none))} should work correctly.
 }
 
