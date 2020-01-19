@@ -5,7 +5,7 @@ Version 4.1.0
 
 * Added support for `sbwcau` objects from `sbw`.
 
-* Added `disp.diff` option to control display of (standardized) mean differences. The option functions just like `disp.v.ratio` and `disp.ks` except that it is `TRUE` by default.
+* Added `stats` argument to `bal.tab()` and `print()` to replace `disp.v.ratio` and `disp.ks`. This argument functions similarly to how it does in `love.plot()`; for example, to request mean differences and variance ratios, one can enter `stats = c("m", "v")`. One consequence of this is that it is possible to request statistics that don't include mean differences. See `?display_options` for more details. The old arguments still work (and probably always will) but you should use `stats` instead.
 
 * Added `disp.means` option to `bal.plot` to display the mean of the covariate as a line on density plots and histograms.
 
