@@ -1,4 +1,4 @@
-print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab <- function(x, m.threshold = "as.is", v.threshold = "as.is", ks.threshold = "as.is", r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", digits = max(3, getOption("digits") - 3), ...) {
 
     A <- clear_null(list(...))
     call <- x$call
@@ -87,44 +87,54 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
         }
         else p.ops$stats <- unique(c(p.ops$stats, "correlations"))
     }
-    if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
+    if (!identical(r.threshold, "as.is")) {
+        if (is_not_null(r.threshold)) stop("r.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$r.threshold) && is_null(r.threshold)) {
             p.ops$r.threshold <- NULL
             baltal.r <- NULL
             maximbal.r <- NULL
         }
     }
-    if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
+    if ("correlations" %nin% p.ops$stats) {
+        p.ops$r.threshold <- NULL
+        baltal.r <- NULL
+        maximbal.r <- NULL
+    }
+    if (!identical(m.threshold, "as.is")) {
+        if (is_not_null(m.threshold)) stop("m.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$m.threshold) && is_null(m.threshold)) {
             p.ops$m.threshold <- NULL
             baltal.m <- NULL
             maximbal.m <- NULL
         }
     }
-    if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
+    if ("mean.diffs" %nin% p.ops$stats) {
+        p.ops$m.threshold <- NULL
+        baltal.m <- NULL
+        maximbal.m <- NULL
+    }
+    if (!identical(v.threshold, "as.is")) {
+        if (is_not_null(v.threshold)) stop("v.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$v.threshold) && is_null(v.threshold)) {
             p.ops$v.threshold <- NULL
             baltal.v <- NULL
             maximbal.v <- NULL
         }
     }
-    if (is_null(p.ops$disp.v.ratio)|| !p.ops$disp.v.ratio) {
+    if ("variance.ratios" %nin% p.ops$stats) {
         p.ops$v.threshold <- NULL
         baltal.v <- NULL
         maximbal.v <- NULL
     }
-    if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
+    if (!identical(ks.threshold, "as.is")) {
+        if (is_not_null(ks.threshold)) stop("ks.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$ks.threshold) && is_null(ks.threshold)) {
             p.ops$ks.threshold <- NULL
             baltal.ks <- NULL
             maximbal.ks <- NULL
         }
     }
-    if (is_null(p.ops$disp.ks) || !p.ops$disp.ks) {
+    if ("ks.statistics" %nin% p.ops$stats) {
         p.ops$ks.threshold <- NULL
         baltal.ks <- NULL
         maximbal.ks <- NULL
@@ -271,7 +281,7 @@ print.bal.tab <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.
     }
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cluster <- function(x, m.threshold = "as.is", v.threshold = "as.is", ks.threshold = "as.is", r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
 
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -281,8 +291,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         return(eval.parent(.call))
     }
     
-    args <- c(as.list(environment()), list(...))[-1]
-    
+    A <- clear_null(list(...))    
     call <- x$call
     c.balance <- x$Cluster.Balance
     c.balance.summary <- x$Cluster.Summary
@@ -369,35 +378,41 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         }
         else p.ops$cluster.summary <- cluster.summary
     }
-    if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
+    if (!identical(r.threshold, "as.is")) {
+        if (is_not_null(r.threshold)) stop("r.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$r.threshold) && is_null(r.threshold)) {
+            p.ops$r.threshold <- NULL
+        }
+    }
+    if ("correlations" %nin% p.ops$stats) {
+        p.ops$r.threshold <- NULL
+    }
+    if (!identical(m.threshold, "as.is")) {
+        if (is_not_null(m.threshold)) stop("m.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$m.threshold) && is_null(m.threshold)) {
             p.ops$m.threshold <- NULL
         }
     }
-    if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
+    if ("mean.diffs" %nin% p.ops$stats) {
+        p.ops$m.threshold <- NULL
+    }
+    if (!identical(v.threshold, "as.is")) {
+        if (is_not_null(v.threshold)) stop("v.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$v.threshold) && is_null(v.threshold)) {
             p.ops$v.threshold <- NULL
         }
     }
-    if (is_null(p.ops$disp.v.ratio) || !p.ops$disp.v.ratio) {
+    if ("variance.ratios" %nin% p.ops$stats) {
         p.ops$v.threshold <- NULL
     }
-    if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
+    if (!identical(ks.threshold, "as.is")) {
+        if (is_not_null(ks.threshold)) stop("ks.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$ks.threshold) && is_null(ks.threshold)) {
             p.ops$ks.threshold <- NULL
         }
     }
-    if (is_null(p.ops$disp.ks) || !p.ops$disp.ks) {
+    if ("ks.statistics" %nin% p.ops$stats) {
         p.ops$ks.threshold <- NULL
-    }
-    if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
-            p.ops$r.threshold <- NULL
-        }
     }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
@@ -497,34 +512,34 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
         CF <- setNames(cluster.funs %in% p.ops$cluster.fun, cluster.funs)
         if (p.ops$type == "cont") {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && p.ops$disp.corr && CF["min"],
-                                   p.ops$un && p.ops$disp.corr && CF["mean"],
-                                   p.ops$un && p.ops$disp.corr && CF["max"],
-                                   rep(c(p.ops$disp.adj && p.ops$disp.corr && CF["min"],
-                                         p.ops$disp.adj && p.ops$disp.corr && CF["mean"],
-                                         p.ops$disp.adj && p.ops$disp.corr && CF["max"]), 
+                                   p.ops$un && "corelations" %in% p.ops$stats && CF["min"],
+                                   p.ops$un && "corelations" %in% p.ops$stats && CF["mean"],
+                                   p.ops$un && "corelations" %in% p.ops$stats && CF["max"],
+                                   rep(c(p.ops$disp.adj && "corelations" %in% p.ops$stats && CF["min"],
+                                         p.ops$disp.adj && "corelations" %in% p.ops$stats && CF["mean"],
+                                         p.ops$disp.adj && "corelations" %in% p.ops$stats && CF["max"]), 
                                        p.ops$nweights + !p.ops$disp.adj)))
         }
         else {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && p.ops$disp.diff && CF["min"],
-                                   p.ops$un && p.ops$disp.diff && CF["mean"],
-                                   p.ops$un && p.ops$disp.diff && CF["max"],
-                                   p.ops$un && p.ops$disp.v.ratio && CF["min"],
-                                   p.ops$un && p.ops$disp.v.ratio && CF["mean"],
-                                   p.ops$un && p.ops$disp.v.ratio && CF["max"],
-                                   p.ops$un && p.ops$disp.ks && CF["min"],
-                                   p.ops$un && p.ops$disp.ks && CF["mean"],
-                                   p.ops$un && p.ops$disp.ks && CF["max"],
-                                   rep(c(p.ops$disp.adj && p.ops$disp.diff && CF["min"],
-                                         p.ops$disp.adj && p.ops$disp.diff && CF["mean"],
-                                         p.ops$disp.adj && p.ops$disp.diff && CF["max"],
-                                         p.ops$disp.adj && p.ops$disp.v.ratio && CF["min"],
-                                         p.ops$disp.adj && p.ops$disp.v.ratio && CF["mean"],
-                                         p.ops$disp.adj && p.ops$disp.v.ratio && CF["max"],
-                                         p.ops$disp.adj && p.ops$disp.ks && CF["min"],
-                                         p.ops$disp.adj && p.ops$disp.ks && CF["mean"],
-                                         p.ops$disp.adj && p.ops$disp.ks && CF["max"]), 
+                                   p.ops$un && "mean.diffs" %in% p.ops$stats && CF["min"],
+                                   p.ops$un && "mean.diffs" %in% p.ops$stats && CF["mean"],
+                                   p.ops$un && "mean.diffs" %in% p.ops$stats && CF["max"],
+                                   p.ops$un && "variance.ratios" %in% p.ops$stats && CF["min"],
+                                   p.ops$un && "variance.ratios" %in% p.ops$stats && CF["mean"],
+                                   p.ops$un && "variance.ratios" %in% p.ops$stats && CF["max"],
+                                   p.ops$un && "ks.statistics" %in% p.ops$stats && CF["min"],
+                                   p.ops$un && "ks.statistics" %in% p.ops$stats && CF["mean"],
+                                   p.ops$un && "ks.statistics" %in% p.ops$stats && CF["max"],
+                                   rep(c(p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && CF["min"],
+                                         p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && CF["mean"],
+                                         p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && CF["max"],
+                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && CF["min"],
+                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && CF["mean"],
+                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && CF["max"],
+                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && CF["min"],
+                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && CF["mean"],
+                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && CF["max"]), 
                                        p.ops$nweights + !p.ops$disp.adj)))
         }
         if (p.ops$disp.bal.tab) {
@@ -556,7 +571,7 @@ print.bal.tab.cluster <- function(x, disp.m.threshold = "as.is", disp.v.threshol
     
     invisible(x)
 }
-print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", which.imp, imp.summary = "as.is", imp.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp <- function(x, m.threshold = "as.is", v.threshold = "as.is", ks.threshold = "as.is", r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", which.imp, imp.summary = "as.is", imp.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -566,8 +581,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         return(eval.parent(.call))
     }
     
-    args <- c(as.list(environment()), list(...))[-1]
-    
+    A <- clear_null(list(...))    
     call <- x$call
     i.balance <- x[["Imputation.Balance"]]
     i.balance.summary <- x[["Balance.Across.Imputations"]]
@@ -654,43 +668,41 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         }
         else p.ops$imp.summary <- imp.summary
     }
-    if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
+    if (!identical(r.threshold, "as.is")) {
+        if (is_not_null(r.threshold)) stop("r.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$r.threshold) && is_null(r.threshold)) {
+            p.ops$r.threshold <- NULL
+        }
+    }
+    if ("correlations" %nin% p.ops$stats) {
+        p.ops$r.threshold <- NULL
+    }
+    if (!identical(m.threshold, "as.is")) {
+        if (is_not_null(m.threshold)) stop("m.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$m.threshold) && is_null(m.threshold)) {
             p.ops$m.threshold <- NULL
         }
     }
-    if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
+    if ("mean.diffs" %nin% p.ops$stats) {
+        p.ops$m.threshold <- NULL
+    }
+    if (!identical(v.threshold, "as.is")) {
+        if (is_not_null(v.threshold)) stop("v.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$v.threshold) && is_null(v.threshold)) {
             p.ops$v.threshold <- NULL
-            baltal.v <- NULL
-            maximbal.v <- NULL
         }
     }
-    if (is_null(p.ops$disp.v.ratio) || !p.ops$disp.v.ratio) {
+    if ("variance.ratios" %nin% p.ops$stats) {
         p.ops$v.threshold <- NULL
-        baltal.v <- NULL
-        maximbal.v <- NULL
     }
-    if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
+    if (!identical(ks.threshold, "as.is")) {
+        if (is_not_null(ks.threshold)) stop("ks.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$ks.threshold) && is_null(ks.threshold)) {
             p.ops$ks.threshold <- NULL
-            baltal.ks <- NULL
-            maximbal.ks <- NULL
         }
     }
-    if (is_null(p.ops$disp.ks) || !p.ops$disp.ks) {
+    if ("ks.statistics" %nin% p.ops$stats) {
         p.ops$ks.threshold <- NULL
-        baltal.ks <- NULL
-        maximbal.ks <- NULL
-    }
-    if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
-            p.ops$r.threshold <- NULL
-        }
     }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
@@ -785,33 +797,33 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         IF <- setNames(imp.funs %in% p.ops$imp.fun, imp.funs)
         if (p.ops$type == "cont") { #continuous
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && p.ops$disp.corr && IF["min"],
-                                   p.ops$un && p.ops$disp.corr && IF["mean"],
-                                   p.ops$un && p.ops$disp.corr && IF["max"],
-                                   rep(c(p.ops$disp.adj && p.ops$disp.corr && IF["min"],
-                                         p.ops$disp.adj && p.ops$disp.corr && IF["mean"],
-                                         p.ops$disp.adj && p.ops$disp.corr && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && "corelations" %in% p.ops$stats && IF["min"],
+                                   p.ops$un && "corelations" %in% p.ops$stats && IF["mean"],
+                                   p.ops$un && "corelations" %in% p.ops$stats && IF["max"],
+                                   rep(c(p.ops$disp.adj && "corelations" %in% p.ops$stats && IF["min"],
+                                         p.ops$disp.adj && "corelations" %in% p.ops$stats && IF["mean"],
+                                         p.ops$disp.adj && "corelations" %in% p.ops$stats && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else { #binary
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && p.ops$disp.diff && IF["min"],
-                                   p.ops$un && p.ops$disp.diff && IF["mean"],
-                                   p.ops$un && p.ops$disp.diff && IF["max"],
-                                   p.ops$un && p.ops$disp.v.ratio && IF["min"],
-                                   p.ops$un && p.ops$disp.v.ratio && IF["mean"],
-                                   p.ops$un && p.ops$disp.v.ratio && IF["max"],
-                                   p.ops$un && p.ops$disp.ks && IF["min"],
-                                   p.ops$un && p.ops$disp.ks && IF["mean"],
-                                   p.ops$un && p.ops$disp.ks && IF["max"],
-                                   rep(c(p.ops$disp.adj && p.ops$disp.diff && IF["min"],
-                                         p.ops$disp.adj && p.ops$disp.diff && IF["mean"],
-                                         p.ops$disp.adj && p.ops$disp.diff && IF["max"],
-                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["min"],
-                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["mean"],
-                                         p.ops$disp.adj && p.ops$disp.v.ratio && IF["max"],
-                                         p.ops$disp.adj && p.ops$disp.ks && IF["min"],
-                                         p.ops$disp.adj && p.ops$disp.ks && IF["mean"],
-                                         p.ops$disp.adj && p.ops$disp.ks && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && "mean.diffs" %in% p.ops$stats && IF["min"],
+                                   p.ops$un && "mean.diffs" %in% p.ops$stats && IF["mean"],
+                                   p.ops$un && "mean.diffs" %in% p.ops$stats && IF["max"],
+                                   p.ops$un && "variance.ratios" %in% p.ops$stats && IF["min"],
+                                   p.ops$un && "variance.ratios" %in% p.ops$stats && IF["mean"],
+                                   p.ops$un && "variance.ratios" %in% p.ops$stats && IF["max"],
+                                   p.ops$un && "ks.statistics" %in% p.ops$stats && IF["min"],
+                                   p.ops$un && "ks.statistics" %in% p.ops$stats && IF["mean"],
+                                   p.ops$un && "ks.statistics" %in% p.ops$stats && IF["max"],
+                                   rep(c(p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && IF["min"],
+                                         p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && IF["mean"],
+                                         p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && IF["max"],
+                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && IF["min"],
+                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && IF["mean"],
+                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && IF["max"],
+                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && IF["min"],
+                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && IF["mean"],
+                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         
         if (p.ops$disp.bal.tab) {
@@ -844,7 +856,7 @@ print.bal.tab.imp <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     invisible(x)
     
 }
-print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.multi <- function(x, m.threshold = "as.is", v.threshold = "as.is", ks.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -854,8 +866,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         return(eval.parent(.call))
     }
     
-    args <- c(as.list(environment()), list(...))[-1]
-    
+    A <- clear_null(list(...))    
     call <- x$call
     m.balance <- x[["Pair.Balance"]]
     m.balance.summary <- x[["Balance.Across.Pairs"]]
@@ -933,37 +944,32 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
         }
         else p.ops$multi.summary <- multi.summary
     }
-    if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
+    if (!identical(m.threshold, "as.is")) {
+        if (is_not_null(m.threshold)) stop("m.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$m.threshold) && is_null(m.threshold)) {
             p.ops$m.threshold <- NULL
         }
     }
-    if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
+    if ("mean.diffs" %nin% p.ops$stats) {
+        p.ops$m.threshold <- NULL
+    }
+    if (!identical(v.threshold, "as.is")) {
+        if (is_not_null(v.threshold)) stop("v.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$v.threshold) && is_null(v.threshold)) {
             p.ops$v.threshold <- NULL
-            baltal.v <- NULL
-            maximbal.v <- NULL
         }
     }
-    if (is_null(p.ops$disp.v.ratio) || !p.ops$disp.v.ratio) {
+    if ("variance.ratios" %nin% p.ops$stats) {
         p.ops$v.threshold <- NULL
-        baltal.v <- NULL
-        maximbal.v <- NULL
     }
-    if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
+    if (!identical(ks.threshold, "as.is")) {
+        if (is_not_null(ks.threshold)) stop("ks.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$ks.threshold) && is_null(ks.threshold)) {
             p.ops$ks.threshold <- NULL
-            baltal.ks <- NULL
-            maximbal.ks <- NULL
         }
     }
-    if (is_null(p.ops$disp.ks) || !p.ops$disp.ks) {
+    if ("ks.statistics" %nin% p.ops$stats) {
         p.ops$ks.threshold <- NULL
-        baltal.ks <- NULL
-        maximbal.ks <- NULL
     }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
@@ -1127,7 +1133,7 @@ print.bal.tab.multi <- function(x, disp.m.threshold = "as.is", disp.v.threshold 
     invisible(x)
     
 }
-print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", stats = "as.is", disp.sds = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.msm <- function(x, m.threshold = "as.is", v.threshold = "as.is", ks.threshold = "as.is", r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -1137,8 +1143,8 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         return(eval.parent(.call))
     }
     
-    args <- c(as.list(environment()), list(...))[-1]
-    args <- args[!sapply(args, function(x) identical(x, quote(expr =)))]
+    A <- list(...)
+    A <- clear_null(A[!vapply(A, function(x) identical(x, quote(expr =)), logical(1L))])
     
     call <- x$call
     msm.balance <- x[["Time.Balance"]]
@@ -1226,43 +1232,41 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
         }
         else p.ops$msm.summary <- msm.summary
     }
-    if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
+    if (!identical(r.threshold, "as.is")) {
+        if (is_not_null(r.threshold)) stop("r.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$r.threshold) && is_null(r.threshold)) {
+            p.ops$r.threshold <- NULL
+        }
+    }
+    if ("correlations" %nin% p.ops$stats) {
+        p.ops$r.threshold <- NULL
+    }
+    if (!identical(m.threshold, "as.is")) {
+        if (is_not_null(m.threshold)) stop("m.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$m.threshold) && is_null(m.threshold)) {
             p.ops$m.threshold <- NULL
         }
     }
-    if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
+    if ("mean.diffs" %nin% p.ops$stats) {
+        p.ops$m.threshold <- NULL
+    }
+    if (!identical(v.threshold, "as.is")) {
+        if (is_not_null(v.threshold)) stop("v.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$v.threshold) && is_null(v.threshold)) {
             p.ops$v.threshold <- NULL
-            baltal.v <- NULL
-            maximbal.v <- NULL
         }
     }
-    if (is_null(p.ops$disp.v.ratio) || !p.ops$disp.v.ratio) {
+    if ("variance.ratios" %nin% p.ops$stats) {
         p.ops$v.threshold <- NULL
-        baltal.v <- NULL
-        maximbal.v <- NULL
     }
-    if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
+    if (!identical(ks.threshold, "as.is")) {
+        if (is_not_null(ks.threshold)) stop("ks.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$ks.threshold) && is_null(ks.threshold)) {
             p.ops$ks.threshold <- NULL
-            baltal.ks <- NULL
-            maximbal.ks <- NULL
         }
     }
-    if (is_null(p.ops$disp.ks) || !p.ops$disp.ks) {
+    if ("ks.statistics" %nin% p.ops$stats) {
         p.ops$ks.threshold <- NULL
-        baltal.ks <- NULL
-        maximbal.ks <- NULL
-    }
-    if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
-            p.ops$r.threshold <- NULL
-        }
     }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
@@ -1413,8 +1417,9 @@ print.bal.tab.msm <- function(x, disp.m.threshold = "as.is", disp.v.threshold = 
     invisible(x)
 }
 
-print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.threshold = "as.is", disp.ks.threshold = "as.is", disp.r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.subclass <- function(x, m.threshold = "as.is", v.threshold = "as.is", ks.threshold = "as.is", r.threshold = "as.is", imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", disp.means = "as.is", disp.sds = "as.is", stats = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
+    A <- clear_null(list(...))
     call <- x$call
     s.balance <- x$Subclass.Balance
     b.a.subclass <- x$Balance.Across.Subclass
@@ -1466,75 +1471,93 @@ print.bal.tab.subclass <- function(x, disp.m.threshold = "as.is", disp.v.thresho
         }
         else p.ops$stats <- stats
     }
-    if (!identical(disp.diff, "as.is")) {
-        if (!is.logical(disp.diff)) stop("disp.diff must be TRUE, FALSE, or \"as.is\".")
-        if (p.ops$quick && p.ops$disp.diff == FALSE && disp.diff == TRUE) {
+    if (is_not_null(A$disp.diff) && p.ops$type == "bin") {
+        if (!is.logical(A$disp.diff) && !identical(A$disp.diff, "as.is")) {
+            stop("disp.diff must be TRUE, FALSE, or \"as.is\".")
+        }
+        if (p.ops$quick && "mean.diffs" %nin% p.ops$stats && isTRUE(A$disp.diff)) {
             warning("disp.diff cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
-        else p.ops$disp.diff <- disp.diff
+        else p.ops$stats <- unique(c(p.ops$stats, "mean.diffs"))
     }
-    if (!identical(disp.v.ratio, "as.is")) {
-        if (!is.logical(disp.v.ratio)) stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\".")
-        if (p.ops$quick && p.ops$disp.v.ratio == FALSE && disp.v.ratio == TRUE) {
+    if (is_not_null(A$disp.v.ratio) && p.ops$type == "bin") {
+        if (!is.logical(A$disp.v.ratio) && !identical(A$disp.v.ratio, "as.is")) {
+            stop("disp.v.ratio must be TRUE, FALSE, or \"as.is\".")
+        }
+        if (p.ops$quick && "variance.ratios" %nin% p.ops$stats && isTRUE(A$disp.v.ratio)) {
             warning("disp.v.ratio cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
-        else p.ops$disp.v.ratio <- disp.v.ratio
+        else p.ops$stats <- unique(c(p.ops$stats, "variance.ratios"))
     }
-    if (!identical(disp.ks, "as.is")) {
-        if (!is.logical(disp.ks)) stop("disp.ks must be TRUE, FALSE, or \"as.is\".")
-        if (p.ops$quick && p.ops$disp.ks == FALSE && disp.ks == TRUE) {
+    if (is_not_null(A$disp.ks) && p.ops$type == "bin") {
+        if (!is.logical(A$disp.ks) && !identical(A$disp.ks, "as.is")) {
+            stop("disp.ks must be TRUE, FALSE, or \"as.is\".")
+        }
+        if (p.ops$quick && "ks.statistics" %nin% p.ops$stats && isTRUE(A$disp.ks)) {
             warning("disp.ks cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
-        else p.ops$disp.ks <- disp.ks
+        else p.ops$stats <- unique(c(p.ops$stats, "ks.statistics"))
     }
-    if (!identical(disp.corr, "as.is")) {
-        if (!is.logical(disp.corr)) stop("disp.corr must be TRUE, FALSE, or \"as.is\".")
-        if (p.ops$quick && p.ops$disp.corr == FALSE && disp.corr == TRUE) {
+    if (is_not_null(A$disp.corr) && p.ops$type == "cont") {
+        if (!is.logical(A$disp.corr) && !identical(A$disp.corr, "as.is")) {
+            stop("disp.corr must be TRUE, FALSE, or \"as.is\".")
+        }
+        if (p.ops$quick && "correlations" %nin% p.ops$stats && isTRUE(A$disp.corr)) {
             warning("disp.corr cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
-        else p.ops$disp.corr <- disp.corr
+        else p.ops$stats <- unique(c(p.ops$stats, "correlations"))
     }
-    if (!identical(disp.r.threshold, "as.is")) {
-        if (!is.logical(disp.r.threshold)) stop("disp.r.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$r.threshold) && !disp.r.threshold) {
+    if (!identical(r.threshold, "as.is")) {
+        if (is_not_null(r.threshold)) stop("r.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$r.threshold) && is_null(r.threshold)) {
             p.ops$r.threshold <- NULL
             baltal.r.subclass <- NULL
             maximbal.r.subclass <- NULL
         }
     }
-    if (!identical(disp.m.threshold, "as.is")) {
-        if (!is.logical(disp.m.threshold)) stop("disp.m.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$m.threshold) && !disp.m.threshold) {
+    if ("correlations" %nin% p.ops$stats) {
+        p.ops$r.threshold <- NULL
+        baltal.r.subclass <- NULL
+        maximbal.r.subclass <- NULL
+    }
+    if (!identical(m.threshold, "as.is")) {
+        if (is_not_null(m.threshold)) stop("m.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$m.threshold) && is_null(m.threshold)) {
             p.ops$m.threshold <- NULL
             baltal.m.subclass <- NULL
             maximbal.m.subclass <- NULL
         }
     }
-    if (!identical(disp.v.threshold, "as.is")) {
-        if (!is.logical(disp.v.threshold)) stop("disp.v.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$v.threshold) && !disp.v.threshold) {
+    if ("mean.diffs" %nin% p.ops$stats) {
+        p.ops$m.threshold <- NULL
+        baltal.m.subclass <- NULL
+        maximbal.m.subclass <- NULL
+    }
+    if (!identical(v.threshold, "as.is")) {
+        if (is_not_null(v.threshold)) stop("v.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$v.threshold) && is_null(v.threshold)) {
             p.ops$v.threshold <- NULL
-            baltal.v <- NULL
-            maximbal.v <- NULL
+            baltal.v.subclass <- NULL
+            maximbal.v.subclass <- NULL
         }
     }
-    if (is_null(p.ops$disp.v.ratio) || !p.ops$disp.v.ratio) {
+    if ("variance.ratios" %nin% p.ops$stats) {
         p.ops$v.threshold <- NULL
-        baltal.v <- NULL
-        maximbal.v <- NULL
+        baltal.v.subclass <- NULL
+        maximbal.v.subclass <- NULL
     }
-    if (!identical(disp.ks.threshold, "as.is")) {
-        if (!is.logical(disp.ks.threshold)) stop("disp.ks.threshold must be FALSE or \"as.is\".")
-        if (is_not_null(p.ops$ks.threshold) && !disp.ks.threshold) {
+    if (!identical(ks.threshold, "as.is")) {
+        if (is_not_null(ks.threshold)) stop("ks.threshold must be NULL or \"as.is\".")
+        if (is_not_null(p.ops$ks.threshold) && is_null(ks.threshold)) {
             p.ops$ks.threshold <- NULL
-            baltal.ks <- NULL
-            maximbal.ks <- NULL
+            baltal.ks.subclass <- NULL
+            maximbal.ks.subclass <- NULL
         }
     }
-    if (is_null(p.ops$disp.ks) || !p.ops$disp.ks) {
+    if ("ks.statistics" %nin% p.ops$stats) {
         p.ops$ks.threshold <- NULL
-        baltal.ks <- NULL
-        maximbal.ks <- NULL
+        baltal.ks.subclass <- NULL
+        maximbal.ks.subclass <- NULL
     }
     
     if (!identical(disp.bal.tab, "as.is")) {

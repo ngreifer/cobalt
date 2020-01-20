@@ -13,10 +13,10 @@ Print Results of a Call to \code{bal.tab()}
 Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
 \usage{
 \method{print}{bal.tab}(x, 
-    disp.m.threshold = "as.is", 
-    disp.v.threshold = "as.is", 
-    disp.ks.threshold = "as.is",
-    disp.r.threshold = "as.is", 
+    m.threshold = "as.is", 
+    v.threshold = "as.is", 
+    ks.threshold = "as.is",
+    r.threshold = "as.is", 
     imbalanced.only = "as.is", 
     un = "as.is", 
     disp.bal.tab = "as.is",
@@ -27,10 +27,10 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     ...)
 
 \method{print}{bal.tab.subclass}(x, 
-    disp.m.threshold = "as.is", 
-    disp.v.threshold = "as.is", 
-    disp.ks.threshold = "as.is", 
-    disp.r.threshold = "as.is", 
+    m.threshold = "as.is", 
+    v.threshold = "as.is", 
+    ks.threshold = "as.is", 
+    r.threshold = "as.is", 
     imbalanced.only = "as.is", 
     un = "as.is", 
     disp.bal.tab = "as.is",
@@ -42,10 +42,10 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     ...)
 
 \method{print}{bal.tab.cluster}(x, 
-    disp.m.threshold = "as.is", 
-    disp.v.threshold = "as.is", 
-    disp.ks.threshold = "as.is", 
-    disp.r.threshold = "as.is", 
+    m.threshold = "as.is", 
+    v.threshold = "as.is", 
+    ks.threshold = "as.is", 
+    r.threshold = "as.is", 
     imbalanced.only = "as.is", 
     un = "as.is", 
     disp.bal.tab = "as.is",
@@ -59,10 +59,10 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     ...)
 
 \method{print}{bal.tab.imp}(x, 
-    disp.m.threshold = "as.is", 
-    disp.v.threshold = "as.is", 
-    disp.ks.threshold = "as.is", 
-    disp.r.threshold = "as.is", 
+    m.threshold = "as.is", 
+    v.threshold = "as.is", 
+    ks.threshold = "as.is", 
+    r.threshold = "as.is", 
     imbalanced.only = "as.is", 
     un = "as.is", 
     disp.bal.tab = "as.is",
@@ -76,9 +76,9 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     ...)
     
     \method{print}{bal.tab.multi}(x, 
-    disp.m.threshold = "as.is", 
-    disp.v.threshold = "as.is", 
-    disp.ks.threshold = "as.is", 
+    m.threshold = "as.is", 
+    v.threshold = "as.is", 
+    ks.threshold = "as.is", 
     imbalanced.only = "as.is", 
     un = "as.is", 
     disp.bal.tab = "as.is", 
@@ -91,10 +91,10 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
     ...)
     
     \method{print}{bal.tab.msm}(x, 
-    disp.m.threshold = "as.is", 
-    disp.v.threshold = "as.is", 
-    disp.ks.threshold = "as.is", 
-    disp.r.threshold = "as.is", 
+    m.threshold = "as.is", 
+    v.threshold = "as.is", 
+    ks.threshold = "as.is", 
+    r.threshold = "as.is", 
     imbalanced.only = "as.is", 
     un = "as.is", 
     disp.bal.tab = "as.is", 
@@ -113,17 +113,18 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
   \item{x}{
 a \code{bal.tab} object; the output of a call to \code{bal.tab()}.
 }
-  \item{disp.m.threshold}{
-whether to display output related to specifying \code{m.threshold} in the call to \code{bal.tab()}, which includes the Mean Difference Threshold column in the Balance table, the Mean Difference Balance Tally, and the variable with the Maximum Mean Difference Imbalance. Either \code{FALSE} or \code{"as.is"}.
+  \item{m.threshold}{
+whether to display output related to specifying \code{m.threshold} in the call to \code{bal.tab()}, which includes the Mean Difference Threshold column in the Balance table, the Mean Difference Balance Tally, and the variable with the Maximum Mean Difference Imbalance. Either \code{NULL} to omit display or \code{"as.is"}.
 }
-  \item{disp.v.threshold}{
-whether to display output related to specifying \code{v.threshold} in the call to \code{bal.tab()}, which includes the Variance Ratio Threshold column in the Balance table, the Variance Ratio Balance Tally, and the variable with the Maximum Variance Ratio Imbalance. Either \code{FALSE} or \code{"as.is"}.
+  \item{v.threshold}{
+whether to display output related to specifying \code{v.threshold} in the call to \code{bal.tab()}, which includes the Variance Ratio Threshold column in the Balance table, the Variance Ratio Balance Tally, and the variable with the Maximum Variance Ratio Imbalance. Either \code{NULL} to omit display or \code{"as.is"}.
 }
-  \item{disp.ks.threshold}{
-whether to display output related to specifying \code{ks.threshold} in the call to \code{bal.tab()}, which includes the KS Threshold column in the Balance table, the KS Balance Tally, and the variable with the Maximum KS Statistic. Either \code{FALSE} or \code{"as.is"}.
+  \item{ks.threshold}{
+whether to display output related to specifying \code{ks.threshold} in the call to \code{bal.tab()}, which includes the KS Threshold column in the Balance table, the KS Balance Tally, and the variable with the Maximum KS Statistic. Either \code{NULL} to omit display or \code{"as.is"}.
 }
-  \item{disp.r.threshold}{
-whether to display output related to specifying \code{r.threshold} in the call to \code{bal.tab()} with a continuous treatment, which includes the Correlation Threshold column in the Balance table, the Correlation Balance Tally, and the variable with the Maximum Correlation Imbalance. Either \code{FALSE} or \code{"as.is"}.}
+  \item{r.threshold}{
+whether to display output related to specifying \code{r.threshold} in the call to \code{bal.tab()} with a continuous treatment, which includes the Correlation Threshold column in the Balance table, the Correlation Balance Tally, and the variable with the Maximum Correlation Imbalance. Either \code{NULL} to omit display or \code{"as.is"}.
+}
   \item{imbalanced.only}{
 whether to display only the covariates that failed to meet at least one of balance thresholds. Depends only on whether threshold were initial set in the call to \code{bal.tab()} and not on any arguments to \code{print()} (except \code{disp.bal.tab}).
 }
@@ -185,16 +186,16 @@ further arguments passed to or from other methods.
 \details{
 Simply calling \code{bal.tab()} will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The \code{print()} function automatically dispatches the correct method for the \code{bal.tab} object given. For balance tables generated from using weighting, matching, or no adjustment, \code{print.bal.tab()} will be used. For balance tables generated from using weighting, matching, or no adjustment with clusters, \code{print.bal.tab.cluster()} will be used. For balance tables generated from using subclassification, \code{print.bal.tab.subclass()} will be used. For balance tables generated from using weighting, matching, or no adjustment with multiply imputed data, \code{print.bal.tab.imp()} will be used. For balance tables generated from using weighting, matching, or no adjustment with clusters and multiply imputed data, \code{print.bal.tab.imp.cluster()} will be used. 
 
-For all parameters except \code{disp.m.threshold}, \code{disp.v.threshold}, \code{disp.ks.threshold}, \code{disp.r.threshold}, and \code{which.cluster}, either omitting the argument or setting it to \code{"as.is"} will use the corresponding print option stored in the \code{bal.tab} object, which results from the original call to \code{bal.tab()}. 
+For all parameters except \code{which.cluster}, either omitting the argument or setting it to \code{"as.is"} will use the corresponding print option stored in the \code{bal.tab} object, which results from the original call to \code{bal.tab()}. 
 
-For \code{disp.m.threshold}, \code{disp.v.threshold}, \code{disp.ks.threshold}, and \code{disp.r.threshold}, setting the argument to \code{FALSE} will display the results as if the corresponding threshold value had been omitted or set to \code{NULL} in the original call to \code{bal.tab()}. If the original threshold was omitted or set to \code{NULL}, a new threshold cannot be set without a new call to \code{bal.tab()}, so \code{TRUE} is not an acceptable option here.
+For \code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}, setting the argument to \code{NULL} will display the results as if the corresponding threshold value had been omitted or set to \code{NULL} in the original call to \code{bal.tab()}. If the original threshold was omitted or set to \code{NULL}, a new threshold cannot be set without a new call to \code{bal.tab()}, so anything other than \code{NULL} or \code{"as.is"} is not an acceptable option here.
 
 For \code{which.cluster}, to retain the display option of the original call to \code{bal.tab()}, the argument must omitted, as using \code{"as.is"} would cause \code{print()} to attempt to display balance for a cluster called \code{"as.is"}. If such a cluster existed and it was desired, it would otherwise be impossible to display it.
 
 Any parameter used in \code{bal.tab()} for calculations, such as \code{int}, \code{addl}, or \code{distance}, cannot be used with \code{print()}; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to \code{bal.tab()} must be performed.
 }
 \note{
-If \code{quick = TRUE} in the original call to \code{bal.tab()}, some values may not be calculated, in which case using \code{print()} will not display these values even when requested. For example, if \code{disp.means = FALSE} and \code{quick = TRUE} in the original call to \code{bal.tab()}, setting \code{disp.means = TRUE} in \code{print()} will not print the covariate means because they were not calculated.
+If \code{quick = TRUE} in the original call to \code{bal.tab()}, some values may not be calculated, in which case using \code{print()} will not display these values even when requested. For example, if \code{stats = "mean.diffs"} and \code{quick = TRUE} in the original call to \code{bal.tab()} (the default for both), setting \code{stats = "ks.statistics"} in \code{print()} will not print the KS statistics because they were not calculated.
 }
 \author{
 Noah Greifer 
@@ -207,6 +208,6 @@ Noah Greifer
 \examples{
 \dontrun{
 b <- bal.tab(x, un = TRUE, v.threshold = 2)
-print(b, un = FALSE, disp.v.threshold = FALSE)
+print(b, un = FALSE, v.threshold = NULL)
 }
 }
