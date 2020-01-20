@@ -85,7 +85,7 @@ whether mean differences for continuous variables should be standardized ("std")
 whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
 }
   \item{s.d.denom}{
-A character vector denoting whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances) or the standard deviation in the full sample ("all"). Abbreviations allowed. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, \code{bal.tab()} will figure out which one is best based on the \code{estimand}, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, \code{bal.tab()} will figure out which one is best based on the \code{estimand}, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.
 }
   \item{m.threshold}{
 A numeric value for the threshold for mean differences.

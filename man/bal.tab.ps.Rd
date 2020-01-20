@@ -117,7 +117,7 @@ whether mean differences for continuous covariates should be standardized ("std"
 whether mean differences for binary covariates (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}} and \code{\link{col_w_corr}}.
 }
   \item{s.d.denom}{
-whether the denominator for standardized differences (if any are calculated) should be the standard deviation of the treated group ("treated"), the standard deviation of the control group ("control"), the pooled standard deviation ("pooled", computed as the square root of the mean of the group variances) or the standard deviation in the full sample ("all"). Abbreviations allowed. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{ps()} is the ATT and "pooled" if the estimand is the ATE.
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If not specified, for \code{ps} objects, \code{bal.tab()} will use "treated" if the estimand of the call to \code{ps()} is the ATT and "pooled" if the estimand is the ATE; for \code{mnps} objects, \code{bal.tab()} will use "treated" if \code{treatATT} was specified in the original call to \code{mnps} and "pooled" otherwise. Use "all" to get the same values computed by \code{bal.table} in \pkg{twang}. Abbreviations allowed.
 }
   \item{m.threshold}{
 a numeric value for the threshold for mean differences.
