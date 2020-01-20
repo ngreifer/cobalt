@@ -115,13 +115,15 @@ For \code{data.frame}s: \code{treat}, (\code{data}), \code{weights}, (\code{dist
 
 For \code{designmatch} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
+For \code{sbw} objects: None
+
 For \code{mimids} and \code{wimids} objects: None, but an argument to \code{which.imp} should be specified.
 
 For other objects processed through \code{bal.tab}'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
 
 }
 \details{
-\code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \code{\link[ggplot2]{geom_density}}, and histograms are created using \code{\link[ggplot2]{geom_histogram}}; for categorical treatments with categorical covariates, bar graphs are created using \code{\link[ggplot2]{geom_bar}}; for continuous treatments with continuous covariates, scatterplots are created using \code{\link[ggplot2]{geom_point}}.
+\code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \code{\link[ggplot2]{geom_density}}, histograms are created using \code{\link[ggplot2]{geom_histogram}}, and empirical CDF plots are created using \code{\link[ggplot2]{geom_step}}; for categorical treatments with categorical covariates, bar graphs are created using \code{\link[ggplot2]{geom_bar}}; for continuous treatments with continuous covariates, scatterplots are created using \code{\link[ggplot2]{geom_point}}.
 
 For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smoothing curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "auto"}. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.
 
