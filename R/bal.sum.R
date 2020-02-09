@@ -489,7 +489,7 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     
     type <- match_arg(tolower(type), c("pearson", "spearman"))
     if (type == "spearman") {
-        for (i in 1:ncol(mat)) mat[,i] <- rank(mat[,i], na.last = "keep")
+        for (i in 1:ncol(mat)) if (bin.vars[i])mat[,i] <- rank(mat[,i], na.last = "keep")
         treat <- rank(treat, na.last = "keep")
     }
     
