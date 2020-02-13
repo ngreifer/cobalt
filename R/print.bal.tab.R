@@ -171,10 +171,7 @@ print.bal.tab <- function(x, m.threshold = "as.is", v.threshold = "as.is", ks.th
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
-            if (all(sapply(c(p.ops$m.threshold, 
-                             p.ops$v.threshold, 
-                             p.ops$ks.threshold, 
-                             p.ops$r.threshold), is_null))) {
+            if (is_null(p.ops$thresholds)) {
                 warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
                 p.ops$imbalanced.only <- FALSE
             }
@@ -447,10 +444,7 @@ print.bal.tab.cluster <- function(x, m.threshold = "as.is", v.threshold = "as.is
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
-            if (all(sapply(c(p.ops$m.threshold, 
-                             p.ops$v.threshold, 
-                             p.ops$ks.threshold, 
-                             p.ops$r.threshold), is_null))) {
+            if (is_null(p.ops$thresholds)) {
                 warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
                 p.ops$imbalanced.only <- FALSE
             }
@@ -764,10 +758,7 @@ print.bal.tab.imp <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
-            if (all(sapply(c(p.ops$m.threshold, 
-                             p.ops$v.threshold, 
-                             p.ops$ks.threshold, 
-                             p.ops$r.threshold), is_null))) {
+            if (is_null(p.ops$thresholds)) {
                 warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
                 p.ops$imbalanced.only <- FALSE
             }
@@ -1059,10 +1050,7 @@ print.bal.tab.multi <- function(x, m.threshold = "as.is", v.threshold = "as.is",
                 p.ops$imbalanced.only <- imbalanced.only
             }
             if (p.ops$imbalanced.only) {
-                if (all(sapply(c(p.ops$m.threshold, 
-                                 p.ops$v.threshold, 
-                                 p.ops$ks.threshold, 
-                                 p.ops$r.threshold), is_null))) {
+                if (is_null(p.ops$thresholds)) {
                     warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
                     p.ops$imbalanced.only <- FALSE
                 }
@@ -1382,10 +1370,7 @@ print.bal.tab.msm <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
-            if (all(sapply(c(p.ops$m.threshold, 
-                             p.ops$v.threshold, 
-                             p.ops$ks.threshold, 
-                             p.ops$r.threshold), is_null))) {
+            if (is_null(p.ops$thresholds)) {
                 warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
                 p.ops$imbalanced.only <- FALSE
             }
@@ -1640,10 +1625,7 @@ print.bal.tab.subclass <- function(x, m.threshold = "as.is", v.threshold = "as.i
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
-            if (all(sapply(c(p.ops$m.threshold, 
-                             p.ops$v.threshold, 
-                             p.ops$ks.threshold, 
-                             p.ops$r.threshold), is_null))) {
+            if (is_null(p.ops$thresholds)) {
                 warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
                 p.ops$imbalanced.only <- FALSE
             }
