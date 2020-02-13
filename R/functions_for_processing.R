@@ -1267,7 +1267,7 @@ balance.summary <- function(bal.tab.list, Agg.Fun, weight.names = NULL, no.adj =
         }
         vfuns[[Fun]] <- function(x, ...) {
             if (!any(is.finite(x))) NA_real_
-            else if (Fun == "Mean") geom.mean(x, ...)
+            else if (Fun == "Mean") geom.mean(x)
             else get(tolower(Fun))(x, ...)
         }
         for (sample in c("Un", weight.names)) {
