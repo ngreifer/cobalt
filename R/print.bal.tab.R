@@ -529,12 +529,12 @@ print.bal.tab.cluster <- function(x, m.threshold = "as.is", v.threshold = "as.is
         CF <- setNames(cluster.funs %in% p.ops$cluster.fun, cluster.funs)
         if (p.ops$type == "cont") {
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && "corelations" %in% p.ops$stats && CF["min"],
-                                   p.ops$un && "corelations" %in% p.ops$stats && CF["mean"],
-                                   p.ops$un && "corelations" %in% p.ops$stats && CF["max"],
-                                   rep(c(p.ops$disp.adj && "corelations" %in% p.ops$stats && CF["min"],
-                                         p.ops$disp.adj && "corelations" %in% p.ops$stats && CF["mean"],
-                                         p.ops$disp.adj && "corelations" %in% p.ops$stats && CF["max"]), 
+                                   p.ops$un && "correlations" %in% p.ops$stats && CF["min"],
+                                   p.ops$un && "correlations" %in% p.ops$stats && CF["mean"],
+                                   p.ops$un && "correlations" %in% p.ops$stats && CF["max"],
+                                   rep(c(p.ops$disp.adj && "correlations" %in% p.ops$stats && CF["min"],
+                                         p.ops$disp.adj && "correlations" %in% p.ops$stats && CF["mean"],
+                                         p.ops$disp.adj && "correlations" %in% p.ops$stats && CF["max"]), 
                                        p.ops$nweights + !p.ops$disp.adj)))
         }
         else {
@@ -838,12 +838,12 @@ print.bal.tab.imp <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
         IF <- setNames(imp.funs %in% p.ops$imp.fun, imp.funs)
         if (p.ops$type == "cont") { #continuous
             s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && "corelations" %in% p.ops$stats && IF["min"],
-                                   p.ops$un && "corelations" %in% p.ops$stats && IF["mean"],
-                                   p.ops$un && "corelations" %in% p.ops$stats && IF["max"],
-                                   rep(c(p.ops$disp.adj && "corelations" %in% p.ops$stats && IF["min"],
-                                         p.ops$disp.adj && "corelations" %in% p.ops$stats && IF["mean"],
-                                         p.ops$disp.adj && "corelations" %in% p.ops$stats && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
+                                   p.ops$un && "correlations" %in% p.ops$stats && IF["min"],
+                                   p.ops$un && "correlations" %in% p.ops$stats && IF["mean"],
+                                   p.ops$un && "correlations" %in% p.ops$stats && IF["max"],
+                                   rep(c(p.ops$disp.adj && "correlations" %in% p.ops$stats && IF["min"],
+                                         p.ops$disp.adj && "correlations" %in% p.ops$stats && IF["mean"],
+                                         p.ops$disp.adj && "correlations" %in% p.ops$stats && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
         }
         else { #binary
             s.keep <- as.logical(c(TRUE, 
