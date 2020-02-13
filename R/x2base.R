@@ -191,6 +191,8 @@ x2base.matchit <- function(m, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
@@ -404,6 +406,8 @@ x2base.ps <- function(ps, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
@@ -598,6 +602,8 @@ x2base.mnps <- function(mnps, ...) {
             else stats <- unique(c(stats, s))
         }
     }
+    
+    stats <- process_stats(stats, treat = treat)
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -795,6 +801,8 @@ x2base.ps.cont <- function(ps.cont, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("correlations" %in% stats) {
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
@@ -960,6 +968,8 @@ x2base.Match <- function(Match, ...) {
             else stats <- unique(c(stats, s))
         }
     }
+    
+    stats <- process_stats(stats, treat = treat)
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1300,6 +1310,8 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, 
@@ -1482,6 +1494,10 @@ x2base.CBPS <- function(cbps.fit, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
@@ -1652,6 +1668,8 @@ x2base.ebalance <- function(ebalance, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
@@ -1816,6 +1834,8 @@ x2base.optmatch <- function(optmatch, ...) {
             else stats <- unique(c(stats, s))
         }
     }
+    
+    stats <- process_stats(stats, treat = treat)
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1990,6 +2010,8 @@ x2base.weightit <- function(weightit, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
@@ -2157,6 +2179,8 @@ x2base.designmatch <- function(dm, ...) {
             else stats <- unique(c(stats, s))
         }
     }
+    
+    stats <- process_stats(stats, treat = treat)
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -2373,6 +2397,8 @@ x2base.mimids <- function(mimids, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
@@ -2550,6 +2576,8 @@ x2base.wimids <- function(wimids, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
@@ -2721,6 +2749,8 @@ x2base.sbwcau <- function(sbwcau, ...) {
             else stats <- unique(c(stats, s))
         }
     }
+    
+    stats <- process_stats(stats, treat = treat)
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -2951,6 +2981,8 @@ x2base.iptw <- function(iptw, ...) {
             else stats <- unique(c(stats, s))
         }
     }
+    
+    stats <- process_stats(stats, treat = treat.list)
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -3195,6 +3227,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat.list)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
@@ -3406,6 +3440,8 @@ x2base.CBMSM <- function(cbmsm, ...) {
         }
     }
     
+    stats <- process_stats(stats, treat = treat.list)
+    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
         s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
@@ -3595,6 +3631,8 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
             else stats <- unique(c(stats, s))
         }
     }
+    
+    stats <- process_stats(stats, treat = treat.list)
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -4102,7 +4140,9 @@ x2base.default <- function(obj, ...) {
             }
         }
         
-        #Get s.d.denom
+        stats <- process_stats(stats, treat = treat)
+    
+    #Get s.d.denom
         if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, 
                                        weights = weights, subclass = subclass, 
@@ -4355,7 +4395,9 @@ x2base.default <- function(obj, ...) {
             }
         }
         
-        #Get s.d.denom
+        stats <- process_stats(stats, treat = treat.list)
+    
+    #Get s.d.denom
         if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
