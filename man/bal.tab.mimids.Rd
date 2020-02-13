@@ -130,8 +130,9 @@ Noah Greifer
 \code{\link{bal.tab}} for details of calculations.
 }
 \examples{
-library(MatchThem)
 library(mice)
+library(MatchThem)
+
 data("lalonde_mis", package = "cobalt")
 
 #Imputing the missing data
