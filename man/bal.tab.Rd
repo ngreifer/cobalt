@@ -25,7 +25,7 @@ Generates balance statistics on covariates in relation to an observed treatment 
 }
 \item{\code{\link{bal.tab.mimids}} for the method for objects returned by \pkg{MatchThem}.
 }
-\item{\code{\link{bal.tab.sbw}} for the method for objects returned by \pkg{sbw}.
+\item{\code{\link[=bal.tab.sbwcau]{bal.tab.sbw}} for the method for objects returned by \pkg{sbw}.
 }
 \item{\code{\link{bal.tab.formula}} and \code{\link{bal.tab.data.frame}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \code{\link{bal.tab.time.list}}.
 }
