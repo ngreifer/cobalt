@@ -135,7 +135,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     
     imp <- factor(X$imp)
     
-    if (is_not_null(A[["agg.fun"]])) A$imp.fun <- A[["agg.fun"]]
+    if (is_not_null(A[["agg.fun"]])) imp.fun <- A[["agg.fun"]]
     
     #Setup output object
     out.names <- c("Imputation.Balance", 
@@ -160,7 +160,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     if (imp.summary || !A$quick) {
         out[["Balance.Across.Imputations"]] <- balance.summary(out[["Imputation.Balance"]], 
                                                                weight.names = names(X$weights),
-                                                               Agg.Fun = if_null_then(A$imp.fun, c("Min", "Mean", "Max")),
+                                                               Agg.Fun = if_null_then(imp.fun, c("Min", "Mean", "Max")),
                                                                no.adj = is_null(X$weights),
                                                                abs = attr(out[["Imputation.Balance"]][[1]], "print.options")[["abs"]],
                                                                quick = A$quick,
@@ -380,7 +380,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     
     cluster <- factor(X$cluster)
     
-    if (is_not_null(A[["agg.fun"]])) A$cluster.fun <- A[["agg.fun"]]
+    if (is_not_null(A[["agg.fun"]])) cluster.fun <- A[["agg.fun"]]
     
     #Setup output object
     out.names <- c("Cluster.Balance", 
@@ -405,7 +405,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
         out[["Cluster.Summary"]] <- balance.summary(out[["Cluster.Balance"]], 
                                                     weight.names = names(X$weights),
-                                                    Agg.Fun = if_null_then(A$cluster.fun, c("Min", "Mean", "Max")),
+                                                    Agg.Fun = if_null_then(A$cluster.fun, c("min", "mean", "max")),
                                                     no.adj = is_null(X$weights),
                                                     abs = attr(out[["Cluster.Balance"]][[1]], "print.options")[["abs"]],
                                                     quick = A$quick,
