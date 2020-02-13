@@ -1,6 +1,5 @@
 #Internal Utilities not in SHARED.R
 `%+%` <- function(...) {
-    a <- list(...)
-    if (is.atomic(a[[1]])) do.call(crayon::`%+%`, a)
-    else do.call(ggplot2::`%+%`, a)
+    if (is_(..1, c("atomic", "factor")) && is_(..2, c("atomic", "factor"))) crayon::`%+%`(as.character(..1), as.character(..2))
+    else ggplot2::`%+%`(...)
 }
