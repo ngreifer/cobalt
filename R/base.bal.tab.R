@@ -1,57 +1,61 @@
 base.bal.tab <- function(X, ...) {
     UseMethod("base.bal.tab")
 }
-
-base.bal.tab.binary <- function(X, int = FALSE, poly = 1, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary, thresholds = list(), imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
     A <- clear_null(list(...))
     
     X$treat <- process_treat(X$treat) 
     
-    if (get.treat.type(X$treat) != "binary") {
+    if (type == "bin" && get.treat.type(X$treat) != "binary") {
         stop("Treatment indicator must be a binary variable---e.g., treatment (1) or control (0)", call. = FALSE)
+        if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
+        if (missing(binary)) binary <- getOption("cobalt_binary", "raw")
+    }
+    else {
+        if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
+        if (missing(binary)) binary <- getOption("cobalt_binary", "std")
     }
     
-    if (isTRUE(A[["disp.diff"]])) X$stats <- unique(c(X$stats, "mean.diffs"))
-    if (isTRUE(A[["disp.v.ratio"]])) X$stats <- unique(c(X$stats, "variance.ratios"))
-    if (isTRUE(A[["disp.ks"]])) X$stats <- unique(c(X$stats, "ks.statistics"))
-    
-    if (is_not_null(m.threshold)) {
-        m.threshold <- abs(m.threshold)
-        X$stats <- unique(c(X$stats, "mean.diffs"))
-    }
-    if (is_not_null(v.threshold)) {
-        v.threshold <- abs_(v.threshold, ratio = TRUE)
-        X$stats <- unique(c(X$stats, "variance.ratios"))
-    }
-    if (is_null(ks.threshold) && is_null(A[["k.threshold"]])) {
-        ks.threshold <- A[["k.threshold"]]
-    }
-    if (is_not_null(ks.threshold)) {
-        if (ks.threshold > 1) {
-            warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
-            ks.threshold <- NULL
+    for (s in all_STATS[get_from_STATS("type") == type]) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            X$stats <- unique(c(X$stats, s))
         }
-        else X$stats <- unique(c(X$stats, "ks.statistics"))
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else X$stats <- unique(c(X$stats, s))
+        }
     }
+    
     if (is_null(X$weights)) {
         un <- TRUE
         no.adj <- TRUE
     }
     else {
         no.adj <- FALSE
-        check_if_zero_weights(X$weights, X$treat)
-        if(ncol(X$weights) == 1) names(X$weights) <- "Adj"
+        if (type == "bin") check_if_zero_weights(X$weights, X$treat)
+        else if (type == "cont") check_if_zero_weights(X$weights)
+        if (ncol(X$weights) == 1) names(X$weights) <- "Adj"
     }
     if (is_null(X$s.weights)) {
         X$s.weights <- rep(1, length(X$treat))
     }
     
     #Actions
-    
     out.names <- c("Balance", 
                    expand.grid_string(c("Balanced", "Max.Imbalance"),
-                                      c("Means", "Variances", "KS"),
+                                      X$stats,
                                       collapse = "."), 
                    "Observations", "call")
     out <- vector("list", length(out.names))
@@ -60,70 +64,64 @@ base.bal.tab.binary <- function(X, int = FALSE, poly = 1, continuous = getOption
     C <- get.C(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, ...)
     co.names <- attr(C, "co.names")
     
-    out[["Balance"]] <- balance.table.bin(C, weights = X$weights, treat = X$treat, 
-                                          s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
-                                          continuous, binary, m.threshold = m.threshold, v.threshold = v.threshold, 
-                                          ks.threshold = ks.threshold, un = un, disp.means = disp.means, 
-                                          disp.sds = disp.sds, stats = X$stats, 
-                                          abs = abs, no.adj = no.adj, quick = quick, s.d.denom.list = X$s.d.denom.list)
+    out[["Balance"]] <- balance.table(C, type = type, weights = X$weights, treat = X$treat, 
+                                      s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
+                                      continuous = continuous, binary = binary, 
+                                      thresholds = thresholds,
+                                      un = un, 
+                                      disp.means = disp.means, disp.sds = disp.sds, 
+                                      stats = X$stats, abs = abs, 
+                                      no.adj = no.adj, quick = quick, 
+                                      s.d.denom.list = X$s.d.denom.list)
     
     #Reassign disp... and ...threshold based on balance table output
     stats <- attr(out[["Balance"]], "stats")
+    thresholds <- attr(out[["Balance"]], "thresholds")
     
-    for (i in names(attr(out[["Balance"]], "threshold"))) {
-        assign(paste0(i, ".threshold"), attr(out[["Balance"]], "threshold")[i])
-    }
-    
-    S <- list(diff = list(threshold = m.threshold,
-                          Names = "Means",
-                          Threshold = "M.Threshold",
-                          Stat = "Diff"),
-              v.ratio = list(threshold = v.threshold,
-                             Names = "Variances",
-                             Threshold = "V.Threshold",
-                             Stat = "V.Ratio"),
-              ks = list(threshold = ks.threshold,
-                        Names = "KS",
-                        Threshold = "KS.Threshold",
-                        Stat = "KS"))
-    
-    for (s in S) {
-        if (is_not_null(s[["threshold"]])) {
+    for (s in stats) {
+        if (is_not_null(thresholds[[s]])) {
             if (no.adj) {
-                out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[paste.(s[["Threshold"]], "Un")]])
-                out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Un"), paste.(s[["Threshold"]], "Un"), ratio = s$Stat == "V.Ratio")
+                out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[paste.(STATS[[s]]$Threshold, "Un")]])
+                out[[paste.("Max.Imbalance", s)]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
+                                                               paste.(STATS[[s]]$bal.tab._column_prefix, "Un"), 
+                                                               paste.(STATS[[s]]$Threshold, "Un"), 
+                                                               ratio = s == "variance.ratios")
             }
             else if (ncol(X$weights) == 1) {
-                out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[s[["Threshold"]]]])
-                out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]], ratio = s$Stat == "V.Ratio")
+                out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[STATS[[s]]$Threshold]])
+                out[[paste.("Max.Imbalance", s)]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
+                                                               paste.(STATS[[s]]$bal.tab._column_prefix, "Adj"), 
+                                                               STATS[[s]]$Threshold, 
+                                                               ratio = s == "variance.ratios")
             }
             else if (ncol(X$weights) > 1) {
-                out[[paste.("Balanced", s[["Names"]])]] <- setNames(do.call("cbind", lapply(names(X$weights), function(x) baltal(out[["Balance"]][[paste.(s[["Threshold"]], x)]]))),
-                                                                    names(X$weights))
-                out[[paste.("Max.Imbalance", s[["Names"]])]] <- cbind(Weights = names(X$weights),
-                                                                      do.call("rbind", lapply(names(X$weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], x), paste.(s[["Threshold"]], x), ratio = s$Stat == "V.Ratio"),
-                                                                                                                                     c("Variable", s[["Stat"]], s[["Threshold"]])))),
-                                                                      stringsAsFactors = FALSE)
+                out[[paste.("Balanced", s)]] <- setNames(do.call("cbind", lapply(names(X$weights), function(x) baltal(out[["Balance"]][[paste.(STATS[[s]]$Threshold, x)]]))),
+                                                         names(X$weights))
+                out[[paste.("Max.Imbalance", s)]] <- cbind(Weights = names(X$weights),
+                                                           do.call("rbind", lapply(names(X$weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
+                                                                                                                                    paste.(STATS[[s]]$bal.tab._column_prefix, x), 
+                                                                                                                                    paste.(STATS[[s]]$Threshold, x), 
+                                                                                                                                    ratio = s == "variance.ratios"),
+                                                                                                                          c("Variable", 
+                                                                                                                            STATS[[s]]$bal.tab._column_prefix, 
+                                                                                                                            STATS[[s]]$Threshold)))),
+                                                           stringsAsFactors = FALSE)
             }
         }
         else {
-            out[[paste.("Balanced", s[["Names"]])]] <- NULL
-            out[[paste.("Max.Imbalance", s[["Names"]])]] <- NULL
+            out[[paste.("Balanced", s)]] <- NULL
+            out[[paste.("Max.Imbalance", s)]] <- NULL
         }
     }
     
-    out[["Observations"]] <- samplesize(treat = X$treat, weights = X$weights, s.weights = X$s.weights, method = X$method, discarded = X$discarded)
+    out[["Observations"]] <- do.call(paste.("samplesize", type), list(treat = X$treat, weights = X$weights, s.weights = X$s.weights, method = X$method, discarded = X$discarded))
+
     out[["call"]] <- X$call
-    attr(out, "print.options") <- list(m.threshold=m.threshold, 
-                                       v.threshold=v.threshold, 
-                                       ks.threshold=ks.threshold, 
+    attr(out, "print.options") <- list(thresholds = thresholds,
                                        imbalanced.only = imbalanced.only,
                                        un=un, 
                                        disp.means=disp.means, 
                                        disp.sds=disp.sds,
-                                       # disp.diff=disp.diff, 
-                                       # disp.v.ratio=disp.v.ratio, 
-                                       # disp.ks=disp.ks, 
                                        stats = stats, 
                                        disp.adj=!no.adj,
                                        disp.bal.tab = disp.bal.tab, 
@@ -134,146 +132,67 @@ base.bal.tab.binary <- function(X, int = FALSE, poly = 1, continuous = getOption
                                        nweights = ifelse(no.adj, 0, ncol(X$weights)),
                                        weight.names = names(X$weights),
                                        treat_names = treat_vals(X$treat),
-                                       type = "bin",
+                                       type = type,
                                        co.names = co.names)
-    class(out) <- c("bal.tab.bin", "bal.tab")
+    class(out) <- c(paste.("bal.tab", type), "bal.tab")
     
     return(out)
 }
-base.bal.tab.cont <- function(X, int = FALSE, poly = 1, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "std"), r.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
-    
-    #Preparations
-    A <- clear_null(list(...))
-    
-    X$treat <- process_treat(X$treat) 
-    
-    if (isTRUE(A[["disp.corr"]])) X$stats <- unique(c(X$stats, "correlations"))
-    
-    if (is_not_null(r.threshold)) {
-        r.threshold <- abs(r.threshold)
-        if (r.threshold > 1) {
-            warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
-            r.threshold <- NULL
-        }
-        else X$stats <- unique(c(X$stats, "correlations"))
-    }
-    if (is_null(X$weights)) {
-        un <- TRUE
-        no.adj <- TRUE
-    }
-    else {
-        no.adj <- FALSE
-        check_if_zero_weights(X$weights)
-        if (ncol(X$weights) == 1) names(X$weights) <- "Adj"
-    }
-    if (is_null(X$s.weights)) {
-        X$s.weights <- rep(1, length(X$treat))
-    }    
-    
-    #Actions
-    
-    out.names <- c("Balance", "Balanced.Corr", 
-                   "Max.Imbalance.Corr", 
-                   "Observations", 
-                   "call")
-    out <- vector("list", length(out.names))
-    names(out) <- out.names
-    
-    C <- get.C(covs = X$covs, int = int, poly = poly, addl = X$addl, distance = X$distance, ...)
-    co.names <- attr(C, "co.names")
-    
-    out[["Balance"]] <- balance.table.cont(C, weights = X$weights, treat = X$treat, 
-                                           s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
-                                           continuous = continuous, binary = binary, 
-                                           r.threshold = r.threshold, un = un, 
-                                           disp.means = disp.means, disp.sds = disp.sds, 
-                                           stats = X$stats, abs = abs, 
-                                           no.adj = no.adj, quick = quick)
-    
-    #Reassign disp... and ...threshold based on balance table output
-    stats <- attr(out[["Balance"]], "stats")
-    for (i in names(attr(out[["Balance"]], "threshold"))) {
-        assign(paste0(i, ".threshold"), attr(out[["Balance"]], "threshold")[i])
-    }
-    
-    S <- list(corr = list(threshold = r.threshold,
-                          Names = "Corr",
-                          Threshold = "R.Threshold",
-                          Stat = "Corr"))
-    
-    for (s in S) {
-        if (is_not_null(s[["threshold"]])) {
-            if (no.adj) {
-                out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[paste.(s[["Threshold"]], "Un")]])
-                out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Un"), paste.(s[["Threshold"]], "Un"), ratio = s$Stat == "V.Ratio")
-            }
-            else if (ncol(X$weights) == 1) {
-                out[[paste.("Balanced", s[["Names"]])]] <- baltal(out[["Balance"]][[s[["Threshold"]]]])
-                out[[paste.("Max.Imbalance", s[["Names"]])]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], "Adj"), s[["Threshold"]], ratio = s$Stat == "V.Ratio")
-            }
-            else if (ncol(X$weights) > 1) {
-                out[[paste.("Balanced", s[["Names"]])]] <- setNames(do.call("cbind", lapply(names(X$weights), function(x) baltal(out[["Balance"]][[paste.(s[["Threshold"]], x)]]))),
-                                                                    names(X$weights))
-                out[[paste.("Max.Imbalance", s[["Names"]])]] <- cbind(Weights = names(X$weights),
-                                                                      do.call("rbind", lapply(names(X$weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], paste.(s[["Stat"]], x), paste.(s[["Threshold"]], x), ratio = s$Stat == "V.Ratio"),
-                                                                                                                                     c("Variable", s[["Stat"]], s[["Threshold"]])))),
-                                                                      stringsAsFactors = FALSE)
-            }
-        }
-    }
-    
-    out[["Observations"]] <- samplesize.cont(treat = X$treat, weights = X$weights, s.weights = X$s.weights, method = X$method, discarded = X$discarded)
-    out[["call"]] <- X$call
-    attr(out, "print.options") <- list(r.threshold=r.threshold, 
-                                       imbalanced.only = imbalanced.only,
-                                       un=un, 
-                                       disp.means=disp.means, 
-                                       disp.sds = disp.sds,
-                                       # disp.corr = disp.corr, 
-                                       stats = stats,
-                                       disp.adj=!no.adj,
-                                       disp.bal.tab = disp.bal.tab,
-                                       continuous = continuous,
-                                       binary = binary,
-                                       abs = abs,
-                                       quick = quick,
-                                       nweights = if (no.adj) 0 else ncol(X$weights),
-                                       weight.names = names(X$weights),
-                                       type = "cont",
-                                       co.names = co.names)
-    class(out) <- c("bal.tab.cont", "bal.tab")
-    
-    return(out)
+base.bal.tab.binary <- function(X, ...) {
+    base.bal.tab.base(X, type = "bin", ...)
 }
+base.bal.tab.cont <- function(X, ...) {
+    base.bal.tab.base(X, type = "cont", ...)
+}
+
 base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_imp.summary", TRUE), imp.fun = getOption("cobalt_imp.fun", NULL), ...) {
     A <- clear_null(list(...))
     
     X$treat <- process_treat(X$treat)
     
     #Preparations
-    if (is_not_null(A$m.threshold)) {
-        A$m.threshold <- abs(A$m.threshold)
-        X$stats <- unique(c(X$stats, "mean.diffs"))
-    }
-    if (is_not_null(A$v.threshold)) {
-        A$v.threshold <- abs_(A$v.threshold, ratio = TRUE)
-        X$stats <- unique(c(X$stats, "variance.ratios"))
-    }
-    if (is_not_null(A$ks.threshold)) {
-        if (A$ks.threshold > 1) {
-            warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
-            A$ks.threshold <- NULL
+    if (is_null(A$thresholds)) A$thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            X$stats <- unique(c(X$stats, s))
         }
-        else X$stats <- unique(c(X$stats, "ks.statistics"))
-    }
-    if (is_not_null(A$r.threshold)) {
-        A$r.threshold <- abs(A$r.threshold)
-        if (A$r.threshold > 1) {
-            warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
-            A$r.threshold <- NULL
+        
+        #Process and check thresholds
+        if (is_not_null(temp.thresh <- get0(paste.(STATS[[s]]$threshold_prefix, "threshold")))) {
+            A$thresholds[[s]] <- STATS[[s]]$abs(temp.thresh)
+            if (!between(A$thresholds[[s]], STATS[[s]]$threshold_range)) {
+                A$thresholds[[s]] <- NULL
+                #warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
+            }
+            else X$stats <- unique(c(X$stats, s))
         }
-        else X$stats <- unique(c(X$stats, "correlations"))
     }
+    
+    # if (is_not_null(A$m.threshold)) {
+    #     A$m.threshold <- abs(A$m.threshold)
+    #     X$stats <- unique(c(X$stats, "mean.diffs"))
+    # }
+    # if (is_not_null(A$v.threshold)) {
+    #     A$v.threshold <- abs_(A$v.threshold, ratio = TRUE)
+    #     X$stats <- unique(c(X$stats, "variance.ratios"))
+    # }
+    # if (is_not_null(A$ks.threshold)) {
+    #     if (A$ks.threshold > 1) {
+    #         warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
+    #         A$ks.threshold <- NULL
+    #     }
+    #     else X$stats <- unique(c(X$stats, "ks.statistics"))
+    # }
+    # if (is_not_null(A$r.threshold)) {
+    #     A$r.threshold <- abs(A$r.threshold)
+    #     if (A$r.threshold > 1) {
+    #         warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
+    #         A$r.threshold <- NULL
+    #     }
+    #     else X$stats <- unique(c(X$stats, "correlations"))
+    # }
     if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
     
     imp <- factor(X$imp)
@@ -329,21 +248,40 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     X$treat <- process_treat(X$treat)
     
     #Preparations
-    if (is_not_null(A$m.threshold)) {
-        A$m.threshold <- abs(A$m.threshold)
-        X$stats <- unique(c(X$stats, "mean.diffs"))
-    }
-    if (is_not_null(A$v.threshold)) {
-        A$v.threshold <- abs_(A$v.threshold, ratio = TRUE)
-        X$stats <- unique(c(X$stats, "variance.ratios"))
-    }
-    if (is_not_null(A$ks.threshold)) {
-        if (A$ks.threshold > 1) {
-            warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
-            A$ks.threshold <- NULL
+    if (is_null(A$thresholds)) A$thresholds <- list()
+    
+    for (s in all_STATS[get_from_STATS("type") == "bin"]) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            X$stats <- unique(c(X$stats, s))
         }
-        else X$stats <- unique(c(X$stats, "ks.statistics"))
+        
+        #Process and check thresholds
+        if (is_not_null(temp.thresh <- get0(paste.(STATS[[s]]$threshold_prefix, "threshold")))) {
+            A$thresholds[[s]] <- STATS[[s]]$abs(temp.thresh)
+            if (!between(A$thresholds[[s]], STATS[[s]]$threshold_range)) {
+                A$thresholds[[s]] <- NULL
+                #warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
+            }
+            else X$stats <- unique(c(X$stats, s))
+        }
     }
+    
+    # if (is_not_null(A$m.threshold)) {
+    #     A$m.threshold <- abs(A$m.threshold)
+    #     X$stats <- unique(c(X$stats, "mean.diffs"))
+    # }
+    # if (is_not_null(A$v.threshold)) {
+    #     A$v.threshold <- abs_(A$v.threshold, ratio = TRUE)
+    #     X$stats <- unique(c(X$stats, "variance.ratios"))
+    # }
+    # if (is_not_null(A$ks.threshold)) {
+    #     if (A$ks.threshold > 1) {
+    #         warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
+    #         A$ks.threshold <- NULL
+    #     }
+    #     else X$stats <- unique(c(X$stats, "ks.statistics"))
+    # }
     if (is_not_null(X$weights))  {
         check_if_zero_weights(X$weights, X$treat)
         if (ncol(X$weights) == 1) names(X$weights) <- "Adj"
@@ -379,14 +317,16 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     
     C <- do.call(get.C, c(X, A), quote = TRUE)
     bin.vars <- apply(C, 2, is_binary)
-    if (is_null(X$weights)) {
-        X$s.d.denom.list <- list(compute_s.d.denom(C, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, bin.vars = bin.vars))
-    }
-    else {
-        X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom), function(i) compute_s.d.denom(C, X$treat,
-                                                                                                  s.d.denom = X$s.d.denom[i], s.weights = X$s.weights, 
-                                                                                                  bin.vars = bin.vars, weighted.weights = X$weights[[i]])),
-                                     names(X$s.d.denom))
+    if ("mean.diffs" %in% X$stats) {
+        if (is_null(X$weights)) {
+            X$s.d.denom.list <- list(compute_s.d.denom(C, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, bin.vars = bin.vars))
+        }
+        else {
+            X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom), function(i) compute_s.d.denom(C, X$treat,
+                                                                                                      s.d.denom = X$s.d.denom[i], s.weights = X$s.weights, 
+                                                                                                      bin.vars = bin.vars, weighted.weights = X$weights[[i]])),
+                                         names(X$s.d.denom))
+        }
     }
     
     if (pairwise || is_not_null(X$focal)) {
@@ -428,9 +368,12 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
         out[["Balance.Across.Pairs"]] <- balance.summary(balance.tables, 
                                                          weight.names = names(X$weights),
                                                          Agg.Fun = "Max",
-                                                         m.threshold = A$m.threshold,
-                                                         v.threshold = A$v.threshold,
-                                                         ks.threshold = A$ks.threshold,
+                                                         m.threshold = A$thresholds[["mean.diffs"]],
+                                                         v.threshold = A$thresholds[["variance.ratios"]],
+                                                         ks.threshold = A$thresholds[["ks.statistics"]],
+                                                         # m.threshold = A$m.threshold,
+                                                         # v.threshold = A$v.threshold,
+                                                         # ks.threshold = A$ks.threshold,
                                                          no.adj = is_null(X$weights),
                                                          quick = A$quick,
                                                          types = NULL)
@@ -463,29 +406,48 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     X$treat.list <- process_treat.list(X$treat)
     
     #Preparations
-    if (is_not_null(A$m.threshold)) {
-        A$m.threshold <- abs(A$m.threshold)
-        X$stats <- unique(c(X$stats, "mean.diffs"))
-    }
-    if (is_not_null(A$v.threshold)) {
-        A$v.threshold <- abs_(A$v.threshold, ratio = TRUE)
-        X$stats <- unique(c(X$stats, "variance.ratios"))
-    }
-    if (is_not_null(A$ks.threshold)) {
-        if (A$ks.threshold > 1) {
-            warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
-            A$ks.threshold <- NULL
+    if (is_null(A$thresholds)) A$thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            X$stats <- unique(c(X$stats, s))
         }
-        else X$stats <- unique(c(X$stats, "ks.statistics"))
-    }
-    if (is_not_null(A$r.threshold)) {
-        A$r.threshold <- abs(A$r.threshold)
-        if (A$r.threshold > 1) {
-            warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
-            A$r.threshold <- NULL
+        
+        #Process and check thresholds
+        if (is_not_null(temp.thresh <- get0(paste.(STATS[[s]]$threshold_prefix, "threshold")))) {
+            A$thresholds[[s]] <- STATS[[s]]$abs(temp.thresh)
+            if (!between(A$thresholds[[s]], STATS[[s]]$threshold_range)) {
+                A$thresholds[[s]] <- NULL
+                #warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
+            }
+            else X$stats <- unique(c(X$stats, s))
         }
-        else X$stats <- unique(c(X$stats, "correlations"))
     }
+    
+    # if (is_not_null(A$m.threshold)) {
+    #     A$m.threshold <- abs(A$m.threshold)
+    #     X$stats <- unique(c(X$stats, "mean.diffs"))
+    # }
+    # if (is_not_null(A$v.threshold)) {
+    #     A$v.threshold <- abs_(A$v.threshold, ratio = TRUE)
+    #     X$stats <- unique(c(X$stats, "variance.ratios"))
+    # }
+    # if (is_not_null(A$ks.threshold)) {
+    #     if (A$ks.threshold > 1) {
+    #         warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
+    #         A$ks.threshold <- NULL
+    #     }
+    #     else X$stats <- unique(c(X$stats, "ks.statistics"))
+    # }
+    # if (is_not_null(A$r.threshold)) {
+    #     A$r.threshold <- abs(A$r.threshold)
+    #     if (A$r.threshold > 1) {
+    #         warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
+    #         A$r.threshold <- NULL
+    #     }
+    #     else X$stats <- unique(c(X$stats, "correlations"))
+    # }
     if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
     
     #Setup output object
@@ -548,30 +510,50 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     A <- clear_null(list(...))
     
     #Preparations
-    if (is_not_null(A$m.threshold)) {
-        A$m.threshold <- abs(A$m.threshold)
-        X$stats <- unique(c(X$stats, "mean.diffs"))
-    }
-    if (is_not_null(A$v.threshold)) {
-        A$v.threshold <- abs_(A$v.threshold, ratio = TRUE)
-        X$stats <- unique(c(X$stats, "variance.ratios"))
-    }
-    if (is_not_null(A$ks.threshold)) {
-        if (A$ks.threshold > 1) {
-            warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
-            A$ks.threshold <- NULL
+    if (is_null(A$thresholds)) A$thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            X$stats <- unique(c(X$stats, s))
         }
-        else X$stats <- unique(c(X$stats, "ks.statistics"))
-    }
-    if (is_not_null(A$r.threshold)) {
-        A$r.threshold <- abs(A$r.threshold)
-        if (A$r.threshold > 1) {
-            warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
-            A$r.threshold <- NULL
+        
+        #Process and check thresholds
+        if (is_not_null(temp.thresh <- get0(paste.(STATS[[s]]$threshold_prefix, "threshold")))) {
+            A$thresholds[[s]] <- STATS[[s]]$abs(temp.thresh)
+            if (!between(A$thresholds[[s]], STATS[[s]]$threshold_range)) {
+                A$thresholds[[s]] <- NULL
+                #warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
+            }
+            else X$stats <- unique(c(X$stats, s))
         }
-        else X$stats <- unique(c(X$stats, "correlations"))
     }
+    
+    # if (is_not_null(A$m.threshold)) {
+    #     A$m.threshold <- abs(A$m.threshold)
+    #     X$stats <- unique(c(X$stats, "mean.diffs"))
+    # }
+    # if (is_not_null(A$v.threshold)) {
+    #     A$v.threshold <- abs_(A$v.threshold, ratio = TRUE)
+    #     X$stats <- unique(c(X$stats, "variance.ratios"))
+    # }
+    # if (is_not_null(A$ks.threshold)) {
+    #     if (A$ks.threshold > 1) {
+    #         warning("ks.threshold must be between 0 and 1; ignoring ks.threshold.", call. = FALSE)
+    #         A$ks.threshold <- NULL
+    #     }
+    #     else X$stats <- unique(c(X$stats, "ks.statistics"))
+    # }
+    # if (is_not_null(A$r.threshold)) {
+    #     A$r.threshold <- abs(A$r.threshold)
+    #     if (A$r.threshold > 1) {
+    #         warning("r.threshold must be between 0 and 1; ignoring r.threshold.", call. = FALSE)
+    #         A$r.threshold <- NULL
+    #     }
+    #     else X$stats <- unique(c(X$stats, "correlations"))
+    # }
     if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+    if (is_null(A[["abs"]])) A[["abs"]] <- FALSE
     
     cluster <- factor(X$cluster)
     
@@ -602,7 +584,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
                                                     weight.names = names(X$weights),
                                                     Agg.Fun = if_null_then(A$cluster.fun, c("Min", "Mean", "Max")),
                                                     no.adj = is_null(X$weights),
-                                                    abs = A$abs,
+                                                    abs = attr(out[["Cluster.Balance"]][[1]], "print.options")[["abs"]],
                                                     quick = A$quick,
                                                     types = NULL)
         observations <- lapply(out[["Cluster.Balance"]], function(x) x[["Observations"]])
@@ -621,6 +603,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     return(out)
 }
 
+#NEEDS UPDATING with STATS
 base.bal.tab.subclass.bin <- function(X, int = FALSE, poly = 1, continuous = getOption("cobalt_continuous", "std"), binary = getOption("cobalt_binary", "raw"), m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
     A <- clear_null(list(...))
@@ -670,7 +653,7 @@ base.bal.tab.subclass.bin <- function(X, int = FALSE, poly = 1, continuous = get
     co.names <- attr(C, "co.names")
     
     out[["Subclass.Balance"]] <- balance.table.subclass.bin(C, weights=NULL, treat=X$treat, subclass=X$subclass, continuous=continuous, binary=binary, s.d.denom=X$s.d.denom[1], m.threshold=m.threshold, v.threshold=v.threshold, ks.threshold = ks.threshold, disp.means = disp.means, disp.sds = disp.sds, stats = X$stats, abs = abs, quick = quick)
-    out[["Subclass.Observations"]] <- samplesize(treat = X$treat, weights = NULL, subclass = X$subclass, s.weights = X$s.weights, method = X$method, discarded = X$discarded)
+    out[["Subclass.Observations"]] <- samplesize.bin(treat = X$treat, weights = NULL, subclass = X$subclass, s.weights = X$s.weights, method = X$method, discarded = X$discarded)
     out[["Balance.Across.Subclass"]] <- balance.table.bin(C, 
                                                           weights = data.frame(Adj = strata2weights(X$subclass, X$treat)),
                                                           treat = X$treat,
