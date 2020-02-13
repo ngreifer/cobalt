@@ -93,7 +93,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
     }
     which.stat <- c(mean.diffs = "Diff", variance.ratios = "V.Ratio", ks.statistics = "KS", correlations = "Corr")[stats]
-    which.stat2 <- c(Diff = "Mean Difference", V.Ratio = "Variance Ratio", KS = "Kolmogorov-Smirnov Statistic", Corr = "Correlation")[which.stat]
+    which.stat2 <- c(Diff = "mean difference", V.Ratio = "variance ratio", KS = "Kolmogorov-Smirnov statistic", Corr = "correlation")[which.stat]
     
     #Get B and config
     if ("bal.tab.subclass" %in% class(x)) {
@@ -562,11 +562,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) 
                 stop(paste("No balance statistics to display. This can occur when", 
-                           switch(s, mean.diffs = "disp.diff", variance.ratios = "disp.v.ratio", ks.statistics = "disp.ks"), 
+                           switch(s, mean.diffs = "disp.diff", 
+                                  variance.ratios = "disp.v.ratio", 
+                                  ks.statistics = "disp.ks", 
+                                  correlations = "disp.corr"), 
                            "= FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             
             missing.stat <- all(is.na(SS[["mean.stat"]]))
-            if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), 
+            if (missing.stat) stop(paste0(word_list(firstup(which.stat2)), 
                                           "s cannot be displayed. This can occur when ", 
                                           word_list(switch(s, mean.diffs = "disp.diff", 
                                                            variance.ratios = "disp.v.ratio", 
@@ -618,7 +621,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 }
                 else if (var.order %in% ua) {
                     if (var.order %in% gone) {
-                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
+                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", which.stat2, "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
                         var.order <- NULL
                     }
                     else {
@@ -656,7 +659,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                  ))
             
             missing.stat <- all(is.na(SS[["stat"]]))
-            if (missing.stat) stop(paste0(word_list(firstup(tolower(which.stat2))), 
+            if (missing.stat) stop(paste0(word_list(firstup(which.stat2)), 
                                           "s cannot be displayed. This can occur when ", 
                                           word_list(switch(s, mean.diffs = "disp.diff", 
                                                            variance.ratios = "disp.v.ratio",
@@ -711,7 +714,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 }
                 else if (var.order %in% ua) {
                     if (var.order %in% gone) {
-                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", tolower(which.stat2), "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
+                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", which.stat2, "s were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
                         var.order <- NULL
                     }
                     else {
