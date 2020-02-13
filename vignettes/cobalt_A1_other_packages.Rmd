@@ -277,7 +277,7 @@ if (!"MatchThem" %in% rownames(installed.packages())) knitr::opts_chunk$set(eval
 ```
 The `MatchThem` package is essentially a wrapper for `matchit()` from `MatchIt` and `weightit()` from `WeightIt` but for use with multiply imputed data. Using `bal.tab()` on `mimids` or `wimids` objects from `MatchThem` activates the features that accompany multiply imputed data; balance is assessed within each imputed dataset and aggregated across imputations. See `?bal.tab.imp` or the accompanying Appendix 2 for more information about using `cobalt` with multiply imputed data. Below is a simple example of using `bal.tab()` with `MatchThem`:
 ```{r}
-library("MatchThem"); library("mice")
+library("mice"); library("MatchThem")
 data("lalonde_mis", package = "cobalt")
 
 #Generate imputed data sets

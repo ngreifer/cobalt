@@ -118,7 +118,7 @@ Multiply imputed data works in a very similar way to clustered data, except the 
 In the example below, we will use a version of the Lalonde data set with some values missing. We will use the `mice` package to implement multiple imputation with chained equations. We will perform the "within" approach using the `MatchThem` to perform propensity score weighting within each imputation with `educ` as the continuous treatment (substantively this analysis makes no sense and is just for illustration).
 
 ```{r}
-library("MatchThem"); library("cobalt"); library("mice")
+library("mice"); library("MatchThem"); library("cobalt")
 data("lalonde_mis", package = "cobalt")
 
 #Generate imputed data sets
