@@ -157,8 +157,39 @@ x2base.matchit <- function(m, ...) {
         stop("focal is not allowed with matchit objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -339,8 +370,39 @@ x2base.ps <- function(ps, ...) {
         stop("focal is not allowed with ps objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -503,8 +565,39 @@ x2base.mnps <- function(mnps, ...) {
     #Process focal
     focal <- mnps$treatATT
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -668,8 +761,39 @@ x2base.ps.cont <- function(ps.cont, ...) {
         stop("focal is not allowed with ps.cont objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("correlations" %in% stats) {
@@ -803,8 +927,39 @@ x2base.Match <- function(Match, ...) {
         stop("focal is not allowed with Match objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1111,8 +1266,39 @@ x2base.data.frame <- function(covs, ...) {
         }
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1262,8 +1448,39 @@ x2base.CBPS <- function(cbps.fit, ...) {
         stop("focal is not allowed with CBPS objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1401,8 +1618,39 @@ x2base.ebalance <- function(ebalance, ...) {
         stop("focal is not allowed with ebalance objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1535,8 +1783,39 @@ x2base.optmatch <- function(optmatch, ...) {
         stop("focal is not allowed with optmatch objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1677,8 +1956,39 @@ x2base.weightit <- function(weightit, ...) {
     #Process focal
     focal <- weightit$focal
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1814,8 +2124,39 @@ x2base.designmatch <- function(dm, ...) {
         stop("focal is not allowed with designmatch objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -1998,8 +2339,39 @@ x2base.mimids <- function(mimids, ...) {
         stop("focal is not allowed with mimids objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -2144,8 +2516,39 @@ x2base.wimids <- function(wimids, ...) {
     #Process focal
     focal <- unique(unlist(lapply(wimids[["models"]][-1], function(w) w[["focal"]])))
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -2285,8 +2688,39 @@ x2base.sbwcau <- function(sbwcau, ...) {
         stop("focal is not allowed with sbwcau objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -2484,8 +2918,39 @@ x2base.iptw <- function(iptw, ...) {
         stop("focal is not allowed with iptw objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat.list)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -2696,8 +3161,39 @@ x2base.data.frame.list <- function(covs.list, ...) {
         stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat.list)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -2876,8 +3372,39 @@ x2base.CBMSM <- function(cbmsm, ...) {
         stop("focal is not allowed with CBMSM objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat.list)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -3035,8 +3562,39 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         stop("focal is not allowed with weightitMSM objects.", call. = FALSE)
     }
     
-    #Process stats
+    #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat.list)
+    
+    if (is_not_null(A[["thresholds"]])) {
+        thresholds <- as.list(A[["thresholds"]])
+        names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
     
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
@@ -3513,8 +4071,36 @@ x2base.default <- function(obj, ...) {
             }
         }
         
-        #Process stats
+        #Process stats and thresholds
         stats <- process_stats(A[["stats"]], treat = treat)
+        
+        if (is_not_null(A[["thresholds"]])) {
+            thresholds <- as.list(A[["thresholds"]])
+            names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+            if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+        }
+        else thresholds <- list()
+        
+        for (s in all_STATS) {
+            #If disp.stat is TRUE, add stat to stats
+            if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+                stats <- unique(c(stats, s))
+            }
+            
+            #Process and check thresholds
+            if (is_not_null(A[[STATS[[s]]$threshold]])) {
+                thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+            }
+            if (is_not_null(thresholds[[s]])) {
+                thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+                if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                    thresholds[[s]] <- NULL
+                    warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                                   "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+                }
+                else stats <- unique(c(stats, s))
+            }
+        }
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
@@ -3738,8 +4324,36 @@ x2base.default <- function(obj, ...) {
             stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
         }
         
-        #Process stats
+        #Process stats and thresholds
         stats <- process_stats(A[["stats"]], treat = treat.list)
+        
+        if (is_not_null(A[["thresholds"]])) {
+            thresholds <- as.list(A[["thresholds"]])
+            names(thresholds) <- match_arg(names(thresholds), c(stats, setdiff(all_STATS, stats)), several.ok = TRUE)
+            if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+        }
+        else thresholds <- list()
+        
+        for (s in all_STATS) {
+            #If disp.stat is TRUE, add stat to stats
+            if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+                stats <- unique(c(stats, s))
+            }
+            
+            #Process and check thresholds
+            if (is_not_null(A[[STATS[[s]]$threshold]])) {
+                thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+            }
+            if (is_not_null(thresholds[[s]])) {
+                thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+                if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                    thresholds[[s]] <- NULL
+                    warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                                   "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+                }
+                else stats <- unique(c(stats, s))
+            }
+        }
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
