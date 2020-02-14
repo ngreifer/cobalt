@@ -15,6 +15,8 @@ Version 4.1.0
 
 * Fixed a bug when using the default `bal.tab` method with objects containing longitudinal treatments.
 
+* Fixed a bug when using `bal.tab` with continuous treatments and clusters.
+
 * Fixed a bug in `love.plot()` when using subclassification.
 
 Version 4.0.0
