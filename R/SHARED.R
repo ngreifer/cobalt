@@ -701,6 +701,37 @@ is_binary <- function(x, na.rm = TRUE) {
 }
 
 #R Processing
+make_list <- function(n) {
+    if (length(n) == 1L && is.numeric(n)) {
+        vector("list", as.integer(n))
+    }
+    else if (is_(n, c("atomic", "factor"))) {
+        setNames(vector("list", length(n)), as.character(n))
+    }
+}
+ifelse_ <- function(...) {
+    if (...length() %% 2 == 0) stop("ifelse_ must have an odd number of arguments: pairs of test/yes, and one no.")
+    out <- ...elt(...length())
+    if (...length() > 1) {
+        if (!is_(out, c("atomic", "factor"))) stop("The last entry to ifelse_ must be atomic or factor.")
+        if (length(out) == 1) out <- rep(out, length(..1))
+        n <- length(out)
+        for (i in seq_len((...length() - 1)/2)) {
+            test <- ...elt(2*i - 1)
+            yes <- ...elt(2*i)
+            if (length(yes) == 1) yes <- rep(yes, n)
+            if (length(yes) != n || length(test) != n) stop("All entries must have the same length.")
+            if (!is.logical(test)) stop(paste("The", ordinal(2*i - 1), "entry to ifelse_ must be logical."))
+            if (!is_(yes, c("atomic", "factor"))) stop(paste("The", ordinal(2*i), "entry to ifelse_ must be atomic or factor."))
+            pos <- which(test)
+            out[pos] <- yes[pos]
+        }
+    }
+    else {
+        if (!is_(out, c("atomic", "factor"))) stop("The first entry to ifelse_ must be atomic or factor.")
+    }
+    return(out)
+}
 is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
     s1 <- deparse(substitute(x))
     if (is_not_null(x)) {
