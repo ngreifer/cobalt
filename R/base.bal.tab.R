@@ -3,8 +3,7 @@ base.bal.tab <- function(X, ...) {
 }
 base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
-    A <- clear_null(list(...))
-    
+
     X$treat <- process_treat(X$treat) 
     
     if (type == "bin" && get.treat.type(X$treat) != "binary") {
@@ -56,6 +55,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
     #Reassign disp... and ...threshold based on balance table output
     stats <- attr(out[["Balance"]], "stats")
     thresholds <- attr(out[["Balance"]], "thresholds")
+    disp <- attr(out[["Balance"]], "disp")
     
     for (s in stats) {
         if (is_not_null(thresholds[[s]])) {
@@ -99,8 +99,8 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
     attr(out, "print.options") <- list(thresholds = thresholds,
                                        imbalanced.only = imbalanced.only,
                                        un=un, 
-                                       disp.means=disp.means, 
-                                       disp.sds=disp.sds,
+                                       disp.means=disp["means"], 
+                                       disp.sds=disp["sds"],
                                        stats = stats, 
                                        disp.adj=!no.adj,
                                        disp.bal.tab = disp.bal.tab, 
@@ -159,12 +159,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     
     if (imp.summary || !A$quick) {
         out[["Balance.Across.Imputations"]] <- balance.summary(out[["Imputation.Balance"]], 
-                                                               weight.names = names(X$weights),
-                                                               Agg.Funs = if_null_then(imp.fun, c("min", "mean", "max")),
-                                                               no.adj = is_null(X$weights),
-                                                               abs = attr(out[["Imputation.Balance"]][[1]], "print.options")[["abs"]],
-                                                               quick = A$quick,
-                                                               types = NULL)
+                                                               agg.funs = if_null_then(imp.fun, c("min", "mean", "max")))
         
         observations <- lapply(out[["Imputation.Balance"]], function(x) x[["Observations"]])
         
@@ -242,15 +237,15 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
         })
     }
     else {
-        if (any(treat_vals(X$treat) == "Others")) stop ("\"Others\" cannot be the name of a treatment level. Please rename your treatments.", call. = FALSE)
+        if (any(treat_vals(X$treat) == "All")) stop ("\"All\" cannot be the name of a treatment level. Please rename your treatments.", call. = FALSE)
         balance.tables <- lapply(treat.combinations, function(t) {
-            treat_ <- factor(X$treat, levels = c(levels(X$treat), "Others"))
-            treat_[treat_ != t[1]] <- "Others"
-            treat_ <- factor(treat_, rev(t))
+            n <- length(X$treat)
             X_t <- X
-            X_t$treat <- treat_
-            X_t <- assign.X.class(X_t)
             X_t$call <- NULL
+            X_t <- subset_X(X_t, c(seq_len(n), which(X$treat == t[1])))
+            X_t$treat <- factor(c(rep("All", n), rep(t[1], sum(X$treat == t[1]))), nmax = 2,
+                                levels = c("All", t[1]))
+            X_t <- assign.X.class(X_t)
             do.call(base.bal.tab, c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
         })
     }
@@ -271,11 +266,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     
     if ((multi.summary || !A$quick) && is_null(X$imp)) {
         out[["Balance.Across.Pairs"]] <- balance.summary(balance.tables, 
-                                                         weight.names = names(X$weights),
-                                                         Agg.Funs = "Max",
-                                                         no.adj = is_null(X$weights),
-                                                         quick = A$quick,
-                                                         types = NULL)
+                                                         agg.funs = "max")
         out[["Observations"]] <- samplesize.multi(balance.tables, treat_names(X$treat), X$focal)
     }
     
@@ -342,15 +333,9 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     else names(out[["Time.Balance"]]) <- seq_along(X$treat.list)
     
     if (!(A$quick && !msm.summary) && all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X$imp)) {
-        out[["Balance.Across.Times"]] <- balance.table.msm.summary(out[["Time.Balance"]],
-                                                                   weight.names = names(X$weights),
-                                                                   no.adj = is_null(X$weights),
-                                                                   m.threshold = X$thresholds[["mean.diffs"]],
-                                                                   v.threshold = X$thresholds[["variance.ratios"]],
-                                                                   ks.threshold = X$thresholds[["ks.statistics"]],
-                                                                   r.threshold = X$thresholds[["correlations"]], 
-                                                                   quick = A$quick, 
-                                                                   types = NULL)
+        out[["Balance.Across.Times"]] <- balance.summary(out[["Time.Balance"]],
+                                                         agg.fun = "max",
+                                                         include.times = TRUE)
         out[["Observations"]] <- lapply(out[["Time.Balance"]], function(x) x$Observations)
     }
     
@@ -378,7 +363,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     
     #Setup output object
     out.names <- c("Cluster.Balance", 
-                   "Cluster.Summary", 
+                   "Balance.Across.Clusters", 
                    "Observations", 
                    "call")
     out <- vector("list", length(out.names))
@@ -398,12 +383,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     
     if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
         out[["Cluster.Summary"]] <- balance.summary(out[["Cluster.Balance"]], 
-                                                    weight.names = names(X$weights),
-                                                    Agg.Funs = if_null_then(cluster.fun, c("min", "mean", "max")),
-                                                    no.adj = is_null(X$weights),
-                                                    abs = attr(out[["Cluster.Balance"]][[1]], "print.options")[["abs"]],
-                                                    quick = A$quick,
-                                                    types = NULL)
+                                                    Agg.Funs = if_null_then(cluster.fun, c("min", "mean", "max")))
         observations <- lapply(out[["Cluster.Balance"]], function(x) x[["Observations"]])
         
         out[["Observations"]] <- samplesize.across.clusters(observations)
@@ -423,8 +403,6 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
 #NEEDS UPDATING with STATS
 base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
-    A <- clear_null(list(...))
-    
     if (type == "bin" && get.treat.type(X$treat) != "binary") {
         stop("Treatment indicator must be a binary variable---e.g., treatment (1) or control (0)", call. = FALSE)
         if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
@@ -519,6 +497,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
     #Reassign disp... and ...threshold based on balance table output
     stats <- attr(out[["Subclass.Balance"]], "stats")
     thresholds <- attr(out[["Subclass.Balance"]], "thresholds")
+    disp <- attr(out[["Subclass.Balance"]], "disp")
     
     for (s in stats) {
         if (is_not_null(thresholds[[s]])) {
@@ -543,8 +522,8 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
     attr(out, "print.options") <- list(thresholds = thresholds,
                                        imbalanced.only = imbalanced.only,
                                        un=un, 
-                                       disp.means=disp.means, 
-                                       disp.sds=disp.sds,
+                                       disp.means=disp["means"], 
+                                       disp.sds=disp["sds"],
                                        stats = stats, 
                                        disp.adj = !no.adj, 
                                        disp.subclass = disp.subclass,
