@@ -460,13 +460,13 @@ print.bal.tab.cluster <- function(x, m.threshold = "as.is", v.threshold = "as.is
         }
     }
     
-    cluster.funs <- c("min", "mean", "max")
+    agg.funs <- c("min", "mean", "max")
     if (!identical(cluster.fun, "as.is")) {
         p.ops$cluster.fun <- cluster.fun
     }
     if (is_not_null(p.ops$cluster.fun)) {
-        if (!is.character(p.ops$cluster.fun)) stop(paste0("cluster.fun must be ", word_list(c(cluster.funs, "as.is"), and.or = "or", quotes = TRUE)))
-        p.ops$cluster.fun <- match_arg(tolower(p.ops$cluster.fun), cluster.funs, several.ok = TRUE)
+        if (!is.character(p.ops$cluster.fun)) stop(paste0("cluster.fun must be ", word_list(c(agg.funs, "as.is"), and.or = "or", quotes = TRUE)))
+        p.ops$cluster.fun <- match_arg(tolower(p.ops$cluster.fun), agg.funs, several.ok = TRUE)
         if (is_null(p.ops$cluster.fun)) {
             warning("There were no valid entries to cluster.fun. Using the default cluster.funs instead.", call. = FALSE)
             if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
@@ -526,39 +526,23 @@ print.bal.tab.cluster <- function(x, m.threshold = "as.is", v.threshold = "as.is
     }
     
     if (isTRUE(as.logical(p.ops$cluster.summary)) && is_not_null(c.balance.summary)) {
-        CF <- setNames(cluster.funs %in% p.ops$cluster.fun, cluster.funs)
-        if (p.ops$type == "cont") {
-            s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && "correlations" %in% p.ops$stats && CF["min"],
-                                   p.ops$un && "correlations" %in% p.ops$stats && CF["mean"],
-                                   p.ops$un && "correlations" %in% p.ops$stats && CF["max"],
-                                   rep(c(p.ops$disp.adj && "correlations" %in% p.ops$stats && CF["min"],
-                                         p.ops$disp.adj && "correlations" %in% p.ops$stats && CF["mean"],
-                                         p.ops$disp.adj && "correlations" %in% p.ops$stats && CF["max"]), 
-                                       p.ops$nweights + !p.ops$disp.adj)))
-        }
-        else {
-            s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && "mean.diffs" %in% p.ops$stats && CF["min"],
-                                   p.ops$un && "mean.diffs" %in% p.ops$stats && CF["mean"],
-                                   p.ops$un && "mean.diffs" %in% p.ops$stats && CF["max"],
-                                   p.ops$un && "variance.ratios" %in% p.ops$stats && CF["min"],
-                                   p.ops$un && "variance.ratios" %in% p.ops$stats && CF["mean"],
-                                   p.ops$un && "variance.ratios" %in% p.ops$stats && CF["max"],
-                                   p.ops$un && "ks.statistics" %in% p.ops$stats && CF["min"],
-                                   p.ops$un && "ks.statistics" %in% p.ops$stats && CF["mean"],
-                                   p.ops$un && "ks.statistics" %in% p.ops$stats && CF["max"],
-                                   rep(c(p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && CF["min"],
-                                         p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && CF["mean"],
-                                         p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && CF["max"],
-                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && CF["min"],
-                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && CF["mean"],
-                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && CF["max"],
-                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && CF["min"],
-                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && CF["mean"],
-                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && CF["max"]), 
-                                       p.ops$nweights + !p.ops$disp.adj)))
-        }
+        s.keep <- as.logical(c(TRUE, 
+                               unlist(lapply(all_STATS[get_from_STATS("type") == p.ops$type], function(s) {
+                                   c(unlist(lapply(agg.funs, function(af) {
+                                       p.ops$un && s %in% p.ops$stats && af %in% p.ops$cluster.fun
+                                   })), 
+                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                               })),
+                               rep(
+                                   unlist(lapply(all_STATS[get_from_STATS("type") == p.ops$type], function(s) {
+                                       c(unlist(lapply(agg.funs, function(af) {
+                                           p.ops$disp.adj && s %in% p.ops$stats && af %in% p.ops$cluster.fun
+                                       })), 
+                                       p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                   })),
+                                   p.ops$nweights + !p.ops$disp.adj)
+        ))
+        
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all clusters") %+% "\n")
             print.data.frame_(round_df_char(c.balance.summary[, s.keep, drop = FALSE], digits))
@@ -774,13 +758,13 @@ print.bal.tab.imp <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
         }
     }
     
-    imp.funs <- c("min", "mean", "max")
+    agg.funs <- c("min", "mean", "max")
     if (!identical(imp.fun, "as.is")) {
         p.ops$imp.fun <- imp.fun
     }
     if (is_not_null(p.ops$imp.fun)) {
-        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word_list(c(imp.funs, "as.is"), and.or = "or", quotes = TRUE)))
-        p.ops$imp.fun <- match_arg(tolower(p.ops$imp.fun), imp.funs, several.ok = TRUE)
+        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word_list(c(agg.funs, "as.is"), and.or = "or", quotes = TRUE)))
+        p.ops$imp.fun <- match_arg(tolower(p.ops$imp.fun), agg.funs, several.ok = TRUE)
         if (is_null(p.ops$imp.fun)) {
             warning("There were no valid entries to imp.fun. Using the default imp.funs instead.", call. = FALSE)
             if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
@@ -835,37 +819,22 @@ print.bal.tab.imp <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
     }
     
     if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
-        IF <- setNames(imp.funs %in% p.ops$imp.fun, imp.funs)
-        if (p.ops$type == "cont") { #continuous
-            s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && "correlations" %in% p.ops$stats && IF["min"],
-                                   p.ops$un && "correlations" %in% p.ops$stats && IF["mean"],
-                                   p.ops$un && "correlations" %in% p.ops$stats && IF["max"],
-                                   rep(c(p.ops$disp.adj && "correlations" %in% p.ops$stats && IF["min"],
-                                         p.ops$disp.adj && "correlations" %in% p.ops$stats && IF["mean"],
-                                         p.ops$disp.adj && "correlations" %in% p.ops$stats && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
-        }
-        else { #binary
-            s.keep <- as.logical(c(TRUE, 
-                                   p.ops$un && "mean.diffs" %in% p.ops$stats && IF["min"],
-                                   p.ops$un && "mean.diffs" %in% p.ops$stats && IF["mean"],
-                                   p.ops$un && "mean.diffs" %in% p.ops$stats && IF["max"],
-                                   p.ops$un && "variance.ratios" %in% p.ops$stats && IF["min"],
-                                   p.ops$un && "variance.ratios" %in% p.ops$stats && IF["mean"],
-                                   p.ops$un && "variance.ratios" %in% p.ops$stats && IF["max"],
-                                   p.ops$un && "ks.statistics" %in% p.ops$stats && IF["min"],
-                                   p.ops$un && "ks.statistics" %in% p.ops$stats && IF["mean"],
-                                   p.ops$un && "ks.statistics" %in% p.ops$stats && IF["max"],
-                                   rep(c(p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && IF["min"],
-                                         p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && IF["mean"],
-                                         p.ops$disp.adj && "mean.diffs" %in% p.ops$stats && IF["max"],
-                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && IF["min"],
-                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && IF["mean"],
-                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats && IF["max"],
-                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && IF["min"],
-                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && IF["mean"],
-                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats && IF["max"]), p.ops$nweights + !p.ops$disp.adj)))
-        }
+        s.keep <- as.logical(c(TRUE, 
+                               unlist(lapply(all_STATS[get_from_STATS("type") == p.ops$type], function(s) {
+                                   c(unlist(lapply(agg.funs, function(af) {
+                                       p.ops$un && s %in% p.ops$stats && af %in% p.ops$imp.fun
+                                   })), 
+                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                               })),
+                               rep(
+                                   unlist(lapply(all_STATS[get_from_STATS("type") == p.ops$type], function(s) {
+                                       c(unlist(lapply(agg.funs, function(af) {
+                                           p.ops$disp.adj && s %in% p.ops$stats && af %in% p.ops$imp.fun
+                                       })), 
+                                       p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                   })),
+                                   p.ops$nweights + !p.ops$disp.adj)
+        ))
         
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all imputations") %+% "\n")
@@ -1151,19 +1120,23 @@ print.bal.tab.multi <- function(x, m.threshold = "as.is", v.threshold = "as.is",
     }
     
     if (isTRUE(as.logical(p.ops$multi.summary)) && is_not_null(m.balance.summary)) {
+        agg.funs <- c("min", "mean", "max")
         s.keep <- as.logical(c(TRUE, 
-                               p.ops$un && "mean.diffs" %in% p.ops$stats,
-                               p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$m.threshold),
-                               p.ops$un && "variance.ratios" %in% p.ops$stats, 
-                               p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
-                               p.ops$un && "ks.statistics" %in% p.ops$stats, 
-                               p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$ks.threshold),
-                               rep(c(p.ops$disp.adj && "mean.diffs" %in% p.ops$stats, 
-                                     p.ops$disp.adj && is_not_null(p.ops$m.threshold), 
-                                     p.ops$disp.adj && "variance.ratios" %in% p.ops$stats, 
-                                     p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
-                                     p.ops$disp.adj && "ks.statistics" %in% p.ops$stats, 
-                                     p.ops$disp.adj && is_not_null(p.ops$ks.threshold)), p.ops$nweights + !p.ops$disp.adj)))
+                               unlist(lapply(all_STATS[get_from_STATS("type") == "bin"], function(s) {
+                                   c(unlist(lapply(agg.funs, function(af) {
+                                       p.ops$un && s %in% p.ops$stats && af %in% "max"
+                                   })), 
+                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                               })),
+                               rep(
+                                   unlist(lapply(all_STATS[get_from_STATS("type") == "bin"], function(s) {
+                                       c(unlist(lapply(agg.funs, function(af) {
+                                           p.ops$disp.adj && s %in% p.ops$stats && af %in% "max"
+                                       })), 
+                                       p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                   })),
+                                   p.ops$nweights + !p.ops$disp.adj)
+        ))
         
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all treatment pairs") %+% "\n")
@@ -1442,33 +1415,25 @@ print.bal.tab.msm <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
     }
     
     if (isTRUE(as.logical(p.ops$msm.summary)) && is_not_null(msm.balance.summary)) {
-        if (p.ops$type == "cont") { #continuous
-            s.keep <- as.logical(c(TRUE, 
-                                   TRUE,
-                                   p.ops$un && "correlations" %in% p.ops$stats,
-                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$r.threshold),
-                                   rep(c(p.ops$disp.adj && "correlations" %in% p.ops$stats, 
-                                         p.ops$disp.adj && is_not_null(p.ops$r.threshold) 
-                                   ), p.ops$nweights + !p.ops$disp.adj)))
-            
-        }
-        else { #binary
-            s.keep <- as.logical(c(TRUE, 
-                                   TRUE,
-                                   p.ops$un && "mean.diffs" %in% p.ops$stats,
-                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$m.threshold),
-                                   p.ops$un && "variance.ratios" %in% p.ops$stats, 
-                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
-                                   p.ops$un && "ks.statistics" %in% p.ops$stats, 
-                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$ks.threshold),
-                                   rep(c(p.ops$disp.adj && "mean.diffs" %in% p.ops$stats, 
-                                         p.ops$disp.adj && is_not_null(p.ops$m.threshold), 
-                                         p.ops$disp.adj && "variance.ratios" %in% p.ops$stats, 
-                                         p.ops$disp.adj && is_not_null(p.ops$v.threshold), 
-                                         p.ops$disp.adj && "ks.statistics" %in% p.ops$stats, 
-                                         p.ops$disp.adj && is_not_null(p.ops$ks.threshold)
-                                   ), p.ops$nweights + !p.ops$disp.adj)))
-        }
+        agg.funs <- c("min", "mean", "max")
+        s.keep <- as.logical(c(TRUE, 
+                               TRUE,
+                               unlist(lapply(all_STATS[get_from_STATS("type") == p.ops$type], function(s) {
+                                   c(unlist(lapply(agg.funs, function(af) {
+                                       p.ops$un && s %in% p.ops$stats && af %in% "max"
+                                   })), 
+                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                               })),
+                               rep(
+                                   unlist(lapply(all_STATS[get_from_STATS("type") == p.ops$type], function(s) {
+                                       c(unlist(lapply(agg.funs, function(af) {
+                                           p.ops$disp.adj && s %in% p.ops$stats && af %in% "max"
+                                       })), 
+                                       p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                   })),
+                                   p.ops$nweights + !p.ops$disp.adj)
+        ))
+        
         
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all time points") %+% "\n")
