@@ -838,6 +838,25 @@ process_stats <- function(stats = NULL, treat) {
         return(unique(stats))
     }
 }
+process_subset <- function(subset, n) {
+    if (!is_(subset, c("logical", "numeric"))) {
+        stop("The argument to subset must be a logical or numeric vector.", call. = FALSE)
+    }
+    else if (is.numeric(subset)) {
+        if (any(abs(subset) > n)) stop("Numeric values for subset cannot be larger than the number of units.", call. = FALSE)
+        subset <- subset[!is.na(subset) & subset != 0]
+        if (any(subset < 0) && any(subset > 0)) stop("Positive and negative indices cannot be mixed with subset.")
+        if (any(abs(subset) > n)) stop("If subset is numeric, none of its values can exceed the number of units.")
+        logical.subset <- rep(any(subset < 0), n)
+        logical.subset[abs(subset)] <- !logical.subset[abs(subset)]
+        subset <- logical.subset
+    }
+    if (anyNA(subset)) {
+        warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
+        subset[is.na(subset)] <- FALSE
+    }
+    return(subset)
+}
 
 #get.C
 #Functions to turn input covariates into usable form

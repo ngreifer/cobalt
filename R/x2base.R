@@ -134,13 +134,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -350,13 +344,7 @@ x2base.ps <- function(ps, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -549,13 +537,7 @@ x2base.mnps <- function(mnps, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -745,13 +727,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -911,13 +887,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -1245,13 +1215,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -1438,13 +1402,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -1612,13 +1570,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -1779,13 +1731,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -1955,13 +1901,7 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -2124,13 +2064,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -2340,13 +2274,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, min(table(imp)))
     }
     
     #Process discarded
@@ -2521,13 +2449,7 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, min(table(imp)))
     }
     
     #Process discarded
@@ -2694,13 +2616,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, length(treat))
     }
     
     #Process discarded
@@ -2925,13 +2841,7 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, min(lengths(treat.list)))
     }
     
     #Process discarded
@@ -3171,13 +3081,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, min(lengths(treat.list)))
     }
     
     #Process discarded
@@ -3383,13 +3287,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, min(lengths(treat.list)))
     }
     
     #Process discarded
@@ -3575,13 +3473,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process subset
     if (is_not_null(subset <- A$subset)) {
-        if (!is.logical(subset)) {
-            stop("The argument to subset must be a logical vector.", call. = FALSE)
-        }
-        if (anyNA(subset)) {
-            warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-            subset[is.na(subset)] <- FALSE
-        }
+        subset <- process_subset(subset, min(lengths(treat.list)))
     }
     
     #Process discarded
@@ -4078,13 +3970,7 @@ x2base.default <- function(obj, ...) {
         
         #Process subset
         if (is_not_null(subset <- A$subset)) {
-            if (!is.logical(subset)) {
-                stop("The argument to subset must be a logical vector.", call. = FALSE)
-            }
-            if (anyNA(subset)) {
-                warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-                subset[is.na(subset)] <- FALSE
-            }
+            subset <- process_subset(subset, length(treat))
         }
         
         #Process discarded
@@ -4342,13 +4228,7 @@ x2base.default <- function(obj, ...) {
         
         #Process subset
         if (is_not_null(subset <- A$subset)) {
-            if (!is.logical(subset)) {
-                stop("The argument to subset must be a logical vector.", call. = FALSE)
-            }
-            if (anyNA(subset)) {
-                warning("NAs were present in subset. Treating them like FALSE.", call. = FALSE)
-                subset[is.na(subset)] <- FALSE
-            }
+            subset <- process_subset(subset, min(lengths(treat.list)))
         }
         
         #Process discarded

@@ -112,7 +112,7 @@ the causal estimand of interest. This value is used to set \code{s.d.denom}, and
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
-a \code{logical} vector denoting whether each observation should be included. It should be the same length as the treatment and covariates. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
+A \code{logical} or \code{numeric} vector denoting whether each observation should be included or which observations should be included. If \code{logical}, it should be the same length as the treatment and covariates. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Set to \code{FALSE} if computed values not displayed will be used later.

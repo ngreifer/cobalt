@@ -101,7 +101,7 @@ Currently ignored.
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
-a \code{logical} vector denoting whether each observation should be included. It should be the same length as the variables in the original (unimputed) dataset or the call to \code{matchthem()} or \code{weightthem()} (i.e., one for each individual or one for each individual for each imputation). \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data. For multinomial treatments, this can be used to subset treatment level pairs.
+a \code{logical} or \code{numeric} vector denoting whether each observation should be included or which observations should be included. If \code{logical}, it should be the same length as the variables in the original (unimputed) dataset or the call to \code{matchthem()} or \code{weightthem()} (i.e., one for each individual or one for each individual for each imputation). \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Set to \code{FALSE} if computed values not displayed will be used later.
