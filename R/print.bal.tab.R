@@ -288,7 +288,7 @@ print.bal.tab.cluster <- function(x, m.threshold = "as.is", v.threshold = "as.is
     A <- clear_null(list(...))    
     call <- x$call
     c.balance <- x$Cluster.Balance
-    c.balance.summary <- x$Cluster.Summary
+    c.balance.summary <- x$Balance.Across.Clusters
     nn <- x$Observations
     p.ops <- attr(x, "print.options")
 
@@ -531,14 +531,14 @@ print.bal.tab.cluster <- function(x, m.threshold = "as.is", v.threshold = "as.is
                                    c(unlist(lapply(agg.funs, function(af) {
                                        p.ops$un && s %in% p.ops$stats && af %in% p.ops$cluster.fun
                                    })), 
-                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                   p.ops$un && !p.ops$disp.adj && length(p.ops$cluster.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
                                })),
                                rep(
                                    unlist(lapply(all_STATS[get_from_STATS("type") == p.ops$type], function(s) {
                                        c(unlist(lapply(agg.funs, function(af) {
                                            p.ops$disp.adj && s %in% p.ops$stats && af %in% p.ops$cluster.fun
                                        })), 
-                                       p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                       p.ops$disp.adj && length(p.ops$cluster.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
                                    })),
                                    p.ops$nweights + !p.ops$disp.adj)
         ))
@@ -824,14 +824,14 @@ print.bal.tab.imp <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
                                    c(unlist(lapply(agg.funs, function(af) {
                                        p.ops$un && s %in% p.ops$stats && af %in% p.ops$imp.fun
                                    })), 
-                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                   p.ops$un && !p.ops$disp.adj && length(p.ops$imp.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
                                })),
                                rep(
                                    unlist(lapply(all_STATS[get_from_STATS("type") == p.ops$type], function(s) {
                                        c(unlist(lapply(agg.funs, function(af) {
                                            p.ops$disp.adj && s %in% p.ops$stats && af %in% p.ops$imp.fun
                                        })), 
-                                       p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                       p.ops$disp.adj && length(p.ops$imp.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
                                    })),
                                    p.ops$nweights + !p.ops$disp.adj)
         ))
@@ -1090,12 +1090,12 @@ print.bal.tab.multi <- function(x, m.threshold = "as.is", v.threshold = "as.is",
             if (length(which.treat) == 1) {
                 disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) {
                     treat_names <- attr(m.balance[[x]], "print.options")$treat_names
-                    any(treat_names[treat_names != "Others"] == which.treat)})]
+                    any(treat_names[treat_names != "All"] == which.treat)})]
             }
             else {
                 disp.treat.pairs <- names(m.balance)[sapply(names(m.balance), function(x) {
                     treat_names <- attr(m.balance[[x]], "print.options")$treat_names
-                    all(treat_names[treat_names != "Others"] %in% which.treat)})]
+                    all(treat_names[treat_names != "All"] %in% which.treat)})]
             }
         }
     }
