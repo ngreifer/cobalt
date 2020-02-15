@@ -7,9 +7,13 @@ Version 4.1.0
 
 * Added `stats` argument to `bal.tab()` and `print()` to replace `disp.v.ratio` and `disp.ks`. This argument functions similarly to how it does in `love.plot()`; for example, to request mean differences and variance ratios, one can enter `stats = c("m", "v")`. One consequence of this is that it is possible to request statistics that don't include mean differences. See `?display_options` for more details. The old arguments still work (and probably always will) but you should use `stats` instead. The goal here was to unify syntax across `bal.tab()`, `print()`, and `love.plot()`.
 
+* Added `thresholds` argument to `bal.tab()` and `print()` to replace `m.threshold`, `v.theshold`, etc. This argument functions similarly to how it does in `love.plot()`; for example, to request thresholds for mean differences and variance ratios, one can enter `thresholds = c(m = .1, v = 2)`. The old argument still work (and probably always will) but you should use `thresholds` instead. The goal here was to unify syntax across `bal.tab()`, `print()`, and `love.plot()`.
+
 * Added `disp.means` option to `bal.plot` to display the mean of the covariate as a line on density plots and histograms.
 
 * Added `"hedges"` as an option to `s.d.denom`. This will compute the standardized mean difference using the formula for the small sample-corrected Hedge's G as described in the What Works Clearinghouse Procedures Handbook.
+
+* With multi-category treatments when `pairwise = FALSE`, rather than computing balance between each treatment group and the other treatment groups, balance is now computed between each treatment group and the entire sample.
 
 * In `print()`, the arguments `disp.m.threshold`, `disp.v.threshold`, `disp.ks.threshold`, and `disp.r.threshold`, which could be set to `FALSE` to prevent the corresponding balance thresholds and summaries from being printed, have been replaced with `m.threshold`, `v.threshold`, `ks.threshold`, and `r.threshold`. These can be set to `NULL` to prevent the balance thresholds from being printed. The goal here was to unify syntax across `bal.tab()` and `print()`.
 
