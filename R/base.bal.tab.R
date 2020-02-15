@@ -62,25 +62,25 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
             if (no.adj) {
                 out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[paste.(STATS[[s]]$Threshold, "Un")]])
                 out[[paste.("Max.Imbalance", s)]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                               paste.(STATS[[s]]$bal.tab._column_prefix, "Un"), 
-                                                               paste.(STATS[[s]]$Threshold, "Un"), 
-                                                               ratio = s == "variance.ratios")
+                                                               col.name = paste.(STATS[[s]]$bal.tab._column_prefix, "Un"), 
+                                                               thresh.col.name = paste.(STATS[[s]]$Threshold, "Un"), 
+                                                               abs_stat = STATS[[s]]$abs)
             }
             else if (ncol(X$weights) == 1) {
                 out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[STATS[[s]]$Threshold]])
                 out[[paste.("Max.Imbalance", s)]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                               paste.(STATS[[s]]$bal.tab._column_prefix, "Adj"), 
-                                                               STATS[[s]]$Threshold, 
-                                                               ratio = s == "variance.ratios")
+                                                               col.name = paste.(STATS[[s]]$bal.tab._column_prefix, "Adj"), 
+                                                               thresh.col.name = STATS[[s]]$Threshold, 
+                                                               abs_stat = STATS[[s]]$abs)
             }
             else if (ncol(X$weights) > 1) {
                 out[[paste.("Balanced", s)]] <- setNames(do.call("cbind", lapply(names(X$weights), function(x) baltal(out[["Balance"]][[paste.(STATS[[s]]$Threshold, x)]]))),
                                                          names(X$weights))
                 out[[paste.("Max.Imbalance", s)]] <- cbind(Weights = names(X$weights),
                                                            do.call("rbind", lapply(names(X$weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                                                                                                    paste.(STATS[[s]]$bal.tab._column_prefix, x), 
-                                                                                                                                    paste.(STATS[[s]]$Threshold, x), 
-                                                                                                                                    ratio = s == "variance.ratios"),
+                                                                                                                                    col.name = paste.(STATS[[s]]$bal.tab._column_prefix, x), 
+                                                                                                                                    thresh.col.name = paste.(STATS[[s]]$Threshold, x), 
+                                                                                                                                    abs_stat = STATS[[s]]$abs),
                                                                                                                           c("Variable", 
                                                                                                                             STATS[[s]]$bal.tab._column_prefix, 
                                                                                                                             STATS[[s]]$Threshold)))),
@@ -93,7 +93,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
         }
     }
     
-    out[["Observations"]] <- do.call(paste.("samplesize", type), list(treat = X$treat, weights = X$weights, s.weights = X$s.weights, method = X$method, discarded = X$discarded))
+    out[["Observations"]] <- samplesize(treat = X$treat, type = type, weights = X$weights, s.weights = X$s.weights, method = X$method, discarded = X$discarded)
 
     out[["call"]] <- X$call
     attr(out, "print.options") <- list(thresholds = thresholds,
@@ -160,7 +160,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     if (imp.summary || !A$quick) {
         out[["Balance.Across.Imputations"]] <- balance.summary(out[["Imputation.Balance"]], 
                                                                weight.names = names(X$weights),
-                                                               Agg.Fun = if_null_then(imp.fun, c("Min", "Mean", "Max")),
+                                                               Agg.Funs = if_null_then(imp.fun, c("min", "mean", "max")),
                                                                no.adj = is_null(X$weights),
                                                                abs = attr(out[["Imputation.Balance"]][[1]], "print.options")[["abs"]],
                                                                quick = A$quick,
@@ -272,13 +272,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     if ((multi.summary || !A$quick) && is_null(X$imp)) {
         out[["Balance.Across.Pairs"]] <- balance.summary(balance.tables, 
                                                          weight.names = names(X$weights),
-                                                         Agg.Fun = "Max",
-                                                         m.threshold = X$thresholds[["mean.diffs"]],
-                                                         v.threshold = X$thresholds[["variance.ratios"]],
-                                                         ks.threshold = X$thresholds[["ks.statistics"]],
-                                                         # m.threshold = A$m.threshold,
-                                                         # v.threshold = A$v.threshold,
-                                                         # ks.threshold = A$ks.threshold,
+                                                         Agg.Funs = "Max",
                                                          no.adj = is_null(X$weights),
                                                          quick = A$quick,
                                                          types = NULL)
@@ -351,10 +345,10 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
         out[["Balance.Across.Times"]] <- balance.table.msm.summary(out[["Time.Balance"]],
                                                                    weight.names = names(X$weights),
                                                                    no.adj = is_null(X$weights),
-                                                                   m.threshold = A$m.threshold, 
-                                                                   v.threshold = A$v.threshold, 
-                                                                   ks.threshold = A$ks.threshold, 
-                                                                   r.threshold = A$r.threshold, 
+                                                                   m.threshold = X$thresholds[["mean.diffs"]],
+                                                                   v.threshold = X$thresholds[["variance.ratios"]],
+                                                                   ks.threshold = X$thresholds[["ks.statistics"]],
+                                                                   r.threshold = X$thresholds[["correlations"]], 
                                                                    quick = A$quick, 
                                                                    types = NULL)
         out[["Observations"]] <- lapply(out[["Time.Balance"]], function(x) x$Observations)
@@ -405,7 +399,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
         out[["Cluster.Summary"]] <- balance.summary(out[["Cluster.Balance"]], 
                                                     weight.names = names(X$weights),
-                                                    Agg.Fun = if_null_then(A$cluster.fun, c("min", "mean", "max")),
+                                                    Agg.Funs = if_null_then(cluster.fun, c("min", "mean", "max")),
                                                     no.adj = is_null(X$weights),
                                                     abs = attr(out[["Cluster.Balance"]][[1]], "print.options")[["abs"]],
                                                     quick = A$quick,
@@ -461,13 +455,13 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
     C <- get.C(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, ...)
     co.names <- attr(C, "co.names")
     
-    out[["Observations"]] <- do.call(paste.("samplesize", type), 
-                                     list(treat = X$treat, 
-                                          weights = NULL, 
-                                          subclass = X$subclass,
-                                          s.weights = X$s.weights, 
-                                          method = X$method, 
-                                          discarded = X$discarded))
+    out[["Observations"]] <- samplesize(treat = X$treat, 
+                                        type = type,
+                                        weights = NULL, 
+                                        subclass = X$subclass,
+                                        s.weights = X$s.weights, 
+                                        method = X$method, 
+                                        discarded = X$discarded)
     out[["Subclass.Balance"]] <- balance.table.subclass(C, type = type, 
                                                         weights = NULL, 
                                                         treat = X$treat, 
@@ -532,9 +526,9 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                                                  paste("Subclass", levels(X$subclass)))
             max.imbal.list <- lapply(out[["Subclass.Balance"]], function(x) {
                 return(max.imbal(x[x[["Type"]] != "Distance", , drop = FALSE], 
-                                 paste.(STATS[[s]]$bal.tab._column_prefix, "Adj"), 
-                                 STATS[[s]]$Threshold, 
-                                 ratio = s == "variance.ratios"))
+                                 col.name = paste.(STATS[[s]]$bal.tab._column_prefix, "Adj"), 
+                                 thresh.col.name = STATS[[s]]$Threshold, 
+                                 abs_stat = STATS[[s]]$abs))
             } )
             out[[paste.("Max.Imbalance", s, "Subclass")]] <- data.frame(do.call(rbind, max.imbal.list), 
                                                                         row.names = paste("Subclass", levels(X$subclass)))
