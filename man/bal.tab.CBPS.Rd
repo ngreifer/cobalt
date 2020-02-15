@@ -17,10 +17,7 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
     continuous,  
     binary, 
     s.d.denom, 
-    m.threshold = NULL, 
-    v.threshold = NULL, 
-    ks.threshold = NULL, 
-    r.threshold = NULL, 
+    thresholds = NULL,
     cluster = NULL, 
     imp = NULL,
     pairwise = TRUE, 
@@ -60,17 +57,8 @@ whether mean differences for binary variables (i.e., difference in proportion) s
   \item{s.d.denom}{
 \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{CBPS()} is the ATT and "pooled" if the estimand is the ATE. Abbreviations allowed.
 }
-  \item{m.threshold}{
-a numeric value for the threshold for mean differences.
-}
-  \item{v.threshold}{
-a numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.
-}
-  \item{ks.threshold}{
-a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
-}
-  \item{r.threshold}{
-a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
+  \item{thresholds}{
+a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
@@ -103,7 +91,7 @@ Further arguments to control display of output. See \link[=options-display]{disp
 \details{
 \code{bal.tab.CBPS} generates a list of balance summaries for the \code{CBPS} or \code{CBMSM} object given and functions similarly to \code{balance()} in \pkg{CBPS}.
 
-All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The \code{thresholds} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 The \code{CBPS} object does not return sampling weights even if they are used; rather, the weights returned already have the sampling weights combined within them. Because some of the checks and defaults in \code{bal.tab()} rely on patterns in these weights, using sampling weights in \code{CBPS()} without specifying them in \code{bal.tab()} can lead to incorrect results. If sampling weights are used in \code{CBPS()}, it is important that they are specified in \code{bal.tab()} as well.
 

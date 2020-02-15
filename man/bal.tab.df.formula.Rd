@@ -22,10 +22,7 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     continuous,  
     binary, 
     s.d.denom, 
-    m.threshold = NULL, 
-    v.threshold = NULL, 
-    ks.threshold = NULL, 
-    r.threshold = NULL, 
+    thresholds = NULL,
     cluster = NULL, 
     imp = NULL, 
     pairwise = TRUE, 
@@ -87,17 +84,8 @@ whether mean differences for binary variables (i.e., difference in proportion) s
   \item{s.d.denom}{
 \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, \code{bal.tab()} will figure out which one is best based on the \code{estimand}, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.
 }
-  \item{m.threshold}{
-A numeric value for the threshold for mean differences.
-}
-  \item{v.threshold}{
-A numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.
-}
-  \item{ks.threshold}{
-a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
-}
-  \item{r.threshold}{
-A numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
+  \item{thresholds}{
+a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link{bal.tab.cluster}} for details.
@@ -135,7 +123,7 @@ For \code{bal.tab.formula}, other arguments to be passed to \code{bal.tab.data.f
 
 The argument to \code{match.strata} corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of \code{weights}, \code{subclass}, or \code{match.strata} are specified, \code{bal.tab()} will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate. See \code{\link{bal.tab.subclass}} for more information.
 
-All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}.  The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and, for continuous treatments, \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold.  Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.  When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
+All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 
 The inputs (if any) to \code{covs} and \code{data} must be a \code{data.frame}; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a \code{data.frame}), but if only one variable is used with the matrix subsetting syntax (e.g., \code{data[,"v1"]}), \R will coerce it to a vector, thus making it unfit for input. To avoid this, make sure to use the list subsetting syntax (e.g., \code{data["v1"]}) if only one variable is to be added (this can also be used for multiple variables and is good practice in general). Again, when more than one variable is included, the input is generally already a \code{data.frame} and nothing needs to be done.
 

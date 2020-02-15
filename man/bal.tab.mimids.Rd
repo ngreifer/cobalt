@@ -35,10 +35,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
     continuous,  
     binary, 
     s.d.denom, 
-    m.threshold = NULL, 
-    v.threshold = NULL, 
-    ks.threshold = NULL,
-    r.threshold = NULL,
+    thresholds = NULL,
     cluster = NULL, 
     pairwise = TRUE, 
     focal = NULL, 
@@ -76,17 +73,8 @@ whether mean differences for binary variables (i.e., difference in proportion) s
   \item{s.d.denom}{
 \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. The defaults depend on the options specified in the original function calls; see \code{\link{bal.tab.matchit}} and \code{\link{bal.tab.weightit}} for details on the defaults. Abbreviations allowed.
 }
-  \item{m.threshold}{
-a numeric value for the threshold for mean differences. 
-}
-  \item{v.threshold}{
-a numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.
-}
-  \item{ks.threshold}{
-a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
-}
-  \item{r.threshold}{
-a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
+  \item{thresholds}{
+a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{mimids} or \code{wimids} object. See \code{\link{bal.tab.cluster}} for details.
@@ -113,7 +101,7 @@ further arguments to control display of output. See \link[=options-display]{disp
 \details{
 \code{bal.tab.mimids()} and \code{bal.tab.wimids()} generate a list of balance summaries for the \code{mimids} or \code{wimids} object given.
 
-The threshold values (\code{m.threshold}, \code{v.threshold}, and \code{ks.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 }
 \value{

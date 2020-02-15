@@ -22,10 +22,7 @@ Generates balance statistics for data coming from a longitudinal treatment scena
     continuous,  
     binary, 
     s.d.denom, 
-    m.threshold = NULL, 
-    v.threshold = NULL, 
-    ks.threshold = NULL, 
-    r.threshold = NULL, 
+    thresholds = NULL,
     cluster = NULL, 
     imp = NULL, 
     pairwise = TRUE, 
@@ -81,17 +78,8 @@ whether mean differences for binary variables (i.e., difference in proportion) s
   \item{s.d.denom}{
 \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. If left blank and weights are supplied, \code{bal.tab()} will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply \code{s.d.denom} accordingly. Abbreviations allowed. If left blank, \code{bal.tab()} will try to use the \code{estimand} argument. It is recommended not to set this argument for longitudinal treatments.
 }
-  \item{m.threshold}{
-a numeric value for the threshold for mean differences. 
-}
-  \item{v.threshold}{
-a numeric value for the threshold for variance ratios.  Will automatically convert to the inverse if less than 1.
-}
-  \item{ks.threshold}{
-a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
-}
-  \item{r.threshold}{
-a numeric value for the threshold for correlations between covariates and treatment when treatment is continuous.
+  \item{thresholds}{
+a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link{bal.tab.cluster}} for details.
@@ -124,7 +112,7 @@ For \code{bal.tab.formula.list}, other arguments to be passed to \code{bal.tab.d
 \details{
 \code{bal.tab.formula.list()} and \code{bal.tab.data.frame.list()} generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the \code{\link[WeightIt]{weightitMSM}} documentation for an example of how to transform long data into wide data using \code{\link{reshape}}. 
 
-All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}.  The threshold values (\code{m.threshold}, \code{v.threshold}, \code{ks.threshold}, and \code{r.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold.  Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.  When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
+All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 Multiple sets of weights can be supplied simultaneously by including entering a data frame or a character vector containing the names of weight variables found in \code{data} or a list thereof. The arguments to \code{method}, \code{s.d.denom}, and \code{estimand}, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to \code{s.d.denom} or \code{estimand}. When only one set of weights is supplied, the output for the adjusted group will simply be called \code{"Adj"}, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other output of \code{bal.tab()}.
 

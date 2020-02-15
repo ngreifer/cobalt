@@ -16,9 +16,7 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note
     continuous,  
     binary, 
     s.d.denom, 
-    m.threshold = NULL, 
-    v.threshold = NULL, 
-    ks.threshold = NULL,
+    thresholds = NULL,
     cluster = NULL, 
     imp = NULL,
     abs = FALSE,
@@ -55,14 +53,8 @@ whether mean differences for binary variables (i.e., difference in proportion) s
   \item{s.d.denom}{
 \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. The default is "treated" when matching without caliper and "pooled" when matching with a caliper. When subclassification is used and \code{sub.by} is specified in the call to \code{matchit()}, the corresponding value will be used (except for \code{sub.by = "all"}, which triggers "pooled"). Abbreviations allowed.
 }
-  \item{m.threshold}{
-a numeric value for the threshold for mean differences.
-}
-  \item{v.threshold}{
-a numeric value for the threshold for variance ratios. Will automatically convert to the inverse if less than 1.
-}
-  \item{ks.threshold}{
-a numeric value for the threshold for Kolmogorov-Smirnov statistics. Must be between 0 and 1. 
+  \item{thresholds}{
+a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{matchit} object. See \code{\link{bal.tab.cluster}} for details.
@@ -86,7 +78,7 @@ further arguments to control display of output. See \link[=options-display]{disp
 \details{
 \code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \code{summary.matchit()} in \pkg{MatchIt}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate; see \code{\link{bal.tab.subclass}} for more information. 
 
-The threshold values (\code{m.threshold}, \code{v.threshold}, and \code{ks.threshold}) control whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
+The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 
 }
 \value{
