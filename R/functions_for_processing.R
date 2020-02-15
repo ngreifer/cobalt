@@ -643,28 +643,47 @@ assign.X.class <- function(X) {
     
     return(X)
 }
+subsettable <- function() {
+    c("covs",
+      "treat",
+      "weights",
+      "distance",
+      "addl",
+      "cluster",
+      "imp",
+      "s.weights",
+      "discarded",
+      "subclass",
+      "covs.list",
+      "treat.list",
+      "distance.list",
+      "addl.list")
+}
 subset_X <- function(X, subset = NULL) {
     if (is_not_null(subset)) {
-        if (!any(subset)) {
-            stop("All subset set to FALSE.", call. = FALSE)
+        if (is.logical(subset)) {
+            if (!any(subset)) stop("All subset set to FALSE.", call. = FALSE)
+            to_be_subset <- !all(subset)
+            subset <- which(subset)
         }
-        else if (!all(subset)) {
-            n <- length(subset)
+        else if (is.numeric(subset)) to_be_subset <- TRUE
+        else stop("subset must be logical or numeric.")
+        
+        if (to_be_subset) {
             subset_X_internal <- function(x, subset) {
                 if (is_not_null(x)) {
-                    if (is.factor(x) && length(x) == n) factor(x[subset])
-                    else if (is.atomic(x) && length(x) == n) x[subset]
-                    else if ((is.matrix(x) || is.data.frame(x)) && nrow(x) == n) x[subset, , drop = FALSE]
+                    if (is.factor(x)) factor(x[subset])
+                    else if (is.atomic(x)) x[subset]
+                    else if ((is.matrix(x) || is.data.frame(x))) x[subset, , drop = FALSE]
                     else if (is.list(x)) lapply(x, subset_X_internal, subset = subset)
                     else x
                 }
                 else x
             }
-            lapply(X, subset_X_internal, subset)
+            X[names(X) %in% subsettable()] <- lapply(X[names(X) %in% subsettable()], subset_X_internal, subset)
         }
-        else X
     }
-    else X
+    return(X)
 }
 imp.complete <- function(data) {
     if (!is_(data, "mids")) stop("'data' not of class 'mids'")
@@ -1223,92 +1242,12 @@ max.imbal <- function(balance.table, col.name, thresh.col.name, abs_stat) {
     maxed <- data.frame(Variable = rownames(maxed), maxed)
     return(maxed)
 }
-balance.summary <- function(bal.tab.list, Agg.Funs, weight.names = NULL, no.adj = FALSE, abs = FALSE, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, quick = TRUE, types = NULL) {
-    type <- attr(bal.tab.list[[1]], "print.options")[["type"]]
-    stats <- attr(bal.tab.list[[1]], "print.options")[["stats"]]
-    thresholds <- attr(bal.tab.list[[1]], "print.options")[["thresholds"]]
-    
-    balance.list <- clear_null(lapply(bal.tab.list, function(x) x[["Balance"]]))
-    
-    if (length(weight.names) <= 1) weight.names <- "Adj"
-
-    Brownames <- unique(unlist(lapply(balance.list, rownames)))
-    
-    agg.fun <- tolower(Agg.Funs)
-    Agg.Funs <- firstup(match_arg(agg.fun, c("min", "mean", "max"), several.ok = TRUE))
-    all.Agg.Funs <- firstup(c("min", "mean", "max"))
-    
-    if (length(Agg.Funs) == 1) {
-        Bcolnames <- c("Type", 
-                       expand.grid_string(
-                       c(unlist(lapply(all_STATS[get_from_STATS("type") == type], function(s) {
-                           c(paste.(all.Agg.Funs, STATS[[s]]$bal.tab._column_prefix)
-                                                , STATS[[s]]$Threshold
-                           )
-                       }))), c("Un", weight.names), collapse = "."))
-    }
-    else {
-        Bcolnames <- c("Type", 
-                       expand.grid_string(all.Agg.Funs,
-                                          c(unlist(lapply(all_STATS[get_from_STATS("type") == type], function(s) {
-                                              STATS[[s]]$bal.tab._column_prefix
-                                          }))),
-                                          c("Un", weight.names), collapse = "."))
-    }
-    B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
-    names(B) <- Bcolnames
-    
-    if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(sapply(balance.list, function(y) y[[x, "Type"]])))), use.names = FALSE)
-    
-    for (Agg.Fun in all.Agg.Funs) {
-        if (Agg.Fun %in% Agg.Funs || !quick) {
-            for (s in stats) {
-                abs0 <- function(x) {if (is_null(x)) NA_real_ else if (abs) STATS[[s]]$abs(x) else (x)}
-                agg <- function(x, ...) {
-                    if (!any(is.finite(x))) NA_real_
-                    else if (s == "variance.ratios" && tolower(Agg.Fun) == "mean") geom.mean(x)
-                    else if (tolower(Agg.Fun) == "rms") sqrt(mean_fast(STATS[[s]]$abs(x)^2, TRUE))
-                    else get(tolower(Agg.Fun))(x, ...)
-                }
-                for (sample in c("Un", weight.names)) {
-                    if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
-                        B[[paste.(Agg.Fun, STATS[[s]]$bal.tab._column_prefix, sample)]] <- vapply(Brownames, function(x) agg(sapply(balance.list, function(y) abs0(y[x, paste.(STATS[[s]]$bal.tab._column_prefix, sample)])), na.rm = TRUE), numeric(1))
-                    }
-                }
-            }
-        }
-    }
-    
-    # if (FALSE) {
-    if (length(Agg.Funs) == 1) {
-        #Assign X.Threshold values; doesn't work currently because of print method
-        for (s in stats) {
-            if (is_not_null(thresholds[[s]])) {
-                if (no.adj) {
-                    B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab._column_prefix, "Un")]]), "", 
-                                                                      STATS[[s]]$abs(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab._column_prefix, "Un")]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3)),
-                                                                      paste0("Not Balanced, >", round(thresholds[[s]], 3)))
-                }
-                else {
-                    for (i in weight.names) {
-                        B[[paste.(STATS[[s]]$Threshold, i)]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab._column_prefix, i)]]), "", 
-                                                                           STATS[[s]]$abs(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab._column_prefix, i)]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3)),
-                                                                           paste0("Not Balanced, >", round(thresholds[[s]], 3)))
-                    }
-                }
-            }
-            if (no.adj || length(weight.names) <= 1) names(B)[names(B) == paste.(STATS[[s]]$Threshold, "Adj")] <- STATS[[s]]$Threshold
-        }
-    }
-    
-    return(B)
-}
 
 balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.d.denom, 
-                              thresholds = list(),
-                              un = FALSE, disp.means = FALSE, disp.sds = FALSE, stats = NULL, 
-                              s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, var_types = NULL, s.d.denom.list = NULL, quick = TRUE) {
+                          thresholds = list(),
+                          un = FALSE, disp.means = FALSE, disp.sds = FALSE, stats = NULL, 
+                          s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, 
+                          var_types = NULL, s.d.denom.list = NULL, quick = TRUE) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
@@ -1342,8 +1281,8 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
         
         if ((un && disp.means) || !quick) {
             for (t in c("0", "1")) {
-            B[[paste.("M", t, "Un")]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = NULL,
-                                                    s.weights = s.weights[treat==tn01[t]])
+                B[[paste.("M", t, "Un")]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = NULL,
+                                                        s.weights = s.weights[treat==tn01[t]])
             }
         }
         
@@ -1720,6 +1659,82 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
     return(nn)
 }
 
+balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
+    type <- attr(bal.tab.list[[1]], "print.options")[["type"]]
+    stats <- attr(bal.tab.list[[1]], "print.options")[["stats"]]
+    thresholds <- attr(bal.tab.list[[1]], "print.options")[["thresholds"]]
+    quick <- attr(bal.tab.list[[1]], "print.options")[["quick"]]
+    weight.names <- attr(bal.tab.list[[1]], "print.options")[["weight.names"]]
+    abs <- attr(bal.tab.list[[1]], "print.options")[["abs"]]
+    no.adj <- attr(bal.tab.list[[1]], "print.options")[["nweights"]] == 0
+    
+    balance.list <- clear_null(lapply(bal.tab.list, function(x) x[["Balance"]]))
+    
+    Brownames <- unique(unlist(lapply(balance.list, rownames), use.names = FALSE))
+    
+    agg.funs <- tolower(agg.funs)
+    Agg.Funs <- firstup(match_arg(agg.funs, c("min", "mean", "max"), several.ok = TRUE))
+    all.Agg.Funs <- firstup(c("min", "mean", "max"))
+    
+    if (length(Agg.Funs) == 1 && Agg.Funs == "Max") abs <- TRUE
+    
+    Bcolnames <- c("Times", "Type", 
+                   expand.grid_string(
+                       c(unlist(lapply(all_STATS[get_from_STATS("type") == type], function(s) {
+                           c(paste.(all.Agg.Funs, STATS[[s]]$bal.tab._column_prefix),
+                             STATS[[s]]$Threshold)
+                       }))), c("Un", weight.names), collapse = "."))
+    
+    B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
+    names(B) <- Bcolnames
+    
+    B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(balance.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA_character_, character(1))))), use.names = FALSE)
+    
+    if (include.times) B[["Times"]] <- vapply(Brownames, function(x) paste(seq_along(balance.list)[vapply(balance.list, function(y) x %in% rownames(y), logical(1L))], collapse = ", "), character(1))[Brownames]
+    else B[["Times"]] <- NULL
+    
+    for (Agg.Fun in all.Agg.Funs) {
+        if (Agg.Fun %in% Agg.Funs || !quick) {
+            for (s in stats) {
+                abs0 <- function(x) {if (is_null(x)) NA_real_ else if (abs) STATS[[s]]$abs(x) else (x)}
+                agg <- function(x, ...) {
+                    if (!any(is.finite(x))) NA_real_
+                    else if (s == "variance.ratios" && tolower(Agg.Fun) == "mean") geom.mean(x)
+                    else if (tolower(Agg.Fun) == "rms") sqrt(mean_fast(STATS[[s]]$abs(x)^2, TRUE))
+                    else get(tolower(Agg.Fun))(x, ...)
+                }
+                for (sample in c("Un", weight.names)) {
+                    if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
+                        B[[paste.(Agg.Fun, STATS[[s]]$bal.tab._column_prefix, sample)]] <- vapply(Brownames, function(x) agg(unlist(lapply(balance.list, function(y) if (x %in% rownames(y)) abs0(y[[x, paste.(STATS[[s]]$bal.tab._column_prefix, sample)]]))), na.rm = TRUE), numeric(1))
+                    }
+                }
+            }
+        }
+    }
+    
+    if (length(Agg.Funs) == 1) {
+        #Assign X.Threshold values
+        for (s in stats) {
+            if (is_not_null(thresholds[[s]])) {
+                if (no.adj) {
+                    B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab._column_prefix, "Un")]]), "", 
+                                                                       STATS[[s]]$abs(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab._column_prefix, "Un")]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3)),
+                                                                       paste0("Not Balanced, >", round(thresholds[[s]], 3)))
+                }
+                else {
+                    for (i in weight.names) {
+                        B[[paste.(STATS[[s]]$Threshold, i)]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab._column_prefix, i)]]), "", 
+                                                                        STATS[[s]]$abs(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab._column_prefix, i)]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3)),
+                                                                        paste0("Not Balanced, >", round(thresholds[[s]], 3)))
+                    }
+                }
+            }
+            if (no.adj || length(weight.names) <= 1) names(B)[names(B) == paste.(STATS[[s]]$Threshold, "Adj")] <- STATS[[s]]$Threshold
+        }
+    }
+    
+    return(B)
+}
 
 #base.bal.tab.imp
 samplesize.across.imps <- function(obs.list) {
@@ -1742,95 +1757,6 @@ samplesize.multi <- function(bal.tab.multi.list, treat_names, focal = NULL) {
 }
 
 #base.bal.tab.msm
-balance.table.msm.summary <- function(bal.tab.msm.list, weight.names = NULL, no.adj = FALSE, m.threshold = NULL, v.threshold = NULL, ks.threshold = NULL, r.threshold = NULL, quick = TRUE, types = NULL) {
-    if ("bal.tab" %in% unlist(lapply(bal.tab.msm.list, class))) {
-        bal.tab.msm.list <- lapply(bal.tab.msm.list, function(x) x[["Balance"]])}
-    cont.treat <- "Corr.Un" %in% unlist(lapply(bal.tab.msm.list, names))
-    if (length(weight.names) <= 1) weight.names <- "Adj"
-    
-    Brownames <- unique(unlist(lapply(bal.tab.msm.list, rownames), use.names = FALSE))
-    Brownames.appear <- vapply(Brownames, function(x) paste(seq_along(bal.tab.msm.list)[sapply(bal.tab.msm.list, function(y) x %in% rownames(y))], collapse = ", "), character(1))
-    if (cont.treat) {
-        Bcolnames <- c("Type", expand.grid_string(c("Max.Corr", "R.Threshold"), 
-                                                  c("Un", weight.names), collapse = "."))
-    }
-    else {
-        Bcolnames <- c("Type", expand.grid_string(c("Max.Diff", "M.Threshold", "Max.V.Ratio", "V.Threshold", "Max.KS", "KS.Threshold"), 
-                                                  c("Un", weight.names), collapse = "."))
-    }
-    
-    B <- as.data.frame(matrix(NA, nrow = length(Brownames), ncol = 1 + length(Bcolnames)), row.names = Brownames)
-    names(B) <- c("Times", Bcolnames)
-    
-    if (is_not_null(types)) B[["Type"]] <- types
-    else B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA_character_, character(1))))), use.names = FALSE)
-    
-    B[["Times"]] <- Brownames.appear[Brownames]
-    
-    for (sample in c("Un", weight.names)) {
-        if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
-            if (cont.treat) {
-                B[[paste.("Max", "Corr", sample)]] <- vapply(Brownames, function(x) max_(vapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) abs(y[[x, paste.("Corr", sample)]]) else NA_real_, numeric(1)), na.rm = TRUE), numeric(1))
-            }
-            else {
-                B[[paste.("Max", "Diff", sample)]] <- vapply(Brownames, function(x) max_(vapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) abs(y[[x, paste.("Diff", sample)]]) else NA_real_, numeric(1)), na.rm = TRUE), numeric(1))
-                B[[paste.("Max", "V.Ratio", sample)]] <- vapply(Brownames, function(x) if (B[[x, "Type"]]!="Contin.") NA_real_ else max_(vapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, paste.("V.Ratio", sample)]] else NA_real_, numeric(1)), na.rm = TRUE), numeric(1))
-                B[[paste.("Max", "KS", sample)]] <- vapply(Brownames, function(x) max_(vapply(bal.tab.msm.list, function(y) if (x %in% rownames(y)) y[[x, paste.("KS", sample)]] else NA_real_, numeric(1)), na.rm = TRUE), numeric(1))
-            }
-        }
-    }
-    
-    if (is_not_null(m.threshold)) {
-        if (no.adj) {
-            B[["M.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.Diff.Un"]]), paste0(ifelse(abs_(B[["Max.Diff.Un"]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
-        }
-        else {
-            for (i in weight.names) {
-                B[[paste.("M.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Max.Diff", i)]]), paste0(ifelse(abs_(B[[paste.("Max.Diff", i)]]) < m.threshold, "Balanced, <", "Not Balanced, >"), m.threshold), "")
-            }
-        }
-    }
-    if (no.adj || length(weight.names) <= 1) names(B)[names(B) == "M.Threshold.Adj"] <- "M.Threshold"
-    
-    if (is_not_null(v.threshold)) {
-        if (no.adj) {
-            B[["V.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.V.Ratio.Un"]]), paste0(ifelse(B[, "Max.V.Ratio.Un"] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
-        }
-        else {
-            for (i in weight.names) {
-                B[[paste.("V.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Max.V.Ratio", i)]]), paste0(ifelse(B[[paste.("Max.V.Ratio", i)]] < v.threshold, "Balanced, <", "Not Balanced, >"), v.threshold), "")
-            }
-        }
-    }
-    if (no.adj || length(weight.names) <= 1) names(B)[names(B) == "V.Threshold.Adj"] <- "V.Threshold"
-    
-    if (is_not_null(ks.threshold)) {
-        if (no.adj) {
-            B[["KS.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.KS.Un"]]), paste0(ifelse(B[["Max.KS.Un"]] < ks.threshold, "Balanced, <", "Not Balanced, >"), ks.threshold), "")
-        }
-        else {
-            for (i in weight.names) {
-                B[[paste.("KS.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Max.KS", i)]]), paste0(ifelse(B[[paste.("Max.KS", i)]] < ks.threshold, "Balanced, <", "Not Balanced, >"), ks.threshold), "")
-            }
-        }
-    }
-    if (no.adj || length(weight.names) <= 1) names(B)[names(B) == "KS.Threshold.Adj"] <- "KS.Threshold"
-    
-    if (is_not_null(r.threshold)) {
-        if (no.adj) {
-            B[["R.Threshold.Un"]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[["Max.Corr.Un"]]), paste0(ifelse(B[["Max.Corr.Un"]] < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold), "")
-        }
-        else {
-            for (i in weight.names) {
-                B[[paste.("R.Threshold", i)]] <- ifelse(B[["Type"]]!="Distance" & is.finite(B[[paste.("Max.Corr", i)]]), paste0(ifelse(B[[paste.("Max.Corr", i)]] < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold), "")
-            }
-        }
-    }
-    if (no.adj || length(weight.names) <= 1) names(B)[names(B) == "R.Threshold.Adj"] <- "R.Threshold"
-    
-    
-    return(B)
-}
 samplesize.msm <- function(bal.tab.msm.list) {
     obs <- do.call("cbind", lapply(bal.tab.msm.list, function(x) x[["Observations"]]))
     attr(obs, "tag") <- attr(bal.tab.msm.list[[1]][["Observations"]], "tag")
@@ -1965,7 +1891,7 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
 
     attr(SB, "thresholds") <- thresholds
     attr(SB, "disp") <- c(means = disp.means,
-                         sds = disp.sds)
+                          sds = disp.sds)
     attr(SB, "stats") <- stats
     
     return(SB)
@@ -2231,7 +2157,6 @@ process.bin.vars <- function(bin.vars, mat) {
     if (missing(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
     else if (is_null(bin.vars)) bin.vars <- rep(FALSE, ncol(mat))
     else {
-        if (!is_(bin.vars, c("logical", "numeric", "character"))) stop("bin.vars must be a logical, numeric, or character vector.")
         if (is.logical(bin.vars)) {
             bin.vars[is.na(bin.vars)] <- FALSE
             if (length(bin.vars) != ncol(mat)) stop("If bin.vars is logical, it must have length equal to the number of columns of mat.")
@@ -2250,6 +2175,7 @@ process.bin.vars <- function(bin.vars, mat) {
             if (any(bin.vars %nin% colnames(mat))) stop("If bin.vars is character, all its values must be column names of mat.")
             bin.vars <- colnames(mat) %in% bin.vars
         }
+        else stop("bin.vars must be a logical, numeric, or character vector.")
     }
     return(bin.vars)
 }
