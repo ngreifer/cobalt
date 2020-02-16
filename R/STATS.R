@@ -14,7 +14,7 @@ STATS[["mean.diffs"]] <- {list(
     disp_stat = "disp.diff",
     bin_only = FALSE,
     abs = function(x) abs_(x),
-    bal.tab._column_prefix = "Diff", #Also which.stat in love.plot
+    bal.tab_column_prefix = "Diff", #Also which.stat in love.plot
     threshold_range = c(0, Inf),
     balance_tally_for = "mean differences",
     variable_with_the_greatest = "mean difference", #also which.stat2 in love.plot
@@ -112,7 +112,7 @@ STATS[["variance.ratios"]] <- {list(
     disp_stat = "disp.v.ratio",
     bin_only = TRUE,
     abs = function(x) abs_(x, ratio = TRUE),
-    bal.tab._column_prefix = "V.Ratio", #Also which.stat in love.plot
+    bal.tab_column_prefix = "V.Ratio", #Also which.stat in love.plot
     threshold_range = c(1, Inf),
     balance_tally_for = "variance ratios",
     variable_with_the_greatest = "variance ratio", #also which.stat2 in love.plot
@@ -146,7 +146,7 @@ STATS[["ks.statistics"]] <- {list(
     disp_stat = "disp.ks",
     bin_only = FALSE,
     abs = function(x) abs_(x),
-    bal.tab._column_prefix = "KS", #Also which.stat in love.plot
+    bal.tab_column_prefix = "KS", #Also which.stat in love.plot
     threshold_range = c(0, 1),
     balance_tally_for = "KS statistics",
     variable_with_the_greatest = "KS statistic", #also which.stat2 in love.plot
@@ -173,7 +173,7 @@ STATS[["ovl.statistics"]] <- {list(
     disp_stat = "disp.ovl",
     bin_only = FALSE,
     abs = function(x) abs_(x),
-    bal.tab._column_prefix = "OVL", #Also which.stat in love.plot
+    bal.tab_column_prefix = "OVL", #Also which.stat in love.plot
     threshold_range = c(0, 1),
     balance_tally_for = "overlap statistics",
     variable_with_the_greatest = "overlap statistic", #also which.stat2 in love.plot
@@ -200,7 +200,7 @@ STATS[["correlations"]] <- {list(
     disp_stat = "disp.corr",
     bin_only = FALSE,
     abs = function(x) abs_(x),
-    bal.tab._column_prefix = "Corr", #Also which.stat in love.plot
+    bal.tab_column_prefix = "Corr", #Also which.stat in love.plot
     threshold_range = c(0, 1),
     balance_tally_for = "treatment correlations",
     variable_with_the_greatest = "treatment correlation", #also which.stat2 in love.plot
@@ -234,7 +234,7 @@ STATS[["spearman.correlations"]] <- {list(
     disp_stat = "disp.spear",
     bin_only = FALSE,
     abs = function(x) abs_(x),
-    bal.tab._column_prefix = "S.Corr", #Also which.stat in love.plot
+    bal.tab_column_prefix = "S.Corr", #Also which.stat in love.plot
     threshold_range = c(0, 1),
     balance_tally_for = "treatment Spearman correlations",
     variable_with_the_greatest = "treatment Spearman correlation", #also which.stat2 in love.plot

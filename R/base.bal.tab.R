@@ -62,14 +62,14 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
             if (no.adj) {
                 out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[paste.(STATS[[s]]$Threshold, "Un")]])
                 out[[paste.("Max.Imbalance", s)]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                               col.name = paste.(STATS[[s]]$bal.tab._column_prefix, "Un"), 
+                                                               col.name = paste.(STATS[[s]]$bal.tab_column_prefix, "Un"), 
                                                                thresh.col.name = paste.(STATS[[s]]$Threshold, "Un"), 
                                                                abs_stat = STATS[[s]]$abs)
             }
             else if (ncol(X$weights) == 1) {
                 out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[STATS[[s]]$Threshold]])
                 out[[paste.("Max.Imbalance", s)]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                               col.name = paste.(STATS[[s]]$bal.tab._column_prefix, "Adj"), 
+                                                               col.name = paste.(STATS[[s]]$bal.tab_column_prefix, "Adj"), 
                                                                thresh.col.name = STATS[[s]]$Threshold, 
                                                                abs_stat = STATS[[s]]$abs)
             }
@@ -78,11 +78,11 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                                          names(X$weights))
                 out[[paste.("Max.Imbalance", s)]] <- cbind(Weights = names(X$weights),
                                                            do.call("rbind", lapply(names(X$weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                                                                                                    col.name = paste.(STATS[[s]]$bal.tab._column_prefix, x), 
+                                                                                                                                    col.name = paste.(STATS[[s]]$bal.tab_column_prefix, x), 
                                                                                                                                     thresh.col.name = paste.(STATS[[s]]$Threshold, x), 
                                                                                                                                     abs_stat = STATS[[s]]$abs),
                                                                                                                           c("Variable", 
-                                                                                                                            STATS[[s]]$bal.tab._column_prefix, 
+                                                                                                                            STATS[[s]]$bal.tab_column_prefix, 
                                                                                                                             STATS[[s]]$Threshold)))),
                                                            stringsAsFactors = FALSE)
             }
@@ -500,7 +500,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                                                  paste("Subclass", levels(X$subclass)))
             max.imbal.list <- lapply(out[["Subclass.Balance"]], function(x) {
                 return(max.imbal(x[x[["Type"]] != "Distance", , drop = FALSE], 
-                                 col.name = paste.(STATS[[s]]$bal.tab._column_prefix, "Adj"), 
+                                 col.name = paste.(STATS[[s]]$bal.tab_column_prefix, "Adj"), 
                                  thresh.col.name = STATS[[s]]$Threshold, 
                                  abs_stat = STATS[[s]]$abs))
             } )
