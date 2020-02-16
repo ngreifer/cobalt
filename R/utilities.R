@@ -505,7 +505,7 @@ set.cobalt.options <- function(..., default = FALSE) {
         both.opts <- intersect(multiple.opts, bad.opts)
         multiple.opts <- multiple.opts[multiple.opts %nin% both.opts]
         bad.opts <- bad.opts[bad.opts %nin% both.opts]
-        problematic.opts <- setNames(vector("list", 3), c("multiple", "bad", "both"))
+        problematic.opts <- make_list(c("multiple", "bad", "both"))
         problematic.opts[["multiple"]] <- setNames(lapply(multiple.opts, function(i) {
             paste(i, "must be of length 1.")
         }), multiple.opts)

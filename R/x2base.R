@@ -2793,7 +2793,7 @@ x2base.iptw <- function(iptw, ...) {
         
     }
     else {
-        distance.list <- vector("list", ntimes)
+        distance.list <- make_list(ntimes)
         for (ti in seq_along(distance.list)) {
             if (length(s) == 1) {
                 distance.list[[ti]] <- data.frame(prop.score = iptw$psList[[ti]]$ps[[s]])
@@ -3169,7 +3169,7 @@ x2base.formula.list <- function(formula.list, ...) {
     A[["covs.list"]] <- NULL
     A[["treat.list"]] <- NULL
     
-    treat.list <- covs.list <- vector("list", length(formula.list))
+    treat.list <- covs.list <- make_list(length(formula.list))
     for (i in seq_along(formula.list)) {
         t.c <- get.covs.and.treat.from.formula(formula.list[[i]], A[["data"]])
         covs.list[[i]] <- t.c[["reported.covs"]]
@@ -3559,27 +3559,6 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
 x2base.default <- function(obj, ...) {
     
     A <- list(...)
-    X.names <- c("covs",
-                 "treat",
-                 "weights",
-                 "distance",
-                 "addl",
-                 "s.d.denom",
-                 "call",
-                 "cluster",
-                 "imp",
-                 "s.weights",
-                 "focal",
-                 "discarded",
-                 "method",
-                 "subclass",
-                 "covs.list",
-                 "treat.list",
-                 "distance.list",
-                 "addl.list")
-    
-    X <- setNames(vector("list", length(X.names)),
-                  X.names)
     
     if (!is.list(obj)) stop("The input object must be an appropriate list, data.frame, formula, or the output of one of the supported packages.", call. = FALSE)
     
@@ -3616,7 +3595,7 @@ x2base.default <- function(obj, ...) {
               call = list(name = c("call"),
                           type = c("call")))
     
-    P <- setNames(vector("list", length(Q)), names(Q))
+    P <- make_list(names(Q))
     names(obj) <- tolower(names(obj))
     
     for (i in names(Q)) {
@@ -4064,8 +4043,8 @@ x2base.default <- function(obj, ...) {
         initial.list.lengths <- c(length(A$formula.list), length(A$covs.list), length(A$treat.list))
         if (!all_the_same(initial.list.lengths[initial.list.lengths != 0])) stop("The lists in the object were not the same length.", call. = FALSE)
         ntimes.guess <- max(initial.list.lengths)
-        if (is_null(A$treat.list)) A$treat.list <- vector("list", length(ntimes.guess)) 
-        if (is_null(A$covs.list)) A$covs.list <- vector("list", length(ntimes.guess)) 
+        if (is_null(A$treat.list)) A$treat.list <- make_list(length(ntimes.guess)) 
+        if (is_null(A$covs.list)) A$covs.list <- make_list(length(ntimes.guess)) 
         
         #Process data and get imp
         imp <- A$imp

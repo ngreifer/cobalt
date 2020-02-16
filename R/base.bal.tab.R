@@ -36,8 +36,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                       X$stats,
                                       collapse = "."), 
                    "Observations", "call")
-    out <- vector("list", length(out.names))
-    names(out) <- out.names
+    out <- make_list(out.names)
     
     C <- get.C(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, ...)
     co.names <- attr(C, "co.names")
@@ -142,8 +141,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
                    "Balance.Across.Imputations", 
                    "Observations", 
                    "call")
-    out <- vector("list", length(out.names))
-    names(out) <- out.names
+    out <- make_list(out.names)
     
     #Get list of bal.tabs for each imputation
     
@@ -212,8 +210,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
                    "Balance.Across.Pairs", 
                    "Observations", 
                    "call")
-    out <- vector("list", length(out.names))
-    names(out) <- out.names
+    out <- make_list(out.names)
     
     C <- do.call(get.C, c(X, A), quote = TRUE)
     bin.vars <- apply(C, 2, is_binary)
@@ -304,10 +301,9 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
                    "Balance.Across.Times", 
                    "Observations", 
                    "call")
-    out <- vector("list", length(out.names))
-    names(out) <- out.names
+    out <- make_list(out.names)
     
-    out[["Time.Balance"]] <- vector("list", length(X$covs.list))
+    out[["Time.Balance"]] <- make_list(length(X$covs.list))
     
     treat.types <- vapply(X$treat.list, function(x) get.treat.type(x), character(1L))
     
@@ -366,8 +362,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
                    "Balance.Across.Clusters", 
                    "Observations", 
                    "call")
-    out <- vector("list", length(out.names))
-    names(out) <- out.names
+    out <- make_list(out.names)
     
     #Get list of bal.tabs for each imputation
     
@@ -427,8 +422,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                       "Subclass",
                                       collapse = "."), 
                    "Observations", "call")
-    out <- vector("list", length(out.names))
-    names(out) <- out.names
+    out <- make_list(out.names)
     
     C <- get.C(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, ...)
     co.names <- attr(C, "co.names")

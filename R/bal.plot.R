@@ -28,7 +28,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             var.name <- names(X$covs.list[[1]])[1]
             message(paste0("No var.name was provided. Dispalying balance for ", var.name, "."))
         }
-        var.list <- vector("list", length(X$covs.list))
+        var.list <- make_list(length(X$covs.list))
         appears.in.time <- rep.int(TRUE, length(X$covs.list))
         for (i in seq_along(X$covs.list)) {
             if (var.name %in% names(X$covs.list[[i]])) var.list[[i]] <- X$covs.list[[i]][[var.name]]
@@ -267,7 +267,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         nobs <- sum(in.imp & in.cluster & in.time)
         if (nobs == 0) stop("No observations to display.", call. = FALSE)
         
-        Q <- setNames(vector("list", ntypes), which)
+        Q <- make_list(which)
         for (i in which) {
             Q[[i]] <- setNames(as.data.frame(matrix(0, ncol = 4, nrow = nobs)),
                                c("treat", "var", "weights", "which"))

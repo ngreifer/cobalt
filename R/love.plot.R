@@ -542,7 +542,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
     }
     
-    plot.list <- setNames(vector("list", length(stats)), stats)
+    plot.list <- make_list(stats)
     for (s in stats) {
         variable.names <- as.character(B[["variable.names"]])
         
@@ -604,7 +604,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 }
                 else if (tolower(var.order) == "alphabetical") {
                     if ("time" %in% facet) {
-                        covnames0 <- vector("list", length(unique(SS[["time"]])))
+                        covnames0 <- make_list(length(unique(SS[["time"]])))
                         for (i in seq_along(covnames0)) {
                             if (i == 1) {
                                 covnames0[[i]] <- sort(levels(SS[["var"]][SS[["time"]] == i]))
@@ -697,7 +697,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 }
                 else if (tolower(var.order) == "alphabetical") {
                     if ("time" %in% facet) {
-                        covnames0 <- vector("list", length(unique(SS[["time"]])))
+                        covnames0 <- make_list(length(unique(SS[["time"]])))
                         for (i in seq_along(covnames0)) {
                             if (i == 1) {
                                 covnames0[[i]] <- sort(levels(SS[["var"]][SS[["time"]] == i]))

@@ -130,8 +130,7 @@ initialize_X <- function() {
                  "subclass",
                  "stats",
                  "thresholds")
-    X <- setNames(vector("list", length(X.names)),
-                  X.names)
+    X <- make_list(X.names)
     return(X)
 }
 initialize_X_msm <- function() {
@@ -151,8 +150,7 @@ initialize_X_msm <- function() {
                  "subclass",
                  "stats",
                  "thresholds")
-    X <- setNames(vector("list", length(X.names)),
-                  X.names)
+    X <- make_list(X.names)
     return(X)
 }
 weight.check <- function(w) {
@@ -829,11 +827,11 @@ process_stats <- function(stats = NULL, treat) {
         
         if (treat.type %in% c("binary", "multinomial")) {
             if (is_null(stats)) stats <- getOption("cobalt_stats", "mean.diffs")
-            stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+            stats <- match_arg(stats, all_STATS[get_from_STATS("type") == "bin"], several.ok = TRUE)
         }
         else if (treat.type %in% c("continuous")) {
             if (is_null(stats)) stats <- getOption("cobalt_stats", "correlations")
-            stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
+            stats <- match_arg(stats, all_STATS[get_from_STATS("type") == "cont"], several.ok = TRUE)
         }
         return(unique(stats))
     }
@@ -887,7 +885,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.
     npol <- nd - sum(no.poly)
     new <- matrix(0, ncol = (poly-1)*npol + int*(.5*(nd)*(nd-1)), nrow = nrd)
     nc <- NCOL(new)
-    new.co.names <- vector("list", (nc))
+    new.co.names <- make_list(nc)
     if (poly > 1 && npol != 0) {
         for (i in 2:poly) {
             new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
@@ -1820,8 +1818,7 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
     bin.vars <- B[["Type"]] == "Binary"
     
     
-    SB <- setNames(vector("list", nlevels(subclass)),
-                  levels(subclass))
+    SB <- make_list(levels(subclass))
     
     binary <- match_arg(binary, c("raw", "std"))
     sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
