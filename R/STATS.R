@@ -96,7 +96,13 @@ STATS[["mean.diffs"]] <- {list(
         if (abs) c(lower = base::abs(threshold))
         else c(lower = -base::abs(threshold), upper = base::abs(threshold))
     },
-    love.plot_axis_scale = ggplot2::scale_x_continuous
+    love.plot_axis_scale = ggplot2::scale_x_continuous,
+    fun = function(C, treat, weights, std, s.d.denom, abs, s.weights, bin.vars, weighted.weights, ...) {
+        col_w_smd(C, treat = treat, weights = weights, 
+                  std = std, s.d.denom = s.d.denom,
+                  abs = abs, s.weights = s.weights, bin.vars = bin.vars,
+                  weighted.weights = weighted.weights)
+    }
 )}
 
 STATS[["variance.ratios"]] <- {list(
@@ -121,7 +127,16 @@ STATS[["variance.ratios"]] <- {list(
         if (abs) c(lower = abs_(threshold, ratio = TRUE))
         else c(lower = abs_(threshold, ratio = TRUE)^-1, upper = abs_(threshold, ratio = TRUE))
     },
-    love.plot_axis_scale = ggplot2::scale_x_log10
+    love.plot_axis_scale = ggplot2::scale_x_log10,
+    fun = function(C, treat, weights, abs, s.weights, bin.vars, ...) {
+        vrs <- rep(NA_real_, ncol(C))
+        if (any(!bin.vars)) {
+            vrs[!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat = treat, 
+                                       weights = weights, abs = abs, 
+                                       s.weights = s.weights, bin.vars = bin.vars[!bin.vars])
+        }
+        vrs
+    }
 )}
 
 STATS[["ks.statistics"]] <- {list(
@@ -145,7 +160,37 @@ STATS[["ks.statistics"]] <- {list(
     threshold.xintercepts = function(threshold, abs) {
         c(lower = base::abs(threshold))
     },
-    love.plot_axis_scale = ggplot2::scale_x_continuous
+    love.plot_axis_scale = ggplot2::scale_x_continuous,
+    fun = function(C, treat, weights, s.weights, bin.vars, ...) {
+        col_w_ks(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars)
+    }
+)}
+
+STATS[["ovl.statistics"]] <- {list(
+    type = "bin",
+    threshold = "ovl.threshold",
+    Threshold = "OVL.Threshold",
+    disp_stat = "disp.ovl",
+    bin_only = FALSE,
+    abs = function(x) abs_(x),
+    bal.tab._column_prefix = "OVL", #Also which.stat in love.plot
+    threshold_range = c(0, 1),
+    balance_tally_for = "overlap statistics",
+    variable_with_the_greatest = "overlap statistic", #also which.stat2 in love.plot
+    love.plot_xlab = function(...) {
+        "Overlap Statistics"
+    },
+    love.plot_add_stars = function(SS.var, variable.names, ...) {
+        return(SS.var)
+    },
+    baseline.xintercept = 0,
+    threshold.xintercepts = function(threshold, abs) {
+        c(lower = base::abs(threshold))
+    },
+    love.plot_axis_scale = ggplot2::scale_x_continuous,
+    fun = function(C, treat, weights, s.weights, bin.vars, ...) {
+        col_w_ovl(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars)
+    }
 )}
 
 STATS[["correlations"]] <- {list(
@@ -173,7 +218,47 @@ STATS[["correlations"]] <- {list(
         if (abs) c(lower = base::abs(threshold))
         else c(lower = -base::abs(threshold), upper = base::abs(threshold))
     },
-    love.plot_axis_scale = ggplot2::scale_x_continuous
+    love.plot_axis_scale = ggplot2::scale_x_continuous,
+    fun = function(C, treat, weights, abs, s.weights, std, s.d.denom, bin.vars, weighted.weights, ...) {
+        col_w_cov(C, treat = treat, weights = weights, abs = abs, s.weights = s.weights, 
+                  std = std, type = "pearson",
+                  s.d.denom = s.d.denom,
+                  bin.vars = bin.vars, weighted.weights = weighted.weights, na.rm = TRUE)
+    }
+)}
+
+STATS[["spearman.correlations"]] <- {list(
+    type = "cont",
+    threshold = "s.threshold",
+    Threshold = "S.Threshold",
+    disp_stat = "disp.spear",
+    bin_only = FALSE,
+    abs = function(x) abs_(x),
+    bal.tab._column_prefix = "S.Corr", #Also which.stat in love.plot
+    threshold_range = c(0, 1),
+    balance_tally_for = "treatment Spearman correlations",
+    variable_with_the_greatest = "treatment Spearman correlation", #also which.stat2 in love.plot
+    love.plot_xlab = function(...) {
+        A <- list(...)
+        abs <- A$abs
+        if (abs) return("Absolute Treatment-Covariate Spearman Correlations")
+        else return("Treatment-Covariate Spearman Correlations")
+    },
+    love.plot_add_stars = function(SS.var, variable.names, ...) {
+        return(SS.var)
+    },
+    baseline.xintercept = 0,
+    threshold.xintercepts = function(threshold, abs) {
+        if (abs) c(lower = base::abs(threshold))
+        else c(lower = -base::abs(threshold), upper = base::abs(threshold))
+    },
+    love.plot_axis_scale = ggplot2::scale_x_continuous,
+    fun = function(C, treat, weights, abs, s.weights, std, s.d.denom, bin.vars, weighted.weights, ...) {
+        col_w_cov(C, treat = treat, weights = weights, abs = abs, s.weights = s.weights, 
+                  std = std, type = "spearman",
+                  s.d.denom = s.d.denom,
+                  bin.vars = bin.vars, weighted.weights = weighted.weights, na.rm = TRUE)
+    }
 )}
 
 all_STATS <- names(STATS)
