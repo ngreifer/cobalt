@@ -334,7 +334,7 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     
     if (!(A$quick && !msm.summary) && all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X$imp)) {
         out[["Balance.Across.Times"]] <- balance.summary(out[["Time.Balance"]],
-                                                         agg.fun = "max",
+                                                         agg.funs = "max",
                                                          include.times = TRUE)
         out[["Observations"]] <- lapply(out[["Time.Balance"]], function(x) x$Observations)
     }
@@ -383,7 +383,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     
     if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
         out[["Cluster.Summary"]] <- balance.summary(out[["Cluster.Balance"]], 
-                                                    Agg.Funs = if_null_then(cluster.fun, c("min", "mean", "max")))
+                                                    agg.funs = if_null_then(cluster.fun, c("min", "mean", "max")))
         observations <- lapply(out[["Cluster.Balance"]], function(x) x[["Observations"]])
         
         out[["Observations"]] <- samplesize.across.clusters(observations)
