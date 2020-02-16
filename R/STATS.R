@@ -97,11 +97,12 @@ STATS[["mean.diffs"]] <- {list(
         else c(lower = -base::abs(threshold), upper = base::abs(threshold))
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
-    fun = function(C, treat, weights, std, s.d.denom, abs, s.weights, bin.vars, weighted.weights, ...) {
+    fun = function(C, treat, weights, std, s.d.denom, abs, s.weights, bin.vars, weighted.weights = weights, subset = NULL, ...) {
         col_w_smd(C, treat = treat, weights = weights, 
                   std = std, s.d.denom = s.d.denom,
                   abs = abs, s.weights = s.weights, bin.vars = bin.vars,
-                  weighted.weights = weighted.weights)
+                  weighted.weights = weighted.weights,
+                  subset = subset)
     }
 )}
 
@@ -128,12 +129,13 @@ STATS[["variance.ratios"]] <- {list(
         else c(lower = abs_(threshold, ratio = TRUE)^-1, upper = abs_(threshold, ratio = TRUE))
     },
     love.plot_axis_scale = ggplot2::scale_x_log10,
-    fun = function(C, treat, weights, abs, s.weights, bin.vars, ...) {
+    fun = function(C, treat, weights, abs, s.weights, bin.vars, subset = NULL, ...) {
         vrs <- rep(NA_real_, ncol(C))
         if (any(!bin.vars)) {
             vrs[!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat = treat, 
                                        weights = weights, abs = abs, 
-                                       s.weights = s.weights, bin.vars = bin.vars[!bin.vars])
+                                       s.weights = s.weights, bin.vars = bin.vars[!bin.vars],
+                                       subset = subset)
         }
         vrs
     }
@@ -161,8 +163,9 @@ STATS[["ks.statistics"]] <- {list(
         c(lower = base::abs(threshold))
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
-    fun = function(C, treat, weights, s.weights, bin.vars, ...) {
-        col_w_ks(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars)
+    fun = function(C, treat, weights, s.weights, bin.vars, subset = NULL, ...) {
+        col_w_ks(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
+                 subset = subset)
     }
 )}
 
@@ -188,8 +191,9 @@ STATS[["ovl.statistics"]] <- {list(
         c(lower = base::abs(threshold))
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
-    fun = function(C, treat, weights, s.weights, bin.vars, ...) {
-        col_w_ovl(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars)
+    fun = function(C, treat, weights, s.weights, bin.vars, subset = NULL, ...) {
+        col_w_ovl(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
+                  subset = subset)
     }
 )}
 
@@ -219,11 +223,12 @@ STATS[["correlations"]] <- {list(
         else c(lower = -base::abs(threshold), upper = base::abs(threshold))
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
-    fun = function(C, treat, weights, abs, s.weights, std, s.d.denom, bin.vars, weighted.weights, ...) {
+    fun = function(C, treat, weights, abs, s.weights, std, s.d.denom, bin.vars, weighted.weights = weights, subset = NULL, ...) {
         col_w_cov(C, treat = treat, weights = weights, abs = abs, s.weights = s.weights, 
                   std = std, type = "pearson",
                   s.d.denom = s.d.denom,
-                  bin.vars = bin.vars, weighted.weights = weighted.weights, na.rm = TRUE)
+                  bin.vars = bin.vars, weighted.weights = weighted.weights, na.rm = TRUE,
+                  subset = subset)
     }
 )}
 
@@ -253,12 +258,19 @@ STATS[["spearman.correlations"]] <- {list(
         else c(lower = -base::abs(threshold), upper = base::abs(threshold))
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
-    fun = function(C, treat, weights, abs, s.weights, std, s.d.denom, bin.vars, weighted.weights, ...) {
+    fun = function(C, treat, weights, abs, s.weights, std, s.d.denom, bin.vars, weighted.weights = weights, subset = NULL, ...) {
         col_w_cov(C, treat = treat, weights = weights, abs = abs, s.weights = s.weights, 
                   std = std, type = "spearman",
                   s.d.denom = s.d.denom,
-                  bin.vars = bin.vars, weighted.weights = weighted.weights, na.rm = TRUE)
+                  bin.vars = bin.vars, weighted.weights = weighted.weights, na.rm = TRUE,
+                  subset = subset)
     }
 )}
 
-all_STATS <- names(STATS)
+all_STATS <- function(type) {
+    if (missing(type)) names(STATS)
+    else {
+        type <- match_arg(type, c("bin", "cont"))
+        names(STATS)[get_from_STATS("type") == type]
+    }
+}
