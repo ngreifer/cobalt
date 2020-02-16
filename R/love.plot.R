@@ -88,7 +88,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     #Process stats
     if (is_null(stats)) stats <- attr(x, "print.options")$stats
-    stats <- match_arg(stats, all_STATS[get_from_STATS("type") == attr(x, "print.options")$type], several.ok = TRUE)
+    stats <- match_arg(stats, all_STATS(attr(x, "print.options")$type), several.ok = TRUE)
         
     #Get B and config
     if ("bal.tab.subclass" %in% class(x)) {
