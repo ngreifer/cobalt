@@ -6,12 +6,13 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
 
     X$treat <- process_treat(X$treat) 
     
-    if (type == "bin" && get.treat.type(X$treat) != "binary") {
-        stop("Treatment indicator must be a binary variable---e.g., treatment (1) or control (0)", call. = FALSE)
+    if (type == "bin") {
+        if (get.treat.type(X$treat) != "binary") {
+            stop("Treatment indicator must be a binary variable---e.g., treatment (1) or control (0)", call. = FALSE)}
         if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
         if (missing(binary)) binary <- getOption("cobalt_binary", "raw")
     }
-    else {
+    else if (type == "cont"){
         if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
         if (missing(binary)) binary <- getOption("cobalt_binary", "std")
     }
