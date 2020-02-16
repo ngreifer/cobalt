@@ -53,11 +53,11 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                       s.d.denom.list = X$s.d.denom.list)
     
     #Reassign disp... and ...threshold based on balance table output
-    stats <- attr(out[["Balance"]], "stats")
+    compute <- attr(out[["Balance"]], "compute")
     thresholds <- attr(out[["Balance"]], "thresholds")
     disp <- attr(out[["Balance"]], "disp")
     
-    for (s in stats) {
+    for (s in compute) {
         if (is_not_null(thresholds[[s]])) {
             if (no.adj) {
                 out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[paste.(STATS[[s]]$Threshold, "Un")]])
@@ -99,9 +99,8 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
     attr(out, "print.options") <- list(thresholds = thresholds,
                                        imbalanced.only = imbalanced.only,
                                        un=un, 
-                                       disp.means=disp["means"], 
-                                       disp.sds=disp["sds"],
-                                       stats = stats, 
+                                       compute = compute, 
+                                       disp = disp,
                                        disp.adj=!no.adj,
                                        disp.bal.tab = disp.bal.tab, 
                                        abs = abs,
@@ -190,7 +189,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     #Treat is a factor variable of 3+ levels
     if (is_null(X$focal)) {
         if (pairwise) treat.combinations <- combn(levels(X$treat), 2, list)
-        else treat.combinations <- lapply(levels(X$treat), function(x) c(x, "Others"))
+        else treat.combinations <- lapply(levels(X$treat), function(x) c(x, "All"))
     }
     else {
         if (length(X$focal) > 1) stop("focal must be a vector of length 1 containing the name or index of the focal treatment group.", call. = FALSE)
@@ -399,8 +398,9 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
 #NEEDS UPDATING with STATS
 base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
-    if (type == "bin" && get.treat.type(X$treat) != "binary") {
-        stop("Treatment indicator must be a binary variable---e.g., treatment (1) or control (0)", call. = FALSE)
+    if (type == "bin") {
+        if(get.treat.type(X$treat) != "binary") 
+            stop("Treatment indicator must be a binary variable---e.g., treatment (1) or control (0)", call. = FALSE)
         if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
         if (missing(binary)) binary <- getOption("cobalt_binary", "raw")
     }
@@ -490,11 +490,11 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
     }
     
     #Reassign disp... and ...threshold based on balance table output
-    stats <- attr(out[["Subclass.Balance"]], "stats")
+    compute <- attr(out[["Subclass.Balance"]], "compute")
     thresholds <- attr(out[["Subclass.Balance"]], "thresholds")
     disp <- attr(out[["Subclass.Balance"]], "disp")
     
-    for (s in stats) {
+    for (s in compute) {
         if (is_not_null(thresholds[[s]])) {
             out[[paste.("Balanced", s, "Subclass")]] <- setNames(do.call(data.frame, lapply(out[["Subclass.Balance"]], function(x) baltal(x[[STATS[[s]]$Threshold]]))),
                                                                  paste("Subclass", levels(X$subclass)))
@@ -517,9 +517,8 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
     attr(out, "print.options") <- list(thresholds = thresholds,
                                        imbalanced.only = imbalanced.only,
                                        un=un, 
-                                       disp.means=disp["means"], 
-                                       disp.sds=disp["sds"],
-                                       stats = stats, 
+                                       disp=disp,
+                                       compute = compute, 
                                        disp.adj = !no.adj, 
                                        disp.subclass = disp.subclass,
                                        disp.bal.tab = disp.bal.tab, 
