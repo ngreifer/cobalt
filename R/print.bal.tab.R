@@ -41,8 +41,7 @@ print.bal.tab <- function(x, m.threshold = "as.is", v.threshold = "as.is", ks.th
     }
     if (!identical(stats, "as.is")) {
         if (!is_(stats, "character")) stop("stats must be a string.")
-        if (p.ops$type == "cont") stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
-        else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+        stats <- match_arg(stats, all_STATS[get_from_STATS("type") == p.ops$type], several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$stats
         if (p.ops$quick && any(!stats_in_p.ops)) {
             stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
@@ -327,8 +326,7 @@ print.bal.tab.cluster <- function(x, m.threshold = "as.is", v.threshold = "as.is
     }
     if (!identical(stats, "as.is")) {
         if (!is_(stats, "character")) stop("stats must be a string.")
-        if (p.ops$type == "cont") stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
-        else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+        stats <- match_arg(stats, all_STATS[get_from_STATS("type") == p.ops$type], several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$stats
         if (p.ops$quick && any(!stats_in_p.ops)) {
             stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
@@ -624,8 +622,7 @@ print.bal.tab.imp <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
     }
     if (!identical(stats, "as.is")) {
         if (!is_(stats, "character")) stop("stats must be a string.")
-        if (p.ops$type == "cont") stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
-        else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+        stats <- match_arg(stats, all_STATS[get_from_STATS("type") == p.ops$type], several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$stats
         if (p.ops$quick && any(!stats_in_p.ops)) {
             stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
@@ -918,8 +915,7 @@ print.bal.tab.multi <- function(x, m.threshold = "as.is", v.threshold = "as.is",
     }
     if (!identical(stats, "as.is")) {
         if (!is_(stats, "character")) stop("stats must be a string.")
-        if (p.ops$type == "cont") stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
-        else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+        stats <- match_arg(stats, all_STATS[get_from_STATS("type") == p.ops$type], several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$stats
         if (p.ops$quick && any(!stats_in_p.ops)) {
             stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
@@ -1225,8 +1221,7 @@ print.bal.tab.msm <- function(x, m.threshold = "as.is", v.threshold = "as.is", k
     }
     if (!identical(stats, "as.is")) {
         if (!is_(stats, "character")) stop("stats must be a string.")
-        if (p.ops$type == "cont") stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
-        else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+        stats <- match_arg(stats, all_STATS[get_from_STATS("type") == p.ops$type], several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$stats
         if (p.ops$quick && any(!stats_in_p.ops)) {
             stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
@@ -1515,8 +1510,7 @@ print.bal.tab.subclass <- function(x, m.threshold = "as.is", v.threshold = "as.i
     }
     if (!identical(stats, "as.is")) {
         if (!is_(stats, "character")) stop("stats must be a string.")
-        if (p.ops$type == "cont") stats <- match_arg(stats, c("correlations"), several.ok = TRUE)
-        else stats <- match_arg(stats, c("mean.diffs", "variance.ratios", "ks.statistics"), several.ok = TRUE)
+        stats <- match_arg(stats, all_STATS[get_from_STATS("type") == p.ops$type], several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$stats
         if (p.ops$quick && any(!stats_in_p.ops)) {
             stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
