@@ -1352,7 +1352,6 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                 }
             }
         }
-        if (all(vapply(B[startsWith(names(B), "SD.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.sds <- FALSE}
     }
     else if (type == "cont") {
         if ((un && disp.sds) || !quick) {
@@ -1375,74 +1374,28 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                 B[[paste.("SD", i)]] <- sds
             }
         }
-        if (!any(sapply(B[startsWith(names(B), "SD.")], is.finite))) {disp.sds <- FALSE}
     }
+    if (all(vapply(B[startsWith(names(B), "SD.")], function(x) all(!is.finite(x)), logical(1L)))) {disp.sds <- FALSE}
     
     for (s in all_STATS[get_from_STATS("type") == type]) {
         if (!quick || s %in% stats) {
-            if (s == "mean.diffs") {
-                if (!quick || un) {
-                    B[[paste.(STATS[[s]]$bal.tab._column_prefix, "Un")]] <- col_w_smd(C, treat = treat, weights = NULL, 
-                                                                                      std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                                                      s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
-                                                                                      abs = abs, s.weights = s.weights, bin.vars = bin.vars,
-                                                                                      weighted.weights = weights[[1]])
-                }
-                
-                if (!no.adj) {
-                    for (i in weight.names) {
-                        B[[paste.(STATS[[s]]$bal.tab._column_prefix, i)]] <- col_w_smd(C, treat = treat, weights = weights[[i]],
+            if (!quick || un) {
+                B[[paste.(STATS[[s]]$bal.tab._column_prefix, "Un")]] <- STATS[[s]]$fun(C, treat = treat, weights = NULL, 
                                                                                        std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                                                       s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
-                                                                                       abs = abs, s.weights = s.weights, bin.vars = bin.vars)
-                    }
+                                                                                       s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
+                                                                                       abs = abs, s.weights = s.weights, bin.vars = bin.vars,
+                                                                                       weighted.weights = weights[[1]])
+            }
+            
+            if (!no.adj) {
+                for (i in weight.names) {
+                    B[[paste.(STATS[[s]]$bal.tab._column_prefix, i)]] <- STATS[[s]]$fun(C, treat = treat, weights = weights[[i]],
+                                                                                        std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
+                                                                                        s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
+                                                                                        abs = abs, s.weights = s.weights, bin.vars = bin.vars)
                 }
             }
-            else if (s == "variance.ratios") {
-                if (!quick || un) {
-                    if (any(!bin.vars)) {
-                        B[[paste.(STATS[[s]]$bal.tab._column_prefix, "Un")]][!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat, weights = NULL, abs = abs, 
-                                                                                                    s.weights = s.weights, bin.vars = bin.vars[!bin.vars])
-                    }
-                }
-                if (!no.adj) {
-                    for (i in weight.names) {
-                        if (any(!bin.vars)) {
-                            B[[paste.(STATS[[s]]$bal.tab._column_prefix, i)]][!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat, weights = weights[[i]], abs = abs, 
-                                                                                                     s.weights = s.weights, bin.vars = bin.vars[!bin.vars])
-                        }
-                        
-                    }
-                }
-            }
-            else if (s == "ks.statistics") {
-                if (!quick || un) {
-                    B[[paste.(STATS[[s]]$bal.tab._column_prefix, "Un")]] <- col_w_ks(C, treat = treat, weights = NULL, s.weights = s.weights, bin.vars = bin.vars)
-                }
-                if (!no.adj) {
-                    for (i in weight.names) {
-                        B[[paste.(STATS[[s]]$bal.tab._column_prefix, i)]] <- col_w_ks(C, treat = treat, weights = weights[[i]], s.weights = s.weights, bin.vars = bin.vars)
-                    }
-                }
-            }
-            else if (s == "correlations") {
-                if (!quick || un) {
-                    B[[paste.(STATS[[s]]$bal.tab._column_prefix, "Un")]] <- col_w_cov(C, treat, weights = NULL, abs = abs, s.weights = s.weights, 
-                                                                                      std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                                                      s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
-                                                                                      bin.vars = bin.vars, weighted.weights = weights[[1]], na.rm = TRUE)
-                }
-                
-                if (!no.adj) {
-                    for (i in weight.names) {
-                        B[[paste.(STATS[[s]]$bal.tab._column_prefix, i)]] <- col_w_cov(C, treat, weights = weights[[i]], 
-                                                                                       std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
-                                                                                       s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
-                                                                                       abs = abs, s.weights = s.weights, 
-                                                                                       bin.vars = bin.vars, na.rm = TRUE)
-                    }
-                }
-            }
+            
         }
         if (all(vapply(B[paste.(STATS[[s]]$bal.tab._column_prefix, c("Un", weight.names))], 
                        function(x) all(!is.finite(x)), logical(1L)))) {
