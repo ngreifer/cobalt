@@ -155,12 +155,12 @@ x2base.matchit <- function(m, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -363,12 +363,12 @@ x2base.ps <- function(ps, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -553,12 +553,12 @@ x2base.mnps <- function(mnps, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -744,12 +744,12 @@ x2base.ps.cont <- function(ps.cont, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -905,12 +905,12 @@ x2base.Match <- function(Match, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -1239,12 +1239,12 @@ x2base.data.frame <- function(covs, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -1416,12 +1416,12 @@ x2base.CBPS <- function(cbps.fit, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -1583,12 +1583,12 @@ x2base.ebalance <- function(ebalance, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -1743,12 +1743,12 @@ x2base.optmatch <- function(optmatch, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -1911,12 +1911,12 @@ x2base.weightit <- function(weightit, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -2074,12 +2074,12 @@ x2base.designmatch <- function(dm, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -2284,12 +2284,12 @@ x2base.mimids <- function(mimids, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -2456,12 +2456,12 @@ x2base.wimids <- function(wimids, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -2623,12 +2623,12 @@ x2base.sbwcau <- function(sbwcau, ...) {
     stats <- process_stats(A[["stats"]], treat = treat)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -2848,12 +2848,12 @@ x2base.iptw <- function(iptw, ...) {
     stats <- process_stats(A[["stats"]], treat = treat.list)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -3086,12 +3086,12 @@ x2base.data.frame.list <- function(covs.list, ...) {
     stats <- process_stats(A[["stats"]], treat = treat.list)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -3292,12 +3292,12 @@ x2base.CBMSM <- function(cbmsm, ...) {
     stats <- process_stats(A[["stats"]], treat = treat.list)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -3477,12 +3477,12 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     stats <- process_stats(A[["stats"]], treat = treat.list)
     
     if (is_not_null(thresholds <- A[["thresholds"]])) {
-        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
         if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
     }
     else thresholds <- list()
     
-    for (s in all_STATS) {
+    for (s in all_STATS()) {
         #If disp.stat is TRUE, add stat to stats
         if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
             stats <- unique(c(stats, s))
@@ -3960,12 +3960,12 @@ x2base.default <- function(obj, ...) {
         stats <- process_stats(A[["stats"]], treat = treat)
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS) {
+        for (s in all_STATS()) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -4208,12 +4208,12 @@ x2base.default <- function(obj, ...) {
         stats <- process_stats(A[["stats"]], treat = treat.list)
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS, stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS) {
+        for (s in all_STATS()) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
