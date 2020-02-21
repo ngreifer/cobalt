@@ -23,6 +23,8 @@ Version 4.1.0
 
 * Fixed a bug in `love.plot()` when using subclassification.
 
+* Fixed a bug when using `bal.tab` with longitudinal treatments and multiple sets of weights,
+
 Version 4.0.0
 
 **Major Updates**
