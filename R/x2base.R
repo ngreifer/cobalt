@@ -3042,6 +3042,13 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                                   do.call("cbind", covs.list), 
                                                   data))) {
         weight.check(weights)
+        
+        if (length(method) == 1) {
+            method <- rep.int(method, ncol(weights))
+        }
+        else if (length(method) != ncol(weights)) {
+            stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+        }
     }
     
     #Process s.weights
@@ -4160,13 +4167,21 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process weights
-        weights <- data.frame.process("weights", 
+        if (is_not_null(weights <- data.frame.process("weights", 
                                       A[["weights"]], 
                                       do.call("cbind", treat.list), 
                                       do.call("cbind", covs.list), 
-                                      data)
-        weight.check(weights)
-        
+                                      data))) {
+            weight.check(weights)
+            
+            if (length(method) == 1) {
+                method <- rep.int(method, ncol(weights))
+            }
+            else if (length(method) != ncol(weights)) {
+                stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+            }
+        }
+
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
             s.weights <- vector.process(s.weights, 
