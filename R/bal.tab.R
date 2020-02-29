@@ -222,6 +222,9 @@ bal.tab.numeric <- function(treat, covs, ...) {
     bal.tab(covs, treat = treat, ...)
 }
 bal.tab.factor <- bal.tab.character <- bal.tab.logical <- bal.tab.numeric
+bal.tab.matrix <- function(covs, treat, ...) {
+    bal.tab.data.frame(as.data.frame(covs), treat, ...)
+}
 bal.tab.CBPS <- function(cbps, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     args <- c(as.list(environment()), list(...))[-1]
