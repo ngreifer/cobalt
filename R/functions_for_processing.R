@@ -502,7 +502,11 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
                                           ". Ignoring estimand.")
     }
     else if ((check.focal || check.weights) && any(s.d.denom %nin% treat_vals(treat))) {
-        attr(s.d.denom, "note") <- paste0("Note: s.d.denom not specified; assuming ", ifelse(all_the_same(s.d.denom), unique(s.d.denom), word_list(s.d.denom)), ".")
+        attr(s.d.denom, "note") <- paste0("Note: s.d.denom not specified; assuming ", 
+                                          if (all_the_same(s.d.denom)) s.d.denom[1] 
+                                          else word_list(paste0("\"", vapply(s.d.denom, function(s) {
+                                              if (s %in% treat_vals(treat) && all(treat_vals(treat) %in% c("0", "1"))) names(treat_names(treat))[treat_names(treat) == names(treat_vals(treat))[treat_vals(treat) == s]] else s
+                                              }, character(1L)), "\" for ", names(weights))), ".")
     }
     
     if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
@@ -611,7 +615,7 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
     if (is_not_null(weights) && length(estimand) == 1) estimand <- rep.int(estimand, ncol(weights))
     
     if (!quietly && (check.focal || check.weights)) {
-        message("Note: estimand not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(unique(estimand)), word_list(toupper(estimand))), ".")
+        message("Note: estimand not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(estimand[1]), word_list(paste("\"", toupper(estimand), "\" for ", names(weights)))), ".")
     }
     
     if (is_not_null(weights) && length(estimand) != ncol(weights)) {
@@ -1078,10 +1082,10 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
         co.names <- c(co.names, miss.co.names)
         
     }
-    
+
     #Remove duplicate & redundant variables
     C <- remove.perfect.col(C) 
-    
+        
     if (is_not_null(distance)) {
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
         if (any(apply(distance, 2, function(x) anyNA(x)))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
@@ -1144,6 +1148,68 @@ remove.perfect.col <- function(C) {
     C <- C[, colnames(C) %nin% redundant.vars, drop = FALSE] 
     return(C)
 }
+# remove.perfect.col2 <- function(C) {
+#   C.no.miss <- C[,colnames(C) %nin% attr(C, "missing.ind"), drop = FALSE]
+#   cor_ <- function(x, y, mean_x, sd_x, mean_y, sd_y, n) {
+#     cov_ <- sum((x - mean_x) * (y-mean_y))/(n-1)
+#     return(cov_/(sd_x*sd_y))
+#   }
+#   n <- nrow(C.no.miss)
+#   redundant.vars <- rep(FALSE, ncol(C.no.miss))
+#   means <- colMeans(C.no.miss)
+#   sds <- sqrt(col.w.v(C.no.miss))
+#   nas <- apply(C.no.miss, 2, anyNA)
+#   for (i in ncol(C.no.miss):2) {
+#     j <- i-1
+#     mean_i <- mean(C.no.miss[,i])
+#     sd_i <- sd(C.no.miss[,i])
+#     while(!redundant.vars[i] && j > 0) {
+#       if (nas[i] && nas[j] && sum(is.na(C.no.miss[,i])) != sum(is.na(C.no.miss[,j]))) {} 
+#       else if (check_if_zero(1-abs(suppressWarnings(cor_(C.no.miss[,j], C.no.miss[,i], means[j], sds[j], means[i], sds[i], n))))) {
+#         redundant.vars[i] <- TRUE
+#       }
+#       j <- j - 1
+#     }
+#   }
+#   C <- C[, colnames(C) %nin% colnames(C.no.miss)[redundant.vars], drop = FALSE] 
+#   return(C)
+# }
+# remove.perfect.col3 <- function(C) {
+#   C.no.miss <- C[,colnames(C) %nin% attr(C, "missing.ind"), drop = FALSE]
+#   #If many rows, select subset to test redundancy
+#   if (NROW(C.no.miss) > 1500) {
+#     repeat {
+#       mini.C.no.miss <- C.no.miss[sample(seq_len(NROW(C.no.miss)), 1000),,drop=FALSE]
+#       single.value <- apply(mini.C.no.miss, 2, all_the_same)
+#       if (all(!single.value)) break
+#     }
+#     suppressWarnings(C.cor <- coop::pcor(mini.C.no.miss, use = "pairwise.complete.obs"))
+#   }
+#   else suppressWarnings(C.cor <- coop::pcor(C.no.miss, use = "pairwise.complete.obs"))
+#   
+#   s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
+#   redundant.vars <- colnames(C.no.miss)[apply(s, 2, any)]
+#   C <- C[, colnames(C) %nin% redundant.vars, drop = FALSE] 
+#   return(C)
+# }
+# remove.perfect.col4 <- function(C) {
+#   C.no.miss <- C[,colnames(C) %nin% attr(C, "missing.ind"), drop = FALSE]
+#   #If many rows, select subset to test redundancy
+#   if (NROW(C.no.miss) > 1500) {
+#     repeat {
+#       mini.C.no.miss <- C.no.miss[sample(seq_len(NROW(C.no.miss)), 1000),,drop=FALSE]
+#       single.value <- apply(mini.C.no.miss, 2, all_the_same)
+#       if (all(!single.value)) break
+#     }
+#     suppressWarnings(C.cor <- Rfast::cora(mini.C.no.miss))
+#   }
+#   else suppressWarnings(C.cor <- Rfast::cora(C.no.miss))
+#   
+#   s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
+#   redundant.vars <- colnames(C.no.miss)[apply(s, 2, any)]
+#   C <- C[, colnames(C) %nin% redundant.vars, drop = FALSE] 
+#   return(C)
+# }
 
 #base.bal.tab
 check_if_zero_weights <- function(weights.df, treat = NULL) {
