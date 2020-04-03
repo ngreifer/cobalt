@@ -7,7 +7,6 @@ importFrom("crayon", "italic", "underline")
 importFrom("gtable", "gtable_col", "gtable_add_cols", "gtable_add_rows",
            "gtable_add_grob", "gtable_matrix")
 importFrom("gridExtra", "arrangeGrob", "gtable_cbind", "gtable_rbind")
-importFrom("ggstance", "position_dodgev")
 
 export(bal.tab, bal.plot, love.plot, f.build, splitfactor, 
        unsplitfactor, get.w, var.names, set.cobalt.options,

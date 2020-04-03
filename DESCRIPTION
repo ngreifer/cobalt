@@ -10,11 +10,10 @@ Description: Generate balance tables and plots for covariates of groups preproce
 Depends:
     R (>= 3.3.0)
 Imports:
-    ggplot2 (>= 3.0.0),
+    ggplot2 (>= 3.3.0),
     grid,
     gtable (>= 0.3.0),
     gridExtra (>= 2.3.0),
-    ggstance,
     crayon,
     backports (>= 1.1.5)
 Suggests:

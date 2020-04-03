@@ -796,7 +796,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         
         if (agg.range) {
-            position.dodge <- ggstance::position_dodgev(.5*(size0[1]/3))
+            position.dodge <- position_dodge(.5*(size0[1]/3))
             if (line == TRUE) { #Add line except to distance
                 f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                 lp <- lp + ggplot2::layer(geom = "path", data = f, 
@@ -808,11 +808,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
             
             lp <- lp +
-                geom_errorbarh(aes(y = var, xmin = min.stat, xmax = max.stat,
+                geom_linerange(aes(y = var, xmin = min.stat, xmax = max.stat,
                                    color = Sample), position = position.dodge,
                                size = size0[1]*.8/3,
                                alpha = alpha, 
-                               height = 0,
+                               orientation = "y",
+                               show.legend = FALSE,
                                na.rm = TRUE) +
                 geom_point(aes(y = var, 
                                x = mean.stat, 
