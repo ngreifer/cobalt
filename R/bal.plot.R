@@ -428,7 +428,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                     colors <- gg_color_hue(ntypes)
                 }
                 
-                if (!all(sapply(colors, isColor))) {
+                if (!all(vapply(colors, isColor, logical(1L)))) {
                     warning("The argument to colors contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
                     colors <- gg_color_hue(ntypes)
                 }
@@ -439,7 +439,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) + 
                 labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
                 scale_fill_manual(values = colors) + geom_hline(yintercept = 0) +
-                scale_y_continuous(expand = expand_scale(mult = c(0, .05)))
+                scale_y_continuous(expand = expansion(mult = c(0, .05)))
         }
         else { #Continuous vars
             D$var.mean <- ave(D[["var"]], D[facet], FUN = mean)
@@ -525,7 +525,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 labs(x = var.name, y = "Proportion", fill = "Treatment", title = title, subtitle = subtitle) + 
                 scale_x_discrete(drop=FALSE) + scale_fill_manual(drop=FALSE, values = colors) +
                 geom_hline(yintercept = 0) + 
-                scale_y_continuous(expand = expand_scale(mult = c(0, .05)))
+                scale_y_continuous(expand = expansion(mult = c(0, .05)))
         }
         else { #Continuous vars
             
@@ -535,20 +535,20 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 mirror <- FALSE
                 alpha <- 1
                 legend.alpha <- alpha
-                expandScale <- expand_scale(mult = .005)
+                expandScale <- expansion(mult = .005)
             }
             else if (nlevels.treat <= 2 && mirror) {
                 posneg <- c(1, -1)
                 alpha <- .8
                 legend.alpha <- alpha
-                expandScale <- expand_scale(mult = .05)
+                expandScale <- expansion(mult = .05)
             }
             else {
                 mirror <- FALSE
                 posneg <- rep(1, nlevels.treat)
                 alpha <- .4
                 legend.alpha <- alpha/nlevels.treat
-                expandScale <- expand_scale(mult = c(0, .05))
+                expandScale <- expansion(mult = c(0, .05))
             }
             
             if (type == "histogram") {
