@@ -168,7 +168,7 @@ STATS[["ks.statistics"]] <- {list(
     }
 )}
 
-STATS[["ovl.statistics"]] <- {list(
+STATS[["ovl.coefficients"]] <- {list(
     type = "bin",
     threshold = "ovl.threshold",
     Threshold = "OVL.Threshold",
@@ -177,10 +177,10 @@ STATS[["ovl.statistics"]] <- {list(
     abs = function(x) abs_(x),
     bal.tab_column_prefix = "OVL", #Also which.stat in love.plot
     threshold_range = c(0, 1),
-    balance_tally_for = "overlap statistics",
-    variable_with_the_greatest = "overlap statistic", #also which.stat2 in love.plot
+    balance_tally_for = "overlapping coefficients",
+    variable_with_the_greatest = "overlapping coefficient", #also which.stat2 in love.plot
     love.plot_xlab = function(...) {
-        "Overlap Statistics"
+        "Overlapping Coefficients"
     },
     love.plot_add_stars = function(SS.var, variable.names, ...) {
         return(SS.var)
