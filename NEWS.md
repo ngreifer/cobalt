@@ -30,6 +30,7 @@ Version 4.1.0
 Version 4.0.0
 
 **Major Updates**
+
 * Added support for `mimids` and `wimids` objects from `MatchThem`.
 
 * Major restructuring so that clusters, longitudinal treatments, multi-category treatments, and multiply imputed data can all be used with each other. These are layers in the following order: clusters, time points, treatment categories, and imputations. Summaries across these layers are handled slightly differently from how they used to be; importantly, summaries are not nested, and only the lowest layer present can have a summary. For example, if multiply imputed data is used with multi-category treatments, there will be a summary across imputations (the lowest layer) but not across treatment pairs. `love.plot` allows multiple forms of faceting and aggregating and is extremely flexible in this regard.
@@ -39,7 +40,9 @@ Version 4.0.0
 * Formula interfaces now accept `poly(x, .)` and other matrix-generating functions of variables, including the `rms`-class-generating functions from the `rms` package (e.g., `pol()`, `rcs()`, etc.) (the `rms` package must be loaded to use these latter ones) and the `basis`-class-generating functions from the `splines` package (i.e., `bs()` and `ns()`). A bug in an early version of this was found by @ahinton-mmc.
 
 **Minor Updates and Bug Fixes**
+
 ***`s.d.denom` and `estimand`***
+
 * `s.d.denom` can now use the name of a treatment rather than just `"treated"` or `"control"`. In addition, `s.d.denom` can be `"weighted"` to use the weighted sample's standardization factors, an option available for continuous treatments, too.
 
 * Improved guessing of the estimand when not provided.
@@ -47,6 +50,7 @@ Version 4.0.0
 * Estimands besides ATT can now be used with subclasses. The estimand can be inferred from the provided subclasses. Works with `match.strata` as well, which function like subclasses. In addition, it is not always assumed that `MatchIt` objects are targeting the ATT, for example, with subclassification or calipers.
 
 ***`bal.plot`***
+
 * Added `sample.names` argument in `bal.plot` in response to [this post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
 
 * Added functionality to the `which` argument in `bal.plot`, allowing more specificity when multiple sets of weights are used.
