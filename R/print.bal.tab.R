@@ -133,7 +133,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
                                           })), 2),
                                           unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
                                               c(p.ops$disp.adj && s %in% p.ops$disp,
-                                                p.ops$disp.adj && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                                p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
                                           }))
                                           ), 
                                           p.ops$nweights + !p.ops$disp.adj))),
