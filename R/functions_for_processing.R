@@ -219,13 +219,27 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
     if (is_not_null(formula) && class(formula) == "formula") {
         D <- NULL
         if (is_not_null(data)) D <- data
-        if (is_not_null(covs)) {if (is_not_null(D)) D <- cbind(D, covs) else D <- covs}
+        if (is_not_null(covs) && is_(covs, c("data.frame", "matrix"))) {
+          if (is_not_null(D)) D <- data.frame(D, covs) 
+          else D <- as.data.frame(covs)
+        }
         t.c <- get.covs.and.treat.from.formula(formula, D, treat = treat)
         t.c <- list(treat = t.c[["treat"]], covs = t.c[["reported.covs"]], treat.name = t.c[["treat.name"]])
         attr(t.c, "which") <- "fd"
     }
     else {
         if (is.matrix(covs)) covs <- as.data.frame(covs)
+        else if (is.character(covs)) {
+          if (is_not_null(data) && is_(data, c("data.frame", "matrix"))) {
+            if (any(covs %nin% colnames(data))) {
+              stop("All entries in covs must be names of variables in data.", call. = FALSE)
+            }
+            covs <- as.data.frame(data)[covs]
+          }
+          else {
+            stop("If covs is a character vector, data must be specified as a data.frame.", call. = FALSE)
+          }
+        }
         else if (!is.data.frame(covs)) stop("covs must be a data.frame of covariates.", call. = FALSE)
         if (!is.atomic(treat)) stop("treat must be an atomic vector of treatment statuses.", call. = FALSE)
         t.c <- list(treat = treat, covs = covs)
