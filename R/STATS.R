@@ -55,10 +55,9 @@ STATS[["mean.diffs"]] <- {list(
         A <- list(...)
         binary <- A$binary #attr(x, "print.options")$binary
         continuous <- A$continuous #attr(x, "print.options")$continuous
-        var_type <- A$var_type #B[["type"]]
+        var_type <- A$var_type #B[["Type"]]
         stars <- A$stars
         star_char = A$star_char #args$star_char
-        
         
         #All std, no std, some std
         if (!((binary == "std" || sum(var_type == "Binary") == 0) && 

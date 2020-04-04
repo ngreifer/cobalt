@@ -710,10 +710,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                           continuous = attr(x, "print.options")$continuous,
                                           var_type = B[["type"]],
                                           stars = stars)
-        SS[["var"]] <- STATS[[s]]$love.plot_add_stars(SS[["var"]], variable.names = variable.names,
+        SS[["var"]] <- STATS[[s]]$love.plot_add_stars(SS[["var"]], 
+                                                      variable.names = variable.names,
                                                       binary = attr(x, "print.options")$binary,
                                                       continuous = attr(x, "print.options")$continuous,
-                                                      var_type = B[["type"]],
+                                                      var_type = B[["Type"]],
                                                       stars = stars,
                                                       star_char = args$star_char)
         scale_Statistics <- STATS[[s]]$love.plot_axis_scale
