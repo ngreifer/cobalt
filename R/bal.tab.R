@@ -219,7 +219,7 @@ bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distanc
     return(out)
 }
 bal.tab.numeric <- function(treat, covs, ...) {
-    bal.tab(covs, treat = treat, ...)
+    bal.tab.data.frame(as.data.frame(covs), treat = treat, ...)
 }
 bal.tab.factor <- bal.tab.character <- bal.tab.logical <- bal.tab.numeric
 bal.tab.matrix <- function(covs, treat, ...) {
@@ -287,6 +287,9 @@ bal.tab.ebalance <- function(ebal, ...) {
 bal.tab.ebalance.trim <- bal.tab.ebalance
 bal.tab.optmatch <- function(optmatch, ...) {
     bal.tab.Match(optmatch, ...)
+}
+bal.tab.cem.match <- function(cem.match, ...) {
+    bal.tab.Match(cem.match, ...)
 }
 bal.tab.designmatch <- function(dm, ...) {
     class(dm) <- "designmatch"

@@ -1802,6 +1802,166 @@ x2base.optmatch <- function(optmatch, ...) {
     
     return(X)
 }
+x2base.cem.match <- function(cem.match, ...) {
+    A <- list(...)
+    
+    #Process cem.match
+    if (all(check_if_zero(cem.match$w))) stop("'cem.match' object contains no valid matches")
+    
+    #Process data and get imp
+    imp <- A$imp
+    if (is_not_null(data <- A$data)) {
+        if (is_(data, "mids")) {
+            data <- imp.complete(data)
+            if (is_null(imp)) imp <- data[[".imp"]]
+        }
+        else if (!is_(data, "data.frame"))
+        {
+            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            data <- NULL
+        }
+    }
+    
+    #Process imp
+    if (is_not_null(imp)) {
+        imp <- vector.process(imp, 
+                              name = "imp", 
+                              which = "imputation identifiers", 
+                              data = list(data), 
+                              missing.okay = FALSE)
+        imp <- factor(imp)
+    }
+    
+    #Process treat
+    t.c <- use.tc.fd(A$formula, data, if_null_then(A$treat, cem.match[["treatment"]]), 
+                     if_null_then(A$covs, cem.match[["vars"]]))
+    treat <- process_treat(t.c[["treat"]], data = data)
+    
+    #Process covs
+    covs <- t.c[["covs"]]
+    
+    #Get estimand
+    estimand <- A$estimand
+    
+    #Get method
+    method <- "matching"
+    
+    #Process addl 
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data)
+    
+    #Process distance
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
+    
+    #Process subclass
+    if (is_not_null(subclass <- A$subclass)) {
+        stop("subclasses are not allowed with cem.match objects.", call. = FALSE)
+    }
+    
+    #Process match.strata
+    if (is_not_null(match.strata <- A$match.strata)) {
+        stop("match.strata are not allowed with cem.match objects.", call. = FALSE)
+    }
+    
+    #Process weights
+    if (is_not_null(weights <- data.frame(weights = get.w.cem.match(cem.match)))) {
+        weight.check(weights)
+    }
+    
+    #Process s.weights
+    if (is_not_null(s.weights <- A$s.weights)) {
+        stop("s.weights are not allowed with cem.match objects.", call. = FALSE)
+    }
+    
+    #Process cluster
+    if (is_not_null(cluster <- A$cluster)) {
+        cluster <- vector.process(cluster, 
+                                  data = data,
+                                  name = "cluster", 
+                                  which = "cluster membership",
+                                  missing.okay = FALSE)
+        cluster <- factor(cluster)
+    }
+    
+    #Process subset
+    if (is_not_null(subset <- A$subset)) {
+        subset <- process_subset(subset, length(treat))
+    }
+    
+    #Process discarded
+    
+    #Process imp and length
+    length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
+                       data.frames = c("covs", "weights", "distance", "addl"),
+                       imp = imp,
+                       original.call.to = "cem()")
+    
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with cem.match objects.", call. = FALSE)
+    }
+    
+    #Process stats and thresholds
+    stats <- process_stats(A[["stats"]], treat = treat)
+    
+    if (is_not_null(thresholds <- A[["thresholds"]])) {
+        thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+        if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
+    }
+    else thresholds <- list()
+    
+    for (s in all_STATS()) {
+        #If disp.stat is TRUE, add stat to stats
+        if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- unique(c(stats, s))
+        }
+        else if (isFALSE(A[[STATS[[s]]$disp_stat]])) {
+            stats <- setdiff(stats, s)
+        }
+        
+        #Process and check thresholds
+        if (is_not_null(A[[STATS[[s]]$threshold]])) {
+            thresholds[[s]] <- A[[STATS[[s]]$threshold]]
+        }
+        if (is_not_null(thresholds[[s]])) {
+            thresholds[[s]] <- STATS[[s]]$abs(thresholds[[s]])
+            if (!between(thresholds[[s]], STATS[[s]]$threshold_range)) {
+                thresholds[[s]] <- NULL
+                warning(paste0(STATS[[s]]$threshold, " must be between ", word_list(STATS[[s]]$threshold_range),
+                               "; ignoring ", STATS[[s]]$threshold, "."), call. = FALSE)
+            }
+            else stats <- unique(c(stats, s))
+        }
+    }
+    
+    stats <- process_stats(stats, treat = treat)
+    
+    #Get s.d.denom
+    if ("mean.diffs" %in% stats) {
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+    }
+    
+    #Missing values warning
+    if (any(c(anyNA(covs), anyNA(addl)))) {
+        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+    }
+    
+    #Get call
+
+    #Process output
+    X <- initialize_X()
+    X.names <- names(X)
+    
+    for (i in X.names) {
+        X[[i]] <- get0(i, inherits = FALSE)
+    }
+    
+    X <- subset_X(X, subset)
+    X <- setNames(X[X.names], X.names)
+    
+    class(X) <- "binary"
+    
+    return(X)
+}
 x2base.weightit <- function(weightit, ...) {
     A <- list(...)
     

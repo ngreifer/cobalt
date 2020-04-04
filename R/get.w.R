@@ -293,6 +293,9 @@ get.w.optmatch <- function(x, ...) {
     treat <- as.numeric(attr(x, "contrast.group"))
     return(strata2weights(x, treat = treat))
 }
+get.w.cem.match <- function(x,...) {
+    return(x[["w"]])
+}
 get.w.weightit <- function(x, s.weights = FALSE, ...) {
     if (s.weights) return(x$weights * x$s.weights)
     else return(x$weights)

@@ -22,6 +22,7 @@ Suggests:
     twang,
     Matching,
     optmatch,
+    cem,
     ebal,
     CBPS (>= 0.17),
     designmatch,
