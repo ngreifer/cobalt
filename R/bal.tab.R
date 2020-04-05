@@ -5,6 +5,7 @@ bal.tab <- function(...) {
 
     .obj <- process_designmatch(.obj)
     .obj <- process_time.list(.obj)
+    .obj <- process_cem.match.list(.obj)
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -22,7 +23,7 @@ bal.tab <- function(...) {
 #Point treatments
 bal.tab.matchit <- function(m, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -50,7 +51,7 @@ bal.tab.matchit <- function(m, int = FALSE, poly = 1, distance = NULL, addl = NU
 }
 bal.tab.ps <- function(ps, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -78,7 +79,7 @@ bal.tab.ps <- function(ps, stop.method, int = FALSE, poly = 1, distance = NULL, 
 }
 bal.tab.mnps <- function(mnps, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -107,7 +108,7 @@ bal.tab.mnps <- function(mnps, stop.method, int = FALSE, poly = 1, distance = NU
 }
 bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -135,7 +136,7 @@ bal.tab.ps.cont <- function(ps.cont, stop.method, int = FALSE, poly = 1, distanc
 }
 bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = NULL, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -163,7 +164,7 @@ bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = N
 }
 bal.tab.formula <- function(formula, data = NULL, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -192,7 +193,7 @@ bal.tab.formula <- function(formula, data = NULL, ...) {
 }
 bal.tab.data.frame <- function(covs, treat, data = NULL, weights = NULL, distance = NULL, subclass = NULL, match.strata = NULL, method, int = FALSE, poly = 1, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, estimand = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-c(1, length(formals()))])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -227,7 +228,7 @@ bal.tab.matrix <- function(covs, treat, ...) {
 }
 bal.tab.CBPS <- function(cbps, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -255,7 +256,7 @@ bal.tab.CBPS <- function(cbps, int = FALSE, poly = 1, distance = NULL, addl = NU
 }
 bal.tab.weightit <- function(weightit, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ... ) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -288,8 +289,33 @@ bal.tab.ebalance.trim <- bal.tab.ebalance
 bal.tab.optmatch <- function(optmatch, ...) {
     bal.tab.Match(optmatch, ...)
 }
-bal.tab.cem.match <- function(cem.match, ...) {
-    bal.tab.Match(cem.match, ...)
+bal.tab.cem.match <- function(cem.match, data, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+    
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
+    
+    #Adjustments to arguments
+    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
+    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
+    
+    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
+    if (any(blank.args)) {
+        for (arg.name in names(blank.args)[blank.args]) {
+            if (identical(args[[arg.name]], quote(expr = ))) {
+                args[[arg.name]] <- NULL
+            }
+        }
+    }
+    
+    #Initializing variables
+    X <- do.call("x2base.cem.match", c(list(cem.match), args), quote = TRUE)
+    
+    args[names(args) %in% names(X)] <- NULL
+    
+    X <- assign.X.class(X)
+    
+    out <- do.call(base.bal.tab, c(list(X), args),
+                   quote = TRUE)
+    return(out)
 }
 bal.tab.designmatch <- function(dm, ...) {
     class(dm) <- "designmatch"
@@ -297,7 +323,7 @@ bal.tab.designmatch <- function(dm, ...) {
 }
 bal.tab.mimids <- function(mimids, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -325,7 +351,7 @@ bal.tab.mimids <- function(mimids, int = FALSE, poly = 1, distance = NULL, addl 
 }
 bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -353,7 +379,7 @@ bal.tab.wimids <- function(wimids, int = FALSE, poly = 1, distance = NULL, addl 
 }
 bal.tab.sbwcau <- function(sbwcau, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -383,7 +409,7 @@ bal.tab.sbwcau <- function(sbwcau, int = FALSE, poly = 1, distance = NULL, addl 
 #MSMs wth multiple time points
 bal.tab.formula.list <- function(formula.list, data = NULL, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -410,7 +436,7 @@ bal.tab.formula.list <- function(formula.list, data = NULL, ...) {
 }
 bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, weights = NULL, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, method, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, estimand = "ATE", abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -437,7 +463,7 @@ bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, w
 }
 bal.tab.iptw <- function(iptw, stop.method, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
@@ -468,7 +494,7 @@ bal.tab.CBMSM <- bal.tab.CBPS
 #default method
 bal.tab.default <- function(obj, ...) {
     
-    args <- c(as.list(environment()), list(...))[-1]
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
     args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
