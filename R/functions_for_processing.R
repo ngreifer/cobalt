@@ -21,6 +21,12 @@ process_time.list <- function(x) {
     }
     return(x)
 }
+process_cem.match.list <- function(x) {
+  if (is_(x, "cem.match.list")) {
+    class(x) <- c("cem.match", "cem.match.list")
+  }
+  return(x)
+}
 
 #x2base
 process_treat <- function(treat, data = NULL) {
@@ -932,8 +938,9 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.
         }
     }
     if (int && nd > 1) {
-        new[,(nc - .5*nd*(nd-1) + 1):nc] <- matrix(t(apply(d, 1, combn, 2, prod)), nrow = nrd)
-        new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- lapply(as.data.frame(combn(colnames(d), 2), stringsAsFactors = FALSE), 
+        new[,(nc - .5*nd*(nd-1) + 1):nc] <- do.call("cbind", lapply(combn(seq_len(nd), 2, simplify = FALSE), 
+                                                                    function(i) d[,i[1]]*d[,i[2]]))
+        new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- lapply(combn(colnames(d), 2, simplify = FALSE), 
                                                            function(x) setNames(list(c(co.names[[x[1]]][["component"]], sep, co.names[[x[2]]][["component"]]),
                                                                                      c(co.names[[x[1]]][["type"]], "isep", co.names[[x[2]]][["type"]])),
                                                                                 c("component", "type")))
@@ -1098,7 +1105,8 @@ get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, clu
     }
 
     #Remove duplicate & redundant variables
-    C <- remove.perfect.col(C) 
+    if (getOption("cobalt_remove_perfect_col", ncol(C) <= 900)) 
+      C <- remove_perfect_col(C) 
         
     if (is_not_null(distance)) {
         if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
@@ -1144,7 +1152,7 @@ get.types <- function(C) {
         else "Contin."
     }, character(1))
 }
-remove.perfect.col <- function(C) {
+remove_perfect_col <- function(C, fun = stats::cor) {
     C.no.miss <- C[,colnames(C) %nin% attr(C, "missing.ind"), drop = FALSE]
     #If many rows, select subset to test redundancy
     if (NROW(C.no.miss) > 1500) {
@@ -1153,77 +1161,15 @@ remove.perfect.col <- function(C) {
             single.value <- apply(mini.C.no.miss, 2, all_the_same)
             if (all(!single.value)) break
         }
-        suppressWarnings(C.cor <- cor(mini.C.no.miss, use = "pairwise.complete.obs"))
+        suppressWarnings(C.cor <- fun(mini.C.no.miss, use = "pairwise.complete.obs"))
     }
-    else suppressWarnings(C.cor <- cor(C.no.miss, use = "pairwise.complete.obs"))
+    else suppressWarnings(C.cor <- fun(C.no.miss, use = "pairwise.complete.obs"))
     
     s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
     redundant.vars <- colnames(C.no.miss)[apply(s, 2, any)]
     C <- C[, colnames(C) %nin% redundant.vars, drop = FALSE] 
     return(C)
 }
-# remove.perfect.col2 <- function(C) {
-#   C.no.miss <- C[,colnames(C) %nin% attr(C, "missing.ind"), drop = FALSE]
-#   cor_ <- function(x, y, mean_x, sd_x, mean_y, sd_y, n) {
-#     cov_ <- sum((x - mean_x) * (y-mean_y))/(n-1)
-#     return(cov_/(sd_x*sd_y))
-#   }
-#   n <- nrow(C.no.miss)
-#   redundant.vars <- rep(FALSE, ncol(C.no.miss))
-#   means <- colMeans(C.no.miss)
-#   sds <- sqrt(col.w.v(C.no.miss))
-#   nas <- apply(C.no.miss, 2, anyNA)
-#   for (i in ncol(C.no.miss):2) {
-#     j <- i-1
-#     mean_i <- mean(C.no.miss[,i])
-#     sd_i <- sd(C.no.miss[,i])
-#     while(!redundant.vars[i] && j > 0) {
-#       if (nas[i] && nas[j] && sum(is.na(C.no.miss[,i])) != sum(is.na(C.no.miss[,j]))) {} 
-#       else if (check_if_zero(1-abs(suppressWarnings(cor_(C.no.miss[,j], C.no.miss[,i], means[j], sds[j], means[i], sds[i], n))))) {
-#         redundant.vars[i] <- TRUE
-#       }
-#       j <- j - 1
-#     }
-#   }
-#   C <- C[, colnames(C) %nin% colnames(C.no.miss)[redundant.vars], drop = FALSE] 
-#   return(C)
-# }
-# remove.perfect.col3 <- function(C) {
-#   C.no.miss <- C[,colnames(C) %nin% attr(C, "missing.ind"), drop = FALSE]
-#   #If many rows, select subset to test redundancy
-#   if (NROW(C.no.miss) > 1500) {
-#     repeat {
-#       mini.C.no.miss <- C.no.miss[sample(seq_len(NROW(C.no.miss)), 1000),,drop=FALSE]
-#       single.value <- apply(mini.C.no.miss, 2, all_the_same)
-#       if (all(!single.value)) break
-#     }
-#     suppressWarnings(C.cor <- coop::pcor(mini.C.no.miss, use = "pairwise.complete.obs"))
-#   }
-#   else suppressWarnings(C.cor <- coop::pcor(C.no.miss, use = "pairwise.complete.obs"))
-#   
-#   s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
-#   redundant.vars <- colnames(C.no.miss)[apply(s, 2, any)]
-#   C <- C[, colnames(C) %nin% redundant.vars, drop = FALSE] 
-#   return(C)
-# }
-# remove.perfect.col4 <- function(C) {
-#   C.no.miss <- C[,colnames(C) %nin% attr(C, "missing.ind"), drop = FALSE]
-#   #If many rows, select subset to test redundancy
-#   if (NROW(C.no.miss) > 1500) {
-#     repeat {
-#       mini.C.no.miss <- C.no.miss[sample(seq_len(NROW(C.no.miss)), 1000),,drop=FALSE]
-#       single.value <- apply(mini.C.no.miss, 2, all_the_same)
-#       if (all(!single.value)) break
-#     }
-#     suppressWarnings(C.cor <- Rfast::cora(mini.C.no.miss))
-#   }
-#   else suppressWarnings(C.cor <- Rfast::cora(C.no.miss))
-#   
-#   s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
-#   redundant.vars <- colnames(C.no.miss)[apply(s, 2, any)]
-#   C <- C[, colnames(C) %nin% redundant.vars, drop = FALSE] 
-#   return(C)
-# }
 
 #base.bal.tab
 check_if_zero_weights <- function(weights.df, treat = NULL) {
