@@ -1646,7 +1646,7 @@ x2base.optmatch <- function(optmatch, ...) {
     A <- list(...)
     
     #Process optmatch
-    if (all(is.na(optmatch))) stop("'optmatch' object contains no valid matches")
+    if (all(is.na(optmatch))) stop("The 'optmatch' object contains no valid matches.", call. = FALSE)
     
     #Process data and get imp
     imp <- A$imp
@@ -1806,7 +1806,13 @@ x2base.cem.match <- function(cem.match, ...) {
     A <- list(...)
     
     #Process cem.match
-    if (all(check_if_zero(cem.match$w))) stop("'cem.match' object contains no valid matches")
+    if (is_(cem.match, "cem.match.list")) {
+        cem.match[["vars"]] <- cem.match[[1]][["vars"]]
+        cem.match[["treatment"]] <- cem.match[[1]][["treatment"]]
+        cem.match[["baseline.group"]] <- cem.match[[1]][["baseline.group"]]
+        cem.match[["w"]] <- get.w.cem.match(cem.match)
+    }
+    if (all(check_if_zero(cem.match[["w"]]))) stop("The 'cem.match' object contains no valid matches.", call. = FALSE)
     
     #Process data and get imp
     imp <- A$imp
@@ -1821,6 +1827,9 @@ x2base.cem.match <- function(cem.match, ...) {
             data <- NULL
         }
     }
+    if (is_null(data)) {
+        stop("An argument to data must be specified with cem.match objects.", call. = FALSE)
+    }
     
     #Process imp
     if (is_not_null(imp)) {
@@ -1831,10 +1840,13 @@ x2base.cem.match <- function(cem.match, ...) {
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
+    else if (is_(cem.match, "cem.match.list") && sum(vapply(cem.match, is_, logical(1L), "cem.match") != 1)) {
+        stop("An argument to imp must be specified or the argument to data must be a mids object.", call. = FALSE)
+    }
     
     #Process treat
-    t.c <- use.tc.fd(A$formula, data, if_null_then(A$treat, cem.match[["treatment"]]), 
-                     if_null_then(A$covs, cem.match[["vars"]]))
+    t.c <- use.tc.fd(data = data, treat = cem.match[["treatment"]], 
+                     covs = cem.match[["vars"]])
     treat <- process_treat(t.c[["treat"]], data = data)
     
     #Process covs
@@ -1896,9 +1908,7 @@ x2base.cem.match <- function(cem.match, ...) {
                        original.call.to = "cem()")
     
     #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with cem.match objects.", call. = FALSE)
-    }
+    focal <- cem.match[["baseline.group"]]
     
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
