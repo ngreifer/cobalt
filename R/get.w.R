@@ -294,7 +294,10 @@ get.w.optmatch <- function(x, ...) {
     return(strata2weights(x, treat = treat))
 }
 get.w.cem.match <- function(x,...) {
-    return(x[["w"]])
+    if (is_(x, "cem.match.list")) {
+        return(unlist(lapply(x[vapply(x, is_, logical(1L), "cem.match")], `[[`, "w"), use.names = FALSE))
+    }
+    else return(x[["w"]])
 }
 get.w.weightit <- function(x, s.weights = FALSE, ...) {
     if (s.weights) return(x$weights * x$s.weights)
