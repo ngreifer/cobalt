@@ -2209,7 +2209,8 @@ acceptable.options <- function() {
                 target.summary = TF,
                 int_sep = " * ",
                 factor_sep = "_",
-                center = TF))
+                center = TF,
+                remove_perfect_col = TF))
 }
 
 #On attach
