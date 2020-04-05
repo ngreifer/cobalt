@@ -7,35 +7,35 @@
 Balance Statistics for Longitudinal Treatments
 }
 \description{
-Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. \code{bal.tab} automatically classifies this list as either a \code{data.frame.list} or \code{formula.list}, respectively. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
+Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. \code{bal.tab} automatically classifies this list as either a \code{data.frame.list} or \code{formula.list}, respectively.
 }
 \usage{
 \method{bal.tab}{data.frame.list}(covs.list, 
-    treat.list = NULL, 
-    data = NULL, 
-    weights = NULL, 
-    int = FALSE, 
-    poly = 1, 
-    distance.list = NULL, 
-    addl.list = NULL, 
-    method, 
-    continuous,  
-    binary, 
-    s.d.denom, 
-    thresholds = NULL,
-    cluster = NULL, 
-    imp = NULL, 
-    pairwise = TRUE, 
-    s.weights = NULL, 
-    estimand = "ATE",
-    abs = FALSE,
-    subset = NULL,
-    quick = TRUE, 
-    ...)
+        treat.list = NULL, 
+        data = NULL, 
+        weights = NULL, 
+        int = FALSE, 
+        poly = 1, 
+        distance.list = NULL, 
+        addl.list = NULL, 
+        method, 
+        continuous,  
+        binary, 
+        s.d.denom, 
+        thresholds = NULL,
+        cluster = NULL, 
+        imp = NULL, 
+        pairwise = TRUE, 
+        s.weights = NULL, 
+        estimand = "ATE",
+        abs = FALSE,
+        subset = NULL,
+        quick = TRUE, 
+        ...)
     
 \method{bal.tab}{formula.list}(formula.list,
-    data = NULL,
-    ...)
+        data = NULL,
+        ...)
 }
 \arguments{
   \item{covs.list}{
@@ -88,7 +88,7 @@ either a vector containing cluster membership for each unit or a string containi
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
 }
   \item{pairwise}{
-whether balance should be computed for pairs of treatments or for each treatment against all others combined when treatment is multinomial. See \code{\link{bal.tab.multi}} for details. 
+when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link{bal.tab.multi}} for details. 
 }
   \item{s.weights}{
 optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.

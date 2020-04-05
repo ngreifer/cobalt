@@ -5,28 +5,28 @@
 Balance statistics for CBPS Objects
 }
 \description{
-Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \pkg{CBPS} package. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
+Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \pkg{CBPS} package.
 }
 \usage{
 \method{bal.tab}{CBPS}(cbps, 
-    int = FALSE, 
-    poly = 1, 
-    distance = NULL, 
-    addl = NULL, 
-    data = NULL, 
-    continuous,  
-    binary, 
-    s.d.denom, 
-    thresholds = NULL,
-    cluster = NULL, 
-    imp = NULL,
-    pairwise = TRUE, 
-    focal = NULL, 
-    s.weights = NULL,
-    abs = FALSE,
-    subset = NULL,
-    quick = TRUE, 
-    ...)
+        int = FALSE, 
+        poly = 1, 
+        distance = NULL, 
+        addl = NULL, 
+        data = NULL, 
+        continuous,  
+        binary, 
+        s.d.denom, 
+        thresholds = NULL,
+        cluster = NULL, 
+        imp = NULL,
+        pairwise = TRUE, 
+        focal = NULL, 
+        s.weights = NULL,
+        abs = FALSE,
+        subset = NULL,
+        quick = TRUE, 
+        ...)
 }
 
 \arguments{
@@ -67,7 +67,7 @@ either a vector containing cluster membership for each unit or a string containi
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{CBPS()} or \code{CBMSM()}. See \code{\link{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
 }
   \item{pairwise}{
-Whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
+when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link{bal.tab.multi}} for details.
 }
   \item{focal}{
 The name of the focal treatment when multi-category treatments are used. See \code{\link{bal.tab.multi}} for details.

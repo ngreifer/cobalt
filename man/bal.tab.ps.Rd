@@ -123,7 +123,7 @@ either a vector containing cluster membership for each unit or a string containi
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{ps()}, \code{mnps()}, \code{iptw()}, or \code{ps.cont()}. See \code{\link{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
 }
   \item{pairwise}{
-whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
+when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link{bal.tab.multi}} for details.
 }
   \item{focal}{
 ignored. With multi-category treatments, \code{bal.tab()} automatically assigns a focal treatment based on the \code{mnps} object. See \code{\link{bal.tab.multi}} for details.
