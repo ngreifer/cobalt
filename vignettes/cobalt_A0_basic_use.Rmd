@@ -22,7 +22,7 @@ This is an introductory guide for the use of `cobalt` in most common scenarios. 
 
 Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
 
-Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2016), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2019), `ebal` (Hainmueller, 2014), `sbw` (Zubizarreta & Li, 2019), `designmatch` (Zubizarreta, Kilcioglu, & Vielma, 2018), `WeightIt` (Greifer, 2019), and `MatchThem` (Pishgar & Greifer, 2019); these together provide a near complete set of preprocessing tools in R to date.
+Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2020), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2019), `ebal` (Hainmueller, 2014), `sbw` (Zubizarreta & Li, 2019), `designmatch` (Zubizarreta, Kilcioglu, & Vielma, 2018), `WeightIt` (Greifer, 2020), `MatchThem` (Pishgar & Greifer, 2020), and `cem` (Iacus, King, & Porro, 2018); these together provide a near complete set of preprocessing tools in R to date.
 
 The following are the basic steps in performing a causal analysis using data preprocessing (Stuart, 2010):
 
@@ -355,7 +355,7 @@ Although the most common use of propensity scores is in the context of binary tr
 
 Bia & Mattei (2008) describe the use of the `gpscore` function in Stata, which appears to be highly effective for estimating and assessing dose-response functions for continuous treatments. In R, there are not many ways to estimate and condition on the propensity score in these contexts. It is possible, using the formulas described by Hirano & Imbens (2004), to generate the propensity scores manually and perform weighting, subclassification, or covariate adjustment on them. The `WeightIt` package supports continuous treatments with a variety of options, including the CBPS method implemented in the `CBPS` package and described by Fong & Imai (2014) and the GBM method implemented in `WeightIt` and described by Zhu, Coffman, & Ghosh (2015). The `balance()` function in the `CBPS` package assesses balance after propensity score weighting using `CBPS`.
 
-In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in Zhu et al. (2015) and Austin (2018), but not that described in Hirano & Imbens (2004) or implemented in `gpscore` (Bia & Mattei, 2008), which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator, so correlations above 1 may be observed in rare cases.
+In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in Zhu et al. (2015) and Austin (2019), but not that described in Hirano & Imbens (2004) or implemented in `gpscore` (Bia & Mattei, 2008), which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator, so correlations above 1 may be observed in rare cases.
 
 Below is an example of the workflow for using propensity scores for continuous treatments in the `WeightIt` package. To demonstrate, we use the `lalonde` package included in `cobalt`, using an arbitrary continuous variable as the treatment, though substantively this analysis makes little sense.
 
@@ -640,7 +640,7 @@ Austin, P. C. (2009). Balance diagnostics for comparing the distribution of base
 
 Austin, P. C. (2011). An Introduction to Propensity Score Methods for Reducing the Effects of Confounding in Observational Studies. Multivariate Behavioral Research, 46(3), 399–424. http://doi.org/10.1080/00273171.2011.568786
 
-Austin, P. C. (2018). Assessing covariate balance when using the generalized propensity score with quantitative or continuous exposures. Statistical Methods in Medical Research, 0962280218756159. https://doi.org/10.1177/0962280218756159
+Austin, P. C. (2019). Assessing covariate balance when using the generalized propensity score with quantitative or continuous exposures. Statistical Methods in Medical Research, 28(5), 1365–1377. https://doi.org/10.1177/0962280218756159
 
 Austin, P. C., & Stuart, E. A. (2015). Moving towards best practice when using inverse probability of treatment weighting (IPTW) using the propensity score to estimate causal treatment effects in observational studies. Statistics in Medicine, 34(28), 3661–3679. http://doi.org/10.1002/sim.6607
 
@@ -650,7 +650,7 @@ Fong, C., Ratkovic, M., Hazlett, C., Yang, X., & Imai, K. (2019). CBPS: Covariat
 
 Franklin, J. M., Rassen, J. A., Ackermann, D., Bartels, D. B., & Schneeweiss, S. (2014). Metrics for covariate balance in cohort studies of causal effects. Statistics in Medicine, 33(10), 1685–1699. https://doi.org/10.1002/sim.6058
 
-Greifer, N. (2019). WeightIt: Weighting for Covariate Balance in Observational Studies. R package version 0.6.0. https://CRAN.R-project.org/package=WeightIt
+Greifer, N. (2020). WeightIt: Weighting for Covariate Balance in Observational Studies. R package version 0.9.0. https://CRAN.R-project.org/package=WeightIt
 
 Hainmueller, J. (2014). ebal: Entropy reweighting to create balanced samples. R package version 0.1-6. https://CRAN.R-project.org/package=ebal
 
@@ -666,6 +666,8 @@ Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2007). Matching as Nonparametric
 
 Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2011). MatchIt: Nonparametric preprocessing for parametric causal inference. Journal of Statistical Software, 42, 1–28. Retrieved from http://www.jstatsoft.org/v42/i08/
 
+Iacus, S. M., King, G., & Porro, G. (2018). cem: Coarsened Exact Matching. R package version 1.1.19. https://CRAN.R-project.org/package=cem
+  
 Imai, K., King, G., & Stuart, E. A. (2008). Misunderstandings between experimentalists and observationalists about causal inference. Journal of the royal statistical society: series A (statistics in society), 171(2), 481-502.
 
 Keller, B., & Tipton, E. (2016). Propensity Score Analysis in R: A Software Review. Journal of Educational and Behavioral Statistics, 41(3), 326-348.
@@ -676,9 +678,9 @@ Linden, A. (2015), Graphical displays for assessing covariate balance in matchin
 
 Lopez, M. J., & Gutman, R. (2017). Estimation of causal effects with multiple treatments: a review and new ideas. arXiv:1701.05132 [Stat]. Retrieved from http://arxiv.org/abs/1701.05132
 
-Pishgar, F., and Greifer, N. (2019). MatchThem: Matching and Weighting Multiply Imputed Datasets. R package version 0.9.1. https://CRAN.R-project.org/package=MatchThem
+Pishgar, F., and Greifer, N. (2020). MatchThem: Matching and Weighting Multiply Imputed Datasets. R package version 0.9.3. https://CRAN.R-project.org/package=MatchThem
   
-Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R Vignette. RAND. Retrieved from https://CRAN.R-project.org/package=twang/vignettes/twang.pdf
+Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2020). twang: Toolkit for Weighting and Analysis of Nonequivalent Groups. R package version 1.6. https://CRAN.R-project.org/package=twang
 
 Rosenbaum, P. R., & Rubin, D. B. (1983). The central role of the propensity score in observational studies for causal effects. Biometrika, 70(1), 41–55. http://doi.org/10.1093/biomet/70.1.41
 
