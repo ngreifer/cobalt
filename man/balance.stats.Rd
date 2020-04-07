@@ -8,7 +8,7 @@
 
 Below, each allowable entry to \code{stats} and \code{thresholds} are described, along with other details or option that accompany them.
 
-\subsection{Binary/Multi-Category Treatments} {
+\subsection{Binary/Multi-Category Treatments}{
 \describe{
 \item{\code{"mean.diffs"}}{Mean differences as computed by \code{\link{col_w_smd}}. Can be abbreviated as \code{"m"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When standardized mean differences are requested, the \code{s.d.denom} argument controls how the standardization occurs. When \code{abs = TRUE}, negative values become positive. Mean differences are requested by default when no entry to \code{stats} is provided. Can also be requested using the \code{disp.diff} argument. Thresholds can also be requested using \code{m.threshold}.}
 
@@ -19,7 +19,7 @@ Below, each allowable entry to \code{stats} and \code{thresholds} are described,
 \item{\code{"ovl.coefficients"}}{Overlapping (OVL) statistics as computed by \code{\link{col_w_ovl}}. Can be abbreviated as \code{"ovl"}. Additional arguments passed to \code{col_w_ovl}, such as \code{integrate} or \code{bw}, can be supplied to \code{bal.tab} or \code{love.plot}. Can also be requested using the \code{disp.ovl} argument. Thresholds can also be requested using \code{ovl.threshold}.}
 }
 }
-\subsection{Continuous Treatments} {
+\subsection{Continuous Treatments}{
 \describe{
 \item{\code{"correlations"}}{Pearson correlations as computed by \code{\link{col_w_cov}}. Can be abbreviated as \code{"cor"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether correlations or covariances are calculated for continuous and categorical variables, respectively (they are both \code{"std"} by default). When correlations are requested, the \code{s.d.denom} argument controls how the standardization occurs. When \code{abs = TRUE}, negative values become positive. Pearson correlations are requested by default when no entry to \code{stats} is provided. Can also be requested using the \code{disp.corr} argument. Thresholds can also be requested using \code{r.threshold}.}
 
