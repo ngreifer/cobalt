@@ -833,7 +833,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
 
     i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
     if (all(i == 0L))
-        stop(paste0("The argument to '", arg.name, "' should be ", if (length(choices) > 1) "one of " else "", 
+        stop(paste0("The argument to '", arg.name, "' should be ", if (length(choices) > 1) {if (several.ok) "at least one of " else "one of "} else "", 
                     word_list(choices, and.or = "or", quotes = TRUE), "."),
              call. = FALSE)
     i <- i[i > 0L]
