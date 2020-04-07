@@ -585,18 +585,16 @@ Because the number of computations increases both with sample size and number of
 
 ### Love Plots
 
-Love plots and other similar plots that graphically display covariate balance before and after matching appear with some frequency in the applied and methodological literature (e.g., Ahmed et al., 2007; Austin, 2009; Austin & Stuart, 2015). Several of the conditioning packages implement a similar plot: `MatchIt`'s `plot(summary(..., standardize = TRUE))` and `twang`'s `plot(..., plots = "es")` present line plots showing the change in balance for each covariate. Below are examples of `twang`'s balance plot (above) and `cobalt`'s Love plot (below).
+Love plots and other similar plots that graphically display covariate balance before and after matching appear with some frequency in the applied and methodological literature (e.g., Ahmed et al., 2007; Austin, 2009; Austin & Stuart, 2015). Several of the conditioning packages implement a similar plot: `MatchIt`'s `plot(summary(..., standardize = TRUE))` and `twang`'s `plot(..., plots = "es")` present line plots showing the change in balance for each covariate. Below are examples of `MatchIt`'s balance plot (above) and `cobalt`'s Love plot (below).
 
 ```{r, echo = FALSE, fig.show = 'hold', fig.width = 5, warning=FALSE}
-library("twang")
+library("MatchIt")
 data("lalonde", package = "cobalt") ##If not yet loaded
-covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
-ps.out <- ps(f.build("treat", covs), data = lalonde, 
-             stop.method = "es.max", 
-             estimand = "ATT", n.trees = 100, verbose = FALSE)
-plot(ps.out, plots = "es", subset = 1)
-love.plot(ps.out, stop.method = "es.max", 
-          threshold = .1, abs = TRUE, var.order = "u", 
+covs <- subset(lalonde, select = -c(treat, re78))
+m.out <- matchit(f.build("treat", covs), data = lalonde)
+plot(summary(m.out, standardize = TRUE), interactive = FALSE)
+love.plot(m.out, thresholds = c(m = .1), 
+          abs = TRUE, var.order = "u", 
           color = c("red", "blue"), line = TRUE,
           binary = "std",
           drop.distance = TRUE)
