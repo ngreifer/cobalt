@@ -12,7 +12,7 @@ It's critical that you read some of the documentation to understand what values 
 
 \itemize{
 \item \code{\link{bal.tab}} - Generate balance tables for binary, multi-category, and continuous treatments, longitudinal/sequential treatments, and clustered/subgrouped and multiply imputed data.
-\item \code{\link{bal.plot}} - Generate plots to assess distributional balance in a single covariate.
+\item \code{\link{bal.plot}} - Generate plots to assess distributional balance for a single covariate.
 \item \code{\link{love.plot}} - Generate Love plots to display covariate balance graphically for publication.
 }
 
@@ -28,5 +28,7 @@ Please cite \pkg{cobalt} if you use it to produce balance tables or plots in you
 }
 \author{
 Noah Greifer \email{noah.greifer@gmail.com}
+
+If you have found \pkg{cobalt} helpful, please let me know!
 }
 

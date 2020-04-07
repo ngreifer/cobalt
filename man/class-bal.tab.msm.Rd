@@ -19,7 +19,7 @@ There are two additional arguments for each \code{bal.tab()} method that can han
 The output is a \code{bal.tab.msm} object, which inherits from \code{bal.tab}. It has the following elements:
 
 \item{Time.Balance}{For each time point, a regular \code{bal.tab} object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.}
-\item{Balance.Across.Times}{The balance summary across time points. This will include the maximum absolute mean difference for each covariate across all time points, and the same for variance ratios and KS statistics if requested.}
+\item{Balance.Across.Times}{The balance summary across time points. This will include the maximum balance statistic(s) for each covariate across all time points.}
 \item{Observations}{A table of sample sizes or effective sample sizes for each time point before and after adjustment.}
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.

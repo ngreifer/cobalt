@@ -15,7 +15,7 @@ love.plot(x,
           var.order = NULL, 
           drop.missing = TRUE, 
           drop.distance = FALSE, 
-          threshold = NULL, 
+          thresholds = NULL, 
           line = FALSE, 
           stars = "none", 
           grid = FALSE, 
@@ -39,7 +39,7 @@ love.plot(x,
   the valid input to a call to \code{\link{bal.tab}()} (e.g., the output of a preprocessing function). Other arguments that would be supplied to \code{bal.tab()} can be entered with \code{...}. Can also be a \code{bal.tab} object, i.e., the output of a call to \code{bal.tab()}. See Examples. If \code{x} is not a \code{bal.tab} object, \code{love.plot()} calls \code{bal.tab()} with the arguments supplied.
 }
   \item{stats}{
-\code{character}; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. When variance ratios are displayed, the x-axis will be on a log scale so that .5 and 2 are equally far from 1.
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
 }
   \item{abs}{
 \code{logical}; whether to present the statistic in absolute value or not. For variance ratios, this will force all ratios to be greater than or equal to 1. If \code{x} is a \code{bal.tab} object, \code{love.plot()} might ignore \code{abs} depending on the original \code{bal.tab()} call. If unspecified, uses whatever was used in the call to \code{bal.tab()}.
@@ -56,8 +56,8 @@ a \code{character} or \code{love.plot} object; how to order the variables in the
   \item{drop.distance}{
 \code{logical}; whether to ignore the distance measure (if there are any) in plotting.
 }
-  \item{threshold}{
-\code{numeric}; an optional value to be used as a threshold marker in the plot. Can be either an unnamed vector with the same length as \code{stat}, where \code{NA} indicates no threshold, or a named vector containing the thresholds desired. For example, if \code{stat = c("mean.diffs", "ks.statistics")} one could set \code{threshold = c(.1, NA)} or \code{threshold = c(mean.diffs = .1)} to set a threshold only for mean differences. The names can be abbreviated (e.g., \code{threshold = c(m = .1)} for mean differences). If \code{x} is a \code{bal.tab} object and a threshold was set in it (e.g., with \code{m.threshold}), its threshold will be used unless overridden using the \code{threshold} argument in \code{love.plot}.
+  \item{thresholds}{
+\code{numeric}; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at \code{\link[=balance.stats]{stats}}. If \code{x} is a \code{bal.tab} object and a threshold was set in it (e.g., with \code{thresholds}), its threshold will be used unless overridden using the \code{threshold} argument in \code{love.plot}.
 }
   \item{line}{
 \code{logical}; whether to display a line connecting the points for each sample.
@@ -69,7 +69,7 @@ when mean differences are to be displayed, which variable names should have a st
 \code{logical}; whether gridlines should be shown on the plot. Default is \code{FALSE}.
 }
   \item{limits}{
-\code{numeric}; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of \code{stats} that is to have limits. If values exceed the limits, they will be plotted at the edge.
+\code{numeric}; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of \code{stats} that is to have limits; e.g., \code{list(m = c(-.2, .2))}. If values exceed the limits, they will be plotted at the edge.
 }
   \item{colors}{
 the colors of the points on the plot. See 'Color Specification' at \code{\link[graphics]{par}} or the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill}{aesthetic specifications} page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.
@@ -81,7 +81,7 @@ the shapes of the points on the plot. Must be one or two numbers between 1 and 2
 \code{numeric}; the transparency of the points. See \code{\link[ggplot2]{scale_alpha}}.
 }
   \item{size}{
-\code{numeric}; the size of the points on the plot. Defaults to 3. In previous version, the size was scaled by a factor of 3. Now \code{size} corresponds directly to the \code{size} aesthetic in \code{\link[ggplot2]{geom_point}}.
+\code{numeric}; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now \code{size} corresponds directly to the \code{size} aesthetic in \code{\link[ggplot2]{geom_point}}.
 }
   \item{wrap}{
 \code{numeric}; the number of characters at which to wrap axis labels to the next line. Defaults to 30. Decrease this if the axis labels are excessively long.
@@ -111,12 +111,12 @@ additional arguments passed to \code{bal.tab()} or options for display of the pl
   \item{\code{disp.subclass}}{whether to display individual subclasses if subclassification is used. Overrides the \code{disp.subclass} option in the original \code{bal.tab()} call if \code{x} is a \code{bal.tab} object.}
   \item{\code{star_char}}{\code{character}; when \code{stars} are used, the character that should be the "star" next to the starred variables. The default is \code{"*"}. \code{"†"} or \code{"\u2020"} (i.e., dagger) might be appealing as well.}
   }
-Additionally, any of the \code{which.} arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to \code{.none} to aggregate across groups (in which \code{agg.fun} comes into effect) and set to \code{.all} to view all groups. See \code{display_options} for options, and see the vignette "Appendix 2: Using cobalt with Clustered and Multiply Imputed Data" for details and examples.
+Additionally, any of the \code{which.} arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to \code{.none} to aggregate across groups (in which \code{agg.fun} comes into effect) and set to \code{.all} to view all groups. See \code{display_options} for options, and see the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for details and examples.
 }
 }
 \details{
 
-\code{love.plot} can be used with clusters, imputations, or both in addition to the standard case. The cluster or imputation arguments must be specified in the call to \code{bal.tab}. Several types of plots can be requested: a plot aggregating over all imputations across all clusters, a plot displaying individual clusters aggregating over imputations (if any), a plot displaying individual imputations across clusters, or a plot displaying individual clusters within one imputation (if any) or individual imputations for one cluster. The choice of these displays is controlled by the arguments to \code{which.cluster} and \code{which.imp}. If either of them are \code{.none}, the plot will aggregate over that collection. If either are individual values, the plot will display the values for those specific clusters or imputations. If either of them are \code{.all}, the plot will display the values for all clusters or imputations. If both clusters and imputations are specified, at least one of \code{which.cluster} or \code{which.imp} must be a single value, or \code{.none}. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot.
+\code{love.plot} can be used with clusters, imputations, or both in addition to the standard case. The cluster or imputation arguments must be specified in the call to \code{bal.tab}. Several types of plots can be requested: a plot aggregating over all imputations across all clusters, a plot displaying individual clusters aggregating over imputations (if any), a plot displaying individual imputations across clusters, or a plot displaying individual clusters within one imputation (if any) or individual imputations for one cluster. The choice of these displays is controlled by the arguments to \code{which.cluster} and \code{which.imp}. If either of them are \code{.none}, the plot will aggregate over that collection. If either are individual values, the plot will display the values for those specific clusters or imputations. If either of them are \code{.all}, the plot will display the values for all clusters or imputations. If both clusters and imputations are specified, at least one of \code{which.cluster} or \code{which.imp} must be a single value, or \code{.none}. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for examples.
 
 With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If \code{disp.subclass} is \code{TRUE}, each subclass will be displayed additionally as a number on the plot. 
 
@@ -144,12 +144,12 @@ The default is to display standardized mean differences for continuous variables
 
 }
 \value{
-When \code{stats} has length 1, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot} provides automatically. 
+When only one type of balance statistic is requested, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot} provides automatically. 
 
-When \code{stat} has length greater than 1, the plot is constructed using \code{\link[gridExtra]{arrangeGrob}} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
+When more than one type of balance statistic is requested, the plot is constructed using \code{\link[gridExtra]{arrangeGrob}} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
 }
 \note{
-\code{love.plot} can also be called by using \code{plot} on a \code{bal.tab} object. That is, the \code{"love."} prefix is optional, unless it is being called directly on the preprocessing output objects.
+\code{love.plot} can also be called by using \code{plot} on a \code{bal.tab} object.
 }
 
 \author{
@@ -167,12 +167,7 @@ m.out1 <- matchit(treat ~ age + educ + race +
                   married + nodegree + re74 + re75, 
                   data = lalonde)
 
-love.plot(m.out1, stat = "mean.diffs", 
-          threshold = .1, var.order = "unadjusted")
-
-#This gives the same results using older syntax
-love.plot(bal.tab(m.out1), stat = "mean.diffs", 
-          threshold = .1, var.order = "unadjusted")
+love.plot(m.out1, thresholds = c(m = .1), var.order = "unadjusted")
 
 ## Using alternate variable names
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
@@ -183,17 +178,17 @@ v <- data.frame(old = c("age", "educ", "race_black", "race_hispan",
                         "Earnings 1974", "Earnings 1975", 
                         "Propensity Score"))
                 
-love.plot(m.out1, stat = "mean.diffs", threshold = .1, 
+love.plot(m.out1, stats = "m", threshold = .1, 
           var.order = "unadjusted", var.names = v)
           
 #Using multiple stats
-love.plot(m.out1, stat = c("mean.diffs", "ks.statistics"), 
-          threshold = c(mean.diffs = .1, ks.statistics = .05), 
+love.plot(m.out1, stats = c("m", "ks"), 
+          thresholds = c(m = .1, ks = .05), 
           var.order = "unadjusted", var.names = v, stars = "raw",
           position = "bottom", wrap = 20)
           
 #Changing visual elements
-love.plot(m.out1, stat = "mean.diffs", threshold = .1, 
+love.plot(m.out1, thresholds = c(m = .1), 
           var.order = "unadjusted", var.names = v, abs = TRUE,
           shapes = c("triangle filled", "circle"), 
           colors = c("red", "blue"), line = TRUE,

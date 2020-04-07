@@ -8,6 +8,7 @@ Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
 }
 \usage{
 \method{bal.tab}{sbwcau}(sbwcau, 
+    stats,
     int = FALSE, 
     poly = 1, 
     distance = NULL, 
@@ -28,6 +29,9 @@ Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
 \arguments{
   \item{sbwcau}{
 an \code{sbwcau} object; the output of a call to \code{sbw()} from the \pkg{sbw} package.
+}
+  \item{stats}{
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. Multiple options are allowed.
 }
   \item{int}{
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.

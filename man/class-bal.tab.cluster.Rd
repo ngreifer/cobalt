@@ -23,7 +23,7 @@ There are four arguments for each \code{bal.tab()} method that can handle cluste
 The output is a \code{bal.tab.cluster} object, which inherits from \code{bal.tab}. It has the following elements:
 
 \item{Cluster.Balance}{For each cluster, a regular \code{bal.tab} object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.}
-\item{Cluster.Summary}{The balance summary across clusters. This will include the combination of absolute mean differences for each covariate across all clusters according to the value of \code{cluster.fun}, and the same for variance ratios and KS statistics if requested.}
+\item{Cluster.Summary}{The balance summary across clusters. This will include the combination of each balance statistic for each covariate across all clusters according to the value of \code{cluster.fun}.}
 \item{Observations}{A table of sample sizes or effective sample sizes for each cluster before and after adjustment.}
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.

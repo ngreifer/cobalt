@@ -17,6 +17,8 @@ Generates balance statistics on covariates in relation to an observed treatment 
 }
 \item{\code{\link{bal.tab.optmatch}} for the method for objects returned by \pkg{optmatch}.
 }
+\item{\code{\link{bal.tab.cem.match}} for the method for objects returned by \pkg{cem}.
+}
 \item{\code{\link{bal.tab.CBPS}} for the method for objects returned by \pkg{CBPS}.
 }
 \item{\code{\link{bal.tab.ebalance}} for the method for objects returned by \pkg{ebal}.
@@ -47,15 +49,13 @@ Arguments passed to other methods. These arguments may be data-related, computat
 
 \subsection{With Binary Point Treatments}{
 
-The default balance statistic for mean differences for continuous variables is the standardized mean difference, which is the difference in the means divided by a measure of spread (i.e., a d-type effect size measure). This is the default because it puts the mean differences on the same scale for comparison with each other and with a given threshold. For binary variables, the default balance statistic is the raw difference in proportion. Although standardized differences in proportion can be computed, raw differences in proportion for binary variables are already on the same scale, and computing the standardized difference in proportion can obscure the true difference in proportion by dividing the difference in proportion by a number that is itself a function of the observed proportions.
+Balance statistics can be requested with the \code{\link[=balance.stats]{stats}} argument. The default balance statistic for mean differences for continuous variables is the standardized mean difference, which is the difference in the means divided by a measure of spread (i.e., a d-type effect size measure). This is the default because it puts the mean differences on the same scale for comparison with each other and with a given threshold. For binary variables, the default balance statistic is the raw difference in proportion. Although standardized differences in proportion can be computed, raw differences in proportion for binary variables are already on the same scale, and computing the standardized difference in proportion can obscure the true difference in proportion by dividing the difference in proportion by a number that is itself a function of the observed proportions.
 
 Standardized mean differences are calculated using \code{\link{col_w_smd}} as follows: the numerator is the mean of the treated group minus the mean of the control group, and the denominator is a measure of spread calculated in accordance with the argument to \code{s.d.denom} or the default of the specific method used. Common approaches in the literature include using the standard deviation of the treated group or using the "pooled" standard deviation (i.e., the square root of the mean of the group variances) in calculating standardized mean differences. The computed spread \code{bal.tab()} uses is always that of the full, unadjusted sample (i.e., before matching, weighting, or subclassification), as recommended by Stuart (2010).
 
 Prior to computation, all variables are checked for variable type, which allows users to differentiate balance statistic calculations based on type using the arguments to \code{continuous} and \code{binary}. First, if a given covariate is numeric and has only 2 levels, it is converted into a binary (0,1) variable. If 0 is a value in the original variable, it retains its value and the other value is converted to 1; otherwise, the lower value is converted to 0 and the other to 1. Next, if the covariate is not numeric or logical (i.e., is a character or factor variable), it will be split into new binary variables, named with the original variable and the value, separated by an underscore. Otherwise, the covariate will be used as is and treated as a continuous variable.
 
-When \code{m.threshold} is specified, it is compared to the absolute mean difference. \code{bal.tab()} takes the absolute value of the input to \code{m.threshold} as well before comparing.
-
-Variance ratios are computed within-sample using \code{\link{col_w_vr}}, with the larger of the two variances in the numerator if \code{abs = TRUE}, yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion. \code{bal.tab()} takes the reciprocal of the input to \code{v.threshold} if it is less than 1 and compares it to the version of the variance ratio that is greater than 1.
+Variance ratios are computed within-sample using \code{\link{col_w_vr}}, with the larger of the two variances in the numerator if \code{abs = TRUE}, yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion.
 
 When weighting or matching are used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}, as is used in \pkg{twang}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being down-weighted. When matching is used, an additional "unweighted" sample size will be displayed indicating the total number of units contributing to the weighted sample.
 
@@ -63,7 +63,7 @@ When subclassification is used, the balance tables for each subclass stored in \
 
 \subsection{With Continuous Point Treatments}{
 
-When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The correlation after adjustment is computed using \code{\link{col_w_corr}} as the weighted covariance between the covariate and treatment divided by the product of the standard deviations of the unweighted covariate and treatment, in an analogous way to how how the weighted standardized mean difference uses an unweighted measure of spread in its denominator, with the purpose of avoiding the analogous paradox (i.e., where the covariance decreases but is accompanied by a change in the standard deviations, thereby distorting the actual resulting balance computed using the weighted standard deviations).
+When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The correlation after adjustment is computed using \code{\link{col_w_cov}} as the weighted covariance between the covariate and treatment divided by the product of the standard deviations of the unweighted covariate and treatment, in an analogous way to how how the weighted standardized mean difference uses an unweighted measure of spread in its denominator, with the purpose of avoiding the analogous paradox (i.e., where the covariance decreases but is accompanied by a change in the standard deviations, thereby distorting the actual resulting balance computed using the weighted standard deviations).
 }
 \subsection{With Multi-Category Point Treatments}{
 
@@ -91,7 +91,7 @@ An object of class \code{"bal.tab"}. The use of continuous treatments, subclasse
 
 For scenarios with binary point treatments and no subclasses, imputations, or clusters, the following are the elements of the \code{bal.tab} object:
 
-\item{Balance}{A data frame containing balance information for each covariate.  Balance contains the following columns:
+\item{Balance}{A data frame containing balance information for each covariate. Balance contains the following columns, with additional columns present when other balance statistics are requested:
 \itemize{
 \item{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
 \item{\code{M.0.Un}: The mean of the control group prior to adjusting.}
@@ -99,29 +99,20 @@ For scenarios with binary point treatments and no subclasses, imputations, or cl
 \item{\code{M.1.Un}: The mean of the treated group prior to adjusting.}
 \item{\code{SD.1.Un}: The standard deviation of the treated group prior to adjusting.}
 \item{\code{Diff.Un}: The (standardized) difference in means between the two groups prior to adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
-\item{\code{V.Ratio.Un}: The ratio of the variances of the two groups prior to adjusting. \code{NA} for binary variables.  If less than 1 and \code{abs = TRUE}, the reciprocal is reported.}
-\item{\code{KS.Un}: The KS statistic of the two groups prior to adjusting.  \code{NA} for binary variables.}
 \item{\code{M.0.Adj}: The mean of the control group after adjusting.}
 \item{\code{SD.0.Adj}: The standard deviation of the control group after adjusting.}
 \item{\code{M.1.Adj}: The mean of the treated group after adjusting.}
 \item{\code{SD.1.Adj}: The standard deviation of the treated group after adjusting.}
 \item{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
-\item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{m.threshold}.  If \code{m.threshold} is \code{NULL}, this column will be \code{NA}.}
-\item{\code{V.Ratio.Adj}: The ratio of the variances of the two groups after adjusting.  \code{NA} for binary variables.  If less than 1 and \code{abs = TRUE}, the reciprocal is reported.}
-\item{\code{V.Threshold}: Whether or not the calculated variance ratio after adjusting exceeds or is within the threshold given by \code{v.threshold} for continuous variables.  If \code{v.threshold} is \code{NULL}, this column will be \code{NA}.}
-\item{\code{KS.Adj}: The KS statistic of the two groups after adjusting.  \code{NA} for binary variables.}
-\item{\code{KS.Threshold}: Whether or not the calculated KS statistic after adjusting exceeds or is within the threshold given by \code{ks.threshold} for continuous variables.  If \code{ks.threshold} is \code{NULL}, this column will be \code{NA}.}
+\item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{thresholds}.  If a threshold for mean differences is not specified, this column will be \code{NA}.}
+
 }}
 \item{Balanced.Means}{If \code{m.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for mean differences.}
 \item{Max.Imbalance.Means}{If \code{m.threshold} is specified, a table displaying the variable with the greatest absolute mean difference.}
-\item{Balanced.Variances}{If \code{v.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for variance ratios.}
-\item{Max.Imbalance.Variance}{If \code{v.threshold} is specified, a table displaying the variable with the greatest variance ratio.}
-\item{Balanced.KS}{If \code{ks.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for KS statistics.}
-\item{Max.Imbalance.KS}{If \code{ks.threshold} is specified, a table displaying the variable with the greatest KS statistic.}
 \item{Observations}{A table displaying the sample sizes before and after adjusting. Often the effective sample size (ESS) will be displayed. See Details.}
 \item{call}{The original function call, if adjustment was performed by a function in another package.}
 
-If the treatment is continuous, instead of producing mean differences, variance ratios, and KS statistics, \code{bal.tab()} will produce correlations between the covariates and the treatment. The corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.threshold" (and accordingly for the balance tally and maximum imbalance tables).
+If the treatment is continuous, instead of producing mean differences, \code{bal.tab()} will produce correlations between the covariates and the treatment. The corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.threshold" (and accordingly for the balance tally and maximum imbalance tables).
 
 If multiple weights are supplied, \code{"Adj"} in \code{Balance} will be replaced by the provided names of the sets of weights, and extra columns will be added for each set of weights. Additional columns and rows for other items in the output will be created as well.
 

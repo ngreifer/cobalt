@@ -22,7 +22,7 @@ There are four arguments for each \code{bal.tab()} method that can handle multi-
 The output is a \code{bal.tab.multi} object, which inherits from \code{bal.tab}. It has the following elements:
 
 \item{Pair.Balance}{For each pair of treatment groups, a regular \code{bal.tab} object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified. If \code{focal} is specified, only the comparisons involving the focal group are computed. If \code{pairwise} is \code{FALSE}, the comparisons will be between each group and the groups combined (labeled "All").}
-\item{Balance.Across.Pairs}{The balance summary across two-group comparisons. This will include the greatest (i.e., maximum) absolute mean difference for each covariate across all comparisons computed, and the same for variance ratios and KS statistics if requested. Thresholds can be requested for each balance measure as with binary treatments.}
+\item{Balance.Across.Pairs}{The balance summary across two-group comparisons. This will include the greatest (i.e., maximum) absolute balance statistics(s) for each covariate across all comparisons computed. Thresholds can be requested for each balance measure as with binary treatments.}
 \item{Observations}{A table of sample sizes or effective sample sizes for each treatment group before and after adjustment.}
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.

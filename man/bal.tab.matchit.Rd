@@ -8,6 +8,7 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note
 }
 \usage{
 \method{bal.tab}{matchit}(m, 
+    stats,
     int = FALSE, 
     poly = 1, 
     distance = NULL, 
@@ -28,6 +29,9 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note
 \arguments{
   \item{m}{
 a \code{matchit} object; the output of a call to \code{matchit()} from the \pkg{MatchIt} package.
+}
+  \item{stats}{
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. Multiple options are allowed.
 }
   \item{int}{
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.

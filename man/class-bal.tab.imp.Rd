@@ -23,7 +23,7 @@ There are four arguments for each \code{bal.tab()} method that can handle multip
 The output is a \code{bal.tab.imp} object, which inherits from \code{bal.tab}. It has the following elements:
 
 \item{Imputation.Balance}{For each imputation, a regular \code{bal.tab} object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.}
-\item{Balance.Across.Imputations}{The balance summary across imputations. This will include the combination of absolute mean differences for each covariate across all imputations according to the value of \code{imp.fun}, and the same for variance ratios and KS statistics if requested.}
+\item{Balance.Across.Imputations}{The balance summary across imputations. This will include the combination of each balance statistic for each covariate across all imputations according to the value of \code{imp.fun}.}
 \item{Observations}{A table of sample sizes or effective sample sizes averaged across imputations before and after adjustment.}
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.

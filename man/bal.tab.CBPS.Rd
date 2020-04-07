@@ -9,6 +9,7 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
 }
 \usage{
 \method{bal.tab}{CBPS}(cbps, 
+        stats,
         int = FALSE, 
         poly = 1, 
         distance = NULL, 
@@ -32,6 +33,9 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
 \arguments{
   \item{cbps}{
 a \code{CBPS} or \code{CBMSM} object; the output of a call to \code{CBPS()} or \code{CBMSM()} from the \pkg{CBPS} package.
+}
+  \item{stats}{
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
 }
   \item{int}{
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
@@ -58,7 +62,7 @@ whether mean differences for binary variables (i.e., difference in proportion) s
 \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{CBPS()} is the ATT and "pooled" if the estimand is the ATE. Abbreviations allowed.
 }
   \item{thresholds}{
-a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
+a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See \code{\link[=balance.stats]{stats}}.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link{bal.tab.cluster}} for details.
@@ -100,10 +104,6 @@ The \code{CBPS} object does not return sampling weights even if they are used; r
 For point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{CBPS} object. See \code{\link{bal.tab}} for details.
 
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
-
-If treatment is continuous, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
-
-If multi-category treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
 If \code{CBPS()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 

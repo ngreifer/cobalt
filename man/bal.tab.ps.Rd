@@ -12,6 +12,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
 \usage{
 \method{bal.tab}{ps}(ps, 
     stop.method, 
+    stats,
     int = FALSE, 
     poly = 1, 
     distance = NULL, 
@@ -29,6 +30,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
 
 \method{bal.tab}{mnps}(mnps, 
     stop.method, 
+    stats,
     int = FALSE, 
     poly = 1, 
     distance = NULL, 
@@ -48,6 +50,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     
 \method{bal.tab}{iptw}(iptw, 
     stop.method, 
+    stats,
     int = FALSE, 
     poly = 1, 
     distance.list = NULL, 
@@ -66,6 +69,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
 
 \method{bal.tab}{ps.cont}(ps.cont, 
     stop.method, 
+    stats,
     int = FALSE, 
     poly = 1, 
     distance = NULL, 
@@ -89,6 +93,9 @@ a \code{ps}, \code{mnps}, \code{iptw}, or \code{ps.cont} object; the output of a
   \item{stop.method}{
 a string containing the names of the stopping methods used in the original call to \code{ps()}, \code{mnps()}, \code{iptw()}, or \code{ps.cont()}. Examples include "es.max" or "ks.mean" for \code{ps} and \code{mnps} objects and "p.mean" or "s.max" for \code{ps.cont} objects. \code{bal.tab} will assess balance for the weights created by those stopping methods. The names can be abbreviated as long as the abbreviations are specific enough. If no stopping methods are provided, \code{bal.tab} will default to displaying balance for all available stopping methods. This argument used to be called \code{full.stop.method}, and that name still works.
   }
+    \item{stats}{
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
+}
   \item{int}{
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
 }
