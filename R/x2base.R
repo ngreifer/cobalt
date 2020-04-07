@@ -102,6 +102,11 @@ x2base.matchit <- function(m, ...) {
         else distance <- data.frame(distance = m$distance)
     }
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with matchit objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if ("matchit.subclass" %in% class(m)) {
         subclass <- factor(m$subclass)
@@ -145,12 +150,7 @@ x2base.matchit <- function(m, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "matchit()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with matchit objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -306,6 +306,11 @@ x2base.ps <- function(ps, ...) {
         }
     }
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with ps objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with ps objects.", call. = FALSE)
@@ -353,12 +358,7 @@ x2base.ps <- function(ps, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "ps()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with ps objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -498,6 +498,9 @@ x2base.mnps <- function(mnps, ...) {
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, mnps.data)
     
+    #Process focal
+    focal <- mnps$treatATT
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with mnps objects.", call. = FALSE)
@@ -545,10 +548,7 @@ x2base.mnps <- function(mnps, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "mnps()")
-    
-    #Process focal
-    focal <- mnps$treatATT
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -687,6 +687,11 @@ x2base.ps.cont <- function(ps.cont, ...) {
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, ps.data)
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with ps.cont objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with ps.cont objects.", call. = FALSE)
@@ -734,12 +739,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "ps.cont()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with ps.cont objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -852,6 +852,11 @@ x2base.Match <- function(Match, ...) {
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with Match objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with Match objects.", call. = FALSE)
@@ -895,12 +900,7 @@ x2base.Match <- function(Match, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "Match()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with Match objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -1154,6 +1154,11 @@ x2base.data.frame <- function(covs, ...) {
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
     
+    #Process focal
+    if (is_not_null(focal <- A$focal) && get.treat.type(treat) != "continuous") {
+        focal <- process_focal(focal, treat)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         subclass <- vector.process(subclass, 
@@ -1173,7 +1178,8 @@ x2base.data.frame <- function(covs, ...) {
                                        which = "matching strata membership",
                                        missing.okay = TRUE)
         weights <- data.frame(weights = strata2weights(match.strata,
-                                                       treat = treat))
+                                                       treat = treat,
+                                                       focal = focal))
     }
     #Process weights
     else if (is_not_null(weights <- data.frame.process("weights", A[["weights"]], treat, covs, data))) {
@@ -1220,20 +1226,6 @@ x2base.data.frame <- function(covs, ...) {
     length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp)
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal) && get.treat.type(treat) != "continuous") {
-        if (is.numeric(focal)) {
-            if (focal <= nunique(treat)) focal <- levels(treat)[focal]
-            else 
-                stop(paste0("focal was specified as ", focal, 
-                            ", but there are only ", nunique(treat), " treatment groups."), call. = FALSE)
-        }
-        else {
-            if (focal %nin% levels(treat)) 
-                stop(paste0("The name specified to focal is not the name of any treatment group."), call. = FALSE)
-        }
-    }
     
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
@@ -1358,6 +1350,11 @@ x2base.CBPS <- function(cbps.fit, ...) {
         }
     }
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with CBPS objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with CBPS objects.", call. = FALSE)
@@ -1406,12 +1403,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "CBPS()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with CBPS objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -1526,6 +1518,11 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with ebalance objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with ebalance objects.", call. = FALSE)
@@ -1573,12 +1570,7 @@ x2base.ebalance <- function(ebalance, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "ebalance()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with ebalance objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -1673,7 +1665,8 @@ x2base.optmatch <- function(optmatch, ...) {
     }
     
     #Process treat
-    t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
+    t.c <- use.tc.fd(A$formula, data = data, covs = A$covs,
+                     treat = if_null_then(A$treat, attr(optmatch, "contrast.group")))
     treat <- process_treat(t.c[["treat"]], data = data)
     
     #Process covs
@@ -1694,6 +1687,11 @@ x2base.optmatch <- function(optmatch, ...) {
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with optmatch objects.", call. = FALSE)
+    }
+    
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with optmatch objects.", call. = FALSE)
     }
     
     #Process match.strata
@@ -1733,12 +1731,7 @@ x2base.optmatch <- function(optmatch, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = paste0(deparse(attr(optmatch, "call")[[1]]), "()"))
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with optmatch objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -1808,8 +1801,8 @@ x2base.cem.match <- function(cem.match, ...) {
     #Process cem.match
     if (is_(cem.match, "cem.match.list")) {
         cem.match[["vars"]] <- cem.match[[1]][["vars"]]
-        cem.match[["treatment"]] <- cem.match[[1]][["treatment"]]
         cem.match[["baseline.group"]] <- cem.match[[1]][["baseline.group"]]
+        cem.match[["groups"]] <- unlist(lapply(cem.match[vapply(cem.match, is_, logical(1L), "cem.match")], `[[`, "groups"))
         cem.match[["w"]] <- get.w.cem.match(cem.match)
     }
     if (all(check_if_zero(cem.match[["w"]]))) stop("The 'cem.match' object contains no valid matches.", call. = FALSE)
@@ -1840,12 +1833,12 @@ x2base.cem.match <- function(cem.match, ...) {
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
-    else if (is_(cem.match, "cem.match.list") && sum(vapply(cem.match, is_, logical(1L), "cem.match") != 1)) {
+    else if (is_(cem.match, "cem.match.list") && sum(vapply(cem.match, is_, logical(1L), "cem.match")) != 1) {
         stop("An argument to imp must be specified or the argument to data must be a mids object.", call. = FALSE)
     }
     
     #Process treat
-    t.c <- use.tc.fd(data = data, treat = cem.match[["treatment"]], 
+    t.c <- use.tc.fd(data = data, treat = cem.match[["groups"]], 
                      covs = cem.match[["vars"]])
     treat <- process_treat(t.c[["treat"]], data = data)
     
@@ -1868,6 +1861,9 @@ x2base.cem.match <- function(cem.match, ...) {
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with cem.match objects.", call. = FALSE)
     }
+    
+    #Process focal
+    focal <- cem.match[["baseline.group"]]
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
@@ -1906,9 +1902,6 @@ x2base.cem.match <- function(cem.match, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "cem()")
-    
-    #Process focal
-    focal <- cem.match[["baseline.group"]]
     
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
@@ -2025,6 +2018,9 @@ x2base.weightit <- function(weightit, ...) {
     else if (is_not_null(weightit$ps)) distance <- data.frame(prop.score = weightit$ps)
     else distance <- NULL
     
+    #Process focal
+    focal <- weightit$focal
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with weightit objects.", call. = FALSE)
@@ -2073,10 +2069,7 @@ x2base.weightit <- function(weightit, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "weightit()")
-    
-    #Process focal
-    focal <- weightit$focal
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -2192,6 +2185,11 @@ x2base.designmatch <- function(dm, ...) {
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with designmatch objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with designmatch objects.", call. = FALSE)
@@ -2234,12 +2232,7 @@ x2base.designmatch <- function(dm, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "the matching function in designmatch")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with designmatch objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -2401,6 +2394,11 @@ x2base.mimids <- function(mimids, ...) {
     if (is_not_null(distance)) distance <- cbind(distance, m.distance)
     else distance <- m.distance
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with mimids objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with mimids objects.", call. = FALSE)
@@ -2444,12 +2442,7 @@ x2base.mimids <- function(mimids, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "matchthem()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with mimids objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -2570,6 +2563,9 @@ x2base.wimids <- function(wimids, ...) {
     if (is_not_null(distance)) distance <- cbind(distance, w.distance)
     else distance <- w.distance
     
+    #Process focal
+    focal <- unique(unlist(lapply(wimids[["models"]][-1], function(w) w[["focal"]])))
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with wimids objects.", call. = FALSE)
@@ -2618,10 +2614,7 @@ x2base.wimids <- function(wimids, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "weightthem()")
-    
-    #Process focal
-    focal <- unique(unlist(lapply(wimids[["models"]][-1], function(w) w[["focal"]])))
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -2736,6 +2729,11 @@ x2base.sbwcau <- function(sbwcau, ...) {
     #Process distance
     distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, sbw.data)
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with sbwcau objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("match.strata are not allowed with sbwcau objects.", call. = FALSE)
@@ -2783,12 +2781,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
                        original.call.to = "sbw()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with sbwcau objects.", call. = FALSE)
-    }
-    
+ 
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat)
     
@@ -2960,6 +2953,11 @@ x2base.iptw <- function(iptw, ...) {
         }
     }
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with iptw objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with iptw objects.", call. = FALSE)
@@ -3008,12 +3006,7 @@ x2base.iptw <- function(iptw, ...) {
                        lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
                        imp = imp,
                        original.call.to = "iptw()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with iptw objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat.list)
     
@@ -3195,6 +3188,11 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                   covs.list,
                                   data)
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with longitudinal treatments.", call. = FALSE)
@@ -3253,12 +3251,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
                        data.frames = c("weights"),
                        lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
                        imp = imp)
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat.list)
     
@@ -3416,6 +3409,11 @@ x2base.CBMSM <- function(cbmsm, ...) {
     else if (is_not_null(cbmsm$fitted.values)) distance.list <- lapply(times, function(x) data.frame(prop.score = cbmsm$fitted.values))
     else distance.list <- NULL
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with CBMSM objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with CBMSM objects.", call. = FALSE)
@@ -3459,12 +3457,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
                        lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
                        imp = imp,
                        original.call.to = "CBMSM()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with CBMSM objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat.list)
     
@@ -3596,6 +3589,11 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     else if (is_not_null(weightitMSM$ps.list)) distance.list <- lapply(seq_along(weightitMSM$ps.list), function(x) data.frame(prop.score = weightitMSM$ps.list[[x]]))
     else distance.list <- NULL
     
+    #Process focal
+    if (is_not_null(focal <- A$focal)) {
+        stop("focal is not allowed with weightitMSM objects.", call. = FALSE)
+    }
+    
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         stop("subclasses are not allowed with weightitMSM objects.", call. = FALSE)
@@ -3644,12 +3642,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
                        lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
                        imp = imp,
                        original.call.to = "weightitMSM()")
-    
-    #Process focal
-    if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with weightitMSM objects.", call. = FALSE)
-    }
-    
+
     #Process stats and thresholds
     stats <- process_stats(A[["stats"]], treat = treat.list)
     
@@ -4121,16 +4114,7 @@ x2base.default <- function(obj, ...) {
         
         #Process focal
         if (is_not_null(focal <- A$focal) && get.treat.type(treat) != "continuous") {
-            if (is.numeric(focal)) {
-                if (focal <= nunique(treat)) focal <- levels(treat)[focal]
-                else 
-                    stop(paste0("focal was specified as ", focal, 
-                                ", but there are only ", nunique(treat), " treatment groups."), call. = FALSE)
-            }
-            else {
-                if (focal %nin% levels(treat)) 
-                    stop(paste0("The name specified to focal is not the name of any treatment group."), call. = FALSE)
-            }
+            focal <- process_focal(focal, treat)
         }
         
         #Process stats and thresholds
@@ -4326,6 +4310,11 @@ x2base.default <- function(obj, ...) {
                                       covs.list,
                                       data)
         
+        #Process focal
+        if (is_not_null(focal <- A$focal)) {
+            stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
+        }
+        
         #Process subclass
         if (is_not_null(subclass <- A$subclass)) {
             stop("subclasses are not allowed with longitudinal treatments.", call. = FALSE)
@@ -4383,12 +4372,7 @@ x2base.default <- function(obj, ...) {
                            data.frames = c("weights"),
                            lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
                            imp = imp)
-        
-        #Process focal
-        if (is_not_null(focal <- A$focal)) {
-            stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
-        }
-        
+
         #Process stats and thresholds
         stats <- process_stats(A[["stats"]], treat = treat.list)
         
