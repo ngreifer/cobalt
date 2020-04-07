@@ -163,8 +163,9 @@ STATS[["ks.statistics"]] <- {list(
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
     fun = function(C, treat, weights, s.weights, bin.vars, subset = NULL, ...) {
-        col_w_ks(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
-                 subset = subset)
+        A <- list(...)
+        do.call("col_w_ks", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
+                                    subset = subset), A))
     }
 )}
 
@@ -190,9 +191,10 @@ STATS[["ovl.coefficients"]] <- {list(
         c(lower = base::abs(threshold))
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
-    fun = function(C, treat, weights, s.weights, bin.vars, subset = NULL, ...) {
-        col_w_ovl(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
-                  subset = subset)
+    fun = function(C, treat, weights, s.weights, bin.vars, subset = NULL, integrate = FALSE, ...) {
+        A <- list(...)
+        do.call("col_w_ovl", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
+                  subset = subset, integrate = integrate), A))
     }
 )}
 

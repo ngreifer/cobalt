@@ -50,7 +50,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                       disp.means = disp.means, disp.sds = disp.sds, 
                                       stats = X$stats, abs = abs, 
                                       no.adj = no.adj, quick = quick, 
-                                      s.d.denom.list = X$s.d.denom.list)
+                                      s.d.denom.list = X$s.d.denom.list, ...)
     
     #Reassign disp... and ...threshold based on balance table output
     compute <- attr(out[["Balance"]], "compute")

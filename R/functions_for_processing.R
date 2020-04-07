@@ -1324,7 +1324,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                           thresholds = list(),
                           un = FALSE, disp.means = FALSE, disp.sds = FALSE, stats = NULL, 
                           s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, 
-                          var_types = NULL, s.d.denom.list = NULL, quick = TRUE) {
+                          var_types = NULL, s.d.denom.list = NULL, quick = TRUE, ...) {
     #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
     
     if (no.adj) weight.names <- "Adj"
@@ -1452,7 +1452,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                                                                                       std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
                                                                                       s.d.denom = if_null_then(s.d.denom.list[[1]], s.d.denom[1]),
                                                                                       abs = abs, s.weights = s.weights, bin.vars = bin.vars,
-                                                                                      weighted.weights = weights[[1]])
+                                                                                      weighted.weights = weights[[1]], ...)
             }
             
             if (!no.adj) {
@@ -1460,7 +1460,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                     B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]] <- STATS[[s]]$fun(C, treat = treat, weights = weights[[i]],
                                                                                        std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
                                                                                        s.d.denom = if_null_then(s.d.denom.list[[i]], s.d.denom[i]),
-                                                                                       abs = abs, s.weights = s.weights, bin.vars = bin.vars)
+                                                                                       abs = abs, s.weights = s.weights, bin.vars = bin.vars, ...)
                 }
             }
             
