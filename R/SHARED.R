@@ -411,6 +411,10 @@ mean_fast <- function(x, nas.possible = FALSE) {
     n <- length(x)
     return(s/n)
 }
+bw.nrd <- function(x) {
+    #R's bw.nrd doesn't always work, but bw.nrd0 does
+    bw.nrd0(x)*1.06/.9
+}
 
 #Formulas
 is.formula <- function(f, sides = NULL) {

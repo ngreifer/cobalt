@@ -339,7 +339,6 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
     
     if (needs.splitting) {
         bin.vars[to.split] <- TRUE
-        B <- A
         B <- A[names(A) %in% names(formals(splitfactor)) & 
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
@@ -378,7 +377,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
     smallest.t <- names(t.sizes)[which.min(t.sizes)]
     ovl <- setNames(numeric(ncol(mat)), colnames(mat))
     if (any(!bin.vars)) {
-        if (is_null(A[["bw"]])) A[["bw"]] <- "nrd" else A[["bw"]] <- A[["bw"]]
+        if (is_null(A[["bw"]])) A[["bw"]] <- "nrd"
         A[names(A) %nin% names(formals(density.default))] <- NULL
         
         ovl[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2, function(cov) {
@@ -403,13 +402,12 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
                     f0_[is.na(f0_)] <- 0
                     pmin(f1_, f0_)
                 }
-                min.c <- min(cov)
-                max.c <- max(cov)
-                range <- max.c - min.c
+                min.c <- min(cov) - 4*A[["bw"]]
+                max.c <- max(cov) + 4*A[["bw"]]
+                # range <- max.c - min.c
                 # min.c.ext <- min.c - .01 * range
                 # max.c.ext <- max.c + .01 * range
                 if (isTRUE(integrate)) {
-                    
                     s <- try(integrate(fn, lower = min.c,
                                        upper = max.c)$value,
                              silent = TRUE)
