@@ -19,7 +19,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     obj <- process_designmatch(obj)
     obj <- process_time.list(obj)
-
+    
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "all") #s.d.denom to avoid x2base warning
     
     if (is_not_null(X$covs.list)) {
@@ -110,7 +110,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             if (is_null(X$subclass)) warning("which.sub was specified but no subclasses were supplied. Ignoring which.sub.", call. = FALSE)
             else warning("which.sub was specified but only the unadjusted sample was requested. Ignoring which.sub.", call. = FALSE)
         }
-            
+        
         facet <- "which"
         
         if ("both" %in% which) which <- c("Unadjusted Sample", weight.names)
@@ -436,7 +436,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             
             bp <- ggplot(D, mapping = aes(x = treat, fill = var, weight = weights)) + 
-                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE) + 
+                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE, outline.type = "full") + 
                 labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
                 scale_fill_manual(values = colors) + geom_hline(yintercept = 0) +
                 scale_y_continuous(expand = expansion(mult = c(0, .05)))
@@ -449,7 +449,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             
             if (identical(which, "Unadjusted Sample") || isFALSE(alpha.weight)) bp <- bp + geom_point(alpha = .9)
             else bp <- bp + geom_point(aes(alpha = weights), show.legend = FALSE) + 
-                    scale_alpha(range = c(.04, 1))
+                scale_alpha(range = c(.04, 1))
             
             bp <- bp + 
                 geom_smooth(method = "lm", se = FALSE, color = "firebrick2", alpha = .4, size = 1.5) + 
@@ -560,9 +560,9 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
                 geom_fun <- function(t) {
                     out <- list(geom_histogram(data = D[D$treat == levels(D$treat)[t],],
-                                                       mapping = aes(x = var, y = posneg[t]*stat(count), weight = weights,
-                                                                     fill = names(colors)[t]),
-                                                       alpha = alpha, bins = args$bins, color = "black"),
+                                               mapping = aes(x = var, y = posneg[t]*stat(count), weight = weights,
+                                                             fill = names(colors)[t]),
+                                               alpha = alpha, bins = args$bins, color = "black"),
                                 NULL)
                     if (disp.means) out[[2]] <-
                             geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
@@ -581,12 +581,12 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 
                 #Pad 0 and 1
                 extra <- setNames(do.call(expand.grid, c(list(c("top", "bottom")),
-                                                lapply(c("treat", facet), function(i) levels(D[[i]])))),
+                                                         lapply(c("treat", facet), function(i) levels(D[[i]])))),
                                   c("pos_", "treat", facet))
                 
                 merge.extra <- data.frame(pos_ = c("top", "bottom"),
-                                           var = c(-Inf, Inf),
-                                           cum.pt = c(0, 1))
+                                          var = c(-Inf, Inf),
+                                          cum.pt = c(0, 1))
                 extra <- merge(extra, merge.extra)
                 extra[["pos_"]] <- NULL
                 
@@ -595,7 +595,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 D <- rbind(extra[names(D)], D)
                 
                 geom_fun <- function(t) {
-
+                    
                     geom_step(data = D[D$treat == levels(D$treat)[t],],
                               mapping = aes(x = var, y = cum.pt, color = names(colors)[t]))
                     
@@ -621,16 +621,17 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 
                 geom_fun <- function(t) {
                     out <- list(
-                    geom_density(data = D[D$treat == levels(D$treat)[t],],
-                                                     mapping = aes(x = var, y = posneg[t]*stat(density), weight = weights,
-                                                                   fill = names(colors)[t]),
-                                                     alpha = alpha, bw = bw, adjust = adjust,
-                                                     kernel = kernel, n = n, trim = TRUE),
-                    NULL)
+                        geom_density(data = D[D$treat == levels(D$treat)[t],],
+                                     mapping = aes(x = var, y = posneg[t]*stat(density), weight = weights,
+                                                   fill = names(colors)[t]),
+                                     alpha = alpha, bw = bw, adjust = adjust,
+                                     kernel = kernel, n = n, trim = TRUE,
+                                     outline.type = "full"),
+                        NULL)
                     if (disp.means) out[[2]] <-
-                    geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
-                                 mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
-                                 color = if (mirror) "black" else colors[[t]])
+                            geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
+                                         mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
+                                         color = if (mirror) "black" else colors[[t]])
                     out
                 }
                 ylab <- "Density"
