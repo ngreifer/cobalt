@@ -1,12 +1,5 @@
 bal.tab <- function(...) {
     
-    if (...length() == 0L) stop("No arguments were supplied.", call. = FALSE)
-    .obj <- ...elt(1)
-
-    .obj <- process_designmatch(.obj)
-    .obj <- process_time.list(.obj)
-    .obj <- process_cem.match.list(.obj)
-    
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
     .alls <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.all)), logical(1L))
@@ -16,6 +9,13 @@ bal.tab <- function(...) {
         .call[.nones] <- expression(NA)
         return(eval.parent(.call))
     }
+    
+    if (...length() == 0L) stop("No arguments were supplied.", call. = FALSE)
+    .obj <- ...elt(1)
+
+    .obj <- process_designmatch(.obj)
+    .obj <- process_time.list(.obj)
+    .obj <- process_cem.match.list(.obj)
     
     UseMethod("bal.tab", .obj)
 }
