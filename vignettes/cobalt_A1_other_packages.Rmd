@@ -47,8 +47,6 @@ m.out <- matchit(f.build("treat", covs), data = lalonde, method = "nearest")
 
 `f.build()` can also be used in the `Matching`, `optmatch`, `ebalance`, and formula interfaces in `bal.tab()`.
 
-*Note*: in an earlier version of `cobalt`, the first argument of `f.build()` was unquoted; this has been changed to reap the benefits of standard evaluation, including the ability to loop through response variables.
-
 ### `splitfactor()` and `unsplitfactor()`
 
 Some functions (outside of `cobalt`) are not friendly to factor or character variables, and require numeric variables to operate correctly. For example, some regression-style functions, such as `ebalance()` in `ebal`, can only take in non-singular numeric matrices. Other functions will process factor variables, but will return output in terms of dummy coded version of the factors. For example, `lm()` will create dummy variables out of a factor and drop the reference category to create regression coefficients.
