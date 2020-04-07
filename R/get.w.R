@@ -293,11 +293,19 @@ get.w.optmatch <- function(x, ...) {
     treat <- as.numeric(attr(x, "contrast.group"))
     return(strata2weights(x, treat = treat))
 }
-get.w.cem.match <- function(x,...) {
-    if (is_(x, "cem.match.list")) {
-        return(unlist(lapply(x[vapply(x, is_, logical(1L), "cem.match")], `[[`, "w"), use.names = FALSE))
+get.w.cem.match <- function(x, use.match.strata = FALSE, ...) {
+    if (use.match.strata) {
+        if (is_(x, "cem.match.list")) {
+            return(unlist(lapply(x[vapply(x, is_, logical(1L), "cem.match")], function(cm) strata2weights(cm[["mstrata"]], treat = cm[["groups"]], focal = cm[["baseline.group"]])), use.names = FALSE))
+        }
+        else return(strata2weights(x[["mstrata"]], treat = x[["groups"]], focal = x[["baseline.group"]]))
     }
-    else return(x[["w"]])
+    else {
+        if (is_(x, "cem.match.list")) {
+            return(unlist(lapply(x[vapply(x, is_, logical(1L), "cem.match")], `[[`, "w"), use.names = FALSE))
+        }
+        else return(x[["w"]])
+    }
 }
 get.w.weightit <- function(x, s.weights = FALSE, ...) {
     if (s.weights) return(x$weights * x$s.weights)
