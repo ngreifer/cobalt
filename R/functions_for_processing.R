@@ -167,7 +167,7 @@ weight.check <- function(w) {
     if (any(vapply(w, function(x) any(!is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
     if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found."), call. = FALSE)
 }
-strata2weights <- function(strata, treat) {
+strata2weights <- function(strata, treat, focal = NULL) {
     #Process strata into weights (similar to weight.subclass from MatchIt)
     
     #Checks
@@ -192,10 +192,10 @@ strata2weights <- function(strata, treat) {
         totals <- colSums(sub.tab)
         
         # estimand <- get.estimand(subclass = strata, treat = treat)
-        s.d.denom <- get.s.d.denom(NULL, subclass = strata, treat = treat, quietly = TRUE)
+        s.d.denom <- get.s.d.denom(NULL, subclass = strata, treat = treat, focal = focal, quietly = TRUE)
         
         if (s.d.denom %in% treat_vals(treat)) {
-            sub.weights <- setNames(sub.tab[s.d.denom, levels(strata.matched)] / sub.tab[treat_vals(treat) != s.d.denom, levels(strata.matched)], 
+            sub.weights <- setNames(sub.tab[s.d.denom, levels(strata.matched)] / sub.tab[treat_vals(treat) != s.d.denom, levels(strata.matched)],
                                     levels(strata.matched))
             weights[matched & treat == s.d.denom] <- 1
             weights[matched & treat != s.d.denom] <- sub.weights[strata[matched & treat != s.d.denom]]
@@ -898,6 +898,20 @@ process_subset <- function(subset, n) {
         subset[is.na(subset)] <- FALSE
     }
     return(subset)
+}
+process_focal <- function(focal, treat) {
+  if (is.numeric(focal)) {
+    if (can_str2num(treat) && focal %in% str2num(treat)) {focal <- as.character(focal)}
+    else if (focal <= length(treat_vals(treat))) focal <- treat_vals(treat)[focal]
+    else 
+      stop(paste0("focal was specified as ", focal, 
+                  ", but there are only ", length(treat_vals(treat)), " treatment groups."), call. = FALSE)
+  }
+  else {
+    if (focal %nin% treat_vals(treat)) 
+      stop(paste0("The name specified to focal is not the name of any treatment group."), call. = FALSE)
+  }
+  return(focal)
 }
 
 #get.C
