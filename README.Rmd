@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 [![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/cobalt?color=0047ab
 )](https://cran.r-project.org/package=cobalt)
 
-Welcome to `cobalt`, which stands for **Co**variate **Bal**ance **T**ables (and Plots). `cobalt` allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. `cobalt`'s primary function is `bal.tab()`, which stands for "balance table", and essentially replaces (or supplements) the balance assessment tools found in the R packages `twang`, `MatchIt`, `CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these packages and others, see the help file for `bal.tab()` with `?bal.tab`, which links to the methods used for each package. Each page has examples of how `bal.tab()` is used with the package. There are also five vignettes detailing the use of `cobalt`, which can be accessed with `browseVignettes("cobalt")`: one for basic uses of `cobalt`, one for the use of `cobalt` with additional packages, one for the use of `cobalt` with multiply imputed and/or clustered data, one for the use of `cobalt` with longitudinal treatments, and one for the use of `cobalt` to generate publication-ready plots. Currently, `cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `WeightIt`, `designmatch`, `sbw`, and `MatchThem` as well as data not processed through these packages.
+Welcome to `cobalt`, which stands for **Co**variate **Bal**ance **T**ables (and Plots). `cobalt` allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. `cobalt`'s primary function is `bal.tab()`, which stands for "balance table", and essentially replaces (or supplements) the balance assessment tools found in the R packages `twang`, `MatchIt`, `CBPS`, and `Matching`. To examine how `bal.tab()` integrates with these packages and others, see the help file for `bal.tab()` with `?bal.tab`, which links to the methods used for each package. Each page has examples of how `bal.tab()` is used with the package. There are also five vignettes detailing the use of `cobalt`, which can be accessed with `browseVignettes("cobalt")`: one for basic uses of `cobalt`, one for the use of `cobalt` with additional packages, one for the use of `cobalt` with multiply imputed and/or clustered data, one for the use of `cobalt` with longitudinal treatments, and one for the use of `cobalt` to generate publication-ready plots. Currently, `cobalt` is compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `WeightIt`, `designmatch`, `sbw`, `MatchThem`, and `cem` as well as data not processed through these packages.
 
 # Why cobalt?
 
@@ -47,7 +47,7 @@ m.out <- matchit(treat ~ age + educ + race + married + nodegree +
                      re74 + re75, data = lalonde)
 
 #Checking balance before and after matching:
-bal.tab(m.out, m.threshold = .1, un = TRUE)
+bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
 ```
 
 ```{r, fig.show='hide', fig.width=4, fig.height=4, collapse=T}
@@ -62,7 +62,7 @@ bal.plot(m.out, var.name = "distance",
 ```{r}
 #Generating a Love plot to report balance:
 love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
-          threshold = c(m = .1, v = 2), abs = TRUE, 
+          thresholds = c(m = .1, v = 2), abs = TRUE, 
           binary = "std",
           var.order = "unadjusted")
 ```

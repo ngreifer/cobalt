@@ -24,8 +24,8 @@ with multiply imputed and/or clustered data, one for the use of `cobalt`
 with longitudinal treatments, and one for the use of `cobalt` to
 generate publication-ready plots. Currently, `cobalt` is compatible with
 output from `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`,
-`WeightIt`, `designmatch`, `sbw`, and `MatchThem` as well as data not
-processed through these packages.
+`WeightIt`, `designmatch`, `sbw`, `MatchThem`, and `cem` as well as data
+not processed through these packages.
 
 # Why cobalt?
 
@@ -76,7 +76,7 @@ data("lalonde", package = "cobalt")
 m.out <- matchit(treat ~ age + educ + race + married + nodegree + re74 + re75, data = lalonde)
 
 # Checking balance before and after matching:
-bal.tab(m.out, m.threshold = 0.1, un = TRUE)
+bal.tab(m.out, thresholds = c(m = 0.1), un = TRUE)
 ```
 
     #> Call
@@ -122,7 +122,7 @@ bal.plot(m.out, var.name = "distance", mirror = TRUE, type = "histogram")
 
 ``` r
 # Generating a Love plot to report balance:
-love.plot(m.out, stats = c("mean.diffs", "variance.ratios"), threshold = c(m = 0.1, 
+love.plot(m.out, stats = c("mean.diffs", "variance.ratios"), thresholds = c(m = 0.1, 
     v = 2), abs = TRUE, binary = "std", var.order = "unadjusted")
 ```
 
