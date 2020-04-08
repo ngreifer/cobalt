@@ -26,7 +26,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         else p.ops$un <- un
     }
     if (!identical(disp, "as.is")) {
-        if (!is.character(disp)) stop("disp.means must be a character vector.")
+        if (!is.character(disp)) stop("disp must be a character vector.")
         allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
         if (any(disp %nin% allowable.disp)) {
             stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = TRUE, is.are = TRUE),
@@ -219,7 +219,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         return(eval.parent(.call))
     }
     
-    A <- clear_null(list(...))    
+    A <- list(...)
     call <- x$call
     c.balance <- x$Cluster.Balance
     c.balance.summary <- x$Balance.Across.Clusters
@@ -263,6 +263,8 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
             warning("disp.means cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
+        
+        A[["disp.means"]] <- NULL
     }
     if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
         if (!is.logical(A[["disp.sds"]])) stop("disp.sds must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
@@ -270,6 +272,8 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
             warning("disp.sds cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "sds"[A[["disp.sds"]]]))
+        
+        A[["disp.sds"]] <- NULL
     }
     if (!identical(stats, "as.is")) {
         if (!is_(stats, "character")) stop("stats must be a string.")
@@ -289,6 +293,8 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
                 warning(paste(STATS[[s]]$disp_stat, "cannot be set to TRUE if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             }
             else p.ops$disp <- unique(c(p.ops$disp, s))
+            
+            A[[STATS[[s]]$disp_stat]] <- NULL
         }
     }
     
@@ -304,6 +310,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
                 baltal[[s]] <- NULL
                 maximbal[[s]] <- NULL
             }
+            A[[STATS[[s]]$threshold]] <- NULL
         }
         if (s %nin% p.ops$disp) {
             p.ops[["thresholds"]][[s]] <- NULL
@@ -424,7 +431,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         for (i in which.cluster) {
 
             cat("\n - - - " %+% italic("Cluster: " %+% names(c.balance)[i]) %+% " - - - \n")
-            do.call(print, c(list(c.balance[[i]]), p.ops), quote = TRUE)
+            do.call(print, c(list(c.balance[[i]]), p.ops[names(p.ops) %nin% names(A)], A), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -487,7 +494,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         return(eval.parent(.call))
     }
     
-    A <- clear_null(list(...))    
+    A <- list(...) 
     call <- x$call
     i.balance <- x[["Imputation.Balance"]]
     i.balance.summary <- x[["Balance.Across.Imputations"]]
@@ -531,6 +538,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
             warning("disp.means cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
+        A[["disp.means"]] <- NULL
     }
     if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
         if (!is.logical(A[["disp.sds"]])) stop("disp.sds must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
@@ -538,6 +546,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
             warning("disp.sds cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "sds"[A[["disp.sds"]]]))
+        A[["disp.sds"]] <- NULL
     }
     if (!identical(stats, "as.is")) {
         if (!is_(stats, "character")) stop("stats must be a string.")
@@ -557,6 +566,8 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
                 warning(paste(STATS[[s]]$disp_stat, "cannot be set to TRUE if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             }
             else p.ops$disp <- unique(c(p.ops$disp, s))
+            
+            A[[STATS[[s]]$disp_stat]] <- NULL
         }
     }
     
@@ -572,6 +583,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
                 baltal[[s]] <- NULL
                 maximbal[[s]] <- NULL
             }
+            A[[STATS[[s]]$threshold]] <- NULL
         }
         if (s %nin% p.ops$disp) {
             p.ops[["thresholds"]][[s]] <- NULL
@@ -691,7 +703,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         cat(underline("Balance by imputation") %+% "\n")
         for (i in which.imp) {
             cat("\n - - - " %+% italic("Imputation " %+% names(i.balance)[i]) %+% " - - - \n")
-            do.call(print, c(list(i.balance[[i]]), p.ops), quote = TRUE)
+            do.call(print, c(list(i.balance[[i]]), p.ops, A), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -755,7 +767,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
         return(eval.parent(.call))
     }
     
-    A <- clear_null(list(...))    
+    A <- list(...)    
     call <- x$call
     m.balance <- x[["Pair.Balance"]]
     m.balance.summary <- x[["Balance.Across.Pairs"]]
@@ -984,7 +996,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
             headings[i] <- "\n - - - " %+% italic(attr(m.balance[[i]], "print.options")$treat_names[1] %+% " (0) vs. " %+%
                                                       attr(m.balance[[i]], "print.options")$treat_names[2] %+% " (1)") %+% " - - - \n"
             cat(headings[i])
-            do.call(print, c(list(m.balance[[i]]), p.ops), quote = TRUE)
+            do.call(print, c(list(m.balance[[i]]), p.ops[names(p.ops) %nin% names(A)], A), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(max(nchar(headings))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -1042,7 +1054,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     invisible(x)
     
 }
-print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -1253,7 +1265,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         cat(underline("Balance by Time Point") %+% "\n")
         for (i in which.time) {
             cat("\n - - - " %+% italic("Time: " %+% as.character(i)) %+% " - - - \n")
-            do.call(print, c(list(x = msm.balance[[i]]), p.ops), quote = TRUE)
+            do.call(print, c(list(x = msm.balance[[i]]), p.ops[names(p.ops) %nin% names(A)], A), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Time: ", i, " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -1318,7 +1330,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
 
 print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
-    A <- clear_null(list(...))
+    A <- list(...)
     call <- x$call
     s.balance <- x$Subclass.Balance
     b.a.subclass <- x$Balance.Across.Subclass
