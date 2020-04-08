@@ -30,6 +30,8 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 }
 \item{disp.ks}{\code{logical}; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multi-category treatments. Default is \code{FALSE}, so KS statistics are not displayed. Soon to be deprecated; use \code{stats} instead.
 }
+\item{disp.ovl}{\code{logical}; whether to display overlapping (OVL) coefficients in balance output for binary and multi-category treatments. Default is \code{FALSE}, so OVL coefficients are not displayed. Soon to be deprecated; use \code{stats} instead.
+}
 \item{factor_sep}{\code{character}; the string used to separate factor variables from their levels when variable names are printed. Default is \code{"_"}.
 }
 \item{int_sep}{\code{character}; the string used to separate two variables involved in an interaction when variable names are printed. Default is \code{" * "}. Older versions of \pkg{cobalt} used \code{"_"}.

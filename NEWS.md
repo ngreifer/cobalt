@@ -7,9 +7,9 @@ Version 4.1.0
 
 * Added support for `cem.match` objects from `cem`. See Appendix 1 or `?bal.tab.cem.match` for an example.
 
-* Added `stats` argument to `bal.tab()` and `print()` to replace `disp.v.ratio` and `disp.ks`. This argument functions similarly to how it does in `love.plot()`; for example, to request mean differences and variance ratios, one can enter `stats = c("m", "v")`. One consequence of this is that it is possible to request statistics that don't include mean differences. See `?display_options` for more details. The old arguments still work (and probably always will) but you should use `stats` instead. The goal here was to unify syntax across `bal.tab()`, `print()`, and `love.plot()`.
+* Added `stats` argument to `bal.tab()` and `print()` to replace `disp.v.ratio` and `disp.ks`. This argument functions similarly to how it does in `love.plot()`; for example, to request mean differences and variance ratios, one can enter `stats = c("m", "v")`. One consequence of this is that it is possible to request statistics that don't include mean differences. See `?display_options` for more details. The old arguments still work (and probably always will) but you should use `stats` instead. The goal here was to unify syntax across `bal.tab()`, `print()`, and `love.plot()`. A new help page specifically for the `stats` argument can be viewed at `?balance.stats`.
 
-* Added `thresholds` argument to `bal.tab()` and `print()` to replace `m.threshold`, `v.threshold`, etc. This argument functions similarly to how it does in `love.plot()`; for example, to request thresholds for mean differences and variance ratios, one can enter `thresholds = c(m = .1, v = 2)`. The old arguments still work (and probably always will) but you should use `thresholds` instead. The goal here was to unify syntax across `bal.tab()`, `print()`, and `love.plot()`.
+* Added `thresholds` argument to `bal.tab()` to replace `m.threshold`, `v.threshold`, etc. This argument functions similarly to how it does in `love.plot()`; for example, to request thresholds for mean differences and variance ratios, one can enter `thresholds = c(m = .1, v = 2)`. The old arguments still work (and probably always will) but you should use `thresholds` instead. The goal here was to unify syntax across `bal.tab()`, `print()`, and `love.plot()`.
 
 * Added `disp.means` option to `bal.plot` to display the mean of the covariate as a line on density plots and histograms.
 
@@ -17,13 +17,15 @@ Version 4.1.0
 
 * With multi-category treatments when `pairwise = FALSE`, rather than computing balance between each treatment group and the other treatment groups, balance is now computed between each treatment group and the entire sample.
 
-* In `print()`, the arguments `disp.m.threshold`, `disp.v.threshold`, `disp.ks.threshold`, and `disp.r.threshold`, which could be set to `FALSE` to prevent the corresponding balance thresholds and summaries from being printed, have been replaced with `m.threshold`, `v.threshold`, `ks.threshold`, and `r.threshold`. These can be set to `NULL` to prevent the balance thresholds from being printed. The goal here was to unify syntax across `bal.tab()` and `print()`.
+* In `print()`, the arguments `disp.m.threshold`, `disp.v.threshold`, `disp.ks.threshold`, and `disp.r.threshold`, which could be set to `FALSE` to prevent the corresponding balance thresholds and summaries from being printed, have been replaced with `disp.thresholds`. Named entries can be set to `FALSE`. The goal here was to unify syntax across `bal.tab()` and `print()`.
 
 * A new balance statistic, the overlapping coefficient (OVL), is allowed with binary and multi-category treatments. This is described in Belitser et al. (2011) and Franklin et al. (2014) for assessing balance. Generally, for each covariate, the overlapping coefficient is the area of the probability density functions for each sample that overlap. Here I follow Franklin et al. (2014) and report 1 - (OVL) so that values close to zero indicate good balance (i.e., completely overlapping distributions) and values close to 1 indicate poor balance (i.e., completely non-overlapping distributions). To estimate and display the OVL, set include `"ovl"` in the `stats` argument in a call to `bal.tab()` or `love.plot()` (or you can use the old syntax by setting `disp.ovl = TRUE`). The balance threshold can be requested by including `"ovl"` in the `thresholds` argument (or you can use the old syntax by using the `ovl.threshold` argument).
 
+* Spearman correlations can be requested for continuous treatments by adding `"sp"` to the `stats` argument.
+
 * `ggplot2` version 3.3.0 is required, which removes some warnings and makes it so `ggstance` doesn't need to be imported.
 
-* When there are more than 900 variables to compute balance statistics on in `bal.tab` (which can happen quickly when `int = TRUE` and categorical variables have many categories), to avoid major slowdowns, checks for redunancy of variables are forgone. This will dramatically icnrease the speed of `bal.tab` in these scenarios. This option can be changed with the `cobalt` option `"remove_perfect_col"` which can be set to `TRUE` or or `FALSE`. Set to `FALSE` to improve speed at the expense of possibly having redundant variables appear.
+* When there are more than 900 variables to compute balance statistics on in `bal.tab` (which can happen quickly when `int = TRUE` and categorical variables have many categories), to avoid major slowdowns, checks for redunancy of variables are forgone. This will dramatically increase the speed of `bal.tab` in these scenarios. This option can be changed with the `cobalt` option `"remove_perfect_col"` which can be set to `TRUE` or or `FALSE`. Set to `FALSE` to improve speed at the expense of possibly having redundant variables appear.
 
 * Fixed a bug when using the default `bal.tab` method with objects containing longitudinal treatments.
 
@@ -32,6 +34,8 @@ Version 4.1.0
 * Fixed a bug in `love.plot()` when using subclassification.
 
 * Fixed a bug when using `bal.tab` with longitudinal treatments and multiple sets of weights.
+
+* Fixed a bug when using `col_w_ovl()`. OVL values are now more accurate.
 
 * Speedups and other small fixes.
 
