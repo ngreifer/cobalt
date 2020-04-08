@@ -1,4 +1,4 @@
-print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", digits = max(3, getOption("digits") - 3), ...) {
 
     A <- list(...)
     call <- x$call
@@ -56,7 +56,9 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$compute
         if (any(!stats_in_p.ops)) {
-            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
+            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " when ", 
+                        if (sum(!stats_in_p.ops) > 1) "they were " else "it was ", 
+                        "not requested in the original call to bal.tab()."), call. = TRUE)
         }
         else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
     }
@@ -89,6 +91,31 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
             p.ops[["thresholds"]][[s]] <- NULL
             baltal[[s]] <- NULL
             maximbal[[s]] <- NULL
+        }
+    }
+    if (!identical(disp.thresholds, "as.is")) {
+        if (!is.logical(disp.thresholds) || anyNA(disp.thresholds)) stop("disp.thresholds must only contain TRUE or FALSE.", call. = FALSE)
+        if (is_null(names(disp.thresholds))) {
+            if (length(disp.thresholds) <= length(p.ops[["thresholds"]])) {
+                names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
+            }
+            else {
+                stop("More entries were given to disp.thresholds than there are thresholds in the bal.tab object.", call. = FALSE)
+            }
+        }
+        
+        if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
+            warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
+                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+            disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
+        }
+        names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+        for (x in names(disp.thresholds)) {
+            if (!disp.thresholds[x]) {
+                p.ops[["thresholds"]][[x]] <- NULL
+                baltal[[x]] <- NULL
+                maximbal[[x]] <- NULL
+            }
         }
     }
    
@@ -182,7 +209,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     }
     invisible(x)
 }
-print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
 
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -282,6 +309,31 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
             p.ops[["thresholds"]][[s]] <- NULL
             baltal[[s]] <- NULL
             maximbal[[s]] <- NULL
+        }
+    }
+    if (!identical(disp.thresholds, "as.is")) {
+        if (!is.logical(disp.thresholds) || anyNA(disp.thresholds)) stop("disp.thresholds must only contain TRUE or FALSE.", call. = FALSE)
+        if (is_null(names(disp.thresholds))) {
+            if (length(disp.thresholds) <= length(p.ops[["thresholds"]])) {
+                names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
+            }
+            else {
+                stop("More entries were given to disp.thresholds than there are thresholds in the bal.tab object.", call. = FALSE)
+            }
+        }
+        
+        if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
+            warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
+                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+            disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
+        }
+        names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+        for (x in names(disp.thresholds)) {
+            if (!disp.thresholds[x]) {
+                p.ops[["thresholds"]][[x]] <- NULL
+                baltal[[x]] <- NULL
+                maximbal[[x]] <- NULL
+            }
         }
     }
     if (!identical(cluster.summary, "as.is")) {
@@ -425,7 +477,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     
     invisible(x)
 }
-print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp = "as.is", which.imp, imp.summary = "as.is", imp.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", which.imp, imp.summary = "as.is", imp.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -525,6 +577,31 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
             p.ops[["thresholds"]][[s]] <- NULL
             baltal[[s]] <- NULL
             maximbal[[s]] <- NULL
+        }
+    }
+    if (!identical(disp.thresholds, "as.is")) {
+        if (!is.logical(disp.thresholds) || anyNA(disp.thresholds)) stop("disp.thresholds must only contain TRUE or FALSE.", call. = FALSE)
+        if (is_null(names(disp.thresholds))) {
+            if (length(disp.thresholds) <= length(p.ops[["thresholds"]])) {
+                names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
+            }
+            else {
+                stop("More entries were given to disp.thresholds than there are thresholds in the bal.tab object.", call. = FALSE)
+            }
+        }
+        
+        if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
+            warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
+                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+            disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
+        }
+        names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+        for (x in names(disp.thresholds)) {
+            if (!disp.thresholds[x]) {
+                p.ops[["thresholds"]][[x]] <- NULL
+                baltal[[x]] <- NULL
+                maximbal[[x]] <- NULL
+            }
         }
     }
     if (!identical(imp.summary, "as.is")) {
@@ -668,7 +745,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     invisible(x)
     
 }
-print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", which.treat, multi.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -768,6 +845,31 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
             p.ops[["thresholds"]][[s]] <- NULL
             baltal[[s]] <- NULL
             maximbal[[s]] <- NULL
+        }
+    }
+    if (!identical(disp.thresholds, "as.is")) {
+        if (!is.logical(disp.thresholds) || anyNA(disp.thresholds)) stop("disp.thresholds must only contain TRUE or FALSE.", call. = FALSE)
+        if (is_null(names(disp.thresholds))) {
+            if (length(disp.thresholds) <= length(p.ops[["thresholds"]])) {
+                names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
+            }
+            else {
+                stop("More entries were given to disp.thresholds than there are thresholds in the bal.tab object.", call. = FALSE)
+            }
+        }
+        
+        if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
+            warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
+                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+            disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
+        }
+        names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+        for (x in names(disp.thresholds)) {
+            if (!disp.thresholds[x]) {
+                p.ops[["thresholds"]][[x]] <- NULL
+                baltal[[x]] <- NULL
+                maximbal[[x]] <- NULL
+            }
         }
     }
     if (!identical(multi.summary, "as.is")) {
@@ -940,7 +1042,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     invisible(x)
     
 }
-print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", which.time, msm.summary = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
@@ -1042,6 +1144,31 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
             p.ops[["thresholds"]][[s]] <- NULL
             baltal[[s]] <- NULL
             maximbal[[s]] <- NULL
+        }
+    }
+    if (!identical(disp.thresholds, "as.is")) {
+        if (!is.logical(disp.thresholds) || anyNA(disp.thresholds)) stop("disp.thresholds must only contain TRUE or FALSE.", call. = FALSE)
+        if (is_null(names(disp.thresholds))) {
+            if (length(disp.thresholds) <= length(p.ops[["thresholds"]])) {
+                names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
+            }
+            else {
+                stop("More entries were given to disp.thresholds than there are thresholds in the bal.tab object.", call. = FALSE)
+            }
+        }
+        
+        if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
+            warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
+                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+            disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
+        }
+        names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+        for (x in names(disp.thresholds)) {
+            if (!disp.thresholds[x]) {
+                p.ops[["thresholds"]][[x]] <- NULL
+                baltal[[x]] <- NULL
+                maximbal[[x]] <- NULL
+            }
         }
     }
     if (!identical(msm.summary, "as.is")) {
@@ -1189,7 +1316,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     invisible(x)
 }
 
-print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
     A <- clear_null(list(...))
     call <- x$call
@@ -1283,7 +1410,31 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
             maximbal[[s]] <- NULL
         }
     }
-    
+    if (!identical(disp.thresholds, "as.is")) {
+        if (!is.logical(disp.thresholds) || anyNA(disp.thresholds)) stop("disp.thresholds must only contain TRUE or FALSE.", call. = FALSE)
+        if (is_null(names(disp.thresholds))) {
+            if (length(disp.thresholds) <= length(p.ops[["thresholds"]])) {
+                names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
+            }
+            else {
+                stop("More entries were given to disp.thresholds than there are thresholds in the bal.tab object.", call. = FALSE)
+            }
+        }
+        
+        if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
+            warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
+                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+            disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
+        }
+        names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+        for (x in names(disp.thresholds)) {
+            if (!disp.thresholds[x]) {
+                p.ops[["thresholds"]][[x]] <- NULL
+                baltal[[x]] <- NULL
+                maximbal[[x]] <- NULL
+            }
+        }
+    }
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
