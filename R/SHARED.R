@@ -703,6 +703,10 @@ is_binary <- function(x, na.rm = TRUE) {
     if (na.rm && anyNA(x)) x <- x[!is.na(x)]
     !all_the_same(x) && all_the_same(x[x != x[1]])
 }
+is_binary_col <- function(dat, na.rm = TRUE) {
+    if (length(dim(dat)) != 2) stop("is_binary_col cannot be used with objects that don't have 2 dimensions.")
+    apply(dat, 2, is_binary)
+}
 
 #R Processing
 make_list <- function(n) {
@@ -857,7 +861,8 @@ na.rem <- function(x) {
     x[!is.na(x)]
 }
 check.package <- function(package.name, alternative = FALSE) {
-    packages.not.installed <- package.name[package.name %nin% .packages(all.available = TRUE)]
+    packages.not.installed <- package.name[!vapply(package.name, requireNamespace, logical(1L),
+                                                  quietly = TRUE)]
     if (is_not_null(packages.not.installed)) {
         if (alternative) return(FALSE)
         else {
