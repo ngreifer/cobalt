@@ -213,7 +213,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     out <- make_list(out.names)
     
     C <- do.call(get.C, c(X, A), quote = TRUE)
-    bin.vars <- apply(C, 2, is_binary)
+    bin.vars <- is_binary_col(C)
     if ("mean.diffs" %in% X$stats) {
         if (is_null(X$weights)) {
             X$s.d.denom.list <- list(compute_s.d.denom(C, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, bin.vars = bin.vars))
