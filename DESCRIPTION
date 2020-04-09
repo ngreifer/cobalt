@@ -27,10 +27,10 @@ Suggests:
     CBPS (>= 0.17),
     designmatch,
     optweight,
-    mice,
-    MatchThem,
+    mice (>= 3.8.0),
+    MatchThem (>= 0.9.3),
     sbw,
-    mlogit (>= 0.3-0),
+    mlogit,
     knitr,
     rmarkdown
 License: GPL (>=2)
