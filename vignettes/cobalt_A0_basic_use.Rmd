@@ -105,7 +105,7 @@ For simplicity, the description of the use of `bal.tab()` will be most complete 
 
 #### Using `bal.tab()` on its own
 
-`bal.tab()` can take in any data set and set of weights, subclasses, or matching strata and evaluate balance on them. This can be useful if propensity score weights, subclasses, or matching strata were generated outside of the supported packages, if balance assessment is desired prior to adjustment, or if package output is adjusted in such a way as to make it unusable with one of `bal.tab()`'s other methods (e.g., if cases were manually removed or weights manually changed). In `twang`, the function `dx.wts()` performs a similar action by allowing for the balance assessment of groups weighted not using `twang` functions, though it is more limited in the types of data or conditoning strategies allowed. Below is an example of the use of `bal.tab()` with ATT weights generating using logistic regression for a weighting-by-the-odds analysis:
+`bal.tab()` can take in any data set and set of weights, subclasses, or matching strata and evaluate balance on them. This can be useful if propensity score weights, subclasses, or matching strata were generated outside of the supported packages, if balance assessment is desired prior to adjustment, or if package output is adjusted in such a way as to make it unusable with one of `bal.tab()`'s other methods (e.g., if cases were manually removed or weights manually changed). In `twang`, the function `dx.wts()` performs a similar action by allowing for the balance assessment of groups weighted not using `twang` functions, though it is more limited in the types of data or conditioning strategies allowed. Below is an example of the use of `bal.tab()` with ATT weights generating using logistic regression for a weighting-by-the-odds analysis:
 
 ```{r}
 data("lalonde", package = "cobalt") #If not yet loaded
@@ -258,7 +258,7 @@ bal.tab(W.out)
 
 The gold standard for covariate balance is multidimensional independence between treatment and covariates. Because this is hard to visualize and assess with the large numbers of covariates typical of causal effect analysis, univariate balance is typically assessed as a proxy. Most conditioning packages, as well as `cobalt`, will provide numerical summaries of balance, typically by comparing moments between the treated and control groups. But even univariate balance is more complicated than simple numerical summaries can address; examining distributional balance is a more thorough method to assess balance between groups. Although there are statistics such as the Kolmogorov-Smirnov statistics and the overlapping coefficient that attempt to summarize distributional balance beyond the first few moments (Ali et al., 2016; Austin & Stuart, 2015), complimenting statistics with a visual examination of the distributional densities can be an effective way of assessing distributional similarity between the groups (Ho et al., 2007).
 
-`bal.plot()` allows users to do so by displaying density plots, histograms, empricial CDF plots, bar graphs, and scatterplots so that users can visually assess independence between treatment and covariates before and after conditioning. Below is an example of the use of `bal.plot()` after using propensity score weighting for the ATT using the output from `WeightIt` generated above.:
+`bal.plot()` allows users to do so by displaying density plots, histograms, empirical CDF plots, bar graphs, and scatterplots so that users can visually assess independence between treatment and covariates before and after conditioning. Below is an example of the use of `bal.plot()` after using propensity score weighting for the ATT using the output from `WeightIt` generated above.:
 
 ```{r, fig.show = "hold"}
 bal.plot(W.out, var.name = "age")
@@ -525,7 +525,7 @@ The weights used in the first formula are often called "frequency weights", whil
 
 Knowledge of the sample size after adjustment is important not just for outcome analysis but also for assessing the adequacy of a conditioning specification. For example, pruning many units through common support cutoffs, caliper matching, or matching with replacement can yield very small sample sizes that hurt both the precision of the outcome estimate and the external validity of the conclusion. In both matching and weighting, the adjusted sample size is not so straightforward because the purpose of weighting is to down- and up-weight observations to create two similar samples. The "effective sample size" (ESS) is a measure of the sample size a non-weighted sample would have to have to achieve the same level of precision as the weighted sample (Ridgeway et al., 2016). This measure is implemented in `twang` using the following formula:
 $$ESS = \frac{(\sum_{i=1}^{n} w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}$$
-Shook-Sa and Hudgens (2020) dervied the specific relationship between the ESS and the standard error of a propensity score-weighted mean.
+Shook-Sa and Hudgens (2020) derived the specific relationship between the ESS and the standard error of a propensity score-weighted mean.
 
 ## What's Missing in `cobalt`
 

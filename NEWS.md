@@ -25,7 +25,7 @@ Version 4.1.0
 
 * `ggplot2` version 3.3.0 is required, which removes some warnings and makes it so `ggstance` doesn't need to be imported.
 
-* When there are more than 900 variables to compute balance statistics on in `bal.tab` (which can happen quickly when `int = TRUE` and categorical variables have many categories), to avoid major slowdowns, checks for redunancy of variables are forgone. This will dramatically increase the speed of `bal.tab` in these scenarios. This option can be changed with the `cobalt` option `"remove_perfect_col"` which can be set to `TRUE` or or `FALSE`. Set to `FALSE` to improve speed at the expense of possibly having redundant variables appear.
+* When there are more than 900 variables to compute balance statistics on in `bal.tab` (which can happen quickly when `int = TRUE` and categorical variables have many categories), to avoid major slowdowns, checks for redundancy of variables are forgone. This will dramatically increase the speed of `bal.tab` in these scenarios. This option can be changed with the `cobalt` option `"remove_perfect_col"` which can be set to `TRUE` or or `FALSE`. Set to `FALSE` to improve speed at the expense of possibly having redundant variables appear.
 
 * Fixed a bug when using the default `bal.tab` method with objects containing longitudinal treatments.
 

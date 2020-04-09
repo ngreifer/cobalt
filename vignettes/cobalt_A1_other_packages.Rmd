@@ -18,7 +18,7 @@ knitr::opts_chunk$set(message = FALSE)
 library("cobalt")
 ```
 
-This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A Guide to the cobalt Package". It contains descriptions and demonstrations of several utility functions in `cobalt` and the use of `bal.tab()` with `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, `sbw`, `MatchThem`, and `cem`. Note that `MatchIt` can perform most of the functions that `Matching`, `optmatch`, and `cem` can, and `WeightIt` can perform most of the functions that  `twang`, `CBPS`, `ebal`, abd `sbw` can. Because `cobalt` has been optimized to work with `MatchIt` and `WeightIt`, it is recommended to use those packages to simplify preprocessing and balance assessment, but we recognize users may prefer to use the packages described in this vignette.
+This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A Guide to the cobalt Package". It contains descriptions and demonstrations of several utility functions in `cobalt` and the use of `bal.tab()` with `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, `sbw`, `MatchThem`, and `cem`. Note that `MatchIt` can perform most of the functions that `Matching`, `optmatch`, and `cem` can, and `WeightIt` can perform most of the functions that  `twang`, `CBPS`, `ebal`, and `sbw` can. Because `cobalt` has been optimized to work with `MatchIt` and `WeightIt`, it is recommended to use those packages to simplify preprocessing and balance assessment, but we recognize users may prefer to use the packages described in this vignette.
 
 ## Utilities
 
@@ -318,7 +318,7 @@ bal.tab(cem.out, data = lalonde, stats = c("m", "ks"))
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `cem()` output object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates. Unlike with `Matching`, entering the treatment variable is optional as it is already stored in the output object. The output is similar to that of `optmatch`. 
 
-When using `cem()` with multiply imputed data (i.e., by supplying a list of data.frames to the `datalist` argument in `cem()`), an argument to `imp` should be specified to `bal.tab()` or a `mids` object from the `mice` package should be given as the argumento to `data`. See `?bal.tab.imp` or the accompanying Appendix 2 for more information about using `cobalt` with multiply imputed data. Below is an example of using `cem` with multiply imputed data from `mice`:
+When using `cem()` with multiply imputed data (i.e., by supplying a list of data.frames to the `datalist` argument in `cem()`), an argument to `imp` should be specified to `bal.tab()` or a `mids` object from the `mice` package should be given as the argument to `data`. See `?bal.tab.imp` or the accompanying Appendix 2 for more information about using `cobalt` with multiply imputed data. Below is an example of using `cem` with multiply imputed data from `mice`:
 
 ```{r}
 library("mice"); library("cem")

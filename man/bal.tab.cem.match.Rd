@@ -56,7 +56,7 @@ whether mean differences for continuous variables should be standardized ("std")
 whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}}.
 }
   \item{s.d.denom}{
-\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. The default is "treated", where the treatedgroup corresponds to the \code{baseline.group} in the call to \code{cem}. Abbreviations allowed.
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. The default is "treated", where the treated group corresponds to the \code{baseline.group} in the call to \code{cem}. Abbreviations allowed.
 }
   \item{thresholds}{
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
