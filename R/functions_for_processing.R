@@ -309,23 +309,34 @@ data.frame.process <- function(i, df, treat, covs, ...) {
     val <- df
     val.df <- NULL
     if (is_not_null(val)) {
-        if (is_(val, "list")) {
-            val.list <- lapply(val, function(x) process.val(x, i, treat, covs, ...))
-            if (is_null(names(val.list)) || "" %in% names(val.list)) {
-                stop(paste("All entries in", i, "must have names."), call. = FALSE)
+      if (is_(val, "list")) {
+        if (i == "weights") {
+          #Use get.w() on inputs
+          for (x in seq_along(val)) {
+            if (any(paste.("get.w", class(val[[x]])) %in% methods("get.w"))) {
+              if (is_null(names(val)[x]) || identical(names(val)[x], "")) {
+                names(val)[x] <- class(val[[x]])[which(paste.("get.w", class(val[[x]])) %in% methods("get.w"))[1]]
+              }
+              val[[x]] <- get.w(val[[x]], treat = treat)
             }
-            val.list <- lapply(seq_along(val.list), function(x) {
-                if (NCOL(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
-                return(val.list[[x]])})
-            if (!all_the_same(vapply(val.list, nrow, numeric(1)))) {
-                stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
-            }
-            
-            val.df <- setNames(do.call("cbind", val.list),
-                               c(sapply(val.list, names)))
+          }
         }
-        else {
-            val.df <- process.val(val, i, treat, covs, ...)
+        val.list <- lapply(val, function(x) process.val(x, i, treat, covs, ...))
+        if (is_null(names(val.list)) || "" %in% names(val.list)) {
+          stop(paste("All entries in", i, "must have names."), call. = FALSE)
+        }
+        val.list <- lapply(seq_along(val.list), function(x) {
+          if (NCOL(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
+          return(val.list[[x]])})
+        if (!all_the_same(vapply(val.list, nrow, numeric(1)))) {
+          stop(paste("Not all items in", i, "have the same length."), call. = FALSE)
+        }
+        
+        val.df <- setNames(do.call("cbind", val.list),
+                           make.unique(sapply(val.list, names)))
+      }
+      else {
+        val.df <- process.val(val, i, treat, covs, ...)
         }
         if (is_not_null(val.df)) { if (anyNA(val.df)) {
             stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
