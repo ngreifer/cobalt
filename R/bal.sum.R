@@ -517,12 +517,12 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
 }
 col_w_corr <- function(mat, treat, weights = NULL, type = "pearson", s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
     .call <- match.call(expand.dots = TRUE)
-    .call[[1]] <- quote(cobalt::col_w_cov)
+    .call[[1]] <- quote(col_w_cov)
     .call[["std"]] <- quote(TRUE)
     eval.parent(.call)
 }
 
-#Scalar balance functions 
+#Scalar balance functions - not implemented yet
 bal.sum <- function(mat, treat, weights = NULL, type, s.weights = NULL, check = TRUE, ...) {
     uni.type <- c("smd", "ks", "ovl")
     agg.funs <- c("max", "mean", "rms")
