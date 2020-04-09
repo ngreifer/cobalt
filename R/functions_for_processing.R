@@ -933,7 +933,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.
     
     if (is_not_null(ex)) d <- mat[, colnames(mat) %nin% colnames(ex), drop = FALSE]
     else d <- mat
-    binary.vars <- apply(d, 2, is_binary)
+    binary.vars <- is_binary_col(d)
     if (center) {
         d[,!binary.vars] <- center(d[, !binary.vars, drop = FALSE])
     }
@@ -1240,7 +1240,7 @@ compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL
         
         if (is_null(bin.vars)) {
             bin.vars <- rep(FALSE, ncol(mat))
-            bin.vars[to.sd] <- apply(mat[subset, to.sd,drop = FALSE], 2, is_binary)
+            bin.vars[to.sd] <- is_binary_col(mat[subset, to.sd,drop = FALSE])
         }
         else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
                  length(bin.vars) != ncol(mat)) {
@@ -2174,7 +2174,7 @@ print.data.frame_ <- function(x, ...) {
 
 #Balance summary
 process.bin.vars <- function(bin.vars, mat) {
-    if (missing(bin.vars)) bin.vars <- apply(mat, 2, is_binary)
+    if (missing(bin.vars)) bin.vars <- is_binary_col(mat)
     else if (is_null(bin.vars)) bin.vars <- rep(FALSE, ncol(mat))
     else {
         if (is.logical(bin.vars)) {
@@ -2233,12 +2233,7 @@ acceptable.options <- function() {
     version <- packageDescription("cobalt", lib.loc = cobaltLib)$Version
     BuildDate <- packageDescription("cobalt", lib.loc = cobaltLib)$Date
     
-    foo <- paste0(" cobalt (Version ", version, ", Build Date: ", BuildDate, ")\n", 
-                  "   Please read the documentation at ?bal.tab to understand the default outputs.\n",
-                  "   Submit bug reports and feature requests to https://github.com/ngreifer/cobalt/issues\n",
-                  "   Install the development version (not guaranteed to be stable) with:\n",
-                  "     devtools::install_github(\"ngreifer/cobalt\")\n",
-                  "   Thank you for using cobalt!")
+    foo <- paste0(" cobalt (Version ", version, ", Build Date: ", BuildDate, ")")
     packageStartupMessage(foo)
 }
 
