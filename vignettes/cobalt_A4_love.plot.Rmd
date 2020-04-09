@@ -55,7 +55,7 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75 +
           method = "weighting", estimand = "ATE")
 ```
 
-Let's start with some basic customizations. First, we'll remove the propensity score from the balance display by setting `drop.distance = TRUE`. We'll change the order the covariates so they are displayed in descending order of their unadjusted mean differences by setting `var.order = "unadjusted"`. We'll display the absolute mean difference by setting `abs = TRUE`. We'll also add some lines to make the change in balance clearer by setting `line = TRUE`. Finally, we'll add a threshold line at 0.1 by setting `threshold = .1`.
+Let's start with some basic customizations. First, we'll remove the propensity score from the balance display by setting `drop.distance = TRUE`. We'll change the order the covariates so they are displayed in descending order of their unadjusted mean differences by setting `var.order = "unadjusted"`. We'll display the absolute mean difference by setting `abs = TRUE`. We'll also add some lines to make the change in balance clearer by setting `line = TRUE`. Finally, we'll add a threshold line at 0.1 by setting `thresholds = c(m = .1)`.
 
 ```{r}
 love.plot(w.out1, 
@@ -63,7 +63,7 @@ love.plot(w.out1,
           var.order = "unadjusted",
           abs = TRUE,
           line = TRUE, 
-          threshold = .1)
+          thresholds = c(m = .1))
 ```
 
 The plot is already looking much better and more informative, but let's change a few things to make it more professional. First, we'll change the names of the variables so they are easier to read. We can create a vector of new variable names and then supply that to the `var.names` argument in `love.plot()`. If it would be a burden to type out all the names, you can use the `var.names()` function to create a CSV file (i.e., spreadsheet) that can be customized and loaded back into R to be used with `love.plot()`. See `?var.names` for more information. Because we only have a few variable names, we'll just manually create a vector of names.
@@ -89,7 +89,7 @@ love.plot(w.out1,
           var.order = "unadjusted",
           abs = TRUE,
           line = TRUE, 
-          threshold = .1,
+          thresholds = c(m = .1),
           var.names = new.names,
           colors = c("red", "blue"),
           shapes = c("triangle filled", "circle filled"))
@@ -105,7 +105,7 @@ love.plot(w.out1,
           var.order = "unadjusted",
           abs = TRUE,
           line = TRUE, 
-          threshold = .1,
+          thresholds = c(m = .1),
           var.names = new.names,
           colors = c("red", "blue"),
           shapes = c("triangle filled", "circle filled"),
@@ -131,7 +131,7 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           var.order = "unadjusted",
           abs = TRUE,
           line = TRUE, 
-          threshold = .1,
+          thresholds = c(m = .1),
           var.names = new.names,
           colors = c("red", "blue", "darkgreen"),
           shapes = c("triangle filled", "circle filled", "square filled"),
@@ -155,7 +155,7 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           var.order = "unadjusted",
           abs = TRUE,
           line = TRUE, 
-          threshold = .1,
+          thresholds = c(m = .1),
           var.names = new.names,
           colors = c("red", "blue", "darkgreen"),
           shapes = c("triangle filled", "circle filled", "square filled"),
@@ -166,7 +166,7 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
         legend.box.margin = margin(1, 1, 1, 1))
 ```
 
-Below, we'll put two plots side-by-side, one for mean differences and one for KS statistics. This can be done by requesting multiple values for the `stats` argument (e.g., with `stats = c("mean.diffs", "ks.statistics")`). To reduce clutter, we'll remove the gridlines by setting `grid = FALSE` and the lines by setting `lines = FALSE`. To prevent the axis titles from bumping into each other, we'll set `wrap = 20`, where 20 is the number of characters at which to wrap to the next line. When `stats` has length greater than 1, the output is not longer a `ggplot` object and can't be manipulated using `ggplot2` syntax. This limits some of the options we have to customize it, but the available options using `love.plot()`'s syntax are still useful. We'll move the legend to the top of the plot to save space using the `position` argument. We can give the plots different limits by entering a named list into the `limits` argument. We can do the same for the `threshold` argument. Finally, by setting `var.order = "unadjusted"`, we ensure that the variable order is the same in both plots (which it will be regardless) and ordered by the first balance statistic (in this case, mean differences).
+Below, we'll put two plots side-by-side, one for mean differences and one for KS statistics. This can be done by requesting multiple values for the `stats` argument (e.g., with `stats = c("mean.diffs", "ks.statistics")`). To reduce clutter, we'll remove the lines by setting `lines = FALSE`. To prevent the axis titles from bumping into each other, we'll set `wrap = 20`, where 20 is the number of characters at which to wrap to the next line. When `stats` has length greater than 1, the output is not longer a `ggplot` object and can't be manipulated using `ggplot2` syntax. This limits some of the options we have to customize it, but the available options using `love.plot()`'s syntax are still useful. We'll move the legend to the top of the plot to save space using the `position` argument. We can give the plots different limits by entering a named list into the `limits` argument. We can do the same for the `thresholds` argument. Finally, by setting `var.order = "unadjusted"`, we ensure that the variable order is the same in both plots (which it will be regardless) and ordered by the first balance statistic (in this case, mean differences).
 
 ```{r}
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
@@ -177,15 +177,14 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           var.order = "unadjusted",
           abs = TRUE,
           line = FALSE, 
-          threshold = c(mean.diffs = .1,
-                        ks = .05),
+          thresholds = c(m = .1, ks = .05),
           var.names = new.names,
           colors = c("red", "blue", "darkgreen"),
           shapes = c("triangle filled", "circle filled", "square filled"),
           sample.names = c("Unweighted", "PS Weighted", "CBPS Weighted"),
-          limits = list(mean.diffs = c(0, .82),
+          limits = list(m = c(0, .82),
                         ks = c(0, .45)),
-          wrap = 20, grid = FALSE,
+          wrap = 20,
           position = "top") 
 ```
 
@@ -196,7 +195,7 @@ love.plot(w.out1, abs = FALSE,
           stats = c("mean.diffs", "variance.ratios"),
           drop.distance = TRUE,
           var.names = new.names,
-          threshold = c(v = 2),
+          thresholds = c(v = 2),
           limits = list(m = c(-.9, .9),
                         v = c(.3, 6)),
           shapes = c("circle filled", "circle"),
@@ -232,4 +231,4 @@ Imai, K., & Ratkovic, M. (2014). Covariate balancing propensity score. Journal o
 West, S. G., Cham, H., Thoemmes, F., Renneberg, B., Schulze, J., & Weiler, M. (2014). Propensity scores as a basis for equating groups: Basic principles and application in clinical treatment outcome research. Journal of Consulting and Clinical Psychology, 82(5), 906–919. https://doi.org/10.1037/a0036387
 
 
-[^1]: Older versions of `cobalt` required the first argument to be a call to `bal.tab()`; this is no longer required and in fact is not recommended because `love.plot` is more flexible when handling its own inputs. That said, `love.plot` calls `bal.tab` internally, so problems that arise may be due to problems with `bal.tab` rather than with `love.plot`. Sometimes the `bal.tab` object can take some time to be produced, in which case it might be useful to just run `bal.tab` once and supply its output to different calls of `love.plot` as you fiddle with its options, as `b <- bal.tab(w.out); love.plot(b)`. Note that doing so removes some of `love.plot` flexibility. The most important aspect is that `love.plot` when called with the first syntax can modify the implicit call to `bal.tab` to get everything it needs. For example, normally variance ratios are not present in `bal.tab` output, but if they are requested with `stat = "variance.ratios"` in `love.plot`, they will be produced and displayed correctly without additional input. When using the latter syntax, an error will occur saying that variance ratios were not present in the original `bal.tab` call. This can be mitigated by setting `quick = FALSE` or `disp.v.ratio = TRUE` in the call to `bal.tab` before entering its argument into `love.plot`.
+[^1]: Older versions of `cobalt` required the first argument to be a call to `bal.tab()`; this is no longer required and in fact is not recommended because `love.plot` is more flexible when handling its own inputs. That said, `love.plot` calls `bal.tab` internally, so problems that arise may be due to problems with `bal.tab` rather than with `love.plot`. Sometimes the `bal.tab` object can take some time to be produced, in which case it might be useful to just run `bal.tab` once and supply its output to different calls of `love.plot` as you fiddle with its options, as `b <- bal.tab(w.out); love.plot(b)`. Note that doing so removes some of `love.plot` flexibility. The most important aspect is that `love.plot` when called with the first syntax can modify the implicit call to `bal.tab` to get everything it needs. For example, normally variance ratios are not present in `bal.tab` output, but if they are requested with `stats = "variance.ratios"` in `love.plot`, they will be produced and displayed correctly without additional input. When using the latter syntax, an error will occur saying that variance ratios were not present in the original `bal.tab` call. This can be mitigated by setting `quick = FALSE` or including `"variance.ratios"` in the `stats` argument in the call to `bal.tab` before entering its output into `love.plot`.

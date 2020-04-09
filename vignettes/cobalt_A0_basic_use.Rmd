@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output: 
     html_vignette:
         df_print: kable
+        toc: true
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Covariate Balance Tables and Plots: A Guide to the cobalt Package}
@@ -155,7 +156,7 @@ Standardized mean differences can be computed several ways, and the user can dec
 
 The next options only affect display, not the calculation of any statistics. First are `disp.means` and `disp.sds`, which control whether the group means and standard deviations for each covariate are displayed in addition to the mean differences. These can be useful in reporting balance for publication, but for balance assessment, mean differences are typically more useful.
 
-Next is `stats`, which controls which balance statistics are displayed. For binary and multi-category treatments, options included `"mean.diffs"` for (standardized) mean differences, `"variance.ratios"` for variance ratios, and `"ks.statistics"` for Kolmogorov-Smirnov (KS) statistics (abbreviations are allowed). By default, standardized mean differences are displayed. Variance ratios are another important tool for assessing balance beyond mean differences because they pertain to the shape of the covariate distributions beyond their centers. Variance ratios close to 1 (i.e., equal variances in both groups) are indicative of group balance (Austin, 2009). KS statistics measure the greatest distance between the empirical cumulative distribution functions (eCDFs) for each variable between two groups. The statistic is bounded at 0 and 1, with 0 indicting perfectly identical distributions and 1 indicating perfect separation between the distributions (i.e., no overlap at all); values close to 0 are thus indicative of balance. The use of the KS statistic to formally assess balance is debated. Intuitively, it makes sense to use it to diagnose balance because the interpretation and computation of the statistics are directly related to balance. Austin & Stuart (2015) recommend its use, and it or a variant appears as a default balance statistic in `MatchIt`, `twang`, and `Matching`. On the other hand, Belitser et al. (2011), Stuart et al. (2013), and Ali et al. (2014) all found that global balance assessments using the KS statistic performed uniformly worse than standardized mean differences, especially at sample sizes less than 1000 in their simulations.
+Next is `stats`, which controls which balance statistics are displayed. For binary and multi-category treatments, options include `"mean.diffs"` for (standardized) mean differences, `"variance.ratios"` for variance ratios, `"ks.statistics"` for Kolmogorov-Smirnov (KS) statistics, and `"ovl.coefficient"` for the complement of the overlapping coefficient (abbreviations are allowed). See `?balance.stats` for details. By default, standardized mean differences are displayed. Variance ratios are another important tool for assessing balance beyond mean differences because they pertain to the shape of the covariate distributions beyond their centers. Variance ratios close to 1 (i.e., equal variances in both groups) are indicative of group balance (Austin, 2009). KS statistics measure the greatest distance between the empirical cumulative distribution functions (eCDFs) for each variable between two groups. The statistic is bounded at 0 and 1, with 0 indicting perfectly identical distributions and 1 indicating perfect separation between the distributions (i.e., no overlap at all); values close to 0 are thus indicative of balance. The use of the KS statistic to formally assess balance is debated. Intuitively, it makes sense to use it to diagnose balance because the interpretation and computation of the statistics are directly related to balance. Austin & Stuart (2015) recommend its use, and it or a variant appears as a default balance statistic in `MatchIt`, `twang`, and `Matching`. On the other hand, Belitser et al. (2011), Stuart et al. (2013), and Ali et al. (2014) all found that global balance assessments using the KS statistic performed uniformly worse than standardized mean differences, especially at sample sizes less than 1000 in their simulations. The overlapping coefficient measures the amount of overlap in the covariate distributions between two groups. As in Franklin et al. (2014), the complement is used so that 0 indicates perfectly overlapping distributions and 1 indicates perfectly non-overlapping distributions. It functions similarly to the KS statistic.
 
 Next is `un`, which controls whether the statistics to be displayed should be displayed for the unadjusted group as well. This can be useful the first time balance is assessed to see the initial group imbalance. Setting `un = FALSE`, which is the default, can declutter the output to maintain the spotlight on the group balance after adjustment.
 
@@ -168,18 +169,14 @@ bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
 
 See `?display_options` for the full list of display options. They can also be set as global options by using `set.cobalt.options()`.
 
-Finally, the user can specify a threshold for balance for mean differences, variance ratios, and KS statistics through the arguments to `m.threshold`, `v.threshold`, and `ks.threshold`. Thresholds can be useful in determining whether satisfactory balance has been achieved. For standardized mean differences, thresholds of .1 and .25 have been proposed, but Stuart et al. (2013) found that a threshold of .1 was more effective at assessing imbalance that would lead to biased effect estimation. In general, standardized mean differences should be as close to 0 as possible, but a conservative upper limit such as .1 can be a valuable heuristic in selecting models and defending the conditioning choice. The What Works Clearinghouse Standards Handbook recommends standardized mean differences of less than .05 (What Works Clearinghouse, 2020).
+Finally, the user can specify a threshold for balance statistics using the `threshold` argument. Thresholds can be useful in determining whether satisfactory balance has been achieved. For standardized mean differences, thresholds of .1 and .25 have been proposed, but Stuart et al. (2013) found that a threshold of .1 was more effective at assessing imbalance that would lead to biased effect estimation. In general, standardized mean differences should be as close to 0 as possible, but a conservative upper limit such as .1 can be a valuable heuristic in selecting models and defending the conditioning choice. The What Works Clearinghouse Standards Handbook recommends standardized mean differences of less than .05 (What Works Clearinghouse, 2020).
 
-When `m.threshold` is specified, a few components are added to the balance output: an extra column in the balance table stating whether each covariate is or is not balanced according to the threshold; an extra table below the balance table with a tally of how many covariates are or are not balanced according to the threshold; and a notice of which covariate has the greatest imbalance after conditioning and whether it exceeded the threshold. Using a threshold for the mean difference implies that the differences are standardized (at least for continuous variables), because the threshold is meant to be scale invariant, which standardized mean differences are.
-
-The argument to `v.threshold` determines the threshold for variance ratios that are acceptable for balance. Variance ratios close to 1 are indicative of good balance, but ratios as large as 2 or as small as .5 may be acceptable (Rubin, 2001). When `v.threshold` is specified,  the same additional output is created as above, except in evaluation of variance ratios. Because variance ratios are not displayed in the balance table by default, specifying `v.threshold` will also display variance ratios in the table.
-
-When `ks.threshold` is specified, the same additional output is created as above, except in evaluation of KS statistics. Because KS statistics are not displayed in the balance table by default, specifying `ks.threshold` will also display KS statistics in the table. The value provided to `ks.threshold` should be between 0 and 1. Though no research has been done on acceptable thresholds for the KS statistics, we recommend seeking values less than 0.05 for continuous variables, which roughly corresponds to the KS statistic computed for two normally distributed samples with a standardized mean difference of 0.1. For binary variables, KS statistics are not produced because they are equal to the raw difference in proportion.
+When thresholds are requested, a few components are added to the balance output: an extra column in the balance table stating whether each covariate is or is not balanced according to the threshold; an extra table below the balance table with a tally of how many covariates are or are not balanced according to the threshold; and a notice of which covariate has the greatest imbalance after conditioning and whether it exceeded the threshold. Below thresholds are requested for mean differences and variance ratios.
 
 ```{r}
 # Balance tables with thresholds for mean differences and variance ratios
 bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
-        method = "weighting", m.threshold = .1, v.threshold = 2)
+        method = "weighting", thresholds = c(m = .1, v = 2))
 ```
 
 To simplify output when many covariates are included or when `int = TRUE` is specified, `imbalanced.only` can be set to `TRUE`, which will only reveal imbalanced covariates in the output. These are covariates that have failed to meet any of the balance thresholds set. In addition, `disp.bal.tab` can be set `FALSE`, which will hide the balance table (revealing only the balance summaries accompanying the threshold).
@@ -216,7 +213,7 @@ bal.tab(treat ~ covs, data = lalonde, subclass = "subclass",
         disp.subclass = TRUE)
 ```
 
-When using `bal.tab()` with continuous treatments, the balance statistic presented is the (weighted) Pearson correlation between each covariate and treatment. Because of this, no parameters related to the computation of mean differences or variance ratios need to be specified. An additional parameter, `r.threshold`, functions like `m.threshold`, `v.threshold`, and `ks.threshold` and specifies the threshold for the absolute correlation between each covariate and treatment. Zhu, Coffman, and Ghosh (2015) recommend that absolute correlations should be no greater than 0.1, but correlations should ideally be as close to zero as possible. See the section "Using cobalt with continuous treatments" for more details.
+When using `bal.tab()` with continuous treatments, the default balance statistic presented is the (weighted) Pearson correlation between each covariate and treatment. Zhu, Coffman, and Ghosh (2015) recommend that absolute correlations should be no greater than 0.1, but correlations should ideally be as close to zero as possible. Spearmean correlations can also be requested. See the section "Using cobalt with continuous treatments" and `?balance.stats` for more details.
 
 The next two sections describe the use of `bal.tab()` with the `MatchIt` and `WeightIt`. As stated above, the arguments controlling calculations and display are largely the same across inputs types, so they will not be described again except when their use differs from that described in the present section.
 
@@ -259,9 +256,9 @@ bal.tab(W.out)
 
 ### `bal.plot()`
 
-The gold standard for covariate balance is multidimensional independence between treatment and covariates. Because this is hard to visualize and assess with the large numbers of covariates typical of causal effect analysis, univariate balance is typically assessed as a proxy. Most conditioning packages, as well as `cobalt`, will provide numerical summaries of balance, typically by comparing moments between the treated and control groups. But even univariate balance is more complicated than simple numerical summaries can address; examining distributional balance is a more thorough method to assess balance between groups. Although there are statistics such as the Kolmogorov-Smirnov distance that attempt to summarize distributional balance beyond the first few moments (Ali et al., 2016; Austin & Stuart, 2015), complimenting statistics with a visual examination of the distributional densities can be an effective way of assessing distributional similarity between the groups (Ho et al., 2007).
+The gold standard for covariate balance is multidimensional independence between treatment and covariates. Because this is hard to visualize and assess with the large numbers of covariates typical of causal effect analysis, univariate balance is typically assessed as a proxy. Most conditioning packages, as well as `cobalt`, will provide numerical summaries of balance, typically by comparing moments between the treated and control groups. But even univariate balance is more complicated than simple numerical summaries can address; examining distributional balance is a more thorough method to assess balance between groups. Although there are statistics such as the Kolmogorov-Smirnov statistics and the overlapping coefficient that attempt to summarize distributional balance beyond the first few moments (Ali et al., 2016; Austin & Stuart, 2015), complimenting statistics with a visual examination of the distributional densities can be an effective way of assessing distributional similarity between the groups (Ho et al., 2007).
 
-`bal.plot()` allows users to do so by displaying density plots, bar graphs, and scatterplots so that users can visually assess independence between treatment and covariates before and after conditioning. Below is an example of the use of `bal.plot()` after using propensity score weighting for the ATT using the output from `WeightIt` generated above.:
+`bal.plot()` allows users to do so by displaying density plots, histograms, empricial CDF plots, bar graphs, and scatterplots so that users can visually assess independence between treatment and covariates before and after conditioning. Below is an example of the use of `bal.plot()` after using propensity score weighting for the ATT using the output from `WeightIt` generated above.:
 
 ```{r, fig.show = "hold"}
 bal.plot(W.out, var.name = "age")
@@ -272,7 +269,7 @@ The first argument (or set of arguments) is the sufficient set of arguments for 
 
 The user can also specify whether distributional balance is to be shown before or after adjusting or both by using the argument to `which`. If `which = "unadjusted"`, balance will be displayed for the unadjusted sample only. If `which = "both"`, balance will be displayed for both the unadjusted sample and the adjusted sample. The default is to display balance for the adjusted sample.
 
-The output of `bal.plot()` is a density plot or histogram for the two groups on the given covariate, depending on the argument to `type`. For categorical or binary variables, a bar graph is displayed instead. The x-axis is the value of the variable, and the y-axis is the proportion density or proportion of the variable in the given group. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, which splits the variable into several binary variables. The degree to which the densities for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.
+The output of `bal.plot()` is a density plot, histogram, or empricial CDF plot for the two groups on the given covariate, depending on the argument to `type`. For categorical or binary variables, a bar graph is displayed instead. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, which splits the variable into several binary variables. The degree to which the densities for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.
 
 Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like `MatchIt`'s `plot(..., type = "hist")` or `twang`'s `plot(..., plots = "boxplot")`. To examine the distributions of the distance measure, the input to `var.name` must be the name of the distance variable. If the data input object doesn't already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to `bal.plot()` through `distance`, in addition to being called through `var.name`. 
 
@@ -294,7 +291,7 @@ When the treatment variable is continuous, users can use `bal.plot()` to examine
 
 ### `love.plot()`
 
-The Love plot is a summary plot of covariate balance before and after conditioning popularized by Dr. Thomas E. Love. In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielsen, 2016). `love.plot()` does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:
+The Love plot is a summary plot of covariate balance before and after conditioning popularized by Dr. Thomas E. Love. In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning (which is not always the case; cf. King & Nielsen, 2019). `love.plot()` does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:
 
 ```{r, fig.width = 5}
 data("lalonde", package = "cobalt")
@@ -305,7 +302,7 @@ library("MatchIt") #if not yet loaded
 m.out <- matchit(f.build("treat", covs), data = lalonde, 
                  method = "nearest", replace = TRUE)
 
-love.plot(m.out, binary = "std", threshold = .1)
+love.plot(m.out, binary = "std", thresholds = c(m = .1))
 ```
 
 `love.plot()` takes as its arguments the same ones that would go into a call to `bal.tab()`. In addition, it can take as its first argument the output of a call to `bal.tab()`; this can be accomplished simply by inserting the `bal.tab()` call into the first argument or by saving the result of a call to `bal.tab()` to an object and inserting the object as the argument.  There are several other arguments, all of which control display, that are described below.
@@ -314,7 +311,7 @@ The output is a plot with the balance statistic on the X-axis and the covariates
 
 The default is to present the absolute mean differences as they are calculated in the call to `bal.tab()`; by specifying `stats = "variance.ratios"` or `stats = "ks.statistics"` (abbreviations allowed), the user can request variance ratios or KS statistics instead or in addition. Because binary variables don't have variance ratios calculated, there will not be rows for these variables, but these rows can be added (with empty entries) to be in alignment with mean differences by setting `drop.missing = FALSE`.
 
-The `threshold` argument works similarly to `m.threshold`, `v.threshold`, and `ks.threshold` in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on which to evaluate the displayed balance measures. If these thresholds are specified in `bal.tab()`, `love.plot()` will use them in the resultant plot with the corresponding balance statistic. The `threshold` argument to `love.plot()` takes precedence.
+The `thresholds` argument works similarly to how it does in `bal.tab()`; specifying it is optional, but doing so will provide an additional point of reference on which to evaluate the displayed balance measures.
 
 If mean difference are requested, `love.plot()` will use the mean differences as they are calculated by `bal.tab()` and presented in the mean differences columns of the balance table. See the section on using `bal.tab()` to see what the default calculations are for these values. If `abs = TRUE` in `love.plot()`, the plot will display absolute mean differences, which can aid in display clarity since the magnitude is generally the more important aspect of the statistic.
 
@@ -330,7 +327,7 @@ v <- data.frame(old = c("age", "educ", "race_black", "race_hispan",
                         "Earnings 1974", "Earnings 1975", "Propensity Score"))
 
 love.plot(m.out, stats = c("mean.diffs", "ks.statistics"), 
-          threshold = c(mean.diffs = .1, ks.statistics = .05), 
+          threshold = c(m = .1, ks = .05), 
           binary = "std", abs = TRUE,
           var.order = "unadjusted", var.names = v,
           limits = c(0, 1), grid = FALSE, wrap = 20,
@@ -369,11 +366,11 @@ W.out.c <- weightit(re75 ~ age + educ + race + married + nodegree +
                     data = lalonde, method = "ps")
 ```
 
-First, we can assess balance numerically using `bal.tab()`. The balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using `r.threshold`; Zhu et al. (2015) recommend using .1 as indicating balance, but in general lower is better. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and polynomial terms through the use of arguments to `int` and `poly` is recommended. Here we use `imbalanced.only = TRUE`, which is available with all uses of `bal.tab()`, to restrict output to just those variables that have failed to meet the set balance threshold.
+First, we can assess balance numerically using `bal.tab()`. The balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using `thresholds`; Zhu et al. (2015) recommend using .1 as indicating balance, but in general lower is better. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and polynomial terms through the use of arguments to `int` and `poly` is recommended. Here we use `imbalanced.only = TRUE`, which is available with all uses of `bal.tab()`, to restrict output to just those variables that have failed to meet the set balance threshold.
 
 ```{r}
 #Assessing balance numerically
-bal.tab(W.out.c, un = TRUE, r.threshold = .1, int = TRUE,
+bal.tab(W.out.c, un = TRUE, thresholds = c(cor = .1), int = TRUE,
         poly = 2, imbalanced.only = TRUE)
 ```
 
@@ -389,11 +386,12 @@ When balance has been achieved to a satisfactory level, users can present balanc
 
 ```{r, fig.width = 5}
 #Summarizing balance in a Love plot
-love.plot(W.out.c, threshold = .1, abs = TRUE,
+love.plot(W.out.c, thresholds = c(cor = .1), abs = TRUE,
           var.order = "unadjusted", line = TRUE)
 ```
 
 ### Using `cobalt` with multi-category treatments
+
 When multiple categorical treatment groups are to be compared with each other, it is possible to create balance across the treatment groups using preprocessing methods. Lopez & Gutman (2017) compare methods used to create balance with multi-category treatments and briefly describe balance assessment for these scenarios. An important note is the choice of estimand to be examined. The ATE represents the causal effect of moving from one treatment group to another for all units in the population; the ATT represents the causal effect of moving from one treatment group to another "focal" treatment group for just the units that would have been in the focal treatment group. The way balance is assessed in these scenarios differs. For the ATE, all possible treatment pairs must be assessed for balance because all possible comparisons are potentially meaningful, but for the ATT, only treatment pairs that include the focal treatment group can be meaningfully compared, so balance needs only to be assessed in these pairs.
 
 In `cobalt`, users can assess and present balance for multi-category treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The output is slightly different, though, and is similar to the output generated when using these functions with clusters. `bal.tab()` computes balance statistics for all pairwise comparisons between treatment groups and a table containing the worst balance for each covariate across pairwise comparisons. For mean differences, this is described in Lopez & Gutman (2017) as "Max2SB," or the maximum pairwise standardized bias. In `cobalt`, this has been extended to variance ratios and KS statistics as well. If the worst imbalance is not too great, then imbalance for all pairwise comparisons will not be too great either. When the ATT is desired, a focal group must be specified (unless done so automatically for some methods), and only the treatment group comparisons that involve that focal group will be computed and displayed. 
@@ -439,7 +437,7 @@ Finally, we can use `love.plot()` to display balance across treatments. By defau
 
 ```{r, fig.width = 7}
 #Summarizing balance in a Love plot
-love.plot(W.out.mn, threshold = .1, binary = "std",
+love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
           which.treat = .all, abs = FALSE)
 ```
 
@@ -521,13 +519,13 @@ When using weighting or matching, summary values after adjustment are calculated
 
 2. $\frac{\sum_{i=1}^{n} w_{i}}{(\sum_{i=1}^{n} w_{i})^2 - \sum_{i=1}^{n} w^2_{i}} \sum_{i=1}^{n} w_{i}(x_{i} - \bar{x}_{w})^2$
 
-The weights used in the first formula are often called "frequency weights", while the weights in the second formula are often called normalized or "reliability weights". `MatchIt`, `twang`, and `Matching` all use the first formula when calculating any weighted variance (`CBPS` does not compute a weighted variance). However, Austin (2008) and Austin & Stuart (2015) recommend the second formula when considering matching weights for k:1 matching or weights for propensity score weighting. In `cobalt`, as of version 2.0.0, the second formula is used to remain in line with recommended practice. For some applications (e.g., when all weights are either 0 or 1, as in 1:1 matching), the two formulas yield the same variance estimate. In other cases, the estimates are nearly the same. For binary variables, the weighted variance is computed as $\bar{x}_{w}(1-\bar{x}_{w})$ where $\bar{x}_{w}$ is the proportion of 1s in the sample.
+The weights used in the first formula are often called "frequency weights", while the weights in the second formula are often called normalized or "reliability weights". `MatchIt`, `twang`, and `Matching` all use the first formula when calculating any weighted variance (`CBPS` does not compute a weighted variance). However, Austin (2008) and Austin & Stuart (2015) recommend the second formula when considering matching weights for k:1 matching or weights for propensity score weighting. In `cobalt`, as of version 2.0.0, the second formula is used to remain in line with recommended practice. For some applications (e.g., when all weights are either 0 or 1, as in 1:1 matching), the two formulas yield the same variance estimate. In other cases, the estimates are nearly the same. For binary variables, the weighted variance is computed as $\bar{x}_{w}(1-\bar{x}_{w})$ where $\bar{x}_{w}$ is the weighted proportion of 1s in the sample.
 
 ### Effective Sample Size for Weighting
 
 Knowledge of the sample size after adjustment is important not just for outcome analysis but also for assessing the adequacy of a conditioning specification. For example, pruning many units through common support cutoffs, caliper matching, or matching with replacement can yield very small sample sizes that hurt both the precision of the outcome estimate and the external validity of the conclusion. In both matching and weighting, the adjusted sample size is not so straightforward because the purpose of weighting is to down- and up-weight observations to create two similar samples. The "effective sample size" (ESS) is a measure of the sample size a non-weighted sample would have to have to achieve the same level of precision as the weighted sample (Ridgeway et al., 2016). This measure is implemented in `twang` using the following formula:
 $$ESS = \frac{(\sum_{i=1}^{n} w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}$$
-The authors claim that the ESS as calculated above is accurate when the estimand is the ATT, but will underestimate the true effective sample size when the estimate is the ATE.
+Shook-Sa and Hudgens (2020) dervied the specific relationship between the ESS and the standard error of a propensity score-weighted mean.
 
 ## What's Missing in `cobalt`
 
@@ -612,13 +610,13 @@ Missing data is frequent in all research involving human subjects, and especiall
 
 ## For Programmers: Integrating `cobalt` with Your Package
 
-If you are designing a new R package for preprocessing that performs similar functions to `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, or `WeightIt`, you might consider integrating `cobalt` into your package to avoid programming your own balance assessment tool. The simplest way to do so is to have the output of your preprocessing function contain sufficient elements for use with the default method for `bal.tab()` and `bal.plot()`. See `?bal.tab.default` for more information on how this might work.
+If you are designing a new R package for preprocessing that performs similar functions to `MatchIt`, `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, `cem`, or `WeightIt`, you might consider integrating `cobalt` into your package to avoid programming your own balance assessment tool. The simplest way to do so is to have the output of your preprocessing function contain sufficient elements for use with the default method for `bal.tab()` and `bal.plot()`. See `?bal.tab.default` for more information on how this might work.
 
 As `cobalt` is updated to remain in line with methodological recommendations, the balance assessment capabilities for your function's output will also improve if `cobalt` is a balance assessment tool for your package. In this way, users of your package can use the most up-to-date balance assessment tools programmed in `cobalt` without you having to update your package.
 
 If you develop a new balance assessment tool, this may also be able to be integrated into `cobalt`, especially if it would be applicable to balance assessment generally in matching, weighting, or subclassification. Incorporating a new tool into `cobalt` may be a good way to broaden its use.
 
-`cobalt` includes a small suite of functions that compute balance statistics on matrixes of covariates with and without weights. These include `col_w_smd` for computing (standardized) mean differences, `col_w_vr` for computing variance ratios, `col_w_ks` for computing KS statistics, `col_w_ovl` for computing the complement of the overlap statistics (Franklin et al. 2014), and `col_w_corr` for computing treatment-covariate correlations. These all run fairly quickly but are still quite flexible, so they can be used to quickly and simply compute balance statistics in other packages. They are used internally in `bal.tab`, and they might be able to be used internally in other functions (e.g., to choose a tuning parameter based on a measure of balance). 
+`cobalt` includes a small suite of functions that compute balance statistics on matrices of covariates with and without weights. These include `col_w_smd` for computing (standardized) mean differences, `col_w_vr` for computing variance ratios, `col_w_ks` for computing KS statistics, `col_w_ovl` for computing the complement of the overlap statistics (Franklin et al. 2014), and `col_w_corr` for computing treatment-covariate correlations. These all run fairly quickly but are still quite flexible, so they can be used to quickly and simply compute balance statistics in other packages. They are used internally in `bal.tab`, and they might be able to be used internally in other functions (e.g., to choose a tuning parameter based on a measure of balance). 
 
 ## Acknowledgments
 
@@ -670,7 +668,7 @@ Imai, K., King, G., & Stuart, E. A. (2008). Misunderstandings between experiment
 
 Keller, B., & Tipton, E. (2016). Propensity Score Analysis in R: A Software Review. Journal of Educational and Behavioral Statistics, 41(3), 326-348.
 
-King, G., & Nielsen, R. (2016). Why propensity scores should not be used for matching.
+King, G., & Nielsen, R. (2019). Why Propensity Scores Should Not Be Used for Matching. Political Analysis, 1–20. https://doi.org/10.1017/pan.2019.11
 
 Linden, A. (2015), Graphical displays for assessing covariate balance in matching studies. Journal of Evaluation in Clinical Practice, 21: 242–247. http://doi.org/10.1111/jep.12297
 
@@ -687,6 +685,8 @@ R Core Team (2019). R: A language and environment for statistical computing. R F
 Rubin, D. B. (2001). Using Propensity Scores to Help Design Observational Studies: Application to the Tobacco Litigation. Health Services and Outcomes Research Methodology, 2(3-4), 169–188. https://doi.org/10.1023/A:1020363010465
 
 Sekhon, J. S. (2011). Multivariate and Propensity Score Matching Software with Automated Balance Optimization: The Matching Package for R. Journal of Statistical Software, 42(7), 1-52. http://www.jstatsoft.org/v42/i07/.
+
+Shook-Sa, B. E., & Hudgens, M. G. (2020). Power and Sample Size for Marginal Structural Models. ArXiv:2003.05979 [Stat]. http://arxiv.org/abs/2003.05979
 
 Stuart, E. A. (2008). Developing practical recommendations for the use of propensity scores: Discussion of “A critical appraisal of propensity score matching in the medical literature between 1996 and 2003” by Peter Austin, Statistics in Medicine. Statistics in Medicine, 27(12), 2062–2065. https://doi.org/10.1002/sim.3207
 
