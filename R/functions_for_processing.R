@@ -29,7 +29,7 @@ process_cem.match.list <- function(x) {
 }
 
 #x2base
-process_treat <- function(treat, data = NULL) {
+process_treat <- function(treat, data = list()) {
   
   if (missing(treat)) stop("treat must be specified.", call. = FALSE)
   
@@ -43,7 +43,7 @@ process_treat <- function(treat, data = NULL) {
   else {
     treat <- vector.process(treat, name = "treat", 
                             which = "treatment statuses", 
-                            data = list(data), missing.okay = FALSE)
+                            data = data, missing.okay = FALSE)
     
     treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -78,7 +78,7 @@ unprocess_treat <- function(treat) {
   }
   return(treat)
 }
-process_treat.list <- function(treat.list, data = NULL) {
+process_treat.list <- function(treat.list, data = list()) {
   
   if (is_null(treat.list)) stop("treat.list must be specified.", call. = FALSE)
   if (!is_(treat.list, "list")) {

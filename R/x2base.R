@@ -835,7 +835,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process treat
     t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-    treat <- process_treat(t.c[["treat"]], data = data)
+    treat <- process_treat(t.c[["treat"]], data = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -1014,7 +1014,7 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Process treat
-    treat <- process_treat(A$treat, data = data)
+    treat <- process_treat(A$treat, data = list(data))
     
     #Process covs
     if (is_null(covs)) {
@@ -1492,7 +1492,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process treat
     t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-    treat <- process_treat(t.c[["treat"]], data = data)
+    treat <- process_treat(t.c[["treat"]], data = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -1657,7 +1657,7 @@ x2base.optmatch <- function(optmatch, ...) {
     #Process treat
     t.c <- use.tc.fd(A$formula, data = data, covs = A$covs,
                      treat = if_null_then(A$treat, attr(optmatch, "contrast.group")))
-    treat <- process_treat(t.c[["treat"]], data = data)
+    treat <- process_treat(t.c[["treat"]], data = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -1830,7 +1830,7 @@ x2base.cem.match <- function(cem.match, ...) {
     #Process treat
     t.c <- use.tc.fd(data = data, treat = cem.match[["groups"]], 
                      covs = cem.match[["vars"]])
-    treat <- process_treat(t.c[["treat"]], data = data)
+    treat <- process_treat(t.c[["treat"]], data = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -2156,7 +2156,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process treat
     t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-    treat <- process_treat(t.c[["treat"]], data = data)
+    treat <- process_treat(t.c[["treat"]], data = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -3076,7 +3076,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     #Process treat.list
-    treat.list <- process_treat.list(A$treat.list, data)
+    treat.list <- process_treat.list(A$treat.list, list(data))
     
     #Process covs.list
     if (is_null(covs.list)) {
@@ -3868,8 +3868,7 @@ x2base.default <- function(obj, ...) {
         
         #Process treat
         t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-        treat <- process_treat(t.c[["treat"]], 
-                               data = data)
+        treat <- process_treat(t.c[["treat"]], data = list(data))
         
         #Process covs
         covs <- t.c[["covs"]]
@@ -4172,7 +4171,7 @@ x2base.default <- function(obj, ...) {
             A$covs.list[[i]]  <- t.c[["covs"]]
             if (is_not_null(t.c[["treat.name"]])) names(A$treat.list)[i] <- t.c[["treat.name"]]
         }
-        treat.list <- process_treat.list(A$treat.list, data)
+        treat.list <- process_treat.list(A$treat.list, list(data))
         
         #Process covs.list
         if (is_null(covs.list <- A$covs.list)) {
