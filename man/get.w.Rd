@@ -38,6 +38,8 @@ get.w(x, \dots)
 
 \method{get.w}{optmatch}(x, ...)
 
+\method{get.w}{cem.match}(x, ...)
+
 \method{get.w}{weightit}(x, s.weights = FALSE, ...)
 
 \method{get.w}{mimids}(x, ...)
