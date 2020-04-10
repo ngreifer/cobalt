@@ -21,7 +21,7 @@ bal.tab <- function(...) {
 }
 
 #Point treatments
-bal.tab.matchit <- function(m, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.matchit <- function(m, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -49,7 +49,7 @@ bal.tab.matchit <- function(m, stats, int = FALSE, poly = 1, distance = NULL, ad
                    quote = TRUE)
     return(out)
 }
-bal.tab.ps <- function(ps, stop.method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.ps <- function(ps, stop.method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -77,7 +77,7 @@ bal.tab.ps <- function(ps, stop.method, stats, int = FALSE, poly = 1, distance =
                    quote = TRUE)
     return(out)
 }
-bal.tab.mnps <- function(mnps, stop.method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.mnps <- function(mnps, stop.method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -106,7 +106,7 @@ bal.tab.mnps <- function(mnps, stop.method, stats, int = FALSE, poly = 1, distan
     
     return(out)
 }
-bal.tab.ps.cont <- function(ps.cont, stop.method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.ps.cont <- function(ps.cont, stop.method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -134,7 +134,7 @@ bal.tab.ps.cont <- function(ps.cont, stop.method, stats, int = FALSE, poly = 1, 
                    quote = TRUE)
     return(out)
 }
-bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = NULL, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.Match <- function(M, formula = NULL, data = NULL, treat = NULL, covs = NULL, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -226,7 +226,7 @@ bal.tab.factor <- bal.tab.character <- bal.tab.logical <- bal.tab.numeric
 bal.tab.matrix <- function(covs, treat, ...) {
     bal.tab.data.frame(as.data.frame(covs), treat, ...)
 }
-bal.tab.CBPS <- function(cbps, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.CBPS <- function(cbps, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -254,7 +254,7 @@ bal.tab.CBPS <- function(cbps, stats, int = FALSE, poly = 1, distance = NULL, ad
                    quote = TRUE)
     return(out)
 }
-bal.tab.weightit <- function(weightit, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ... ) {
+bal.tab.weightit <- function(weightit, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ... ) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -289,7 +289,7 @@ bal.tab.ebalance.trim <- bal.tab.ebalance
 bal.tab.optmatch <- function(optmatch, ...) {
     bal.tab.Match(optmatch, ...)
 }
-bal.tab.cem.match <- function(cem.match, data, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.cem.match <- function(cem.match, data, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -321,7 +321,7 @@ bal.tab.designmatch <- function(dm, ...) {
     class(dm) <- "designmatch"
     bal.tab.Match(dm, ...)
 }
-bal.tab.mimids <- function(mimids, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.mimids <- function(mimids, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -349,7 +349,7 @@ bal.tab.mimids <- function(mimids, stats, int = FALSE, poly = 1, distance = NULL
                    quote = TRUE)
     return(out)
 }
-bal.tab.wimids <- function(wimids, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.wimids <- function(wimids, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -377,7 +377,7 @@ bal.tab.wimids <- function(wimids, stats, int = FALSE, poly = 1, distance = NULL
                    quote = TRUE)
     return(out)
 }
-bal.tab.sbwcau <- function(sbwcau, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.sbwcau <- function(sbwcau, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -461,7 +461,7 @@ bal.tab.data.frame.list <- function(covs.list, treat.list = NULL, data = NULL, w
                    quote = TRUE)
     return(out)
 }
-bal.tab.iptw <- function(iptw, stop.method, stats, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.iptw <- function(iptw, stop.method, stats, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     

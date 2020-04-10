@@ -273,7 +273,7 @@ get.w.npCBPS <- function(x, ...) {
     return(x$weights)
 }
 get.w.CBMSM <- function(x, ...) {
-    return(x$weights)
+    return(x$weights[sort(unique(x$id))])
 }
 get.w.ebalance <- function(x, treat, ...) {
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
@@ -293,8 +293,9 @@ get.w.optmatch <- function(x, ...) {
     treat <- as.numeric(attr(x, "contrast.group"))
     return(strata2weights(x, treat = treat))
 }
-get.w.cem.match <- function(x, use.match.strata = FALSE, ...) {
-    if (use.match.strata) {
+get.w.cem.match <- function(x, ...) {
+    A <- list(...)
+    if (isTRUE(A[["use.match.strata"]])) {
         if (is_(x, "cem.match.list")) {
             return(unlist(lapply(x[vapply(x, is_, logical(1L), "cem.match")], function(cm) strata2weights(cm[["mstrata"]], treat = cm[["groups"]], focal = cm[["baseline.group"]])), use.names = FALSE))
         }

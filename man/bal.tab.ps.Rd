@@ -22,6 +22,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     binary, 
     s.d.denom, 
     thresholds = NULL, 
+    weights = NULL,
     cluster = NULL, 
     imp = NULL,
     abs = FALSE,
@@ -40,6 +41,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     binary, 
     s.d.denom, 
     thresholds = NULL, 
+    weights = NULL,
     cluster = NULL, 
     imp = NULL,
     pairwise = TRUE, 
@@ -60,6 +62,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     binary, 
     s.d.denom, 
     thresholds = NULL, 
+    weights = NULL,
     cluster = NULL,
     imp = NULL,
     pairwise = TRUE, 
@@ -79,6 +82,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     binary,
     s.d.denom,
     thresholds = NULL, 
+    weights = NULL,
     cluster = NULL, 
     imp = NULL,
     abs = FALSE, 
@@ -122,6 +126,9 @@ whether mean differences for binary covariates (i.e., difference in proportion) 
 }
   \item{thresholds}{
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
+}
+  \item{weights}{
+a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \code{\link{get.w}} method.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in data or the \code{ps}, \code{mnps}, \code{iptw}, or \code{ps.cont}  object. See \code{\link{bal.tab.cluster}} for details.

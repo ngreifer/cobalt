@@ -23,6 +23,8 @@ Version 4.1.0
 
 * Spearman correlations can be requested for continuous treatments by adding `"sp"` to the `stats` argument.
 
+* The argument `weights` can now be supplied to any `bal.tab()` call to request balance on additional weights beyond the weights from the object on which `bal.tab()` is called. This argument takes a named list, where each element is a vector of weights, the name of a variable containing weights in an available dataset, or an object with a `get.w()` method (e.g., the output of another preprocessing function). This should make it easier to compare balancing methods without having to specify the covariates and treatment using the `formula` or `data.frame` methods.
+
 * `ggplot2` version 3.3.0 is required, which removes some warnings and makes it so `ggstance` doesn't need to be imported.
 
 * When there are more than 900 variables to compute balance statistics on in `bal.tab` (which can happen quickly when `int = TRUE` and categorical variables have many categories), to avoid major slowdowns, checks for redundancy of variables are forgone. This will dramatically increase the speed of `bal.tab` in these scenarios. This option can be changed with the `cobalt` option `"remove_perfect_col"` which can be set to `TRUE` or or `FALSE`. Set to `FALSE` to improve speed at the expense of possibly having redundant variables appear.

@@ -257,28 +257,27 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
   
   return(t.c)
 }
-process.val <- function(val, i, treat, covs, ...) {
+process.val <- function(val, i, treat = NULL, covs = NULL, addl.data = list(), ...) {
   if (is.numeric(val)) {
     val.df <- setNames(data.frame(val), i)
   }
   else if (is.character(val)) {
-    data.sets <- list(...)
-    data.sets <- data.sets[!vapply(data.sets, is_null, logical(1))]
-    if ((is_not_null(data.sets) && length(val) > max(vapply(data.sets, ncol, numeric(1)))) || length(val) == NROW(covs) || length(val) == length(treat)){
+    addl.data <- addl.data[!vapply(addl.data, is_null, logical(1))]
+    if ((is_not_null(addl.data) && length(val) > max(vapply(addl.data, ncol, numeric(1)))) || (is_null(covs) && is_null(treat)) || length(val) == NROW(covs) || length(val) == length(treat)){
       val.df <- setNames(data.frame(val), i)
     }
     else {
-      if (is_not_null(data.sets)) {
+      if (is_not_null(addl.data)) {
         val <- unique(val)
-        val.df <- setNames(as.data.frame(matrix(NA, ncol = length(val), nrow = max(vapply(data.sets, nrow, numeric(1))))),
+        val.df <- setNames(as.data.frame(matrix(NA, ncol = length(val), nrow = max(vapply(addl.data, nrow, numeric(1))))),
                            val)
         not.found <- setNames(rep(FALSE, length(val)), val)
         for (v in val) {
           found <- FALSE
           k <- 1
-          while (found == FALSE && k <= length(data.sets)) {
-            if (v %in% names(data.sets[[k]])) {
-              val.df[[v]] <- data.sets[[k]][[v]]
+          while (found == FALSE && k <= length(addl.data)) {
+            if (v %in% names(addl.data[[k]])) {
+              val.df[[v]] <- addl.data[[k]][[v]]
               found <- TRUE
             }
             else k <- k + 1
@@ -305,7 +304,7 @@ process.val <- function(val, i, treat, covs, ...) {
   
   return(val.df)
 }
-data.frame.process <- function(i, df, treat, covs, ...) {
+data.frame.process <- function(i, df, treat = NULL, covs = NULL, addl.data = list(), ...) {
   val <- df
   val.df <- NULL
   if (is_not_null(val)) {
@@ -314,14 +313,11 @@ data.frame.process <- function(i, df, treat, covs, ...) {
         #Use get.w() on inputs
         for (x in seq_along(val)) {
           if (any(paste.("get.w", class(val[[x]])) %in% methods("get.w"))) {
-            if (is_null(names(val)[x]) || identical(names(val)[x], "")) {
-              names(val)[x] <- class(val[[x]])[which(paste.("get.w", class(val[[x]])) %in% methods("get.w"))[1]]
-            }
-            val[[x]] <- get.w(val[[x]], treat = treat)
+            val[[x]] <- get.w(val[[x]], treat = treat, ...)
           }
         }
       }
-      val.list <- lapply(val, function(x) process.val(x, i, treat, covs, ...))
+      val.list <- lapply(val, function(x) process.val(x, i, treat, covs, addl.data = addl.data))
       if (is_null(names(val.list)) || "" %in% names(val.list)) {
         stop(paste("All entries in", i, "must have names."), call. = FALSE)
       }
@@ -336,7 +332,7 @@ data.frame.process <- function(i, df, treat, covs, ...) {
                          make.unique(sapply(val.list, names)))
     }
     else {
-      val.df <- process.val(val, i, treat, covs, ...)
+      val.df <- process.val(val, i, treat, covs, addl.data = addl.data)
     }
     if (is_not_null(val.df)) { if (anyNA(val.df)) {
       stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
@@ -344,7 +340,7 @@ data.frame.process <- function(i, df, treat, covs, ...) {
   }
   return(val.df)
 }
-list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ...) {
+list.process <- function(i, List, ntimes, call.phrase, treat.list = list(), covs.list = list(), addl.data = list(), ...) {
   val.List <- List
   if (is_not_null(val.List)) {
     if (class(val.List)[1] != "list") {
@@ -364,7 +360,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
       val.df <- NULL
       if (is_not_null(val)) {
         if (is_(val, "list")) {
-          val.list <- lapply(val, function(x) process.val(x, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], ...))
+          val.list <- lapply(val, function(x) process.val(x, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], addl.data = addl.data))
           val.list <- lapply(seq_along(val.list), function(x) {
             if (NCOL(val.list[[x]]) == 1) names(val.list[[x]]) <- names(val.list)[x]
             val.list[[x]]})
@@ -376,7 +372,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list, covs.list, ..
                              c(vapply(val.list, names, character(1))))
         }
         else {
-          val.df <- process.val(val, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], ...)
+          val.df <- process.val(val, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], addl.data = addl.data)
         }
         if (is_not_null(val.df)) { if (anyNA(val.df)) {
           stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
@@ -446,7 +442,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
     if (is_not_null(focal)) allowable.s.d.denoms <- c(allowable.s.d.denoms, "focal")
     
     if (length(s.d.denom) > 1 && length(s.d.denom) != NCOL(weights)) {
-      stop("s.d.denom must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+      stop(paste0("s.d.denom must have length 1 or equal to the number of valid sets of weights, which is ", NCOL(weights), "."), call. = FALSE)
     }
     
     s.d.denom <- match_arg(s.d.denom, unique(c(unique.treats, allowable.s.d.denoms)), 
@@ -476,7 +472,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
       }
       else {
         if (length(try.estimand) > 1 && length(try.estimand) != NCOL(weights)) {
-          stop("estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+          stop(paste0("estimand must have length 1 or equal to the number of valid sets of weights, which is ", NCOL(weights), "."), call. = FALSE)
         }
         else s.d.denom <- vapply(try.estimand, function(x) switch(x, 
                                                                   ATT = treat_vals(treat)[treat_names(treat)["treated"]], 
@@ -541,7 +537,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
   }
   
   if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
-    stop("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
+    stop(paste0("Valid inputs to s.d.denom or estimand must have length 1 or equal to the number of valid sets of weights, which is ", NCOL(weights), "."), call. = FALSE)
   }
   
   if (!quietly && is_not_null(attr(s.d.denom, "note"))) message(attr(s.d.denom, "note"))
@@ -923,6 +919,33 @@ process_focal <- function(focal, treat) {
       stop(paste0("The name specified to focal is not the name of any treatment group."), call. = FALSE)
   }
   return(focal)
+}
+process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, method = character(0), addl.data = list(), ...) {
+  if (is_not_null(obj)) weights <- setNames(data.frame(weights = get.w(obj, ...)),
+                                            class(obj)[which(paste.("get.w", class(obj)) %in% methods("get.w"))[1]])
+  else weights <- list()
+  addl.weights <- data.frame.process("weights", A[["weights"]], treat, covs, addl.data = addl.data, ...)
+  if (is_not_null(addl.weights)) {
+    if (is_null(A[["method"]])) addl.methods <- rep.int("weighting", ncol(addl.weights))
+    else if (length(A[["method"]]) == 1) {
+      addl.methods <- rep.int(match_arg(A[["method"]], c("weighting", "matching")), ncol(addl.weights))
+    }
+    else {
+      addl.methods <- match_arg(A[["method"]], c("weighting", "matching"), several.ok = TRUE)
+      if (length(addl.methods) != ncol(addl.weights)) 
+        stop("Valid inputs to method must have length 1 or equal to the number of valid sets of additional weights.", call. = FALSE)
+    }
+    if (is_not_null(weights)) {
+      weights <- setNames(data.frame(weights, addl.weights),
+                          make.unique(c(names(weights), names(addl.weights))))
+      method <- setNames(c(method, addl.methods), names(weights))
+    }
+    else weights <- addl.weights
+  }
+  weight.check(weights)
+  
+  attr(weights, "method") <- method
+  return(weights)
 }
 
 #get.C

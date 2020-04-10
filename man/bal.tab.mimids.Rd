@@ -19,6 +19,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
     binary, 
     s.d.denom, 
     thresholds = NULL,
+    weights = NULL,
     cluster = NULL, 
     abs = FALSE,
     subset = NULL,
@@ -36,6 +37,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
     binary, 
     s.d.denom, 
     thresholds = NULL,
+    weights = NULL,
     cluster = NULL, 
     pairwise = TRUE, 
     focal = NULL, 
@@ -78,6 +80,9 @@ whether mean differences for binary variables (i.e., difference in proportion) s
 }
   \item{thresholds}{
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
+}
+  \item{weights}{
+a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \code{\link{get.w}} method.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{mimids} or \code{wimids} object. See \code{\link{bal.tab.cluster}} for details.

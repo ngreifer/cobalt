@@ -70,13 +70,9 @@ If clusters are specified, an object of class \code{"bal.tab.cluster"} containin
 
 If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See \code{\link{bal.tab.imp}} for details.
 
-If both clusters and imputations are specified, an object of class \code{"bal.tab.imp.cluster"} containing summaries between and across all clusters and imputations.
-
-If treatment is continuous, then means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{distance}, \code{addl}, \code{un}, cluster and imputation arguments are still used as described above.
-
 If multi-category treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
-If longitudinal treatments are used, an object of class \code{bal.tab.msm} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details. Currently, clusters and multiply imputed data are not compatible with longitudinal treatments.
+If longitudinal treatments are used, an object of class \code{"bal.tab.msm""} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details.
 }
 
 

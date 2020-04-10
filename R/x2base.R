@@ -33,7 +33,7 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Process treat
-    treat <- process_treat(m$treat, data = list(data, m.data))
+    treat <- process_treat(m[["treat"]], data = list(data, m.data))
     
     #Process covs
     if (is_not_null(m$model$model)) {
@@ -119,8 +119,8 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w(m))
-    weight.check(weights)
+    weights <- process_weights(m, A, treat, covs, method, addl.data = list(data, m.data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -322,9 +322,9 @@ x2base.ps <- function(ps, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(get.w(ps, s, estimand)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(ps, A, treat, covs, method, addl.data = list(data, ps.data), 
+                               stop.method = s, estimand = estimand)
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, ps$sampw))) {
@@ -512,9 +512,9 @@ x2base.mnps <- function(mnps, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(get.w(mnps, s)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(mnps, A, treat, covs, method, addl.data = list(data, mnps.data), 
+                               stop.method = s)
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, mnps$sampw))) {
@@ -703,9 +703,9 @@ x2base.ps.cont <- function(ps.cont, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(get.w(ps.cont, s)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(ps.cont, A, treat, covs, method, addl.data = list(data, ps.data), 
+                               stop.method = s)
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, ps.cont$sampw))) {
@@ -868,8 +868,8 @@ x2base.Match <- function(Match, ...) {
     }
     
     #Process weights
-    weights <- data.frame(weights = get.w.Match(Match))
-    weight.check(weights)
+    weights <- process_weights(Match, A, treat, covs, method, addl.data = list(data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -1182,17 +1182,8 @@ x2base.data.frame <- function(covs, ...) {
                                                        focal = focal))
     }
     #Process weights
-    else if (is_not_null(weights <- data.frame.process("weights", A[["weights"]], treat, covs, data))) {
-        
-        weight.check(weights)
-        
-        if (length(method) == 1) {
-            method <- rep.int(method, ncol(weights))
-        }
-        else if (length(method) != ncol(weights)) {
-            stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-        }
-    }
+    weights <- process_weights(NULL, A, treat, covs, method, addl.data = list(data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -1366,9 +1357,9 @@ x2base.CBPS <- function(cbps.fit, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w(cbps.fit, use.weights = A$use.weights)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(cbps.fit, A, treat, covs, method, addl.data = list(data, c.data), 
+                               use.weights = A$use.weights)
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
@@ -1534,9 +1525,8 @@ x2base.ebalance <- function(ebalance, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w(ebalance, treat)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(ebalance, A, treat, covs, method, addl.data = list(data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
@@ -1700,9 +1690,8 @@ x2base.optmatch <- function(optmatch, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w.optmatch(optmatch)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(optmatch, A, treat, covs, method, addl.data = list(data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -1871,9 +1860,8 @@ x2base.cem.match <- function(cem.match, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w.cem.match(cem.match)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(cem.match, A, treat, covs, method, addl.data = list(data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -2032,9 +2020,8 @@ x2base.weightit <- function(weightit, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w(weightit)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(weightit, A, treat, covs, method, addl.data = list(data, weightit.data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, weightit$s.weights))) {
@@ -2201,9 +2188,8 @@ x2base.designmatch <- function(dm, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w.designmatch(dm, treat)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(dm, A, treat, covs, method, addl.data = list(data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -2410,9 +2396,8 @@ x2base.mimids <- function(mimids, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w.mimids(mimids)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(mimids, A, treat, covs, method, addl.data = list(data, m.data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -2577,9 +2562,8 @@ x2base.wimids <- function(wimids, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w.wimids(wimids)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(wimids, A, treat, covs, method, addl.data = list(data, w.data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, unlist(lapply(wimids[["models"]][-1], function(w) w[["s.weights"]]))))) {
@@ -2745,9 +2729,8 @@ x2base.sbwcau <- function(sbwcau, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w(sbwcau)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(sbwcau, A, treat, covs, method, addl.data = list(data, sbw.data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
@@ -2969,9 +2952,9 @@ x2base.iptw <- function(iptw, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w(iptw, s)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(iptw, A, treat.list[[1]], covs.list[[1]], method, addl.data = list(data, ps.data), 
+                               stop.method = s)
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, iptw$psList[[1]]$sampw))) {
@@ -3204,20 +3187,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame.process("weights", 
-                                                  A[["weights"]], 
-                                                  do.call("cbind", treat.list), 
-                                                  do.call("cbind", covs.list), 
-                                                  data))) {
-        weight.check(weights)
-        
-        if (length(method) == 1) {
-            method <- rep.int(method, ncol(weights))
-        }
-        else if (length(method) != ncol(weights)) {
-            stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-        }
-    }
+    weights <- process_weights(NULL, A, treat.list[[1]], covs.list[[1]], method, addl.data = list(data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -3425,9 +3396,8 @@ x2base.CBMSM <- function(cbmsm, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w(cbmsm)[ID]))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(cbmsm, A, treat.list[[1]], covs.list[[1]], method, addl.data = list(data, cbmsm.data))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -3605,9 +3575,9 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     }
     
     #Process weights
-    if (is_not_null(weights <- data.frame(weights = get.w(weightitMSM)))) {
-        weight.check(weights)
-    }
+    weights <- process_weights(weightitMSM, A, treat.list[[1]], covs.list[[1]], method, 
+                               addl.data = list(data, weightitMSM.data, weightitMSM.data2))
+    method <- attr(weights, "method")
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, weightitMSM$s.weights))) {
@@ -3815,8 +3785,8 @@ x2base.default <- function(obj, ...) {
     
     #weights
     if (is_not_null(A[["weights"]])) {
-        if (is.vector(A[["weights"]], "numeric")) A[["weights"]] <- data.frame(weights = A[["weights"]])
-        else A[["weights"]] <- as.data.frame(A[["weights"]])
+        # if (is.vector(A[["weights"]], "numeric")) A[["weights"]] <- data.frame(weights = A[["weights"]])
+        # else A[["weights"]] <- as.data.frame(A[["weights"]])
     }
     
     #distance
@@ -4067,18 +4037,9 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process weights
-        if (is_not_null(weights <- data.frame.process("weights", A[["weights"]], treat, covs, data))) {
-            
-            weight.check(weights)
-            
-            if (length(method) == 1) {
-                method <- rep.int(method, ncol(weights))
-            }
-            else if (length(method) != ncol(weights)) {
-                stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-            }
-        }
-        
+        weights <- process_weights(NULL, A, treat, covs, method, addl.data = list(data))
+        method <- attr(weights, "method")
+
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
             s.weights <- vector.process(s.weights, 
@@ -4326,20 +4287,8 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process weights
-        if (is_not_null(weights <- data.frame.process("weights", 
-                                      A[["weights"]], 
-                                      do.call("cbind", treat.list), 
-                                      do.call("cbind", covs.list), 
-                                      data))) {
-            weight.check(weights)
-            
-            if (length(method) == 1) {
-                method <- rep.int(method, ncol(weights))
-            }
-            else if (length(method) != ncol(weights)) {
-                stop("Valid inputs to method must have length 1 or equal to the number of valid sets of weights.", call. = FALSE)
-            }
-        }
+        weights <- process_weights(NULL, A, treat.list[[1]], covs.list[[1]], method, addl.data = list(data))
+        method <- attr(weights, "method")
 
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
