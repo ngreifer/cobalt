@@ -8,6 +8,7 @@
 \alias{get.w.CBPS}
 \alias{get.w.ebalance}
 \alias{get.w.optmatch}
+\alias{get.w.cem.match}
 \alias{get.w.weightit}
 \alias{get.w.designmatch}
 \alias{get.w.mimids}
