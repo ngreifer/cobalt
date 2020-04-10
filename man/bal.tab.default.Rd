@@ -72,7 +72,7 @@ If imputations are specified, an object of class \code{"bal.tab.imp"} containing
 
 If multi-category treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
 
-If longitudinal treatments are used, an object of class \code{"bal.tab.msm""} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details.
+If longitudinal treatments are used, an object of class \code{"bal.tab.msm"} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details.
 }
 
 

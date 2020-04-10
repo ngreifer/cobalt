@@ -116,8 +116,7 @@ lalonde$p.score <- glm(f.build("treat", covs), data = lalonde,
                        family = "binomial")$fitted.values
 lalonde$att.weights <- with(lalonde, treat + (1-treat)*p.score/(1-p.score))
 
-bal.tab(covs, treat = lalonde$treat, weights = lalonde$att.weights,
-        method = "weighting")
+bal.tab(covs, treat = lalonde$treat, weights = lalonde$att.weights)
 
 ```
 
@@ -129,18 +128,16 @@ Another way to specify input to `bal.tab()` is to use the formula interface. Bel
 
 ```{r}
 bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
-        distance = "p.score", method = "weighting")
+        distance = "p.score")
 ```
 
 To use the formula interface, the user must specify a formula relating treatment to the covariates for which balance is to be assessed. If any of these variables exist in a data set, it must be supplied to `data`. Here, the `cov0` data frame was used for simplicity, but using `f.build()` or the traditional formula input of `treat ~ v1 + v2 + v3 + ...` is also acceptable. As above, the arguments to `weights`, `distance`, `subclass`, and others can be specified either as vectors or data frames containing the values or as names of the variables in the argument to `data` containing the values. In the above example, an argument to `distance` was specified, and balance measures for the propensity score now appear in the balance table.
-
-An argument to `method` must be specified for `bal.tab()` to process the data correctly. If left empty, weighting will be assumed, but a warning will appear. `"matching"` and `"subclassification"` are also allowed, and can be abbreviated. If no weights or subclasses are provided (i.e., to examine balance without preprocessing), no argument to `method` is required.
 
 By default, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab` or "Details on Calculations" below. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` and/or `continuous` to `"raw"` or `"std"`. These can also be set as global options by using, for example, `set.cobalt.options(binary = "std")`, which allows the user not to type a non-default option every time they call `bal.tab`.
 
 ```{r}
 bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
-        method = "weighting", binary = "std", continuous = "std")
+        binary = "std", continuous = "std")
 ```
 
 Users can specify additional variables for which to display balance using the argument to `addl`. Users can also add all two-way interactions between covariates, including those in `addl`, by specifying `int = TRUE`, and can add polynomials (e.g., squares) of covariates by specifying a numeric argument to `poly`. Interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables. For more details on interactions, see "Details on Calculations", below.
@@ -148,8 +145,7 @@ Users can specify additional variables for which to display balance using the ar
 ```{r}
 # Balance on all covariates in data set, including interactions and squares
 bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
-        method = "weighting", addl = c("nodegree", "married"), 
-        int = TRUE, poly = 2)
+        addl = c("nodegree", "married"), int = TRUE, poly = 2)
 ```
 
 Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denominator is the standard deviation of the treated group (`"treated"`), most appropriate when computing the ATT; the standard deviation of the control group (`"control"`), most appropriate when computing the ATC; or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087), most appropriate when computing the ATE. If using weights for weighted analysis, `bal.tab()` can determine if the ATT or ATC are being estimated and supply `s.d.denom` accordingly. Otherwise, the default is `"pooled"`, and when matching or subclassification are used, the default is `"treated"`. See Austin (2011) for an explanation on how to calculate weights for estimation of the ATT, ATE, and ATC.
@@ -163,8 +159,7 @@ Next is `un`, which controls whether the statistics to be displayed should be di
 ```{r}
 # Balance tables with variance ratios and statistics for the unadjusted sample
 bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
-        method = "weighting", un = TRUE,
-        stats = c("mean.diffs", "variance.ratios"))
+        un = TRUE, stats = c("mean.diffs", "variance.ratios"))
 ```
 
 See `?display_options` for the full list of display options. They can also be set as global options by using `set.cobalt.options()`.
@@ -176,7 +171,7 @@ When thresholds are requested, a few components are added to the balance output:
 ```{r}
 # Balance tables with thresholds for mean differences and variance ratios
 bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
-        method = "weighting", thresholds = c(m = .1, v = 2))
+        thresholds = c(m = .1, v = 2))
 ```
 
 To simplify output when many covariates are included or when `int = TRUE` is specified, `imbalanced.only` can be set to `TRUE`, which will only reveal imbalanced covariates in the output. These are covariates that have failed to meet any of the balance thresholds set. In addition, `disp.bal.tab` can be set `FALSE`, which will hide the balance table (revealing only the balance summaries accompanying the threshold).
@@ -192,7 +187,7 @@ lalonde$p.score2 <- glm(treat ~ age + I(age^2) + race + educ + re74,
 lalonde$att.weights2 <- with(lalonde, treat + (1-treat)*p.score2/(1-p.score2))
 
 bal.tab(treat ~ covs, data = lalonde, weights = c("att.weights", "att.weights2"),
-        method = "weighting", estimand = "ATT")
+        estimand = "ATT")
 ```
 
 When subclassification is used in conditioning, an argument to `subclass` must be specified; this can be a vector of subclass membership or the name of a variable in `data` containing subclass membership. `bal.tab()` produces a different type of output from when matching or weighting are used, though it has all of the same features. The default output is a balance table displaying balance aggregated across subclasses. Each cell contains the average statistic across the subclasses. Using the arguments discussed above will change the output as it does when only matching or weighting is used.
@@ -442,13 +437,12 @@ love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
 ```
 
 ### Comparing balancing methods
-It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
+It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. This can eb done by supplying the weights or the output objects thesmevles. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
 
 ```{r}
 bal.tab(treat ~ covs, data = lalonde, 
-        weights = data.frame(Matched = get.w(m.out),
-                             IPW = get.w(W.out)),
-        method = c("matching", "weighting"), 
+        weights = list(Matched = m.out,
+                       IPW = W.out),
         disp.v.ratio = TRUE)
 ```
 
@@ -456,9 +450,8 @@ To use `bal.plot()`, the same syntax can be used:
 
 ```{r, fig.width=7}
 bal.plot(treat ~ covs, data = lalonde, 
-         weights = data.frame(Matched = get.w(m.out),
-                              IPW = get.w(W.out)),
-         method = c("matching", "weighting"), 
+         weights = list(Matched = m.out,
+                        IPW = W.out),
          var.name = "age", which = "both")
 ```
 
@@ -466,13 +459,18 @@ With `love.plot()`, `var.order` can be `"unadjusted"`, `"alphabetical"`, or one 
 
 ```{r, fig.width=5}
 love.plot(treat ~ covs, data = lalonde, 
-          weights = data.frame(Matched = get.w(m.out),
-                               IPW = get.w(W.out)),
-          method = c("matching", "weighting"), 
+          weights = list(Matched = m.out,
+                         IPW = W.out),
           var.order = "unadjusted", binary = "std",
           abs = TRUE, colors = c("red", "blue", "darkgreen"), 
           shapes = c("circle", "square", "triangle"),
           line = TRUE)
+```
+
+Another way to compare weights from multiple objects is to call `bal.tab()` with one object as usual and supply the other(s) to the `weights` argument; see below for an example:
+
+```{r, eval = FALSE}
+bal.tab(m.out, weights = list(IPW = W.out))
 ```
 
 ### Using the prognostic score for balance assessment
