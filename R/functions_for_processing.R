@@ -43,7 +43,7 @@ process_treat <- function(treat, data = NULL) {
   else {
     treat <- vector.process(treat, name = "treat", 
                             which = "treatment statuses", 
-                            data = data, missing.okay = FALSE)
+                            data = list(data), missing.okay = FALSE)
     
     treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
