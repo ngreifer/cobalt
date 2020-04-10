@@ -394,26 +394,17 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list = list(), covs
 vector.process <- function(vec, name = deparse(substitute(vec)), which = name, data = NULL, missing.okay = FALSE) {
   bad.vec <- FALSE
   if (is.character(vec) && length(vec)==1L && is_not_null(data)) {
-    if (is_(data, "list")) {
-      for (i in seq_along(data)) {
-        if (is_(data[[i]], "matrix") && vec %in% colnames(data[[i]])) {
-          vec <- data[[i]][,vec]
-          break
-        }
-        else if (is_(data[[i]], "data.frame") && vec %in% names(data[[i]])) {
-          vec <- data[[i]][[vec]]
-          break
-        }
-        else if (i == length(data)) bad.vec <- TRUE
+    for (i in seq_along(data)) {
+      if (is_(data[[i]], "matrix") && vec %in% colnames(data[[i]])) {
+        vec <- data[[i]][,vec]
+        break
       }
+      else if (is_(data[[i]], "data.frame") && vec %in% names(data[[i]])) {
+        vec <- data[[i]][[vec]]
+        break
+      }
+      else if (i == length(data)) bad.vec <- TRUE
     }
-    else if (is_(data, "matrix") && vec %in% colnames(data)) {
-      vec <- data[,vec]
-    }
-    else if (is_(data, "data.frame") && vec %in% names(data)) {
-      vec <- data[[vec]]
-    }
-    else bad.vec <- TRUE
   }
   else if (is_(vec, c("atomic", "factor")) && length(vec) > 1L) {
     vec <- vec
@@ -924,7 +915,7 @@ process_focal <- function(focal, treat) {
   return(focal)
 }
 process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, method = character(0), addl.data = list(), ...) {
-  if (is_not_null(obj)) weights <- setNames(data.frame(weights = get.w(obj, ...)),
+  if (is_not_null(obj)) weights <- setNames(data.frame(weights = get.w(obj, treat = treat, ...)),
                                             class(obj)[which(paste.("get.w", class(obj)) %in% methods("get.w"))[1]])
   else weights <- list()
   addl.weights <- data.frame.process("weights", A[["weights"]], treat, covs, addl.data = addl.data, ...)
@@ -943,7 +934,10 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, met
                           make.unique(c(names(weights), names(addl.weights))))
       method <- setNames(c(method, addl.methods), names(weights))
     }
-    else weights <- addl.weights
+    else {
+      weights <- addl.weights
+      method <- setNames(addl.methods, names(weights))
+    }
   }
   weight.check(weights)
   

@@ -93,10 +93,10 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, m.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, m.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, m.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, m.data))
     if (any(is.finite(m$distance))) {
         if (is_not_null(distance)) distance <- cbind(distance, distance = m$distance)
         else distance <- data.frame(distance = m$distance)
@@ -285,10 +285,10 @@ x2base.ps <- function(ps, ...) {
     method <- rep("weighting", length(s))
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, ps.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, ps.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, ps.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, ps.data))
     if (is_not_null(distance)) {
         if (length(s) == 1) {
             distance <- cbind(distance, prop.score = ps$ps[[s]])
@@ -493,10 +493,10 @@ x2base.mnps <- function(mnps, ...) {
     method <- rep("weighting", length(s))
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, mnps.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, mnps.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, mnps.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, mnps.data))
     
     #Process focal
     focal <- mnps$treatATT
@@ -682,10 +682,10 @@ x2base.ps.cont <- function(ps.cont, ...) {
     method <- rep("weighting", length(s))
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, ps.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, ps.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, ps.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, ps.data))
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -847,10 +847,10 @@ x2base.Match <- function(Match, ...) {
     method <- "matching"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data))
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -879,7 +879,7 @@ x2base.Match <- function(Match, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = data,
+                                  data = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1149,10 +1149,10 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data))
     
     #Process focal
     if (is_not_null(focal <- A$focal) && get.treat.type(treat) != "continuous") {
@@ -1162,7 +1162,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         subclass <- vector.process(subclass, 
-                                   data = data,
+                                   data = list(data),
                                    name = "subclass", 
                                    which = "subclass membership",
                                    missing.okay = TRUE)
@@ -1173,7 +1173,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process match.strata
     else if (is_not_null(match.strata <- A$match.strata)) {
         match.strata <- vector.process(match.strata, 
-                                       data = data,
+                                       data = list(data),
                                        name = "match.strata", 
                                        which = "matching strata membership",
                                        missing.okay = TRUE)
@@ -1188,7 +1188,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
         s.weights <- vector.process(s.weights, 
-                                    data = data,
+                                    data = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -1198,7 +1198,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = data,
+                                  data = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1327,10 +1327,10 @@ x2base.CBPS <- function(cbps.fit, ...) {
     method <- "weighting"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, c.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, c.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, c.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, c.data))
     if (get.treat.type(treat) == "binary") {
         if (all_the_same(cbps.fit$fitted.values)) {
             if (is_null(distance)) distance <- NULL
@@ -1504,10 +1504,10 @@ x2base.ebalance <- function(ebalance, ...) {
     method <- "weighting"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data))
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -1531,7 +1531,7 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
         s.weights <- vector.process(s.weights, 
-                                    data = data,
+                                    data = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -1541,7 +1541,7 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = data,
+                                  data = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1669,10 +1669,10 @@ x2base.optmatch <- function(optmatch, ...) {
     method <- "matching"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data))
     
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
@@ -1701,7 +1701,7 @@ x2base.optmatch <- function(optmatch, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = data,
+                                  data = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1793,6 +1793,7 @@ x2base.cem.match <- function(cem.match, ...) {
         cem.match[["baseline.group"]] <- cem.match[[1]][["baseline.group"]]
         cem.match[["groups"]] <- unlist(lapply(cem.match[vapply(cem.match, is_, logical(1L), "cem.match")], `[[`, "groups"))
         cem.match[["w"]] <- get.w.cem.match(cem.match)
+        cem.match <- process_cem.match.list(cem.match)
     }
     if (all(check_if_zero(cem.match[["w"]]))) stop("The 'cem.match' object contains no valid matches.", call. = FALSE)
     
@@ -1841,10 +1842,10 @@ x2base.cem.match <- function(cem.match, ...) {
     method <- "matching"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data))
     
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
@@ -1871,7 +1872,7 @@ x2base.cem.match <- function(cem.match, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = data,
+                                  data = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1998,10 +1999,10 @@ x2base.weightit <- function(weightit, ...) {
     method <- "weighting"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, weightit.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, weightit.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, weightit.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, weightit.data))
     if (is_not_null(distance)) distance <- cbind(distance, prop.score = weightit$ps)
     else if (is_not_null(weightit$ps)) distance <- data.frame(prop.score = weightit$ps)
     else distance <- NULL
@@ -2167,10 +2168,10 @@ x2base.designmatch <- function(dm, ...) {
     method <- "matching"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data))
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -2199,7 +2200,7 @@ x2base.designmatch <- function(dm, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = data,
+                                  data = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -2370,10 +2371,10 @@ x2base.mimids <- function(mimids, ...) {
     method <- "matching"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, m.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, m.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, m.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, m.data))
     m.distance <- unlist(lapply(mimids[["models"]][-1], function(m) m[["distance"]]))
     if (all(is.na(m.distance))) m.distance <- NULL
     else m.distance <- data.frame(distance = m.distance)
@@ -2538,10 +2539,10 @@ x2base.wimids <- function(wimids, ...) {
     method <- "weighting"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, w.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, w.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, w.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, w.data))
     w.distance <- unlist(lapply(wimids[["models"]][-1], function(m) m[["ps"]]))
     if (all(is.na(w.distance))) w.distance <- NULL
     else w.distance <- data.frame(distance = w.distance)
@@ -2708,10 +2709,10 @@ x2base.sbwcau <- function(sbwcau, ...) {
     method <- "weighting"
     
     #Process addl 
-    addl <- data.frame.process("addl", A[["addl"]], treat, covs, data, sbw.data)
+    addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data, sbw.data))
     
     #Process distance
-    distance <- data.frame.process("distance", A[["distance"]], treat, covs, data, sbw.data)
+    distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data, sbw.data))
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -2735,7 +2736,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
         s.weights <- vector.process(s.weights, 
-                                    data = data,
+                                    data = list(data, sbw.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -2879,7 +2880,7 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", data = data, missing.okay = FALSE)
+        imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
@@ -2903,16 +2904,14 @@ x2base.iptw <- function(iptw, ...) {
                               "the original call to iptw()",
                               treat.list,
                               covs.list,
-                              data,
-                              ps.data)
+                              list(data, ps.data))
     
     #Process distance
     distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
                                   "the original call to iptw()",
                                   treat.list,
                                   covs.list,
-                                  data,
-                                  ps.data)
+                                  list(data, ps.data))
     if (is_not_null(distance.list)) {
         for (ti in seq_along(distance.list)) {
             if (length(s) == 1) {
@@ -3072,7 +3071,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", data = data, missing.okay = FALSE)
+        imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
@@ -3162,14 +3161,14 @@ x2base.data.frame.list <- function(covs.list, ...) {
                               "covs.list",
                               treat.list,
                               covs.list,
-                              data)
+                              list(data))
     
     #Process distance
     distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
                                   "covs.list",
                                   treat.list,
                                   covs.list,
-                                  data)
+                                  list(data))
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -3193,7 +3192,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
         s.weights <- vector.process(s.weights, 
-                                    data = data,
+                                    data = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -3203,7 +3202,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = data,
+                                  data = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -3329,7 +3328,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", data = data, missing.okay = FALSE)
+        imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
@@ -3366,16 +3365,14 @@ x2base.CBMSM <- function(cbmsm, ...) {
                               "the original call to CBMSM()",
                               treat.list,
                               covs.list,
-                              data,
-                              cbmsm.data)
+                              list(data, cbmsm.data))
     
     #Process distance
     distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
                                   "the original call to CBMSM()",
                                   treat.list,
                                   covs.list,
-                                  data,
-                                  cbmsm.data)
+                                  list(data, cbmsm.data))
     if (is_not_null(distance.list)) distance.list <- lapply(times, function(x) data.frame(distance.list[[x]], prop.score = cbmsm$fitted.values))
     else if (is_not_null(cbmsm$fitted.values)) distance.list <- lapply(times, function(x) data.frame(prop.score = cbmsm$fitted.values))
     else distance.list <- NULL
@@ -3518,7 +3515,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", data = data, missing.okay = FALSE)
+        imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
@@ -3542,18 +3539,16 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
                               "the original call to weightitMSM()",
                               treat.list,
                               covs.list,
-                              data,
-                              weightitMSM.data,
-                              weightitMSM.data2)
+                              list(data,  weightitMSM.data,
+                                   weightitMSM.data2))
     
     #Process distance
     distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
                                   "the original call to weightitMSM()",
                                   treat.list,
                                   covs.list,
-                                  data,
-                                  weightitMSM.data,
-                                  weightitMSM.data2)
+                                  list(data, weightitMSM.data,
+                                       weightitMSM.data2))
     
     if (is_not_null(distance.list)) distance.list <- lapply(seq_along(distance.list), function(x) data.frame(distance.list[[x]], prop.score = weightitMSM$ps.list[[x]]))
     else if (is_not_null(weightitMSM$ps.list)) distance.list <- lapply(seq_along(weightitMSM$ps.list), function(x) data.frame(prop.score = weightitMSM$ps.list[[x]]))
@@ -4010,15 +4005,15 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process addl 
-        addl <- data.frame.process("addl", A[["addl"]], treat, covs, data)
+        addl <- data.frame.process("addl", A[["addl"]], treat, covs, list(data))
         
         #Process distance
-        distance <- data.frame.process("distance", A[["distance"]], treat, covs, data)
+        distance <- data.frame.process("distance", A[["distance"]], treat, covs, list(data))
         
         #Process subclass
         if (is_not_null(subclass <- A$subclass)) {
             subclass <- vector.process(subclass, 
-                                       data = data,
+                                       data = list(data),
                                        name = "subclass", 
                                        which = "subclass membership",
                                        missing.okay = TRUE)
@@ -4028,7 +4023,7 @@ x2base.default <- function(obj, ...) {
         #Process match.strata
         if (is_not_null(match.strata <- A$match.strata)) {
             match.strata <- vector.process(match.strata, 
-                                           data = data,
+                                           data = list(data),
                                            name = "match.strata", 
                                            which = "matching strata membership",
                                            missing.okay = TRUE)
@@ -4043,7 +4038,7 @@ x2base.default <- function(obj, ...) {
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
             s.weights <- vector.process(s.weights, 
-                                        data = data,
+                                        data = list(data),
                                         name = "s.weights", 
                                         which = "sampling weights",
                                         missing.okay = FALSE)
@@ -4053,7 +4048,7 @@ x2base.default <- function(obj, ...) {
         #Process cluster
         if (is_not_null(cluster <- A$cluster)) {
             cluster <- vector.process(cluster, 
-                                      data = data,
+                                      data = list(data),
                                       name = "cluster", 
                                       which = "cluster membership",
                                       missing.okay = FALSE)
@@ -4165,7 +4160,7 @@ x2base.default <- function(obj, ...) {
         
         #Process imp
         if (is_not_null(imp)) {
-            imp <- vector.process(imp, "imp", "imputation identifiers", data = data, missing.okay = FALSE)
+            imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
             imp <- factor(imp)
         }
         
@@ -4262,14 +4257,14 @@ x2base.default <- function(obj, ...) {
                                   "covs.list",
                                   treat.list,
                                   covs.list,
-                                  data)
+                                  list(data))
         
         #Process distance
         distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
                                       "covs.list",
                                       treat.list,
                                       covs.list,
-                                      data)
+                                      list(data))
         
         #Process focal
         if (is_not_null(focal <- A$focal)) {
@@ -4293,7 +4288,7 @@ x2base.default <- function(obj, ...) {
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
             s.weights <- vector.process(s.weights, 
-                                        data = data,
+                                        data = list(data),
                                         name = "s.weights", 
                                         which = "sampling weights",
                                         missing.okay = FALSE)
@@ -4302,7 +4297,7 @@ x2base.default <- function(obj, ...) {
         #Process cluster
         if (is_not_null(cluster <- A$cluster)) {
             cluster <- vector.process(cluster, 
-                                      data = data,
+                                      data = list(data),
                                       name = "cluster", 
                                       which = "cluster membership",
                                       missing.okay = FALSE)
