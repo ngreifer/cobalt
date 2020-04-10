@@ -300,7 +300,10 @@ process.val <- function(val, i, treat = NULL, covs = NULL, addl.data = list(), .
   else if (is.data.frame(val)) {
     val.df <- val
   }
-  else stop(paste("The argument supplied to", i, "must be a vector, a data.frame, or the names of variables in an available data set."), call. = FALSE)
+  else {
+    if (i == "weights") stop("The argument supplied to weights must be a named list of weights, names of variables containing weights in an available data set, or objects with a get.w() method.", call. = FALSE)
+    else stop(paste("The argument supplied to", i, "must be a vector, a data.frame, or the names of variables in an available data set."), call. = FALSE)
+  }
   
   return(val.df)
 }
