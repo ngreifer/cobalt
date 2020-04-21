@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+Version 4.1.1
+
+* Fixed bug that caused `match.strata` input to be ignored.
+
 Version 4.1.0
 
 * Added support for `sbwcau` objects from `sbw`. See Appendix 1 or `?bal.tab.sbw` for an example.
