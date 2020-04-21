@@ -1186,6 +1186,9 @@ x2base.data.frame <- function(covs, ...) {
         weights <- process_weights(NULL, A, treat, covs, method, addl.data = list(data))
         method <- attr(weights, "method")
     }
+    else {
+        weights <- NULL
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -4036,6 +4039,9 @@ x2base.default <- function(obj, ...) {
         else if (is_not_null(A[["weights"]])) {
             weights <- process_weights(NULL, A, treat, covs, method, addl.data = list(data))
             method <- attr(weights, "method")
+        }
+        else {
+            weights <- NULL
         }
 
         #Process s.weights
