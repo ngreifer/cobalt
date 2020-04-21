@@ -384,6 +384,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
             if (na.rm) cov <- cov[!is.na(cov)]
             if (!na.rm && anyNA(cov)) return(NA_real_)
             else {
+                cov <- center(cov)/sd(cov)
                 if (is.function(get0(paste0("bw.", A[["bw"]])))) {
                     A[["bw"]] <- get0(paste0("bw.", A[["bw"]]))(cov[treat == smallest.t])
                 }
@@ -391,16 +392,22 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
                     stop(paste(A[["bw"]], "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
                 }
                 
-                f1 <- approxfun(do.call(density.default, c(list(cov[treat==tval1], 
+                f1_ <- approxfun(do.call(density.default, c(list(cov[treat==tval1], 
                                                                 weights = weights[treat==tval1]/sum(weights[treat==tval1])), A)))
-                f0 <- approxfun(do.call(density.default, c(list(cov[treat!=tval1], 
+                f1 <- function(x) {
+                    y <- f1_(x)
+                    y[is.na(y)] <- 0
+                    return(y)
+                }
+                f0_ <- approxfun(do.call(density.default, c(list(cov[treat!=tval1], 
                                                                 weights = weights[treat!=tval1]/sum(weights[treat!=tval1])), A)))
+                f0 <- function(x) {
+                    y <- f0_(x)
+                    y[is.na(y)] <- 0
+                    return(y)
+                }
                 fn <- function(x) {
-                    f1_ <- f1(x)
-                    f1_[is.na(f1_)] <- 0
-                    f0_ <- f0(x)
-                    f0_[is.na(f0_)] <- 0
-                    pmin(f1_, f0_)
+                    pmin(f1(x), f0(x))
                 }
                 min.c <- min(cov) - 4*A[["bw"]]
                 max.c <- max(cov) + 4*A[["bw"]]
@@ -418,7 +425,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
                     s <- sum(fn(mids))*(seg[2]-seg[1])
                 }
                 
-                if (inherits(s, "try-error"))  return(NA_real_)
+                if (inherits(s, "try-error") || s > 1.2)  return(NA_real_)
                 else return(1 - s) #Reverse: measure imbalance
             }
         })
