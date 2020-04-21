@@ -1,7 +1,8 @@
 bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, 
                      imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, 
                      mirror = FALSE, type = "density", colors = NULL, grid = FALSE, sample.names,
-                     position = "right", facet.formula = NULL, disp.means = FALSE, alpha.weight = TRUE) {
+                     position = "right", facet.formula = NULL, disp.means = getOption("cobalt_disp.means", FALSE), 
+                     alpha.weight = TRUE) {
     
     tryCatch(identity(obj), error = function(e) stop(conditionMessage(e), call. = FALSE))
     
