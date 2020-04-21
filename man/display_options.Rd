@@ -18,19 +18,9 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 }
 \item{un}{\code{logical}; whether to print statistics for the unadjusted sample as well as for the adjusted sample. Default is \code{FALSE}, so only the statistics for the adjusted sample are displayed.
 }
-\item{disp.means}{\code{logical}; whether to print the group means in balance output. Default is \code{FALSE}, so means are not displayed.
+\item{disp}{\code{character}; which distribution summary statistic(s) should be reported. Allowable options include \code{"means"} and \code{"sds"}. Multiple options are allowed. Abbreviations allowed.
 }
-\item{disp.sds}{\code{logical}; whether to print the group standard deviations in balance output. Default is \code{FALSE}, so standard deviations are not displayed.
-}
-\item{stats}{\code{character}; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed.
-}
-\item{disp.diff}{\code{logical}; whether to display (standardized) mean differences in balance output for binary and multi-category treatments. Default is \code{TRUE}, so mean differences are displayed. Soon to be deprecated; use \code{stats} instead.
-}
-\item{disp.v.ratio}{\code{logical}; whether to display variance ratios in balance output for binary and multi-category treatments. Default is \code{FALSE}, so variance ratios are not displayed. Soon to be deprecated; use \code{stats} instead.
-}
-\item{disp.ks}{\code{logical}; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multi-category treatments. Default is \code{FALSE}, so KS statistics are not displayed. Soon to be deprecated; use \code{stats} instead.
-}
-\item{disp.ovl}{\code{logical}; whether to display overlapping (OVL) coefficients in balance output for binary and multi-category treatments. Default is \code{FALSE}, so OVL coefficients are not displayed. Soon to be deprecated; use \code{stats} instead.
+\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is \code{"mean.diffs"} (i.e., [standardized] mean differences), and for continuous treatments, the default is \code{"correlations"} (i.e., treatment-covariate Pearson correlations).
 }
 \item{factor_sep}{\code{character}; the string used to separate factor variables from their levels when variable names are printed. Default is \code{"_"}.
 }
@@ -62,7 +52,25 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 \item{which.time}{For which time points balance tables should be displayed. If \code{.all}, all time points will be displayed. If \code{.none}, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance. Default is \code{NULL}. See \code{\link{bal.tab.msm}}.}
 \item{msm.summary}{\code{logical}; whether to display the balance summary across time points. Default is \code{TRUE}, and if \code{which.time} is \code{.none}, it will automatically be set to \code{TRUE}. See \code{\link{bal.tab.msm}}.
 }
+
+\emph{Deprecated arguments}
+
+The following arguments are deprecated but still work.
+
+\item{disp.means}{\code{logical}; whether to print the group means in balance output. Default is \code{FALSE}, so means are not displayed. Deprecated; use \code{disp} instead.
 }
+\item{disp.sds}{\code{logical}; whether to print the group standard deviations in balance output. Default is \code{FALSE}, so standard deviations are not displayed. Deprecated; use \code{disp} instead.
+}
+\item{disp.diff}{\code{logical}; whether to display (standardized) mean differences in balance output for binary and multi-category treatments. Default is \code{TRUE}, so mean differences are displayed. Deprecated; use \code{stats} instead.
+}
+\item{disp.v.ratio}{\code{logical}; whether to display variance ratios in balance output for binary and multi-category treatments. Default is \code{FALSE}, so variance ratios are not displayed. Deprecated; use \code{stats} instead.
+}
+\item{disp.ks}{\code{logical}; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multi-category treatments. Default is \code{FALSE}, so KS statistics are not displayed. Deprecated; use \code{stats} instead.
+}
+\item{disp.ovl}{\code{logical}; whether to display overlapping (OVL) coefficients in balance output for binary and multi-category treatments. Default is \code{FALSE}, so OVL coefficients are not displayed. Deprecated; use \code{stats} instead.
+}
+}
+
 
 \details{
 In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \code{\link{set.cobalt.options}} and retrieve it using \code{\link{get.cobalt.options}}. Note that global options cannot be set for \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.

@@ -469,7 +469,7 @@ set.cobalt.options <- function(..., default = FALSE) {
     # if ("continuous" %in% names(opts)) names(opts)[names(opts) == "continuous"] <- "cont"
     # if ("binary" %in% names(opts)) names(opts)[names(opts) == "binary"] <- "bin"
     
-    multiple.allowed <- c("stats", "cluster.fun", "imp.fun")
+    multiple.allowed <- c("stats", "disp", "cluster.fun", "imp.fun")
     any.string.allowed <- c("int_sep", "factor_sep")
     
     if (any(duplicates <- table(names(opts)) > 1)) {

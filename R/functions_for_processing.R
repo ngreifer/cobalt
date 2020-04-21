@@ -219,6 +219,7 @@ strata2weights <- function(strata, treat, focal = NULL) {
       }
     }
   }
+  attr(weights, "match.strata") <- strata
   return(weights)
 }
 use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, needs.treat = TRUE, needs.covs = TRUE) {
@@ -944,6 +945,25 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, met
   attr(weights, "method") <- method
   return(weights)
 }
+process_disp <- function(disp = NULL, ...) {
+  A <- list(...)
+  if (is_not_null(disp)) {
+    if (!is.character(disp)) stop("disp must be a character vector.")
+    disp <- match_arg(disp, acceptable.options()[["disp"]], several.ok = TRUE)
+  }
+  else disp <- getOption("cobalt_disp")
+  
+  for (d in c("means", "sds")) {
+    if (getOption(paste.("cobalt_disp", d), FALSE)) disp <- unique(c(disp, d))
+    if (is_not_null(A[[paste.("disp", d)]])) {
+      if (!is.logical(A[[paste.("disp", d)]])) stop(paste0("disp.", d, " must be TRUE or FALSE."), call. = FALSE)
+      disp <- unique(c(disp, d[A[[paste.("disp", d)]]]))
+      if (A[[paste.("disp", d)]]) disp <- unique(c(disp, d))
+      else disp <- unique(disp[disp != d])
+    }
+  }
+  return(disp)
+}
 
 #get.C
 #Functions to turn input covariates into usable form
@@ -953,7 +973,7 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, met
 #get.C controls flow and handles redunancy
 #get.types gets variables types (contin./binary)
 
-int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.names) {
+int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep = " * ", co.names = NULL) {
   #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"
   #Only to be used in base.bal.tab; for general use see int.poly()
   #mat=matrix input
@@ -962,6 +982,7 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.
   #poly=degree of polynomials to include; will also include all below poly. If 1, no polynomial will be included
   #nunder=number of underscores between variables
   
+  cn <- is_not_null(co.names)
   if (is_not_null(ex)) d <- mat[, colnames(mat) %nin% colnames(ex), drop = FALSE]
   else d <- mat
   binary.vars <- is_binary_col(d)
@@ -978,23 +999,31 @@ int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep, co.
   if (poly > 1 && npol != 0) {
     for (i in 2:poly) {
       new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
-      new.co.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- lapply(colnames(d)[!no.poly], function(x) setNames(list(c(co.names[[x]][["component"]], num_to_superscript(i)), c(co.names[[x]][["type"]], "power")), c("component", "type")))
-      
+      if (cn) new.co.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- lapply(colnames(d)[!no.poly], function(x) setNames(list(c(co.names[[x]][["component"]], num_to_superscript(i)), c(co.names[[x]][["type"]], "power")), c("component", "type")))
+      else new.co.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], num_to_superscript(i))
     }
   }
   if (int && nd > 1) {
     new[,(nc - .5*nd*(nd-1) + 1):nc] <- do.call("cbind", lapply(combn(seq_len(nd), 2, simplify = FALSE), 
                                                                 function(i) d[,i[1]]*d[,i[2]]))
-    new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- lapply(combn(colnames(d), 2, simplify = FALSE), 
+    if (cn) new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- lapply(combn(colnames(d), 2, simplify = FALSE), 
                                                        function(x) setNames(list(c(co.names[[x[1]]][["component"]], sep, co.names[[x[2]]][["component"]]),
                                                                                  c(co.names[[x[1]]][["type"]], "isep", co.names[[x[2]]][["type"]])),
                                                                             c("component", "type")))
+    else new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse = sep)
   }
   
-  colnames(new) <- vapply(new.co.names, function(x) paste0(x[["component"]], collapse = ""), character(1))
-  names(new.co.names) <- colnames(new)
-  new <- new[, !apply(new, 2, all_the_same), drop = FALSE]
-  attr(new, "co.names") <- new.co.names
+  if (cn) {
+    colnames(new) <- vapply(new.co.names, function(x) paste0(x[["component"]], collapse = ""), character(1))
+    names(new.co.names) <- colnames(new)
+  }
+  else {
+    colnames(new) <- unlist(new.co.names)
+  }
+  single_value <- apply(new, 2, all_the_same)
+  
+  new <- new[, !single_value, drop = FALSE]
+  if (cn) attr(new, "co.names") <- new.co.names[!single_value]
   return(new)
 }
 get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, cluster = NULL, ...) {
@@ -1353,7 +1382,7 @@ max.imbal <- function(balance.table, col.name, thresh.col.name, abs_stat) {
 
 balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.d.denom, 
                           thresholds = list(),
-                          un = FALSE, disp.means = FALSE, disp.sds = FALSE, stats = NULL, 
+                          un = FALSE, disp = NULL, stats = NULL, 
                           s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, 
                           var_types = NULL, s.d.denom.list = NULL, quick = TRUE, ...) {
   #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
@@ -1364,7 +1393,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
   if (is_not_null(s.d.denom.list)) names(s.d.denom.list) <- weight.names
   if (is_not_null(s.d.denom)) names(s.d.denom) <- weight.names
   
-  disp <- c("means"[disp.means], "sds"[disp.sds], all_STATS(type)[all_STATS(type) %in% stats])
+  disp <- c(disp, all_STATS(type)[all_STATS(type) %in% stats])
   compute <- if (quick) disp else c("means", "sds", all_STATS(type))
   
   #B=Balance frame
@@ -1423,6 +1452,8 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
   if ("sds" %in% compute) {
     sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
     if (type == "bin") {
+      tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
+      
       if (un || !quick) {
         for (t in c("0", "1")) {
           sds <- rep(NA_real_, NCOL(C))
@@ -1845,12 +1876,12 @@ samplesize.across.clusters <- function(obs.list) {
 balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
                                    continuous, binary, s.d.denom, 
                                    thresholds = list(),
-                                   un = FALSE, disp.means = FALSE, disp.sds = FALSE, stats = NULL, 
+                                   un = FALSE, disp = NULL, stats = NULL, 
                                    s.weights = rep(1, length(treat)), abs = FALSE, var_types = NULL, quick = TRUE) {
   #Creates list SB of balance tables for each subclass
   #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
   
-  disp <- c("means"[disp.means], "sds"[disp.sds], all_STATS(type)[all_STATS(type) %in% stats])
+  disp <- unique(c(disp, all_STATS(type)[all_STATS(type) %in% stats]))
   compute <- if (quick) disp else c("means", "sds", all_STATS(type))
   
   #B=Balance frame
@@ -2239,6 +2270,7 @@ acceptable.options <- function() {
               continuous = c("raw", "std"),
               binary = c("raw", "std"),
               imbalanced.only = TF,
+              disp = c("means", "sds"),
               disp.means = TF,
               disp.sds = TF,
               disp.v.ratio = TF,

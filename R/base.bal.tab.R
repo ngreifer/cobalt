@@ -1,7 +1,7 @@
 base.bal.tab <- function(X, ...) {
     UseMethod("base.bal.tab")
 }
-base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
 
     X$treat <- process_treat(X$treat) 
@@ -31,6 +31,8 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
         X$s.weights <- rep(1, length(X$treat))
     }
     
+    disp <- process_disp(disp, ...)
+    
     #Actions
     out.names <- c("Balance", 
                    expand.grid_string(c("Balanced", "Max.Imbalance"),
@@ -46,8 +48,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                       s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
                                       continuous = continuous, binary = binary, 
                                       thresholds = X$thresholds,
-                                      un = un, 
-                                      disp.means = disp.means, disp.sds = disp.sds, 
+                                      un = un, disp = disp, 
                                       stats = X$stats, abs = abs, 
                                       no.adj = no.adj, quick = quick, 
                                       s.d.denom.list = X$s.d.denom.list, ...)
@@ -396,7 +397,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
 }
 
 #NEEDS UPDATING with STATS
-base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp.means = getOption("cobalt_disp.means", FALSE), disp.sds = getOption("cobalt_disp.sds", FALSE), disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
     if (type == "bin") {
         if(get.treat.type(X$treat) != "binary") 
@@ -414,6 +415,8 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
     if (is_null(X$s.weights)) {
         X$s.weights <- rep(1, length(X$treat))
     }
+    
+    disp <- process_disp(disp, ...)
     
     #Actions
     
@@ -442,8 +445,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                                         continuous=continuous, binary=binary, 
                                                         s.d.denom=X$s.d.denom[1], 
                                                         thresholds = X$thresholds,
-                                                        disp.means = disp.means, 
-                                                        disp.sds = disp.sds, 
+                                                        disp = disp,
                                                         stats = X$stats, 
                                                         s.weights = X$s.weights, 
                                                         abs = abs, 
@@ -459,8 +461,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                                           binary = binary, 
                                                           thresholds = X$thresholds,
                                                           un = un, 
-                                                          disp.means = disp.means, 
-                                                          disp.sds = disp.sds, 
+                                                          disp = disp,
                                                           stats = X$stats, 
                                                           abs = abs, 
                                                           no.adj = FALSE, quick = quick, 
@@ -477,8 +478,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                                                                              binary = binary, 
                                                                                              thresholds = X$thresholds,
                                                                                              un = un, 
-                                                                                             disp.means = disp.means, 
-                                                                                             disp.sds = disp.sds, 
+                                                                                             disp = disp,
                                                                                              stats = X$stats, 
                                                                                              abs = abs, 
                                                                                              no.adj = TRUE, 
