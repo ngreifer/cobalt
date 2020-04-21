@@ -1182,8 +1182,10 @@ x2base.data.frame <- function(covs, ...) {
                                                        focal = focal))
     }
     #Process weights
-    weights <- process_weights(NULL, A, treat, covs, method, addl.data = list(data))
-    method <- attr(weights, "method")
+    else if (is_not_null(A[["weights"]])) {
+        weights <- process_weights(NULL, A, treat, covs, method, addl.data = list(data))
+        method <- attr(weights, "method")
+    }
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
@@ -4020,7 +4022,7 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process match.strata
-        if (is_not_null(match.strata <- A$match.strata)) {
+        else if (is_not_null(match.strata <- A$match.strata)) {
             match.strata <- vector.process(match.strata, 
                                            data = list(data),
                                            name = "match.strata", 
@@ -4031,8 +4033,10 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process weights
-        weights <- process_weights(NULL, A, treat, covs, method, addl.data = list(data))
-        method <- attr(weights, "method")
+        else if (is_not_null(A[["weights"]])) {
+            weights <- process_weights(NULL, A, treat, covs, method, addl.data = list(data))
+            method <- attr(weights, "method")
+        }
 
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
