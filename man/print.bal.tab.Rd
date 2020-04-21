@@ -103,7 +103,7 @@ whether to display the table of balance statistics. If \code{FALSE}, only other 
 \code{logical}; whether to display thresholds for each statistic for which thresholds were originally requested in the call to \code{bal.tab}. Should be a named logical vector with names corresponding to the thresholds. For example, if thresholds for mean differences were requested in \code{bal.tab}, set \code{disp.thresholds = c(m = FALSE)} to prevent them from being printed. If a statistic was prevented from being displayed by another argument to \code{print}, the thresholds will not be displayed.
 }
   \item{disp}{
-\code{character}; which distribution statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print} unless \code{quick = FALSE} in the original call.
+\code{character}; which distribution summary statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print} unless \code{quick = FALSE} in the original call.
 }
   \item{disp.subclass}{
 whether to display balance information for individual subclasses if subclassification is used in conditioning.
@@ -152,7 +152,7 @@ For all parameters except \code{which.cluster}, \code{which.imp}, \code{which.tr
 
 Any parameter used in \code{bal.tab()} for calculations, such as \code{int}, \code{addl}, or \code{distance}, cannot be used with \code{print()}; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to \code{bal.tab()} must be performed.
 
-Prior version of \code{print()} used different arguments, such as \code{m.threshold} to display thresholds and \code{disp.means} to display group means, and these arguments still work but are not documented here. See \code{\link{display_options}}.
+Prior versions of \code{print()} used different arguments, such as \code{m.threshold} to display thresholds and \code{disp.means} to display group means, and these arguments still work but are not documented here. See \code{\link{display_options}}.
 }
 \note{
 Unless \code{quick = FALSE} in the original call to \code{bal.tab()}, some values may not be calculated, in which case using \code{print()} will not display these values even when requested. For example, if \code{stats = "m"} and \code{quick = TRUE} in the original call to \code{bal.tab()} (the default for both), setting \code{stats = "ks"} in \code{print()} will not print the KS statistics because they were not calculated.

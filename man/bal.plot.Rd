@@ -26,7 +26,7 @@ bal.plot(obj,
     sample.names,
     position = "right", 
     facet.formula = NULL, 
-    disp.means = FALSE,
+    disp.means = getOption("cobalt_disp.means", FALSE),
     alpha.weight = TRUE)
 }
 \arguments{
