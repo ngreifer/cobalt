@@ -226,9 +226,9 @@ get.w.Match <- function(x, ...) {
         sum(weight.by.c[names(weight.by.c) == as.character(x)])
     }, numeric(1L))
     
-
     return(w)
 }
+get.w.Matchby <- get.w.Match
 get.w.CBPS <- function(x, estimand, ...) {
     c <- x
     A <- list(...)
