@@ -262,7 +262,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
 }
 unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRUE, sep = "_", replace = TRUE) {
     
-    if (!is.data.frame(data)) stop("data must be a data.frame containing the variables to unsplit.", call = FALSE)
+    if (!is.data.frame(data)) stop("data must be a data.frame containing the variables to unsplit.", call. = FALSE)
     if (missing(var.name)) {
         if (any(split.dummies <- vapply(data, function(x) {
             is_not_null(attr(x, "split.var")) && is_not_null(attr(x, "level")) &&
