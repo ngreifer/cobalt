@@ -24,7 +24,40 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "all") #s.d.denom to avoid x2base warning
     
-    if (is_not_null(X$covs.list)) {
+    if (is_null(X$covs.list)) {
+        #Point treatment
+        X$covs <- get.C2(X$covs, addl = X$addl, distance = X$distance, cluster = X$cluster)
+        co.names <- attr(X$covs, "co.names")
+        if (missing(var.name)) {
+            var.name <- NULL; k = 1
+            while(is_null(var.name)) {
+                x <- co.names[[k]]
+                if ("isep" %nin% x[["type"]]) var.name <- x[["component"]][x[["type"]] == "base"][1]
+                else {
+                    if (k < length(co.names)) k <- k + 1
+                    else 
+                        stop("Please specified an argument to var.name.", call. = FALSE)
+                }
+            }
+            message(paste0("No var.name was provided. Dispalying balance for ", var.name, "."))
+        }
+        var.name_in_name <- sapply(co.names, function(x) var.name %in% x[["component"]][x[["type"]] == "base"] &&
+                                       "isep" %nin% x[["type"]])
+        var.name_in_name_and_factor <- sapply(seq_along(co.names), function(x) var.name_in_name[x] && "fsep" %in% co.names[[x]][["type"]])
+        if (any(var.name_in_name_and_factor)) {
+            X$var <- unsplitfactor(as.data.frame(X$covs[,var.name_in_name_and_factor, drop = FALSE]), 
+                                   var.name, sep = attr(co.names, "seps")["factor"])[[1]]
+        }
+        else if (any(var.name_in_name)) {
+            X$var <- X$covs[,var.name]
+        }
+        else {
+            stop(paste0("\"", var.name, "\" is not the name of an available covariate."), call. = FALSE)
+        }
+        
+        if (get.treat.type(X$treat) != "continuous") X$treat <- treat_vals(X$treat)[X$treat]
+    }
+    else {
         #Longitudinal
         if (missing(var.name)) {
             var.name <- names(X$covs.list[[1]])[1]
@@ -48,21 +81,6 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (is_not_null(X$weights)) X$weights <- X$weights[rep(seq_len(nrow(X$weights)), sum(appears.in.time)), , drop = FALSE]
         if (is_not_null(X$cluster)) X$cluster <- X$cluster[rep(seq_along(X$cluster), sum(appears.in.time))]
         if (is_not_null(X$imp)) X$imp <- X$imp[rep(seq_along(X$imp), sum(appears.in.time))]
-    }
-    else {
-        #Point treatment
-        if (missing(var.name)) {
-            var.name <- names(X$covs)[1]
-            message(paste0("No var.name was provided. Dispalying balance for ", var.name, "."))
-        }
-        if (var.name %in% names(X$covs)) X$var <- X$covs[[var.name]]
-        else if (is_not_null(X$addl) && var.name %in% names(X$addl)) X$var <- X$addl[[var.name]]
-        else if (is_not_null(args$addl) && var.name %in% names(args$addl)) X$var <- args$addl[[var.name]]
-        else if (is_not_null(X$distance) && var.name %in% names(X$distance)) X$var <- X$distance[[var.name]]
-        else if (is_not_null(args$distance) && var.name %in% names(args$distance)) X$var <- args$distance[[var.name]]
-        else stop(paste0("\"", var.name, "\" is not the name of a variable in any available data set input."), call. = FALSE)
-        
-        if (get.treat.type(X$treat) != "continuous") X$treat <- treat_vals(X$treat)[X$treat]
     }
     
     #Density arguments supplied through ...
@@ -388,7 +406,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     treat.type <- get.treat.type(assign.treat.type(D$treat))
     
-    D <- D[order(D$var),]
+    D <- na.omit(D[order(D$var),])
     
     if (treat.type == "continuous") { #Continuous treatments
         
@@ -454,9 +472,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 scale_alpha(range = c(.04, 1))
             
             bp <- bp + 
-                geom_smooth(method = "lm", se = FALSE, color = "firebrick2", alpha = .4, size = 1.5) + 
-                geom_smooth(method = "loess", se = FALSE, color = "royalblue1", alpha = .1, size = 1.5) +
-                # geom_smooth(method = "gam", se = FALSE, color = "royalblue1", alpha = .1, size = 1.5, formula = y ~ s(x, bs = "cs")) +
+                geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "firebrick2", alpha = .4, size = 1.5) + 
+                {
+                    if (nrow(D) <= 1000)
+                        geom_smooth(method = "loess", formula = y ~ x, se = FALSE, color = "royalblue1", alpha = .1, size = 1.5) 
+                    else
+                        geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), se = FALSE, color = "royalblue1", alpha = .1, size = 1.5)
+                } +
                 geom_hline(aes(yintercept = treat.mean), linetype = 1, alpha = .9) + 
                 geom_vline(aes(xintercept = var.mean), linetype = 1, alpha = .8) +
                 labs(y = "Treat", x = var.name, title = title, subtitle = subtitle)
