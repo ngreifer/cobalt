@@ -157,7 +157,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
                                           })),
                                           rep(c(rep(unlist(lapply(p.ops$compute[p.ops$compute %nin% all_STATS()], function(s) {
                                               p.ops$disp.adj && s %in% p.ops$disp
-                                          })), 2),
+                                          })), switch(p.ops$type, bin = 2, cont = 1)),
                                           unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
                                               c(p.ops$disp.adj && s %in% p.ops$disp,
                                                 p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
