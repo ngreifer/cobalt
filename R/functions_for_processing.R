@@ -1523,16 +1523,22 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   mmassign2 <- setNames(factor(mmassign, levels = sort(unique(mmassign), na.last = TRUE),
                                labels = colnames(attr(tt.covs, "factors"))), colnames(mm)[-1])
   
-  vars_in_each_term <- setNames(lapply(colnames(ttfactors), function(x) rownames(ttfactors)[ttfactors[,x] != 0]), colnames(ttfactors))
-  
+  vars_in_each_term <- setNames(lapply(colnames(ttfactors), function(x) {
+    rownames(ttfactors)[ttfactors[,x] != 0]
+    }), colnames(ttfactors))
+  all_factor_levels <- lapply(vars_in_each_term, function(v) {
+      do.call("expand.grid", c(clear_null(setNames(lapply(v, function(fa) colnames(attr(mm, "contrasts")[[fa]])), v)),
+                               list(stringsAsFactors = FALSE)))
+  })
   expanded <- setNames(lapply(seq_along(mmassign2), function(x) {
     terms <- vars_in_each_term[[mmassign2[x]]]
-    setNames(lapply(terms, function(t) {
-      if (t %in% names(attr(mm, "contrasts"))) {
-        colnames(attr(mm, "contrasts")[[t]])[which(seq_along(mmassign2)[mmassign2 == mmassign2[x]] == x)]
-      }
-      else character(0)
-    }), terms)
+      k <- sum(seq_along(mmassign2) <= x & mmassign2 == mmassign2[x])
+      setNames(lapply(terms, function(t) {
+        if (t %in% names(all_factor_levels[[mmassign2[x]]])) {
+          all_factor_levels[[mmassign2[x]]][[t]][k]
+        }
+        else character(0)
+      }), terms)
   }), names(mmassign2))
   
   #component types: base, fsep, isep, power, na, level
