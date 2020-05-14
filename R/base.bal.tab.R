@@ -41,7 +41,8 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                    "Observations", "call")
     out <- make_list(out.names)
     
-    C <- get.C(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, ...)
+    C <- get.C2(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, treat = X$treat, 
+                cluster = X$cluster, ...)
     co.names <- attr(C, "co.names")
     
     out[["Balance"]] <- balance.table(C, type = type, weights = X$weights, treat = X$treat, 
@@ -213,9 +214,9 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
                    "call")
     out <- make_list(out.names)
     
-    C <- do.call(get.C, c(X, A), quote = TRUE)
-    bin.vars <- is_binary_col(C)
     if ("mean.diffs" %in% X$stats) {
+        C <- do.call(get.C2, c(X, A), quote = TRUE)
+        bin.vars <- is_binary_col(C)
         if (is_null(X$weights)) {
             X$s.d.denom.list <- list(compute_s.d.denom(C, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, bin.vars = bin.vars))
         }
@@ -428,7 +429,8 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                    "Observations", "call")
     out <- make_list(out.names)
     
-    C <- get.C(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, ...)
+    C <- get.C2(covs = X$covs, addl = X$addl, distance = X$distance, int = int, poly = poly, 
+                treat = X$treat, cluster = X$cluster, ...)
     co.names <- attr(C, "co.names")
     
     out[["Observations"]] <- samplesize(treat = X$treat, 
