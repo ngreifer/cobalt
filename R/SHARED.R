@@ -155,7 +155,7 @@ text_box_plot <- function(range.list, width = 12) {
     return(d)
 }
 equivalent.factors <- function(f1, f2) {
-    return(nunique(f1) == nunique(interaction(f1, f2, drop = TRUE)))
+    return(nunique(f1) == nunique(paste.(f1, f2)))
 }
 equivalent.factors2 <- function(f1, f2) {
     return(qr(matrix(c(rep(1, length(f1)), as.numeric(f1), as.numeric(f2)), ncol = 3))$rank == 2)
@@ -527,11 +527,12 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     rhs.term.labels <- attr(tt.covs, "term.labels")
     rhs.term.orders <- attr(tt.covs, "order")
 
-    rhs.df <- vapply(rhs.vars.mentioned, function(v) {
+    rhs.df <- setNames(vapply(rhs.vars.mentioned, function(v) {
         is_(try(eval(parse(text=v)[[1]], data, env), silent = TRUE),
             c("data.frame", "matrix", "rms"))
-    }, logical(1L))
+    }, logical(1L)), rhs.vars.mentioned)
 
+    rhs.term.labels.list <- setNames(as.list(rhs.term.labels), rhs.term.labels)
     if (any(rhs.df)) {
         if (any(rhs.vars.mentioned[rhs.df] %in% unlist(lapply(rhs.term.labels[rhs.term.orders > 1], function(x) strsplit(x, ":", fixed = TRUE))))) {
             stop("Interactions with data.frames are not allowed in the input formula.", call. = FALSE)
@@ -552,6 +553,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
             rhs.term.labels <- append(rhs.term.labels[-ind],
                                       values = names(addl.dfs[[i]]),
                                       after = ind - 1)
+            rhs.term.labels.list[[i]] <- names(addl.dfs[[i]])
         }
 
         if (data.specified) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
@@ -567,12 +569,14 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
         }
     }
     else {
-        new.form.char <- paste("~", paste(vapply(rhs.term.labels, function(x) {
-            try.form <- try(as.formula(paste("~", x)), silent = TRUE)
-            if (null_or_error(try.form) || (grepl("^", x, fixed = TRUE) && !startsWith(x, "I("))) {
-                paste0("`", x, "`")
-            }
-            else x
+        new.form.char <- paste("~", paste(vapply(names(rhs.term.labels.list), function(x) {
+            if (x %in% rhs.vars.mentioned[rhs.df]) paste0("`", rhs.term.labels.list[[x]], "`", collapse = " + ")
+            else rhs.term.labels.list[[x]]
+            # try.form <- try(as.formula(paste("~", x)), silent = TRUE)
+            # if (null_or_error(try.form) || (grepl("^", x, fixed = TRUE) && !startsWith(x, "I("))) {
+            #     paste0("`", x, "`")
+            # }
+            # else x
         } , character(1L)), collapse = " + "))
 
         new.form <- as.formula(new.form.char)
@@ -593,7 +597,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     if (eval.model.matrx) {
         if (s <- !identical(sep, "")) {
             if (!is.character(sep) || length(sep) > 1) stop("sep must be a string of length 1.", call. = FALSE)
-            original.covs.levels <- setNames(vector("list", ncol(covs)), names(covs))
+            original.covs.levels <- make_list(names(covs))
             for (i in names(covs)) {
                 if (is.character(covs[[i]])) covs[[i]] <- factor(covs[[i]])
                 if (is.factor(covs[[i]])) {
@@ -718,13 +722,14 @@ make_list <- function(n) {
     }
 }
 ifelse_ <- function(...) {
-    if (...length() %% 2 == 0) stop("ifelse_ must have an odd number of arguments: pairs of test/yes, and one no.")
-    out <- ...elt(...length())
-    if (...length() > 1) {
+    dotlen <- ...length()
+    if (dotlen %% 2 == 0) stop("ifelse_ must have an odd number of arguments: pairs of test/yes, and one no.")
+    out <- ...elt(dotlen)
+    if (dotlen > 1) {
         if (!is_(out, c("atomic", "factor"))) stop("The last entry to ifelse_ must be atomic or factor.")
         if (length(out) == 1) out <- rep(out, length(..1))
         n <- length(out)
-        for (i in seq_len((...length() - 1)/2)) {
+        for (i in seq_len((dotlen - 1)/2)) {
             test <- ...elt(2*i - 1)
             yes <- ...elt(2*i)
             if (length(yes) == 1) yes <- rep(yes, n)
@@ -852,8 +857,8 @@ last <- function(x) {
     `[[<-`(x, length(x), value)
 }
 len <- function(x, recursive = TRUE) {
-    if (is.vector(x, "list") && recursive) sapply(x, len)
-    else if (length(dim(x)) > 1) NROW(x)
+    if (length(dim(x)) > 1) NROW(x)
+    else if (is.list(x) && recursive) vapply(x, len, numeric(1L), recursive = FALSE)
     else length(x)
 }
 na.rem <- function(x) {
