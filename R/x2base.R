@@ -1956,7 +1956,7 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process data and get imp
     d.e.in.w <- vapply(c("covs", "exact", "by", "moderator"), function(x) is_not_null(weightit[[x]]), logical(1L))
-    if (any(d.e.in.w)) weightit.data <- do.call("cbind", unname(weightit[c("covs", "exact", "by", "moderator")[d.e.in.w]]))
+    if (any(d.e.in.w)) weightit.data <- do.call("data.frame", unname(weightit[c("covs", "exact", "by", "moderator")[d.e.in.w]]))
     else weightit.data <- NULL
     
     imp <- A$imp
@@ -3452,8 +3452,8 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process data and get imp
     weightitMSM.data <- weightitMSM$data
-    d.e.in.w <- vapply(c("covs.list", "exact", "by", "moderator"), function(x) is_not_null(weightitMSM[[x]]), logical(1L))
-    if (any(d.e.in.w)) weightitMSM.data2 <- do.call("cbind", c(do.call(cbind, weightitMSM$covs.list), weightitMSM[c("exact", "by", "moderator")])[d.e.in.w])
+    d.e.in.w <- vapply(c("exact", "by", "moderator"), function(x) is_not_null(weightitMSM[[x]]), logical(1L))
+    if (any(d.e.in.w)) weightitMSM.data2 <- do.call("data.frame", unname(weightitMSM[c("exact", "by", "moderator")[d.e.in.w]]))
     else weightitMSM.data2 <- NULL
     
     imp <- A$imp
