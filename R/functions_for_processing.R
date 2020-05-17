@@ -1032,7 +1032,7 @@ process_disp <- function(disp = NULL, ...) {
   return(disp)
 }
 process_addl <- function(addl = NULL, datalist = list()) {
-  data <- do.call("cbind", clear_null(datalist))
+  data <- do.call("data.frame", unname(clear_null(datalist)))
   if (is_not_null(addl) && is_(addl, c("atomic", "factor")) && 
       (!is_(addl, "character") || is_null(datalist) ||
        length(addl) == nrow(data))) {
@@ -1058,7 +1058,7 @@ process_addl.list <- function(addl.list = NULL, datalist = list(), covs.list = l
   return(addl.list.out)
 }
 process_distance <- function(distance = NULL, datalist = list(), obj.distance = NULL, obj.distance.name = "distance") {
-  data <- do.call("cbind", clear_null(datalist))
+  data <- do.call("data.frame", unname(clear_null(datalist)))
   if (is_not_null(distance) && !is_(distance, c("atomic", "factor", "formula", "matrix", "data.frame"))) {
     stop("'distance' must be a formula or variable containing the distance values.", call. = FALSE)
   }
@@ -1424,8 +1424,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   f <- update(f, NULL ~ .)
   
   #Check if data exists
-  if (is.matrix(data)) data <- as.data.frame.matrix(data)
   if (is_not_null(data)) {
+    if (is.matrix(data)) data <- as.data.frame.matrix(data)
     if (is.data.frame(data)) {
       data.specified <- TRUE
     }
