@@ -767,7 +767,7 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
             s0 <- ifelse(arg.to, "The argument to ", "")
             s2 <- ifelse(any(types %in% c("factor", "character", "numeric", "logical")),
                          "vector", "")
-            stop(paste0(s0, s1, " must be a ", word_list(types, and.or = "or"), " ", s2, "."), call. = FALSE)
+            stop(paste0(s0, "'", s1, "' must be a ", word_list(types, and.or = "or"), " ", s2, "."), call. = FALSE)
         }
     }
     return(it.is)
@@ -857,7 +857,8 @@ last <- function(x) {
     `[[<-`(x, length(x), value)
 }
 len <- function(x, recursive = TRUE) {
-    if (length(dim(x)) > 1) NROW(x)
+    if (is_null(x)) 0L
+    else if (length(dim(x)) > 1) NROW(x)
     else if (is.list(x) && recursive) vapply(x, len, numeric(1L), recursive = FALSE)
     else length(x)
 }
