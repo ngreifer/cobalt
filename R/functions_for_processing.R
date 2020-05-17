@@ -975,9 +975,17 @@ process_focal <- function(focal, treat) {
   return(focal)
 }
 process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, method = character(0), addl.data = list(), ...) {
-  if (is_not_null(obj)) weights <- setNames(data.frame(weights = get.w(obj, treat = treat, ...)),
-                                            class(obj)[which(paste.("get.w", class(obj)) %in% methods("get.w"))[1]])
+  if (is_not_null(obj)) {
+    weights <- get.w(obj, treat = treat, ...)
+    if (is_(weights, c("data.frame", "matrix"))) {
+      weights <- data.frame(weights)
+    }
+    else {
+      weights <- setNames(data.frame(weights), class(obj)[which(paste.("get.w", class(obj)) %in% methods("get.w"))[1]])
+    }
+  }
   else weights <- list()
+  
   addl.weights <- data.frame.process("weights", A[["weights"]], treat, covs, addl.data = addl.data, ...)
   if (is_not_null(addl.weights)) {
     if (is_null(A[["method"]])) addl.methods <- rep.int("weighting", ncol(addl.weights))
@@ -1036,6 +1044,43 @@ process_addl <- function(addl = NULL, datalist = list()) {
                         needs.treat = FALSE, needs.covs = FALSE)
   
   return(addl_t.c[["covs"]])
+}
+process_addl.list <- function(addl.list = NULL, datalist = list(), covs.list = list()) {
+  datalist <- clear_null(c(datalist, covs.list))
+
+  if (is_(addl.list, "list")) {
+    addl.list.out <- lapply(addl.list, process_addl, datalist = datalist)
+  }
+  else {
+    addl <- process_addl(addl.list, datalist = datalist)
+    addl.list.out <- lapply(seq_along(covs.list), function(x) addl)
+  }
+  return(addl.list.out)
+}
+process_distance <- function(distance = NULL, datalist = list(), obj.distance = NULL, obj.distance.name = "distance") {
+  data <- do.call("cbind", clear_null(datalist))
+  if (is_not_null(distance) && !is_(distance, c("atomic", "factor", "formula", "matrix", "data.frame"))) {
+    stop("'distance' must be a formula or variable containing the distance values.", call. = FALSE)
+  }
+  if (is_not_null(distance) && is_(distance, c("atomic", "factor")) && 
+      (!is_(distance, "character") || is_null(datalist) ||
+       length(distance) == nrow(data))) {
+    distance <- data.frame(distance = distance)
+  }
+  else if (is_(distance, "character")) distance <- f.build("", distance)
+  
+  distance_t.c <- use.tc.fd(formula = distance, data = data, covs = distance, 
+                        needs.treat = FALSE, needs.covs = FALSE)
+  
+  distance <- distance_t.c[["covs"]]
+  
+  if (is_not_null(obj.distance)) {
+    obj.distance <- setNames(data.frame(obj.distance), obj.distance.name)
+    obj.distance <- get_covs_from_formula(~obj.distance)
+    distance <- cbind(distance, obj.distance)
+  }
+  
+  return(distance)
 }
 
 #get.C
@@ -1379,6 +1424,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   f <- update(f, NULL ~ .)
   
   #Check if data exists
+  if (is.matrix(data)) data <- as.data.frame.matrix(data)
   if (is_not_null(data)) {
     if (is.data.frame(data)) {
       data.specified <- TRUE
@@ -1402,7 +1448,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
              else stop(conditionMessage(e), call. = FALSE)
            })
   
-  #Process RHS ----
+  #Process RHS 
   tt.covs <- delete.response(tt)
   attr(tt.covs, "intercept") <- 0
   
@@ -1454,7 +1500,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   mf.covs <- quote(stats::model.frame(tt.covs, data,
                                       drop.unused.levels = TRUE,
                                       na.action = "na.pass"))
-  
+
   tryCatch({tmpcovs <- eval(mf.covs)}, error = function(e) {stop(conditionMessage(e), call. = FALSE)})
   
   for (i in ttvars) {
@@ -1571,6 +1617,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   attr(co.names, "seps") <- c(factor = factor_sep, int = int_sep)
   attr(covs, "co.names") <- co.names
+  class(covs) <- c("co.named", class(covs))
   
   colnames(covs) <- names(co.names)
   return(covs)
@@ -1707,11 +1754,20 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   names(co_list[["C"]]) <- vapply(co_list[["C"]], function(x) paste0(x[["component"]], collapse = ""), character(1L))
   
   if (is_not_null(distance)) {
-    if (any(names(distance) %in% names(co_list[["C"]]))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
     if (any(apply(distance, 2, anyNA))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
     
-    C_list[["distance"]] <- as.matrix(distance)
-    co_list[["distance"]] <- setNames(lapply(colnames(C_list[["distance"]]), function(x) list(component = x, type = "base")), colnames(C_list[["distance"]]))
+    distance.co.names <- attr(distance, "co.names")
+    
+    same.name <- names(distance.co.names) %in% do.call("c", lapply(co_list, names))
+    distance <- distance[,!same.name, drop = FALSE]
+    distance.co.names[same.name] <- NULL
+    
+    unique.distance.names <- unique(names(distance.co.names))
+    distance <- distance[,unique.distance.names, drop = FALSE]
+    distance.co.names <- distance.co.names[unique.distance.names]
+    
+    C_list[["distance"]] <- distance
+    co_list[["distance"]] <- distance.co.names
     
   }
   
@@ -1719,7 +1775,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   co_list <- clear_null(co_list)
   
   #Remove duplicate & redundant variables
-  for (x in names(C_list)) {
+  for (x in setdiff(names(C_list), "distance")) {
     #Remove self-redundant variables
     if (getOption("cobalt_remove_perfect_col", ncol(C_list[[x]]) <= 900)) {
       redundant.var.indices <- find_perfect_col(C_list[[x]])
@@ -1757,6 +1813,8 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   attr(C, "missing.ind") <- colnames(C)[vapply(co.names, function(x) "na" %in% x[["type"]], logical(1L))]
   if ("distance" %in% names(C_list)) attr(C, "distance.names") <- names(co_list[["distance"]])
   
+  class(C) <- c("co.named", class(C))
+  
   return(C)
   
 }
@@ -1770,7 +1828,7 @@ int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, s
   #nunder=number of underscores between variables
   
   cn <- is_not_null(co.names)
-  if (is_null(ex)) x <- rep(FALSE, ncol(mat))
+  if (is_null(ex)) ex <- rep(FALSE, ncol(mat))
   d <- mat
   
   binary.vars <- is_binary_col(d)
@@ -1843,6 +1901,20 @@ int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, s
   if (cn && is_not_null(out)) attr(out, "co.names") <- out_co.names[!single_value]
   
   return(out)
+}
+cbind.co.named <- function(..., deparse.level = 1) {
+  args <- clear_null(list(...))
+  if (length(args) <= 1) return(args[[1]])
+  if (all.co.named <- all(vapply(args, is_, logical(1L), "co.named"))) {
+    co.names.list <- lapply(args, attr, "co.names")
+  }
+  for (i in seq_along(args)) class(args[[i]]) <- class(args[[i]])[class(args[[i]]) != "co.named"]
+  out <- do.call("cbind", args)
+  if (all.co.named) {
+    attr(out, "co.names") <- do.call("c", co.names.list)
+    colnames(out) <- vapply(attr(out, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
+  }
+  out
 }
 
 get.types <- function(C) {
