@@ -155,10 +155,17 @@ text_box_plot <- function(range.list, width = 12) {
     return(d)
 }
 equivalent.factors <- function(f1, f2) {
-    return(nunique(f1) == nunique(paste.(f1, f2)))
+    nu1 <- nunique(f1)
+    nu2 <- nunique(f2)
+    if (nu1 == nu2) {
+        return(nu1 == nunique(paste.(f1, f2)))
+    }
+    else {
+        return(FALSE)
+    }
 }
 equivalent.factors2 <- function(f1, f2) {
-    return(qr(matrix(c(rep(1, length(f1)), as.numeric(f1), as.numeric(f2)), ncol = 3))$rank == 2)
+    return(qr(cbind(1, as.numeric(f1), as.numeric(f2)))$rank == 2)
 }
 paste. <- function(..., collapse = NULL) {
     #Like paste0 but with sep = ".'
