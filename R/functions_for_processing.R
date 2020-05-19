@@ -1049,6 +1049,7 @@ process_addl.list <- function(addl.list = NULL, datalist = list(), covs.list = l
   datalist <- clear_null(c(datalist, covs.list))
 
   if (is_(addl.list, "list")) {
+    if (length(addl.list) != length(covs.list)) stop("'addl' must have an entry for each time point.", call. = FALSE)
     addl.list.out <- lapply(addl.list, process_addl, datalist = datalist)
   }
   else {
@@ -1082,6 +1083,32 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
   
   return(distance)
 }
+process_distance.list <- function(distance.list = NULL, datalist = list(), covs.list = list(), obj.distance = NULL, obj.distance.name = "distance") {
+  datalist <- clear_null(c(datalist, covs.list))
+  
+  if (is_not_null(obj.distance)) {
+    if (!is_(obj.distance, "list")) {
+      obj.distance <- lapply(seq_along(covs.list), function(x) obj.distance)
+    }
+  }
+  else obj.distance <- lapply(seq_along(covs.list), function(x) NULL)
+  
+  if (is_null(distance.list)) {
+    distance.list.out <- lapply(seq_along(covs.list), function(x) process_distance(NULL, datalist = datalist, 
+                                                                                       obj.distance = obj.distance[[x]], obj.distance.name = obj.distance.name))
+  }
+  else if (is_(distance.list, "list")) {
+    if (length(distance.list) != length(covs.list)) stop("'distance' must have an entry for each time point.", call. = FALSE)
+    distance.list.out <- lapply(seq_along(distance.list), function(x) process_distance(distance.list[[x]], datalist = datalist, 
+                                obj.distance = obj.distance[[x]], obj.distance.name = obj.distance.name))
+  }
+  else {
+    distance <- process_distance(distance.list, datalist = datalist, 
+                                 obj.distance = obj.distance, obj.distance.name = obj.distance.name)
+    distance.list.out <- lapply(seq_along(covs.list), function(x) distance)
+  }
+  return(distance.list.out)
+}
 
 #get.C
 #Functions to turn input covariates into usable form
@@ -1090,253 +1117,6 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
 #binarize transforms 2-value variable into binary (0,1)
 #get.C controls flow and handles redunancy
 #get.types gets variables types (contin./binary)
-
-int.poly.f <- function(mat, ex=NULL, int=FALSE, poly=1, center = FALSE, sep = " * ", co.names = NULL) {
-  #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"
-  #Only to be used in base.bal.tab; for general use see int.poly()
-  #mat=matrix input
-  #ex=matrix of variables to exclude in interactions and polynomials; a subset of df
-  #int=whether to include interactions or not; currently only 2-way are supported
-  #poly=degree of polynomials to include; will also include all below poly. If 1, no polynomial will be included
-  #nunder=number of underscores between variables
-  
-  cn <- is_not_null(co.names)
-  if (is_not_null(ex)) d <- mat[, colnames(mat) %nin% colnames(ex), drop = FALSE]
-  else d <- mat
-  binary.vars <- is_binary_col(d)
-  if (center) {
-    d[,!binary.vars] <- center(d[, !binary.vars, drop = FALSE])
-  }
-  nd <- NCOL(d)
-  nrd <- NROW(d)
-  no.poly <- binary.vars
-  npol <- nd - sum(no.poly)
-  new <- matrix(0, ncol = (poly-1)*npol + int*(.5*(nd)*(nd-1)), nrow = nrd)
-  nc <- NCOL(new)
-  new.co.names <- make_list(nc)
-  if (poly > 1 && npol != 0) {
-    for (i in 2:poly) {
-      new[, (1 + npol*(i - 2)):(npol*(i - 1))] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
-      if (cn) new.co.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- lapply(colnames(d)[!no.poly], function(x) setNames(list(c(co.names[[x]][["component"]], num_to_superscript(i)), c(co.names[[x]][["type"]], "power")), c("component", "type")))
-      else new.co.names[(1 + npol*(i - 2)):(npol*(i - 1))] <- paste0(colnames(d)[!no.poly], num_to_superscript(i))
-    }
-  }
-  if (int && nd > 1) {
-    new[,(nc - .5*nd*(nd-1) + 1):nc] <- do.call("cbind", lapply(combn(seq_len(nd), 2, simplify = FALSE), 
-                                                                function(i) d[,i[1]]*d[,i[2]]))
-    if (cn) new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- lapply(combn(colnames(d), 2, simplify = FALSE), 
-                                                       function(x) setNames(list(c(co.names[[x[1]]][["component"]], sep, co.names[[x[2]]][["component"]]),
-                                                                                 c(co.names[[x[1]]][["type"]], "isep", co.names[[x[2]]][["type"]])),
-                                                                            c("component", "type")))
-    else new.co.names[(nc - .5*nd*(nd-1) + 1):nc] <- combn(colnames(d), 2, paste, collapse = sep)
-  }
-  
-  if (cn) {
-    colnames(new) <- vapply(new.co.names, function(x) paste0(x[["component"]], collapse = ""), character(1))
-    names(new.co.names) <- colnames(new)
-  }
-  else {
-    colnames(new) <- unlist(new.co.names)
-  }
-  single_value <- apply(new, 2, all_the_same)
-  
-  new <- new[, !single_value, drop = FALSE]
-  if (cn) attr(new, "co.names") <- new.co.names[!single_value]
-  return(new)
-}
-get.C <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, cluster = NULL, ...) {
-  #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
-  A <- list(...)
-  if (is_null(A[["int_sep"]])) A[["int_sep"]] <- getOption("cobalt_int_sep", default = " * ")
-  if (is_null(A[["factor_sep"]])) A[["factor_sep"]] <- getOption("cobalt_factor_sep", default = "_")
-  if (is_null(A[["center"]]) || A[["center"]] %nin% c(TRUE, FALSE)) A[["center"]] <- getOption("cobalt_center", default = FALSE)
-  
-  C <- covs
-  if (is_not_null(addl)) {
-    if (!is.data.frame(addl)) {
-      if (is.character(addl)) stop("The argument to addl must be a data.frame containing the the values of the additional variables you want to include in the balance assessment.", call. = FALSE)
-      else stop("The argument to addl must be a data.frame. Wrap data.frame() around the argument if it is a matrix or vector.", call. = FALSE)
-    }
-    else {
-      repeat.name.indices <- vapply(names(addl), function(x) x %in% names(C), logical(1))
-      if (any(repeat.name.indices)) {
-        warning(paste("The following variables in addl have the same name as covariates and will be ignored:\n",
-                      paste(names(addl)[repeat.name.indices], collapse = " ")), call. = FALSE)
-        addl <- addl[!repeat.name.indices]
-      }
-      C <- cbind(C, addl)
-    }
-  } 
-  
-  covs.with.inf <- vapply(C, function(x) !is.character(x) && any(!is.finite(x) & !is.na(x)), logical(1L))
-  if (any(covs.with.inf)) {
-    s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
-    stop(paste0("The variable", s[1], " ", word_list(names(C)[covs.with.inf], quotes = TRUE), 
-                " contain", s[2], " non-finite values, which are not allowed."), call. = FALSE)
-  }
-  
-  vars.w.missing <- data.frame(placed.after = names(C),
-                               has.missing = FALSE, 
-                               has.Inf = FALSE,
-                               row.names = names(C),
-                               stringsAsFactors = FALSE)
-  co.names <- setNames(lapply(names(C), function(x) setNames(list(x, "base"), c("component", "type"))), names(C))
-  #component types: base, fsep, isep, power, na, level
-  is.0.1.cov <- setNames(rep(FALSE, ncol(C)), names(C))
-  for (i in names(C)) {
-    if (is_binary(C[[i]])) {
-      #if (is.logical(C[[i]])) C[[i]] <- as.numeric(C[[i]])
-      if ((is_(C[[i]], c("numeric", "logical")) && 
-           all(check_if_zero(as.numeric(C[[i]]) - binarize(C[[i]])), na.rm = TRUE)) ||
-          all(as.character(C[[i]]) %in% c("0", "1"))) {
-        is.0.1.cov[i] <- TRUE
-      }
-      
-      C[[i]] <- factor(C[[i]], nmax = 2)
-      C[[i]] <- relevel(C[[i]], levels(C[[i]])[2])
-    }
-    else if (is_(C[[i]], c("character", "factor"))) C[[i]] <- factor(C[[i]])
-    if (is_not_null(cluster) && !nunique.gt(C[[i]], nunique(cluster)) && 
-        equivalent.factors(C[[i]], cluster)) {
-      C <- C[names(C) != i] #Remove variable if it is the same (linear combo) as cluster variable
-    }
-    else {
-      if (anyNA(C[[i]])) vars.w.missing[i, "has.missing"] <- TRUE
-      if (!is.numeric(C[[i]])) {
-        old.C.names <- names(C)
-        C <- splitfactor(C, i, replace = TRUE, sep = A[["factor_sep"]], drop.first = FALSE, 
-                         drop.singleton = FALSE)
-        newly.added.names <- names(C)[names(C) %nin% old.C.names]
-        vars.w.missing[i, "placed.after"] <- last(newly.added.names)
-        co.names <- c(co.names, setNames(lapply(newly.added.names, function(x) {
-          split.points <- c(nchar(i), nchar(i) + nchar(A[["factor_sep"]]))
-          split.names <- substring(x,
-                                   c(1, split.points[1] + 1, split.points[2] + 1),
-                                   c(split.points[1], split.points[2], nchar(x))
-          )
-          setNames(list(split.names, c("base", "fsep", "level")), 
-                   c("component", "type"))
-        }), newly.added.names))
-      }
-    }
-  }
-  
-  if (is_null(C)) stop("There are no variables for which to display balance.", call. = FALSE)
-  
-  #Make sure categorical variable have missingness indicators done correctly
-  
-  C <- C[!vapply(C, all_the_same, logical(1L))]
-  C <- as.matrix(C)
-  
-  #Process int and poly
-  if (length(int) != 1L || !is.finite(int) || !(is.logical(int) || is.numeric(int))) {
-    stop("int must be TRUE, FALSE, or a numeric value of length 1.", call. = FALSE)
-  }
-  if (int < 0 || !check_if_zero(abs(int - round(int)))) {
-    stop("int must be TRUE, FALSE, or a numeric (integer) value greater than 1.", call. = FALSE)
-  }
-  int <- as.integer(round(int))
-  
-  if (length(poly) != 1L || !is.finite(poly) || !is.numeric(poly)) {
-    stop("poly must be a numeric value of length 1.", call. = FALSE)
-  }
-  if (poly < 0 || !check_if_zero(abs(poly - round(poly)))) {
-    stop("poly must be a numeric (integer) value greater than 1.", call. = FALSE)
-  }
-  poly <- as.integer(round(poly))
-  
-  if (int || poly > 1) {
-    if (int) { 
-      #Prevent duplicate var names with `sep`s
-      nsep <- 1
-      repeat {
-        all.possible.names <- outer(colnames(C), colnames(C), paste, sep = paste0(rep.int(A[["int_sep"]], nsep), collapse = ""))
-        if (!any(colnames(C) %in% all.possible.names)) break
-        else nsep <- nsep + 1
-      }
-      
-      if (poly < int) poly <- int
-      
-      int <- TRUE
-    }
-    
-    new <- int.poly.f(C, int = int, poly = poly, center = A[["center"]], 
-                      sep = rep.int(A[["int_sep"]], nsep), co.names = co.names)
-    C <- cbind(C, new)
-    co.names <- c(co.names, attr(new, "co.names"))
-  }
-  
-  #Add missingness indicators
-  vars.w.missing <- vars.w.missing[vars.w.missing$placed.after %in% colnames(C) & vars.w.missing$has.missing, , drop = FALSE]
-  if (NROW(vars.w.missing) > 0) {
-    missing.ind <- apply(C[,colnames(C) %in% vars.w.missing$placed.after, drop = FALSE], 2, function(x) as.numeric(is.na(x)))
-    colnames(missing.ind) <- rownames(vars.w.missing)
-    vars.w.missing <- vars.w.missing[colnames(missing.ind), , drop = FALSE]
-    colnames(missing.ind) <- paste0(colnames(missing.ind), ":<NA>")
-    original.var.order <- setNames(seq_len(NCOL(C)), colnames(C))
-    new.var.order <- original.var.order + cumsum(c(0,(colnames(C) %in% vars.w.missing$placed.after)[-NCOL(C)]))
-    new.C <- matrix(NA, nrow = NROW(C), ncol = NCOL(C) + NCOL(missing.ind),
-                    dimnames = list(rownames(C), seq_len(NCOL(C) + NCOL(missing.ind))))
-    new.C[, new.var.order] <- C
-    new.C[, -new.var.order] <- missing.ind
-    colnames(new.C)[new.var.order] <- colnames(C)
-    colnames(new.C)[-new.var.order] <- colnames(missing.ind)
-    miss.co.names <- setNames(lapply(rownames(vars.w.missing), function(x) setNames(list(c(x, ":<NA>"),
-                                                                                         c("base", "na")), c("component", "type"))),
-                              colnames(missing.ind))
-    C <- new.C
-    missing.ind.C <- colnames(missing.ind)
-    if (int) {
-      new <- int.poly.f(missing.ind, int = TRUE, poly = 1, sep = rep.int(A[["int_sep"]], nsep), co.names = miss.co.names)
-      C <- cbind(C, new)
-      missing.ind.C <- c(missing.ind.C, colnames(new))
-      miss.co.names <- c(miss.co.names, attr(new, "co.names"))
-    }
-    co.names <- c(co.names, miss.co.names)
-    
-  }
-  
-  #Remove duplicate & redundant variables
-  if (getOption("cobalt_remove_perfect_col", ncol(C) <= 900)) 
-    C <- remove_perfect_col(C) 
-  
-  if (is_not_null(distance)) {
-    if (any(names(distance) %in% colnames(C))) stop("distance variable(s) share the same name as a covariate. Please ensure each variable name is unique.", call. = FALSE)
-    if (any(apply(distance, 2, function(x) anyNA(x)))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
-    C <- cbind(as.matrix(distance), C, row.names = NULL)
-    dist.co.names <- setNames(lapply(names(distance), function(x) setNames(list(x, "base"), c("component", "type"))), names(distance))
-    co.names <- c(dist.co.names, co.names)
-  }
-  
-  co.names <- co.names[colnames(C)]
-  
-  #Get rid of _1 for binary covs
-  for (i in colnames(C)) {
-    in.is.0.1.cov <- vapply(names(is.0.1.cov)[is.0.1.cov], 
-                            function(i1) length(co.names[[i]][["component"]]) == 3 && 
-                              co.names[[i]][["component"]][1] == i1 && 
-                              co.names[[i]][["component"]][2] == A[["factor_sep"]] &&
-                              co.names[[i]][["component"]][3] %in% c("1", "TRUE"), 
-                            logical(1L))
-    
-    if (any(in.is.0.1.cov)) {
-      name.index <- which(colnames(C) == i)
-      new.name <- names(is.0.1.cov)[is.0.1.cov][in.is.0.1.cov][1]
-      colnames(C)[name.index] <- new.name
-      names(co.names)[name.index] <- new.name
-      co.names[[name.index]][["component"]] <- new.name
-      co.names[[name.index]][["type"]] <- "base"
-    }
-  }
-  
-  attr(co.names, "seps") <- c(factor = A[["factor_sep"]], int = A[["int_sep"]])
-  attr(C, "co.names") <- co.names
-  if (is_not_null(distance)) attr(C, "distance.names") <- names(distance)
-  if (NROW(vars.w.missing) > 0) attr(C, "missing.ind") <- missing.ind.C
-  
-  return(C)
-  
-}
 
 get_ints_from_co.names <- function(co.names) {
   if (is_not_null(co.names)) {
@@ -1652,12 +1432,12 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   } 
   
   #Drop single_value or colinear with cluster
+  test.treat <- is_not_null(treat) && get.treat.type(treat) != "continuous"
   drop <- vapply(seq_len(ncol(C)), 
                  function(i) 
                    all_the_same(C[,i]) || 
-                   (is_not_null(cluster) && !nunique.gt(C[,i], nunique(cluster)) && 
-                      equivalent.factors(C[,i], cluster)) ||
-                   (is_not_null(treat) && equivalent.factors(C[,i], treat)), 
+                   (is_not_null(cluster) && equivalent.factors2(C[,i], cluster)) ||
+                   (test.treat && equivalent.factors2(C[,i], treat)), 
                  logical(1L))
   
   if (all(drop)) stop("There are no variables for which to display balance.", call. = FALSE)
@@ -2994,6 +2774,12 @@ acceptable.options <- function() {
               factor_sep = "_",
               center = TF,
               remove_perfect_col = TF))
+}
+
+#Misc
+`%+%` <- function(...) {
+  if (is_(..1, c("atomic", "factor")) && is_(..2, c("atomic", "factor"))) crayon::`%+%`(as.character(..1), as.character(..2))
+  else ggplot2::`%+%`(...)
 }
 
 #On attach
