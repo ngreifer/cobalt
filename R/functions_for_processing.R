@@ -1103,10 +1103,10 @@ process_distance.list <- function(distance.list = NULL, datalist = list(), covs.
                                 obj.distance = obj.distance[[x]], obj.distance.name = obj.distance.name))
   }
   else {
-    distance <- process_distance(distance.list, datalist = datalist, 
-                                 obj.distance = obj.distance, obj.distance.name = obj.distance.name)
-    distance.list.out <- lapply(seq_along(covs.list), function(x) distance)
+    distance.list.out <- lapply(seq_along(covs.list), function(x) process_distance(distance.list, datalist = datalist, 
+                                                                                   obj.distance = obj.distance[[x]], obj.distance.name = obj.distance.name))
   }
+  
   return(distance.list.out)
 }
 
