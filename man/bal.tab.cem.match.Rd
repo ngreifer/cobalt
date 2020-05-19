@@ -45,10 +45,10 @@ a data frame containing the treatment, covariates, and variables that might be n
 \code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
 }
   \item{distance}{
-Optional; either a vector or data.frame containing distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}.
+an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look in the argument to \code{data}, if specified.
 }
   \item{addl}{
-an optional data frame or the names of additional covariates for which to present balance. These may be covariates that were not included in the call to \code{cem.match()}. If variable names are specified, \code{bal.tab()} will look in \code{data} for the variables.
+an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look in the arguments to \code{covs} and \code{data}, if specified.
 }
   \item{continuous}{
 whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}}.
