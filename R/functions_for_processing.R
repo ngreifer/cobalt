@@ -1077,7 +1077,7 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
   if (is_not_null(obj.distance)) {
     obj.distance <- setNames(data.frame(obj.distance), obj.distance.name)
     obj.distance <- get_covs_from_formula(~obj.distance)
-    distance <- cbind(distance, obj.distance)
+    distance <- co.bind(if_null_then(distance, NULL), obj.distance)
   }
   
   return(distance)
@@ -1617,8 +1617,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   attr(co.names, "seps") <- c(factor = factor_sep, int = int_sep)
   attr(covs, "co.names") <- co.names
-  class(covs) <- c("co.named", class(covs))
-  
+
   colnames(covs) <- names(co.names)
   return(covs)
 }
@@ -1813,8 +1812,6 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   attr(C, "missing.ind") <- colnames(C)[vapply(co.names, function(x) "na" %in% x[["type"]], logical(1L))]
   if ("distance" %in% names(C_list)) attr(C, "distance.names") <- names(co_list[["distance"]])
   
-  class(C) <- c("co.named", class(C))
-  
   return(C)
   
 }
@@ -1853,7 +1850,6 @@ int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, s
     }
   }
   else poly_terms <- poly_co.names <- list()
-  
   
   if (int && nd > 1) {
     int_terms <- int_co.names <- make_list(1)
@@ -1902,18 +1898,20 @@ int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, s
   
   return(out)
 }
-cbind.co.named <- function(..., deparse.level = 1) {
+co.bind <- function(..., deparse.level = 1) {
   args <- clear_null(list(...))
   if (length(args) <= 1) return(args[[1]])
-  if (all.co.named <- all(vapply(args, is_, logical(1L), "co.named"))) {
-    co.names.list <- lapply(args, attr, "co.names")
-  }
-  for (i in seq_along(args)) class(args[[i]]) <- class(args[[i]])[class(args[[i]]) != "co.named"]
+  
+  co.names.list <- lapply(args, attr, "co.names")
+  
+  seps <- attr(co.names.list[[1]], "seps")
+
   out <- do.call("cbind", args)
-  if (all.co.named) {
-    attr(out, "co.names") <- do.call("c", co.names.list)
-    colnames(out) <- vapply(attr(out, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
-  }
+  
+  attr(out, "co.names") <- do.call("c", co.names.list)
+  attr(attr(out, "co.names"), "seps") <- seps
+  colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
+
   out
 }
 
