@@ -2859,35 +2859,39 @@ x2base.iptw <- function(iptw, ...) {
                                    covs.list = covs.list)
 
     #Process distance
-    ntimes <- iptw$nFits
-    distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
-                                  "the original call to iptw()",
-                                  treat.list,
-                                  covs.list,
-                                  list(data, ps.data))
-    if (is_not_null(distance.list)) {
-        for (ti in seq_along(distance.list)) {
-            if (length(s) == 1) {
-                distance.list[[ti]] <- data.frame(distance[[ti]], prop.score = iptw$psList[[ti]]$ps[[s]])
-            }
-            else {
-                distance.list[[ti]] <- data.frame(distance[[ti]], prop.score = iptw$psList[[ti]]$ps[s])
-            }
-        }
-        
-    }
-    else {
-        distance.list <- make_list(ntimes)
-        for (ti in seq_along(distance.list)) {
-            if (length(s) == 1) {
-                distance.list[[ti]] <- data.frame(prop.score = iptw$psList[[ti]]$ps[[s]])
-            }
-            else {
-                distance.list[[ti]] <- data.frame(prop.score = iptw$psList[[ti]]$ps[s])
-            }
-        }
-    }
-    if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+    # ntimes <- iptw$nFits
+    # distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
+    #                               "the original call to iptw()",
+    #                               treat.list,
+    #                               covs.list,
+    #                               list(data, ps.data))
+    # if (is_not_null(distance.list)) {
+    #     for (ti in seq_along(distance.list)) {
+    #         if (length(s) == 1) {
+    #             distance.list[[ti]] <- data.frame(distance[[ti]], prop.score = iptw$psList[[ti]]$ps[[s]])
+    #         }
+    #         else {
+    #             distance.list[[ti]] <- data.frame(distance[[ti]], prop.score = iptw$psList[[ti]]$ps[s])
+    #         }
+    #     }
+    #     
+    # }
+    # else {
+    #     distance.list <- make_list(ntimes)
+    #     for (ti in seq_along(distance.list)) {
+    #         if (length(s) == 1) {
+    #             distance.list[[ti]] <- data.frame(prop.score = iptw$psList[[ti]]$ps[[s]])
+    #         }
+    #         else {
+    #             distance.list[[ti]] <- data.frame(prop.score = iptw$psList[[ti]]$ps[s])
+    #         }
+    #     }
+    # }
+    # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+    # 
+    distance.list <- process_distance.list(A[["distance.list"]], datalist = list(data, ps.data),
+                                           covs.list = covs.list, obj.distance = lapply(iptw$psList, function(x) x[["ps"]][,s,drop = FALSE]),
+                                           obj.distance.name = if (length(s) > 1) paste.("prop.score", substr(s, 1, nchar(s) - 4)) else "prop.score")
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -3039,7 +3043,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     if (!is_(covs.list, "list")) {
         stop("covs.list must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
     }
-    if (any(!vapply(covs.list, is.data.frame, logical(1L)))) {
+    if (any(!vapply(covs.list, is_, logical(1L), c("data.frame", "matrix")))) {
         stop("Each item in covs.list must be a data frame.", call. = FALSE)
     }
     if (any(vapply(covs.list, function(x) is_null(attr(x, "co.names")), logical(1L)))) {
@@ -3115,13 +3119,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                    covs.list = covs.list)
     
     #Process distance
-    ntimes <- length(covs.list)
-    distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
-                                  "covs.list",
-                                  treat.list,
-                                  covs.list,
-                                  list(data))
-    if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+    distance.list <- process_distance.list(A[["distance.list"]], datalist = list(data),
+                                           covs.list = covs.list)
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
@@ -3322,16 +3321,19 @@ x2base.CBMSM <- function(cbmsm, ...) {
                                    covs.list = covs.list)
     
     #Process distance
-    ntimes <- length(times)
-    distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
-                                  "the original call to CBMSM()",
-                                  treat.list,
-                                  covs.list,
-                                  list(data, cbmsm.data))
-    if (is_not_null(distance.list)) distance.list <- lapply(times, function(x) data.frame(distance.list[[x]], prop.score = cbmsm$fitted.values))
-    else if (is_not_null(cbmsm$fitted.values)) distance.list <- lapply(times, function(x) data.frame(prop.score = cbmsm$fitted.values))
-    else distance.list <- NULL
-    if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+    # ntimes <- length(times)
+    # distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
+    #                               "the original call to CBMSM()",
+    #                               treat.list,
+    #                               covs.list,
+    #                               list(data, cbmsm.data))
+    # if (is_not_null(distance.list)) distance.list <- lapply(times, function(x) data.frame(distance.list[[x]], prop.score = cbmsm$fitted.values))
+    # else if (is_not_null(cbmsm$fitted.values)) distance.list <- lapply(times, function(x) data.frame(prop.score = cbmsm$fitted.values))
+    # else distance.list <- NULL
+    # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+    distance.list <- process_distance.list(A[["distance.list"]], datalist = list(data, cbmsm.data),
+                                           covs.list = covs.list, obj.distance = cbmsm$fitted.values,
+                                           obj.distance.name = "prop.score")
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -3494,18 +3496,20 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
                                    covs.list = covs.list)
 
     #Process distance
-    ntimes <- length(covs.list)
-    distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
-                                  "the original call to weightitMSM()",
-                                  treat.list,
-                                  covs.list,
-                                  list(data, weightitMSM.data,
-                                       weightitMSM.data2))
-    
-    if (is_not_null(distance.list)) distance.list <- lapply(seq_along(distance.list), function(x) data.frame(distance.list[[x]], prop.score = weightitMSM$ps.list[[x]]))
-    else if (is_not_null(weightitMSM$ps.list)) distance.list <- lapply(seq_along(weightitMSM$ps.list), function(x) data.frame(prop.score = weightitMSM$ps.list[[x]]))
-    else distance.list <- NULL
-    if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+    # ntimes <- length(covs.list)
+    # distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
+    #                               "the original call to weightitMSM()",
+    #                               treat.list,
+    #                               covs.list,
+    #                               list(data, weightitMSM.data,
+    #                                    weightitMSM.data2))
+    # if (is_not_null(distance.list)) distance.list <- lapply(seq_along(distance.list), function(x) data.frame(distance.list[[x]], prop.score = weightitMSM$ps.list[[x]]))
+    # else if (is_not_null(weightitMSM$ps.list)) distance.list <- lapply(seq_along(weightitMSM$ps.list), function(x) data.frame(prop.score = weightitMSM$ps.list[[x]]))
+    # else distance.list <- NULL
+    # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+    distance.list <- process_distance.list(A[["distance.list"]], datalist = list(data, weightitMSM.data, weightitMSM.data2),
+                                           covs.list = covs.list, obj.distance = weightitMSM$ps.list,
+                                           obj.distance.name = "prop.score")
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -4213,14 +4217,15 @@ x2base.default <- function(obj, ...) {
                                        covs.list = covs.list)
         
         #Process distance
-        ntimes <- length(covs.list)
-        distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
-                                      "covs.list",
-                                      treat.list,
-                                      covs.list,
-                                      list(data))
-        if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
-        
+        # ntimes <- length(covs.list)
+        # distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
+        #                               "covs.list",
+        #                               treat.list,
+        #                               covs.list,
+        #                               list(data))
+        # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+        distance.list <- process_distance.list(A[["distance.list"]], datalist = list(data),
+                                               covs.list = covs.list)
         #Process focal
         if (is_not_null(focal <- A$focal)) {
             stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
