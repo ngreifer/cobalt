@@ -140,12 +140,12 @@ bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
         binary = "std", continuous = "std")
 ```
 
-Users can specify additional variables for which to display balance using the argument to `addl`. Users can also add all two-way interactions between covariates, including those in `addl`, by specifying `int = TRUE`, and can add polynomials (e.g., squares) of covariates by specifying a numeric argument to `poly`. Interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables. For more details on interactions, see "Details on Calculations", below.
+Users can specify additional variables for which to display balance using the argument to `addl`, which can be supplied as a data.frame, a formula containing variables, or a string of names of variables. Users can also add all two-way interactions between covariates, including those in `addl`, by specifying `int = TRUE`, and can add polynomials (e.g., squares) of covariates by specifying a numeric argument to `poly`. Interactions will not be computed for the distance measure (i.e., the propensity score), and squared terms will not be computed for binary variables. For more details on interactions, see "Details on Calculations", below. To only request a few desired interaction terms, these can be entered into `addl` using a formula, as in `addl = ~ V1 * V2`. Below, balance is requested on the variables stored in `covs`, the additional variables `nodegree` and `married`, and their interactions and squares.
 
 ```{r}
 # Balance on all covariates in data set, including interactions and squares
 bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
-        addl = c("nodegree", "married"), int = TRUE, poly = 2)
+        addl = ~ nodegree + married, int = TRUE, poly = 2)
 ```
 
 Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denominator is the standard deviation of the treated group (`"treated"`), most appropriate when computing the ATT; the standard deviation of the control group (`"control"`), most appropriate when computing the ATC; or the pooled standard deviation (`"pooled"`), computed as in Austin (2009, p. 3087), most appropriate when computing the ATE. If using weights for weighted analysis, `bal.tab()` can determine if the ATT or ATC are being estimated and supply `s.d.denom` accordingly. Otherwise, the default is `"pooled"`, and when matching or subclassification are used, the default is `"treated"`. See Austin (2011) for an explanation on how to calculate weights for estimation of the ATT, ATE, and ATC.
@@ -437,7 +437,7 @@ love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
 ```
 
 ### Comparing balancing methods
-It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. This can eb done by supplying the weights or the output objects thesmevles. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
+It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. This can be done by supplying the weights or the output objects thesmevles. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
 
 ```{r}
 bal.tab(treat ~ covs, data = lalonde, 

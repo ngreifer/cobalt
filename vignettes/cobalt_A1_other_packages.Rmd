@@ -45,8 +45,6 @@ library("MatchIt")
 m.out <- matchit(f.build("treat", covs), data = lalonde, method = "nearest")
 ```
 
-`f.build()` can also be used in the `Matching`, `optmatch`, `ebalance`, and formula interfaces in `bal.tab()`.
-
 ### `splitfactor()` and `unsplitfactor()`
 
 Some functions (outside of `cobalt`) are not friendly to factor or character variables, and require numeric variables to operate correctly. For example, some regression-style functions, such as `ebalance()` in `ebal`, can only take in non-singular numeric matrices. Other functions will process factor variables, but will return output in terms of dummy coded version of the factors. For example, `lm()` will create dummy variables out of a factor and drop the reference category to create regression coefficients.
@@ -71,7 +69,7 @@ Notice the original data set and the unsplit data set look identical. If the inp
 
 ### `get.w()`
 
-`get.w()` allows users to extract weights from the output of a call to a preprocessing function in one of the supported packages. Because each package stores weights in different ways, it can be helpful to have a single function that applies equally to all outputs. `twang` has a function called `get.weights()` that performs the same functions with slightly finer control for the output of a call to `ps()`. See the section "Comparing balancing methods" in the main vignette for examples of the use of `get.w()`.
+`get.w()` allows users to extract weights from the output of a call to a preprocessing function in one of the supported packages. Because each package stores weights in different ways, it can be helpful to have a single function that applies equally to all outputs. `twang` has a function called `get.weights()` that performs the same functions with slightly finer control for the output of a call to `ps()`.
 
 ## `bal.tab()`
 
@@ -124,7 +122,7 @@ p.score <- fit$fitted.values
 match.out <- Match(Tr = lalonde$treat, X = p.score, estimand = "ATT")
 
 bal.tab(match.out, formula = f.build("treat", covs0), data = lalonde,
-        distance = p.score)
+        distance = ~ p.score)
 ```
 
 The output looks quite different from `Matching`'s `MatchBalance()` output. Rather than being stacked vertically, balance statistics are arranged horizontally in a table format, allowing for quick balance checking. Below the balance table is a summary of the sample size before and after matching, similar to what `Matching`'s `summary()` command would display. The sample size can include a "weighted" and "unweighted" count; the "weighted" count is the sum of the matching weights, while the  "unweighted" is the count of units with nonzero matching weights. 
@@ -133,7 +131,7 @@ The input to `bal.tab()` is similar to that given to `MatchBalance()`: the `Matc
 
 ```{r, eval = FALSE}
 bal.tab(match.out, treat = lalonde$treat, covs = covs0,
-        distance = p.score)
+        distance = ~ p.score)
 ```
 
 The other arguments to `bal.tab()` when using it with `Matching` have the same form and function as those given when using it without a conditioning package, except for `s.d.denom`. If the estimand of the original call to `Match()` is the ATT, `s.d.denom` will default to `"treated"` if not specified; if the estimand is the ATE, `s.d.denom` will default to `"pooled"`; if the estimand is the ATC, `s.d.denom` will default to `"control"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable. In addition, the use of the `addl` argument is unnecessary because the covariates are entered manually as arguments, so all covariates for which balance is to be assessed can be entered through the `formula` or `covs` argument. If the covariates are stored in two separate data frames, it may be useful to include one in `formula` or `covs` and the other in `addl`.
@@ -156,7 +154,7 @@ fit <- glm(f.build("treat", covs0), data = lalonde, family = binomial)
 p.score <- fit$fitted.values #get the propensity score
 fm <- fullmatch(treat ~ p.score, data = lalonde)
 
-bal.tab(fm, covs = covs0, distance = p.score)
+bal.tab(fm, covs = covs0, distance = ~ p.score)
 ```
 Most details for the use of `bal.tab()` with `optmatch` are similar to those when using `bal.tab()` with `Matching`. Users can enter either a formula and a data set or a vector of treatment status and a set of covariates. Unlike with `Matching`, entering the treatment variable is optional as it is already stored in the `optmatch` object. `bal.tab()` is compatible with both `pairmatch()` and `fullmatch()` output.
 ```{r, include=FALSE}

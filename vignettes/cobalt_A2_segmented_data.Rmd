@@ -230,4 +230,4 @@ The arguments to `which.treat`, `which.imp`, `abs`, and `agg.fun` can be used to
 
 ## Concluding Remarks
 
-We have demonstrated the use of `cobalt` with clustered data, multiply imputed, and multiply imputed data with a multi-category treatment. Though there are few published recommendations for the display of balance in some of these cases, we believe these tools may encourage development in this area. In general, we believe in displaying the most relevant information as compactly as possible, and thus recommend using `love.plot()` with some degree of aggregation for inclusion in published work. 
+We have demonstrated the use of `cobalt` with clustered data, multiply imputed data, and multiply imputed data with a multi-category treatment. Though there are few published recommendations for the display of balance in some of these cases, we believe these tools may encourage development in this area. In general, we believe in displaying the most relevant information as compactly as possible, and thus recommend using `love.plot()` with some degree of aggregation for inclusion in published work. 
