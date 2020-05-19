@@ -159,24 +159,23 @@ w3 <- ifelse(iptwExWide$tx3 == 1, 1/ps3, 1/(1-ps3))
                      
 w <- w1*w2*w3
 
+# Formula interface plus addl.list:
+bal.tab(list(tx1 ~ use0 + gender,
+             tx2 ~ use0 + gender + use1 + tx1,
+             tx3 ~ use0 + gender + use1 + tx1 + use2 + tx2),
+        data = iptwExWide, 
+        weights = w,
+        distance.list = list(~ps1, ~ps2, ~ps3),
+        addl.list = ~age*gender,
+        un = TRUE)
+        
 # data frame interface:
 bal.tab(list(iptwExWide[c("use0", "gender")],
              iptwExWide[c("use0", "gender", "use1", "tx1")],
              iptwExWide[c("use0", "gender", "use1", "tx1", "use2", "tx2")]),
         treat.list = iptwExWide[c("tx1", "tx2", "tx3")], 
         weights = w,
-        distance.list = list(ps1, ps2, ps3),
-        addl.list = iptwExWide["age"],
-        un = TRUE)
-
-# Formula interface:
-bal.tab(list(tx1 ~ use0 + gender,
-             tx2 ~ use0 + gender + use1 + tx1,
-             tx3 ~ use0 + gender + use1 + tx1 + use2 + tx2),
-        data = iptwExWide, 
-        weights = w,
-        distance.list = list(ps1, ps2, ps3),
-        addl.list = "age",
+        distance.list = list(~ps1, ~ps2, ~ps3),
         un = TRUE)
 }
 \keyword{tables}
