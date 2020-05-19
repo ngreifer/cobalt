@@ -280,7 +280,7 @@ center <- function(x, at = NULL, na.rm = TRUE) {
 }
 w.m <- function(x, w = NULL, na.rm = TRUE) {
     if (is_null(w)) w <- rep(1, length(x))
-    w[is.na(x)] <- NA_real_
+    if (anyNA(x)) w[is.na(x)] <- NA_real_
     return(sum(x*w, na.rm=na.rm)/sum(w, na.rm=na.rm))
 }
 col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
@@ -358,8 +358,8 @@ col.w.cov <- function(mat, y, w = NULL, na.rm = TRUE) {
     }
     if (is_null(w)) {
         y <- array(y, dim = dim(mat))
-        y[is.na(mat)] <- NA
-        mat[is.na(y)] <- NA
+        if (anyNA(mat)) y[is.na(mat)] <- NA
+        if (anyNA(y)) mat[is.na(y)] <- NA
         den <- colSums(!is.na(mat*y)) - 1
         cov <- colSums(center(mat, na.rm = na.rm)*center(y, na.rm = na.rm), na.rm = na.rm)/den
     }
@@ -688,7 +688,7 @@ process.s.weights <- function(s.weights, data = NULL) {
 nunique <- function(x, nmax = NA, na.rm = TRUE) {
     if (is_null(x)) return(0)
     else {
-        if (na.rm) x <- x[!is.na(x)]
+        if (na.rm && anyNA(x)) x <- na.rem(x)
         if (is.factor(x)) return(nlevels(x))
         else return(length(unique(x, nmax = nmax)))
     }
@@ -699,19 +699,18 @@ nunique.gt <- function(x, n, na.rm = TRUE) {
     if (n < 0) stop("n must be non-negative.")
     if (is_null(x)) FALSE
     else {
-        if (na.rm) x <- x[!is.na(x)]
-        if (n == 1) !all_the_same(x)
-        else if (length(x) < 2000) nunique(x) > n
-        else tryCatch(nunique(x, nmax = n) > n, error = function(e) TRUE)
+        if (n == 1) !all_the_same(x, na.rm)
+        else if (length(x) < 2000) nunique(x, na.rm = na.rm) > n
+        else tryCatch(nunique(x, nmax = n, na.rm = na.rm) > n, error = function(e) TRUE)
     }
 }
 all_the_same <- function(x, na.rm = TRUE) {
-    if (na.rm && anyNA(x)) x <- x[!is.na(x)]
+    if (na.rm && anyNA(x)) x <- na.rem(x)
     if (is.double(x)) check_if_zero(abs(max_(x) - min_(x)))
     else !any(x != x[1])
 }
 is_binary <- function(x, na.rm = TRUE) {
-    if (na.rm && anyNA(x)) x <- x[!is.na(x)]
+    if (na.rm && anyNA(x)) x <- na.rem(x)
     !all_the_same(x) && all_the_same(x[x != x[1]])
 }
 is_binary_col <- function(dat, na.rm = TRUE) {
