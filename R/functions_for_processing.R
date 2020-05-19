@@ -1433,10 +1433,11 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   
   #Drop single_value or colinear with cluster
   test.treat <- is_not_null(treat) && get.treat.type(treat) != "continuous"
+  test.cluster <- is_not_null(cluster) && !all_the_same(cluster)
   drop <- vapply(seq_len(ncol(C)), 
                  function(i) 
                    all_the_same(C[,i]) || 
-                   (is_not_null(cluster) && equivalent.factors2(C[,i], cluster)) ||
+                   (test.cluster && equivalent.factors2(C[,i], cluster)) ||
                    (test.treat && equivalent.factors2(C[,i], treat)), 
                  logical(1L))
   
@@ -1723,8 +1724,8 @@ find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
 check_if_zero_weights <- function(weights.df, treat = NULL) {
   #Checks if all weights are zero in each treat group for each set of weights
   if (is_not_null(treat)) {
-    w.t.mat <- expand.grid(colnames(weights.df), treat_vals(treat), stringsAsFactors = FALSE)
-    colnames(w.t.mat) <- c("weight_names", "treat_vals")
+    w.t.mat <- expand.grid(colnames(weights.df), treat_vals(treat), stringsAsFactors = TRUE)
+    names(w.t.mat) <- c("weight_names", "treat_vals")
     
     if (NROW(w.t.mat) > 0) {
       problems <- vapply(seq_len(NROW(w.t.mat)), function(x) all(check_if_zero(weights.df[treat == w.t.mat[x, "treat_vals"], w.t.mat[x, "weight_names"]])), logical(1L))
@@ -2486,15 +2487,6 @@ balance.table.across.subclass.cont <- function(balance.table, balance.table.subc
                        B.A, R.Threshold = NA_character_)
   if (is_not_null(r.threshold)) B.A.df[["R.Threshold"]] <- ifelse(B.A.df[["Type"]]=="Distance", "", paste0(ifelse(is.finite(B.A.df[["Corr.Adj"]]) & abs_(B.A.df[["Corr.Adj"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold))
   return(B.A.df)
-}
-
-#base.bal.tab.target
-samplesize.target <- function(bal.tab.target.list, treat_names, target.name) {
-  which <- treat_names[treat_names != target.name]
-  obs <- do.call("cbind", unname(lapply(bal.tab.target.list, function(x) x[["Observations"]])))[, which]
-  attr(obs, "tag") <- attr(bal.tab.target.list[[1]][["Observations"]], "tag")
-  attr(obs, "ss.type") <- attr(bal.tab.target.list[[1]][["Observations"]], "ss.type")
-  return(obs)
 }
 
 #love.plot
