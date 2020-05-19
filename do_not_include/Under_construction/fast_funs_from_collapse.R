@@ -93,7 +93,8 @@ if (check.package("collapse", TRUE)) {
     }
     
     unique <- function(x, ...) collapse::funique(x, FALSE)
-} else {
+}
+else {
     w.m <- function(x, w = NULL, na.rm = TRUE) {
         if (is_null(w)) w <- rep(1, length(x))
         w[is.na(x)] <- NA_real_

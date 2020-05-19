@@ -27,66 +27,310 @@ skew.diff <- function(x, group, weights, var.type) {
     return(skew.cols)
 }
 
-reconstruct_factors <- function(df) {
-    bin <- apply(df, 2, is_binary)
+#Scalar balance functions - not implemented yet
+bal.sum <- function(mat, treat, weights = NULL, type, s.weights = NULL, check = TRUE, ...) {
+    uni.type <- c("smd", "ks", "ovl")
+    agg.funs <- c("max", "mean", "rms")
+    sample.type <- c("mahalanobis", "gwd", "cstat", "wr2", "design.effect")
+    uni.type.expanded <- expand.grid_string(uni.type, agg.funs, collapse = ".")
+    shortcuts <- c("all", "rec")
+    allowable.type <- c(uni.type.expanded, sample.type, shortcuts)
+    if (missing(type)) stop("type must be specified.", call. = FALSE)
+    else type <- match_arg(type, allowable.type, several.ok = TRUE)
     
-    factor.groups <- rep(NA_integer_, sum(bin))
-    for (i in 1:sum(bin)) {
-        if (i == 1) factor.groups <- 1L
+    if ("all" %in% type) type <- unique(c(type[type != "all"], uni.type.expanded, sample.type))
+    if ("rec" %in% type) type <- unique(c(type[type != "rec"], 
+                                          "smd.mean", "smd.rms",
+                                          "ks.mean", "ks.rms",
+                                          "mahalanobis", "gwd", "wr2"))
+    
+    A <- list(...)
+    
+    if (check) {
+        bad.mat <- FALSE
+        if (missing(mat)) bad.mat <- TRUE
         else {
-            found <- FALSE
-            k <- 1
-            while (k < i && !found) {
-                if (all(check_if_zero(df[,which(bin)[i]] * df[,which(bin)[k]]))) {
-                    found <- TRUE
-                    factor.groups[i] <- factor.groups[k]
-                }
-                else {
-                    k <- k + 1
-                }
+            if (is.data.frame(mat)) {
+                if (any(vapply(mat, function(x) is_(x, c("character", "factor")), logical(1L)))) 
+                    mat <- splitfactor(mat)
+                mat <- as.matrix.data.frame(mat)
             }
-            if (!found) factor.groups[i] <- factor.groups[i-1] + 1
+            else if (is.vector(mat, "numeric")) mat <- matrix(mat, ncol = 1)
+            else if (!is.matrix(mat) || !is.numeric(mat)) bad.mat <- TRUE
+        }
+        if (bad.mat) stop("mat must be a numeric matrix.")
+        
+        if (missing(treat) || !(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
+        
+        if (is_null(weights)) weights <- rep(1, NROW(mat))
+        if (is_null(s.weights)) s.weights <- rep(1, NROW(mat))
+        if (!all_the_same(c(NROW(mat), length(treat), length(weights), length(s.weights)))) {
+            stop("mat, treat, weights, and s.weights (if supplied) must have the same number of units.")
         }
     }
     
-    f.list <- lapply(unique(factor.groups), function(f) {
-        g.names <- colnames(df)[which(bin)[factor.groups==f]]
-        #Find common name
-        sn <- strsplit(g.names, "")
-        
-        stop <- FALSE
-        k <- 1
-        while (k <= min(nchar(g.names)) && !stop) {
-            if (nunique.gt(sapply(sn, function(x) paste0(x[1:k], collapse = "")), 1)) {
-                end.same <- k - 1
-                stop <- TRUE
-            }
-            else k <- k + 1
+    if (any(paste.("smd", agg.funs) %in% type)) {
+        if (!exists("s.d.denom")) s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = A[["estimand"]], weights = data.frame(weights), treat = treat)
+        smd <- col_w_smd(mat, treat, weights, std = TRUE, s.d.denom, abs = TRUE, s.weights = s.weights, check = FALSE)
+        if (is_null(A[["smd.weights"]])) smd.weights <- rep(1, ncol(mat))
+        else if (!is.vector(A[["smd.weights"]], "numeric")) {
+            warning("smd.weights is not numeric. Ignoring smd.weights", 
+                    call. = FALSE, immediate. = TRUE)
+            smd.weights <- rep(1, ncol(mat))
         }
-        if (end.same == -1) {
-            #No sameness in names
+        else if (length(A[["smd.weights"]]) == ncol(mat)) {
+            smd.weights <- A[["smd.weights"]]
         }
         else {
-            symbols <- c("_", ".", " ", ":")
-            if (any(symbols %in% sn[[1]][1:end.same])) {
-                sep <- symbols[symbols == sn[[1]][1:end.same][last(which(sn[[1]][1:end.same] %in% symbols))]]
-                last_sep_index <- last(which(sn[[1]][1:end.same] == sep))
-                f.name <- paste0(sn[[1]][1:(last_sep_index - 1)], collapse = "")
-                f.levels <- sapply(g.names, function(x) substr(x, last_sep_index + 1, nchar(x)))
+            warning("smd.weights should be of length ncol(mat). Ignoring smd.weights", 
+                    call. = FALSE, immediate. = TRUE)
+            smd.weights <- rep(1, ncol(mat))
+        }
+        smd.weights <- smd.weights/mean(smd.weights) #Make sum to ncol(mat)
+        smd <- smd.weights*smd
+    }
+    if (any(paste.("ks", agg.funs) %in% type)) {
+        ks <- col_w_ks(mat, treat, weights, bin.vars = A[["bin.vars"]], check = is_null(A[["bin.vars"]]))
+    }
+    if (any(paste.("ovl", agg.funs) %in% type)) {
+        ovl <- do.call(col_w_ovl, c(list(mat = mat, treat = treat, weights = weights, check = is_null(A[["bin.vars"]])), A))
+    }
+    if ("gwd" %in% type) {
+        if (!exists("s.d.denom")) s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = A[["estimand"]], weights = data.frame(weights), treat = treat)
+    }
+    
+    bal <- setNames(vapply(type, function(m) {
+        if (endsWith(m, ".mean")) {
+            agg <- mean
+            m <- substr(m, 1, nchar(m) - nchar(".mean"))
+        }
+        else if (endsWith(m, ".max")) {
+            agg <- max
+            m <- substr(m, 1, nchar(m) - nchar(".max"))
+        }
+        else if (endsWith(m, ".rms")) {
+            agg <- function(x, ...) {sqrt(mean(x^2, ...))}
+            m <- substr(m, 1, nchar(m) - nchar(".rms"))
+        }
+        
+        if (m %in% uni.type) {
+            return(agg(get0(m), na.rm = TRUE))
+        }
+        else if (m == "mahalanobis") {
+            if (is_null(s.weights)) s.weights <- rep(1, nrow(mat))
+            mdiff <- matrix(col_w_smd(mat, treat, weights, std = FALSE, abs = FALSE, check = FALSE), ncol = 1)
+            wcov <- cov.wt(mat, s.weights)$cov
+            mahal <- crossprod(mdiff, solve(wcov)) %*% mdiff
+            return(mahal)
+        }
+        else if (m == "cstat") {
+            tval1 <- treat[1]
+            d <- data.frame(treat, mat)
+            f <- formula(d)
+            pred <- glm(f, data = d, family = quasibinomial(),
+                        weights = weights)$fitted
+            wi <- wilcox.test(pred ~ treat)
+            cstat <- wi$statistic/(sum(treat==tval1)*sum(treat!=tval1))
+            cstat <- 2*max(cstat, 1-cstat)-1
+            return(cstat)
+        }
+        else if (m == "wr2") {
+            tval1 <- treat[1]
+            d <- data.frame(treat, mat)
+            f <- formula(d)
+            fit <- glm(f, data = d, family = quasibinomial(),
+                       weights = weights)
+            r2 <- 1 - (pi^2/3)/(3*var(fit$linear.predictors) + pi^2/3)
+            return(r2)
+        }
+        else if (m == "gwd") {
+            co.names <- setNames(lapply(colnames(mat), function(x) setNames(list(x, "base"), c("component", "type"))), colnames(mat))
+            new <- int.poly.f2(mat, int = TRUE, poly = 2, center = isTRUE(A[["center"]]), 
+                               sep = getOption("cobalt_int_sep", default = " * "), co.names = co.names)
+            mat_ <- cbind(mat, new)
+            
+            smd <- col_w_smd(mat_, treat, weights, std = TRUE, s.d.denom, abs = TRUE, check = FALSE)
+            if (is_null(A[["gwd.weights"]])) gwd.weights <- c(rep(1, ncol(mat)), rep(.5, ncol(new)))
+            else if (!is.vector(A[["gwd.weights"]], "numeric")) {
+                warning("gwd.weights is not numeric. Ignoring gwd.weights.", 
+                        call. = FALSE, immediate. = TRUE)
+                gwd.weights <- c(rep(1, ncol(mat)), rep(.5, ncol(new)))
+            }
+            else if (length(A[["gwd.weights"]]) == 1L) {
+                gwd.weights <- rep(A[["gwd.weights"]], ncol(mat_))
+            }
+            else if (length(A[["gwd.weights"]]) == 2L) {
+                gwd.weights <- c(rep(A[["gwd.weights"]][1], ncol(mat)), rep(A[["gwd.weights"]][2], ncol(new)))
             }
             else {
-                sep <- ""
-                f.name <- paste0(sn[[1]][1:end.same], collapse = "")
-                f.levels <- sapply(g.names, function(x) substr(x, nchar(f.name) + 1, nchar(x)))
+                warning("gwd.weights should be of length 1 or 2. Ignoring gwd.weights.", 
+                        call. = FALSE, immediate. = TRUE)
+                gwd.weights <- c(rep(1, ncol(mat)), rep(.5, ncol(new)))
             }
-            if (any(check_if_zero(rowSums(df[,g.names, drop = FALSE])))) {
-                other <- "other"
-                while (other %in% f.levels) other <- paste0(other, "_")
-            }
-            else other <- NULL
+            
+            gwd.weights <- gwd.weights/sum(gwd.weights) #Make sum to 1
+            return(sum(gwd.weights*smd, na.rm = TRUE))
         }
-        return(c(f.name = f.name, sep = sep, other = other))
-    })
-    for (f in f.list) df <- unsplitfactor(df, var.name = f["f.name"], sep = f["sep"], dropped.level = f["other"])
-    return(df)
+        else if (m == "design.effect") {
+            tval1 <- treat[1]
+            q <- sum(treat == tval1)/length(treat)
+            des.eff <- function(w) length(w)*sum(w^2)/sum(w)^2
+            des <- c(des.eff(weights[treat == tval1]), des.eff(weights[treat != tval1]))
+            de <- des[1]*(1-q) + des[2]*q
+            return(de)
+        }
+    }, numeric(1L)), type)
+    
+    return(bal)
+}
+
+col_w_edist <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, subset = NULL, na.rm = TRUE, ...) {
+    needs.splitting <- FALSE
+    if (!is.matrix(mat)) {
+        if (is.data.frame(mat)) {
+            if (any(to.split <- vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                needs.splitting <- TRUE
+            }
+            else mat <- as.matrix(mat)
+        }
+        else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
+        else stop("'mat' must be a data.frame or numeric matrix.")
+    }
+    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
+    
+    bin.vars <- process.bin.vars(bin.vars, mat)
+    
+    if (needs.splitting) {
+        bin.vars[to.split] <- TRUE
+        A <- list(...)
+        A <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+                                           split.with = bin.vars),
+                                      A))
+        bin.vars <- attr(mat, "split.with")[[1]]
+    }
+    
+    if (!(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
+    
+    possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+    }
+    
+    if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
+    if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
+    
+    weights <- weights * s.weights
+    
+    weights <- weights[subset]
+    treat <- treat[subset]
+    mat <- mat[subset, , drop = FALSE]
+    
+    tval1 <- treat[1]
+    edist <- rep(NA_real_, NCOL(mat))
+    
+    if (any(!bin.vars)) {
+        mat[,!bin.vars] <- mat[,!bin.vars, drop = FALSE]/sqrt(col.w.v(mat[,!bin.vars]))
+        
+        t1 <- treat == tval1
+        
+        weights[t1] <- weights[t1]/mean(weights[t1])
+        weights[!t1] <- weights[!t1]/mean(weights[!t1])
+        
+        J <- diag(t1/sum(t1) - (!t1)/sum(!t1))
+        
+        edist[!bin.vars] <- vapply(which(!bin.vars), function(i) {
+            x <- mat[,i]
+            d <- as.matrix(dist(x))
+            sqrt(drop(-t(weights) %*% J %*% d %*% J %*% weights)/2)
+        }, numeric(1L))
+    }
+    if (any(bin.vars)) {
+        edist[bin.vars] <- (abs(col.w.m(mat[treat == tval1, bin.vars, drop = FALSE], weights[treat == tval1], na.rm = na.rm) - 
+                                    col.w.m(mat[treat != tval1, bin.vars, drop = FALSE], weights[treat != tval1], na.rm = na.rm)))
+    }
+    
+    setNames(edist, colnames(mat))
+    
+}
+col_pair_diff <- function(mat, treat, strata = NULL, std = TRUE, s.d.denom = "pooled", bin.vars, subset = NULL, ...) {
+    needs.splitting <- FALSE
+    if (!is.matrix(mat)) {
+        if (is.data.frame(mat)) {
+            if (any(to.split <- vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
+                needs.splitting <- TRUE
+            }
+            else mat <- as.matrix(mat)
+        }
+        else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
+        else stop("mat must be a data.frame or numeric matrix.")
+    }
+    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    
+    bin.vars <- process.bin.vars(bin.vars, mat)
+    
+    if (needs.splitting) {
+        bin.vars[to.split] <- TRUE
+        A <- list(...)
+        A <- A[names(A) %in% names(formals(splitfactor)) & 
+                   names(A) %nin% c("data", "var.name", "drop.first",
+                                    "drop.level", "split.with")]
+        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+                                           split.with = bin.vars),
+                                      A))
+        bin.vars <- attr(mat, "split.with")[[1]]
+    }
+    
+    if (missing(treat) || !(is.factor(treat) || is.atomic(treat))) stop("treat must be an atomic vector or factor.")
+    if (!is.atomic(std) || anyNA(as.logical(std)) ||
+        length(std) %nin% c(1L, NCOL(mat))) {
+        stop("std must be a logical vector with length equal to 1 or the number of columns of mat.")
+    }
+    if (is_not_null(subset)) stop("subset cannot be non-NULL.", call. = FALSE)
+    
+    possibly.supplied <- c("mat", "treat", "subset")
+    lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
+                        possibly.supplied)
+    supplied <- lengths > 0
+    if (!all_the_same(lengths[supplied])) {
+        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+    }
+    
+    if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
+    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    
+    if (!is_binary(treat[subset])) stop("treat must be a binary variable.")
+    
+    if (length(std) == 1L) std <- rep(std, NCOL(mat))
+    
+    tval1_0 <- treat[1]
+    
+    denoms <- compute_s.d.denom(mat, treat = treat, 
+                                s.d.denom = s.d.denom, 
+                                bin.vars = bin.vars, to.sd = std)
+    std_mat <- mat_div(mat, denoms)
+    
+    if (is_not_null(strata)) {
+        out <- apply(std_mat, 2, function(x) {
+            diffs <- sapply(unique(strata), function(s) {
+                mean_fast(x[strata == s & treat == tval1_0]) - mean_fast(x[strata == s & treat != tval1_0])
+            })
+            return(sqrt(mean_fast(diffs^2)))
+        })
+    }
+    else {
+        out <- sqrt((col_w_sd(mat, bin.vars = bin.vars, subset = treat == tval1_0)/denoms)^2 +
+                        (col_w_sd(mat, bin.vars = bin.vars, subset = treat != tval1_0)/denoms)^2 +
+                        (col_w_smd(mat, treat, std = FALSE, bin.vars = bin.vars)/denoms)^2)
+    }
+    out
+    
 }

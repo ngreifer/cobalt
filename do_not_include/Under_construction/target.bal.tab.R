@@ -437,3 +437,12 @@ print.bal.tab.target <- function(x, disp.m.threshold = "as.is", disp.v.threshold
     invisible(x)
     
 }
+
+#base.bal.tab.target
+samplesize.target <- function(bal.tab.target.list, treat_names, target.name) {
+    which <- treat_names[treat_names != target.name]
+    obs <- do.call("cbind", unname(lapply(bal.tab.target.list, function(x) x[["Observations"]])))[, which]
+    attr(obs, "tag") <- attr(bal.tab.target.list[[1]][["Observations"]], "tag")
+    attr(obs, "ss.type") <- attr(bal.tab.target.list[[1]][["Observations"]], "ss.type")
+    return(obs)
+}
