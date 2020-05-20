@@ -334,3 +334,106 @@ col_pair_diff <- function(mat, treat, strata = NULL, std = TRUE, s.d.denom = "po
     out
     
 }
+
+STATS[["pair.diffs"]] <- {list(
+    type = "bin",
+    threshold = "pair.threshold",
+    Threshold = "Pair.Threshold",
+    disp_stat = "disp.pair.diff",
+    bin_only = FALSE,
+    abs = function(x) abs_(x),
+    bal.tab_column_prefix = "Pair.Diff", #Also which.stat in love.plot
+    threshold_range = c(0, Inf),
+    balance_tally_for = "within-pair mean differences",
+    variable_with_the_greatest = "within-pair mean difference", #also which.stat2 in love.plot
+    love.plot_xlab = function(...) {
+        A <- list(...)
+        binary <- A$binary #attr(x, "print.options")$binary
+        continuous <- A$continuous #attr(x, "print.options")$continuous
+        abs <- A$abs
+        var_type <- A$var_type #B[["type"]]
+        stars <- A$stars
+        
+        #All std, no std, some std
+        if ((binary == "std" || sum(var_type == "Binary") == 0) && 
+            (continuous == "std" || sum(var_type != "Binary") == 0)) {
+            xlab.diff <- "Standardized Mean Differences"
+        } 
+        else if ((binary == "raw" || sum(var_type == "Binary") == 0) && 
+                 (continuous == "raw" || sum(var_type != "Binary") == 0)) {
+            xlab.diff <- "Mean Differences"
+        }
+        else {
+            stars <- match_arg(stars, c("none", "std", "raw"))
+            if (stars == "none") {
+                xlab.diff <- "Mean Differences"
+            }
+            else if (stars == "std") {
+                xlab.diff <- "Mean Differences"
+            }
+            else if (stars == "raw") {
+                xlab.diff <- "Standardized Mean Differences"
+            }
+        }
+        
+        xlab <- if (abs) paste("Absolute", xlab.diff) else xlab.diff
+        return(xlab)
+    },
+    love.plot_add_stars = function(SS.var, variable.names, ...) {
+        A <- list(...)
+        binary <- A$binary #attr(x, "print.options")$binary
+        continuous <- A$continuous #attr(x, "print.options")$continuous
+        var_type <- A$var_type #B[["Type"]]
+        stars <- A$stars
+        star_char = A$star_char #args$star_char
+        
+        #All std, no std, some std
+        if (!((binary == "std" || sum(var_type == "Binary") == 0) && 
+              (continuous == "std" || sum(var_type != "Binary") == 0)) 
+            &&
+            !((binary == "raw" || sum(var_type == "Binary") == 0) && 
+              (continuous == "raw" || sum(var_type != "Binary") == 0))) {
+            
+            stars <- match_arg(stars, c("none", "std", "raw"))
+            if (stars == "none") {
+                warning("Standardized mean differences and raw mean differences are present in the same plot. \nUse the 'stars' argument to distinguish between them and appropriately label the x-axis.", call. = FALSE)
+            }
+            else {
+                if (length(star_char) != 1 || !is.character(star_char)) star_char <- "*"
+                
+                vars_to_star <- setNames(rep(FALSE, length(variable.names)), variable.names)
+                if (stars == "std") {
+                    if (binary == "std") vars_to_star[variable.names[var_type == "Binary"]] <- TRUE
+                    if (continuous == "std") vars_to_star[variable.names[var_type != "Binary"]] <- TRUE
+                }
+                else if (stars == "raw") {
+                    if (binary == "raw") vars_to_star[variable.names[var_type == "Binary"]] <- TRUE
+                    if (continuous == "raw") vars_to_star[variable.names[var_type != "Binary"]] <- TRUE
+                }
+                new.variable.names <- setNames(variable.names, variable.names)
+                names(new.variable.names)[vars_to_star[variable.names]] <- paste0(variable.names[vars_to_star[variable.names]], star_char)
+                SS.var <- do.call(f.recode, c(list(SS.var), new.variable.names))
+            }
+        }
+        
+        return(SS.var)
+    },
+    baseline.xintercept = 0,
+    threshold.xintercepts = function(threshold, abs) {
+        if (abs) c(lower = base::abs(threshold))
+        else c(lower = -base::abs(threshold), upper = base::abs(threshold))
+    },
+    love.plot_axis_scale = ggplot2::scale_x_continuous,
+    fun = function(C, treat, weights, std, s.d.denom, abs, s.weights, bin.vars, weighted.weights = weights, subset = NULL, ...) {
+        if (is_null(strata <- attr(weights, "match.strata"))) {
+            stop("Within-pair differences cannot be used unless matching strata were specified.", call. = FALSE)
+        }
+        
+        
+        col_w_smd(C, treat = treat, weights = weights, 
+                  std = std, s.d.denom = s.d.denom,
+                  abs = abs, s.weights = s.weights, bin.vars = bin.vars,
+                  weighted.weights = weighted.weights,
+                  subset = NULL)
+    }
+)}
