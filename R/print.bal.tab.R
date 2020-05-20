@@ -1,5 +1,5 @@
 print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", digits = max(3, getOption("digits") - 3), ...) {
-
+    
     A <- list(...)
     call <- x$call
     p.ops <- attr(x, "print.options")
@@ -11,7 +11,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         maximbal[[s]] <- x[[paste.("Max.Imbalance", s)]]
     }
     nn <- x$Observations
-
+    
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
     options(scipen = 999)
@@ -118,7 +118,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
             }
         }
     }
-   
+    
     if (!identical(disp.bal.tab, "as.is")) {
         if (!is.logical(disp.bal.tab)) stop("disp.bal.tab must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
@@ -210,7 +210,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     invisible(x)
 }
 print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", which.cluster, cluster.summary = "as.is", cluster.fun = "as.is", digits = max(3, getOption("digits") - 3), ...) {
-
+    
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
     if (any(sapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all") || identical(as.character(.call[[x]]), ".none")))) {
@@ -225,7 +225,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     c.balance.summary <- x$Balance.Across.Clusters
     nn <- x$Observations
     p.ops <- attr(x, "print.options")
-
+    
     baltal <- maximbal <- list()
     for (s in p.ops$stats) {
         baltal[[s]] <- x[[paste.("Balanced", s)]]
@@ -372,23 +372,16 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         }
     }
     
-    agg.funs <- c("min", "mean", "max")
+    if (!p.ops$quick || is_null(p.ops$cluster.fun)) computed.cluster.funs <- c("min", "mean", "max")
+    else computed.cluster.funs <- p.ops$cluster.fun
     if (!identical(cluster.fun, "as.is")) {
-        p.ops$cluster.fun <- cluster.fun
-    }
-    if (is_not_null(p.ops$cluster.fun)) {
-        if (!is.character(p.ops$cluster.fun)) stop(paste0("cluster.fun must be ", word_list(c(agg.funs, "as.is"), and.or = "or", quotes = TRUE)))
-        p.ops$cluster.fun <- match_arg(tolower(p.ops$cluster.fun), agg.funs, several.ok = TRUE)
-        if (is_null(p.ops$cluster.fun)) {
-            warning("There were no valid entries to cluster.fun. Using the default cluster.funs instead.", call. = FALSE)
-            if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
-            else p.ops$cluster.fun <- c("min", "mean", "max")
-        }
+        if (!is.character(cluster.fun) || !all(cluster.fun %pin% computed.cluster.funs)) stop(paste0("cluster.fun must be ", word_list(c(computed.cluster.funs, "as.is"), and.or = "or", quotes = TRUE)), call. = FALSE)
     }
     else {
-        if (p.ops$abs) p.ops$cluster.fun <- c("mean", "max")
-        else p.ops$cluster.fun <- c("min", "mean", "max")
+        if (p.ops$abs) cluster.fun <- c("mean", "max")
+        else cluster.fun <- c("min", "mean", "max")
     }
+    cluster.fun <- match_arg(tolower(cluster.fun), computed.cluster.funs, several.ok = TRUE)
     
     #Checks and Adjustments
     if (is_null(p.ops$which.cluster)) 
@@ -429,30 +422,30 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     if (is_not_null(which.cluster)) {
         cat(underline("Balance by cluster") %+% "\n")
         for (i in which.cluster) {
-
+            
             cat("\n - - - " %+% italic("Cluster: " %+% names(c.balance)[i]) %+% " - - - \n")
             do.call(print, c(list(c.balance[[i]]), p.ops[names(p.ops) %nin% names(A)], A), quote = TRUE)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
     }
-    
+    # print(agg.funs)
     if (isTRUE(as.logical(p.ops$cluster.summary)) && is_not_null(c.balance.summary)) {
         s.keep.col <- as.logical(c(TRUE, 
-                               unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
-                                   c(unlist(lapply(agg.funs, function(af) {
-                                       p.ops$un && s %in% p.ops$disp && af %in% p.ops$cluster.fun
-                                   })), 
-                                   p.ops$un && !p.ops$disp.adj && length(p.ops$cluster.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
-                               })),
-                               rep(
                                    unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
-                                       c(unlist(lapply(agg.funs, function(af) {
-                                           p.ops$disp.adj && s %in% p.ops$disp && af %in% p.ops$cluster.fun
+                                       c(unlist(lapply(computed.cluster.funs, function(af) {
+                                           p.ops$un && s %in% p.ops$disp && af %in% cluster.fun
                                        })), 
-                                       p.ops$disp.adj && length(p.ops$cluster.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
+                                       p.ops$un && !p.ops$disp.adj && length(cluster.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
                                    })),
-                                   p.ops$nweights + !p.ops$disp.adj)
+                                   rep(
+                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                           c(unlist(lapply(computed.cluster.funs, function(af) {
+                                               p.ops$disp.adj && s %in% p.ops$disp && af %in% cluster.fun
+                                           })), 
+                                           p.ops$disp.adj && length(cluster.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
+                                       })),
+                                       p.ops$nweights + !p.ops$disp.adj)
         ))
         
         if (p.ops$disp.bal.tab) {
@@ -500,7 +493,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     i.balance.summary <- x[["Balance.Across.Imputations"]]
     nn <- x$Observations
     p.ops <- attr(x, "print.options")
-
+    
     baltal <- maximbal <- list()
     for (s in p.ops$stats) {
         baltal[[s]] <- x[[paste.("Balanced", s)]]
@@ -649,23 +642,16 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         }
     }
     
-    agg.funs <- c("min", "mean", "max")
+    if (!p.ops$quick || is_null(p.ops$imp.fun)) computed.imp.funs <- c("min", "mean", "max")
+    else computed.imp.funs <- p.ops$imp.fun
     if (!identical(imp.fun, "as.is")) {
-        p.ops$imp.fun <- imp.fun
-    }
-    if (is_not_null(p.ops$imp.fun)) {
-        if (!is.character(p.ops$imp.fun)) stop(paste0("imp.fun must be ", word_list(c(agg.funs, "as.is"), and.or = "or", quotes = TRUE)))
-        p.ops$imp.fun <- match_arg(tolower(p.ops$imp.fun), agg.funs, several.ok = TRUE)
-        if (is_null(p.ops$imp.fun)) {
-            warning("There were no valid entries to imp.fun. Using the default imp.funs instead.", call. = FALSE)
-            if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
-            else p.ops$imp.fun <- c("min", "mean", "max")
-        }
+        if (!is.character(imp.fun) || !all(imp.fun %pin% computed.imp.funs)) stop(paste0("imp.fun must be ", word_list(c(computed.imp.funs, "as.is"), and.or = "or", quotes = TRUE)), call. = FALSE)
     }
     else {
-        if (p.ops$abs) p.ops$imp.fun <- c("mean", "max")
-        else p.ops$imp.fun <- c("min", "mean", "max")
+        if (p.ops$abs) imp.fun <- c("mean", "max")
+        else imp.fun <- c("min", "mean", "max")
     }
+    imp.fun <- match_arg(tolower(imp.fun), computed.imp.funs, several.ok = TRUE)
     
     #Checks and Adjustments
     if (is_null(p.ops$which.imp)) 
@@ -711,20 +697,20 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
         s.keep.col <- as.logical(c(TRUE, 
-                               unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
-                                   c(unlist(lapply(agg.funs, function(af) {
-                                       p.ops$un && s %in% p.ops$disp && af %in% p.ops$imp.fun
-                                   })), 
-                                   p.ops$un && !p.ops$disp.adj && length(p.ops$imp.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
-                               })),
-                               rep(
                                    unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
-                                       c(unlist(lapply(agg.funs, function(af) {
-                                           p.ops$disp.adj && s %in% p.ops$disp && af %in% p.ops$imp.fun
+                                       c(unlist(lapply(computed.imp.funs, function(af) {
+                                           p.ops$un && s %in% p.ops$disp && af %in% imp.fun
                                        })), 
-                                       p.ops$disp.adj && length(p.ops$imp.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
+                                       p.ops$un && !p.ops$disp.adj && length(imp.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
                                    })),
-                                   p.ops$nweights + !p.ops$disp.adj)
+                                   rep(
+                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                           c(unlist(lapply(computed.imp.funs, function(af) {
+                                               p.ops$disp.adj && s %in% p.ops$disp && af %in% imp.fun
+                                           })), 
+                                           p.ops$disp.adj && length(imp.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
+                                       })),
+                                       p.ops$nweights + !p.ops$disp.adj)
         ))
         
         if (p.ops$disp.bal.tab) {
@@ -773,7 +759,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     m.balance.summary <- x[["Balance.Across.Pairs"]]
     nn <- x$Observations
     p.ops <- attr(x, "print.options")
-
+    
     baltal <- maximbal <- list()
     for (s in p.ops$stats) {
         baltal[[s]] <- x[[paste.("Balanced", s)]]
@@ -1003,22 +989,22 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     }
     
     if (isTRUE(as.logical(p.ops$multi.summary)) && is_not_null(m.balance.summary)) {
-        agg.funs <- c("min", "mean", "max")
+        computed.agg.funs <- "max"
         s.keep.col <- as.logical(c(TRUE, 
-                               unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS("bin")], function(s) {
-                                   c(unlist(lapply(agg.funs, function(af) {
-                                       p.ops$un && s %in% p.ops$disp && af %in% "max"
-                                   })), 
-                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
-                               })),
-                               rep(
                                    unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS("bin")], function(s) {
-                                       c(unlist(lapply(agg.funs, function(af) {
-                                           p.ops$disp.adj && s %in% p.ops$disp && af %in% "max"
+                                       c(unlist(lapply(computed.agg.funs, function(af) {
+                                           p.ops$un && s %in% p.ops$disp && af %in% "max"
                                        })), 
-                                       p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                       p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
                                    })),
-                                   p.ops$nweights + !p.ops$disp.adj)
+                                   rep(
+                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS("bin")], function(s) {
+                                           c(unlist(lapply(computed.agg.funs, function(af) {
+                                               p.ops$disp.adj && s %in% p.ops$disp && af %in% "max"
+                                           })), 
+                                           p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                       })),
+                                       p.ops$nweights + !p.ops$disp.adj)
         ))
         
         if (p.ops$disp.bal.tab) {
@@ -1072,7 +1058,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     msm.balance.summary <- x[["Balance.Across.Times"]]
     nn <- x$Observations
     p.ops <- attr(x, "print.options")
-
+    
     baltal <- maximbal <- list()
     for (s in p.ops$stats) {
         baltal[[s]] <- x[[paste.("Balanced", s)]]
@@ -1272,23 +1258,23 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     }
     
     if (isTRUE(as.logical(p.ops$msm.summary)) && is_not_null(msm.balance.summary)) {
-        agg.funs <- c("min", "mean", "max")
+        computed.agg.funs <- "max"
         s.keep.col <- as.logical(c(TRUE, 
-                               TRUE,
-                               unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
-                                   c(unlist(lapply(agg.funs, function(af) {
-                                       p.ops$un && s %in% p.ops$disp && af %in% "max"
-                                   })), 
-                                   p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
-                               })),
-                               rep(
+                                   TRUE,
                                    unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
-                                       c(unlist(lapply(agg.funs, function(af) {
-                                           p.ops$disp.adj && s %in% p.ops$disp && af %in% "max"
+                                       c(unlist(lapply(computed.agg.funs, function(af) {
+                                           p.ops$un && s %in% p.ops$disp && af %in% "max"
                                        })), 
-                                       p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                       p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
                                    })),
-                                   p.ops$nweights + !p.ops$disp.adj)
+                                   rep(
+                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                           c(unlist(lapply(computed.agg.funs, function(af) {
+                                               p.ops$disp.adj && s %in% p.ops$disp && af %in% "max"
+                                           })), 
+                                           p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                       })),
+                                       p.ops$nweights + !p.ops$disp.adj)
         ))
         
         
@@ -1342,7 +1328,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
         baltal[[s]] <- x[[paste.("Balanced", s, "Subclass")]]
         maximbal[[s]] <- x[[paste.("Max.Imbalance", s, "Subclass")]]
     }
-
+    
     #Prevent exponential notation printing
     op <- options(scipen=getOption("scipen"))
     options(scipen = 999)
@@ -1506,7 +1492,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
             }
             else a.s.keep.row <- rep(TRUE, nrow(b.a.subclass))
             
-                a.s.keep.col <- setNames(as.logical(c(TRUE, 
+            a.s.keep.col <- setNames(as.logical(c(TRUE, 
                                                   rep(unlist(lapply(p.ops$compute[p.ops$compute %nin% all_STATS()], function(s) {
                                                       p.ops$un && s %in% p.ops$disp
                                                   })), switch(p.ops$type, bin = 2, cont = 1)),
@@ -1523,7 +1509,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
                                                   }))
                                                   ), 
                                                   p.ops$disp.adj))),
-                                 names(b.a.subclass))
+                                     names(b.a.subclass))
             
             cat(underline("Balance measures across subclasses") %+% "\n")
             if (all(!a.s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")

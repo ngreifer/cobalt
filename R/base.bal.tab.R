@@ -136,7 +136,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     
     imp <- factor(X$imp)
     
-    if (is_not_null(A[["agg.fun"]])) imp.fun <- A[["agg.fun"]]
+    imp.fun <- if_null_then(imp.fun, A[["agg.fun"]])
     
     #Setup output object
     out.names <- c("Imputation.Balance", 
@@ -357,8 +357,8 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     
     cluster <- factor(X$cluster)
     
-    if (is_not_null(A[["agg.fun"]])) cluster.fun <- A[["agg.fun"]]
-    
+    cluster.fun <- if_null_then(cluster.fun, A[["agg.fun"]])
+
     #Setup output object
     out.names <- c("Cluster.Balance", 
                    "Balance.Across.Clusters", 
@@ -379,7 +379,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     #Create summary of lists
     
     if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
-        out[["Cluster.Summary"]] <- balance.summary(out[["Cluster.Balance"]], 
+        out[["Balance.Across.Clusters"]] <- balance.summary(out[["Cluster.Balance"]], 
                                                     agg.funs = if_null_then(cluster.fun, c("min", "mean", "max")))
         observations <- lapply(out[["Cluster.Balance"]], function(x) x[["Observations"]])
         
@@ -539,5 +539,6 @@ base.bal.tab.subclass.binary <- function(X, ...) {
     base.bal.tab.subclass(X, type = "bin", ...)
 }
 base.bal.tab.subclass.cont <- function(X, ...) {
+    stop("Subclasses are not yet compatible with continuous treatments.", call. = FALSE)
     base.bal.tab.subclass(X, type = "cont", ...)
 }

@@ -78,7 +78,7 @@ process_treat <- function(treat, data = list(), pairwise = TRUE) {
                             which = "treatment statuses", 
                             data = data, missing.okay = FALSE)
     
-    treat <- assign.treat.type(treat, use.multi = !pairwise)
+    treat <- assign.treat.type(treat, use.multi = !if_null_then(pairwise, TRUE))
     treat.type <- get.treat.type(treat)
     
     if (treat.type == "binary") {
@@ -360,6 +360,7 @@ data.frame.process <- function(i, df, treat = NULL, covs = NULL, addl.data = lis
       if (i == "weights") {
         #Use get.w() on inputs
         for (x in seq_along(val)) {
+          val[[x]] <- process_obj(val[[x]])
           if (any(paste.("get.w", class(val[[x]])) %in% methods("get.w"))) {
             val[[x]] <- get.w(val[[x]], treat = treat, ...)
           }
@@ -1888,8 +1889,7 @@ max.imbal <- function(balance.table, col.name, thresh.col.name, abs_stat) {
 }
 
 balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.d.denom, 
-                          thresholds = list(),
-                          un = FALSE, disp = NULL, stats = NULL, 
+                          thresholds = list(), un = FALSE, disp = NULL, stats = NULL, 
                           s.weights = rep(1, length(treat)), abs = FALSE, no.adj = FALSE, 
                           var_types = NULL, s.d.denom.list = NULL, quick = TRUE, ...) {
   #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
@@ -1933,7 +1933,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
         }
       }
       
-      if (!no.adj) {
+      if (!no.adj && (!quick || "means" %in% disp)) {
         for (i in weight.names) {
           for (t in c("0", "1")) {
             B[[paste.("M", t, i)]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = weights[[i]][treat==tn01[t]],
@@ -1946,7 +1946,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
       if (un || !quick) {
         B[["M.Un"]] <- col_w_mean(C, weights = NULL, s.weights = s.weights)
       }
-      if (!no.adj && !quick) {
+      if (!no.adj && (!quick || "means" %in% disp)) {
         for (i in weight.names) {
           B[[paste.("M", i)]] <- col_w_mean(C, weights = weights[[i]], s.weights = s.weights)
         }
@@ -1973,7 +1973,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
         }
       }
       
-      if (!no.adj && !quick) {
+      if (!no.adj && (!quick || "sds" %in% disp)) {
         for (i in weight.names) {
           for (t in c("0", "1")) {
             sds <- rep(NA_real_, NCOL(C))
@@ -1997,7 +1997,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
         }
         B[["SD.Un"]] <- sds
       }
-      if (!no.adj && !quick) {
+      if (!no.adj && (!quick || "sds" %in% disp)) {
         for (i in weight.names) {
           sds <- rep(NA_real_, NCOL(C))
           if (any(sd.computable)) {
@@ -2024,7 +2024,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                                                                               weighted.weights = weights[[1]], ...)
       }
       
-      if (!no.adj) {
+      if (!no.adj && (!quick || s %in%  disp)) {
         for (i in weight.names) {
           B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]] <- STATS[[s]]$fun(C, treat = treat, weights = weights[[i]],
                                                                              std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
@@ -2280,18 +2280,19 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   Brownames <- unique(unlist(lapply(balance.list, rownames), use.names = FALSE))
   
   agg.funs <- tolower(agg.funs)
-  Agg.Funs <- firstup(match_arg(agg.funs, c("min", "mean", "max"), several.ok = TRUE))
-  all.Agg.Funs <- firstup(c("min", "mean", "max"))
-  
+  all.agg.funs <- c("min", "mean", "max")
+  Agg.Funs <- firstup(if (quick) match_arg(agg.funs, all.agg.funs, several.ok = TRUE) else all.agg.funs)
+
   if (length(Agg.Funs) == 1 && Agg.Funs == "Max") abs <- TRUE
   
   Bcolnames <- c("Times", "Type", 
-                 expand.grid_string(
-                   c(unlist(lapply(compute[compute %in% all_STATS("bin")], function(s) {
-                     c(paste.(all.Agg.Funs, STATS[[s]]$bal.tab_column_prefix),
+                 unlist(lapply(c("Un", weight.names), function(wn) {
+                   paste.(c(unlist(lapply(compute[compute %in% all_STATS(type)], function(s) {
+                     c(paste.(Agg.Funs, STATS[[s]]$bal.tab_column_prefix),
                        STATS[[s]]$Threshold)
-                   }))), c("Un", weight.names), collapse = "."))
-  
+                   }))), wn)
+                 })))
+                 
   B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
   names(B) <- Bcolnames
   
@@ -2300,20 +2301,18 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   if (include.times) B[["Times"]] <- vapply(Brownames, function(x) paste(seq_along(balance.list)[vapply(balance.list, function(y) x %in% rownames(y), logical(1L))], collapse = ", "), character(1))[Brownames]
   else B[["Times"]] <- NULL
   
-  for (Agg.Fun in all.Agg.Funs) {
-    if (Agg.Fun %in% Agg.Funs || !quick) {
-      for (s in compute[compute %in% all_STATS(type)]) {
-        abs0 <- function(x) {if (is_null(x)) NA_real_ else if (abs) STATS[[s]]$abs(x) else (x)}
-        agg <- function(x, ...) {
-          if (!any(is.finite(x))) NA_real_
-          else if (s == "variance.ratios" && tolower(Agg.Fun) == "mean") geom.mean(x)
-          else if (tolower(Agg.Fun) == "rms") sqrt(mean_fast(STATS[[s]]$abs(x)^2, TRUE))
-          else get(tolower(Agg.Fun))(x, ...)
-        }
-        for (sample in c("Un", weight.names)) {
-          if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
-            B[[paste.(Agg.Fun, STATS[[s]]$bal.tab_column_prefix, sample)]] <- vapply(Brownames, function(x) agg(unlist(lapply(balance.list, function(y) if (x %in% rownames(y)) abs0(y[[x, paste.(STATS[[s]]$bal.tab_column_prefix, sample)]]))), na.rm = TRUE), numeric(1))
-          }
+  for (Agg.Fun in Agg.Funs) {
+    for (s in compute[compute %in% all_STATS(type)]) {
+      abs0 <- function(x) {if (is_null(x)) NA_real_ else if (abs) STATS[[s]]$abs(x) else (x)}
+      agg <- function(x, ...) {
+        if (!any(is.finite(x))) NA_real_
+        else if (s == "variance.ratios" && tolower(Agg.Fun) == "mean") geom.mean(x)
+        else if (tolower(Agg.Fun) == "rms") sqrt(mean_fast(STATS[[s]]$abs(x)^2, TRUE))
+        else get(tolower(Agg.Fun))(x, ...)
+      }
+      for (sample in c("Un", weight.names)) {
+        if (sample == "Un" || !no.adj) { #Only fill in "stat".Adj if no.adj = FALSE
+          B[[paste.(Agg.Fun, STATS[[s]]$bal.tab_column_prefix, sample)]] <- vapply(Brownames, function(x) agg(unlist(lapply(balance.list, function(y) if (x %in% rownames(y)) abs0(y[[x, paste.(STATS[[s]]$bal.tab_column_prefix, sample)]]))), na.rm = TRUE), numeric(1))
         }
       }
     }
@@ -2483,6 +2482,31 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
   attr(SB, "compute") <- compute
   
   return(SB)
+}
+
+# !!! NEEDS TO BE UPDATED !!!
+balance.table.across.subclass.cont <- function(balance.table, balance.table.subclass.list, subclass.obs, r.threshold = NULL) {
+  #NEEDS TO BE UPDATED
+  
+  B.A <- balance.table.subclass.list[[1]][names(balance.table.subclass.list[[1]]) %in% c("M.Adj", "SD.Adj", "Corr.Adj")]
+  
+  for(i in rownames(B.A)) {
+    for(j in colnames(B.A)) {
+      if (startsWith(j, "SD.")) {
+        B.A[[i, j]] <- sqrt(sum(vapply(seq_along(balance.table.subclass.list),
+                                       function(s) subclass.obs[[s]]/sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]^2), numeric(1))))
+      }
+      else {
+        B.A[[i, j]] <- sum(vapply(seq_along(balance.table.subclass.list),
+                                  function(s) subclass.obs[[s]]/sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]), numeric(1)))
+        
+      }
+    }
+  }
+  B.A.df <- data.frame(balance.table[c("Type", "M.Un", "SD.Un", "Corr.Un", "R.Threshold.Un")], 
+                       B.A, R.Threshold = NA_character_)
+  if (is_not_null(r.threshold)) B.A.df[["R.Threshold"]] <- ifelse(B.A.df[["Type"]]=="Distance", "", paste0(ifelse(is.finite(B.A.df[["Corr.Adj"]]) & abs_(B.A.df[["Corr.Adj"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold))
+  return(B.A.df)
 }
 
 #love.plot
