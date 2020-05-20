@@ -75,7 +75,7 @@ bal.tab(m.out, cluster = "race", which.cluster = c("black", "hispan"),
 bal.tab(m.out, cluster = "race", which.cluster = .none, cluster.fun = "mean")
 ```
 
-These can also be set as global options by using, for example, `set.cobalt.options(cluster.fun = "mean")`, which allows user not to type a non-default option every time they call `bal.tab`.
+These can also be set as global options by using, for example, `set.cobalt.options(cluster.fun = "mean")`, which allows users not to type a non-default option every time they call `bal.tab`.
 
 ### `bal.plot()`
 
