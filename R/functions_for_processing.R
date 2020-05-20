@@ -33,11 +33,30 @@ process_Matchby <- function(x) {
   }
   return(x)
 }
+process_ebalance.trim <- function(x) {
+  if (is_(x, "ebalance.trim")) {
+    class(x) <- "ebalance"
+  }
+  return(x)
+}
+process_npCBPS <- function(x) {
+  if (is_(x, "npCBPS")) {
+    class(x) <- "CBPS"
+  }
+  return(x)
+}
 process_obj <- function(obj) {
-  obj <- process_designmatch(obj)
-  obj <- process_time.list(obj)
-  obj <- process_cem.match.list(obj)
-  obj <- process_Matchby(obj)
+  if (is_null(obj)) obj <- list()
+  else {
+    obj <- process_designmatch(obj)
+    obj <- process_time.list(obj)
+    obj <- process_cem.match.list(obj)
+    obj <- process_Matchby(obj)
+    obj <- process_ebalance.trim(obj)
+    obj <- process_npCBPS(obj)
+  }
+  class(obj) <- c(class(obj), "cobalt.processed.obj")
+  return(obj)
 }
 
 #x2base
@@ -977,6 +996,7 @@ process_focal <- function(focal, treat) {
 process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, method = character(0), addl.data = list(), ...) {
   if (is_not_null(obj)) {
     weights <- get.w(obj, treat = treat, ...)
+    
     if (is_(weights, c("data.frame", "matrix"))) {
       weights <- data.frame(weights)
     }
