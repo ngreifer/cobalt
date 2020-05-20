@@ -60,7 +60,7 @@ process_obj <- function(obj) {
 }
 
 #x2base
-process_treat <- function(treat, data = list()) {
+process_treat <- function(treat, data = list(), pairwise = TRUE) {
   
   if (missing(treat)) stop("'treat' must be specified.", call. = FALSE)
   
@@ -78,7 +78,7 @@ process_treat <- function(treat, data = list()) {
                             which = "treatment statuses", 
                             data = data, missing.okay = FALSE)
     
-    treat <- assign.treat.type(treat)
+    treat <- assign.treat.type(treat, use.multi = !pairwise)
     treat.type <- get.treat.type(treat)
     
     if (treat.type == "binary") {
@@ -1095,7 +1095,7 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
   
   distance <- distance_t.c[["covs"]]
   
-  if (is_not_null(obj.distance)) {
+  if (is_not_null(obj.distance) && !all(is.na(obj.distance))) {
     obj.distance <- setNames(data.frame(obj.distance), obj.distance.name)
     obj.distance <- get_covs_from_formula(~obj.distance)
     distance <- co.bind(if_null_then(distance, NULL), obj.distance)
@@ -2287,7 +2287,7 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   
   Bcolnames <- c("Times", "Type", 
                  expand.grid_string(
-                   c(unlist(lapply(compute, function(s) {
+                   c(unlist(lapply(compute[compute %in% all_STATS("bin")], function(s) {
                      c(paste.(all.Agg.Funs, STATS[[s]]$bal.tab_column_prefix),
                        STATS[[s]]$Threshold)
                    }))), c("Un", weight.names), collapse = "."))
@@ -2302,7 +2302,7 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   
   for (Agg.Fun in all.Agg.Funs) {
     if (Agg.Fun %in% Agg.Funs || !quick) {
-      for (s in compute) {
+      for (s in compute[compute %in% all_STATS(type)]) {
         abs0 <- function(x) {if (is_null(x)) NA_real_ else if (abs) STATS[[s]]$abs(x) else (x)}
         agg <- function(x, ...) {
           if (!any(is.finite(x))) NA_real_
@@ -2321,7 +2321,7 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   
   if (length(Agg.Funs) == 1) {
     #Assign X.Threshold values
-    for (s in compute) {
+    for (s in compute[compute %in% all_STATS(type)]) {
       if (is_not_null(thresholds[[s]])) {
         if (no.adj) {
           B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab_column_prefix, "Un")]]), "", 
@@ -2414,7 +2414,6 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
   binary <- match_arg(binary, c("raw", "std"))
   sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
   
-  #-------------------------------------
   for (i in levels(subclass)) {
     
     in.subclass <- !is.na(subclass) & subclass==i
@@ -2484,29 +2483,6 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
   attr(SB, "compute") <- compute
   
   return(SB)
-}
-balance.table.across.subclass.cont <- function(balance.table, balance.table.subclass.list, subclass.obs, r.threshold = NULL) {
-  #Not specified
-  
-  B.A <- balance.table.subclass.list[[1]][c("M.Adj", "SD.Adj", "Corr.Adj")]
-  
-  for(i in rownames(B.A)) {
-    for(j in colnames(B.A)) {
-      if (startsWith(j, "SD.")) {
-        B.A[[i, j]] <- sqrt(sum(vapply(seq_along(balance.table.subclass.list),
-                                       function(s) subclass.obs[[s]]/sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]^2), numeric(1))))
-      }
-      else {
-        B.A[[i, j]] <- sum(vapply(seq_along(balance.table.subclass.list),
-                                  function(s) subclass.obs[[s]]/sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]), numeric(1)))
-        
-      }
-    }
-  }
-  B.A.df <- data.frame(balance.table[c("Type", "M.Un", "SD.Un", "Corr.Un", "R.Threshold.Un")], 
-                       B.A, R.Threshold = NA_character_)
-  if (is_not_null(r.threshold)) B.A.df[["R.Threshold"]] <- ifelse(B.A.df[["Type"]]=="Distance", "", paste0(ifelse(is.finite(B.A.df[["Corr.Adj"]]) & abs_(B.A.df[["Corr.Adj"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold))
-  return(B.A.df)
 }
 
 #love.plot
