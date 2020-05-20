@@ -956,7 +956,6 @@ x2base.Match <- function(Match, ...) {
     
     return(X)
 }
-x2base.Matchby <- x2base.Match
 x2base.formula <- function(formula, ...) {
     A <- list(...)
     
@@ -1319,12 +1318,13 @@ x2base.CBPS <- function(cbps.fit, ...) {
     treat <- get_treat_from_formula(cbps.fit$formula, c.data)
     treat <- process_treat(treat, data = list(data, c.data))
     
-    
     #Process covs
     covs <- get_covs_from_formula(cbps.fit$formula, c.data)
     
     #Get estimand
-    estimand <- A$estimand
+    if (is_not_null(estimand <- A$estimand)) {
+        stop("'estimand' is not allowed with CBPS objects.", call. = FALSE)
+    }
     
     #Get method
     method <- "weighting"
@@ -1338,7 +1338,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                                  obj.distance.name = "prop.score")
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with CBPS objects.", call. = FALSE)
+        stop("'focal' is not allowed with CBPS objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -1425,11 +1425,10 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     stats <- process_stats(stats, treat = treat)
     
-    stats <- process_stats(stats, treat = treat)
-    
     #Get s.d.denom
     if ("mean.diffs" %in% stats) {
-        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
+        s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal,
+                                   quietly = TRUE)
     }
     else if ("correlations" %in% stats) {
         s.d.denom <- get.s.d.denom.cont(A$s.d.denom, weights = weights, subclass = subclass)
@@ -1458,7 +1457,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
 }
 x2base.ebalance <- function(ebalance, ...) {
     A <- list(...)
-    
+
     #Process ebalance
     
     #Process data and get imp
@@ -1615,7 +1614,7 @@ x2base.ebalance <- function(ebalance, ...) {
     X <- setNames(X[X.names], X.names)
     
     class(X) <- "binary"
-    
+
     return(X)
 }
 x2base.ebalance.trim <- x2base.ebalance
