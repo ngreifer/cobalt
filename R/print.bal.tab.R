@@ -374,7 +374,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     
     if (!p.ops$quick || is_null(p.ops$cluster.fun)) computed.cluster.funs <- c("min", "mean", "max")
     else computed.cluster.funs <- p.ops$cluster.fun
-    if (!identical(cluster.fun, "as.is")) {
+    if (is_not_null(cluster.fun) && !identical(cluster.fun, "as.is")) {
         if (!is.character(cluster.fun) || !all(cluster.fun %pin% computed.cluster.funs)) stop(paste0("cluster.fun must be ", word_list(c(computed.cluster.funs, "as.is"), and.or = "or", quotes = TRUE)), call. = FALSE)
     }
     else {
@@ -429,7 +429,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
     }
-    # print(agg.funs)
+    
     if (isTRUE(as.logical(p.ops$cluster.summary)) && is_not_null(c.balance.summary)) {
         s.keep.col <- as.logical(c(TRUE, 
                                    unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
@@ -644,7 +644,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     if (!p.ops$quick || is_null(p.ops$imp.fun)) computed.imp.funs <- c("min", "mean", "max")
     else computed.imp.funs <- p.ops$imp.fun
-    if (!identical(imp.fun, "as.is")) {
+    if (is_not_null(imp.fun) && !identical(imp.fun, "as.is")) {
         if (!is.character(imp.fun) || !all(imp.fun %pin% computed.imp.funs)) stop(paste0("imp.fun must be ", word_list(c(computed.imp.funs, "as.is"), and.or = "or", quotes = TRUE)), call. = FALSE)
     }
     else {
