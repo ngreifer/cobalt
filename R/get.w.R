@@ -1,4 +1,13 @@
-get.w <- function(x, ...) UseMethod("get.w")
+get.w <- function(x, ...) {
+    
+    if (!is_(x, "cobalt.processed.obj")) {
+        x <- process_obj(x)
+        get.w(x, ...)
+    }
+    else {
+        UseMethod("get.w")
+    }
+}
 get.w.matchit <- function(x,...) {
     return(x$weights)
 }
@@ -206,11 +215,10 @@ get.w.iptw <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
     return(w)
 }
 get.w.Match <- function(x, ...) {
-    M <- x
-    nobs <- M$orig.nobs
-    ci <- M$index.control
-    ti <- M$index.treated
-    di <- M$index.dropped
+    nobs <- x$orig.nobs
+    ci <- x$index.control
+    ti <- x$index.treated
+    di <- x$index.dropped
     
     tr <- rep(0, nobs)
     
@@ -219,7 +227,7 @@ get.w.Match <- function(x, ...) {
     
     w <- rep(1, nobs)
     cu <- which(tr != 1)
-    weight.by.c <- setNames(M$weights, ci)
+    weight.by.c <- setNames(x$weights, ci)
     
     w[di] <- 0
     w[cu] <- vapply(cu, function(x) {
@@ -228,9 +236,7 @@ get.w.Match <- function(x, ...) {
     
     return(w)
 }
-get.w.Matchby <- get.w.Match
 get.w.CBPS <- function(x, estimand, ...) {
-    c <- x
     A <- list(...)
     if (is_null(A$use.weights)) use.weights <- TRUE
     else use.weights <- A$use.weights
@@ -238,18 +244,18 @@ get.w.CBPS <- function(x, estimand, ...) {
     if (!missing(estimand)) estimand <- tolower(estimand)
     else estimand <- NULL
     
-    if ("CBPSContinuous" %in% class(c) || is.factor(c$y)) { #continuous
-        return(c$weights)
+    if ("CBPSContinuous" %in% class(x) || is.factor(x$y) || is_null(x$fitted.values)) { #continuous or npCBPS
+        return(x$weights)
     }
     else {
         if (!use.weights) {
-            ps <- c$fitted.values
-            t <- c$y 
+            ps <- x$fitted.values
+            t <- x$y 
             if (is_null(estimand)) {
-                if (nunique.gt(c$weights[t == 1], 1)) {
-                    estimand <- "ate"
+                if (all_the_same(x$weights[t == 1])) {
+                    estimand <- "att"
                 }
-                else estimand <- "att"
+                else estimand <- "ate"
             }
             
             estimand <- match_arg(tolower(estimand), c("att", "atc", "ate"))
@@ -264,13 +270,10 @@ get.w.CBPS <- function(x, estimand, ...) {
             }
         }
         else {
-            return(c$weights)
+            return(x$weights)
         }
         
     }
-}
-get.w.npCBPS <- function(x, ...) {
-    return(x$weights)
 }
 get.w.CBMSM <- function(x, ...) {
     return(x$weights[sort(unique(x$id))])
@@ -288,7 +291,6 @@ get.w.ebalance <- function(x, treat, ...) {
     weights[treat == treat_vals(treat)["Control"]] <- x$w
     return(weights)
 }
-get.w.ebalance.trim <- get.w.ebalance
 get.w.optmatch <- function(x, ...) {
     treat <- as.numeric(attr(x, "contrast.group"))
     return(strata2weights(x, treat = treat))
@@ -313,14 +315,13 @@ get.w.weightit <- function(x, s.weights = FALSE, ...) {
     else return(x$weights)
 }
 get.w.designmatch <- function(x, treat, ...) {
-    dm <- x
     if (missing(treat)) stop("treat must be specified.", call. = FALSE)
-    if (length(dm[["group_id"]]) != length(dm[["t_id"]]) + length(dm[["c_id"]])) {
+    if (length(x[["group_id"]]) != length(x[["t_id"]]) + length(x[["c_id"]])) {
         stop("designmatch objects without 1:1 matching cannot be used.", call. = FALSE)
     }
     q <- merge(data.frame(id = seq_along(treat)), 
-               data.frame(id = c(dm[["t_id"]], dm[["c_id"]]),
-                          group = factor(dm[["group_id"]])),
+               data.frame(id = c(x[["t_id"]], x[["c_id"]]),
+                          group = factor(x[["group_id"]])),
                all.x = TRUE, by = "id")
     q <- q[order(q$id), , drop = FALSE]
     
