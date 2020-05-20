@@ -19,7 +19,7 @@ Imports:
 Suggests:
     MatchIt,
     WeightIt (>= 0.5.0),
-    twang,
+    twang (>= 1.6),
     Matching,
     optmatch,
     cem,
