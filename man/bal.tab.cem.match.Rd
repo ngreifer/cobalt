@@ -7,7 +7,7 @@ Balance Statistics for cem Objects
 Generates balance statistics for \code{cem.match} objects from \pkg{cem}.
 }
 \usage{
-\method{bal.tab}{cem.match}(cem.match, 
+\method{bal.tab}{cem.match}(x, 
         data, 
         stats,
         int = FALSE, 
@@ -29,7 +29,7 @@ Generates balance statistics for \code{cem.match} objects from \pkg{cem}.
 }
 
 \arguments{
-  \item{cem.match}{
+  \item{x}{
 a \code{cem.match} or \code{cem.match.list} object; the output of a call to \code{cem()} from the \pkg{cem} package.
 }
   \item{data}{

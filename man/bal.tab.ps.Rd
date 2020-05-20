@@ -10,7 +10,7 @@ Balance Statistics for twang Objects
 Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{WeightIt}. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
 }
 \usage{
-\method{bal.tab}{ps}(ps, 
+\method{bal.tab}{ps}(x, 
     stop.method, 
     stats,
     int = FALSE, 
@@ -29,7 +29,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     subset = NULL,
     quick = TRUE, ...)
 
-\method{bal.tab}{mnps}(mnps, 
+\method{bal.tab}{mnps}(x, 
     stop.method, 
     stats,
     int = FALSE, 
@@ -50,7 +50,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     subset = NULL,
     quick = TRUE, ...)
     
-\method{bal.tab}{iptw}(iptw, 
+\method{bal.tab}{iptw}(x, 
     stop.method, 
     stats,
     int = FALSE, 
@@ -70,7 +70,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     subset = NULL, 
     quick = TRUE, ...)
 
-\method{bal.tab}{ps.cont}(ps.cont, 
+\method{bal.tab}{ps.cont}(x, 
     stop.method, 
     stats,
     int = FALSE, 
@@ -91,7 +91,7 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
 }
 
 \arguments{
-  \item{ps, mnps, iptw, ps.cont}{
+  \item{x}{
 a \code{ps}, \code{mnps}, \code{iptw}, or \code{ps.cont} object; the output of a call to \code{ps()}, \code{mnps()}, or \code{iptw()} from \pkg{twang} or from a call to \code{ps.cont()} from \pkg{WeightIt}.
 }
   \item{stop.method}{

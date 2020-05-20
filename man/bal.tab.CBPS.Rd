@@ -8,7 +8,7 @@ Balance statistics for CBPS Objects
 Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \pkg{CBPS} package.
 }
 \usage{
-\method{bal.tab}{CBPS}(cbps, 
+\method{bal.tab}{CBPS}(x, 
         stats,
         int = FALSE, 
         poly = 1, 
@@ -32,7 +32,7 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
 }
 
 \arguments{
-  \item{cbps}{
+  \item{x}{
 a \code{CBPS} or \code{CBMSM} object; the output of a call to \code{CBPS()} or \code{CBMSM()} from the \pkg{CBPS} package.
 }
   \item{stats}{

@@ -11,7 +11,7 @@ Balance Statistics for \code{Matching}, \code{optmatch}, \code{ebal}, and \code{
 Generates balance statistics for output objects from \pkg{Matching}, \pkg{optmatch}, \pkg{ebal}, and \pkg{designmatch}. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
 }
 \usage{
-\method{bal.tab}{Match}(M, 
+\method{bal.tab}{Match}(x, 
     formula = NULL, 
     data = NULL, 
     treat = NULL, 
@@ -33,25 +33,16 @@ Generates balance statistics for output objects from \pkg{Matching}, \pkg{optmat
     quick = TRUE, 
     ...)
     
-\method{bal.tab}{optmatch}(optmatch, ...)
+\method{bal.tab}{optmatch}(x, ...)
 
-\method{bal.tab}{ebalance}(ebal, ...)
+\method{bal.tab}{ebalance}(x, ...)
 
-\method{bal.tab}{designmatch}(dm, ...)
+\method{bal.tab}{designmatch}(x, ...)
 }
 
 \arguments{
-  \item{M}{
-a \code{Match} object; the output of a call to \code{Match()} from the \pkg{Matching} package.
-}
-  \item{optmatch}{
-an \code{optmatch} object; the output of a call to \code{pairmatch()} or \code{fullmatch()} from the \pkg{optmatch} package. This should be a factor vector containing the matching stratum membership for each unit.
-}
-  \item{ebal}{
-an \code{ebalance} object; the output of a call to \code{ebalance()} or \code{ebalance.trim()} from the \pkg{ebal} package.
-}
-  \item{dm}{
-the output of a call to \code{bmatch()}, \code{nmatch()}, or related wrapper functions from the \pkg{designmatch} package. This should be a list containing the IDs of the matched treated and control units.
+  \item{x}{
+either a \code{Match} object (the output of a call to \code{Match()} or \code{Matchby()} from the \pkg{Matching} package), an \code{optmatch} object (the output of a call to \code{pairmatch()} or \code{fullmatch()} from the \pkg{optmatch} package), an \code{ebalance} object (the output of a call to \code{ebalance()} or \code{ebalance.trim()} from the \pkg{ebal} package), or the output of a call to \code{bmatch()} or related wrapper functions from the \pkg{designmatch} package.
 }
   \item{formula}{
 a \code{formula} with the treatment variable as the response and the covariates for which balance is to be assessed as the predictors. All named variables must be in \code{data}. See Details.

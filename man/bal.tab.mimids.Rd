@@ -8,7 +8,7 @@ Balance Statistics for MatchThem Objects
 Generates balance statistics for \code{mimids} and \code{wimids} objects from \pkg{MatchThem}.
 }
 \usage{
-\method{bal.tab}{mimids}(mimids, 
+\method{bal.tab}{mimids}(x, 
     stats,
     int = FALSE, 
     poly = 1, 
@@ -26,7 +26,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
     quick = TRUE, 
     ...)
 
-\method{bal.tab}{wimids}(wimids, 
+\method{bal.tab}{wimids}(x, 
     stats,
     int = FALSE, 
     poly = 1, 
@@ -48,7 +48,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
 }
 
 \arguments{
-  \item{mimids, wimids}{
+  \item{x}{
 a \code{mimids} or \code{wimids} object; the output of a call to \code{matchthem()} or \code{weightthem()} from the \pkg{MatchThem} package.
 }
   \item{stats}{

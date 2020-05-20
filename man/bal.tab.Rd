@@ -36,12 +36,15 @@ Generates balance statistics on covariates in relation to an observed treatment 
 }
 }
 \usage{
-bal.tab(\dots)
+bal.tab(x, \dots)
 }
 
 \arguments{
+  \item{x}{
+an input object on which to assess balance. Can be the output of a call to a balancing function in another package or a formula or data frame. Input to this argument will determine which \code{bal.tab} method is used.
+  }
   \item{\dots}{
-Arguments passed to other methods. These arguments may be data-related, computation-related, or print-related. The first argument must be the object corresponding to the method to be dispatched; for example, the output of a call to a balancing function in another package or a formula or data frame.
+arguments passed to other methods. These arguments may be data-related, computation-related, or print-related. See the help pages (linked above) for the individual methods and pages linked below for other arguments that can be supplied.
 }
 }
 \details{

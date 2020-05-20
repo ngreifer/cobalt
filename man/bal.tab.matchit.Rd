@@ -7,7 +7,7 @@ Balance Statistics for MatchIt Objects
 Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
 }
 \usage{
-\method{bal.tab}{matchit}(m, 
+\method{bal.tab}{matchit}(x, 
     stats,
     int = FALSE, 
     poly = 1, 
@@ -28,7 +28,7 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note
 }
 
 \arguments{
-  \item{m}{
+  \item{x}{
 a \code{matchit} object; the output of a call to \code{matchit()} from the \pkg{MatchIt} package.
 }
   \item{stats}{

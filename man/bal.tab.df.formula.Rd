@@ -8,7 +8,7 @@ Balance Statistics for Data Sets
 Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a \code{data.frame} or formula interface. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
 }
 \usage{
-\method{bal.tab}{data.frame}(covs, 
+\method{bal.tab}{data.frame}(x, 
     treat, 
     data = NULL, 
     weights = NULL, 
@@ -35,19 +35,16 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
     quick = TRUE, 
     ...)
 
-\method{bal.tab}{formula}(formula, 
+\method{bal.tab}{formula}(x, 
     data = NULL, 
     ...)
 }
 \arguments{
-  \item{covs}{
-A \code{data.frame} containing covariate values for each unit.
+  \item{x}{
+either a \code{data.frame} containing covariate values for each unit or a \code{formula} with the treatment variable as the response and the covariates for which balance is to be assessed as the terms. If a formula is supplied, all terms must be present as variable names in \code{data} or the global environment.
 }
   \item{treat}{
 Either a vector containing treatment status values for each unit or a string containing the name of the treatment variable in \code{data}.
-}
-  \item{formula}{
-  a \code{formula} with the treatment variable as the response and the covariates for which balance is to be assessed as the terms. All terms must be present as variable names in \code{data} or the global environment.
 }
   \item{data}{
 Optional; a \code{data.frame} containing variables with the names used in \code{formula}, \code{treat}, \code{weights}, \code{distance}, \code{addl}, \code{subclass}, \code{match.strata}, \code{cluster}, and/or \code{imp} if any. Can also be a \code{mids} object, the output of a call to \code{mice()} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.

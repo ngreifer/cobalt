@@ -7,7 +7,7 @@ Balance Statistics for sbw Objects
 Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
 }
 \usage{
-\method{bal.tab}{sbwcau}(sbwcau, 
+\method{bal.tab}{sbwcau}(x, 
     stats,
     int = FALSE, 
     poly = 1, 
@@ -28,7 +28,7 @@ Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
 }
 
 \arguments{
-  \item{sbwcau}{
+  \item{x}{
 an \code{sbwcau} object; the output of a call to \code{sbw()} from the \pkg{sbw} package.
 }
   \item{stats}{

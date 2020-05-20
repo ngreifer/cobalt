@@ -8,7 +8,7 @@ Balance Statistics for WeightIt Objects
 Generates balance statistics for \code{weightit} and \code{weightitMSM} objects from \pkg{WeightIt}.
 }
 \usage{
-\method{bal.tab}{weightit}(weightit, 
+\method{bal.tab}{weightit}(x, 
         stats,
         int = FALSE, 
         poly = 1, 
@@ -31,7 +31,7 @@ Generates balance statistics for \code{weightit} and \code{weightitMSM} objects 
 }
 
 \arguments{
-  \item{weightit}{
+  \item{x}{
 a \code{weightit} object; the output of a call to \code{weightit()} or \code{weightitMSM()} from the \pkg{WeightIt} package.
 }
   \item{stats}{
