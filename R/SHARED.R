@@ -755,7 +755,7 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
     s1 <- deparse(substitute(x))
     if (is_not_null(x)) {
         for (i in types) {
-            if (i == "list") it.is <- is.vector(clear_attr(x), "list")
+            if (i == "list") it.is <- is.list(x) && !is.data.frame(x)
             else if (is_not_null(get0(paste0("is_", i)))) {
                 it.is <- get0(paste0("is_", i))(x)
             }
