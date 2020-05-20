@@ -8,7 +8,7 @@ x2base.matchit <- function(m, ...) {
     #Process matchit
     
     #Process data and get imp
-    m.data <- m$model$data
+    m.data <- if (NROW(m$model$data) != length(m$weights)) NULL else m$model$data
     imp <- A$imp
     if (is_not_null(data <- A$data)) {
         if (is_(data, "mids")) {
@@ -33,7 +33,7 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Process treat
-    treat <- process_treat(m[["treat"]], data = list(data, m.data))
+    treat <- process_treat(m[["treat"]], data = list(data, m.data), pairwise = A$pairwise)
     
     #Process covs
     if (is_not_null(m$model$model)) {
@@ -44,10 +44,10 @@ x2base.matchit <- function(m, ...) {
             #Recreating covs from model object and m$X. Have to do this because when 
             #discard != NULL and reestimate = TRUE, cases are lost. This recovers them.
             
-            if (is_not_null(data)) {
-                covs <- get_covs_from_formula(m$formula, data = m$model$model)
-            }
-            else {
+            # if (is_not_null(data)) {
+            #     covs <- get_covs_from_formula(m$formula, data = m$model$model)
+            # }
+            # else {
                 order <- setNames(attr(m$model$terms, "order"),
                                   attr(m$model$terms, "term.labels"))
                 assign <- setNames(attr(m$X, "assign"), colnames(m$X))
@@ -72,7 +72,7 @@ x2base.matchit <- function(m, ...) {
                     if (dataClasses[i] == "logical") covs[[i]] <- as.logical(covs[[i]])
                 }
                 covs <- get_covs_from_formula(m$formula, data = covs)
-            }
+            # }
         }
         
     }
