@@ -1454,13 +1454,15 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   
   #Drop single_value or colinear with cluster
   test.treat <- is_not_null(treat) && get.treat.type(treat) != "continuous"
-  test.cluster <- is_not_null(cluster) && !all_the_same(cluster)
+  test.cluster <- is_not_null(cluster) && !all_the_same(cluster, na.rm = FALSE)
   drop <- vapply(seq_len(ncol(C)), 
-                 function(i) 
-                   all_the_same(C[,i]) || 
-                   (test.cluster && equivalent.factors2(C[,i], cluster)) ||
-                   (test.treat && equivalent.factors2(C[,i], treat)), 
-                 logical(1L))
+                 function(i) {
+                   if (all_the_same(C[,i], na.rm = FALSE)) return(TRUE)
+                   else if (anyNA(C[,i])) return(FALSE)
+                   else if (test.treat && equivalent.factors2(C[,i], treat)) return(TRUE)
+                   else if (test.cluster && equivalent.factors2(C[,i], cluster)) return(TRUE)
+                   else return(FALSE)
+                 }, logical(1L))
   
   if (all(drop)) stop("There are no variables for which to display balance.", call. = FALSE)
   
@@ -1475,7 +1477,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   if (length(int) != 1L || !is.finite(int) || !(is.logical(int) || is.numeric(int))) {
     stop("'int' must be TRUE, FALSE, or a numeric value of length 1.", call. = FALSE)
   }
-  if (int < 0 || !check_if_zero(abs(int - round(int)))) {
+  if (int < 0 || !check_if_int(int)) {
     stop("'int' must be TRUE, FALSE, or a numeric (integer) value greater than 1.", call. = FALSE)
   }
   int <- as.integer(round(int))
@@ -1483,7 +1485,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   if (length(poly) != 1L || !is.finite(poly) || !is.numeric(poly)) {
     stop("'poly' must be a numeric value of length 1.", call. = FALSE)
   }
-  if (poly < 0 || !check_if_zero(abs(poly - round(poly)))) {
+  if (poly < 0 || !check_if_int(poly)) {
     stop("'poly' must be a numeric (integer) value greater than 1.", call. = FALSE)
   }
   poly <- as.integer(round(poly))
@@ -2718,12 +2720,6 @@ unpack_bal.tab <- function(b) {
 }
 
 #bal.plot
-get.var.from.list.with.time <- function(var.name, covs.list) {
-  var.name.in.covs <- vapply(covs.list, function(x) var.name %in% names(x), logical(1))
-  var <- unlist(lapply(covs.list[var.name.in.covs], function(x) x[[var.name]]))
-  times <- rep(var.name.in.covs, each = NCOL(covs.list[[1]]))
-  return(list(var = var, times = times))
-}
 
 #print.bal.tab
 print.data.frame_ <- function(x, ...) {
