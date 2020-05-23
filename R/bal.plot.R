@@ -320,8 +320,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         Q <- make_list(which)
         for (i in which) {
-            Q[[i]] <- setNames(as.data.frame(matrix(0, ncol = 4, nrow = nobs)),
-                               c("treat", "var", "weights", "which"))
+            Q[[i]] <- make_df(c("treat", "var", "weights", "which"), nobs)
             Q[[i]]$treat <- X$treat[in.imp & in.cluster & in.time]
             Q[[i]]$var <- X$var[in.imp & in.cluster & in.time]
             Q[[i]]$weights <-  X$weights[in.imp & in.cluster & in.time, i]
@@ -398,9 +397,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         
         in.sub <- !is.na(X$subclass) & X$subclass %in% which.sub
-        D <- setNames(as.data.frame(matrix(0, nrow = sum(in.sub), ncol = 4)),
-                      c("weights", "treat", "var", "subclass"))
-        D$weights <- rep(1, NROW(D))
+        D <- make_df(c("weights", "treat", "var", "subclass"), sum(in.sub))
+        D$weights <- 1
         D$treat <- X$treat[in.sub]
         D$var <- X$var[in.sub]
         D$subclass <- paste("Subclass", X$subclass[in.sub])
@@ -408,9 +406,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         if (which == "both") {
             #Make unadjusted sample
-            D2 <- setNames(as.data.frame(matrix(0, nrow = length(X$treat), ncol = 4)),
-                           c("weights", "treat", "var", "subclass"))
-            D2$weights <- rep(1, NROW(D2))
+            D2 <- make_df(c("weights", "treat", "var", "subclass"), length(X$treat))
+            D2$weights <- 1
             D2$treat <- X$treat
             D2$var <- X$var
             D2$subclass <- rep("Unadjusted Sample", length(X$treat))

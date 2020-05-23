@@ -314,8 +314,7 @@ process.val <- function(val, i, treat = NULL, covs = NULL, addl.data = list(), .
     else {
       if (is_not_null(addl.data)) {
         val <- unique(val)
-        val.df <- setNames(as.data.frame(matrix(NA, ncol = length(val), nrow = max(vapply(addl.data, nrow, numeric(1))))),
-                           val)
+        val.df <- make_df(val, nrow = max(vapply(addl.data, nrow, numeric(1))))
         not.found <- setNames(rep(FALSE, length(val)), val)
         for (v in val) {
           found <- FALSE
@@ -1271,7 +1270,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       df <- eval(str2expression(x), data, env)
       if (is_(df, "rms")) {
         if (length(dim(df)) == 2L) class(df) <- "matrix"
-        df <- setNames(as.data.frame(as.matrix(df)), attr(df, "colnames"))
+        df <- setNames(as.data.frame.matrix(as.matrix(df)), attr(df, "colnames"))
       }
       else if (can_str2num(colnames(df))) colnames(df) <- paste(x, colnames(df), sep = "_")
       return(as.data.frame(df))
@@ -1915,8 +1914,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                                    }))
               ),
               c("Un", weight.names), collapse = "."))
-  B <- as.data.frame(matrix(nrow = NCOL(C), ncol = length(Bnames)))
-  colnames(B) <- Bnames
+  B <- make_df(Bnames, NCOL(C))
   rownames(B) <- colnames(C)
   
   #Set var type (binary/continuous)
@@ -2079,33 +2077,26 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
     if (length(method) == 1 && method == "subclassification") {
       if (is_null(subclass)) stop("subclass must be a vector of subclasses.")
       
-      nn <- matrix(0, nrow = length(treat_names(treat)) + 1, ncol = 1 + nlevels(subclass))
-      
-      nn[, 1 + nlevels(subclass)] <- c(vapply(treat_vals(treat), function(tn) sum(treat==tn), numeric(1L)), length(treat))
+      nn <- make_df(c(levels(subclass), "All"), c(treat_names(treat), "Total"))
+
+      nn[["All"]] <- c(vapply(treat_vals(treat), function(tn) sum(treat==tn), numeric(1L)), length(treat))
       
       matched <- !is.na(subclass)
-      k <- 1
-      for (i in levels(subclass)) {
-        qt <- treat[matched & subclass == i]
+      for (k in levels(subclass)) {
+        qt <- treat[matched & subclass == k]
         for (tnn in names(treat_names(treat))) {
           if (sum(qt==treat_vals(treat)[treat_names(treat)[tnn]]) < 2)
-            warning(paste0("Not enough ", tnn, " units in subclass ", i, "."), call. = FALSE)
+            warning(paste0("Not enough ", tnn, " units in subclass ", k, "."), call. = FALSE)
         }
-        nn[, k] <- c(vapply(treat_vals(treat), function(tn) sum(qt==tn), numeric(1L)), length(qt))
-        k <- k + 1 #Use a counter because subclass names may not be numbers
+        nn[[k]] <- c(vapply(treat_vals(treat), function(tn) sum(qt==tn), numeric(1L)), length(qt))
       }
-      nn <- as.data.frame.matrix(nn, optional = TRUE)
-      rownames(nn) <- c(treat_names(treat), "Total")
-      names(nn) <- c(levels(subclass), "All")
       attr(nn, "tag") <- "Sample sizes by subclass"
     }
     else {
       if (is_null(weights)) {
         
-        nn <- as.data.frame(matrix(0, ncol = length(treat_vals(treat)), nrow = 1))
-        nn[1, ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat==tn]), numeric(1L))
-        dimnames(nn) <- list(c("All"), 
-                             c(treat_names(treat)))
+        nn <- make_df(treat_names(treat), "All")
+        nn["All", ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat==tn]), numeric(1L))
         if (nunique.gt(s.weights, 2) || !any(s.weights==1) || any(s.weights %nin% c(0,1))) {
           attr(nn, "ss.type") <- c("ess")
         }
@@ -2116,40 +2107,36 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       }
       else if (NCOL(weights) == 1) {
         if (method=="matching") {
-          nn <- as.data.frame(matrix(0, ncol=length(treat_vals(treat)), nrow=5))
-          nn[1, ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn), numeric(1L))
-          nn[2, ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat==tn, 1]), numeric(1L))
-          nn[3, ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & weights[,1] > 0), numeric(1L))
-          nn[4, ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & weights[,1]==0 & !discarded), numeric(1L))
-          nn[5, ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & weights[,1]==0 & discarded), numeric(1L))
-          dimnames(nn) <- list(c("All", "Matched (ESS)", "Matched (Unweighted)", "Unmatched", "Discarded"), 
-                               c(treat_names(treat)))
-          
+          nn <- make_df(treat_names(treat), c("All", "Matched (ESS)", "Matched (Unweighted)", "Unmatched", "Discarded"))
+          nn["All", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn), numeric(1L))
+          nn["Matched (ESS)", ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat==tn, 1]), numeric(1L))
+          nn["Matched (Unweighted)", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & weights[,1] > 0), numeric(1L))
+          nn["Unmatched", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & weights[,1]==0 & !discarded), numeric(1L))
+          nn["Discarded", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & weights[,1]==0 & discarded), numeric(1L))
+
           attr(nn, "ss.type") <- rep("ss", NROW(nn))
           
           if (!any(discarded)) {
             attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
-            nn <- nn[rownames(nn) != "Discarded", ,drop = FALSE]
+            nn <- nn[rownames(nn) != "Discarded",, drop = FALSE]
           }
         }
         else if (method == "weighting") {
-          nn <- as.data.frame(matrix(0, ncol = length(treat_vals(treat)), nrow = 3))
-          nn[1, ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat==tn]), numeric(1L))
-          nn[2, ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat==tn, 1]*s.weights[treat==tn]), numeric(1L))
-          nn[3, ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & discarded), numeric(1L))
-          dimnames(nn) <- list(c("Unadjusted", "Adjusted", "Discarded"), 
-                               c(treat_names(treat)))
+          nn <- make_df(treat_names(treat), c("Unadjusted", "Adjusted", "Discarded"))
+          nn["Unadjusted", ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat==tn]), numeric(1L))
+          nn["Adjusted", ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat==tn, 1]*s.weights[treat==tn]), numeric(1L))
+          nn["Discarded", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & discarded), numeric(1L))
           attr(nn, "ss.type") <- c("ss", "ess", "ss")
           
           if (!any(discarded)) {
             attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
-            nn <- nn[rownames(nn) != "Discarded", ,drop = FALSE]
+            nn <- nn[rownames(nn) != "Discarded",, drop = FALSE]
           }
         }
       }
       else {
-        nn <- as.data.frame(matrix(0, ncol = length(treat_vals(treat)), nrow = 1 + NCOL(weights)))
-        nn[1, ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat==tn]), numeric(1L))
+        nn <- make_df(treat_names(treat), c("All", names(weights)))
+        nn["All", ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat==tn]), numeric(1L))
         for (i in seq_len(NCOL(weights))) {
           if (method[i] == "matching") {
             nn[1+i,] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat==tn, i]), numeric(1L))
@@ -2159,10 +2146,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
           }
           
         }
-        dimnames(nn) <- list(c("All", names(weights)), 
-                             treat_names(treat))
         attr(nn, "ss.type") <- c("ss", rep("ess", length(method)))
-        
       }
       if (length(attr(nn, "ss.type")) > 1 && all(attr(nn, "ss.type")[-1] == "ess")) {
         attr(nn, "tag") <- "Effective sample sizes"
@@ -2174,32 +2158,23 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
     if (length(method) == 1 && method == "subclassification") {
       if (is_null(subclass)) stop("subclass must be a vector of subclasses.")
       
-      nn <- matrix(0, nrow = 1, ncol = 1 + nlevels(subclass))
-      
-      nn[, 1 + nlevels(subclass)] <- length(treat)
+      nn <- make_df(c(levels(subclass), "All"), c("Total"))
+
+      nn[, "All"] <- length(treat)
       
       matched <- !is.na(subclass)
-      k <- 1
-      for (i in levels(subclass)) {
-        qt <- treat[matched & subclass == i]
+      for (k in levels(subclass)) {
+        qt <- treat[matched & subclass == k]
         if (length(qt) < 2)
-          warning(paste0("Not enough units in subclass ", i, "."), call. = FALSE)
-        
-        nn[, k] <- length(qt)
-        k <- k + 1 #Use a counter because subclass names may not be numbers
+          warning(paste0("Not enough units in subclass ", k, "."), call. = FALSE)
+        nn[[k]] <- length(qt)
       }
-      nn <- as.data.frame.matrix(nn, optional = TRUE)
-      rownames(nn) <- c("Total")
-      names(nn) <- c(levels(subclass), "All")
       attr(nn, "tag") <- "Sample sizes by subclass"
     }
     else {
       if (is_null(weights)) {
-        
-        nn <- as.data.frame(matrix(0, ncol = 1, nrow = 1))
-        nn[1, ] <- ESS(s.weights)
-        dimnames(nn) <- list(c("All"), 
-                             c("Total"))
+        nn <- make_df("Total", "All")
+        nn["All", ] <- ESS(s.weights)
         if (nunique.gt(s.weights, 2) || !any(s.weights==1) || any(s.weights %nin% c(0,1))) {
           attr(nn, "ss.type") <- c("ess")
         }
@@ -2210,40 +2185,36 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       }
       else if (NCOL(weights) == 1) {
         if (method=="matching") {
-          nn <- as.data.frame(matrix(0, ncol=1, nrow=5))
-          nn[1, ] <- length(treat)
-          nn[2, ] <- ESS(weights[, 1])
-          nn[3, ] <- sum(weights[,1] > 0 & !discarded)
-          nn[4, ] <- sum(weights[,1]==0 & !discarded)
-          nn[5, ] <- sum(discarded)
-          dimnames(nn) <- list(c("All", "Matched (ESS)", "Matched (Unweighted)", "Unmatched", "Discarded"), 
-                               c("Total"))
-          
+          nn <- make_df("Total", c("All", "Matched (ESS)", "Matched (Unweighted)", "Unmatched", "Discarded"))
+          nn["All", ] <- length(treat)
+          nn["Matched (ESS)", ] <- ESS(weights[, 1])
+          nn["Matched (Unweighted)", ] <- sum(weights[,1] > 0 & !discarded)
+          nn["Unmatched", ] <- sum(weights[,1]==0 & !discarded)
+          nn["Discarded", ] <- sum(discarded)
+
           attr(nn, "ss.type") <- rep("ss", NROW(nn))
           
           if (!any(discarded)) {
             attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
-            nn <- nn[rownames(nn) != "Discarded", ,drop = FALSE]
+            nn <- nn[rownames(nn) != "Discarded",, drop = FALSE]
           }
         }
         else if (method == "weighting") {
-          nn <- as.data.frame(matrix(0, ncol = 1, nrow = 3))
-          nn[1, ] <- ESS(s.weights)
-          nn[2, ] <- ESS(weights[!discarded, 1]*s.weights[!discarded])
-          nn[3, ] <- sum(discarded)
-          dimnames(nn) <- list(c("Unadjusted", "Adjusted", "Discarded"), 
-                               c("Total"))
+          nn <- make_df("Total", c("Unadjusted", "Adjusted", "Discarded"))
+          nn["Unadjusted", ] <- ESS(s.weights)
+          nn["Adjusted", ] <- ESS(weights[!discarded, 1]*s.weights[!discarded])
+          nn["Discarded", ] <- sum(discarded)
           attr(nn, "ss.type") <- c("ss", "ess", "ss")
           
           if (!any(discarded)) {
             attr(nn, "ss.type") <- attr(nn, "ss.type")[rownames(nn) != "Discarded"]
-            nn <- nn[rownames(nn) != "Discarded", ,drop = FALSE]
+            nn <- nn[rownames(nn) != "Discarded",, drop = FALSE]
           }
         }
       }
       else {
-        nn <- as.data.frame(matrix(0, ncol = 1, nrow = 1 + NCOL(weights)))
-        nn[1, ] <- ESS(s.weights)
+        nn <- make_df("Total", c("All", names(weights)))
+        nn["All", ] <- ESS(s.weights)
         for (i in seq_len(NCOL(weights))) {
           if (method[i] == "matching") {
             nn[1+i,] <- ESS(weights[!discarded, i])
@@ -2253,8 +2224,6 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
           }
           
         }
-        dimnames(nn) <- list(c("All", names(weights)), 
-                             "Total")
         attr(nn, "ss.type") <- c("ss", rep("ess", length(method)))
         
       }
@@ -2295,8 +2264,7 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
                    }))), wn)
                  })))
                  
-  B <- as.data.frame(matrix(nrow = length(Brownames), ncol = length(Bcolnames)), row.names = Brownames)
-  names(B) <- Bcolnames
+  B <- make_df(Bcolnames, Brownames)
   
   B[["Type"]] <- unlist(lapply(Brownames, function(x) na.rem(unique(vapply(balance.list, function(y) if (x %in% rownames(y)) y[[x, "Type"]] else NA_character_, character(1))))), use.names = FALSE)
   
@@ -2402,9 +2370,7 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
                                    }))
               ),
               c("Adj"), collapse = "."))
-  B <- as.data.frame(matrix(nrow = NCOL(C), ncol = length(Bnames)))
-  colnames(B) <- Bnames
-  rownames(B) <- colnames(C)
+  B <- make_df(Bnames, colnames(C))
   
   #Set var type (binary/continuous)
   B[["Type"]] <- if_null_then(var_types, get.types(C))

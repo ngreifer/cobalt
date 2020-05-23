@@ -138,11 +138,11 @@ text_box_plot <- function(range.list, width = 12) {
     ratio = diff(full.range)/(width+1)
     rescaled.range.list <- lapply(range.list, function(x) round(x/ratio))
     rescaled.full.range <- round(full.range/ratio)
-    d <- as.data.frame(matrix(NA_character_, ncol = 3, nrow = length(range.list),
-                              dimnames = list(names(range.list), c("Min", paste(rep(" ", width + 1), collapse = ""), "Max"))),
-                       stringsAsFactors = FALSE)
-    d[,"Min"] <- vapply(range.list, function(x) x[1], numeric(1L))
-    d[,"Max"] <- vapply(range.list, function(x) x[2], numeric(1L))
+    d <- make_df(c("Min", paste(rep(" ", width + 1), collapse = ""), "Max"),
+                 names(range.list),
+                 "character")
+    d[["Min"]] <- vapply(range.list, function(x) x[1], numeric(1L))
+    d[["Max"]] <- vapply(range.list, function(x) x[2], numeric(1L))
     for (i in seq_len(nrow(d))) {
         spaces1 <- rescaled.range.list[[i]][1] - rescaled.full.range[1]
         #|
@@ -736,23 +736,33 @@ make_list <- function(n) {
         setNames(vector("list", length(n)), as.character(n))
     }
 }
-make_df <- function(n, nrow = 0, types = NULL) {
-    if (length(n) == 1L && is.numeric(n)) {
-        names <- NULL
-        n <- as.integer(n)
+make_df <- function(ncol, nrow = 0, types = "numeric") {
+    if (length(ncol) == 1L && is.numeric(ncol)) {
+        col_names <- NULL
+        ncol <- as.integer(ncol)
     }
-    else if (is_(n, c("atomic", "factor"))) {
-        names <- as.character(n)
-        n <- length(n)
+    else if (is_(ncol, c("atomic", "factor"))) {
+        col_names <- as.character(ncol)
+        ncol <- length(ncol)
     }
-    df <- setNames(as.data.frame.matrix(matrix(numeric(nrow*n), nrow = nrow, ncol = n)), names)
+    if (length(nrow) == 1L && is.numeric(nrow)) {
+        row_names <- NULL
+        nrow <- as.integer(nrow)
+    }
+    else if (is_(nrow, c("atomic", "factor"))) {
+        row_names <- as.character(nrow)
+        nrow <- length(nrow)
+    }
+    df <- as.data.frame.matrix(matrix(numeric(nrow*ncol), nrow = nrow, ncol = ncol))
+    colnames(df) <- col_names
+    rownames(df) <- row_names
     if (is_not_null(types)) {
-        if (length(types) %nin% c(1, n)) stop("types must be equal to the number of columns.")
+        if (length(types) %nin% c(1, ncol)) stop("types must be equal to the number of columns.")
         if (any(types %nin% c("numeric", "integer", "logical", "character", NA))) {
             stop("types must be an acceptable type. For factors, use NA.")
         }
-        if (length(types) == 1) types <- rep(types, n)
-        for (i in seq_len(n)) if (!is.na(types)[i]) df[[i]] <- get(types[i])(nrow)
+        if (length(types) == 1) types <- rep(types, ncol)
+        for (i in seq_len(ncol)) if (!is.na(types)[i] && types[i] != "numeric") df[[i]] <- get(types[i])(nrow)
     }
     return(df)
 }
