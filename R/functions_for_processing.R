@@ -1476,7 +1476,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   if (length(int) != 1L || !is.finite(int) || !(is.logical(int) || is.numeric(int))) {
     stop("'int' must be TRUE, FALSE, or a numeric value of length 1.", call. = FALSE)
   }
-  if (int < 0 || !check_if_int(int)) {
+  if (!is.logical(int) && (int < 0 || !check_if_int(int))) {
     stop("'int' must be TRUE, FALSE, or a numeric (integer) value greater than 1.", call. = FALSE)
   }
   int <- as.integer(round(int))
