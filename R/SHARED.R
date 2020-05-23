@@ -203,7 +203,7 @@ str2num <- function(x) {
 check_if_zero <- function(x) {
     # this is the default tolerance used in all.equal
     tolerance <- .Machine$double.eps^0.5
-    abs(x - 0) < tolerance
+    abs(x) < tolerance
 }
 between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
     if (!all(is.numeric(x))) stop("x must be a numeric vector.", call. = FALSE)
@@ -227,6 +227,12 @@ max_ <- function(..., na.rm = TRUE) {
 min_ <- function(..., na.rm = TRUE) {
     if (!any(is.finite(unlist(list(...))))) NA_real_
     else min(..., na.rm = na.rm)
+}
+check_if_int <- function(x) {
+    #Checks if integer-like
+    if (is.integer(x)) rep(TRUE, length(x))
+    else if (is.numeric(x)) check_if_zero(x - round(x))
+    else rep(FALSE, length(x))
 }
 
 #Statistics
@@ -705,9 +711,12 @@ nunique.gt <- function(x, n, na.rm = TRUE) {
     }
 }
 all_the_same <- function(x, na.rm = TRUE) {
-    if (na.rm && anyNA(x)) x <- na.rem(x)
-    if (is.double(x)) check_if_zero(abs(max_(x) - min_(x)))
-    else !any(x != x[1])
+    if (anyNA(x)) {
+        x <- na.rem(x)
+        if (!na.rm) return(is_null(x))
+    }
+    if (is.double(x)) check_if_zero(max_(x) - min_(x))
+    else all(x == x[1])
 }
 is_binary <- function(x, na.rm = TRUE) {
     if (na.rm && anyNA(x)) x <- na.rem(x)
@@ -726,6 +735,26 @@ make_list <- function(n) {
     else if (is_(n, c("atomic", "factor"))) {
         setNames(vector("list", length(n)), as.character(n))
     }
+}
+make_df <- function(n, nrow = 0, types = NULL) {
+    if (length(n) == 1L && is.numeric(n)) {
+        names <- NULL
+        n <- as.integer(n)
+    }
+    else if (is_(n, c("atomic", "factor"))) {
+        names <- as.character(n)
+        n <- length(n)
+    }
+    df <- setNames(as.data.frame.matrix(matrix(numeric(nrow*n), nrow = nrow, ncol = n)), names)
+    if (is_not_null(types)) {
+        if (length(types) %nin% c(1, n)) stop("types must be equal to the number of columns.")
+        if (any(types %nin% c("numeric", "integer", "logical", "character", NA))) {
+            stop("types must be an acceptable type. For factors, use NA.")
+        }
+        if (length(types) == 1) types <- rep(types, n)
+        for (i in seq_len(n)) if (!is.na(types)[i]) df[[i]] <- get(types[i])(nrow)
+    }
+    return(df)
 }
 ifelse_ <- function(...) {
     dotlen <- ...length()
