@@ -22,7 +22,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     obj <- process_time.list(obj)
     obj <- process_cem.match.list(obj)
     
-    X <- x2base(obj, ..., cluster = cluster, imp = imp, s.d.denom = "all") #s.d.denom to avoid x2base warning
+    X <- x2base(obj, ..., cluster = cluster, imp = imp)
     
     if (is_null(X$covs.list)) {
         #Point treatment

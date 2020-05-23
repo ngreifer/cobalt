@@ -927,3 +927,8 @@ check.package <- function(package.name, alternative = FALSE) {
     }
     else return(invisible(TRUE))
 }
+check_if_call_from_fun <- function(f) {
+    #Check if called from within function f
+    !missing(f) && exists(deparse(substitute(f)), mode = "function") &&
+        any(sapply(sys.calls(), function(x) identical(eval(x[[1]]), f) || identical(x[[1]], f)))
+}
