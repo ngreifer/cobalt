@@ -18,15 +18,14 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     args <- list(...)
     
-    obj <- process_designmatch(obj)
-    obj <- process_time.list(obj)
-    obj <- process_cem.match.list(obj)
+    obj <- process_obj(obj)
     
     X <- x2base(obj, ..., cluster = cluster, imp = imp)
     
     if (is_null(X$covs.list)) {
         #Point treatment
-        X$covs <- get.C2(X$covs, addl = X$addl, distance = X$distance, cluster = X$cluster)
+        X$covs <- get.C2(X$covs, addl = X$addl, distance = X$distance, cluster = X$cluster, treat = X$treat,
+                         drop = FALSE)
         co.names <- attr(X$covs, "co.names")
         if (missing(var.name)) {
             var.name <- NULL; k = 1
@@ -60,7 +59,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     else {
         #Longitudinal
         X$covs.list <- lapply(seq_along(X$covs.list), function(i) {
-            get.C2(X$covs.list[[i]], addl = X$addl.list[[i]], distance = X$distance.list[[i]], cluster = X$cluster)
+            get.C2(X$covs.list[[i]], addl = X$addl.list[[i]], distance = X$distance.list[[i]], cluster = X$cluster,
+                   treat = X$treat.list[[i]], drop = FALSE)
         })
         co.names.list <- lapply(X$covs.list, attr, "co.names")
         ntimes <- length(X$covs.list)
