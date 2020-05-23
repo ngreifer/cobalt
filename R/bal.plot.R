@@ -120,12 +120,6 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         if (is_not_null(X$imp)) X$imp <- rep(X$imp, sum(appears.in.time))
     }
     
-    #Density arguments supplied through ...
-    if (is_not_null(args$bw)) bw <- args$bw else bw <- "nrd0"
-    if (is_not_null(args$adjust)) adjust <- args$adjust else adjust <- 1
-    if (is_not_null(args$kernel)) kernel <- args$kernel else kernel <- "gaussian"
-    if (is_not_null(args$n)) n <- args$n else n <- 512
-    
     if (is_null(X$subclass)) {
         if (NCOL(X$weights) == 1L) weight.names <- "adjusted"
         else weight.names <- names(X$weights)
@@ -456,9 +450,16 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         D$treat <- as.numeric(D$treat)
         
         if (is.categorical.var) { #Categorical vars
+            #Density arguments supplied through ...
+            bw <- if_null_then(args$bw, "nrd0")
+            adjust <- if_null_then(args$adjust, 1)
+            kernel <- if_null_then(args$kernel, "gaussian")
+            n <- if_null_then(args$n, 512)
+            
             D$var <- factor(D$var)
             cat.sizes <- tapply(rep(1, NROW(D)), D$var, sum)
             smallest.cat <- names(cat.sizes)[which.min(cat.sizes)]
+            
             if (is.character(bw)) {
                 if (is.function(get0(paste0("bw.", bw)))) {
                     bw <- get0(paste0("bw.", bw))(D$treat[D$var == smallest.cat])
@@ -664,6 +665,12 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 ylab <- "Cumulative Proportion"
             }
             else {
+                #Density arguments supplied through ...
+                bw <- if_null_then(args$bw, "nrd0")
+                adjust <- if_null_then(args$adjust, 1)
+                kernel <- if_null_then(args$kernel, "gaussian")
+                n <- if_null_then(args$n, 512)
+                
                 t.sizes <- tapply(rep(1, NROW(D)), D$treat, sum)
                 smallest.t <- names(t.sizes)[which.min(t.sizes)]
                 if (is.character(bw)) {
