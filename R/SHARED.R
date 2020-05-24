@@ -913,7 +913,7 @@ na.rem <- function(x) {
 }
 check.package <- function(package.name, alternative = FALSE) {
     packages.not.installed <- package.name[!vapply(package.name, requireNamespace, logical(1L),
-                                                  quietly = TRUE)]
+                                                   quietly = TRUE)]
     if (is_not_null(packages.not.installed)) {
         if (alternative) return(FALSE)
         else {
@@ -927,8 +927,13 @@ check.package <- function(package.name, alternative = FALSE) {
     }
     else return(invisible(TRUE))
 }
-check_if_call_from_fun <- function(f) {
-    #Check if called from within function f
-    !missing(f) && exists(deparse(substitute(f)), mode = "function") &&
-        any(sapply(sys.calls(), function(x) identical(eval(x[[1]]), f) || identical(x[[1]], f)))
+check_if_call_from_fun <- function(fun) {
+    # Check if called from within function f
+    if (missing(fun) || !exists(deparse(substitute(fun)), mode = "function")) return(FALSE)
+    sp <- sys.parents()
+    sys.funs <- lapply(sp, sys.function)
+    for (x in sys.funs) {
+        if (identical(fun, x)) return(TRUE)
+    }
+    FALSE
 }
