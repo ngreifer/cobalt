@@ -1346,7 +1346,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Process distance
     distance <- process_distance(A[["distance"]], datalist = list(data, c.data),
-                                 obj.distance = cbps.fit[["fitted.values"]], 
+                                 obj.distance = if (get.treat.type(treat) == "binary") cbps.fit[["fitted.values"]], 
                                  obj.distance.name = "prop.score")
     #Process focal
     if (is_not_null(focal <- A$focal)) {
@@ -1633,7 +1633,6 @@ x2base.ebalance <- function(ebalance, ...) {
     
     return(X)
 }
-x2base.ebalance.trim <- x2base.ebalance
 x2base.optmatch <- function(optmatch, ...) {
     A <- list(...)
     
@@ -2018,7 +2017,7 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process distance
     distance <- process_distance(A[["distance"]], datalist = list(data, weightit.data),
-                                 obj.distance = weightit[["ps"]], 
+                                 obj.distance = if (get.treat.type(treat) == "binary") weightit[["ps"]], 
                                  obj.distance.name = "prop.score")
     
     #Process focal
@@ -2527,7 +2526,7 @@ x2base.wimids <- function(wimids, ...) {
     if (all(is.na(w.distance))) w.distance <- NULL
     
     distance <- process_distance(A[["distance"]], datalist = list(data, w.data),
-                                 obj.distance = w.distance, 
+                                 obj.distance = if (get.treat.type(treat) == "binary") w.distance, 
                                  obj.distance.name = "prop.score")
     
     #Process focal
