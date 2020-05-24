@@ -1,59 +1,40 @@
 #bal.tab
-process_designmatch <- function(x) {
-  dm.b.names <- c("obj_total", "obj_dist_mat", "t_id", 
-                  "c_id", "group_id", "time")
-  dm.n.names <- c("obj_total", "obj_dist_mat", "id_1", 
-                  "id_2", "group_id", "time")
-  if (length(x) >= min(length(dm.b.names), length(dm.n.names)) && 
-      (all(dm.b.names %in% names(x)) || all(dm.n.names %in% names(x)))) {
-    class(x) <- c("designmatch")
-  }
-  return(x)
-}
-process_time.list <- function(x) {
-  if (is_(x, "list")) {
-    if (all(vapply(x, is.formula, logical(1)))) {
-      class(x) <- c("formula.list", "time.list", class(x))
-    }
-    else if (all(vapply(x, is.data.frame, logical(1)))) {
-      class(x) <- c("data.frame.list", "time.list", class(x))
-    }
-  }
-  return(x)
-}
-process_cem.match.list <- function(x) {
-  if (is_(x, "cem.match.list")) {
-    class(x) <- c("cem.match", "cem.match.list")
-  }
-  return(x)
-}
-process_Matchby <- function(x) {
-  if (is_(x, "Matchby")) {
-    class(x) <- "Match"
-  }
-  return(x)
-}
-process_ebalance.trim <- function(x) {
-  if (is_(x, "ebalance.trim")) {
-    class(x) <- "ebalance"
-  }
-  return(x)
-}
-process_npCBPS <- function(x) {
-  if (is_(x, "npCBPS")) {
-    class(x) <- "CBPS"
-  }
-  return(x)
-}
 process_obj <- function(obj) {
   if (is_null(obj)) obj <- list()
   else {
-    obj <- process_designmatch(obj)
-    obj <- process_time.list(obj)
-    obj <- process_cem.match.list(obj)
-    obj <- process_Matchby(obj)
-    obj <- process_ebalance.trim(obj)
-    obj <- process_npCBPS(obj)
+    #npCBPS
+    if (is_(obj, "npCBPS")) {
+      class(obj) <- c("CBPS", "npCBPS")
+    }
+    #ebalance.trim
+    else if (is_(obj, "ebalance.trim")) {
+      class(obj) <- "ebalance"
+    }
+    #Matchby
+    else if (is_(obj, "Matchby")) {
+      class(obj) <- "Match"
+    }
+    #cem.match.list
+    else if (is_(obj, "cem.match.list")) {
+      class(obj) <- c("cem.match", "cem.match.list")
+    }
+    #time.list
+    else if (is_(obj, "list") && all(vapply(obj, is.formula, logical(1)))) {
+      class(obj) <- c("formula.list", "time.list", class(obj))
+    }
+    else if (is_(obj, "list") && all(vapply(obj, is.data.frame, logical(1)))) {
+      class(obj) <- c("data.frame.list", "time.list", class(obj))
+    }
+    #designmatch
+    else if (is_(obj, "list") && length(obj) >= 6) {
+      dm.b.names <- c("obj_total", "obj_dist_mat", "t_id", 
+                      "c_id", "group_id", "time")
+      dm.n.names <- c("obj_total", "obj_dist_mat", "id_1", 
+                      "id_2", "group_id", "time")
+      if (all(dm.b.names %in% names(obj)) || all(dm.n.names %in% names(obj))) {
+        class(obj) <- c("designmatch")
+      }
+    }
   }
   class(obj) <- c(class(obj), "cobalt.processed.obj")
   return(obj)
@@ -105,7 +86,6 @@ process_treat <- function(treat, data = list(), pairwise = TRUE) {
 }
 unprocess_treat <- function(treat) {
   if (inherits(treat, "processed.treat")) {
-    t.names <- names(treat)
     attrs <- attributes(treat)
     treat <- treat_vals(treat)[as.character(treat)]
     attributes(treat) <- attrs
@@ -114,7 +94,6 @@ unprocess_treat <- function(treat) {
   return(treat)
 }
 process_treat.list <- function(treat.list, data = list()) {
-  
   if (is_null(treat.list)) stop("'treat.list' must be specified.", call. = FALSE)
   if (!is_(treat.list, "list")) {
     treat.list <- as.list(treat.list)
