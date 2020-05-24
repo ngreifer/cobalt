@@ -1,5 +1,4 @@
 get.w <- function(x, ...) {
-    
     if (!is_(x, "cobalt.processed.obj")) {
         x <- process_obj(x)
         get.w(x, ...)
@@ -244,7 +243,7 @@ get.w.CBPS <- function(x, estimand, ...) {
     if (!missing(estimand)) estimand <- tolower(estimand)
     else estimand <- NULL
     
-    if ("CBPSContinuous" %in% class(x) || is.factor(x$y) || is_null(x$fitted.values)) { #continuous or npCBPS
+    if (is_(x, c("CBPSContinuous", "npCBPS")) || is.factor(x$y)) { #continuous, multi, or npCBPS
         return(x$weights)
     }
     else {
