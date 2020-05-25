@@ -630,7 +630,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
                                                   mapping = aes(x = .data$var.mean, xend = .data$var.mean, y = 0, yend = posneg[t]*Inf), 
                                                   color = if (mirror) "black" else colors[[t]])
-                    out
+                    return(clear_null(out))
                 }
                 ylab <- "Proportion"
                 
@@ -700,14 +700,14 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
                                                   mapping = aes(x = .data$var.mean, xend = .data$var.mean, y = 0, yend = posneg[t]*Inf), 
                                                   color = if (mirror) "black" else colors[[t]])
-                    out
+                    return(clear_null(out))
                 }
                 ylab <- "Density"
                 
             }
             
             bp <- Reduce("+", c(list(ggplot2::ggplot()),
-                                do.call(c, lapply(seq_len(nlevels.treat), geom_fun)))) +
+                                lapply(seq_len(nlevels.treat), geom_fun))) +
                 ggplot2::scale_fill_manual(values = colors, guide = ggplot2::guide_legend(override.aes = list(alpha = legend.alpha, size = .25))) +
                 ggplot2::scale_color_manual(values = colors) +
                 ggplot2::labs(x = var.name, y = ylab, title = title, subtitle = subtitle,
@@ -735,7 +735,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
     
     if (is_not_null(facet)) {
         if (is_not_null(facet.formula)) {
-            if (!is.formula(facet.formula)) {
+            if (!rlang::is_formula(facet.formula)) {
                 stop("facet.formula must be a formula.", call. = FALSE)
             }
             test.facet <- invisible(ggplot2::facet_grid(facet.formula))
