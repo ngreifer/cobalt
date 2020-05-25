@@ -753,7 +753,7 @@ make_df <- function(ncol, nrow = 0, types = "numeric") {
         row_names <- as.character(nrow)
         nrow <- length(nrow)
     }
-    df <- as.data.frame.matrix(matrix(numeric(nrow*ncol), nrow = nrow, ncol = ncol))
+    df <- as.data.frame.matrix(matrix(NA_real_, nrow = nrow, ncol = ncol))
     colnames(df) <- col_names
     rownames(df) <- row_names
     if (is_not_null(types)) {
