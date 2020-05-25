@@ -14,6 +14,7 @@ Imports:
     grid,
     gtable (>= 0.3.0),
     gridExtra (>= 2.3.0),
+    rlang,
     crayon,
     backports (>= 1.1.5)
 Suggests:

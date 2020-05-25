@@ -4,6 +4,7 @@ importFrom("crayon", "italic", "underline")
 importFrom("ggplot2",
            "aes", "element_rect", "element_text",
            "element_blank", "element_line")
+importFrom("rlang", ".data")
 
 export(bal.tab, bal.plot, love.plot, f.build, splitfactor, 
        unsplitfactor, get.w, var.names, set.cobalt.options,

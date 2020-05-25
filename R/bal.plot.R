@@ -490,33 +490,34 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 
             }
             
-            bp <- ggplot2::ggplot(D, mapping = aes(x = treat, fill = var, weight = weights)) + 
-                geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE, outline.type = "full") + 
-                labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
-                scale_fill_manual(values = colors) + geom_hline(yintercept = 0) +
-                scale_y_continuous(expand = expansion(mult = c(0, .05)))
+            bp <- ggplot2::ggplot(D, mapping = aes(x = .data$treat, fill = .data$var, weight = .data$weights)) + 
+                ggplot2::geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE, outline.type = "full") + 
+                ggplot2::labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
+                ggplot2::scale_fill_manual(values = colors) + 
+                ggplot2::geom_hline(yintercept = 0) +
+                ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, .05)))
         }
         else { #Continuous vars
             D$var.mean <- ave(D[["var"]], D[facet], FUN = mean)
             D$treat.mean <- ave(D[["treat"]], D[facet], FUN = mean)
             
-            bp <- ggplot2::ggplot(D, mapping = aes(x = var, y = treat, weight = weights))
+            bp <- ggplot2::ggplot(D, mapping = aes(x = .data$var, y = .data$treat, weight = .data$weights))
             
-            if (identical(which, "Unadjusted Sample") || isFALSE(alpha.weight)) bp <- bp + geom_point(alpha = .9)
-            else bp <- bp + geom_point(aes(alpha = weights), show.legend = FALSE) + 
-                scale_alpha(range = c(.04, 1))
+            if (identical(which, "Unadjusted Sample") || isFALSE(alpha.weight)) bp <- bp + ggplot2::geom_point(alpha = .9)
+            else bp <- bp + ggplot2::geom_point(aes(alpha = .data$weights), show.legend = FALSE) + 
+                ggplot2::scale_alpha(range = c(.04, 1))
             
             bp <- bp + 
-                geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "firebrick2", alpha = .4, size = 1.5) + 
+                ggplot2::geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "firebrick2", alpha = .4, size = 1.5) + 
                 {
                     if (nrow(D) <= 1000)
-                        geom_smooth(method = "loess", formula = y ~ x, se = FALSE, color = "royalblue1", alpha = .1, size = 1.5) 
+                        ggplot2::geom_smooth(method = "loess", formula = y ~ x, se = FALSE, color = "royalblue1", alpha = .1, size = 1.5) 
                     else
-                        geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), se = FALSE, color = "royalblue1", alpha = .1, size = 1.5)
+                        ggplot2::geom_smooth(method = "gam", formula = y ~ s(x, bs = "cs"), se = FALSE, color = "royalblue1", alpha = .1, size = 1.5)
                 } +
-                geom_hline(aes(yintercept = treat.mean), linetype = 1, alpha = .9) + 
-                geom_vline(aes(xintercept = var.mean), linetype = 1, alpha = .8) +
-                labs(y = "Treat", x = var.name, title = title, subtitle = subtitle)
+                ggplot2::geom_hline(aes(yintercept = .data$treat.mean), linetype = 1, alpha = .9) + 
+                ggplot2::geom_vline(aes(xintercept = .data$var.mean), linetype = 1, alpha = .8) +
+                ggplot2::labs(y = "Treat", x = var.name, title = title, subtitle = subtitle)
         }
     }
     else { #Categorical treatments (multinomial supported)
@@ -579,7 +580,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         if (is_binary(D$var) || is.factor(D$var) || is.character(D$var)) { #Categorical vars
             D$var <- factor(D$var)
-            bp <- ggplot2::ggplot(D, mapping = aes(x = var, fill = treat, weight = weights)) + 
+            bp <- ggplot2::ggplot(D, mapping = aes(x = .data$var, fill = .data$treat, weight = .data$weights)) + 
                 ggplot2::geom_bar(position = "dodge", alpha = .8, color = "black") + 
                 ggplot2::labs(x = var.name, y = "Proportion", fill = "Treatment", title = title, subtitle = subtitle) + 
                 ggplot2::scale_x_discrete(drop=FALSE) + 
@@ -620,13 +621,14 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
                 geom_fun <- function(t) {
                     out <- list(ggplot2::geom_histogram(data = D[D$treat == levels(D$treat)[t],],
-                                                        mapping = aes(x = var, y = posneg[t]*ggplot2::after_stat(count), weight = weights,
+                                                        mapping = aes(x = .data$var, y = posneg[t]*ggplot2::after_stat(count), 
+                                                                      weight = .data$weights,
                                                                       fill = names(colors)[t]),
                                                         alpha = alpha, bins = args$bins, color = "black"),
                                 NULL)
                     if (disp.means) out[[2]] <-
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
-                                                  mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
+                                                  mapping = aes(x = .data$var.mean, xend = .data$var.mean, y = 0, yend = posneg[t]*Inf), 
                                                   color = if (mirror) "black" else colors[[t]])
                     out
                 }
@@ -657,7 +659,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 geom_fun <- function(t) {
                     
                     ggplot2::geom_step(data = D[D$treat == levels(D$treat)[t],],
-                                       mapping = aes(x = var, y = cum.pt, color = names(colors)[t]))
+                                       mapping = aes(x = .data$var, y = .data$cum.pt, color = names(colors)[t]))
                     
                 }
                 ylab <- "Cumulative Proportion"
@@ -688,15 +690,15 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 geom_fun <- function(t) {
                     out <- list(
                         ggplot2::geom_density(data = D[D$treat == levels(D$treat)[t],],
-                                              mapping = aes(x = var, y = posneg[t]*ggplot2::after_stat(density), 
-                                                            weight = weights, fill = names(colors)[t]),
+                                              mapping = aes(x = .data$var, y = posneg[t]*ggplot2::after_stat(density), 
+                                                            weight = .data$weights, fill = names(colors)[t]),
                                               alpha = alpha, bw = bw, adjust = adjust,
                                               kernel = kernel, n = n, trim = TRUE,
                                               outline.type = "full"),
                         NULL)
                     if (disp.means) out[[2]] <-
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
-                                                  mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
+                                                  mapping = aes(x = .data$var.mean, xend = .data$var.mean, y = 0, yend = posneg[t]*Inf), 
                                                   color = if (mirror) "black" else colors[[t]])
                     out
                 }

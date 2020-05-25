@@ -773,7 +773,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
         }
         
-        lp <- ggplot2::ggplot2(aes(y = var, x = stat, group = Sample), data = SS) +
+        lp <- ggplot2::ggplot2(aes(y = .data$var, x = .data$stat, group = .data$Sample), data = SS) +
             ggplot2::theme(panel.background = element_rect(fill = "white"),
                            axis.text.x = element_text(color = "black"),
                            axis.text.y = element_text(color = "black"),
@@ -804,25 +804,25 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 lp <- lp + ggplot2::layer(geom = "path", data = f, 
                                           position = position.dodge, 
                                           stat = "identity",
-                                          mapping = aes(x = mean.stat, color = Sample), 
+                                          mapping = aes(x = .data$mean.stat, color = .data$Sample), 
                                           params = list(size = size0[1]*.8/3, na.rm = TRUE,
                                                         alpha = alpha))
             }
             
             lp <- lp +
-                ggplot2::geom_linerange(aes(y = var, xmin = min.stat, xmax = max.stat,
-                                            color = Sample), position = position.dodge,
+                ggplot2::geom_linerange(aes(y = .data$var, xmin = .data$min.stat, xmax = .data$max.stat,
+                                            color = .data$Sample), position = position.dodge,
                                         size = size0[1]*.8/3,
                                         alpha = alpha, 
                                         orientation = "y",
                                         show.legend = FALSE,
                                         na.rm = TRUE) +
-                ggplot2::geom_point(aes(y = var, 
-                                        x = mean.stat, 
-                                        shape = Sample,
-                                        size = Sample,
-                                        stroke = Sample,
-                                        color = Sample),
+                ggplot2::geom_point(aes(y = .data$var, 
+                                        x = .data$mean.stat, 
+                                        shape = .data$Sample,
+                                        size = .data$Sample,
+                                        stroke = .data$Sample,
+                                        color = .data$Sample),
                                     fill = "white", na.rm = TRUE,
                                     alpha = alpha,
                                     position = position.dodge)
@@ -834,15 +834,15 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                     lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
                                               position = "identity", stat = "identity",
-                                              mapping = aes(color = Sample),
+                                              mapping = aes(color = .data$Sample),
                                               params = list(size = size0[1]*.8/3,
                                                             na.rm = TRUE,
                                                             alpha = alpha))
                 }
-                lp <- lp + ggplot2::geom_point(data = SS, aes(shape = Sample,
-                                                              size = Sample,
-                                                              stroke = Sample,
-                                                              color = Sample),
+                lp <- lp + ggplot2::geom_point(data = SS, aes(shape = .data$Sample,
+                                                              size = .data$Sample,
+                                                              stroke = .data$Sample,
+                                                              color = .data$Sample),
                                                fill = "white", 
                                                na.rm = TRUE,
                                                alpha = alpha)
@@ -855,20 +855,20 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                     lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a),
                                               position = "identity", stat = "identity",
-                                              mapping = aes(color = Sample),
+                                              mapping = aes(color = .data$Sample),
                                               params = list(size = size*.8,
                                                             na.rm = TRUE,
                                                             alpha = alpha))
                 }
                 lp <- lp + ggplot2::geom_point(data = SS.u.a,
-                                               aes(shape = Sample,
-                                                   size = Sample,
-                                                   stroke = Sample,
-                                                   color = Sample),
+                                               aes(shape = .data$Sample,
+                                                   size = .data$Sample,
+                                                   stroke = .data$Sample,
+                                                   color = .data$Sample),
                                                fill = "white",
                                                na.rm = TRUE)
                 lp <- lp + ggplot2::geom_text(data = SS[SS$Sample %nin% c("Unadjusted", "Adjusted"),],
-                                              mapping = aes(label = gsub("Subclass ", "", Sample)),
+                                              mapping = aes(label = gsub("Subclass ", "", .data$Sample)),
                                               size = 2.5*size0[1]/3, na.rm = TRUE)
             }
             
