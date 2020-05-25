@@ -896,7 +896,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         
         if (is_not_null(facet)) {
-            lp <- lp + ggplot2::facet_grid(f.build(".", facet), drop = FALSE) + labs(x = xlab)
+            lp <- lp + ggplot2::facet_grid(f.build(".", facet), drop = FALSE) + ggplot2::labs(x = xlab)
         }
         
         class(lp) <- c(class(lp), "love.plot")
