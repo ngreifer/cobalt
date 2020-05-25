@@ -1103,14 +1103,7 @@ process_distance.list <- function(distance.list = NULL, datalist = list(), covs.
   return(distance.list.out)
 }
 
-#get.C
-#Functions to turn input covariates into usable form
-#int.poly.f creates interactions and polynomials
-#splitfactor splits factor variable into indicators (now in utilities)
-#binarize transforms 2-value variable into binary (0,1)
-#get.C controls flow and handles redunancy
-#get.types gets variables types (contin./binary)
-
+#get.C2
 get_ints_from_co.names <- function(co.names) {
   if (is_not_null(co.names)) {
     clear_null(lapply(co.names, function(co) {
@@ -2741,9 +2734,3 @@ acceptable.options <- function() {
 .onLoad <- function(libname, pkgname) {
   backports::import(pkgname)
 }
-
-#To pass CRAN checks:
-utils::globalVariables(c("distance", "addl", "addl.list", "distance.list",
-                         "quick", "treat", "Sample", "min.stat",
-                         "max.stat", "mean.stat", "count",
-                         "cum.pt", "treat.mean", "var.mean"))

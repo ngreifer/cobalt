@@ -621,7 +621,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
                 geom_fun <- function(t) {
                     out <- list(ggplot2::geom_histogram(data = D[D$treat == levels(D$treat)[t],],
-                                                        mapping = aes(x = .data$var, y = posneg[t]*ggplot2::after_stat(count), 
+                                                        mapping = aes(x = .data$var, y = posneg[t]*ggplot2::after_stat(!!sym("count")), 
                                                                       weight = .data$weights,
                                                                       fill = names(colors)[t]),
                                                         alpha = alpha, bins = args$bins, color = "black"),
@@ -690,7 +690,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 geom_fun <- function(t) {
                     out <- list(
                         ggplot2::geom_density(data = D[D$treat == levels(D$treat)[t],],
-                                              mapping = aes(x = .data$var, y = posneg[t]*ggplot2::after_stat(density), 
+                                              mapping = aes(x = .data$var, y = posneg[t]*ggplot2::after_stat(!!sym("density")), 
                                                             weight = .data$weights, fill = names(colors)[t]),
                                               alpha = alpha, bw = bw, adjust = adjust,
                                               kernel = kernel, n = n, trim = TRUE,
