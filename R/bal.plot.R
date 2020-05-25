@@ -598,7 +598,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 legend.alpha <- alpha
                 expandScale <- ggplot2::expansion(mult = .005)
             }
-            else if (nlevels.treat <= 2 && mirror) {
+            else if (nlevels.treat <= 2 && isTRUE(mirror)) {
                 posneg <- c(1, -1)
                 alpha <- .8
                 legend.alpha <- alpha
@@ -613,7 +613,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             
             if (type == "histogram") {
-                if (disp.means) {
+                if (isTRUE(disp.means)) {
                     D$var.mean <- ave(D[c("var", "weights")], D[c("treat", facet)], 
                                       FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
                 }
@@ -626,10 +626,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                                                                       fill = names(colors)[t]),
                                                         alpha = alpha, bins = args$bins, color = "black"),
                                 NULL)
-                    if (disp.means) out[[2]] <-
+                    if (isTRUE(disp.means)) out[[2]] <-
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
                                                   mapping = aes(x = .data$var.mean, xend = .data$var.mean, y = 0, yend = posneg[t]*Inf), 
-                                                  color = if (mirror) "black" else colors[[t]])
+                                                  color = if (isTRUE(mirror)) "black" else colors[[t]])
                     return(clear_null(out))
                 }
                 ylab <- "Proportion"
@@ -682,7 +682,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                     }
                 }
                 
-                if (disp.means) {
+                if (isTRUE(disp.means)) {
                     D$var.mean <- ave(D[c("var", "weights")], D[c("treat", facet)], 
                                       FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
                 }
@@ -696,10 +696,10 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                                               kernel = kernel, n = n, trim = TRUE,
                                               outline.type = "full"),
                         NULL)
-                    if (disp.means) out[[2]] <-
+                    if (isTRUE(disp.means)) out[[2]] <-
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
                                                   mapping = aes(x = .data$var.mean, xend = .data$var.mean, y = 0, yend = posneg[t]*Inf), 
-                                                  color = if (mirror) "black" else colors[[t]])
+                                                  color = if (isTRUE(mirror)) "black" else colors[[t]])
                     return(clear_null(out))
                 }
                 ylab <- "Density"
@@ -714,7 +714,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                               fill = "Treatment", color = "Treatment") + 
                 ggplot2::scale_y_continuous(expand = expandScale)
             
-            if (mirror) bp <- bp + ggplot2::geom_hline(yintercept = 0)
+            if (isTRUE(mirror)) bp <- bp + ggplot2::geom_hline(yintercept = 0)
         }
     }
     
@@ -724,7 +724,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                               plot.background = element_blank(),
                               legend.position = position,
                               legend.key=element_rect(fill = "white", color = "black", size = .25))
-    if (isFALSE(grid)) {
+    if (!isTRUE(grid)) {
         bp <- bp + ggplot2::theme(panel.grid.major = element_blank(),
                                   panel.grid.minor = element_blank())
     }

@@ -1022,7 +1022,7 @@ process_disp <- function(disp = NULL, ...) {
   for (d in c("means", "sds")) {
     if (getOption(paste.("cobalt_disp", d), FALSE)) disp <- unique(c(disp, d))
     if (is_not_null(A[[paste.("disp", d)]])) {
-      if (!is.logical(A[[paste.("disp", d)]])) stop(paste0("'disp.", d, "' must be TRUE or FALSE."), call. = FALSE)
+      if (!rlang::is_bool(A[[paste.("disp", d)]])) stop(paste0("'disp.", d, "' must be TRUE or FALSE."), call. = FALSE)
       disp <- unique(c(disp, d[A[[paste.("disp", d)]]]))
       if (A[[paste.("disp", d)]]) disp <- unique(c(disp, d))
       else disp <- unique(disp[disp != d])
@@ -1403,7 +1403,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
 get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, treat = NULL, cluster = NULL, drop = TRUE, ...) {
   #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
   A <- list(...)
-  if (is_null(A[["center"]]) || A[["center"]] %nin% c(TRUE, FALSE)) A[["center"]] <- getOption("cobalt_center", default = FALSE)
+  if (!rlang::is_bool(A[["center"]])) A[["center"]] <- getOption("cobalt_center", default = FALSE)
   
   C <- covs; rm(covs)
   
@@ -1454,10 +1454,10 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   rm(C, co.names)
   
   #Process int and poly
-  if (length(int) != 1L || !is.finite(int) || !(is.logical(int) || is.numeric(int))) {
+  if (length(int) != 1L || !(rlang::is_bool(int) || is.numeric(int)) || !is.finite(int)) {
     stop("'int' must be TRUE, FALSE, or a numeric value of length 1.", call. = FALSE)
   }
-  if (!is.logical(int) && (int < 0 || !check_if_int(int))) {
+  if (!rlang::is_bool(int) && (int < 0 || !check_if_int(int))) {
     stop("'int' must be TRUE, FALSE, or a numeric (integer) value greater than 1.", call. = FALSE)
   }
   int <- as.integer(round(int))
