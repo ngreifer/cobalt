@@ -25,18 +25,9 @@ bal.tab.matchit <- function(x, stats, int = FALSE, poly = 1, distance = NULL, ad
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
-    
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+
     #Initializing variables
     X <- do.call("x2base.matchit", c(list(x), args), quote = TRUE)
     
@@ -53,17 +44,8 @@ bal.tab.ps <- function(x, stop.method, stats, int = FALSE, poly = 1, distance = 
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.ps", c(list(x), args), quote = TRUE)
@@ -81,17 +63,8 @@ bal.tab.mnps <- function(x, stop.method, stats, int = FALSE, poly = 1, distance 
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.mnps", c(list(x), args), quote = TRUE)
@@ -110,17 +83,8 @@ bal.tab.ps.cont <- function(x, stop.method, stats, int = FALSE, poly = 1, distan
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.ps.cont", c(list(x), args), quote = TRUE)
@@ -138,17 +102,8 @@ bal.tab.Match <- function(x, formula = NULL, data = NULL, treat = NULL, covs = N
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base", c(list(x), args), quote = TRUE) 
@@ -166,17 +121,8 @@ bal.tab.formula <- function(x, data = NULL, ...) {
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.formula", c(list(formula = x), args), quote = TRUE)
@@ -195,18 +141,10 @@ bal.tab.data.frame <- function(x, treat, data = NULL, weights = NULL, subclass =
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-c(1, length(formals()))])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
+
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
-    
+    #Initializing variables
     X <- do.call("x2base.data.frame", c(covs = list(x), args), quote = TRUE)
     
     args[names(args) %in% names(X)] <- NULL
@@ -230,17 +168,8 @@ bal.tab.CBPS <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl 
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base", c(list(x), args), quote = TRUE)
@@ -258,17 +187,8 @@ bal.tab.weightit <- function(x, stats, int = FALSE, poly = 1, distance = NULL, a
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base", c(list(x), args), quote = TRUE)
@@ -292,17 +212,8 @@ bal.tab.cem.match <- function(x, data, stats, int = FALSE, poly = 1, distance = 
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.cem.match", c(list(x), args), quote = TRUE)
@@ -324,17 +235,8 @@ bal.tab.mimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, add
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.mimids", c(list(x), args), quote = TRUE)
@@ -352,17 +254,8 @@ bal.tab.wimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, add
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.wimids", c(list(x), args), quote = TRUE)
@@ -380,17 +273,8 @@ bal.tab.sbwcau <- function(x, stats, int = FALSE, poly = 1, distance = NULL, add
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.sbwcau", c(list(x), args), quote = TRUE)
@@ -410,17 +294,8 @@ bal.tab.formula.list <- function(x, data = NULL, ...) {
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     X <- do.call("x2base.formula.list", c(list(formula.list = x), args), quote = TRUE)
     
@@ -437,17 +312,8 @@ bal.tab.data.frame.list <- function(x, treat.list = NULL, data = NULL, weights =
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     X <- do.call("x2base.data.frame.list", c(list(covs.list = x), args), quote = TRUE)
     
@@ -464,17 +330,8 @@ bal.tab.iptw <- function(x, stop.method, stats, int = FALSE, poly = 1, distance.
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.iptw", c(list(x), args), quote = TRUE)
@@ -495,17 +352,8 @@ bal.tab.default <- function(x, ...) {
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    args.with.choices <- names(formals()[-1])[vapply(formals()[-c(1, length(formals()))], function(x) length(x)>1, logical(1L))]
-    for (i in args.with.choices) args[[i]] <- eval(parse(text=paste0("match_arg(", i, ")")))
     
-    blank.args <- vapply(formals()[-c(1, length(formals()))], function(x) identical(x, quote(expr =)), logical(1L))
-    if (any(blank.args)) {
-        for (arg.name in names(blank.args)[blank.args]) {
-            if (identical(args[[arg.name]], quote(expr = ))) {
-                args[[arg.name]] <- NULL
-            }
-        }
-    }
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.default", c(list(obj = x), args),
