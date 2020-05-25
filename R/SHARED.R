@@ -430,14 +430,6 @@ bw.nrd <- function(x) {
 }
 
 #Formulas
-is.formula <- function(f, sides = NULL) {
-    res <- inherits(f, "formula") && is.name(f[[1]]) && deparse(f[[1]]) %in% c( '~', '!') &&
-        length(f) >= 2
-    if (is_not_null(sides) && is.numeric(sides) && sides %in% c(1,2)) {
-        res <- res && length(f) == sides + 1
-    }
-    return(res)
-}
 subbars <- function(term) {
     if (is.name(term) || !is.language(term))
         return(term)
@@ -936,4 +928,15 @@ check_if_call_from_fun <- function(fun) {
         if (identical(fun, x)) return(TRUE)
     }
     FALSE
+}
+
+#Not used cobalt; replaced with rlang
+is.formula <- function(f, sides = NULL) {
+    #Replaced by rlang::is_formula
+    res <- inherits(f, "formula") && is.name(f[[1]]) && deparse(f[[1]]) %in% c( '~', '!') &&
+        length(f) >= 2
+    if (is_not_null(sides) && is.numeric(sides) && sides %in% c(1,2)) {
+        res <- res && length(f) == sides + 1
+    }
+    return(res)
 }

@@ -70,7 +70,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time", "disp.subclass")
     for (i in p.ops) {
-        if (i %in% names(args)) attr(x, "print.options")[[i]] <- args[[i]]
+        if (rlang::has_name(args, i)) attr(x, "print.options")[[i]] <- args[[i]]
     }
     
     #Using old argument names

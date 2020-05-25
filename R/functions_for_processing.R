@@ -19,7 +19,7 @@ process_obj <- function(obj) {
       class(obj) <- c("cem.match", "cem.match.list")
     }
     #time.list
-    else if (is_(obj, "list") && all(vapply(obj, is.formula, logical(1)))) {
+    else if (is_(obj, "list") && all(vapply(obj, rlang::is_formula, logical(1)))) {
       class(obj) <- c("formula.list", "time.list", class(obj))
     }
     else if (is_(obj, "list") && all(vapply(obj, is.data.frame, logical(1)))) {
@@ -103,7 +103,7 @@ process_treat.list <- function(treat.list, data = list()) {
     if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1L && is_not_null(data)) {
       treat.list[[ti]]
     }
-    else if (is_not_null(names(treat.list))) names(treat.list)[ti]
+    else if (rlang::is_named(treat.list)) names(treat.list)[ti]
     else as.character(ti)
   }, character(1L))
   treat.list <- lapply(treat.list, process_treat, data = data)
@@ -294,7 +294,7 @@ process.val <- function(val, i, treat = NULL, covs = NULL, addl.data = list(), .
       if (is_not_null(addl.data)) {
         val <- unique(val)
         val.df <- make_df(val, nrow = max(vapply(addl.data, nrow, numeric(1))))
-        not.found <- setNames(rep(FALSE, length(val)), val)
+        not.found <- rlang::rep_named(val, FALSE)
         for (v in val) {
           found <- FALSE
           k <- 1
@@ -345,7 +345,7 @@ data.frame.process <- function(i, df, treat = NULL, covs = NULL, addl.data = lis
         }
       }
       val.list <- lapply(val, function(x) process.val(x, i, treat, covs, addl.data = addl.data))
-      if (is_null(names(val.list)) || "" %in% names(val.list)) {
+      if (!rlang::is_named(val.list)) {
         stop(paste0("All entries in '", i, "' must have names."), call. = FALSE)
       }
       val.list <- lapply(seq_along(val.list), function(x) {
@@ -800,7 +800,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
   #If object correspond to one imputation, assigns expanded object in env 
   
   ensure.equal.lengths <- TRUE
-  problematic <- setNames(rep(FALSE, length(c(vectors, data.frames, lists))), c(vectors, data.frames, lists))
+  problematic <- rlang::rep_named(c(vectors, data.frames, lists), FALSE)
   lengths <- setNames(c(vapply(vectors, 
                                function(x) {len(get0(x, envir = env, inherits = FALSE))
                                }, numeric(1L)), 
@@ -897,7 +897,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
     if (is_null(original.call.to)) anchor <- c(lists, data.frames, vectors)[1]
     else anchor <- paste("in the original call to", original.call.to)
     
-    stop(paste0(word_list(names(problematic[problematic])), " must have the same number of observations as ", anchor, "."), call. = FALSE)
+    stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as ", anchor, "."), call. = FALSE)
   }
 }
 process_stats <- function(stats = NULL, treat) {
@@ -926,7 +926,7 @@ process_thresholds <- function(thresholds, stats) {
       stop("'thresholds' must be numeric.", call. = FALSE)
     }
     
-    if (is_not_null(names(thresholds))) {
+    if (rlang::is_named(thresholds)) {
       names(thresholds) <- stats[pmatch(names(thresholds), stats, duplicates.ok = TRUE)]
       thresholds <- thresholds[!is.na(names(thresholds))]
     }
@@ -1135,7 +1135,7 @@ get_ints_from_co.names <- function(co.names) {
 }
 get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
   
-  if (!is.formula(f)) stop("f must be a formula.", call. = FALSE)
+  if (!rlang::is_formula(f)) stop("f must be a formula.", call. = FALSE)
   
   env <- environment(f)
   
@@ -1164,7 +1164,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
            })
   
   #Process response ----
-  if (is.formula(tt, 2)) {
+  if (rlang::is_formula(tt, lhs = TRUE)) {
     resp.vars.mentioned <- as.character(tt)[2]
     resp.vars.failed <- vapply(resp.vars.mentioned, function(v) {
       test <- tryCatch(eval(str2expression(v), data, env), error = function(e) e)
@@ -1196,7 +1196,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
 }
 get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " * ") {
   
-  if (!is.formula(f)) stop("f must be a formula.")
+  if (!rlang::is_formula(f)) stop("f must be a formula.")
   
   env <- environment(f)
   
@@ -1740,11 +1740,9 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
           error <- paste0("All weights are zero when treat is ", word_list(prob.w.t.mat[, "treat_vals"], "or"), ".")
         }
         else {
-          errors <- setNames(character(nlevels(prob.w.t.mat[,"weight_names"])), levels(prob.w.t.mat[,"weight_names"]))
-          
-          for (i in levels(prob.w.t.mat[,"weight_names"])) {
-            errors[i] <- paste0("\"", i, "\" weights are zero when treat is ", word_list(prob.w.t.mat[prob.w.t.mat[,"weight_names"] == i, "treat_vals"], "or"))
-          }
+          errors <- vapply(levels(prob.w.t.mat[,"weight_names"]), function(i) {
+            paste0("\"", i, "\" weights are zero when treat is ", word_list(prob.w.t.mat[prob.w.t.mat[,"weight_names"] == i, "treat_vals"], "or"))
+          }, character(1L))
           errors <- paste(c("All", rep("all", length(errors)-1)), errors)
           error <- paste0(word_list(errors, "and"), ".")
         }
@@ -1761,11 +1759,9 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
           error <- paste0("All weights are zero.")
         }
         else {
-          errors <- setNames(character(length(prob.wts)), prob.wts)
-          
-          for (i in prob.wts) {
-            errors[i] <- paste0("\"", i, "\" weights are zero")
-          }
+          errors <- vapply(prob.wts, function(i) {
+            paste0("\"", i, "\" weights are zero")
+          }, character(1L))
           errors <- paste(c("All", rep("all", length(errors)-1)), errors)
           error <- paste0(word_list(errors, "and"), ".")
         }
@@ -1775,9 +1771,8 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
   }
 }
 compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = NULL, to.sd = rep(TRUE, ncol(mat)), na.rm = TRUE) {
-  denoms <- setNames(rep(1, ncol(mat)), colnames(mat))
+  denoms <- rlang::rep_named(colnames(mat), 1)
   if (is.character(s.d.denom) && length(s.d.denom) == 1L) {
-    
     if (is_null(bin.vars)) {
       bin.vars <- rep(FALSE, ncol(mat))
       bin.vars[to.sd] <- is_binary_col(mat[subset, to.sd,drop = FALSE])
@@ -1836,7 +1831,7 @@ compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL
   }
   else {
     if (is.numeric(s.d.denom)) {
-      if (is_not_null(names(s.d.denom)) && any(colnames(mat) %in% names(s.d.denom))) {
+      if (rlang::is_named(s.d.denom) && any(colnames(mat) %in% names(s.d.denom))) {
         denoms[colnames(mat)[colnames(mat) %in% names(s.d.denom)]] <- s.d.denom[names(s.d.denom)[names(s.d.denom) %in% colnames(mat)]]
       }
       else if (length(s.d.denom) == sum(to.sd)) {
