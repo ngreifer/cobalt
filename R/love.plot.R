@@ -773,7 +773,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
         }
         
-        lp <- ggplot2::ggplot2(aes(y = .data$var, x = .data$stat, group = .data$Sample), data = SS) +
+        lp <- ggplot2::ggplot(aes(y = .data$var, x = .data$stat, group = .data$Sample), data = SS) +
             ggplot2::theme(panel.background = element_rect(fill = "white"),
                            axis.text.x = element_text(color = "black"),
                            axis.text.y = element_text(color = "black"),

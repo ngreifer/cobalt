@@ -1804,7 +1804,6 @@ x2base.cem.match <- function(cem.match, ...) {
         cem.match[["baseline.group"]] <- cem.match[[1]][["baseline.group"]]
         cem.match[["groups"]] <- unlist(lapply(cem.match[vapply(cem.match, is_, logical(1L), "cem.match")], `[[`, "groups"))
         cem.match[["w"]] <- get.w.cem.match(cem.match)
-        cem.match <- process_cem.match.list(cem.match)
     }
     if (all(check_if_zero(cem.match[["w"]]))) stop("The 'cem.match' object contains no valid matches.", call. = FALSE)
     
