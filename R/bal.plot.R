@@ -95,7 +95,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             var.name_in_name_and_factor <- var.name_in_name & vapply(co.names.list[[i]], function(x) "fsep" %in% x[["type"]], logical(1L))
             if (any(var.name_in_name_and_factor)) {
                 var.list[[i]] <- unsplitfactor(as.data.frame(X$covs.list[[i]][,var.name_in_name_and_factor, drop = FALSE]), 
-                                       var.name, sep = attr(co.names, "seps")["factor"])[[1]]
+                                               var.name, sep = attr(co.names, "seps")["factor"])[[1]]
             }
             else if (any(var.name_in_name)) {
                 var.list[[i]] <- X$covs.list[[i]][,var.name]
@@ -490,7 +490,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 
             }
             
-            bp <- ggplot(D, mapping = aes(x = treat, fill = var, weight = weights)) + 
+            bp <- ggplot2::ggplot(D, mapping = aes(x = treat, fill = var, weight = weights)) + 
                 geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, n = n, trim = TRUE, outline.type = "full") + 
                 labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
                 scale_fill_manual(values = colors) + geom_hline(yintercept = 0) +
@@ -500,7 +500,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             D$var.mean <- ave(D[["var"]], D[facet], FUN = mean)
             D$treat.mean <- ave(D[["treat"]], D[facet], FUN = mean)
             
-            bp <- ggplot(D, mapping = aes(x = var, y = treat, weight = weights))
+            bp <- ggplot2::ggplot(D, mapping = aes(x = var, y = treat, weight = weights))
             
             if (identical(which, "Unadjusted Sample") || isFALSE(alpha.weight)) bp <- bp + geom_point(alpha = .9)
             else bp <- bp + geom_point(aes(alpha = weights), show.legend = FALSE) + 
@@ -579,12 +579,13 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         
         if (is_binary(D$var) || is.factor(D$var) || is.character(D$var)) { #Categorical vars
             D$var <- factor(D$var)
-            bp <- ggplot(D, mapping = aes(x = var, fill = treat, weight = weights)) + 
-                geom_bar(position = "dodge", alpha = .8, color = "black") + 
-                labs(x = var.name, y = "Proportion", fill = "Treatment", title = title, subtitle = subtitle) + 
-                scale_x_discrete(drop=FALSE) + scale_fill_manual(drop=FALSE, values = colors) +
-                geom_hline(yintercept = 0) + 
-                scale_y_continuous(expand = expansion(mult = c(0, .05)))
+            bp <- ggplot2::ggplot(D, mapping = aes(x = var, fill = treat, weight = weights)) + 
+                ggplot2::geom_bar(position = "dodge", alpha = .8, color = "black") + 
+                ggplot2::labs(x = var.name, y = "Proportion", fill = "Treatment", title = title, subtitle = subtitle) + 
+                ggplot2::scale_x_discrete(drop=FALSE) + 
+                ggplot2::scale_fill_manual(drop=FALSE, values = colors) +
+                ggplot2::geom_hline(yintercept = 0) + 
+                ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, .05)))
         }
         else { #Continuous vars
             
@@ -594,20 +595,20 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 mirror <- FALSE
                 alpha <- 1
                 legend.alpha <- alpha
-                expandScale <- expansion(mult = .005)
+                expandScale <- ggplot2::expansion(mult = .005)
             }
             else if (nlevels.treat <= 2 && mirror) {
                 posneg <- c(1, -1)
                 alpha <- .8
                 legend.alpha <- alpha
-                expandScale <- expansion(mult = .05)
+                expandScale <- ggplot2::expansion(mult = .05)
             }
             else {
                 mirror <- FALSE
                 posneg <- rep(1, nlevels.treat)
                 alpha <- .4
                 legend.alpha <- alpha/nlevels.treat
-                expandScale <- expansion(mult = c(0, .05))
+                expandScale <- ggplot2::expansion(mult = c(0, .05))
             }
             
             if (type == "histogram") {
@@ -618,15 +619,15 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 
                 if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
                 geom_fun <- function(t) {
-                    out <- list(geom_histogram(data = D[D$treat == levels(D$treat)[t],],
-                                               mapping = aes(x = var, y = posneg[t]*stat(count), weight = weights,
-                                                             fill = names(colors)[t]),
-                                               alpha = alpha, bins = args$bins, color = "black"),
+                    out <- list(ggplot2::geom_histogram(data = D[D$treat == levels(D$treat)[t],],
+                                                        mapping = aes(x = var, y = posneg[t]*ggplot2::after_stat(count), weight = weights,
+                                                                      fill = names(colors)[t]),
+                                                        alpha = alpha, bins = args$bins, color = "black"),
                                 NULL)
                     if (disp.means) out[[2]] <-
-                            geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
-                                         mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
-                                         color = if (mirror) "black" else colors[[t]])
+                            ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
+                                                  mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
+                                                  color = if (mirror) "black" else colors[[t]])
                     out
                 }
                 ylab <- "Proportion"
@@ -655,8 +656,8 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 
                 geom_fun <- function(t) {
                     
-                    geom_step(data = D[D$treat == levels(D$treat)[t],],
-                              mapping = aes(x = var, y = cum.pt, color = names(colors)[t]))
+                    ggplot2::geom_step(data = D[D$treat == levels(D$treat)[t],],
+                                       mapping = aes(x = var, y = cum.pt, color = names(colors)[t]))
                     
                 }
                 ylab <- "Cumulative Proportion"
@@ -686,48 +687,48 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 
                 geom_fun <- function(t) {
                     out <- list(
-                        geom_density(data = D[D$treat == levels(D$treat)[t],],
-                                     mapping = aes(x = var, y = posneg[t]*stat(density), weight = weights,
-                                                   fill = names(colors)[t]),
-                                     alpha = alpha, bw = bw, adjust = adjust,
-                                     kernel = kernel, n = n, trim = TRUE,
-                                     outline.type = "full"),
+                        ggplot2::geom_density(data = D[D$treat == levels(D$treat)[t],],
+                                              mapping = aes(x = var, y = posneg[t]*ggplot2::after_stat(density), 
+                                                            weight = weights, fill = names(colors)[t]),
+                                              alpha = alpha, bw = bw, adjust = adjust,
+                                              kernel = kernel, n = n, trim = TRUE,
+                                              outline.type = "full"),
                         NULL)
                     if (disp.means) out[[2]] <-
-                            geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
-                                         mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
-                                         color = if (mirror) "black" else colors[[t]])
+                            ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
+                                                  mapping = aes(x = var.mean, xend = var.mean, y = 0, yend = posneg[t]*Inf), 
+                                                  color = if (mirror) "black" else colors[[t]])
                     out
                 }
                 ylab <- "Density"
                 
             }
             
-            bp <- Reduce("+", c(list(ggplot()),
+            bp <- Reduce("+", c(list(ggplot2::ggplot()),
                                 do.call(c, lapply(seq_len(nlevels.treat), geom_fun)))) +
-                scale_fill_manual(values = colors, guide = guide_legend(override.aes = list(alpha = legend.alpha, size = .25))) +
-                scale_color_manual(values = colors) +
-                labs(x = var.name, y = ylab, title = title, subtitle = subtitle,
-                     fill = "Treatment", color = "Treatment") + 
-                scale_y_continuous(expand = expandScale)
+                ggplot2::scale_fill_manual(values = colors, guide = ggplot2::guide_legend(override.aes = list(alpha = legend.alpha, size = .25))) +
+                ggplot2::scale_color_manual(values = colors) +
+                ggplot2::labs(x = var.name, y = ylab, title = title, subtitle = subtitle,
+                              fill = "Treatment", color = "Treatment") + 
+                ggplot2::scale_y_continuous(expand = expandScale)
             
-            if (mirror) bp <- bp + geom_hline(yintercept = 0)
+            if (mirror) bp <- bp + ggplot2::geom_hline(yintercept = 0)
         }
     }
     
     #Themes
-    bp <- bp + theme(panel.background = element_rect(fill = "white", color = "black"),
-                     panel.border = element_rect(fill = NA, color = "black"),
-                     plot.background = element_blank(),
-                     legend.position = position,
-                     legend.key=element_rect(fill = "white", color = "black", size = .25))
+    bp <- bp + ggplot2::theme(panel.background = element_rect(fill = "white", color = "black"),
+                              panel.border = element_rect(fill = NA, color = "black"),
+                              plot.background = element_blank(),
+                              legend.position = position,
+                              legend.key=element_rect(fill = "white", color = "black", size = .25))
     if (isFALSE(grid)) {
-        bp <- bp + theme(panel.grid.major = element_blank(),
-                         panel.grid.minor = element_blank())
+        bp <- bp + ggplot2::theme(panel.grid.major = element_blank(),
+                                  panel.grid.minor = element_blank())
     }
     else {
-        bp <- bp + theme(panel.grid.major = element_line(color = "gray87"),
-                         panel.grid.minor = element_line(color = "gray90"))
+        bp <- bp + ggplot2::theme(panel.grid.major = element_line(color = "gray87"),
+                                  panel.grid.minor = element_line(color = "gray90"))
     }
     
     if (is_not_null(facet)) {
@@ -735,7 +736,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             if (!is.formula(facet.formula)) {
                 stop("facet.formula must be a formula.", call. = FALSE)
             }
-            test.facet <- invisible(facet_grid(facet.formula))
+            test.facet <- invisible(ggplot2::facet_grid(facet.formula))
             if (any(c(names(test.facet$params$rows), names(test.facet$params$cols)) %nin% facet)) {
                 stop(paste("Only", word_list(facet, is.are = TRUE, quotes = TRUE), "allowed in facet.formula."), call. = FALSE)
             }
@@ -759,7 +760,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
         }
         else facet.formula <- f.build(".", facet)
-        bp <- bp + facet_grid(facet.formula, drop = FALSE, scales = ifelse("subclass" %in% facet, "free_x", "fixed"))
+        bp <- bp + ggplot2::facet_grid(facet.formula, drop = FALSE, scales = ifelse("subclass" %in% facet, "free_x", "fixed"))
     }
     
     return(bp)

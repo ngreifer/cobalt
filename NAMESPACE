@@ -1,12 +1,9 @@
-import(ggplot2)
 import(stats)
-import(grid)
 importFrom("utils", "combn", "data", "write.csv", "methods", "packageDescription")
-importFrom("grDevices", "col2rgb", "hcl", "n2mfrow")
 importFrom("crayon", "italic", "underline")
-importFrom("gtable", "gtable_col", "gtable_add_cols", "gtable_add_rows",
-           "gtable_add_grob", "gtable_matrix")
-importFrom("gridExtra", "arrangeGrob", "gtable_cbind", "gtable_rbind")
+importFrom("ggplot2",
+           "aes", "element_rect", "element_text",
+           "element_blank", "element_line")
 
 export(bal.tab, bal.plot, love.plot, f.build, splitfactor, 
        unsplitfactor, get.w, var.names, set.cobalt.options,

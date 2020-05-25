@@ -61,7 +61,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     args <- list(...)
-
+    
     #shape (deprecated)
     #un.color (deprecated)
     #adj.color (deprecated)
@@ -89,7 +89,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     #Process stats
     if (is_null(stats)) stats <- attr(x, "print.options")$stats
     stats <- match_arg(stats, all_STATS(attr(x, "print.options")$type), several.ok = TRUE)
-        
+    
     #Get B and config
     if ("bal.tab.subclass" %in% class(x)) {
         subclass.names <- names(x[["Subclass.Balance"]])
@@ -113,12 +113,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             #Multiple layers present
             facet_mat <- as.matrix(do.call(rbind, strsplit(names(B_list), namesep, fixed = TRUE)))
             facet <- unname(vapply(class_sequence, switch, character(1L),
-                                          bal.tab.cluster = "cluster",
-                                          bal.tab.msm = "time",
-                                          bal.tab.multi = "treat",
-                                          bal.tab.imp = "imp", NULL))
+                                   bal.tab.cluster = "cluster",
+                                   bal.tab.msm = "time",
+                                   bal.tab.multi = "treat",
+                                   bal.tab.imp = "imp", NULL))
             dimnames(facet_mat) <- list(names(B_list), facet)
-
+            
             for (b in seq_along(B_list)) {
                 B_list[[b]][["variable.names"]] <- rownames(B_list[[b]])
                 for (i in facet) {
@@ -168,7 +168,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         else stop(paste0("The argument to which.", i, " must be .none, .all, or the desired levels or indices of ", switch(i, time = "time points", i), "."), call. = FALSE)
                     }
                 }
-
+                
             }
             B_list <- B_list[rownames(facet_mat)]
             
@@ -207,7 +207,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 if (agg.fun == "range") {
                     B <- Reduce(function(x, y) merge(x, y, by = c("variable.names", "Type", facet), 
                                                      sort = FALSE),
-                                      lapply(c("min", "mean", "max"), aggregate_B, B_stack))
+                                lapply(c("min", "mean", "max"), aggregate_B, B_stack))
                 }
                 else {
                     B <- aggregate_B(agg.fun, B_stack)
@@ -252,7 +252,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             B <- data.frame(B_list, variable.names = rownames(B_list))
             
             facet <- one.level.facet <- agg.over <- NULL
-
+            
             stat.cols <- expand.grid_string(vapply(stats, function(s) STATS[[s]]$bal.tab_column_prefix, character(1L)),
                                             c("Un", attr(x, "print.options")[["weight.names"]]),
                                             collapse = ".")
@@ -462,7 +462,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         warning("The argument to size must be a number. Using 3 instead.", call. = FALSE)
         size <- 3
     }
-    stroke0 <- stroke <- rep(0, ntypes)
+    
+    stroke <- rep(0, ntypes)
     size0 <- size <- rep(size, ntypes)
     
     shapes.with.fill <- grepl("filled", shapes, fixed = TRUE)
@@ -620,7 +621,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                                         "Adj" = "Adjusted", w),
                                                         B[facet],
                                                         row.names = NULL)
-                                 ))
+                          ))
             
             missing.stat <- all(is.na(SS[["stat"]]))
             if (missing.stat) stop(paste0(word_list(firstup(STATS[[s]]$balance_tally_for)), 
@@ -729,7 +730,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             if (limits[[s]][1] >= baseline.xintercept) limits[[s]][1] <- baseline.xintercept - .05*limits[[s]][2]
             if (limits[[s]][2] <= baseline.xintercept) limits[[s]][2] <- baseline.xintercept - .05*limits[[s]][1]
             
-            if (identical(scale_Statistics, scale_x_log10)) limits[[s]][limits[[s]] <= 1e-2] <- 1e-2
+            if (identical(scale_Statistics, ggplot2::scale_x_log10)) limits[[s]][limits[[s]] <= 1e-2] <- 1e-2
             
             if (agg.range) {
                 
@@ -772,32 +773,32 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
         }
         
-        lp <- ggplot(aes(y = var, x = stat, group = Sample), data = SS) +
-            theme(panel.background = element_rect(fill = "white"),
-                  axis.text.x = element_text(color = "black"),
-                  axis.text.y = element_text(color = "black"),
-                  panel.border = element_rect(fill = NA, color = "black"),
-                  plot.background = element_blank(),
-                  legend.background = element_blank(),
-                  legend.key = element_blank()
+        lp <- ggplot2::ggplot2(aes(y = var, x = stat, group = Sample), data = SS) +
+            ggplot2::theme(panel.background = element_rect(fill = "white"),
+                           axis.text.x = element_text(color = "black"),
+                           axis.text.y = element_text(color = "black"),
+                           panel.border = element_rect(fill = NA, color = "black"),
+                           plot.background = element_blank(),
+                           legend.background = element_blank(),
+                           legend.key = element_blank()
             ) +
-            scale_shape_manual(values = shapes) +
-            scale_size_manual(values = size) +
-            scale_discrete_manual(aesthetics = "stroke", values = stroke) +
-            scale_fill_manual(values = fill) +
-            scale_color_manual(values = colors) +
-            labs(y = NULL, x = wrap(xlab, wrap))
+            ggplot2::scale_shape_manual(values = shapes) +
+            ggplot2::scale_size_manual(values = size) +
+            ggplot2::scale_discrete_manual(aesthetics = "stroke", values = stroke) +
+            ggplot2::scale_fill_manual(values = fill) +
+            ggplot2::scale_color_manual(values = colors) +
+            ggplot2::labs(y = NULL, x = wrap(xlab, wrap))
         
-        lp <- lp + geom_vline(xintercept = baseline.xintercept,
-                              linetype = 1, color = "gray5")
+        lp <- lp + ggplot2::geom_vline(xintercept = baseline.xintercept,
+                                       linetype = 1, color = "gray5")
         
         if (is_not_null(threshold.xintercepts)) {
-            lp <- lp + geom_vline(xintercept = threshold.xintercepts,
-                                  linetype = 2, color = "gray8")
+            lp <- lp + ggplot2::geom_vline(xintercept = threshold.xintercepts,
+                                           linetype = 2, color = "gray8")
         }
         
         if (agg.range) {
-            position.dodge <- position_dodge(.5*(size0[1]/3))
+            position.dodge <- ggplot2::position_dodge(.5*(size0[1]/3))
             if (line == TRUE) { #Add line except to distance
                 f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                 lp <- lp + ggplot2::layer(geom = "path", data = f, 
@@ -809,27 +810,27 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
             
             lp <- lp +
-                geom_linerange(aes(y = var, xmin = min.stat, xmax = max.stat,
-                                   color = Sample), position = position.dodge,
-                               size = size0[1]*.8/3,
-                               alpha = alpha, 
-                               orientation = "y",
-                               show.legend = FALSE,
-                               na.rm = TRUE) +
-                geom_point(aes(y = var, 
-                               x = mean.stat, 
-                               shape = Sample,
-                               size = Sample,
-                               stroke = Sample,
-                               color = Sample),
-                           fill = "white", na.rm = TRUE,
-                           alpha = alpha,
-                           position = position.dodge)
+                ggplot2::geom_linerange(aes(y = var, xmin = min.stat, xmax = max.stat,
+                                            color = Sample), position = position.dodge,
+                                        size = size0[1]*.8/3,
+                                        alpha = alpha, 
+                                        orientation = "y",
+                                        show.legend = FALSE,
+                                        na.rm = TRUE) +
+                ggplot2::geom_point(aes(y = var, 
+                                        x = mean.stat, 
+                                        shape = Sample,
+                                        size = Sample,
+                                        stroke = Sample,
+                                        color = Sample),
+                                    fill = "white", na.rm = TRUE,
+                                    alpha = alpha,
+                                    position = position.dodge)
             
         }
         else {
             if (is_null(subclass.names) || !attr(x, "print.options")$disp.subclass) {
-                if (line == TRUE) { #Add line except to distance
+                if (isTRUE(line)) { #Add line except to distance
                     f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                     lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
                                               position = "identity", stat = "identity",
@@ -838,13 +839,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                             na.rm = TRUE,
                                                             alpha = alpha))
                 }
-                lp <- lp + geom_point(data = SS, aes(shape = Sample,
-                                                     size = Sample,
-                                                     stroke = Sample,
-                                                     color = Sample),
-                                      fill = "white", 
-                                      na.rm = TRUE,
-                                      alpha = alpha)
+                lp <- lp + ggplot2::geom_point(data = SS, aes(shape = Sample,
+                                                              size = Sample,
+                                                              stroke = Sample,
+                                                              color = Sample),
+                                               fill = "white", 
+                                               na.rm = TRUE,
+                                               alpha = alpha)
                 
             }
             else {
@@ -859,24 +860,24 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                             na.rm = TRUE,
                                                             alpha = alpha))
                 }
-                lp <- lp + geom_point(data = SS.u.a,
-                                      aes(shape = Sample,
-                                          size = Sample,
-                                          stroke = Sample,
-                                          color = Sample),
-                                      fill = "white",
-                                      na.rm = TRUE)
-                lp <- lp + geom_text(data = SS[SS$Sample %nin% c("Unadjusted", "Adjusted"),],
-                                     mapping = aes(label = gsub("Subclass ", "", Sample)),
-                                     size = 2.5*size0[1]/3, na.rm = TRUE)
+                lp <- lp + ggplot2::geom_point(data = SS.u.a,
+                                               aes(shape = Sample,
+                                                   size = Sample,
+                                                   stroke = Sample,
+                                                   color = Sample),
+                                               fill = "white",
+                                               na.rm = TRUE)
+                lp <- lp + ggplot2::geom_text(data = SS[SS$Sample %nin% c("Unadjusted", "Adjusted"),],
+                                              mapping = aes(label = gsub("Subclass ", "", Sample)),
+                                              size = 2.5*size0[1]/3, na.rm = TRUE)
             }
             
             
         }
         
         if (!drop.distance && is_not_null(distance.names)) {
-            lp <- lp + geom_hline(linetype = 1, color = "black",
-                                  yintercept = nunique(SS[["var"]]) - length(distance.names) + .5)
+            lp <- lp + ggplot2::geom_hline(linetype = 1, color = "black",
+                                           yintercept = nunique(SS[["var"]]) - length(distance.names) + .5)
         }
         if (apply.limits) {
             lp <- lp + scale_Statistics(limits = limits[[s]], expand = c(0, 0))
@@ -886,16 +887,16 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         
         if (isFALSE(grid)) {
-            lp <- lp + theme(panel.grid.major = element_blank(),
-                             panel.grid.minor = element_blank())
+            lp <- lp + ggplot2::theme(panel.grid.major = element_blank(),
+                                      panel.grid.minor = element_blank())
         }
         else {
-            lp <- lp + theme(panel.grid.major = element_line(color = "gray87"),
-                             panel.grid.minor = element_line(color = "gray90"))
+            lp <- lp + ggplot2::theme(panel.grid.major = element_line(color = "gray87"),
+                                      panel.grid.minor = element_line(color = "gray90"))
         }
         
         if (is_not_null(facet)) {
-            lp <- lp + facet_grid(f.build(".", facet), drop = FALSE) + labs(x = xlab)
+            lp <- lp + ggplot2::facet_grid(f.build(".", facet), drop = FALSE) + labs(x = xlab)
         }
         
         class(lp) <- c(class(lp), "love.plot")
@@ -932,16 +933,16 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         for (i in seq_along(plots.to.combine)) {
             if (i > 1) {
                 plots.to.combine[[i]] <- plots.to.combine[[i]] + 
-                    theme(axis.text.y=element_blank(),
-                          axis.ticks.y=element_blank(),
-                          legend.position = "none")
+                    ggplot2::theme(axis.text.y=element_blank(),
+                                   axis.ticks.y=element_blank(),
+                                   legend.position = "none")
             }
             else {
-                plots.to.combine[[i]] <- plots.to.combine[[i]] + theme(legend.position = "none")
+                plots.to.combine[[i]] <- plots.to.combine[[i]] + ggplot2::theme(legend.position = "none")
             }
             
             if (is_not_null(labels)) {
-                plots.to.combine[[i]] <- plots.to.combine[[i]] + labs(title = labels[i])
+                plots.to.combine[[i]] <- plots.to.combine[[i]] + ggplot2::labs(title = labels[i])
             }
             
             if (is_not_null(themes[[stats[i]]])) {
@@ -950,14 +951,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         
         g <- ggarrange_simple(plots = plots.to.combine, nrow = 1)
-        title.grob <- grid::textGrob(title, gp=grid::gpar(fontsize=13.2))
-        subtitle.grob <- grid::textGrob(subtitle, gp=grid::gpar(fontsize=13.2))
+        title.grob <- grid::textGrob(title, gp = grid::gpar(fontsize=13.2))
+        subtitle.grob <- grid::textGrob(subtitle, gp = grid::gpar(fontsize=13.2))
         
         if (position == "none") {
             p <- gridExtra::arrangeGrob(grobs = list(g), nrow = 1)
         }
         else {
-            legg <- ggplot2::ggplotGrob(plots.to.combine[[1]] + theme(legend.position = position))
+            legg <- ggplot2::ggplotGrob(plots.to.combine[[1]] + ggplot2::theme(legend.position = position))
             leg <- legg$grobs[[which(legg$layout$name == "guide-box")]]
             
             if (position == "left") {
@@ -994,10 +995,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     else {
         
         p <- plot.list[[1]] + 
-            labs(title = title, subtitle = subtitle) +
-            theme(plot.title = element_text(hjust = 0.5),
-                  plot.subtitle = element_text(hjust = 0.5),
-                  legend.position = position)
+            ggplot2::labs(title = title, subtitle = subtitle) +
+            ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                           plot.subtitle = element_text(hjust = 0.5),
+                           legend.position = position)
         
         if (is_not_null(themes[[1]])) {
             p <- p + themes[[1]]
@@ -1008,4 +1009,5 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
 }
-plot.bal.tab <- love.plot
+autoplot.bal.tab <- love.plot
+plot.bal.tab <- autoplot.bal.tab

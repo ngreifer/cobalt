@@ -2462,7 +2462,7 @@ balance.table.across.subclass.cont <- function(balance.table, balance.table.subc
 
 #love.plot
 isColor <- function(x) {
-  tryCatch(is.matrix(col2rgb(x)), 
+  tryCatch(is.matrix(grDevices::col2rgb(x)), 
            error = function(e) FALSE)
 }
 f.recode <- function(f, ...) {
@@ -2501,16 +2501,16 @@ shapes.ok <- function(shapes, nshapes) {
 }
 gg_color_hue <- function(n) {
   hues = seq(15, 375, length = n + 1)
-  hcl(h = hues, l = 65, c = 100)[1:n]
+  grDevices::hcl(h = hues, l = 65, c = 100)[1:n]
 }
 ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
   #A thin version of egg:ggarrange
   
-  gtable_frame <- function (g, width = unit(1, "null"), height = unit(1, "null")) {
+  gtable_frame <- function (g, width = grid::unit(1, "null"), height = grid::unit(1, "null")) {
     panels <- g[["layout"]][grepl("panel", g[["layout"]][["name"]]),]
     pargins <- g[["layout"]][grepl("panel", g[["layout"]][["name"]]),]
     ll <- unique(panels$l)
-    margins <- if (length(ll) == 1) unit(0, "pt") else g$widths[ll[-length(ll)] + 2]
+    margins <- if (length(ll) == 1) grid::unit(0, "pt") else g$widths[ll[-length(ll)] + 2]
     tt <- unique(panels$t)
     fixed_ar <- g$respect
     if (fixed_ar) {
@@ -2525,28 +2525,28 @@ ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
     right <- g[seq(min(tt), max(tt)), seq(max(ll) + 1, ncol(g))]
     fg <- grid::nullGrob()
     if (length(left)) {
-      lg <- gtable::gtable_add_cols(left, unit(1, "null"), 0)
+      lg <- gtable::gtable_add_cols(left, grid::unit(1, "null"), 0)
       lg <- gtable::gtable_add_grob(lg, fg, 1, l = 1)
     }
     else {
       lg <- fg
     }
     if (length(right)) {
-      rg <- gtable::gtable_add_cols(right, unit(1, "null"))
+      rg <- gtable::gtable_add_cols(right, grid::unit(1, "null"))
       rg <- gtable::gtable_add_grob(rg, fg, 1, l = ncol(rg))
     }
     else {
       rg <- fg
     }
     if (length(top)) {
-      tg <- gtable::gtable_add_rows(top, unit(1, "null"), 0)
+      tg <- gtable::gtable_add_rows(top, grid::unit(1, "null"), 0)
       tg <- gtable::gtable_add_grob(tg, fg, t = 1, l = 1)
     }
     else {
       tg <- fg
     }
     if (length(bottom)) {
-      bg <- gtable::gtable_add_rows(bottom, unit(1, "null"), 
+      bg <- gtable::gtable_add_rows(bottom, grid::unit(1, "null"), 
                                     -1)
       bg <- gtable::gtable_add_grob(bg, fg, t = nrow(bg), l = 1)
     }
@@ -2575,7 +2575,7 @@ ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
     ncol <- nm[2]
   }
   
-  hw <- lapply(rep(1, n), unit, "null")
+  hw <- lapply(rep(1, n), grid::unit, "null")
   
   fg <- lapply(seq_along(plots), function(i) gtable_frame(g = grobs[[i]], 
                                                           width = hw[[i]], height = hw[[i]]))
