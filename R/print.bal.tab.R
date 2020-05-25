@@ -29,11 +29,11 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         if (!is.character(disp)) stop("disp must be a character vector.")
         allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
         if (any(disp %nin% allowable.disp)) {
-            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = TRUE, is.are = TRUE),
+            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = 2, is.are = TRUE),
                        "not allowed in disp."), call. = FALSE)
         }
         if (any(disp %nin% p.ops$compute)) {
-            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = TRUE), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = 2), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         }
         else p.ops$disp <- disp
     }
@@ -56,7 +56,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$compute
         if (any(!stats_in_p.ops)) {
-            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " when ", 
+            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " when ", 
                         if (sum(!stats_in_p.ops) > 1) "they were " else "it was ", 
                         "not requested in the original call to bal.tab()."), call. = TRUE)
         }
@@ -106,7 +106,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         
         if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
             warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
-                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+                                     quotes = 2, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
             disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
         }
         names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
@@ -249,11 +249,11 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         if (!is.character(disp)) stop("disp.means must be a character vector.")
         allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
         if (any(disp %nin% allowable.disp)) {
-            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = TRUE, is.are = TRUE),
+            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = 2, is.are = TRUE),
                        "not allowed in disp."), call. = FALSE)
         }
         if (any(disp %nin% p.ops$compute)) {
-            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = TRUE), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = 2), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         }
         else p.ops$disp <- disp
     }
@@ -280,7 +280,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$compute
         if (any(!stats_in_p.ops)) {
-            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
+            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
         }
         else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
     }
@@ -331,7 +331,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         
         if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
             warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
-                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+                                     quotes = 2, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
             disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
         }
         names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
@@ -375,7 +375,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     if (!p.ops$quick || is_null(p.ops$cluster.fun)) computed.cluster.funs <- c("min", "mean", "max")
     else computed.cluster.funs <- p.ops$cluster.fun
     if (is_not_null(cluster.fun) && !identical(cluster.fun, "as.is")) {
-        if (!is.character(cluster.fun) || !all(cluster.fun %pin% computed.cluster.funs)) stop(paste0("cluster.fun must be ", word_list(c(computed.cluster.funs, "as.is"), and.or = "or", quotes = TRUE)), call. = FALSE)
+        if (!is.character(cluster.fun) || !all(cluster.fun %pin% computed.cluster.funs)) stop(paste0("cluster.fun must be ", word_list(c(computed.cluster.funs, "as.is"), and.or = "or", quotes = 2)), call. = FALSE)
     }
     else {
         if (p.ops$abs) cluster.fun <- c("mean", "max")
@@ -517,11 +517,11 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         if (!is.character(disp)) stop("disp.means must be a character vector.")
         allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
         if (any(disp %nin% allowable.disp)) {
-            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = TRUE, is.are = TRUE),
+            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = 2, is.are = TRUE),
                        "not allowed in disp."), call. = FALSE)
         }
         if (any(disp %nin% p.ops$compute)) {
-            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = TRUE), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = 2), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         }
         else p.ops$disp <- disp
     }
@@ -546,7 +546,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$compute
         if (any(!stats_in_p.ops)) {
-            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
+            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
         }
         else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
     }
@@ -597,7 +597,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         
         if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
             warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
-                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+                                     quotes = 2, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
             disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
         }
         names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
@@ -645,7 +645,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     if (!p.ops$quick || is_null(p.ops$imp.fun)) computed.imp.funs <- c("min", "mean", "max")
     else computed.imp.funs <- p.ops$imp.fun
     if (is_not_null(imp.fun) && !identical(imp.fun, "as.is")) {
-        if (!is.character(imp.fun) || !all(imp.fun %pin% computed.imp.funs)) stop(paste0("imp.fun must be ", word_list(c(computed.imp.funs, "as.is"), and.or = "or", quotes = TRUE)), call. = FALSE)
+        if (!is.character(imp.fun) || !all(imp.fun %pin% computed.imp.funs)) stop(paste0("imp.fun must be ", word_list(c(computed.imp.funs, "as.is"), and.or = "or", quotes = 2)), call. = FALSE)
     }
     else {
         if (p.ops$abs) imp.fun <- c("mean", "max")
@@ -783,11 +783,11 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
         if (!is.character(disp)) stop("disp.means must be a character vector.")
         allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
         if (any(disp %nin% allowable.disp)) {
-            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = TRUE, is.are = TRUE),
+            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = 2, is.are = TRUE),
                        "not allowed in disp."), call. = FALSE)
         }
         if (any(disp %nin% p.ops$compute)) {
-            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = TRUE), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = 2), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         }
         else p.ops$disp <- disp
     }
@@ -810,7 +810,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
         stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$compute
         if (any(!stats_in_p.ops)) {
-            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
+            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
         }
         else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
     }
@@ -858,7 +858,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
         
         if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
             warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
-                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+                                     quotes = 2, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
             disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
         }
         names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
@@ -1082,11 +1082,11 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         if (!is.character(disp)) stop("disp.means must be a character vector.")
         allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
         if (any(disp %nin% allowable.disp)) {
-            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = TRUE, is.are = TRUE),
+            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = 2, is.are = TRUE),
                        "not allowed in disp."), call. = FALSE)
         }
         if (any(disp %nin% p.ops$compute)) {
-            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = TRUE), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = 2), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         }
         else p.ops$disp <- disp
     }
@@ -1109,7 +1109,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$compute
         if (any(!stats_in_p.ops)) {
-            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
+            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
         }
         else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
     }
@@ -1157,7 +1157,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         
         if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
             warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
-                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+                                     quotes = 2, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
             disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
         }
         names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
@@ -1346,11 +1346,11 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
         if (!is.character(disp)) stop("disp.means must be a character vector.")
         allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
         if (any(disp %nin% allowable.disp)) {
-            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = TRUE, is.are = TRUE),
+            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = 2, is.are = TRUE),
                        "not allowed in disp."), call. = FALSE)
         }
         if (any(disp %nin% p.ops$compute)) {
-            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = TRUE), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            warning(paste("disp cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = 2), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
         }
         else p.ops$disp <- disp
     }
@@ -1373,7 +1373,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
         stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$compute
         if (any(!stats_in_p.ops)) {
-            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = TRUE), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
+            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
         }
         else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
     }
@@ -1421,7 +1421,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
         
         if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
             warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
-                                     quotes = TRUE, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+                                     quotes = 2, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
             disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
         }
         names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)

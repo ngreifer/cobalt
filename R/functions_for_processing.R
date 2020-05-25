@@ -57,7 +57,7 @@ process_treat <- function(treat, data = list(), pairwise = TRUE) {
     
     treat <- vector.process(treat, name = "treat", 
                             which = "treatment statuses", 
-                            data = data, missing.okay = FALSE)
+                            datalist = data, missing.okay = FALSE)
     
     treat <- assign.treat.type(treat, use.multi = !if_null_then(pairwise, TRUE))
     treat.type <- get.treat.type(treat)
@@ -308,14 +308,14 @@ process.val <- function(val, i, treat = NULL, covs = NULL, addl.data = list(), .
           if (!found) not.found[v] <- TRUE
         }
         if (any(not.found)) {
-          warning(paste("The following variable(s) named in", i, "are not in any available data sets and will be ignored: ",
+          warning(paste0("The following variable(s) named in '", i, "' are not in any available data sets and will be ignored: ",
                         paste(val[not.found])), call. = FALSE)
           val.df <- val.df[!not.found]
         }
       }
       else {
         val.df <- NULL
-        warning(paste0("Names were provided to ", i, ", but no argument to 'data' was provided. Ignoring ", i,"."), 
+        warning(paste0("Names were provided to '", i, "', but no argument to 'data' was provided. Ignoring '", i,"'."), 
                 call. = FALSE)
       }
     }
@@ -361,25 +361,19 @@ data.frame.process <- function(i, df, treat = NULL, covs = NULL, addl.data = lis
     else {
       val.df <- process.val(val, i, treat, covs, addl.data = addl.data)
     }
-    # if (is_not_null(val.df)) { if (anyNA(val.df)) {
-    #   stop(paste0("Missing values exist in ", i, "."), call. = FALSE)}
-    # }
   }
   return(val.df)
 }
 list.process <- function(i, List, ntimes, call.phrase, treat.list = list(), covs.list = list(), addl.data = list(), ...) {
   val.List <- List
   if (is_not_null(val.List)) {
-    if (class(val.List)[1] != "list") {
+    if (!is_(val.List, "list")) {
       val.List <- list(val.List)
     }
     if (length(val.List) == 1) {
       val.List <- replicate(ntimes, val.List)
     }
-    else if (length(val.List) == ntimes) {
-      
-    }
-    else {
+    else if (length(val.List) != ntimes) {
       stop(paste0("The argument to '", i, "' must be a list of the same length as the number of time points in ",  call.phrase, "."), call. = FALSE)
     }
     for (ti in seq_along(val.List)) {
@@ -396,13 +390,13 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list = list(), covs
           }
           
           val.df <- setNames(do.call("cbind", val.list),
-                             c(vapply(val.list, names, character(1))))
+                             vapply(val.list, names, character(1)))
         }
         else {
           val.df <- process.val(val, strsplit(i, ".list", fixed = TRUE)[[1]], treat.list[[ti]], covs.list[[ti]], addl.data = addl.data)
         }
-        if (is_not_null(val.df)) { if (anyNA(val.df)) {
-          stop(paste0("Missing values exist in '", i, "'."), call. = FALSE)}
+        if (is_not_null(val.df) && anyNA(val.df)) {
+          stop(paste0("Missing values exist in '", i, "'."), call. = FALSE)
         }
         val.List[[ti]] <- val.df
       }
@@ -415,19 +409,19 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list = list(), covs
   }
   return(val.List)
 }
-vector.process <- function(vec, name = deparse(substitute(vec)), which = name, data = NULL, missing.okay = FALSE) {
+vector.process <- function(vec, name = deparse(substitute(vec)), which = name, datalist = NULL, missing.okay = FALSE) {
   bad.vec <- FALSE
   if (is.character(vec) && length(vec)==1L && is_not_null(data)) {
-    for (i in seq_along(data)) {
-      if (is_(data[[i]], "matrix") && vec %in% colnames(data[[i]])) {
-        vec <- data[[i]][,vec]
+    for (i in seq_along(datalist)) {
+      if (is_(datalist[[i]], "matrix") && vec %in% colnames(datalist[[i]])) {
+        vec <- datalist[[i]][,vec]
         break
       }
-      else if (is_(data[[i]], "data.frame") && vec %in% names(data[[i]])) {
-        vec <- data[[i]][[vec]]
+      else if (is_(datalist[[i]], "data.frame") && vec %in% names(datalist[[i]])) {
+        vec <- datalist[[i]][[vec]]
         break
       }
-      else if (i == length(data)) bad.vec <- TRUE
+      else if (i == length(datalist)) bad.vec <- TRUE
     }
   }
   else if (is_(vec, c("atomic", "factor")) && length(vec) > 1L) {
@@ -539,11 +533,11 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
   if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep.int(s.d.denom, NCOL(weights))
   
   if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
-    attr(s.d.denom, "note") <- paste0("Warning: 's.d.denom' should be one of ", word_list(unique(c(unique.treats, allowable.s.d.denoms)), "or", quotes = TRUE), 
-                                      ".\n         Using ", word_list(s.d.denom, quotes = TRUE), " instead.")
+    attr(s.d.denom, "note") <- paste0("Warning: 's.d.denom' should be one of ", word_list(unique(c(unique.treats, allowable.s.d.denoms)), "or", quotes = 2), 
+                                      ".\n         Using ", word_list(s.d.denom, quotes = 2), " instead.")
   }
   else if (estimand.specified && bad.estimand) {
-    attr(s.d.denom, "note") <- paste0("Warning: 'estimand' should be one of ", word_list(c("ATT", "ATC", "ATE"), "or", quotes = TRUE), 
+    attr(s.d.denom, "note") <- paste0("Warning: 'estimand' should be one of ", word_list(c("ATT", "ATC", "ATE"), "or", quotes = 2), 
                                       ". Ignoring 'estimand'.")
   }
   else if ((check.focal || check.weights) && any(s.d.denom %nin% treat_vals(treat))) {
@@ -587,8 +581,8 @@ get.s.d.denom.cont <- function(s.d.denom, weights = NULL, subclass = NULL, quiet
   
   if (!quietly) {
     if (s.d.denom.specified && bad.s.d.denom) {
-      message(paste0("Warning: 's.d.denom' should be ", word_list(unique(allowable.s.d.denoms), "or", quotes = TRUE), 
-                     ".\n         Using ", word_list(s.d.denom, quotes = TRUE), " instead."))
+      message(paste0("Warning: 's.d.denom' should be ", word_list(unique(allowable.s.d.denoms), "or", quotes = 2), 
+                     ".\n         Using ", word_list(s.d.denom, quotes = 2), " instead."))
     }
   }
   
@@ -769,8 +763,8 @@ subset_X <- function(X, subset = NULL) {
 imp.complete <- function(data) {
   if (!is_(data, "mids")) stop("'data' not of class 'mids'")
   
-  single.complete <- function (data, where, imp, ell) {
-    if (is.null(where)) where <- is.na(data)
+  single.complete <- function(data, where, imp, ell) {
+    if (is_null(where)) where <- is.na(data)
     idx <- seq_len(ncol(data))[apply(where, 2, any)]
     for (j in idx) {
       if (is_null(imp[[j]])) data[where[, j], j] <- NA
@@ -780,13 +774,13 @@ imp.complete <- function(data) {
   }
   
   m <- as.integer(data$m)
-  idx <- 1L:m
+  idx <- seq_len(m)
   
   mylist <- lapply(idx, function(i) single.complete(data$data, data$where, data$imp, i))
   
   cmp <- data.frame(.imp = rep(idx, each = nrow(data$data)), 
-                    .id = rep.int(1L:nrow(data$data), length(idx)), 
-                    do.call(rbind, mylist))
+                    .id = rep.int(seq_len(nrow(data$data)), length(idx)), 
+                    do.call("rbind", mylist))
   
   if (is.integer(attr(data$data, "row.names"))) 
     row.names(cmp) <- seq_len(nrow(cmp))
@@ -822,7 +816,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
       unsorted.imp <- is.unsorted(imp)
       for (i in vectors) {
         if (lengths[i] > 0 && lengths[i] != length(imp)) { 
-          if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
+          if (!all_the_same(imp.lengths)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
           if (lengths[i] == imp.lengths[1]) {
             i_obj <- get(i, envir = env, inherits = FALSE)
             new_i <- i_obj[rep(seq_along(i_obj), length(imp.lengths))]
@@ -836,7 +830,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
       }
       for (i in data.frames) {
         if (lengths[i] > 0 && lengths[i] != length(imp)) {
-          if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
+          if (!all_the_same(imp.lengths)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
           if (lengths[i] == imp.lengths[1]) {
             i_obj <- get(i, envir = env, inherits = FALSE)
             new_i <- i_obj[rep(seq_len(nrow(i_obj)), length(imp.lengths)), , drop = FALSE]
@@ -850,7 +844,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
       }
       for (i in lists) {
         if (lengths[i] > 0 && lengths[i] != length(imp)) {
-          if (nunique.gt(imp.lengths, 1)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
+          if (!all_the_same(imp.lengths)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
           if (lengths[i] == imp.lengths[1]) {
             assign(i, lapply(get(i, envir = env, inherits = FALSE), function(j) {
               if (is_(j, c("atomic", "factor"))) {
@@ -1297,7 +1291,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.finite(x) & !is.na(x)), logical(1L))
   if (any(covs.with.inf)) {
     s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
-    stop(paste0("The variable", s[1], " ", word_list(names(C)[covs.with.inf], quotes = TRUE), 
+    stop(paste0("The variable", s[1], " ", word_list(names(C)[covs.with.inf], quotes = 1), 
                 " contain", s[2], " non-finite values, which are not allowed."), call. = FALSE)
   }
   

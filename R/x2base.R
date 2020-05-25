@@ -230,7 +230,7 @@ x2base.ps <- function(ps, ...) {
         if (is.character(A$stop.method)) {
             rule1 <- names(ps$w)[sapply(t(sapply(tolower(A$stop.method), function(x) startsWith(tolower(names(ps$w)), x))), any)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(names(ps$w), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps$w)
             }
         }
@@ -242,7 +242,7 @@ x2base.ps <- function(ps, ...) {
             rule1 <- names(ps$w)[A$stop.method %in% seq_along(names(ps$w))]
         }
         else {
-            warning("stop.method should be ", word_list(names(ps$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(names(ps$w), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- names(ps$w)
         }
     }
@@ -427,7 +427,7 @@ x2base.mnps <- function(mnps, ...) {
         if (any(is.character(A$stop.method))) {
             rule1 <- mnps$stopMethods[sapply(t(sapply(tolower(A$stop.method), function(x) startsWith(tolower(mnps$stopMethods), x))), any)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(mnps$stopMethods, and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
                 rule1 <- mnps$stopMethods
             }
         }
@@ -439,7 +439,7 @@ x2base.mnps <- function(mnps, ...) {
             rule1 <- mnps$stopMethods[A$stop.method %in% seq_along(mnps$stopMethods)]
         }
         else {
-            warning("stop.method should be ", word_list(mnps$stopMethods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(mnps$stopMethods, and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- mnps$stopMethods
         }
     }
@@ -620,7 +620,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
         if (is.character(A$stop.method)) {
             rule1 <- names(ps.cont$w)[sapply(t(sapply(tolower(A$stop.method), function(x) startsWith(tolower(names(ps.cont$w)), x))), any)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(names(ps.cont$w), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
                 rule1 <- names(ps.cont$w)
             }
         }
@@ -632,7 +632,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
             rule1 <- names(ps.cont$w)[A$stop.method %in% seq_along(names(ps.cont$w))]
         }
         else {
-            warning("stop.method should be ", word_list(names(ps.cont$w), and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(names(ps.cont$w), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- names(ps.cont$w)
         }
     }
@@ -2826,7 +2826,7 @@ x2base.iptw <- function(iptw, ...) {
         if (any(is.character(A$stop.method))) {
             rule1 <- available.stop.methods[vapply(available.stop.methods, function(x) any(startsWith(tolower(x), tolower(A$stop.method))), logical(1L))]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead."))
+                message(paste0("Warning: stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
                 rule1 <- available.stop.methods
             }
         }
@@ -2838,7 +2838,7 @@ x2base.iptw <- function(iptw, ...) {
             rule1 <- available.stop.methods[A$stop.method %in% seq_along(available.stop.methods)]
         }
         else {
-            warning("stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = TRUE), ".\nUsing all available stop methods instead.", call. = FALSE)
+            warning("stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
             rule1 <- available.stop.methods
         }
     }

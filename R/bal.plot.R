@@ -740,7 +740,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             test.facet <- invisible(ggplot2::facet_grid(facet.formula))
             if (any(c(names(test.facet$params$rows), names(test.facet$params$cols)) %nin% facet)) {
-                stop(paste("Only", word_list(facet, is.are = TRUE, quotes = TRUE), "allowed in facet.formula."), call. = FALSE)
+                stop(paste("Only", word_list(facet, is.are = TRUE, quotes = 2), "allowed in facet.formula."), call. = FALSE)
             }
             if ("which" %nin% c(names(test.facet$params$rows), names(test.facet$params$cols))) {
                 if (length(which) > 1) stop("\"which\" must be in the facet formula when the which argument refers to more than one sample.", call. = FALSE)

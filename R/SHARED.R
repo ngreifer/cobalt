@@ -6,7 +6,11 @@ word_list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
     #or "a, b, and c"
     #If is.are, adds "is" or "are" appropriately
     L <- length(word.list)
-    if (quotes) word.list <- vapply(word.list, function(x) paste0("\"", x, "\""), character(1L))
+    if (quotes) {
+        if (as.integer(quotes) == 2) word.list <- vapply(word.list, function(x) paste0("\"", x, "\""), character(1L))
+        else if (as.integer(quotes) == 1) word.list <- vapply(word.list, function(x) paste0("\'", x, "\'"), character(1L))
+        else stop("'quotes' must be boolean, 1, or 2.")
+    }
     if (L == 0) {
         out <- ""
         attr(out, "plural") = FALSE
@@ -880,7 +884,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
     i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
     if (all(i == 0L))
         stop(paste0("The argument to '", arg.name, "' should be ", if (length(choices) > 1) {if (several.ok) "at least one of " else "one of "} else "", 
-                    word_list(choices, and.or = "or", quotes = TRUE), "."),
+                    word_list(choices, and.or = "or", quotes = 2), "."),
              call. = FALSE)
     i <- i[i > 0L]
     if (!several.ok && length(i) > 1)
@@ -911,7 +915,7 @@ check.package <- function(package.name, alternative = FALSE) {
         else {
             plural <- length(packages.not.installed) > 1
             stop(paste0("Package", if (plural) "s " else " ",
-                        word_list(packages.not.installed, quotes = TRUE, is.are = TRUE),
+                        word_list(packages.not.installed, quotes = 1, is.are = TRUE),
                         " needed for this function to work. Please install ",
                         if (plural) "them" else "it","."),
                  call. = FALSE)
