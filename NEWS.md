@@ -23,6 +23,10 @@ Version 4.2.0
 
 * Fixed bug when requesting means or standard deviations with segmented data.
 
+* `rlang` is now in IMPORTS. 
+
+* General speed and stability improvements.
+
 Version 4.1.0
 
 * Added support for `sbwcau` objects from `sbw`. See Appendix 1 or `?bal.tab.sbw` for an example.
