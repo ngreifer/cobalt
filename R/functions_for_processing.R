@@ -41,7 +41,7 @@ process_obj <- function(obj) {
 }
 
 #x2base
-process_treat <- function(treat, data = list(), pairwise = TRUE) {
+process_treat <- function(treat, datalist = list(), pairwise = TRUE) {
   
   if (missing(treat)) stop("'treat' must be specified.", call. = FALSE)
   
@@ -57,7 +57,7 @@ process_treat <- function(treat, data = list(), pairwise = TRUE) {
     
     treat <- vector.process(treat, name = "treat", 
                             which = "treatment statuses", 
-                            datalist = data, missing.okay = FALSE)
+                            datalist = datalist, missing.okay = FALSE)
     
     treat <- assign.treat.type(treat, use.multi = !if_null_then(pairwise, TRUE))
     treat.type <- get.treat.type(treat)
@@ -93,20 +93,20 @@ unprocess_treat <- function(treat) {
   }
   return(treat)
 }
-process_treat.list <- function(treat.list, data = list()) {
+process_treat.list <- function(treat.list, datalist = list()) {
   if (is_null(treat.list)) stop("'treat.list' must be specified.", call. = FALSE)
   if (!is_(treat.list, "list")) {
     treat.list <- as.list(treat.list)
   }
   
   treat.list.names <- vapply(seq_along(treat.list), function(ti) {
-    if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1L && is_not_null(data)) {
+    if (is.character(treat.list[[ti]]) && length(treat.list[[ti]])==1L && is_not_null(datalist)) {
       treat.list[[ti]]
     }
     else if (rlang::is_named(treat.list)) names(treat.list)[ti]
     else as.character(ti)
   }, character(1L))
-  treat.list <- lapply(treat.list, process_treat, data = data)
+  treat.list <- lapply(treat.list, process_treat, datalist = datalist)
   names(treat.list) <- treat.list.names
   
   return(treat.list)
@@ -185,7 +185,7 @@ strata2weights <- function(strata, treat, focal = NULL) {
   #Process strata into weights (similar to weight.subclass from MatchIt)
   
   #Checks
-  if (!is_(strata, c("factor", "atomic"))) {
+  if (!is_(strata, "atomic")) {
     stop("'strata' must be an atomic vector or factor.", call. = FALSE)
   }
   #Process treat
@@ -257,7 +257,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
           if (any(covs %nin% colnames(data))) {
             stop("All entries in 'covs' must be names of variables in 'data'.", call. = FALSE)
           }
-          covs <- get_covs_from_formula(f.build("",covs), data = as.data.frame(data))
+          covs <- get_covs_from_formula(f.build(covs), data = as.data.frame(data))
         }
         else {
           stop("If 'covs' is a character vector, 'data' must be specified as a data.frame.", call. = FALSE)
@@ -267,7 +267,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
     }
     
     if (is_not_null(treat)) {
-      if (!is_(treat, c("atomic", "factor"))) stop("'treat' must be an vector of treatment statuses.", call. = FALSE)
+      if (!is_(treat, "atomic")) stop("'treat' must be an vector of treatment statuses.", call. = FALSE)
       if (is.character(treat) && length(treat) == 1) treat <- get_treat_from_formula(f.build(treat, "."), data = data)
       else treat <- get_treat_from_formula(treat ~ ., treat = treat)
     }
@@ -409,9 +409,9 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list = list(), covs
   }
   return(val.List)
 }
-vector.process <- function(vec, name = deparse(substitute(vec)), which = name, datalist = NULL, missing.okay = FALSE) {
+vector.process <- function(vec, name = deparse(substitute(vec)), which = name, datalist = list(), missing.okay = FALSE) {
   bad.vec <- FALSE
-  if (is.character(vec) && length(vec)==1L && is_not_null(data)) {
+  if (is.character(vec) && length(vec)==1L && is_not_null(datalist)) {
     for (i in seq_along(datalist)) {
       if (is_(datalist[[i]], "matrix") && vec %in% colnames(datalist[[i]])) {
         vec <- datalist[[i]][,vec]
@@ -424,7 +424,7 @@ vector.process <- function(vec, name = deparse(substitute(vec)), which = name, d
       else if (i == length(datalist)) bad.vec <- TRUE
     }
   }
-  else if (is_(vec, c("atomic", "factor")) && length(vec) > 1L) {
+  else if (is_(vec, "atomic") && length(vec) > 1L) {
     vec <- vec
   }
   else {
@@ -793,8 +793,9 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
   #Processes vectors, data.frames, and lists for length
   #If object correspond to one imputation, assigns expanded object in env 
   
+  all.objects <- c(vectors, data.frames, lists)
   ensure.equal.lengths <- TRUE
-  problematic <- rlang::rep_named(c(vectors, data.frames, lists), FALSE)
+  problematic <- rlang::rep_named(all.objects, FALSE)
   lengths <- setNames(c(vapply(vectors, 
                                function(x) {len(get0(x, envir = env, inherits = FALSE))
                                }, numeric(1L)), 
@@ -805,7 +806,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
                           if (is_null(get0(x, envir = env, inherits = FALSE))) 0 
                           else max(vapply(get(x, envir = env, inherits = FALSE), len, numeric(1L)))
                         }, numeric(1L))), 
-                      c(vectors, data.frames, lists))
+                      all.objects)
   
   #Process imp further
   if (is_not_null(imp)) {
@@ -847,7 +848,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
           if (!all_the_same(imp.lengths)) stop("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation.", call. = FALSE)
           if (lengths[i] == imp.lengths[1]) {
             assign(i, lapply(get(i, envir = env, inherits = FALSE), function(j) {
-              if (is_(j, c("atomic", "factor"))) {
+              if (is_(j, "factor")) {
                 newj <- j[rep(seq_along(j), length(imp.lengths))]
                 if (unsorted.imp) {for (i_ in levels(imp)) newj[imp == i_] <- j}
                 return(newj)
@@ -858,7 +859,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
                 return(newj)
               }
               else {
-                stop(paste(i, "can only contain vectors or data.frames."), call. = FALSE)
+                stop(paste0("'", i, "' can only contain vectors or data frames."), call. = FALSE)
               }
             }), pos = env)
           }
@@ -872,7 +873,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
       problematic <- lengths > 0 & lengths != length(imp)
     }
     if (any(problematic)) {
-      stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as 'imp'."), call. = FALSE)
+      stop(paste0(word_list(names(problematic)[problematic], quotes = 1), " must have the same number of observations as 'imp'."), call. = FALSE)
     }
     else ensure.equal.lengths <- FALSE
     
@@ -880,18 +881,18 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
   }
   
   #Ensure all input lengths are the same.
+  anchor <- {
+    if ("treat" %in% all.objects) "treat"
+    else if ("treat.list" %in% all.objects) "treat.list"
+    else all.objects[which(lengths[all.objects] != 0)[1]]
+  }
   if (ensure.equal.lengths) {
-    for (i in c(vectors, data.frames, lists)) {
-      if (lengths[i] > 0 && lengths[i] != lengths[c(lists, data.frames, vectors)[1]]) {
-        problematic[i] <- TRUE
-      }
-    }
+    problematic[lengths %nin% c(0, lengths[anchor])] <- TRUE
   }
   if (any(problematic)) {
-    if (is_null(original.call.to)) anchor <- c(lists, data.frames, vectors)[1]
-    else anchor <- paste("in the original call to", original.call.to)
+    if (is_not_null(original.call.to)) anchor <- paste("in the original call to", original.call.to)
     
-    stop(paste0(word_list(names(problematic)[problematic]), " must have the same number of observations as ", anchor, "."), call. = FALSE)
+    stop(paste0(word_list(names(problematic)[problematic], quotes = 1), " must have the same number of observations as ", anchor, "."), call. = FALSE)
   }
 }
 process_stats <- function(stats = NULL, treat) {
@@ -1026,12 +1027,12 @@ process_disp <- function(disp = NULL, ...) {
 }
 process_addl <- function(addl = NULL, datalist = list()) {
   data <- do.call("data.frame", unname(clear_null(datalist)))
-  if (is_not_null(addl) && is_(addl, c("atomic", "factor")) && 
+  if (is_(addl, "atomic") && 
       (!is_(addl, "character") || is_null(datalist) ||
        length(addl) == nrow(data))) {
     addl <- data.frame(addl = addl)
   }
-  else if (is_(addl, "character")) addl <- f.build("", addl)
+  else if (is_(addl, "character")) addl <- f.build(addl)
   
   addl_t.c <- use.tc.fd(formula = addl, data = data, covs = addl, 
                         needs.treat = FALSE, needs.covs = FALSE)
@@ -1053,15 +1054,15 @@ process_addl.list <- function(addl.list = NULL, datalist = list(), covs.list = l
 }
 process_distance <- function(distance = NULL, datalist = list(), obj.distance = NULL, obj.distance.name = "distance") {
   data <- do.call("data.frame", unname(clear_null(datalist)))
-  if (is_not_null(distance) && !is_(distance, c("atomic", "factor", "formula", "matrix", "data.frame"))) {
+  if (is_not_null(distance) && !is_(distance, c("atomic", "formula", "matrix", "data.frame"))) {
     stop("'distance' must be a formula or variable containing the distance values.", call. = FALSE)
   }
-  if (is_not_null(distance) && is_(distance, c("atomic", "factor")) && 
+  if (is_(distance, "atomic") && 
       (!is_(distance, "character") || is_null(datalist) ||
        length(distance) == nrow(data))) {
     distance <- data.frame(distance = distance)
   }
-  else if (is_(distance, "character")) distance <- f.build("", distance)
+  else if (is_(distance, "character")) distance <- f.build(distance)
   
   distance_t.c <- use.tc.fd(formula = distance, data = data, covs = distance, 
                             needs.treat = FALSE, needs.covs = FALSE)
@@ -1774,7 +1775,7 @@ compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL
                         possibly.supplied)
     supplied <- lengths > 0
     if (!all_the_same(lengths[supplied])) {
-      stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+      stop(paste(word_list(possibly.supplied[supplied], quotes = 1), "must have the same number of units."))
     }
     
     if (lengths["weighted.weights"] == 0) weighted.weights <- rep(1, NROW(mat))
@@ -2717,7 +2718,7 @@ acceptable.options <- function() {
 
 #Misc
 `%+%` <- function(...) {
-  if (is_(..1, c("atomic", "factor")) && is_(..2, c("atomic", "factor"))) crayon::`%+%`(as.character(..1), as.character(..2))
+  if (is_(..1, "atomic") && is_(..2, "atomic")) crayon::`%+%`(as.character(..1), as.character(..2))
   else ggplot2::`%+%`(...)
 }
 

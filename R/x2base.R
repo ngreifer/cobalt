@@ -27,13 +27,13 @@ x2base.matchit <- function(m, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, m.data), 
+                              datalist = list(data, m.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
-    treat <- process_treat(m[["treat"]], data = list(data, m.data), pairwise = A$pairwise)
+    treat <- process_treat(m[["treat"]], datalist = list(data, m.data), pairwise = A$pairwise)
     
     #Process covs
     if (is_not_null(m$model$model)) {
@@ -76,7 +76,7 @@ x2base.matchit <- function(m, ...) {
         }
         
     }
-    else if ("matchit.mahalanobis" %nin% class(m) || is_not_null(data)) {
+    else if (is_not_null(m$formula) && is_not_null(data)) {
         covs <- get_covs_from_formula(m$formula, data = data)
     }
     else {
@@ -133,7 +133,7 @@ x2base.matchit <- function(m, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, m.data),
+                                  datalist = list(data, m.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -272,16 +272,16 @@ x2base.ps <- function(ps, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, ps.data), 
+                              datalist = list(data, ps.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
-    treat <- process_treat(ps$treat, data = list(data, ps.data))
+    treat <- process_treat(ps$treat, datalist = list(data, ps.data))
     
     #Process covs
-    f <- f.build("", ps$gbm.obj$var.names)
+    f <- f.build(ps$gbm.obj$var.names)
     covs <- get_covs_from_formula(f, data = ps.data)
     
     #Get estimand
@@ -321,7 +321,7 @@ x2base.ps <- function(ps, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, ps$sampw))) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, ps.data),
+                                    datalist = list(data, ps.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -331,7 +331,7 @@ x2base.ps <- function(ps, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, ps.data),
+                                  datalist = list(data, ps.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -469,16 +469,16 @@ x2base.mnps <- function(mnps, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, mnps.data), 
+                              datalist = list(data, mnps.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
-    treat <- process_treat(mnps$treatVar, data = list(data, mnps.data))
+    treat <- process_treat(mnps$treatVar, datalist = list(data, mnps.data))
     
     #Process covs
-    f <- f.build("", mnps$psList[[1]]$gbm.obj$var.names)
+    f <- f.build(mnps$psList[[1]]$gbm.obj$var.names)
     covs <- get_covs_from_formula(f, mnps.data)
     
     #Get estimand
@@ -514,7 +514,7 @@ x2base.mnps <- function(mnps, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, mnps$sampw))) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, mnps.data),
+                                    datalist = list(data, mnps.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -524,7 +524,7 @@ x2base.mnps <- function(mnps, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, mnps.data),
+                                  datalist = list(data, mnps.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -662,16 +662,16 @@ x2base.ps.cont <- function(ps.cont, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, ps.data), 
+                              datalist = list(data, ps.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
-    treat <- process_treat(ps.cont$treat, data = list(data, ps.data))
+    treat <- process_treat(ps.cont$treat, datalist = list(data, ps.data))
     
     #Process covs
-    f <- f.build("", ps.cont$gbm.obj$var.names)
+    f <- f.build(ps.cont$gbm.obj$var.names)
     covs <- get_covs_from_formula(f, ps.data)
     
     #Get estimand
@@ -708,7 +708,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, ps.cont$sampw))) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, ps.data),
+                                    datalist = list(data, ps.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -718,7 +718,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, ps.data),
+                                  datalist = list(data, ps.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -828,14 +828,14 @@ x2base.Match <- function(Match, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data), 
+                              datalist = list(data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
     t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-    treat <- process_treat(t.c[["treat"]], data = list(data))
+    treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -879,7 +879,7 @@ x2base.Match <- function(Match, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data),
+                                  datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1013,13 +1013,13 @@ x2base.data.frame <- function(covs, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data), 
+                              datalist = list(data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
-    treat <- process_treat(A$treat, data = list(data))
+    treat <- process_treat(A$treat, datalist = list(data))
     
     #Process covs
     if (is_null(covs)) {
@@ -1168,7 +1168,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
         subclass <- vector.process(subclass, 
-                                   data = list(data),
+                                   datalist = list(data),
                                    name = "subclass", 
                                    which = "subclass membership",
                                    missing.okay = TRUE)
@@ -1179,7 +1179,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process match.strata
     else if (is_not_null(match.strata <- A$match.strata)) {
         match.strata <- vector.process(match.strata, 
-                                       data = list(data),
+                                       datalist = list(data),
                                        name = "match.strata", 
                                        which = "matching strata membership",
                                        missing.okay = TRUE)
@@ -1199,7 +1199,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data),
+                                    datalist = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -1209,7 +1209,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data),
+                                  datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1321,14 +1321,14 @@ x2base.CBPS <- function(cbps.fit, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, c.data), 
+                              datalist = list(data, c.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
     treat <- get_treat_from_formula(cbps.fit$formula, c.data)
-    treat <- process_treat(treat, data = list(data, c.data))
+    treat <- process_treat(treat, datalist = list(data, c.data))
     
     #Process covs
     covs <- get_covs_from_formula(cbps.fit$formula, c.data)
@@ -1371,7 +1371,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, c.data),
+                                    datalist = list(data, c.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -1382,7 +1382,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, c.data),
+                                  datalist = list(data, c.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1493,14 +1493,14 @@ x2base.ebalance <- function(ebalance, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data), 
+                              datalist = list(data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
     t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-    treat <- process_treat(t.c[["treat"]], data = list(data))
+    treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -1539,7 +1539,7 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data),
+                                    datalist = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -1549,7 +1549,7 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data),
+                                  datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1658,15 +1658,16 @@ x2base.optmatch <- function(optmatch, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data), 
+                              datalist = list(data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
     t.c <- use.tc.fd(A$formula, data = data, covs = A$covs,
-                     treat = if_null_then(A$treat, as.numeric(attr(optmatch, "contrast.group"))))
-    treat <- process_treat(t.c[["treat"]], data = list(data))
+                     treat = if_null_then(A$treat, as.numeric(attr(optmatch, "contrast.group"))),
+                     needs.covs = FALSE)
+    treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -1710,7 +1711,7 @@ x2base.optmatch <- function(optmatch, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data),
+                                  datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1829,7 +1830,7 @@ x2base.cem.match <- function(cem.match, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data), 
+                              datalist = list(data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
@@ -1840,7 +1841,7 @@ x2base.cem.match <- function(cem.match, ...) {
     #Process treat
     t.c <- use.tc.fd(data = data, treat = cem.match[["groups"]], 
                      covs = cem.match[["vars"]])
-    treat <- process_treat(t.c[["treat"]], data = list(data))
+    treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -1882,7 +1883,7 @@ x2base.cem.match <- function(cem.match, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data),
+                                  datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -1993,13 +1994,13 @@ x2base.weightit <- function(weightit, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, weightit.data), 
+                              datalist = list(data, weightit.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
-    treat <- process_treat(weightit$treat, data = list(data, weightit.data))
+    treat <- process_treat(weightit$treat, datalist = list(data, weightit.data))
     
     #Process covs
     if (is_null(covs <- weightit$covs)) stop("No covariates were specified in the weightit object.", call. = FALSE)
@@ -2039,7 +2040,7 @@ x2base.weightit <- function(weightit, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, weightit$s.weights))) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, weightit.data),
+                                    datalist = list(data, weightit.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -2049,7 +2050,7 @@ x2base.weightit <- function(weightit, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, weightit.data),
+                                  datalist = list(data, weightit.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -2163,14 +2164,14 @@ x2base.designmatch <- function(dm, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data), 
+                              datalist = list(data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
     t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-    treat <- process_treat(t.c[["treat"]], data = list(data))
+    treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -2214,7 +2215,7 @@ x2base.designmatch <- function(dm, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data),
+                                  datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -2329,7 +2330,7 @@ x2base.mimids <- function(mimids, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, m.data), 
+                              datalist = list(data, m.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
@@ -2384,7 +2385,7 @@ x2base.mimids <- function(mimids, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, m.data),
+                                  datalist = list(data, m.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -2499,7 +2500,7 @@ x2base.wimids <- function(wimids, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, w.data), 
+                              datalist = list(data, w.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
@@ -2548,7 +2549,7 @@ x2base.wimids <- function(wimids, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, unlist(lapply(wimids[["models"]][-1], function(w) w[["s.weights"]]))))) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, w.data),
+                                    datalist = list(data, w.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -2558,7 +2559,7 @@ x2base.wimids <- function(wimids, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, w.data),
+                                  datalist = list(data, w.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -2672,17 +2673,17 @@ x2base.sbwcau <- function(sbwcau, ...) {
         imp <- vector.process(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
-                              data = list(data, sbw.data), 
+                              datalist = list(data, sbw.data), 
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat
-    treat <- process_treat(sbwcau[["ind"]], data = list(data, sbw.data))
+    treat <- process_treat(sbwcau[["ind"]], datalist = list(data, sbw.data))
     
     #Process covs
     # covs <- sbw.data[sbwcau[["bal"]][["bal_cov"]]]
-    f <- f.build("", sbwcau[["bal"]][["bal_cov"]])
+    f <- f.build(sbwcau[["bal"]][["bal_cov"]])
     covs <- get_covs_from_formula(f, data = sbw.data)
     
     #Get estimand
@@ -2719,7 +2720,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A$sampw)) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, sbw.data),
+                                    datalist = list(data, sbw.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -2729,7 +2730,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, sbw.data),
+                                  datalist = list(data, sbw.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -2865,15 +2866,15 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
+        imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat.list
-    treat.list <- process_treat.list(lapply(iptw$psList, function(x) x$treat), data = list(data, ps.data))
+    treat.list <- process_treat.list(lapply(iptw$psList, function(x) x$treat), datalist = list(data, ps.data))
     
     #Process covs.list
-    covs.list <- lapply(iptw$psList, function(x) get_covs_from_formula(f.build("", x$gbm.obj$var.names), data = x$data))
+    covs.list <- lapply(iptw$psList, function(x) get_covs_from_formula(f.build(x$gbm.obj$var.names), data = x$data))
     
     #Get estimand
     estimand <- substr(toupper(s), nchar(s)-2, nchar(s))
@@ -2943,7 +2944,7 @@ x2base.iptw <- function(iptw, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, iptw$psList[[1]]$sampw))) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, ps.data),
+                                    datalist = list(data, ps.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -2953,7 +2954,7 @@ x2base.iptw <- function(iptw, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, ps.data),
+                                  datalist = list(data, ps.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -3058,12 +3059,12 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
+        imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat.list
-    treat.list <- process_treat.list(A$treat.list, list(data))
+    treat.list <- process_treat.list(A$treat.list, datalist = list(data))
     
     #Process covs.list
     if (is_null(covs.list)) {
@@ -3175,7 +3176,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data),
+                                    datalist = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -3185,7 +3186,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
         cluster <- vector.process(cluster, 
-                                  data = list(data),
+                                  datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -3312,13 +3313,13 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
+        imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat.list
     treat.list <- process_treat.list(lapply(times, function(x) cbmsm$treat.hist[ID, x]), 
-                                     data = list(data, cbmsm.data))
+                                     datalist = list(data, cbmsm.data))
     
     #Process covs.list
     rownames(cbmsm$data) <- cbmsm$id
@@ -3393,7 +3394,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, cbmsm.data),
+                                  datalist = list(data, cbmsm.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -3506,13 +3507,13 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
+        imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
     #Process treat.list
     treat.list <- process_treat.list(weightitMSM$treat.list,
-                                     data = list(data, weightitMSM.data, weightitMSM.data2))    
+                                     datalist = list(data, weightitMSM.data, weightitMSM.data2))    
     #Process covs.list
     covs.list <- lapply(weightitMSM$covs.list, function(x) get_covs_from_formula(~x))
     
@@ -3567,7 +3568,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A$s.weights, weightitMSM$s.weights))) {
         s.weights <- vector.process(s.weights, 
-                                    data = list(data, weightitMSM.data, weightitMSM.data2),
+                                    datalist = list(data, weightitMSM.data, weightitMSM.data2),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
@@ -3577,7 +3578,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     #Process cluster
     if (is_not_null(cluster <- A$cluster)) {
         cluster <- vector.process(cluster, 
-                                  data = list(data, weightitMSM.data, weightitMSM.data2),
+                                  datalist = list(data, weightitMSM.data, weightitMSM.data2),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
@@ -3594,7 +3595,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     #Process length
     length_imp_process(vectors = c("subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
                        data.frames = c("weights"),
-                       lists = c("covs.list", "treat.list", "addl.list", "distance.list"),
+                       lists = c("treat.list", "covs.list", "addl.list", "distance.list"),
                        imp = imp,
                        original.call.to = "weightitMSM()")
     
@@ -3856,14 +3857,14 @@ x2base.default <- function(obj, ...) {
             imp <- vector.process(imp, 
                                   name = "imp", 
                                   which = "imputation identifiers", 
-                                  data = list(data), 
+                                  datalist = list(data), 
                                   missing.okay = FALSE)
             imp <- factor(imp)
         }
         
         #Process treat
         t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
-        treat <- process_treat(t.c[["treat"]], data = list(data))
+        treat <- process_treat(t.c[["treat"]], datalist = list(data))
         
         #Process covs
         covs <- t.c[["covs"]]
@@ -4006,7 +4007,7 @@ x2base.default <- function(obj, ...) {
         #Process subclass
         if (is_not_null(subclass <- A$subclass)) {
             subclass <- vector.process(subclass, 
-                                       data = list(data),
+                                       datalist = list(data),
                                        name = "subclass", 
                                        which = "subclass membership",
                                        missing.okay = TRUE)
@@ -4016,7 +4017,7 @@ x2base.default <- function(obj, ...) {
         #Process match.strata
         else if (is_not_null(match.strata <- A$match.strata)) {
             match.strata <- vector.process(match.strata, 
-                                           data = list(data),
+                                           datalist = list(data),
                                            name = "match.strata", 
                                            which = "matching strata membership",
                                            missing.okay = TRUE)
@@ -4036,7 +4037,7 @@ x2base.default <- function(obj, ...) {
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
             s.weights <- vector.process(s.weights, 
-                                        data = list(data),
+                                        datalist = list(data),
                                         name = "s.weights", 
                                         which = "sampling weights",
                                         missing.okay = FALSE)
@@ -4046,7 +4047,7 @@ x2base.default <- function(obj, ...) {
         #Process cluster
         if (is_not_null(cluster <- A$cluster)) {
             cluster <- vector.process(cluster, 
-                                      data = list(data),
+                                      datalist = list(data),
                                       name = "cluster", 
                                       which = "cluster membership",
                                       missing.okay = FALSE)
@@ -4160,7 +4161,7 @@ x2base.default <- function(obj, ...) {
         
         #Process imp
         if (is_not_null(imp)) {
-            imp <- vector.process(imp, "imp", "imputation identifiers", data = list(data), missing.okay = FALSE)
+            imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
             imp <- factor(imp)
         }
         
@@ -4172,7 +4173,7 @@ x2base.default <- function(obj, ...) {
             A$covs.list[[i]]  <- t.c[["covs"]]
             if (is_not_null(t.c[["treat.name"]])) names(A$treat.list)[i] <- t.c[["treat.name"]]
         }
-        treat.list <- process_treat.list(A$treat.list, list(data))
+        treat.list <- process_treat.list(A$treat.list, datalist = list(data))
         
         #Process covs.list
         if (is_null(covs.list <- A$covs.list)) {
@@ -4285,7 +4286,7 @@ x2base.default <- function(obj, ...) {
         #Process s.weights
         if (is_not_null(s.weights <- A$s.weights)) {
             s.weights <- vector.process(s.weights, 
-                                        data = list(data),
+                                        datalist = list(data),
                                         name = "s.weights", 
                                         which = "sampling weights",
                                         missing.okay = FALSE)
@@ -4294,7 +4295,7 @@ x2base.default <- function(obj, ...) {
         #Process cluster
         if (is_not_null(cluster <- A$cluster)) {
             cluster <- vector.process(cluster, 
-                                      data = list(data),
+                                      datalist = list(data),
                                       name = "cluster", 
                                       which = "cluster membership",
                                       missing.okay = FALSE)

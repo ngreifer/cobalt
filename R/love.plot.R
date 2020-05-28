@@ -82,8 +82,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     #Process abs
     if (missing(abs)) {
-        if (is_null(attr(x, "print.options")[["abs"]])) abs <- TRUE
-        else abs <- attr(x, "print.options")[["abs"]]
+        abs <- if_null_then(attr(x, "print.options")[["abs"]], TRUE)
     }
     
     #Process stats
@@ -281,34 +280,34 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 if (is_not_null(row.names(var.names))) {
                     new.labels <- setNames(unlist(as.character(var.names[,1])), rownames(var.names))
                 }
-                else warning("var.names is a data.frame, but its rows are unnamed.", call. = FALSE)
+                else warning("'var.names' is a data frame, but its rows are unnamed.", call. = FALSE)
             }
             else {
                 if (all(c("old", "new") %in% names(var.names))) {
                     new.labels <- setNames(unlist(as.character(var.names[,"new"])), var.names[,"old"])
                 }
                 else {
-                    if (ncol(var.names)>2) warning("Only using first 2 columns of var.names", call. = FALSE)
+                    if (ncol(var.names)>2) warning("Only using first 2 columns of 'var.names'.", call. = FALSE)
                     new.labels <- setNames(unlist(as.character(var.names[,2])), var.names[,1])
                 }
             } 
         }
-        else if (is.atomic(var.names) || is.factor(var.names)) {
+        else if (is_(var.names, "atomic")) {
             if (is_not_null(names(var.names))) {
                 new.labels <- setNames(as.character(var.names), names(var.names))
             }
-            else warning("var.names is a vector, but its values are unnamed.", call. = FALSE)
+            else warning("'var.names' is a vector, but its values are unnamed.", call. = FALSE)
         }
-        else if (is.list(var.names)) {
-            if (all(sapply(var.names, function(x) is.character(x) || is.factor(x)))) {
+        else if (is_(var.names, "list")) {
+            if (all(sapply(var.names, function(x) is_(x, c("character", "factor"))))) {
                 if (is_not_null(names(var.names))) {
                     new.labels <- unlist(var.names) #already a list
                 }
-                else warning("var.names is a list, but its values are unnamed.", call. = FALSE)
+                else warning("'var.names' is a list, but its values are unnamed.", call. = FALSE)
             }
-            else warning("var.names is a list, but its values are not the new names of the variables.", call. = FALSE)
+            else warning("'var.names' is a list, but its values are not the new names of the variables.", call. = FALSE)
         }
-        else warning("Argument to var.names is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE, call. = FALSE)
+        else warning("Argument to 'var.names' is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE, call. = FALSE)
         
         co.names <- attr(x, "print.options")[["co.names"]]
         seps <- attr(co.names, "seps")
@@ -372,11 +371,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     ntypes <- if (is_null(subclass.names)) length(attr(x, "print.options")$weight.names) + 1 else 2
     if (!missing(sample.names)) {
         if (!is.vector(sample.names, "character")) {
-            warning("The argument to sample.names must be a character vector. Ignoring sample.names.", call. = FALSE)
+            warning("The argument to 'sample.names' must be a character vector. Ignoring 'sample.names'.", call. = FALSE)
             sample.names <- NULL
         }
         else if (length(sample.names) %nin% c(ntypes, ntypes - 1)) {
-            warning("The argument to sample.names must contain as many names as there are sample types, or one fewer. Ignoring sample.names.", call. = FALSE)
+            warning("The argument to 'sample.names' must contain as many names as there are sample types, or one fewer. Ignoring 'sample.names'.", call. = FALSE)
             sample.names <- NULL
         }
     }
@@ -384,13 +383,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     #Process limits
     if (is_not_null(limits)) {
-        if (!is.vector(limits, "list")) {
+        if (!is_(limits, "list")) {
             limits <- list(limits)
         }
         if (any(vapply(limits, 
-                       function(l) !is.vector(l, "numeric") || length(l) %nin% c(0L, 2L), 
+                       function(l) !is_(l, "numeric") || length(l) %nin% c(0L, 2L), 
                        logical(1L)))) {
-            warning("limits must be a list of numeric vectors of legnth 2. Ignoring limits.", call. = FALSE)
+            warning("'limits' must be a list of numeric vectors of legnth 2. Ignoring 'limits'.", call. = FALSE)
             limits <- NULL
         }
         
@@ -410,7 +409,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         !anyNA(alpha[1]) && 
         between(alpha[1], c(0,1))) alpha <- alpha[1]
     else {
-        warning("The argument to alpha must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
+        warning("The argument to 'alpha' must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
         alpha <- 1
     }
     
@@ -427,15 +426,15 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         if (length(colors) == 1) colors <- rep(colors, ntypes)
         else if (length(colors) > ntypes) {
             colors <- colors[seq_len(ntypes)]
-            warning(paste("Only using first", ntypes, "value", if (ntypes > 1) "s " else " ", "in colors."), call. = FALSE)
+            warning(paste("Only using first", ntypes, "value", if (ntypes > 1) "s " else " ", "in 'colors'."), call. = FALSE)
         }
         else if (length(colors) < ntypes) {
             warning("Not enough colors were specified. Using default colors instead.", call. = FALSE)
             colors <- gg_color_hue(ntypes)
         }
         
-        if (!all(sapply(colors, isColor))) {
-            warning("The argument to colors contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
+        if (!all(vapply(colors, isColor, logical(1L)))) {
+            warning("The argument to 'colors' contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
             colors <- gg_color_hue(ntypes)
         }
         
@@ -457,7 +456,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     #Size
-    if (is.numeric(size[1])) size <- size[1]
+    if (is.numeric(size)) size <- size[1]
     else {
         warning("The argument to size must be a number. Using 3 instead.", call. = FALSE)
         size <- 3
@@ -474,7 +473,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     if (is_not_null(facet)) {
         if (is_not_null(var.order) && "love.plot" %nin% class(var.order) && tolower(var.order) != "alphabetical") {
-            warning("var.order cannot be set with faceted plots (unless \"alphabetical\"). Ignoring var.order.", call. = FALSE)
+            warning("'var.order' cannot be set with faceted plots (unless \"alphabetical\"). Ignoring 'var.order'.", call. = FALSE)
             var.order <- NULL
         }
     }
@@ -482,10 +481,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     agg.range <- isTRUE(Agg.Fun == "Range")
     
     #Process thresholds
-    if (is_null(thresholds)) {
-        thresholds <- attr(x, "print.options")$thresholds[stats]
-    }
-    else thresholds <- process_thresholds(thresholds, stats)
+    thresholds <- if_null_then(attr(x, "print.options")$thresholds[stats], 
+                               process_thresholds(thresholds, stats))
     
     #Title
     if (missing(title)) title <- "Covariate Balance"
@@ -500,7 +497,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         if (any(vapply(themes, 
                        function(t) !all(c("theme", "gg") %in% class(t)), 
                        logical(1L)))) {
-            warning("themes must be a list of \"theme\" objects. Ignoring themes.", call. = FALSE)
+            warning("'themes' must be a list of \"theme\" objects. Ignoring 'themes'.", call. = FALSE)
             themes <- NULL
         }
         
@@ -560,7 +557,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     old.vars <- levels(var.order$data$var)
                     old.vars[endsWith(old.vars, "*")] <- substr(old.vars[endsWith(old.vars, "*")], 1, nchar(old.vars[endsWith(old.vars, "*")])-1)
                     if (any(SS[["var"]] %nin% old.vars)) {
-                        warning("The love.plot object in var.order doesn't have the same variables as the current input. Ignoring var.order.", call. = FALSE)
+                        warning("The love.plot object in 'var.order' doesn't have the same variables as the current input. Ignoring 'var.order'.", call. = FALSE)
                         var.order <- NULL
                     }
                     else {
@@ -586,7 +583,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 }
                 else if (var.order %in% ua) {
                     if (var.order %in% gone) {
-                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", STATS[[s]]$balance_tally_for, " were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
+                        warning(paste0("'var.order' was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", STATS[[s]]$balance_tally_for, " were calculated. Ignoring 'var.order'."), call. = FALSE, immediate. = TRUE)
                         var.order <- NULL
                     }
                     else {
@@ -650,7 +647,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     old.vars <- levels(var.order$data$var)
                     old.vars[endsWith(old.vars, "*")] <- substr(old.vars[endsWith(old.vars, "*")], 1, nchar(old.vars[endsWith(old.vars, "*")])-1)
                     if (any(SS[["var"]] %nin% old.vars)) {
-                        warning("The love.plot object in var.order doesn't have the same variables as the current input. Ignoring var.order.", call. = FALSE)
+                        warning("The love.plot object in 'var.order' doesn't have the same variables as the current input. Ignoring 'var.order'.", call. = FALSE)
                         var.order <- NULL
                     }
                     else {
@@ -915,7 +912,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         if (isTRUE(labels)) labels <- LETTERS[seq_along(plot.list)]
         else if (is_null(labels) || isFALSE(labels)) labels <- NULL
         else if (!is.atomic(labels) || length(labels) != length(plot.list)) {
-            warning("labels must be TRUE or a string with the same length as stats. Ignoring labels.", call. = FALSE)
+            warning("'labels' must be TRUE or a string with the same length as 'stats'. Ignoring 'labels'.", call. = FALSE)
             labels <- NULL
         }
         else labels <- as.character(labels)

@@ -40,9 +40,9 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
             }
             message(paste0("No 'var.name' was provided. Dispalying balance for ", var.name, "."))
         }
-        var.name_in_name <- sapply(co.names, function(x) var.name %in% x[["component"]][x[["type"]] == "base"] &&
-                                       "isep" %nin% x[["type"]])
-        var.name_in_name_and_factor <- sapply(seq_along(co.names), function(x) var.name_in_name[x] && "fsep" %in% co.names[[x]][["type"]])
+        var.name_in_name <- vapply(co.names, function(x) var.name %in% x[["component"]][x[["type"]] == "base"] &&
+                                       "isep" %nin% x[["type"]], logical(1L))
+        var.name_in_name_and_factor <- vapply(seq_along(co.names), function(x) var.name_in_name[x] && "fsep" %in% co.names[[x]][["type"]], logical(1L))
         if (any(var.name_in_name_and_factor)) {
             X$var <- unsplitfactor(as.data.frame(X$covs[,var.name_in_name_and_factor, drop = FALSE]), 
                                    var.name, sep = attr(co.names, "seps")["factor"])[[1]]
@@ -548,7 +548,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
         }
         if (is_not_null(which.treat) && !anyNA(which.treat)) D <- D[D$treat %in% which.treat,]
         
-        for (i in names(D)[sapply(D, is.factor)]) D[[i]] <- factor(D[[i]])
+        for (i in names(D)[vapply(D, is.factor, logical(1L))]) D[[i]] <- factor(D[[i]])
         
         D$weights <- ave(D[["weights"]], 
                          D[c("treat", facet)], 
@@ -571,7 +571,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                 colors <- gg_color_hue(ntypes)
             }
             
-            if (!all(sapply(colors, isColor))) {
+            if (!all(vapply(colors, isColor, logical(1L)))) {
                 warning("The argument to 'colors' contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
                 colors <- gg_color_hue(ntypes)
             }
@@ -618,7 +618,7 @@ bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL
                                       FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
                 }
                 
-                if (is_null(args$bins) || !is.numeric(args$bins)) args$bins <- 12
+                if (!is_(args$bins, "numeric")) args$bins <- 12
                 geom_fun <- function(t) {
                     out <- list(ggplot2::geom_histogram(data = D[D$treat == levels(D$treat)[t],],
                                                         mapping = aes(x = .data$var, y = posneg[t]*ggplot2::after_stat(!!sym("count")), 
