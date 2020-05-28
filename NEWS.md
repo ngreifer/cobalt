@@ -9,6 +9,8 @@ Version 4.2.0
 
 * Arguments to `addl` can now be specified as a one-sided formula (e.g., `~ X1 + X2 * X3`). This makes it easy to take advantage of the above changes to the formula interface to add additional interaction terms. The formula will look at all available datasets in the conditioning object or supplied to `bal.tab()` and at the global environment. If supplying a single variable that exists in the global environment, it makes sense to supply it as a formula (e.g., `addl = ~ X1`) rather than as just the variable (e.g., `addl = X1`). Doing the former will retain the name of the variable. The same can be done with `distance`. If variables in `addl` are perfectly correlated with or have the same name as supplied covariates, those variables will be removed from `addl`.
 
+* If only one argument is provided to `f.build()` (e.g., `f.build("x")`), it will be treated as the right-hand-side of the formula with no left-hand-side (e.g., the above will evaluate to `~ x`).
+
 * Fixed bug that caused `match.strata` input to be ignored.
 
 * Improved processing and error reporting when using the default `bal.tab()` method.

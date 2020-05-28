@@ -1,7 +1,13 @@
 #Utility functions
 f.build <- function(y, rhs) {
-    if (missing(rhs)) stop("Right hand side argument to f.build() must be a vector of variable names or a data set with named variables.", call. = FALSE)
-    else if (is_(rhs, c("matrix", "data.frame")) && is_not_null(colnames(rhs))) {
+    if (missing(rhs)) {
+        if (missing(y)) stop("Right hand side argument to f.build() must be a vector of variable names or a data set with named variables.", call. = FALSE)
+        else {
+            rhs <- y
+            y <- ""
+        }
+    }
+    if (is_(rhs, c("matrix", "data.frame")) && is_not_null(colnames(rhs))) {
         vars <- paste0("`", gsub("`", "", colnames(rhs)), "`")
     }
     else if (is_(rhs, "character")) {

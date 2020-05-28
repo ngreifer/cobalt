@@ -10,7 +10,7 @@ f.build(y, rhs)
 \arguments{
 \item{y}{the quoted name of the response (left hand side) variable in the formula. Only one variable is supported. If missing, \code{NULL}, or the empty string (\code{""}), the formula will have no response variable.}
 
-\item{rhs}{a data frame whose variable names will be the terms on the right hand side of the formula, or a character vector whose values will be the terms on the right hand side of the formula.}
+\item{rhs}{a data frame whose variable names will be the terms on the right hand side of the formula, or a character vector whose values will be the terms on the right hand side of the formula. If missing, the argument to \code{y} will replace \code{rhs} and \code{y} will be set to \code{""}; in essence, \code{f.build("x")} is the same as \code{f.build("", "x")}, both producing \code{~ x}.
 }
 \value{
 an object of class \code{"formula"}.
