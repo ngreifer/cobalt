@@ -126,7 +126,7 @@ base.bal.tab.cont <- function(X, ...) {
 }
 
 base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_imp.summary", TRUE), imp.fun = getOption("cobalt_imp.fun", NULL), ...) {
-    A <- clear_null(list(...))
+    A <- list(...)
     
     X$treat <- process_treat(X$treat)
     
@@ -176,7 +176,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     return(out)
 }
 base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = getOption("cobalt_multi.summary", TRUE), ...) {
-    A <- clear_null(list(...))
+    A <- list(...)
     
     X$treat <- process_treat(X$treat)
     
@@ -290,7 +290,7 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     #cov.list should be a list of covariate data.frames, one for each time period; 
     #   should include all covs from previous time points, but no treatment statuses
     
-    A <- clear_null(list(...))
+    A <- list(...)
     
     X$treat.list <- process_treat.list(X$treat)
     
@@ -348,7 +348,7 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     return(out)
 }
 base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), ...) {
-    A <- clear_null(list(...))
+    A <- list(...)
     
     #Preparations
     
@@ -367,7 +367,7 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     out <- make_list(out.names)
     
     #Get list of bal.tabs for each imputation
-    
+    print(str(A))
     out[["Cluster.Balance"]] <- lapply(levels(cluster), function(cl) {
         X_cl <- assign.X.class(subset_X(X, cluster == cl)) 
         X_cl$call <- NULL
