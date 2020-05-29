@@ -6,9 +6,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                       position = "right", themes = NULL, ...) {
     
     #Replace .all and .none with NULL and NA respectively
-    .call <- match.call(expand.dots = TRUE)
-    .alls <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.all)), logical(1L))
-    .nones <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.none)), logical(1L))
+    .call <- match.call()
+    .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
+    .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
     if (any(c(.alls, .nones))) {
         .call[.alls] <- expression(NULL)
         .call[.nones] <- expression(NA)
@@ -18,29 +18,29 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     if (missing(stats)) stats <- NULL
     
     #Re-call bal.tab with disp.v.ratio or disp.ks if stats = "v" or "k".
-    if (!exists(deparse(substitute(x)))) { #if x is not an object (i.e., is a function call)
-        mc <- match.call()
+    if (typeof(.call[["x"]]) == "language") { #if x is not an object (i.e., is a function call)
+        
         replace.args <- function(m) {
-            #m_ is bal.tab call or list (for do.call)
+            #m is bal.tab call or list (for do.call)
             m[["un"]] <- TRUE
             if (is_not_null(stats)) m[["stats"]] <- stats
             
             if (any(names(m) == "agg.fun")) m[["agg.fun"]] <- NULL
             
-            if (any(names(mc) %pin% "abs")) m[["abs"]] <- abs
+            if (any(names(m) %pin% "abs")) m[["abs"]] <- abs
             
-            if (any(names(mc) %pin% "thresholds")) m["thresholds"] <- list(NULL)
+            if (any(names(m) %pin% "thresholds")) m["thresholds"] <- list(NULL)
             
             return(m)
         }
         
-        if (deparse(mc[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) { #if x i bal.tab call
-            mc[["x"]] <- replace.args(mc[["x"]])
-            x <- eval.parent(mc[["x"]])
+        if (deparse(.call[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) { #if x i bal.tab call
+            .call[["x"]] <- replace.args(.call[["x"]])
+            x <- eval.parent(.call[["x"]])
             
         }
-        else if (deparse(mc[["x"]][[1]]) == "do.call") { #if x is do.call
-            d <- match.call(eval(mc[["x"]][[1]]), mc[["x"]])
+        else if (deparse(.call[["x"]][[1]]) == "do.call") { #if x is do.call
+            d <- match.call(eval(.call[["x"]][[1]]), .call[["x"]])
             if (deparse(d[["what"]]) %in% c("bal.tab", methods("bal.tab"))) {
                 d[["args"]] <- replace.args(d[["args"]])
                 x <- eval.parent(d)
@@ -48,16 +48,19 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
     }
     
+    tryCatch(force(x), error = function(e) stop(conditionMessage(e), call. = FALSE))
+    
     if ("bal.tab" %nin% class(x)) {
         #Use bal.tab on inputs first, then love.plot on that
-        m <- match.call()
-        m.b <- m; m.b[[1]] <- quote(bal.tab); names(m.b)[2] <- ''
-        m.b["thresholds"] <- list(NULL)
+        .call2 <- .call
+        .call2[[1]] <- quote(bal.tab)
+        .call2[["x"]] <- x
         
-        m.l <- m; 
-        m.l[["x"]] <- m.b
+        .call2["thresholds"] <- list(NULL)
         
-        return(eval.parent(m.l))
+        .call[["x"]] <- .call2
+        
+        return(eval.parent(.call))
     }
     
     args <- list(...)
