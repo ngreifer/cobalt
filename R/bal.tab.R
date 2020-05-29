@@ -2,14 +2,16 @@ bal.tab <- function(x, ...) {
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
-    .alls <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.all)), logical(1L))
-    .nones <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.none)), logical(1L))
+    .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
+    .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
     if (any(c(.alls, .nones))) {
         .call[.alls] <- expression(NULL)
         .call[.nones] <- expression(NA)
         return(eval.parent(.call))
     }
 
+    tryCatch(force(x), error = function(e) stop(conditionMessage(e), call. = FALSE))
+    
     if (!is_(x, "cobalt.processed.obj")) {
         x <- process_obj(x)
         bal.tab(x, ...)

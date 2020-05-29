@@ -1,26 +1,28 @@
-bal.plot <- function(obj, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, 
+bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, which.cluster = NULL, 
                      imp = NULL, which.imp = NULL, which.treat = NULL, which.time = NULL, 
                      mirror = FALSE, type = "density", colors = NULL, grid = FALSE, sample.names,
                      position = "right", facet.formula = NULL, disp.means = getOption("cobalt_disp.means", FALSE), 
                      alpha.weight = TRUE) {
     
-    tryCatch(identity(obj), error = function(e) stop(conditionMessage(e), call. = FALSE))
+    tryCatch(identity(x), error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Replace .all and .none with NULL and NA respectively
     .call <- match.call(expand.dots = TRUE)
-    .alls <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.all)), logical(1L))
-    .nones <- vapply(seq_along(.call), function(x) identical(.call[[x]], quote(.none)), logical(1L))
+    .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
+    .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
     if (any(c(.alls, .nones))) {
         .call[.alls] <- expression(NULL)
         .call[.nones] <- expression(NA)
         return(eval.parent(.call))
     }
     
+    tryCatch(force(x), error = function(e) stop(conditionMessage(e), call. = FALSE))
+    
     args <- list(...)
     
-    obj <- process_obj(obj)
+    x <- process_obj(x)
     
-    X <- x2base(obj, ..., cluster = cluster, imp = imp)
+    X <- x2base(x, ..., cluster = cluster, imp = imp)
     
     if (is_null(X$covs.list)) {
         #Point treatment
