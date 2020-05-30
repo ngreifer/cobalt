@@ -27,12 +27,12 @@ STATS[["mean.diffs"]] <- {list(
         stars <- A$stars
         
         #All std, no std, some std
-        if ((binary == "std" || sum(var_type == "Binary") == 0) && 
-            (continuous == "std" || sum(var_type != "Binary") == 0)) {
+        if ((binary == "std" || !any(var_type == "Binary")) && 
+            (continuous == "std" || !any(var_type == "Contin."))) {
             xlab.diff <- "Standardized Mean Differences"
         } 
-        else if ((binary == "raw" || sum(var_type == "Binary") == 0) && 
-                 (continuous == "raw" || sum(var_type != "Binary") == 0)) {
+        else if ((binary == "raw" || !any(var_type == "Binary")) && 
+                 (continuous == "raw" || !any(var_type == "Contin."))) {
             xlab.diff <- "Mean Differences"
         }
         else {
