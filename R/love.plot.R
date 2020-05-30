@@ -709,7 +709,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         else threshold.xintercepts <- NULL
         xlab <- STATS[[s]]$love.plot_xlab(abs = abs, binary = attr(x, "print.options")$binary,
                                           continuous = attr(x, "print.options")$continuous,
-                                          var_type = B[["type"]],
+                                          var_type = B[["Type"]],
                                           stars = stars)
         SS[["var"]] <- STATS[[s]]$love.plot_add_stars(SS[["var"]], 
                                                       variable.names = variable.names,
