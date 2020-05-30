@@ -7,6 +7,10 @@ f.build <- function(y, rhs) {
             y <- ""
         }
     }
+    
+    tryCatch(force(y), error = function(e) stop(conditionMessage(e), call. = FALSE))
+    tryCatch(force(rhs), error = function(e) stop(conditionMessage(e), call. = FALSE))
+    
     if (is_(rhs, c("matrix", "data.frame")) && is_not_null(colnames(rhs))) {
         vars <- paste0("`", gsub("`", "", colnames(rhs)), "`")
     }
