@@ -149,7 +149,7 @@ When only one type of balance statistic is requested, the returned object is a s
 When more than one type of balance statistic is requested, the plot is constructed using \code{\link[gridExtra]{arrangeGrob}} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
 }
 \note{
-\code{love.plot} can also be called by using \code{plot} on a \code{bal.tab} object.
+\code{love.plot} can also be called by using \code{plot} or \code{autoplot} on a \code{bal.tab} object. If used in this way, some messages may appear twice. It is recommended that you just use \code{love.plot} instead.
 }
 
 \author{
