@@ -25,6 +25,8 @@ Version 4.2.0
 
 * Fixed bug when requesting means or standard deviations with segmented data.
 
+* Fixed bug where the x-axis in `love.plot` was always "Standardized Mean Differences" even when they weren't for `stats = "mean.diffs"`.
+
 * `rlang` is now in IMPORTS. 
 
 * General speed and stability improvements.
