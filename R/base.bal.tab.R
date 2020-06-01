@@ -367,7 +367,6 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     out <- make_list(out.names)
     
     #Get list of bal.tabs for each imputation
-    print(str(A))
     out[["Cluster.Balance"]] <- lapply(levels(cluster), function(cl) {
         X_cl <- assign.X.class(subset_X(X, cluster == cl)) 
         X_cl$call <- NULL
