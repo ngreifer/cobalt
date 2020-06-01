@@ -117,10 +117,10 @@ round_df_char <- function(df, digits, pad = "0", na_vals = "") {
             df[[i]] <- sapply(seq_along(df[[i]]), function(x) {
                 if (df[[i]][x] == "") ""
                 else if (lengths[x] <= 1) {
-                    paste0(c(df[[i]][x], rep(".", pad == 0), rep(pad, max_(digits.r.of..) - digits.r.of..[x] + as.numeric(pad != 0))),
+                    paste0(c(df[[i]][x], rep(".", pad == 0), rep(pad, max(digits.r.of..) - digits.r.of..[x] + as.numeric(pad != 0))),
                            collapse = "")
                 }
-                else paste0(c(df[[i]][x], rep(pad, max_(digits.r.of..) - digits.r.of..[x])),
+                else paste0(c(df[[i]][x], rep(pad, max(digits.r.of..) - digits.r.of..[x])),
                             collapse = "")
             })
         }
@@ -150,9 +150,9 @@ text_box_plot <- function(range.list, width = 12) {
     for (i in seq_len(nrow(d))) {
         spaces1 <- rescaled.range.list[[i]][1] - rescaled.full.range[1]
         #|
-        dashes <- max_(0, diff(rescaled.range.list[[i]]) - 2)
+        dashes <- max(c(0, diff(rescaled.range.list[[i]]) - 2))
         #|
-        spaces2 <- max_(0, diff(rescaled.full.range) - (spaces1 + 1 + dashes + 1))
+        spaces2 <- max(c(0, diff(rescaled.full.range) - (spaces1 + 1 + dashes + 1)))
 
         d[i, 2] <- paste0(paste(rep(" ", spaces1), collapse = ""), "|", paste(rep("-", dashes), collapse = ""), "|", paste(rep(" ", spaces2), collapse = ""))
     }
@@ -241,20 +241,22 @@ check_if_int <- function(x) {
 
 #Statistics
 binarize <- function(variable, zero = NULL, one = NULL) {
-    nas <- is.na(variable)
-    if (!is_binary(variable[!nas])) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
-    if (is.character(variable)) variable <- factor(variable)
+    if (!is_binary(variable)) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
+    if (is.character(variable)) {
+        variable <- factor(variable, nmax = 2)
+        unique.vals <- levels(variable)
+    }
+    else unique.vals <- unique(variable, nmax = 2)
 
     variable.numeric <- as.numeric(variable)
-    unique.vals <- unique(variable, nmax = 2)
 
     if (is_null(zero)) {
         if (is_null(one)) {
             if (0 %in% variable.numeric) zero <- 0
-            else zero <- min_(variable.numeric)
+            else zero <- min(variable.numeric, na.rm = TRUE)
         }
         else {
-            if (one %in% unique.vals) zero <- unique.vals[unique.vals != one]
+            if (one %in% unique.vals) return(setNames(as.integer(variable.numeric == one), names(variable)))
             else stop("The argument to \"one\" is not the name of a level of variable.", call. = FALSE)
         }
     }
@@ -262,8 +264,7 @@ binarize <- function(variable, zero = NULL, one = NULL) {
         if (zero %nin% unique.vals) stop("The argument to \"zero\" is not the name of a level of variable.", call. = FALSE)
     }
 
-    newvar <- setNames(ifelse(!nas & variable.numeric == zero, 0L, 1L), names(variable))
-    newvar[nas] <- NA_integer_
+    newvar <- setNames(as.integer(variable.numeric != zero), names(variable))
     return(newvar)
 }
 ESS <- function(w) {
@@ -711,7 +712,7 @@ all_the_same <- function(x, na.rm = TRUE) {
         x <- na.rem(x)
         if (!na.rm) return(is_null(x))
     }
-    if (is.double(x)) check_if_zero(max_(x) - min_(x))
+    if (is.double(x)) check_if_zero(max(x) - min(x))
     else all(x == x[1])
 }
 is_binary <- function(x, na.rm = TRUE) {
