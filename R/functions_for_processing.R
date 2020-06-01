@@ -1123,7 +1123,7 @@ get_ints_from_co.names <- function(co.names) {
 }
 get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
   
-  if (!rlang::is_formula(f)) stop("f must be a formula.", call. = FALSE)
+  if (!rlang::is_formula(f)) stop("'f' must be a formula.", call. = FALSE)
   
   env <- environment(f)
   
@@ -1135,7 +1135,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
       data.specified <- TRUE
     }
     else {
-      warning("The argument supplied to 'data' is not a data.frame object. This may causes errors or unexpected results.", call. = FALSE)
+      warning("The argument supplied to 'data' is not a data.frame object. Ignoring 'data'.", call. = FALSE)
       data <- env
       data.specified <- FALSE
     }
@@ -1151,15 +1151,15 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
              stop(conditionMessage(e), call. = FALSE)
            })
   
-  #Process response ----
   if (rlang::is_formula(tt, lhs = TRUE)) {
     resp.vars.mentioned <- as.character(tt)[2]
     resp.vars.failed <- vapply(resp.vars.mentioned, function(v) {
       test <- tryCatch(eval(str2expression(v), data, env), error = function(e) e)
       if (inherits(test, "simpleError")) {
         if (conditionMessage(test) == paste0("object '", v, "' not found")) return(TRUE)
-        else stop(test)
+        else stop(conditionMessage(test), call. = FALSE)
       }
+      else if (is.function(test)) stop(paste0("invalid type (function) for variable '", v, "'"), call. = FALSE)
       else if (is_null(test)) return(TRUE)
       else return(FALSE)
     }, logical(1L))
@@ -1184,12 +1184,12 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
 }
 get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " * ") {
   
-  if (!rlang::is_formula(f)) stop("f must be a formula.")
+  if (!rlang::is_formula(f)) stop("'f' must be a formula.")
   
-  env <- environment(f)
+  env <- rlang::f_env(f)
   
-  f <- update(f, NULL ~ .)
-  
+  rlang::f_lhs(f) <- NULL
+
   #Check if data exists
   if (is_not_null(data)) {
     if (is.matrix(data)) data <- as.data.frame.matrix(data)
@@ -1197,7 +1197,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       data.specified <- TRUE
     }
     else {
-      warning("The argument supplied to 'data' is not a data.frame object. This may causes errors or unexpected results.", call. = FALSE)
+      warning("The argument supplied to 'data' is not a data.frame object. Ignoring 'data'.", call. = FALSE)
       data <- env
       data.specified <- FALSE
     }
@@ -1259,9 +1259,19 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     if (data.specified) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
     else data <- do.call("cbind", unname(addl.dfs))
     
-    tt.covs <- terms(as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+"))), data = data)
+    new.form <- as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+")))
+    tt.covs <- terms(new.form, data = data)
+    
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse, character(1L))[-1]
+  }
+  
+  #Check to make sure variables are valid
+  for (i in ttvars) {
+     evaled.var <- tryCatch(eval(str2expression(i), data, env), error = function(e) stop(conditionMessage(e), call. = FALSE))
+     if (is.function(evaled.var)) {
+       stop(paste0("invalid type (function) for variable '", i, "'"), call. = FALSE)
+     }
   }
   
   mf.covs <- quote(stats::model.frame(tt.covs, data,
@@ -1282,7 +1292,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   }
   
   #Check for infinite values
-  covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.finite(x) & !is.na(x)), logical(1L))
+  covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
   if (any(covs.with.inf)) {
     s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
     stop(paste0("The variable", s[1], " ", word_list(names(C)[covs.with.inf], quotes = 1), 
@@ -1300,7 +1310,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                          after = ind)
       tmpcovs[[paste0(i, ":<NA>")]] <- as.numeric(is.na(tmpcovs[[i]]))
     }
-    tt.covs <- terms(as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+"))), data = data)
+    new.form <- as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+")))
+    tt.covs <- terms(new.form, data = data)
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse, character(1L))[-1]
     
