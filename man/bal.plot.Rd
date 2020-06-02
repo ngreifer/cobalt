@@ -8,7 +8,7 @@ Generate Univariate Balance Plots
 Generates density plots, bar graphs, or scatterplots displaying distributional balance between treatment and covariates using \pkg{ggplot2}.
 }
 \usage{
-bal.plot(obj, 
+bal.plot(x, 
     var.name, 
     ..., 
     which, 
@@ -30,7 +30,7 @@ bal.plot(obj,
     alpha.weight = TRUE)
 }
 \arguments{
-  \item{obj}{
+  \item{x}{
 the object for which balance is to be assessed; can be any object for which there is support in \code{bal.tab}.
 }
   \item{var.name}{
@@ -93,34 +93,34 @@ a \code{formula} designating which facets should be on the rows and columns. Thi
 
 }
 \section{Additional Arguments}{
-\code{bal.plot()} works like \code{bal.tab()} in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional parameters are required in \code{\dots}. For details on what is required and allowed for each additional input and their defaults, see the help file for the \code{\link{bal.tab}} method associated with the input. The following are the required additional arguments based on each input type (optional arguments in parentheses):
+\code{bal.plot()} works like \code{bal.tab()} in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional parameters are required in \code{\dots}. For details on what is required and allowed for each additional input and their defaults, see the help file for the \code{\link{bal.tab}} method associated with the input. The following are the required additional arguments based on each input type:
+\itemize{
+\item For \code{matchit} objects: None
 
-For \code{matchit} objects: None
+\item For \code{weightit} objects: None
 
-For \code{weightit} objects: None
+\item For \code{ps}, \code{ps.cont}, \code{mnps}, and \code{iptw} objects: (\code{stop.method}; see \link[=bal.tab.ps]{defaults}).
 
-For \code{ps}, \code{ps.cont}, \code{mnps}, and \code{iptw} objects: (\code{stop.method}; see \link[=bal.tab.ps]{defaults}).
+\item For \code{Match} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
-For \code{Match} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{optmatch} objects: \code{formula} and \code{data} or \code{covs} (\code{treat} is not required).
 
-For \code{optmatch} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{CBPS} objects: None
 
-For \code{CBPS} objects: None
+\item For \code{ebalance} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
-For \code{ebalance} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{formula}s: \code{data}
 
-For \code{formula}s: \code{data}, \code{weights}, (\code{distance}), (\code{method}; see \link[=bal.tab.formula]{defaults})
+\item For \code{data.frame}s: \code{treat}
 
-For \code{data.frame}s: \code{treat}, (\code{data}), \code{weights}, (\code{distance}), (\code{method}; see \link[=bal.tab.data.frame]{defaults})
+\item For \code{designmatch} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
 
-For \code{designmatch} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{sbw} objects: None
 
-For \code{sbw} objects: None
+\item For \code{mimids} and \code{wimids} objects: None, but an argument to \code{which.imp} should be specified.
 
-For \code{mimids} and \code{wimids} objects: None, but an argument to \code{which.imp} should be specified.
-
-For other objects processed through \code{bal.tab}'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
-
+\item For other objects processed through \code{bal.tab}'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
+}
 }
 \details{
 \code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \code{\link[ggplot2]{geom_density}}, histograms are created using \code{\link[ggplot2]{geom_histogram}}, and empirical CDF plots are created using \code{\link[ggplot2]{geom_step}}; for categorical treatments with categorical covariates, bar graphs are created using \code{\link[ggplot2]{geom_bar}}; for continuous treatments with continuous covariates, scatterplots are created using \code{\link[ggplot2]{geom_point}}.

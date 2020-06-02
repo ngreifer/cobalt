@@ -40,7 +40,6 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
     weights = NULL,
     cluster = NULL, 
     pairwise = TRUE, 
-    focal = NULL, 
     abs = FALSE,
     subset = NULL,
     quick = TRUE, 
@@ -89,9 +88,6 @@ either a vector containing cluster membership for each unit or a string containi
 }
   \item{pairwise}{
 whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link{bal.tab.multi}} for details. 
-}
-  \item{focal}{
-Currently ignored.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 

@@ -44,8 +44,6 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
         weights = NULL,
         cluster = NULL, 
         imp = NULL,
-        pairwise = TRUE, 
-        focal = NULL, 
         s.weights = NULL,
         abs = FALSE,
         subset = NULL,

@@ -45,7 +45,6 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     cluster = NULL, 
     imp = NULL,
     pairwise = TRUE, 
-    focal = NULL, 
     abs = FALSE,
     subset = NULL,
     quick = TRUE, ...)
@@ -138,9 +137,6 @@ either a vector containing imputation indices for each unit or a string containi
 }
   \item{pairwise}{
 when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link{bal.tab.multi}} for details.
-}
-  \item{focal}{
-ignored. With multi-category treatments, \code{bal.tab()} automatically assigns a focal treatment based on the \code{mnps} object. See \code{\link{bal.tab.multi}} for details.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
