@@ -354,9 +354,8 @@ data.frame.process <- function(i, df, treat = NULL, covs = NULL, addl.data = lis
       if (!all_the_same(vapply(val.list, nrow, numeric(1)))) {
         stop(paste0("Not all items in '", i, "' have the same length."), call. = FALSE)
       }
-      
       val.df <- setNames(do.call("cbind", val.list),
-                         make.unique(sapply(val.list, names)))
+                         make.unique(unlist(lapply(val.list, names))))
     }
     else {
       val.df <- process.val(val, i, treat, covs, addl.data = addl.data)
