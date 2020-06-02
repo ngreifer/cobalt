@@ -40,7 +40,7 @@ The function will search \code{x} for the following named items and attempt to p
 \item{\code{weights}}{A vector, list, or \code{data.frame} containing weights for each unit or a string containing the names of the weights variables in \code{data}. Essentially the same input to \code{weights} in \code{\link{bal.tab.data.frame}} or \code{\link{bal.tab.time.list}}.
 }
 \item{\code{distance}}{
-A vector, formula, or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look in the argument to \code{data}, if specified. Essentually the same input to \code{distance} in \code{\link{bal.tab.data.frame}}.
+A vector, formula, or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look in the argument to \code{data}, if specified. Essentially the same input to \code{distance} in \code{\link{bal.tab.data.frame}}.
 }
 \item{\code{formula.list}}{A list of vectors or \code{data.frame}s containing, for each time point, distance values (e.g., propensity scores) for each unit or a string containing the name of the distance variable in \code{data}. Essentially the same input to \code{distance.list} in \code{\link{bal.tab.time.list}}.
 }

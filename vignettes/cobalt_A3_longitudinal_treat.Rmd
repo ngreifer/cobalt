@@ -118,7 +118,7 @@ love.plot(Wmsm, which.time = .none)
 
 Here we used `WeightIt` to generate our MSM weights, but `cobalt` is compatible with other packages for longitudinal treatments as well. `CBMSM` objects from the `CBPS` package and `iptw` objects from the `twang` package can be used in place of the `weightitMSM` object in the above examples. In addition, users who have generated balancing weights outside any of these package can specify an argument to `weights` in `bal.tab()` with the formula or data frame methods to assess balance using those weights, or they can use the default method of `bal.tab()` to supply an object containing any of the objects required for balance assessment (output from `optweight` is particularly well suited for this).
 
-Note that `CBPS` estimates and assess balance on MSM weights differently than `twang` and `cobalt`. Its focus is on ensuring balance across all treatment history permutations, whereas `cobalt` focuses on evaluating the possibility of sequential randomization. For this reason, it may appear that `CBMSM` objects have different balance qualities as measured by the two packages.
+Note that `CBPS` estimates and assesses balance on MSM weights differently from `twang` and `cobalt`. Its focus is on ensuring balance across all treatment history permutations, whereas `cobalt` focuses on evaluating the similarity to sequential randomization. For this reason, it may appear that `CBMSM` objects have different balance qualities as measured by the two packages.
 
 ## References
 Cole, S. R., & Hernán, M. Á. (2008). Constructing Inverse Probability Weights for Marginal Structural Models. American Journal of Epidemiology, 168(6), 656–664. https://doi.org/10.1093/aje/kwn164

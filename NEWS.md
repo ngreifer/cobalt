@@ -15,7 +15,7 @@ Version 4.2.0
 
 * Improved processing and error reporting when using the default `bal.tab()` method.
 
-* Speed improvements due to changes in how formulas are pocessed (now using `model.matrix()` directly rather than `splitfactor()` to process factors) and other small fixes. This is what enables the above changes to the formula capabilities.
+* Speed improvements due to changes in how formulas are processed (now using `model.matrix()` directly rather than `splitfactor()` to process factors) and other small fixes. This is what enables the above changes to the formula capabilities.
 
 * Improved documentation for `weightitMSM` objects from `WeightIt` and `CBMSM` objects from `CBPS`.
 

@@ -439,7 +439,7 @@ love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
 ```
 
 ### Comparing balancing methods
-It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. This can be done by supplying the weights or the output objects thesmevles. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
+It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. This can be done by supplying the weights or the output objects themsevles. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
 
 ```{r}
 bal.tab(treat ~ covs, data = lalonde, 
