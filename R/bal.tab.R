@@ -37,7 +37,7 @@ bal.tab.matchit <- function(x, stats, int = FALSE, poly = 1, distance = NULL, ad
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -56,11 +56,11 @@ bal.tab.ps <- function(x, stop.method, stats, int = FALSE, poly = 1, distance = 
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
-bal.tab.mnps <- function(x, stop.method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.mnps <- function(x, stop.method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -75,7 +75,7 @@ bal.tab.mnps <- function(x, stop.method, stats, int = FALSE, poly = 1, distance 
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     
     return(out)
@@ -95,7 +95,7 @@ bal.tab.ps.cont <- function(x, stop.method, stats, int = FALSE, poly = 1, distan
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -114,7 +114,7 @@ bal.tab.Match <- function(x, formula = NULL, data = NULL, treat = NULL, covs = N
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -133,7 +133,7 @@ bal.tab.formula <- function(x, data = NULL, ...) {
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     
     return(out)
@@ -153,7 +153,7 @@ bal.tab.data.frame <- function(x, treat, data = NULL, weights = NULL, subclass =
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     
     return(out)
@@ -165,7 +165,7 @@ bal.tab.factor <- bal.tab.character <- bal.tab.logical <- bal.tab.numeric
 bal.tab.matrix <- function(x, treat, ...) {
     bal.tab.data.frame(as.data.frame.matrix(x), treat, ...)
 }
-bal.tab.CBPS <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.CBPS <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -180,11 +180,11 @@ bal.tab.CBPS <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl 
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
-bal.tab.weightit <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ... ) {
+bal.tab.weightit <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ... ) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -199,7 +199,7 @@ bal.tab.weightit <- function(x, stats, int = FALSE, poly = 1, distance = NULL, a
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -224,7 +224,7 @@ bal.tab.cem.match <- function(x, data, stats, int = FALSE, poly = 1, distance = 
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -247,11 +247,11 @@ bal.tab.mimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, add
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
-bal.tab.wimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, pairwise = TRUE, focal = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.wimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
@@ -266,7 +266,7 @@ bal.tab.wimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, add
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -285,7 +285,7 @@ bal.tab.sbwcau <- function(x, stats, int = FALSE, poly = 1, distance = NULL, add
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -305,7 +305,7 @@ bal.tab.formula.list <- function(x, data = NULL, ...) {
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -323,7 +323,7 @@ bal.tab.data.frame.list <- function(x, treat.list = NULL, data = NULL, weights =
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
@@ -342,11 +342,48 @@ bal.tab.iptw <- function(x, stop.method, stats, int = FALSE, poly = 1, distance.
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     return(out)
 }
-bal.tab.CBMSM <- bal.tab.CBPS
+bal.tab.CBMSM <- function(x, stats, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+    
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
+    
+    #Adjustments to arguments
+    
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    
+    #Initializing variables
+    X <- do.call("x2base.CBMSM", c(list(x), args), quote = TRUE)
+    
+    args[names(args) %in% names(X)] <- NULL
+    
+    X <- assign.X.class(X)
+    
+    out <- do.call("base.bal.tab", c(list(X), args),
+                   quote = TRUE)
+    return(out)
+}
+bal.tab.weightitMSM <- function(x, stats, int = FALSE, poly = 1, distance.list = NULL, addl.list = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, abs = FALSE, subset = NULL, quick = TRUE, ... ) {
+    
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
+    
+    #Adjustments to arguments
+    
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    
+    #Initializing variables
+    X <- do.call("x2base.weightitMSM", c(list(x), args), quote = TRUE)
+    
+    args[names(args) %in% names(X)] <- NULL
+    
+    X <- assign.X.class(X)
+    
+    out <- do.call("base.bal.tab", c(list(X), args),
+                   quote = TRUE)
+    return(out)
+}
 
 #default method
 bal.tab.default <- function(x, ...) {
@@ -365,7 +402,7 @@ bal.tab.default <- function(x, ...) {
     
     X <- assign.X.class(X)
     
-    out <- do.call(base.bal.tab, c(list(X), args),
+    out <- do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
     
     return(out)

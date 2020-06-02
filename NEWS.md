@@ -17,6 +17,8 @@ Version 4.2.0
 
 * Speed improvements due to changes in how formulas are pocessed (now using `model.matrix()` directly rather than `splitfactor()` to process factors) and other small fixes. This is what enables the above changes to the formula capabilities.
 
+* Improved documentation for `weightitMSM` objects from `WeightIt` and `CBMSM` objects from `CBPS`.
+
 * Fixed bug when printing `bal.tab` objects with continuous treatments.
 
 * Fixed bug when using multi-category treatments with numbers as the level names.
