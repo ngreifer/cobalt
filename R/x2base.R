@@ -3295,9 +3295,10 @@ x2base.CBMSM <- function(cbmsm, ...) {
     #Process CBMSM
     ID <- sort(unique(cbmsm$id))
     times <- sort(unique(cbmsm$time))
+    cbmsm$data <- cbmsm$data[order(cbmsm$id, cbmsm$time),,drop = FALSE]
     
     #Process data and get imp
-    cbmsm.data <- cbmsm$data[cbmsm$time == 1, , drop = FALSE][ID, , drop = FALSE]
+    cbmsm.data <- cbmsm$data[cbmsm$time == 1, , drop = FALSE]
     imp <- A$imp
     if (is_not_null(data <- A$data)) {
         if (is_(data, "mids")) {
@@ -3322,14 +3323,13 @@ x2base.CBMSM <- function(cbmsm, ...) {
                                      datalist = list(data, cbmsm.data))
     
     #Process covs.list
-    rownames(cbmsm$data) <- cbmsm$id
     covs.list <- make_list(times)
     for (i in seq_along(times)) {
         ti <- times[i]
-        cov_i <- get_covs_from_formula(cbmsm$formula, data = cbmsm$data[cbmsm$time == ti, , drop = FALSE][ID, , drop = FALSE])
+        cov_i <- get_covs_from_formula(cbmsm$formula, data = cbmsm$data[cbmsm$time == ti, , drop = FALSE])
         for (co in seq_along(attr(cov_i, "co.names"))) {
-            attr(cov_i, "co.names")[[c]][["component"]][attr(cov_i, "co.names")[[c]][["type"]] == "base"] <-
-                paste0(attr(cov_i, "co.names")[[c]][["component"]][attr(cov_i, "co.names")[[c]][["type"]] == "base"], ti)
+            attr(cov_i, "co.names")[[co]][["component"]][attr(cov_i, "co.names")[[co]][["type"]] == "base"] <-
+                paste0(attr(cov_i, "co.names")[[co]][["component"]][attr(cov_i, "co.names")[[co]][["type"]] == "base"], "_T", ti)
         }
         names(attr(cov_i, "co.names")) <- vapply(attr(cov_i, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
         colnames(cov_i) <- names(attr(cov_i, "co.names"))
@@ -3337,8 +3337,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
             covs.list[[i]] <- cov_i
         }
         else {
-            covs.list[[i]] <- do.call("cbind", c(covs.list[i-1], list(cov_i)))
-            attr(covs.list[[i]], "co.names") <- c(attr(covs.list[i-1], "co.names"), list(attr(cov_i, "co.names")))
+            covs.list[[i]] <- co.bind(covs.list[[i-1]], cov_i)
         }
     }
     
@@ -3353,16 +3352,6 @@ x2base.CBMSM <- function(cbmsm, ...) {
                                    covs.list = covs.list)
     
     #Process distance
-    # ntimes <- length(times)
-    # distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
-    #                               "the original call to CBMSM()",
-    #                               treat.list,
-    #                               covs.list,
-    #                               list(data, cbmsm.data))
-    # if (is_not_null(distance.list)) distance.list <- lapply(times, function(x) data.frame(distance.list[[x]], prop.score = cbmsm$fitted.values))
-    # else if (is_not_null(cbmsm$fitted.values)) distance.list <- lapply(times, function(x) data.frame(prop.score = cbmsm$fitted.values))
-    # else distance.list <- NULL
-    # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
     distance.list <- process_distance.list(A[["distance.list"]], datalist = list(data, cbmsm.data),
                                            covs.list = covs.list, obj.distance = cbmsm$fitted.values,
                                            obj.distance.name = "prop.score")
