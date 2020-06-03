@@ -241,7 +241,7 @@ check_if_int <- function(x) {
 
 #Statistics
 binarize <- function(variable, zero = NULL, one = NULL) {
-    if (!is_binary(variable)) stop(paste0("Cannot binarize ", deparse(substitute(variable)), ": more than two levels."))
+    if (!is_binary(variable)) stop(paste0("Cannot binarize ", deparse1(substitute(variable)), ": more than two levels."))
     if (is.character(variable)) {
         variable <- factor(variable, nmax = 2)
         unique.vals <- levels(variable)
@@ -517,7 +517,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     tt.covs <- delete.response(tt)
 
     rhs.vars.mentioned.lang <- attr(tt.covs, "variables")[-1]
-    rhs.vars.mentioned <- vapply(rhs.vars.mentioned.lang, deparse, character(1L))
+    rhs.vars.mentioned <- vapply(rhs.vars.mentioned.lang, deparse1, character(1L))
     rhs.vars.failed <- vapply(rhs.vars.mentioned, function(v) {
         test <- tryCatch(eval(parse(text=v), data, env), error = function(e) e)
         if (inherits(test, "simpleError")) {
@@ -788,7 +788,7 @@ ifelse_ <- function(...) {
     return(out)
 }
 is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
-    s1 <- deparse(substitute(x))
+    s1 <- deparse1(substitute(x))
     if (is_not_null(x)) {
         for (i in types) {
             if (i == "list") it.is <- is.list(x) && !is.data.frame(x)
@@ -842,7 +842,7 @@ clear_attr <- function(x, all = FALSE) {
     return(x)
 }
 probably.a.bug <- function() {
-    fun <- paste(deparse(sys.call(-1)), collapse = "\n")
+    fun <- paste(deparse1(sys.call(-1)), collapse = "\n")
     stop(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function\n",
                 fun), call. = FALSE)
 }
@@ -861,7 +861,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
     #of arg.
     if (missing(arg))
         stop("No argument was supplied to match_arg.", call. = FALSE)
-    arg.name <- deparse(substitute(arg))
+    arg.name <- deparse1(substitute(arg))
 
     if (missing(choices)) {
         formal.args <- formals(sys.function(sysP <- sys.parent()))
@@ -926,7 +926,7 @@ check.package <- function(package.name, alternative = FALSE) {
 }
 check_if_call_from_fun <- function(fun) {
     # Check if called from within function f
-    if (missing(fun) || !exists(deparse(substitute(fun)), mode = "function")) return(FALSE)
+    if (missing(fun) || !exists(deparse1(substitute(fun)), mode = "function")) return(FALSE)
     sp <- sys.parents()
     sys.funs <- lapply(sp, sys.function)
     for (x in sys.funs) {
@@ -938,7 +938,7 @@ check_if_call_from_fun <- function(fun) {
 #Not used cobalt; replaced with rlang
 is.formula <- function(f, sides = NULL) {
     #Replaced by rlang::is_formula
-    res <- inherits(f, "formula") && is.name(f[[1]]) && deparse(f[[1]]) %in% c( '~', '!') &&
+    res <- inherits(f, "formula") && is.name(f[[1]]) && deparse1(f[[1]]) %in% c( '~', '!') &&
         length(f) >= 2
     if (is_not_null(sides) && is.numeric(sides) && sides %in% c(1,2)) {
         res <- res && length(f) == sides + 1

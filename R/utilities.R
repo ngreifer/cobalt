@@ -101,7 +101,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
         }
     }
     else if (is.atomic(data)) {
-        dep <- deparse(substitute(data))
+        dep <- deparse1(substitute(data))
         data <- data.frame(data)
         if (missing(var.name) || is_null(var.name)) {
             names(data) <- dep

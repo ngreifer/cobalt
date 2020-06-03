@@ -34,14 +34,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             return(m)
         }
         
-        if (deparse(.call[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) { #if x i bal.tab call
+        if (deparse1(.call[["x"]][[1]]) %in% c("bal.tab", methods("bal.tab"))) { #if x i bal.tab call
             .call[["x"]] <- replace.args(.call[["x"]])
             x <- eval.parent(.call[["x"]])
             
         }
-        else if (deparse(.call[["x"]][[1]]) == "do.call") { #if x is do.call
+        else if (deparse1(.call[["x"]][[1]]) == "do.call") { #if x is do.call
             d <- match.call(eval(.call[["x"]][[1]]), .call[["x"]])
-            if (deparse(d[["what"]]) %in% c("bal.tab", methods("bal.tab"))) {
+            if (deparse1(d[["what"]]) %in% c("bal.tab", methods("bal.tab"))) {
                 d[["args"]] <- replace.args(d[["args"]])
                 x <- eval.parent(d)
             }

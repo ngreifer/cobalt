@@ -174,7 +174,7 @@ initialize_X_msm <- function() {
   return(X)
 }
 weight.check <- function(w) {
-  wname <- deparse(substitute(w))
+  wname <- deparse1(substitute(w))
   if (!is.list(w)) w <- list(w)
   if (any(vapply(w, anyNA, logical(1L)))) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
   if (any(vapply(w, function(x) any(!is.numeric(x)), logical(1L)))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)
@@ -408,7 +408,7 @@ list.process <- function(i, List, ntimes, call.phrase, treat.list = list(), covs
   }
   return(val.List)
 }
-vector.process <- function(vec, name = deparse(substitute(vec)), which = name, datalist = list(), missing.okay = FALSE) {
+vector.process <- function(vec, name = deparse1(substitute(vec)), which = name, datalist = list(), missing.okay = FALSE) {
   bad.vec <- FALSE
   if (is.character(vec) && length(vec)==1L && is_not_null(datalist)) {
     for (i in seq_along(datalist)) {
@@ -1218,7 +1218,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   tt.covs <- delete.response(tt)
   attr(tt.covs, "intercept") <- 0
   
-  ttvars <- vapply(attr(tt.covs, "variables"), deparse, character(1L))[-1]
+  ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
   ttlabels <- attr(tt.covs, "term.labels")
   ttfactors <- attr(tt.covs, "factors")
   
@@ -1262,7 +1262,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     tt.covs <- terms(new.form, data = data)
     
     ttfactors <- attr(tt.covs, "factors")
-    ttvars <- vapply(attr(tt.covs, "variables"), deparse, character(1L))[-1]
+    ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
   }
   
   #Check to make sure variables are valid
@@ -1312,7 +1312,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     new.form <- as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+")))
     tt.covs <- terms(new.form, data = data)
     ttfactors <- attr(tt.covs, "factors")
-    ttvars <- vapply(attr(tt.covs, "variables"), deparse, character(1L))[-1]
+    ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
     
     na_vars <- paste0(colnames(tmpcovs)[has_NA], ":<NA>")
     

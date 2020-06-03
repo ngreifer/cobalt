@@ -138,7 +138,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     else p.ops$imbalanced.only <- FALSE
     
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
     }
     
     if (p.ops$disp.bal.tab) {
@@ -365,8 +365,8 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     else p.ops$imbalanced.only <- FALSE
     
     if (!missing(which.cluster)) {
-        if (paste(deparse(substitute(which.cluster)), collapse = "") == ".none") which.cluster <- NA
-        else if (paste(deparse(substitute(which.cluster)), collapse = "") == ".all") which.cluster <- NULL
+        if (paste(deparse1(substitute(which.cluster)), collapse = "") == ".none") which.cluster <- NA
+        else if (paste(deparse1(substitute(which.cluster)), collapse = "") == ".all") which.cluster <- NULL
         if (!identical(which.cluster, "as.is")) {
             p.ops$which.cluster <- which.cluster
         }
@@ -416,7 +416,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     
     #Printing
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
     }
     
     if (is_not_null(which.cluster)) {
@@ -635,8 +635,8 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     else p.ops$imbalanced.only <- FALSE
     
     if (!missing(which.imp)) {
-        if (paste(deparse(substitute(which.imp)), collapse = "") == ".none") which.imp <- NA
-        else if (paste(deparse(substitute(which.imp)), collapse = "") == ".all") which.imp <- NULL
+        if (paste(deparse1(substitute(which.imp)), collapse = "") == ".none") which.imp <- NA
+        else if (paste(deparse1(substitute(which.imp)), collapse = "") == ".all") which.imp <- NULL
         if (!identical(which.imp, "as.is")) {
             p.ops$which.imp <- which.imp
         }
@@ -682,7 +682,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     #Printing output
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
     }
     
     if (is_not_null(which.imp)) {
@@ -903,8 +903,8 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     }
     
     if (!missing(which.treat)) {
-        if (paste(deparse(substitute(which.treat)), collapse = "") == ".none") which.treat <- NA
-        else if (paste(deparse(substitute(which.treat)), collapse = "") == ".all") which.treat <- NULL
+        if (paste(deparse1(substitute(which.treat)), collapse = "") == ".none") which.treat <- NA
+        else if (paste(deparse1(substitute(which.treat)), collapse = "") == ".all") which.treat <- NULL
         if (!identical(which.treat, "as.is")) {
             p.ops$which.treat <- which.treat
         }
@@ -971,7 +971,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     
     #Printing output
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
     }
     
     if (is_not_null(disp.treat.pairs)) {
@@ -1202,8 +1202,8 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     }
     
     if (!missing(which.time)) {
-        if (paste(deparse(substitute(which.time)), collapse = "") == ".none") which.time <- NA
-        else if (paste(deparse(substitute(which.time)), collapse = "") == ".all") which.time <- NULL
+        if (paste(deparse1(substitute(which.time)), collapse = "") == ".none") which.time <- NA
+        else if (paste(deparse1(substitute(which.time)), collapse = "") == ".all") which.time <- NULL
         if (!identical(which.time, "as.is")) {
             p.ops$which.time <- which.time
         }
@@ -1244,7 +1244,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     #Printing output
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
     }
     
     if (is_not_null(which.time)) {
@@ -1457,7 +1457,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
     }
     
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
     }
     
     if (p.ops$disp.bal.tab) {

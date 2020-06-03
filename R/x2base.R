@@ -1729,7 +1729,7 @@ x2base.optmatch <- function(optmatch, ...) {
     length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
                        data.frames = c("covs", "weights", "distance", "addl"),
                        imp = imp,
-                       original.call.to = paste0(deparse(attr(optmatch, "call")[[1]]), "()"))
+                       original.call.to = paste0(deparse1(attr(optmatch, "call")[[1]]), "()"))
     
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
