@@ -43,7 +43,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                    "Observations", "call")
     out <- make_list(out.names)
     
-    C <- do.call("get.C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
+    C <- do.call("get.C2", c(X, A[names(A) %nin% names(X)], list(int = int, poly = poly)), quote = TRUE)
     
     co.names <- attr(C, "co.names")
     
