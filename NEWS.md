@@ -1,6 +1,12 @@
 `cobalt` News and Updates
 ======
 
+Version 4.2.1
+
+* Fixed a bug where `int` and `poly` were ignored with binary and continuous treatments.
+
+* Fixed a bug where subclass balance statistics were incorrectly computed. Thanks to Mario Lawes.
+
 Version 4.2.0
 
 * Added support for `Matchby` objects resulting from a call to `Matchby()` in the `Matching` package. These function identically to `Match` objects.
