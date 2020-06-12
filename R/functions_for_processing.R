@@ -2392,11 +2392,12 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
     
     for (s in all_STATS(type)) {
       if (s %in% compute) {
-        SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]] <- STATS[[s]]$fun(C, treat = treat, weights = NULL, 
+        SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]] <- STATS[[s]]$fun(C[in.subclass,,drop = FALSE], 
+                                                                                     treat = treat[in.subclass], weights = NULL, 
                                                                                      std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
                                                                                      s.d.denom = s.d.denom,
-                                                                                     abs = FALSE, s.weights = s.weights, 
-                                                                                     bin.vars = bin.vars, subset = in.subclass)
+                                                                                     abs = FALSE, s.weights = s.weights[in.subclass], 
+                                                                                     bin.vars = bin.vars)
         
         if (all(vapply(SB[[i]][paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")], 
                        function(x) all(!is.finite(x)), logical(1L)))) {
