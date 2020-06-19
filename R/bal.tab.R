@@ -158,10 +158,6 @@ bal.tab.data.frame <- function(x, treat, data = NULL, weights = NULL, subclass =
     
     return(out)
 }
-bal.tab.numeric <- function(x, covs, ...) {
-    bal.tab.data.frame(as.data.frame(covs), treat = x, ...)
-}
-bal.tab.factor <- bal.tab.character <- bal.tab.logical <- bal.tab.numeric
 bal.tab.matrix <- function(x, treat, ...) {
     bal.tab.data.frame(as.data.frame.matrix(x), treat, ...)
 }
