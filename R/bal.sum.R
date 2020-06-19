@@ -505,15 +505,12 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     zeros <- check_if_zero(covars)
     
     if (any(to.sd <- std & !zeros)) {
-        s.d.denom <- match_arg(s.d.denom, c("all", "weighted"))
-        
-        denoms <- rep(1, ncol(mat))
-        
-        if (s.d.denom == "all") denoms[to.sd] <- sqrt(col.w.v(mat[,to.sd, drop = FALSE], w = s.weights, bin.vars = bin.vars[to.sd], na.rm = na.rm)) * 
-            sqrt(col.w.v(treat, w = s.weights, na.rm = na.rm))
-        else if (s.d.denom == "weighted") denoms[to.sd] <- sqrt(col.w.v(mat[,to.sd, drop = FALSE], w = weighted.weights * s.weights, bin.vars = bin.vars[to.sd], na.rm = na.rm)) * 
-            sqrt(col.w.v(treat, w = weighted.weights * s.weights, na.rm = na.rm))
-        
+
+        denoms <- compute_s.d.denom(mat, treat = treat, 
+                                    s.d.denom = s.d.denom, s.weights = s.weights, 
+                                    bin.vars = bin.vars, subset = subset, to.sd = to.sd,
+                                    weighted.weights = weighted.weights, na.rm = na.rm)
+
         covars <- covars / denoms
     }
     

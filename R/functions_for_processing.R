@@ -2,6 +2,8 @@
 process_obj <- function(obj) {
   if (is_null(obj)) obj <- list()
   else {
+    if (isS4(obj)) obj <- asS3(obj)
+    
     #npCBPS
     if (is_(obj, "npCBPS")) {
       class(obj) <- c("CBPS", "npCBPS")
@@ -438,7 +440,7 @@ vector.process <- function(vec, name = deparse1(substitute(vec)), which = name, 
 } 
 get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
   check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
-  s.d.denom.specified <- is_not_null(s.d.denom)
+  s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
   estimand.specified <- is_not_null(estimand)
   treat.is.processed <- is_(treat, "processed.treat")
   
@@ -557,7 +559,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
 }
 get.s.d.denom.cont <- function(s.d.denom, weights = NULL, subclass = NULL, quietly = FALSE) {
   bad.s.d.denom <- FALSE
-  s.d.denom.specified <- is_not_null(s.d.denom)
+  s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
   
   if (is_not_null(subclass)) {
     s.d.denom <- "all"
@@ -576,7 +578,7 @@ get.s.d.denom.cont <- function(s.d.denom, weights = NULL, subclass = NULL, quiet
     s.d.denom <- "all"
   }
   
-  if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep.int(s.d.denom, ncol(weights))
+  if (is_not_null(weights) && NCOL(weights) > 1 && length(s.d.denom) == 1) s.d.denom <- rep.int(s.d.denom, NCOL(weights))
   
   if (!quietly) {
     if (s.d.denom.specified && bad.s.d.denom) {
@@ -1124,7 +1126,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
   
   if (!rlang::is_formula(f)) stop("'f' must be a formula.", call. = FALSE)
   
-  env <- environment(f)
+  env <- rlang::f_env(f)
   
   f <- update(f, ~ 0)
   
@@ -1159,8 +1161,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
         else stop(conditionMessage(test), call. = FALSE)
       }
       else if (is.function(test)) stop(paste0("invalid type (function) for variable '", v, "'"), call. = FALSE)
-      else if (is_null(test)) return(TRUE)
-      else return(FALSE)
+      else return(is_null(test))
     }, logical(1L))
     
     if (any(resp.vars.failed)) {
@@ -1170,7 +1171,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
   }
   else resp.vars.failed <- TRUE
   
-  if (any(!resp.vars.failed)) {
+  if (!all(resp.vars.failed)) {
     treat.name <- resp.vars.mentioned[!resp.vars.failed][1]
     treat <- eval(str2expression(treat.name), data, env)
   }
@@ -1775,8 +1776,8 @@ compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL
       bin.vars <- rep(FALSE, ncol(mat))
       bin.vars[to.sd] <- is_binary_col(mat[subset, to.sd,drop = FALSE])
     }
-    else if (!is.atomic(bin.vars) || anyNA(as.logical(bin.vars)) ||
-             length(bin.vars) != ncol(mat)) {
+    else if (!is.atomic(bin.vars) || length(bin.vars) != ncol(mat) ||
+             anyNA(as.logical(bin.vars))) {
       stop("'bin.vars' must be a logical vector with length equal to the number of columns of 'mat'.")
     }
     
@@ -1793,38 +1794,71 @@ compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
     else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
-    unique.treats <- if (is_(treat, "processed.treat") && all(subset)) as.character(treat_vals(treat)) else as.character(unique(treat[subset]))
+    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+    cont.treat <- get.treat.type(treat) == "continuous"
     
-    s.d.denom <- get.s.d.denom(as.character(s.d.denom), weights = weighted.weights[subset], treat = treat[subset])
+    if (cont.treat) {
+      unique.treats <- NULL
+      s.d.denom <- get.s.d.denom.cont(as.character(s.d.denom), weights = weighted.weights[subset])
+    }
+    else {
+      unique.treats <- if (is_(treat, "processed.treat") && all(subset)) as.character(treat_vals(treat)) else as.character(unique(treat[subset]))
+      s.d.denom <- get.s.d.denom(as.character(s.d.denom), weights = weighted.weights[subset], treat = treat[subset])
+      if (s.d.denom %in% c("treated", "control")) s.d.denom <- treat_vals(treat)[treat_names(treat)[s.d.denom]]
+      treat <- as.character(treat)
+    }
+
+    if (s.d.denom %in% unique.treats) 
+      denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars, 
+                            unique.treats, na.rm) {
+        sqrt(col.w.v(mat[treat == s.d.denom, , drop = FALSE], 
+                     w = s.weights[treat == s.d.denom],
+                     bin.vars = bin.vars, na.rm = na.rm))
+    }
     
-    if (s.d.denom %in% c("treated", "control")) s.d.denom <- treat_vals(treat)[treat_names(treat)[s.d.denom]]
-    
-    treat <- as.character(treat)
-    
-    if (s.d.denom %in% unique.treats) denoms[to.sd] <- sqrt(col.w.v(mat[treat == s.d.denom, to.sd, drop = FALSE], 
-                                                                    w = s.weights[treat == s.d.denom],
-                                                                    bin.vars = bin.vars[to.sd], na.rm = na.rm))
-    
-    else if (s.d.denom == "pooled") denoms[to.sd] <- sqrt(Reduce("+", lapply(unique.treats, 
-                                                                             function(t) col.w.v(mat[treat == t, to.sd, drop = FALSE], 
-                                                                                                 w = s.weights[treat == t],
-                                                                                                 bin.vars = bin.vars[to.sd], na.rm = na.rm))) / length(unique.treats))
-    else if (s.d.denom == "all") denoms[to.sd] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE], 
-                                                               w = s.weights,
-                                                               bin.vars = bin.vars[to.sd], na.rm = na.rm))
-    else if (s.d.denom == "weighted") denoms[to.sd] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE], 
-                                                                    w = weighted.weights * s.weights,
-                                                                    bin.vars = bin.vars[to.sd], na.rm = na.rm))
-    else if (s.d.denom == "hedges") denoms[to.sd] <- (1 - 3/(4*length(treat) - 9))^-1 * sqrt(Reduce("+", lapply(unique.treats, 
-                                                                                                                function(t) (sum(treat == t) - 1) * col.w.v(mat[treat == t, to.sd, drop = FALSE], 
-                                                                                                                                                            w = s.weights[treat == t],
-                                                                                                                                                            bin.vars = bin.vars[to.sd], na.rm = na.rm))) / (length(treat) - 2))
+    else if (s.d.denom == "pooled")
+      denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars, 
+                            unique.treats, na.rm) {
+        sqrt(Reduce("+", lapply(unique.treats, 
+                                function(t) col.w.v(mat[treat == t, , drop = FALSE], 
+                                                    w = s.weights[treat == t],
+                                                    bin.vars = bin.vars, na.rm = na.rm))) / length(unique.treats))
+      }
+    else if (s.d.denom == "all")
+      denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars, 
+                            unique.treats, na.rm) {
+        sqrt(col.w.v(mat, w = s.weights, bin.vars = bin.vars, na.rm = na.rm))
+      }
+    else if (s.d.denom == "weighted")
+      denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars, 
+                            unique.treats, na.rm) {
+        sqrt(col.w.v(mat, w = weighted.weights * s.weights, bin.vars = bin.vars, na.rm = na.rm))
+      }
+    else if (s.d.denom == "hedges")
+      denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars, 
+                            unique.treats, na.rm) {
+        (1 - 3/(4*length(treat) - 9))^-1 * sqrt(Reduce("+", lapply(unique.treats, 
+                                                                   function(t) (sum(treat == t) - 1) * col.w.v(mat[treat == t, , drop = FALSE], 
+                                                                                                               w = s.weights[treat == t],
+                                                                                                               bin.vars = bin.vars, na.rm = na.rm))) / (length(treat) - 2))
+      }
     else stop("s.d.denom is not an allowed value.")
+    
+    denoms[to.sd] <- denom.fun(mat = mat[, to.sd, drop = FALSE], treat = treat, s.weights = s.weights,
+                               weighted.weights = weighted.weights, bin.vars = bin.vars[to.sd], 
+                               unique.treats = unique.treats, na.rm = na.rm)
     
     if (any(zero_sds <- check_if_zero(denoms[to.sd]))) {
       denoms[to.sd][zero_sds] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE][, zero_sds, drop = FALSE], 
                                               w = s.weights,
                                               bin.vars = bin.vars[to.sd][zero_sds], na.rm = na.rm))
+    }
+    
+    if (cont.treat) {
+      treat.sd <- denom.fun(mat = treat, s.weights = s.weights,
+                            weighted.weights = weighted.weights, bin.vars = FALSE, 
+                            na.rm = na.rm)
+      denoms[to.sd] <- denoms[to.sd]*treat.sd
     }
   }
   else {
