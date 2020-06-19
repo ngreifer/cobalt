@@ -407,6 +407,9 @@ coef.of.var <- function(x, pop = TRUE) {
 mean.abs.dev <- function(x) {
     mean_fast(abs(x - mean_fast(x, TRUE)), TRUE)
 }
+rms <- function(x) {
+    sqrt(mean_fast(x^2))
+}
 geom.mean <- function(y) {
     exp(mean_fast(log(y[is.finite(log(y))]), TRUE))
 }
@@ -686,6 +689,97 @@ process.s.weights <- function(s.weights, data = NULL) {
     else s.weights <- NULL
     return(s.weights)
 }
+process.focal.and.estimand <- function(focal, estimand, treat, treat.type, treated = NULL) {
+    reported.estimand <- estimand
+    
+    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+    treat.type <- get.treat.type(treat)
+    
+    #Check focal
+    if (treat.type == "multinomial") {
+        unique.treat <- unique(treat, nmax = length(treat)/4)
+        if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
+            warning(paste(estimand, "is not compatible with 'focal'. Setting 'estimand' to \"ATT\"."), call. = FALSE)
+            reported.estimand <- estimand <- "ATT"
+        }
+        
+        if (estimand == "ATT") {
+            if (is_null(focal)) {
+                if (is_null(treated) || treated %nin% unique.treat) {
+                    stop("When estimand = \"ATT\" for multinomial treatments, an argument must be supplied to 'focal'.", call. = FALSE)
+                }
+                focal <- treated
+            }
+        }
+        else if (estimand == "ATC") {
+            if (is_null(focal)) {
+                stop("When estimand = \"ATC\" for multinomial treatments, an argument must be supplied to 'focal'.", call. = FALSE)
+            }
+        }
+    }
+    else if (treat.type == "binary") {
+        unique.treat <- unique(treat, nmax = 2)
+        unique.treat.bin <- unique(binarize(treat), nmax = 2)
+        if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
+            warning(paste(estimand, "is not compatible with 'focal'. Setting 'estimand' to \"ATT\"."), call. = FALSE)
+            reported.estimand <- estimand <- "ATT"
+        }
+        
+        if (estimand == "ATT") {
+            if (is_null(focal)) {
+                if (is_null(treated) || treated %nin% unique.treat) {
+                    if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
+                        #If is 0/1
+                        treated <- unique.treat[unique.treat.bin == 1]
+                    }
+                    else {
+                        treated <- names(which.min(table(treat))) #Smaller group is treated
+                        message(paste0("Assuming ", word_list(treated, quotes = !is.numeric(treat), is.are = TRUE),
+                                       " the treated level. If not, supply an argument to 'focal'."))
+                    }
+                }
+                focal <- treated
+            }
+            else {
+                if (is_null(treated) || treated %nin% unique.treat) {
+                    treated <- focal
+                }
+            }
+        }
+        else if (estimand == "ATC") {
+            if (is_null(focal)) {
+                if (is_null(treated) || treated %nin% unique.treat) {
+                    
+                    if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
+                        treated <- unique.treat[unique.treat.bin == 1]
+                    }
+                    else {
+                        treated <- names(which.min(table(treat))) #Smaller group is treated
+                        message(paste0("Assuming ", word_list(unique.treat[unique.treat %nin% treated], quotes = !is.numeric(treat), is.are = TRUE),
+                                       " the control level. If not, supply an argument to 'focal'."))
+                    }
+                }
+                focal <- unique.treat[unique.treat %nin% treated]
+            }
+            else {
+                if (is_null(treated) || treated %nin% unique.treat) {
+                    treated <- unique.treat[unique.treat %nin% focal]
+                }
+            }
+            estimand <- "ATT"
+        }
+    }
+    
+    if (is_not_null(focal) && (length(focal) > 1L || focal %nin% unique.treat)) {
+        stop("The argument supplied to 'focal' must be the name of a level of treatment.", call. = FALSE)
+    }
+    
+    return(list(focal = as.character(focal),
+                estimand = estimand,
+                reported.estimand = reported.estimand,
+                treated = if (is.factor(treated)) as.character(treated) else treated))
+}
+
 
 #Uniqueness
 nunique <- function(x, nmax = NA, na.rm = TRUE) {
