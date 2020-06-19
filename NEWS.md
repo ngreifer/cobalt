@@ -7,6 +7,12 @@ Version 4.2.1
 
 * Fixed a bug where subclass balance statistics were incorrectly computed. Thanks to Mario Lawes.
 
+* Improved processing of inappropriately given S4 objects.
+
+* Removed `bal.tab` methods for atomic vectors (which were undocumented). The errors they would provide when inappropriately supplied were unhelpful.
+
+* Fixed a bug with `backports` 1.1.7 not running correctly.
+
 Version 4.2.0
 
 * Added support for `Matchby` objects resulting from a call to `Matchby()` in the `Matching` package. These function identically to `Match` objects.
