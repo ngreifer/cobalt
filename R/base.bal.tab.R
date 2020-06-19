@@ -138,6 +138,10 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     
     imp <- factor(X$imp)
 
+    if (missing(which.imp)) {
+        which.imp <- NA
+    }
+    
     if (is_null(imp.summary)) {
         imp.summary <- is_not_null(which.imp) && 
             (anyNA(which.imp) || !is.numeric(which.imp) || 
@@ -295,7 +299,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     return(out)
     
 }
-base.bal.tab.msm <- function(X, which.time = NA, msm.summary = getOption("cobalt_msm.summary"), ...) {
+base.bal.tab.msm <- function(X, which.time, msm.summary = getOption("cobalt_msm.summary"), ...) {
     #One vector of weights
     #treat.list should be a df/list of treatment vectors, one for each time period
     #covs.list should be a list of covariate data.frames, one for each time period; 
@@ -308,6 +312,13 @@ base.bal.tab.msm <- function(X, which.time = NA, msm.summary = getOption("cobalt
     #Preparations
     
     if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+    
+    treat.types <- vapply(X$treat.list, get.treat.type, character(1L))
+    
+    if (missing(which.time)) {
+        if (all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X$imp)) which.time <- NA
+        else which.time <- NULL
+    }
     
     if (is_null(msm.summary)) {
         msm.summary <- is_not_null(which.time) && (anyNA(which.time) || !is_(which.time, c("character", "numeric")) ||
@@ -324,7 +335,6 @@ base.bal.tab.msm <- function(X, which.time = NA, msm.summary = getOption("cobalt
     
     out[["Time.Balance"]] <- make_list(length(X$covs.list))
     
-    treat.types <- vapply(X$treat.list, function(x) get.treat.type(x), character(1L))
     
     #Get list of bal.tabs for each time period
     out[["Time.Balance"]] <- lapply(seq_along(X$covs.list), function(ti) {
@@ -364,7 +374,7 @@ base.bal.tab.msm <- function(X, which.time = NA, msm.summary = getOption("cobalt
     
     return(out)
 }
-base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary"), cluster.fun = getOption("cobalt_cluster.fun", NULL), ...) {
+base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("cobalt_cluster.summary"), cluster.fun = getOption("cobalt_cluster.fun", NULL), ...) {
     A <- list(...)
     
     #Preparations
@@ -375,6 +385,10 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     cluster <- factor(X$cluster)
     
     #Process cluster.summary
+    if (missing(which.cluster)) {
+        which.cluster <- NULL
+    }
+    
     if (is_null(cluster.summary)) {
         cluster.summary <- is_not_null(which.cluster) && anyNA(which.cluster)
     }
