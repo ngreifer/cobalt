@@ -127,7 +127,7 @@ base.bal.tab.cont <- function(X, ...) {
     base.bal.tab.base(X, type = "cont", ...)
 }
 
-base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_imp.summary", TRUE), imp.fun = getOption("cobalt_imp.fun", NULL), ...) {
+base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_imp.summary"), imp.fun = getOption("cobalt_imp.fun", NULL), ...) {
     A <- list(...)
     
     X$treat <- process_treat(X$treat)
@@ -137,6 +137,12 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
     
     imp <- factor(X$imp)
+
+    if (is_null(imp.summary)) {
+        imp.summary <- is_not_null(which.imp) && 
+            (anyNA(which.imp) || !is.numeric(which.imp) || 
+                 (is.numeric(which.imp) && !any(which.imp %in% seq_len(nlevels(imp)))))
+    }
     
     imp.fun <- if_null_then(imp.fun, A[["agg.fun"]])
     
@@ -177,7 +183,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     
     return(out)
 }
-base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = getOption("cobalt_multi.summary", TRUE), ...) {
+base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = getOption("cobalt_multi.summary"), ...) {
     A <- list(...)
     
     X$treat <- process_treat(X$treat)
@@ -190,7 +196,18 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     }
     if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
     
-    #Treat is a factor variable of 3+ levels
+    if (missing(which.treat)) {
+        if (is_null(X$imp)) which.treat <- NA
+        else which.treat <- NULL
+    }
+    
+    if (is_null(multi.summary)) {
+        multi.summary <- is_not_null(which.treat) && (anyNA(which.treat) || !is_(which.treat, c("character", "numeric")) ||
+                                                          (is.numeric(which.treat) && !any(which.treat %in% seq_len(nlevels(X$treat)))) ||
+                                                          (is.character(which.treat) && !any(which.treat %in% levels(X$treat))))
+    }
+    
+    #Treat is a factor variable
     if (is_null(X$focal)) {
         if (pairwise) treat.combinations <- combn(levels(X$treat), 2, list)
         else treat.combinations <- lapply(levels(X$treat), function(x) c(x, "All"))
@@ -256,15 +273,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     }
     
     out[["Pair.Balance"]] <- balance.tables
-    
-    if (missing(which.treat)) {
-        if (is_null(X$imp)) {
-            which.treat <- NA
-            multi.summary <- TRUE
-        }
-        else which.treat <- NULL
-    }
-    
+
     if ((multi.summary || !A$quick) && is_null(X$imp)) {
         out[["Balance.Across.Pairs"]] <- balance.summary(balance.tables, 
                                                          agg.funs = "max")
@@ -286,10 +295,10 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     return(out)
     
 }
-base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("cobalt_msm.summary", TRUE), ...) {
+base.bal.tab.msm <- function(X, which.time = NA, msm.summary = getOption("cobalt_msm.summary"), ...) {
     #One vector of weights
     #treat.list should be a df/list of treatment vectors, one for each time period
-    #cov.list should be a list of covariate data.frames, one for each time period; 
+    #covs.list should be a list of covariate data.frames, one for each time period; 
     #   should include all covs from previous time points, but no treatment statuses
     
     A <- list(...)
@@ -299,6 +308,12 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     #Preparations
     
     if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+    
+    if (is_null(msm.summary)) {
+        msm.summary <- is_not_null(which.time) && (anyNA(which.time) || !is_(which.time, c("character", "numeric")) ||
+                                                          (is.numeric(which.time) && !any(which.time %in% seq_along(X$treat.list))) ||
+                                                          (is.character(which.time) && !any(which.time %in% names(X$treat.list))))
+    }
     
     #Setup output object
     out.names <- c("Time.Balance", 
@@ -349,7 +364,7 @@ base.bal.tab.msm <- function(X, which.time = NULL, msm.summary = getOption("coba
     
     return(out)
 }
-base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary", TRUE), cluster.fun = getOption("cobalt_cluster.fun", NULL), ...) {
+base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getOption("cobalt_cluster.summary"), cluster.fun = getOption("cobalt_cluster.fun", NULL), ...) {
     A <- list(...)
     
     #Preparations
@@ -359,6 +374,11 @@ base.bal.tab.cluster <- function(X, which.cluster = NULL, cluster.summary = getO
     
     cluster <- factor(X$cluster)
     
+    #Process cluster.summary
+    if (is_null(cluster.summary)) {
+        cluster.summary <- is_not_null(which.cluster) && anyNA(which.cluster)
+    }
+
     cluster.fun <- if_null_then(cluster.fun, A[["agg.fun"]])
 
     #Setup output object

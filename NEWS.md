@@ -13,6 +13,8 @@ Version 4.2.1
 
 * Fixed a bug with `backports` 1.1.7 not running correctly.
 
+* When data is segmeneted (i.e., a multi-category or longitudinal treatment or clusters or multiple imputations are specified), the balance summary across segments will not be computed or displayed when individual segment balance is requested. See `?display_options` to see the defaults for the different segment types, some of which have changed. 
+
 Version 4.2.0
 
 * Added support for `Matchby` objects resulting from a call to `Matchby()` in the `Matching` package. These function identically to `Match` objects.
