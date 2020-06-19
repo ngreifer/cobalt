@@ -408,26 +408,23 @@ W.out.mn <- weightit(race ~ cov.mn, data = lalonde,
                      method = "ps")
 ```
 
-First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = .all`. The summary across all pairwise comparisons is displayed as well, but it can be suppressed with `multi.summary = FALSE`. See `?bal.tab.multi` for more details.
+First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = .all`. See `?bal.tab.multi` for more details.
 
 ```{r}
-#Assessing balance numerically
-bal.tab(W.out.mn, un = TRUE, which.treat = .all)
+#Balance summary across treatment pairs
+bal.tab(W.out.mn, un = TRUE)
 
-#Just black vs. white
-bal.tab(W.out.mn, un = TRUE, disp.means = TRUE,
-        which.treat = c("black", "white"),
-        multi.summary = FALSE)
+#Assessing balance for each pair of treatments
+bal.tab(W.out.mn, un = TRUE, disp.means = TRUE, which.treat = .all)
 ```
 
-We can also assess balance graphically. The same guidelines apply for multi-category treatments as do for binary treatments. Ideally, covariate distributions will look similar across all treatment groups. If only a subset of treatment groups are to be compared, these can be specified with an argument to `which.treat`.
+We can also assess balance graphically. The same guidelines apply for multi-category treatments as do for binary treatments. Ideally, covariate distributions will look similar across all treatment groups.
 
 ```{r, fig.width = 5}
 #Assessing balance graphically
 bal.plot(W.out.mn, "age", which = "both")
 
-bal.plot(W.out.mn, "married", which = "both",
-         which.treat = c("black", "white"))
+bal.plot(W.out.mn, "married", which = "both")
 ```
 
 Finally, we can use `love.plot()` to display balance across treatments. By default, `love.plot()` displays the values in the summary across pairwise comparisons. To request individual treatment comparisons, use `which.treat = .all` in `love.plot()`.
@@ -439,7 +436,7 @@ love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
 ```
 
 ### Comparing balancing methods
-It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. This can be done by supplying the weights or the output objects themsevles. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
+It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. This can be done by supplying the weights or the output objects themselves. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
 
 ```{r}
 bal.tab(treat ~ covs, data = lalonde, 

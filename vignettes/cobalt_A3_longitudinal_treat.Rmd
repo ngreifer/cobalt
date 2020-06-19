@@ -56,7 +56,7 @@ Next we'll use `bal.tab()` to examine balance before and after applying the weig
 
 ## `bal.tab()`
 
-To examine balance on the original data, we can specify the treatment-covariate relationship we want to assess by using either the formula or data frame interfaces to `bal.tab()`. The formula interface requires a list of formulas, one for each treatment, and a data set containing the relevant variables. The data set must be in the "wide" setup, where each time point receives its own columns and each unit has exactly one row of data. The formula interface is similar to the `WeightIt` input seen above. The data frame interface requires a list of treatment values for each time period and a data frame or list of covariates for each time period. We'll use the data frame interface here.
+To examine balance on the original data, we can specify the treatment-covariate relationship we want to assess by using either the formula or data frame interfaces to `bal.tab()`. The formula interface requires a list of formulas, one for each treatment, and a data set containing the relevant variables. The data set must be in the "wide" setup, where each time point receives its own columns and each unit has exactly one row of data. The formula interface is similar to the `WeightIt` input seen above. The data frame interface requires a list of treatment values for each time point and a data frame or list of covariates for each time point. We'll use the data frame interface here.
 
 ```{r}
 bal.tab(list(iptwExWide[c("use0", "gender", "age")],
@@ -65,7 +65,17 @@ bal.tab(list(iptwExWide[c("use0", "gender", "age")],
         treat.list = iptwExWide[c("tx1", "tx2", "tx3")])
 ```
 
-First we see balance by time point. At each time point, a `bal.tab` object is produced for that time point. These function just like regular `bal.tab` objects. Next, we see a balance summary across all time points. This displays each variable, how many times it appears in balance tables, its type, and the greatest imbalance for that variable across all time points. Below this is a summary of sample sizes across time points.
+Here we see a summary of balance across all time points. This displays each variable, how many times it appears in balance tables, its type, and the greatest imbalance for that variable across all time points. Below this is a summary of sample sizes across time points. To request balance on individual time points, we can use the `which.time` argument, which can be set to one or more numbers or `.all` or `.none` (the default). Below we'll request balance on all time points by setting `which.time = .all`. Doing so hides the balance summary across time points, but this can be requested again by setting `msm.summary = TRUE`.
+
+```{r}
+bal.tab(list(iptwExWide[c("use0", "gender", "age")],
+             iptwExWide[c("use0", "gender", "age", "use1", "tx1")],
+             iptwExWide[c("use0", "gender", "age", "use1", "tx1", "use2", "tx2")]),
+        treat.list = iptwExWide[c("tx1", "tx2", "tx3")],
+        which.time = .all)
+```
+
+Here we see balance by time point. At each time point, a `bal.tab` object is produced for that time point. These function just like regular `bal.tab` objects.
 
 This output will appear no matter what the treatment types are (i.e., binary, continuous, multi-category), but for multi-category treatments or when the treatment types vary or for multiply imputed data, no balance summary will be computed or displayed.
 
@@ -75,10 +85,10 @@ We can use `bal.tab()` with the `weightitMSM` object generated above. Setting `u
 bal.tab(Wmsm, un = TRUE)
 ```
 
-We can use `which.time` and `msm.summary` to focus in on specific time points. `which.time` controls which time periods are displayed; one or more time periods can be entered. `.none` will not display any time periods (so only the summary will be displayed), and `.all`, the default, will display all time periods. Setting `msm.summary` to `FALSE` will hide the summary across time points. This option can be set globally using `set.cobalt.options(msm.summary = FALSE)`.
+We can use `which.time` to focus in on specific time points. `which.time` controls which time points are displayed; one or more time points can be entered. `.none`, the default, will not display any time points (so only the summary will be displayed), and `.all` will display all time points. Setting `msm.summary` to `FALSE` will hide the summary across time points. This option can be set globally using `set.cobalt.options(msm.summary = FALSE)`.
 
 ```{r}
-bal.tab(Wmsm, which.time = 1:2, msm.summary = FALSE)
+bal.tab(Wmsm, which.time = 1:2)
 ```
 
 Note that to add covariates, we must use `addl.list` (which can be abbreviated as `addl`), which functions like `addl` in point treatments. The input to `addl.list` must be a list of covariates for each time point, or a single data data frame of variables to be assessed at all time points. The same goes for adding distance variables, which must be done with `distance.list` (which can be abbreviated as `distance`).
@@ -99,13 +109,13 @@ Balance for variables that only appear in certain time points will only be displ
 bal.plot(Wmsm, var.name = "tx1", which = "both")
 ```
 
-As with `bal.tab()`, `which.time` can be specified to limit output to chosen time periods.
+As with `bal.tab()`, `which.time` can be specified to limit output to chosen time points.
 
 Finally, we'll examine using `love.plot()` with longitudinal treatments to display balance for presentation.
 
 ## `love.plot()`
 
-`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time period or one plot with the summary across time periods. As with `bal.tab()`, the user can set `which.time` to display only certain time periods. When set to `.none`, the summary across time points is displayed. The `agg.fun` argument is set to `"max"` by default.
+`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time point or one plot with the summary across time points. As with `bal.tab()`, the user can set `which.time` to display only certain time points. When set to `.none`, the summary across time points is displayed. The `agg.fun` argument is set to `"max"` by default.
 
 ```{r}
 love.plot(Wmsm, abs = TRUE)

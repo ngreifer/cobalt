@@ -49,27 +49,29 @@ The output produced by `bal.tab()` with clustered data contains balance tables f
 
 * `which.cluster` determines for which clusters balance tables are to be displayed, if any. (Default: display all clusters)
 
-* `cluster.summary` determines whether the cluster summary is to be displayed or not.
-The arguments are in addition to the other arguments that are used with `bal.tab()` to display balance. (Default: display the cluster summary)
+* `cluster.summary` determines whether the cluster summary is to be displayed or not. (Default: hide the cluster summary)
 
 * `cluster.fun` determines which function(s) are used to combine balance statistics across clusters for the cluster summary. (Default: when `abs = FALSE`, minimum, mean, and maximum; when `abs = TRUE`, mean and maximum)
 
-Lets examine balance on our data within each race group.
+The arguments are in addition to the other arguments that are used with `bal.tab()` to display balance. `imp.summary` and `imp.fun` can also be set as global options by using `set.cobalt.options()`. Let's examine balance on our data within each race group.
 
 ```{r}
 bal.tab(m.out, cluster = "race")
 ```
 
-First we see balance tables for each cluster. These are the same output we would see if we use `bal.tab()` for each cluster separately (e.g., using the `subset` argument). All the commands that work for `bal.tab()` also work here with the same results, except that balance tallies and the variable with the greatest imbalance will not be displayed as they usually are when a threshold is specified. 
-
-Second, we see a balance summary across all the clusters. This table presents the minimum, mean, and maximum balance statistics for each variable across clusters. Setting `un = TRUE` will also display the same values for the adjusted data set. With binary treatments, setting `disp.v.ratio = TRUE` or `v.threshold` to some number will display the same values for variance ratios. Setting `abs = TRUE` requests summaries of absolute balance statistics which displays the extremeness of balance statistics for each variable; thus, if, for example, in some groups there are large negative mean differences and in other groups there are large positive mean differences, this table will display large mean differences, even though the average mean difference is close to 0. While it's important to know the average balance statistic overall, assessing the absolute balance statistics provides more information about balance within each cluster rather than in aggregate.
-
-To examine balance for just a few clusters at a time, users can enter values for `which.cluster`. This can be a vector of clusters indices (i.e., 1, 2, 3, etc.) or names (e.g., "black", "hispan", "white"). Users can also specify `which.cluster = .none` to omit cluster balance for all clusters and just see the summary across clusters, which might be helpful if there are many clusters. Users can also specify whether they want to see the summary across clusters by specifying `TRUE` or `FALSE` for `cluster.summary`. When `which.cluster = .none`, `cluster.summary` will automatically be set to `TRUE` (or else there wouldn't be any output!). When examining balance within a few groups, it can be more helpful to examine balance within each group and ignore the summary. Below are examples of the use of `which.cluster` and `cluster.summary` to change `bal.tab()` output.
+Here we see balance tables for each cluster. These are the same output we would see if we use `bal.tab()` for each cluster separately (e.g., using the `subset` argument). All the commands that work for `bal.tab()` also work here with the same results, except that balance tallies and the variable with the greatest imbalance will not be displayed as they usually are when a threshold is specified. Next, we can request a balance summary across clusters and hide the individual clusters by setting `which.cluster = .none`:
 
 ```{r}
-#Just for black and hispan
-bal.tab(m.out, cluster = "race", which.cluster = c("black", "hispan"),
-        cluster.summary = FALSE)
+bal.tab(m.out, cluster = "race", which.cluster = .none)
+```
+
+This table presents the minimum, mean, and maximum balance statistics for each variable across clusters. Setting `un = TRUE` will also display the same values for the adjusted data set. With binary treatments, setting `disp = c(v = TRUE)` or `thresholds = c(v = 2)` will display the same values for variance ratios. Setting `abs = TRUE` requests summaries of absolute balance statistics which displays the extremeness of balance statistics for each variable; thus, if, for example, in some groups there are large negative mean differences and in other groups there are large positive mean differences, this table will display large mean differences, even though the average mean difference is close to 0. While it's important to know the average balance statistic overall, assessing the absolute balance statistics provides more information about balance within each cluster rather than in aggregate.
+
+To examine balance for just a few clusters at a time, users can enter values for `which.cluster`. This can be a vector of clusters indices (i.e., 1, 2, 3, etc.) or names (e.g., "black", "hispan", "white"). Users  also specify `which.cluster = .none` as above to omit cluster balance for all clusters and just see the summary across clusters. Users can force display of the summary across clusters by specifying `TRUE` or `FALSE` for `cluster.summary`. When `which.cluster = .none`, `cluster.summary` will automatically be set to `TRUE` (or else there wouldn't be any output!). When examining balance within a few groups, it can be more helpful to examine balance within each group and ignore the summary. Below are examples of the use of `which.cluster` and `cluster.summary` to change `bal.tab()` output.
+
+```{r}
+#Just for black
+bal.tab(m.out, cluster = "race", which.cluster = "black")
 
 #Just the balance summary across clusters with only the mean
 bal.tab(m.out, cluster = "race", which.cluster = .none, cluster.fun = "mean")
@@ -144,7 +146,7 @@ There are a few ways to use `bal.tab()` with our imputed data sets. When using t
 
 * `imp.fun` determines which function(s) are used to combine balance statistics across imputations for the summary of balance across imputations. (Default: when `abs = FALSE`, minimum, mean, and maximum; when `abs = TRUE`, mean and maximum)
 
-`which.imp`, `imp.summary`, and `imp.fun` affect display only and can also be set as global options by using `set.cobalt.options()` like the corresponding cluster options.
+`imp.summary` and `imp.fun` can also be set as global options by using `set.cobalt.options()` like the corresponding cluster options.
 
 In many cases, not all variables are imputed, and often the treatment variable is not imputed. If each imputation has the same number of units, you can specify other arguments (e.g., treatment, distance) by specifying an object of the length of one imputation, and this vector will be applied to all imputations. This will come in handy when supplying additional covariates that weren't involved in the imputation or propensity score estimation through `addl`. To do this, the imputed data set must be sorted by imputation and unit ID.
 
@@ -157,10 +159,10 @@ bal.tab(wt.out)
 
 First, we see a balance summary across all the imputations. This table presents the minimum, mean, and maximum balance statistics for each variable across imputations. Setting `un = TRUE` will also display the same values for the adjusted data set. Setting `abs = TRUE` will make `bal.tab` report summaries of the absolute values of the balance statistics. This table functions in the same way as the table for balance across clusters. Below is the average sample size across imputations; in some matching and weighting schemes, the sample size (or effective sample size) may differ across imputations.
 
-To view balance on individual imputations, you can specify an imputation number to `which.imp`. To hide the balance summary across imputations, you can specify `imp.summary = FALSE`. 
+To view balance on individual imputations, you can specify an imputation number to `which.imp`. (The summary across imputations is automatically hidden but can be forced to be displayed using `imp.summary`.)
 
 ```{r}
-bal.tab(wt.out, which.imp = 1, imp.summary = FALSE)
+bal.tab(wt.out, which.imp = 1)
 ```
 
 As with clustered data, all `bal.tab()` options work as with non-imputed data. Indeed, the functions for clustered and imputed data are nearly identical except that for imputed data, `bal.tab()` computes the average sample size across imputations, whereas for other forms of segmented data, `bal.tab()` computes the total sample size across groups.
@@ -194,9 +196,9 @@ We'll use the three-category `race` variable as our multi-category treatment and
 ```{r}
 #Estimate weights within each imputation using propensity scores
 wt3.out <- weightthem(race ~ age + educ + married + 
-                      nodegree + re74 + re75, 
-                     datasets = imp.out, approach = "within", 
-                     method = "ps", estimand = "ATE")
+                        nodegree + re74 + re75, 
+                      datasets = imp.out, approach = "within", 
+                      method = "ps", estimand = "ATE")
 ```
 
 ### `bal.tab()`
@@ -207,7 +209,7 @@ Using `bal.tab()` on the resulting object does the following: for each pair of t
 bal.tab(wt3.out)
 ```
 
-Other options can be supplied to choose how balance is computed with multi-category treatments; these are described at `?bal.tab.multi` and in the main vignette. Importantly, though, a balance summary across treatment pairs is not available, though this may change in future releases. 
+Other options can be supplied to choose how balance is computed with multi-category treatments; these are described at `?bal.tab.multi` and in the main vignette. Importantly, though, a balance summary across treatment pairs is not available. 
 
 ### `bal.plot()`
 
