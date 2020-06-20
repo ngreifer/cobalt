@@ -213,7 +213,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     
     #Treat is a factor variable
     if (is_null(X$focal)) {
-        if (pairwise) treat.combinations <- combn(levels(X$treat), 2, list)
+        if (pairwise) treat.combinations <- combn(levels(X$treat), 2, simplify = FALSE)
         else treat.combinations <- lapply(levels(X$treat), function(x) c(x, "All"))
     }
     else {
