@@ -825,6 +825,7 @@ make_list <- function(n) {
     else if (is_(n, "atomic")) {
         setNames(vector("list", length(n)), as.character(n))
     }
+    else stop("'n' must be an integer(ish) scalar or an atomic variable.")
 }
 make_df <- function(ncol, nrow = 0, types = "numeric") {
     if (length(ncol) == 1L && is.numeric(ncol)) {

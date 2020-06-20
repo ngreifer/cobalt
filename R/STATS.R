@@ -71,7 +71,7 @@ STATS[["mean.diffs"]] <- {list(
                 warning("Standardized mean differences and raw mean differences are present in the same plot. \nUse the 'stars' argument to distinguish between them and appropriately label the x-axis.", call. = FALSE)
             }
             else {
-                if (length(star_char) != 1 || !is.character(star_char)) star_char <- "*"
+                if (!rlang::is_string(star_char)) star_char <- "*"
                 
                 vars_to_star <- setNames(rep(FALSE, length(variable.names)), variable.names)
                 if (stars == "std") {

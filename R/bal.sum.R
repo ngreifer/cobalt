@@ -11,9 +11,9 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("mat must be a data.frame or numeric matrix.")
+        else stop("'mat' must be a data.frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
     
     if (needs.splitting) {
         A <- list(...)
@@ -29,14 +29,14 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
                         possibly.supplied)
     supplied <- lengths > 0
     if (!all_the_same(lengths[supplied])) {
-        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+        stop(paste(word_list(possibly.supplied[supplied], quotes = 1), "must have the same number of units."))
     }
     
     if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
     
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
-    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
     weights <- weights * s.weights
     
@@ -53,9 +53,9 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("mat must be a data.frame or numeric matrix.")
+        else stop("'mat' must be a data.frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
     
     bin.vars <- process.bin.vars(bin.vars, mat)
     
@@ -76,14 +76,14 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
                         possibly.supplied)
     supplied <- lengths > 0
     if (!all_the_same(lengths[supplied])) {
-        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+        stop(paste(word_list(possibly.supplied[supplied], quotes = 1), "must have the same number of units."))
     }
     
     if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
     
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
-    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
     weights <- weights * s.weights
     
@@ -104,9 +104,9 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("mat must be a data.frame or numeric matrix.")
+        else stop("'mat' must be a data.frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
     
     bin.vars <- process.bin.vars(bin.vars, mat)
     
@@ -122,14 +122,14 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
-        stop("std must be a logical vector with length equal to 1 or the number of columns of mat.")
+        stop("'std' must be a logical vector with length equal to 1 or the number of columns of mat.")
     }
     
-    if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
-        stop("abs must be a logical of length 1.")
+    if (!rlang::is_bool(abs)) {
+        stop("'abs' must be a logical of length 1.")
     }
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
@@ -137,15 +137,15 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
                         possibly.supplied)
     supplied <- lengths > 0
     if (!all_the_same(lengths[supplied])) {
-        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+        stop(paste(word_list(possibly.supplied[supplied], quotes = 1), "must have the same number of units."))
     }
     
     if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
-    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
-    if (!is_binary(treat[subset])) stop("treat must be a binary variable.")
+    if (!is_binary(treat[subset])) stop("'treat' must be a binary variable.")
     
     weights <- weights * s.weights
     
@@ -187,9 +187,9 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("mat must be a data.frame or numeric matrix.")
+        else stop("'mat' must be a data.frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
     
     bin.vars <- process.bin.vars(bin.vars, mat)
     
@@ -205,9 +205,9 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (missing(treat) || !is.atomic(treat) || !is_binary(treat)) stop("treat must be a binary variable.")
+    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
     
-    if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
+    if (!rlang::is_bool(abs)) {
         stop("abs must be a logical of length 1.")
     }
     
@@ -216,14 +216,16 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
                         possibly.supplied)
     supplied <- lengths > 0
     if (!all_the_same(lengths[supplied])) {
-        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+        stop(paste(word_list(possibly.supplied[supplied], quotes = 1), "must have the same number of units."))
     }
     
     if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
     
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
-    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
+    
+    if (!is_binary(treat[subset])) stop("'treat' must be a binary variable.")
     
     weights <- weights * s.weights
     
@@ -255,9 +257,9 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("mat must be a data.frame or numeric matrix.")
+        else stop("'mat' must be a data.frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
     
     bin.vars <- process.bin.vars(bin.vars, mat)
     
@@ -273,14 +275,14 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (!is.atomic(treat) || !is_binary(treat)) stop("treat must be a binary variable.")
-    
+    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
+
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
                         possibly.supplied)
     supplied <- lengths > 0
     if (!all_the_same(lengths[supplied])) {
-        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+        stop(paste(word_list(possibly.supplied[supplied], quotes = 1), "must have the same number of units."))
     }
     
     if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
@@ -288,6 +290,8 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
     
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
     else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    
+    if (!is_binary(treat[subset])) stop("'treat' must be a binary variable.")
     
     weights <- weights * s.weights
     
@@ -331,9 +335,9 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("mat must be a data.frame or numeric matrix.")
+        else stop("'mat' must be a data.frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
     
     bin.vars <- process.bin.vars(bin.vars, mat)
     
@@ -348,21 +352,23 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (!is.atomic(treat) || !is_binary(treat)) stop("treat must be a binary variable.")
+    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
                         possibly.supplied)
     supplied <- lengths > 0
     if (!all_the_same(lengths[supplied])) {
-        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+        stop(paste(word_list(possibly.supplied[supplied], quotes = 1), "must have the same number of units."))
     }
     
     if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
     
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
-    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
+    
+    if (!is_binary(treat[subset])) stop("'treat' must be a binary variable.")
     
     weights <- weights * s.weights
     
@@ -389,7 +395,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
                     A[["bw"]] <- get0(paste0("bw.", A[["bw"]]))(cov[treat == smallest.t])
                 }
                 else {
-                    stop(paste(A[["bw"]], "is not an acceptable entry to bw. See ?stats::density for allowable options."), call. = FALSE)
+                    stop(paste0(A[["bw"]], "is not an acceptable entry to 'bw'. See ?stats::density for allowable options."), call. = FALSE)
                 }
                 
                 f1_ <- approxfun(do.call(density.default, c(list(cov[treat==tval1], 
@@ -449,9 +455,9 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
             else mat <- as.matrix(mat)
         }
         else if (is.numeric(mat)) mat <- matrix(mat, ncol = 1)
-        else stop("mat must be a data.frame or numeric matrix.")
+        else stop("'mat' must be a data.frame or numeric matrix.")
     }
-    else if (!is.numeric(mat)) stop("mat must be a data.frame or numeric matrix.")
+    else if (!is.numeric(mat)) stop("'mat' must be a data.frame or numeric matrix.")
     
     bin.vars <- process.bin.vars(bin.vars, mat)
     
@@ -468,12 +474,14 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     }
     
     if (missing(treat) || !is.atomic(treat) || !is.numeric(treat)) stop("treat must be a numeric variable.")
+    
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
-        stop("std must be a logical vector with length equal to 1 or the number of columns of mat.")
+        stop("'std' must be a logical vector with length equal to 1 or the number of columns of mat.")
     }
-    if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
-        stop("abs must be a logical of length 1.")
+    
+    if (!rlang::is_bool(abs)) {
+        stop("'abs' must be a logical of length 1.")
     }
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
@@ -481,18 +489,20 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
                         possibly.supplied)
     supplied <- lengths > 0
     if (!all_the_same(lengths[supplied])) {
-        stop(paste(word_list(possibly.supplied[supplied]), "must have the same number of units."))
+        stop(paste(word_list(possibly.supplied[supplied], quotes = 1), "must have the same number of units."))
     }
     
     if (lengths["weights"] == 0) weights <- rep(1, NROW(mat))
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
     
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
-    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
     if (length(std) == 1L) std <- rep(std, NCOL(mat))
     
-    type <- match_arg(tolower(type), c("pearson", "spearman"))
+    if (!rlang::is_string(type)) stop("'type' must be a string of length 1.")
+    type <- tolower(type)
+    type <- match_arg(type, c("pearson", "spearman"))
     if (type == "spearman") {
         for (i in 1:ncol(mat)) if (!bin.vars[i]) mat[,i] <- rank(mat[,i], na.last = "keep")
         treat <- rank(treat, na.last = "keep")

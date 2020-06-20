@@ -1467,7 +1467,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   if (poly < 0 || !check_if_int(poly)) {
     stop("'poly' must be a numeric (integer) value greater than 1.", call. = FALSE)
   }
-  poly <- as.integer(round(poly))
+  poly <- round(poly)
   
   if (int || (poly > 1)) {
     if (int) { 

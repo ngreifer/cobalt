@@ -905,11 +905,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     if (length(stats) > 1 || isTRUE(args$use.grid)) {
         
-        if (!is.character(position) || length(position) > 1) {
+        if (!rlang::is_string(position)) {
             position <- NA_character_
         }
-        position <- match_arg(as.character(position), 
-                              c("right", "left", "top", "bottom", "none"))
+        else position <- match_arg(position, 
+                                   c("right", "left", "top", "bottom", "none"))
         
         #Process labels
         if (isTRUE(labels)) labels <- LETTERS[seq_along(plot.list)]

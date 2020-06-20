@@ -19,7 +19,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -38,14 +38,14 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         else p.ops$disp <- disp
     }
     if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
-        if (!is.logical(A[["disp.means"]])) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(A[["disp.means"]])) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
         if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
     }
     if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
-        if (!is.logical(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
             warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -64,7 +64,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     }
     for (s in all_STATS(p.ops$type)) {
         if (is_not_null(A[[STATS[[s]]$disp_stat]]) && !identical(A[[STATS[[s]]$disp_stat]], "as.is")) {
-            if (!is.logical(A[[STATS[[s]]$disp_stat]])) {
+            if (!rlang::is_bool(A[[STATS[[s]]$disp_stat]])) {
                 stop(paste0("'", STATS[[s]]$disp_stat, "' must be TRUE, FALSE, or \"as.is\"."), call. = FALSE)
             }
             if (s %nin% p.ops$compute && isTRUE(A[[STATS[[s]]$disp_stat]])) {
@@ -120,12 +120,12 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     }
     
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
+            if (!rlang::is_bool(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -239,7 +239,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -258,7 +258,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         else p.ops$disp <- disp
     }
     if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
-        if (!is.logical(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
         if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -267,7 +267,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         A[["disp.means"]] <- NULL
     }
     if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
-        if (!is.logical(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
             warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -286,7 +286,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     }
     for (s in all_STATS(p.ops$type)) {
         if (is_not_null(A[[STATS[[s]]$disp_stat]]) && !identical(A[[STATS[[s]]$disp_stat]], "as.is")) {
-            if (!is.logical(A[[STATS[[s]]$disp_stat]])) {
+            if (!rlang::is_bool(A[[STATS[[s]]$disp_stat]])) {
                 stop(paste0("'", STATS[[s]]$disp_stat, "' must be TRUE, FALSE, or \"as.is\"."), call. = FALSE)
             }
             if (s %nin% p.ops$compute && isTRUE(A[[STATS[[s]]$disp_stat]])) {
@@ -344,7 +344,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         }
     }
     if (!identical(cluster.summary, "as.is")) {
-        if (!is.logical(cluster.summary)) stop("'cluster.summary' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(cluster.summary)) stop("'cluster.summary' must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$cluster.summary == FALSE && cluster.summary == TRUE) {
             warning("'cluster.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -352,7 +352,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
+            if (!rlang::is_bool(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -501,7 +501,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -520,7 +520,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         else p.ops$disp <- disp
     }
     if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
-        if (!is.logical(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
         if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -528,7 +528,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         A[["disp.means"]] <- NULL
     }
     if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
-        if (!is.logical(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
             warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -546,7 +546,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     }
     for (s in all_STATS(p.ops$type)) {
         if (is_not_null(A[[STATS[[s]]$disp_stat]]) && !identical(A[[STATS[[s]]$disp_stat]], "as.is")) {
-            if (!is.logical(A[[STATS[[s]]$disp_stat]])) {
+            if (!rlang::is_bool(A[[STATS[[s]]$disp_stat]])) {
                 stop(paste0("'", STATS[[s]]$disp_stat, "' must be TRUE, FALSE, or \"as.is\"."), call. = FALSE)
             }
             if (s %nin% p.ops$compute && isTRUE(A[[STATS[[s]]$disp_stat]])) {
@@ -604,19 +604,19 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         }
     }
     if (!identical(imp.summary, "as.is")) {
-        if (!is.logical(imp.summary)) stop("'imp.summary' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(imp.summary)) stop("'imp.summary' must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$imp.summary == FALSE && imp.summary == TRUE) {
             warning("'imp.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$imp.summary <- imp.summary
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
+            if (!rlang::is_bool(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -758,7 +758,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -777,14 +777,14 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
         else p.ops$disp <- disp
     }
     if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
-        if (!is.logical(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
         if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
     }
     if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
-        if (!is.logical(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
             warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -801,7 +801,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     }
     for (s in all_STATS(p.ops$type)) {
         if (is_not_null(A[[STATS[[s]]$disp_stat]]) && !identical(A[[STATS[[s]]$disp_stat]], "as.is")) {
-            if (!is.logical(A[[STATS[[s]]$disp_stat]])) {
+            if (!rlang::is_bool(A[[STATS[[s]]$disp_stat]])) {
                 stop(paste0("'", STATS[[s]]$disp_stat, "' must be TRUE, FALSE, or \"as.is\"."), call. = FALSE)
             }
             if (s %nin% p.ops$compute && isTRUE(A[[STATS[[s]]$disp_stat]])) {
@@ -856,20 +856,20 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
         }
     }
     if (!identical(multi.summary, "as.is")) {
-        if (!is.logical(multi.summary)) stop("'multi.summary' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(multi.summary)) stop("'multi.summary' must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$multi.summary == FALSE && multi.summary == TRUE) {
             warning("'multi.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$multi.summary <- multi.summary
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (is_not_null(m.balance.summary)) {
         if (p.ops$disp.bal.tab) {
             if (!identical(imbalanced.only, "as.is")) {
-                if (!is.logical(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
+                if (!rlang::is_bool(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
                 p.ops$imbalanced.only <- imbalanced.only
             }
             if (p.ops$imbalanced.only) {
@@ -1049,7 +1049,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -1068,14 +1068,14 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         else p.ops$disp <- disp
     }
     if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
-        if (!is.logical(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
         if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
     }
     if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
-        if (!is.logical(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
             warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -1092,7 +1092,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     }
     for (s in all_STATS(p.ops$type)) {
         if (is_not_null(A[[STATS[[s]]$disp_stat]]) && !identical(A[[STATS[[s]]$disp_stat]], "as.is")) {
-            if (!is.logical(A[[STATS[[s]]$disp_stat]])) {
+            if (!rlang::is_bool(A[[STATS[[s]]$disp_stat]])) {
                 stop(paste0("'", STATS[[s]]$disp_stat, "' must be TRUE, FALSE, or \"as.is\"."), call. = FALSE)
             }
             if (s %nin% p.ops$compute && isTRUE(A[[STATS[[s]]$disp_stat]])) {
@@ -1147,19 +1147,19 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         }
     }
     if (!identical(msm.summary, "as.is")) {
-        if (!is.logical(msm.summary)) stop("'msm.summary' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(msm.summary)) stop("'msm.summary' must be TRUE, FALSE, or \"as.is\".")
         if (p.ops$quick && p.ops$msm.summary == FALSE && msm.summary == TRUE) {
             warning("'msm.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$msm.summary <- msm.summary
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
+            if (!rlang::is_bool(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -1305,7 +1305,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!is.logical(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -1324,14 +1324,14 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
         else p.ops$disp <- disp
     }
     if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
-        if (!is.logical(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
         if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
     }
     if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
-        if (!is.logical(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
             warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -1348,7 +1348,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
     }
     for (s in all_STATS(p.ops$type)) {
         if (is_not_null(A[[STATS[[s]]$disp_stat]]) && !identical(A[[STATS[[s]]$disp_stat]], "as.is")) {
-            if (!is.logical(A[[STATS[[s]]$disp_stat]])) {
+            if (!rlang::is_bool(A[[STATS[[s]]$disp_stat]])) {
                 stop(paste0("'", STATS[[s]]$disp_stat, "' must be TRUE, FALSE, or \"as.is\"."), call. = FALSE)
             }
             if (s %nin% p.ops$compute && isTRUE(A[[STATS[[s]]$disp_stat]])) {
@@ -1403,12 +1403,12 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
         }
     }
     if (!identical(disp.bal.tab, "as.is")) {
-        if (!is.logical(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.bal.tab <- disp.bal.tab
     }
     if (p.ops$disp.bal.tab) {
         if (!identical(imbalanced.only, "as.is")) {
-            if (!is.logical(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
+            if (!rlang::is_bool(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
             p.ops$imbalanced.only <- imbalanced.only
         }
         if (p.ops$imbalanced.only) {
@@ -1421,7 +1421,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
     else p.ops$imbalanced.only <- FALSE
     
     if (!identical(disp.subclass, "as.is")) {
-        if (!is.logical(disp.subclass)) stop("'disp.subclass' must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(disp.subclass)) stop("'disp.subclass' must be TRUE, FALSE, or \"as.is\".")
         p.ops$disp.subclass <- disp.subclass
     }
     
