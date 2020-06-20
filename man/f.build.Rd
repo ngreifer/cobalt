@@ -16,7 +16,7 @@ f.build(y, rhs)
 an object of class \code{"formula"}.
 }
 \seealso{
-\code{\link[stats]{reformulate}}
+\code{\link[stats:delete.response]{reformulate}}
 }
 
 
