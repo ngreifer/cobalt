@@ -13,6 +13,8 @@ Version 4.2.1
 
 * Fixed a bug with `backports` 1.1.7 not running correctly.
 
+* Fixed a bug with `str2expression` for R version below 3.6.0. Thanks to @kthohr and @jimmyg909.
+
 * When data is segmented (i.e., with a multi-category or longitudinal treatment or when clusters or multiple imputations are specified), the balance summary across segments will not be computed or displayed when individual segment balance is requested. See `?display_options` to see the defaults for the different segment types, some of which have changed. 
 
 Version 4.2.0
