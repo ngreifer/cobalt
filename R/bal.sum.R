@@ -122,7 +122,7 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (missing(treat) || !(is.factor(treat) || is.atomic(treat))) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
         stop("std must be a logical vector with length equal to 1 or the number of columns of mat.")
@@ -205,7 +205,7 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (missing(treat) || !(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
+    if (missing(treat) || !is.atomic(treat) || !is_binary(treat)) stop("treat must be a binary variable.")
     
     if (!(is.atomic(abs) && length(abs) == 1L && !anyNA(as.logical(abs)))) {
         stop("abs must be a logical of length 1.")
@@ -273,7 +273,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (!(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
+    if (!is.atomic(treat) || !is_binary(treat)) stop("treat must be a binary variable.")
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -348,7 +348,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (!(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
+    if (!is.atomic(treat) || !is_binary(treat)) stop("treat must be a binary variable.")
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),

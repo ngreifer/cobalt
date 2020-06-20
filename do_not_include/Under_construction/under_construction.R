@@ -212,7 +212,7 @@ col_w_edist <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, 
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (!(is.factor(treat) || is.atomic(treat)) || !is_binary(treat)) stop("treat must be a binary variable.")
+    if (!is.atomic(treat) || !is_binary(treat)) stop("treat must be a binary variable.")
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -289,7 +289,7 @@ col_pair_diff <- function(mat, treat, strata = NULL, std = TRUE, s.d.denom = "po
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (missing(treat) || !(is.factor(treat) || is.atomic(treat))) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
         stop("std must be a logical vector with length equal to 1 or the number of columns of mat.")

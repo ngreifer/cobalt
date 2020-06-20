@@ -780,7 +780,6 @@ process.focal.and.estimand <- function(focal, estimand, treat, treat.type, treat
                 treated = if (is.factor(treated)) as.character(treated) else treated))
 }
 
-
 #Uniqueness
 nunique <- function(x, nmax = NA, na.rm = TRUE) {
     if (is_null(x)) return(0)
@@ -862,7 +861,7 @@ ifelse_ <- function(...) {
     if (dotlen %% 2 == 0) stop("ifelse_ must have an odd number of arguments: pairs of test/yes, and one no.")
     out <- ...elt(dotlen)
     if (dotlen > 1) {
-        if (!is_(out, "atomic")) stop("The last entry to ifelse_ must be atomic or factor.")
+        if (!is_(out, "atomic")) stop("The last entry to ifelse_ must be atomic.")
         if (length(out) == 1) out <- rep(out, length(..1))
         n <- length(out)
         for (i in seq_len((dotlen - 1)/2)) {
@@ -871,13 +870,13 @@ ifelse_ <- function(...) {
             if (length(yes) == 1) yes <- rep(yes, n)
             if (length(yes) != n || length(test) != n) stop("All entries must have the same length.")
             if (!is.logical(test)) stop(paste("The", ordinal(2*i - 1), "entry to ifelse_ must be logical."))
-            if (!is_(yes, "atomic")) stop(paste("The", ordinal(2*i), "entry to ifelse_ must be atomic or factor."))
+            if (!is_(yes, "atomic")) stop(paste("The", ordinal(2*i), "entry to ifelse_ must be atomic."))
             pos <- which(test)
             out[pos] <- yes[pos]
         }
     }
     else {
-        if (!is_(out, "atomic")) stop("The first entry to ifelse_ must be atomic or factor.")
+        if (!is_(out, "atomic")) stop("The first entry to ifelse_ must be atomic.")
     }
     return(out)
 }

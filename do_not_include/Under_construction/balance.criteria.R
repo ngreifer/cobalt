@@ -3,7 +3,7 @@
 #Separate functions for different treatment types.
 
 #init functions
-init_es <- function(covs, treat, s.weights = NULL, estimand = "ATE") {
+init_es <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE) {
     needs.splitting <- FALSE
     if (!is.matrix(covs)) {
         if (is.data.frame(covs)) {
@@ -26,7 +26,7 @@ init_es <- function(covs, treat, s.weights = NULL, estimand = "ATE") {
         bin.vars <- attr(covs, "split.with")[[1]]
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector.")
     
     possibly.supplied <- c("covs", "treat", "s.weights")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -38,7 +38,14 @@ init_es <- function(covs, treat, s.weights = NULL, estimand = "ATE") {
     
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(covs))
     
-    if (!is_binary(treat)) stop("treat must be a binary variable.")
+    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+    treat.type <- get.treat.type(treat)
+    
+    if (treat.type == "continuous") stop("treat must be a binary or multinomial variable.")
+    
+    f.e.r <- process.focal.and.estimand(focal, estimand, treat, treat.type)
+    focal <- f.e.r[["focal"]]
+    estimand <- f.e.r[["estimand"]]
     
     s.d.denom <- get.s.d.denom(estimand = estimand, treat = treat, quietly = TRUE)
     
@@ -50,9 +57,11 @@ init_es <- function(covs, treat, s.weights = NULL, estimand = "ATE") {
          covs = covs,
          bin.vars = bin.vars,
          s.weights = s.weights,
-         s.d.denom = denoms)
+         s.d.denom = denoms,
+         focal = focal,
+         unique.treats = unique(treat))
 }
-init_ks <- function(covs, treat, s.weights = NULL) {
+init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE) {
     needs.splitting <- FALSE
     if (!is.matrix(covs)) {
         if (is.data.frame(covs)) {
@@ -75,7 +84,7 @@ init_ks <- function(covs, treat, s.weights = NULL) {
         bin.vars <- attr(covs, "split.with")[[1]]
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector.")
     
     possibly.supplied <- c("covs", "treat", "s.weights")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -87,12 +96,32 @@ init_ks <- function(covs, treat, s.weights = NULL) {
     
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(covs))
     
-    if (!is_binary(treat)) stop("treat must be a binary variable.")
+    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+    treat.type <- get.treat.type(treat)
+    
+    if (treat.type == "continuous") stop("treat must be a binary or multinomial variable.")
+    
+    f.e.r <- process.focal.and.estimand(focal, estimand, treat, treat.type)
+    focal <- f.e.r[["focal"]]
+    estimand <- f.e.r[["estimand"]]
+    
+    unique.treats <- unique(treat)
+    
+    if (treat.type == "multinomial" && is_null(focal) && !pairwise) {
+        treat.all <- last(make.unique(unique.treats, "All"))
+        treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
+                        levels = c(unique.treats, treat.all))
+        covs <- rbind(covs, covs)
+        s.weights <- rep(s.weights, 2)
+        focal <- treat.all
+    }
     
     list(treat = treat,
          covs = covs,
          bin.vars = bin.vars,
-         s.weights = s.weights)
+         s.weights = s.weights,
+         focal = focal,
+         unique.treats = unique.treats)
 }
 init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE") {
     needs.splitting <- FALSE
@@ -117,7 +146,7 @@ init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE") {
         bin.vars <- attr(covs, "split.with")[[1]]
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector.")
     
     possibly.supplied <- c("covs", "treat", "s.weights")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -173,7 +202,7 @@ init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
         covs <- do.call("splitfactor", list(covs, drop.first ="if2"))
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector.")
     
     possibly.supplied <- c("covs", "treat", "s.weights")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -263,7 +292,7 @@ init_p <- function(covs, treat, s.weights = NULL) {
         bin.vars <- attr(covs, "split.with")[[1]]
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector.")
     
     possibly.supplied <- c("covs", "treat", "s.weights")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -312,7 +341,7 @@ init_s <- function(covs, treat, s.weights = NULL) {
         bin.vars <- attr(covs, "split.with")[[1]]
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector or factor.")
+    if (missing(treat) || !is.atomic(treat)) stop("treat must be an atomic vector.")
     
     possibly.supplied <- c("covs", "treat", "s.weights")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -352,7 +381,7 @@ bal_criterion <- function(treat.type = "binary", criterion, list = FALSE) {
                            init <- init_es(covs, treat, s.weights, estimand)
                        }
                        else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom", "focal", "unique.treats") %nin% names(init))) {
                                stop("init was not correctly supplied.")
                            }
                        }
@@ -369,7 +398,7 @@ bal_criterion <- function(treat.type = "binary", criterion, list = FALSE) {
                            init <- init_es(covs, treat, s.weights, estimand)
                        }
                        else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom", "focal", "unique.treats") %nin% names(init))) {
                                stop("init was not correctly supplied.")
                            }
                        }
@@ -386,7 +415,7 @@ bal_criterion <- function(treat.type = "binary", criterion, list = FALSE) {
                            init <- init_es(covs, treat, s.weights, estimand)
                        }
                        else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom", "focal", "unique.treats") %nin% names(init))) {
                                stop("init was not correctly supplied.")
                            }
                        }
@@ -403,7 +432,7 @@ bal_criterion <- function(treat.type = "binary", criterion, list = FALSE) {
                            init <- init_ks(covs, treat, s.weights)
                        }
                        else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars") %nin% names(init))) {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
                                stop("init was not correctly supplied.")
                            }
                        }
@@ -420,7 +449,7 @@ bal_criterion <- function(treat.type = "binary", criterion, list = FALSE) {
                            init <- init_ks(covs, treat, s.weights)
                        }
                        else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars") %nin% names(init))) {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
                                stop("init was not correctly supplied.")
                            }
                        }
@@ -437,7 +466,7 @@ bal_criterion <- function(treat.type = "binary", criterion, list = FALSE) {
                            init <- init_ks(covs, treat, s.weights)
                        }
                        else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars") %nin% names(init))) {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
                                stop("init was not correctly supplied.")
                            }
                        }
@@ -491,22 +520,127 @@ bal_criterion <- function(treat.type = "binary", criterion, list = FALSE) {
            ),
            multinomial =  list(
                es.mean = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", pairwise = TRUE, init = NULL, ...) {
+                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                       # if (is_null(init)) {
+                       #     init <- init_es(covs, treat, s.weights, estimand)
+                       # }
+                       # else {
+                       #     if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom", "focal", "unique.treats") %nin% names(init))) {
+                       #         stop("init was not correctly supplied.")
+                       #     }
+                       # }
+                       # 
+                       # if (is_null(init$focal) && pairwise) {
+                       #     treatment.pairs <- combn(levels(init$treat), 2, simplify = FALSE)
+                       #     es <- vapply(treatment.pairs, function(x) {
+                       #         col_w_smd(init$covs[init$treat %in% x,,drop = FALSE], 
+                       #                   treat = init$treat[init$treat %in% x], 
+                       #                   weights = weights[init$treat %in% x], 
+                       #                   s.weights = init$s.weights[init$treat %in% x], 
+                       #                   bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
+                       #     }, numeric(ncol(init$covs)))
+                       # }
+                       # else {
+                       #     
+                       # }
+                       # es <- col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
+                       #                 bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
+                       # mean_fast(es)
+                   },
+                   init = init_es
+               ),
+               ks.mean = list(
+                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
                        if (is_null(init)) {
-                           init <- init_es(covs, treat, s.weights, estimand)
+                           init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
                        }
                        else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
                                stop("init was not correctly supplied.")
                            }
                        }
                        
-                       if (pairwise) 
-                       es <- col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                       bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
-                       mean_fast(es)
+                       if (is_null(init$focal)) {
+                           treatment.pairs <- combn(init$unique.treats, 2, simplify = FALSE)
+                       }
+                       else {
+                           weights <- c(weights, rep(1, length(weights)))
+                           treatment.pairs <- lapply(setdiff(init$unique.treats, init$focal), function(x) c(x, init$focal))
+                       }
+                       
+                       ks <- vapply(treatment.pairs, function(x) {
+                           col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
+                                    treat = init$treat[init$treat %in% x],
+                                    weights = weights[init$treat %in% x],
+                                    s.weights = init$s.weights[init$treat %in% x],
+                                    bin.vars = init$bin.vars)
+                       }, numeric(ncol(init$covs)))
+                       
+                       mean_fast(ks)
                    },
-                   init = init_es
+                   init = init_ks
+               ),
+               ks.max = list(
+                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                       if (is_null(init)) {
+                           init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                       }
+                       else {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
+                               stop("init was not correctly supplied.")
+                           }
+                       }
+                       
+                       if (is_null(init$focal)) {
+                           treatment.pairs <- combn(init$unique.treats, 2, simplify = FALSE)
+                       }
+                       else {
+                           weights <- c(weights, rep(1, length(weights)))
+                           treatment.pairs <- lapply(setdiff(init$unique.treats, init$focal), function(x) c(x, init$focal))
+                       }
+                       
+                       ks <- vapply(treatment.pairs, function(x) {
+                           col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
+                                    treat = init$treat[init$treat %in% x],
+                                    weights = weights[init$treat %in% x],
+                                    s.weights = init$s.weights[init$treat %in% x],
+                                    bin.vars = init$bin.vars)
+                       }, numeric(ncol(init$covs)))
+                       
+                       max(ks)
+                   },
+                   init = init_ks
+               ),
+               ks.rms = list(
+                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                       if (is_null(init)) {
+                           init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                       }
+                       else {
+                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
+                               stop("init was not correctly supplied.")
+                           }
+                       }
+                       
+                       if (is_null(init$focal)) {
+                           treatment.pairs <- combn(init$unique.treats, 2, simplify = FALSE)
+                       }
+                       else {
+                           weights <- c(weights, rep(1, length(weights)))
+                           treatment.pairs <- lapply(setdiff(init$unique.treats, init$focal), function(x) c(x, init$focal))
+                       }
+                       
+                       ks <- vapply(treatment.pairs, function(x) {
+                           col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
+                                    treat = init$treat[init$treat %in% x],
+                                    weights = weights[init$treat %in% x],
+                                    s.weights = init$s.weights[init$treat %in% x],
+                                    bin.vars = init$bin.vars)
+                       }, numeric(ncol(init$covs)))
+                       
+                       rms(ks)
+                   },
+                   init = init_ks
                ),
                energy.dist = list(
                    fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, init = NULL, ...) {
