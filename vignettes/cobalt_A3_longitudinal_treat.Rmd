@@ -79,16 +79,10 @@ Here we see balance by time point. At each time point, a `bal.tab` object is pro
 
 This output will appear no matter what the treatment types are (i.e., binary, continuous, multi-category), but for multi-category treatments or when the treatment types vary or for multiply imputed data, no balance summary will be computed or displayed.
 
-We can use `bal.tab()` with the `weightitMSM` object generated above. Setting `un = TRUE` would produce balance statistics before adjustment, like we did before.
+We can use `bal.tab()` with the `weightitMSM` object generated above. Setting `un = TRUE` would produce balance statistics before adjustment, like we did before. We'll set `which.time = .all` and `msm.summary = TRUE` to see balance for each time point and across time points.
 
 ```{r}
-bal.tab(Wmsm, un = TRUE)
-```
-
-We can use `which.time` to focus in on specific time points. `which.time` controls which time points are displayed; one or more time points can be entered. `.none`, the default, will not display any time points (so only the summary will be displayed), and `.all` will display all time points. Setting `msm.summary` to `FALSE` will hide the summary across time points. This option can be set globally using `set.cobalt.options(msm.summary = FALSE)`.
-
-```{r}
-bal.tab(Wmsm, which.time = 1:2)
+bal.tab(Wmsm, un = TRUE, which.time = .all, msm.summary = TRUE)
 ```
 
 Note that to add covariates, we must use `addl.list` (which can be abbreviated as `addl`), which functions like `addl` in point treatments. The input to `addl.list` must be a list of covariates for each time point, or a single data data frame of variables to be assessed at all time points. The same goes for adding distance variables, which must be done with `distance.list` (which can be abbreviated as `distance`).
