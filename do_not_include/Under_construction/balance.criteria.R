@@ -47,19 +47,47 @@ init_es <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NUL
     focal <- f.e.r[["focal"]]
     estimand <- f.e.r[["estimand"]]
     
-    s.d.denom <- get.s.d.denom(estimand = estimand, treat = treat, quietly = TRUE)
+    unique.treats <- unique(treat)
+    
+    if (treat.type == "multinomial") {
+        if (is_null(focal) && !pairwise) {
+            treat.all <- last(make.unique(unique.treats, "All"))
+            treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
+                            levels = c(unique.treats, treat.all))
+            covs <- rbind(covs, covs)
+            s.weights <- rep(s.weights, 2)
+            focal <- treat.all
+        }
+        else pairwise <- TRUE
+        
+        if (is_null(focal)) {
+            treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
+        }
+        else {
+            treatment.pairs <- lapply(setdiff(unique.treats, focal), function(x) c(x, focal))
+        }
+    }
+    else {
+        treatment.pairs <- list(unique.treats)
+        pairwise <- TRUE
+    }
+    
+    s.d.denom <- get.s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
     
     denoms <- compute_s.d.denom(covs, treat = treat, 
                                 s.d.denom = s.d.denom, s.weights = s.weights, 
                                 bin.vars = bin.vars, to.sd = rep(TRUE, ncol(covs)))
     
-    list(treat = treat,
-         covs = covs,
-         bin.vars = bin.vars,
-         s.weights = s.weights,
-         s.d.denom = denoms,
-         focal = focal,
-         unique.treats = unique(treat))
+    out <- list(treat = treat,
+                covs = covs,
+                bin.vars = bin.vars,
+                s.weights = s.weights,
+                s.d.denom = denoms,
+                focal = focal,
+                pairwise = pairwise,
+                treatment.pairs = treatment.pairs)
+    class(out) <- "init_es"
+    out
 }
 init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE) {
     needs.splitting <- FALSE
@@ -107,21 +135,38 @@ init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NUL
     
     unique.treats <- unique(treat)
     
-    if (treat.type == "multinomial" && is_null(focal) && !pairwise) {
-        treat.all <- last(make.unique(unique.treats, "All"))
-        treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
-                        levels = c(unique.treats, treat.all))
-        covs <- rbind(covs, covs)
-        s.weights <- rep(s.weights, 2)
-        focal <- treat.all
+    if (treat.type == "multinomial") {
+        if (is_null(focal) && !pairwise) {
+            treat.all <- last(make.unique(unique.treats, "All"))
+            treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
+                            levels = c(unique.treats, treat.all))
+            covs <- rbind(covs, covs)
+            s.weights <- rep(s.weights, 2)
+            focal <- treat.all
+        }
+        else pairwise <- TRUE
+        
+        if (is_null(focal)) {
+            treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
+        }
+        else {
+            treatment.pairs <- lapply(setdiff(unique.treats, focal), function(x) c(x, focal))
+        }
+    }
+    else {
+        treatment.pairs <- list(unique.treats)
+        pairwise <- TRUE
     }
     
-    list(treat = treat,
-         covs = covs,
-         bin.vars = bin.vars,
-         s.weights = s.weights,
-         focal = focal,
-         unique.treats = unique.treats)
+    out <- list(treat = treat,
+                covs = covs,
+                bin.vars = bin.vars,
+                s.weights = s.weights,
+                focal = focal,
+                pairwise = pairwise,
+                treatment.pairs = treatment.pairs)
+    class(out) <- "init_ks"
+    out
 }
 init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE") {
     needs.splitting <- FALSE
@@ -177,12 +222,14 @@ init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE") {
     }
     sigma_inv <- chol2inv(chol(sigma))
     
-    list(treat = treat,
-         covs = covs,
-         bin.vars = bin.vars,
-         s.weights = s.weights,
-         s.d.denom = s.d.denom,
-         sigma_inv = sigma_inv)
+    out <- list(treat = treat,
+                covs = covs,
+                bin.vars = bin.vars,
+                s.weights = s.weights,
+                s.d.denom = s.d.denom,
+                sigma_inv = sigma_inv)
+    class(out) <- "init_mahalanobis"
+    out
 }
 init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE) {
     needs.splitting <- FALSE
@@ -222,7 +269,7 @@ init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
     f.e.r <- process.focal.and.estimand(focal, estimand, treat, treat.type)
     focal <- f.e.r[["focal"]]
     estimand <- f.e.r[["estimand"]]
-
+    
     covs <- mat_div(center(covs, at = col.w.m(covs, s.weights)),
                     sqrt(col.w.v(covs, s.weights)))
     
@@ -265,9 +312,13 @@ init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
         M1 <- rowSums(M1_array)
     }
     
-    list(M1 = M1,
-         M2 = M2,
-         s.weights = s.weights)
+    out <- list(M1 = M1,
+                M2 = M2,
+                s.weights = s.weights,
+                treat = treat,
+                unique.treats = levels_treat)
+    class(out) <- "init_energy.dist"
+    out
 }
 init_p <- function(covs, treat, s.weights = NULL) {
     needs.splitting <- FALSE
@@ -311,12 +362,14 @@ init_p <- function(covs, treat, s.weights = NULL) {
     denoms <- compute_s.d.denom(covs, treat = treat, 
                                 s.d.denom = s.d.denom, s.weights = s.weights, 
                                 bin.vars = bin.vars, to.sd = rep(TRUE, ncol(covs)))
-
-    list(treat = treat,
-         covs = covs,
-         bin.vars = bin.vars,
-         s.weights = s.weights,
-         s.d.denom = denoms)
+    
+    out <- list(treat = treat,
+                covs = covs,
+                bin.vars = bin.vars,
+                s.weights = s.weights,
+                s.d.denom = denoms)
+    class(out) <- "init_p"
+    out
 }
 init_s <- function(covs, treat, s.weights = NULL) {
     needs.splitting <- FALSE
@@ -364,419 +417,289 @@ init_s <- function(covs, treat, s.weights = NULL) {
                                 s.d.denom = s.d.denom, s.weights = s.weights, 
                                 bin.vars = bin.vars, to.sd = rep(TRUE, ncol(covs)))
     
-    list(treat = treat,
-         covs = covs,
-         bin.vars = bin.vars,
-         s.weights = s.weights,
-         s.d.denom = denoms)
+    out <- list(treat = treat,
+                covs = covs,
+                bin.vars = bin.vars,
+                s.weights = s.weights,
+                s.d.denom = denoms)
+    class(out) <- "init_s"
+    out
+}
+
+#Statistics
+es.binary <- function(init, weights = NULL) {
+    check_init(init, "init_es")
+    col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
+              bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
+}
+ks.binary <- function(init, weights = NULL) {
+    check_init(init, "init_ks")
+    col_w_ks(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
+             bin.vars = init$bin.vars)
+}
+mahalanobis.binary <- function(init, weights = NULL) {
+    check_init(init, "init_mahalanobis")
+    mean.diffs <- col_w_smd(init$covs, init$treat, weights, s.weights = init$s.weights, 
+                            bin.vars = init$bin.vars, std = FALSE)
+    drop(t(mean.diffs) %*% init$sigma_inv %*% mean.diffs)
+}
+energy.dist.binary <- function(init, weights = NULL) {
+    check_init(init, "init_energy.dist")
+
+    if (is_null(weights)) weights <- rep(1, nrow(init[["M2"]]))
+    
+    weights <- weights * init[["s.weights"]]
+    
+    for (t in init[["unique.treats"]]) weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/mean_fast(weights[init[["treat"]] == t])
+    
+    return(drop(.5 * t(weights) %*% init[["M2"]] %*% weights + t(init[["M1"]]) %*% weights))
+}
+es.multinomial <- function(init, weights = NULL) {
+    check_init(init, "init_es")
+    
+    if (!init$pairwise) {
+        weights <- c(weights, rep(1, length(weights)))
+    }
+    
+    unlist(lapply(init$treatment.pairs, function(x) {
+        col_w_smd(init$covs[init$treat %in% x,,drop = FALSE],
+                  treat = init$treat[init$treat %in% x],
+                  weights = weights[init$treat %in% x],
+                  s.weights = init$s.weights[init$treat %in% x],
+                  bin.vars = init$bin.vars,
+                  s.d.denom = init$s.d.denom, abs = TRUE)
+    }))
+}
+ks.multinomial <- function(init, weights = NULL) {
+    check_init(init, "init_ks")
+    
+    if (!init$pairwise) {
+        weights <- c(weights, rep(1, length(weights)))
+    }
+    
+    unlist(lapply(init$treatment.pairs, function(x) {
+        col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
+                 treat = init$treat[init$treat %in% x],
+                 weights = weights[init$treat %in% x],
+                 s.weights = init$s.weights[init$treat %in% x],
+                 bin.vars = init$bin.vars)
+    }))
+}
+energy.dist.multinomial <- energy.dist.binary
+pearson.corr.continuous <- function(init, weights = NULL) {
+    check_init(init, "init_p")
+    col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
+              bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
+              std = TRUE)
+}
+spearman.corr.continuous <- function(init, weights = NULL) {
+    check_init(init, "init_s")
+    col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
+              bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
+              std = TRUE)
 }
 
 bal_criterion <- function(treat.type = "binary", criterion, list = FALSE) {
     treat.type <- match_arg(treat.type, c("binary", "multinomial", "continuous"))
     criteria <- switch(treat.type,
-           binary = list(
-               es.mean = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_es(covs, treat, s.weights, estimand)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
+                       binary = list(
+                           es.mean = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_es(covs, treat, s.weights, estimand)
+                                   }
+                                   mean_fast(es.binary(init, weights))
+                               },
+                               init = init_es
+                           ),
+                           es.max = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_es(covs, treat, s.weights, estimand)
+                                   }
+                                   max(es.binary(init, weights))
+                               },
+                               init = init_es
+                           ),
+                           es.rms = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_es(covs, treat, s.weights, estimand)
+                                   }
+                                   rms(es.binary(init, weights))
+                               },
+                               init = init_es
+                           ),
+                           ks.mean = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_ks(covs, treat, s.weights)
+                                   }
+                                   mean_fast(ks.binary(init, weights))
+                               },
+                               init = init_ks
+                           ),
+                           ks.max = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_ks(covs, treat, s.weights)
+                                   }
+                                   max(ks.binary(init, weights))
+                               },
+                               init = init_ks
+                           ),
+                           ks.rms = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_ks(covs, treat, s.weights)
+                                   }
+                                   rms(ks.binary(init, weights))
+                               },
+                               init = init_ks
+                           ),
+                           mahalanobis = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_mahalanobis(covs, treat, s.weights, estimand)
+                                   }
+                                   mahalanobis.binary(init, weights)
+                               },
+                               init = init_mahalanobis
+                           ),
+                           energy.dist = list(
+                               fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, init = NULL, ...) {
+                                   
+                                   if (is_null(init)) {
+                                       init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
+                                   }
+                                   energy.dist.binary(init, weights)
+                               },
+                               init = init_energy.dist
+                           )
+                       ),
+                       multinomial =  list(
+                           es.mean = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_es(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
+                                   }
+                                   mean_fast(es.multinomial(init, weights))
+                               },
+                               init = init_es
+                           ),
+                           es.max = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_es(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
+                                   }
+                                   max(es.multinomial(init, weights))
+                               },
+                               init = init_es
+                           ),
+                           es.rms = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_es(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
+                                   }
+                                   rms(es.multinomial(init, weights))
+                               },
+                               init = init_es
+                           ),
+                           ks.mean = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                                   }
+                                   mean_fast(ks.multinomial(init, weights))
+                               },
+                               init = init_ks
+                           ),
+                           ks.max = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                                   }
+                                   max(ks.multinomial(init, weights))
+                               },
+                               init = init_ks
+                           ),
+                           ks.rms = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                                   }
+                                   rms(ks.multinomial(init, weights))
+                               },
+                               init = init_ks
+                           ),
+                           energy.dist = list(
+                               fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, init = NULL, ...) {
+                                   
+                                   if (is_null(init)) {
+                                       init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
+                                   } 
+                                   energy.dist.multinomial(init, weights)
+                               },
+                               init = init_energy.dist
+                           )
+                       ),
                        
-                       es <- col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                               bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
-                       mean_fast(es)
-                   },
-                   init = init_es
-               ),
-               es.max = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_es(covs, treat, s.weights, estimand)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       es <- col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                               bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
-                       max(es)
-                   },
-                   init = init_es
-               ),
-               es.rms = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_es(covs, treat, s.weights, estimand)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       es <- col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                               bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
-                       rms(es)
-                   },
-                   init = init_es
-               ),
-               ks.mean = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_ks(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       ks <- col_w_ks(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                              bin.vars = init$bin.vars)
-                       mean_fast(ks)
-                   },
-                   init = init_ks
-               ),
-               ks.max = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_ks(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       ks <- col_w_ks(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
-                                              bin.vars = init$bin.vars)
-                       max(ks)
-                   },
-                   init = init_ks
-               ),
-               ks.rms = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_ks(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       ks <- col_w_ks(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
-                                              bin.vars = init$bin.vars)
-                       rms(ks)
-                   },
-                   init = init_ks
-               ),
-               mahalanobis = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_mahalanobis(covs, treat, s.weights, estimand)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "sigma_inv") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       } 
-                       
-                       mean.diffs <- col_w_smd(init$covs, init$treat, weights, s.weights = init$s.weights, 
-                                                       bin.vars = init$bin.vars, std = FALSE)
-                       drop(t(mean.diffs) %*% init$sigma_inv %*% mean.diffs)
-                   },
-                   init = init_mahalanobis
-               ),
-               energy.dist = list(
-                   fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, init = NULL, ...) {
-                       
-                       if (is_null(init)) {
-                           init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
-                       }
-                       else {
-                           if (any(c("M1", "M2", "s.weights") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       } 
-                       
-                       M1 <- init[["M1"]]
-                       M2 <- init[["M2"]]
-                       
-                       if (is_null(weights)) weights <- rep(1, nrow(M2))
-                       
-                       weights <- weights * init[["s.weights"]]
-                       
-                       return(drop(.5 * t(weights) %*% M2 %*% weights + t(M1) %*% weights))
-                   },
-                   init = init_energy.dist
-               )
-           ),
-           multinomial =  list(
-               es.mean = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, init = NULL, ...) {
-                       # if (is_null(init)) {
-                       #     init <- init_es(covs, treat, s.weights, estimand)
-                       # }
-                       # else {
-                       #     if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom", "focal", "unique.treats") %nin% names(init))) {
-                       #         stop("init was not correctly supplied.")
-                       #     }
-                       # }
-                       # 
-                       # if (is_null(init$focal) && pairwise) {
-                       #     treatment.pairs <- combn(levels(init$treat), 2, simplify = FALSE)
-                       #     es <- vapply(treatment.pairs, function(x) {
-                       #         col_w_smd(init$covs[init$treat %in% x,,drop = FALSE], 
-                       #                   treat = init$treat[init$treat %in% x], 
-                       #                   weights = weights[init$treat %in% x], 
-                       #                   s.weights = init$s.weights[init$treat %in% x], 
-                       #                   bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
-                       #     }, numeric(ncol(init$covs)))
-                       # }
-                       # else {
-                       #     
-                       # }
-                       # es <- col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                       #                 bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
-                       # mean_fast(es)
-                   },
-                   init = init_es
-               ),
-               ks.mean = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       if (is_null(init$focal)) {
-                           treatment.pairs <- combn(init$unique.treats, 2, simplify = FALSE)
-                       }
-                       else {
-                           weights <- c(weights, rep(1, length(weights)))
-                           treatment.pairs <- lapply(setdiff(init$unique.treats, init$focal), function(x) c(x, init$focal))
-                       }
-                       
-                       ks <- vapply(treatment.pairs, function(x) {
-                           col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
-                                    treat = init$treat[init$treat %in% x],
-                                    weights = weights[init$treat %in% x],
-                                    s.weights = init$s.weights[init$treat %in% x],
-                                    bin.vars = init$bin.vars)
-                       }, numeric(ncol(init$covs)))
-                       
-                       mean_fast(ks)
-                   },
-                   init = init_ks
-               ),
-               ks.max = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       if (is_null(init$focal)) {
-                           treatment.pairs <- combn(init$unique.treats, 2, simplify = FALSE)
-                       }
-                       else {
-                           weights <- c(weights, rep(1, length(weights)))
-                           treatment.pairs <- lapply(setdiff(init$unique.treats, init$focal), function(x) c(x, init$focal))
-                       }
-                       
-                       ks <- vapply(treatment.pairs, function(x) {
-                           col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
-                                    treat = init$treat[init$treat %in% x],
-                                    weights = weights[init$treat %in% x],
-                                    s.weights = init$s.weights[init$treat %in% x],
-                                    bin.vars = init$bin.vars)
-                       }, numeric(ncol(init$covs)))
-                       
-                       max(ks)
-                   },
-                   init = init_ks
-               ),
-               ks.rms = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "focal", "unique.treats") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       if (is_null(init$focal)) {
-                           treatment.pairs <- combn(init$unique.treats, 2, simplify = FALSE)
-                       }
-                       else {
-                           weights <- c(weights, rep(1, length(weights)))
-                           treatment.pairs <- lapply(setdiff(init$unique.treats, init$focal), function(x) c(x, init$focal))
-                       }
-                       
-                       ks <- vapply(treatment.pairs, function(x) {
-                           col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
-                                    treat = init$treat[init$treat %in% x],
-                                    weights = weights[init$treat %in% x],
-                                    s.weights = init$s.weights[init$treat %in% x],
-                                    bin.vars = init$bin.vars)
-                       }, numeric(ncol(init$covs)))
-                       
-                       rms(ks)
-                   },
-                   init = init_ks
-               ),
-               energy.dist = list(
-                   fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, init = NULL, ...) {
-                       
-                       if (is_null(init)) {
-                           init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
-                       } 
-                       else {
-                           if (any(c("M1", "M2", "s.weights") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       } 
-                       
-                       M1 <- init[["M1"]]
-                       M2 <- init[["M2"]]
-                       
-                       if (is_null(weights)) weights <- rep(1, nrow(M2))
-                       
-                       weights <- weights * init[["s.weights"]]
-                       
-                       return(drop(.5 * t(weights) %*% M2 %*% weights + t(M1) %*% weights))
-                   },
-                   init = init_energy.dist
-               )
-           ),
-           
-           continuous = list(
-               p.mean = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_p(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       p <- col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                      bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-                                      std = TRUE)
-                       mean_fast(p)
-                   },
-                   init = init_p
-               ),
-               p.max = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_p(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       p <- col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                      bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-                                      std = TRUE)
-                       max(p)
-                   },
-                   init = init_p
-               ),
-               p.rms = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_p(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       p <- col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                      bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-                                      std = TRUE)
-                       rms(p)
-                   },
-                   init = init_p
-               ),
-               s.mean = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_s(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       s <- col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                      bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-                                      std = TRUE)
-                       mean_fast(s)
-                   },
-                   init = init_s
-               ),
-               s.max = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_s(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       s <- col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                      bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-                                      std = TRUE)
-                       max(s)
-                   },
-                   init = init_s
-               ),
-               s.rms = list(
-                   fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                       if (is_null(init)) {
-                           init <- init_s(covs, treat, s.weights)
-                       }
-                       else {
-                           if (any(c("covs", "treat", "s.weights", "bin.vars", "s.d.denom") %nin% names(init))) {
-                               stop("init was not correctly supplied.")
-                           }
-                       }
-                       
-                       s <- col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights, 
-                                      bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-                                      std = TRUE)
-                       rms(s)
-                   },
-                   init = init_s
-               )
-           )
+                       continuous = list(
+                           p.mean = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_p(covs, treat, s.weights)
+                                   }
+                                   mean_fast(pearson.corr.continuous(init, weights))
+                               },
+                               init = init_p
+                           ),
+                           p.max = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_p(covs, treat, s.weights)
+                                   }
+                                   max(pearson.corr.continuous(init, weights))
+                               },
+                               init = init_p
+                           ),
+                           p.rms = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_p(covs, treat, s.weights)
+                                   }
+                                   rms(pearson.corr.continuous(init, weights))
+                               },
+                               init = init_p
+                           ),
+                           s.mean = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_s(covs, treat, s.weights)
+                                   }
+                                   mean_fast(spearman.corr.continuous(init, weights))
+                               },
+                               init = init_s
+                           ),
+                           s.max = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_s(covs, treat, s.weights)
+                                   }
+                                   max(spearman.corr.continuous(init, weights))
+                               },
+                               init = init_s
+                           ),
+                           s.rms = list(
+                               fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                                   if (is_null(init)) {
+                                       init <- init_s(covs, treat, s.weights)
+                                   }
+                                   rms(spearman.corr.continuous(init, weights))
+                               },
+                               init = init_s
+                           )
+                       )
     )
     if (isTRUE(list)) return(names(criteria))
     if (missing(criterion)) stop("'criterion' must be provided.", call. = FALSE)
@@ -809,5 +732,5 @@ bal_criterion.to.phrase <- function(criterion) {
            "energy.dist" = "energy distance",
            stop(paste0("\"", criterion, "\" is not an allowed criterion."))
     )
-
+    
 }

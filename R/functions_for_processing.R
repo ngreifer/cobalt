@@ -2761,6 +2761,12 @@ acceptable.options <- function() {
               remove_perfect_col = TF))
 }
 
+#Balance criteria
+check_init <- function(init, init_class) {
+  if (missing(init)) stop("'init' must be specified.")
+  if (!inherits(init, class)) stop(paste0("'init' must be of class \"", init_class, "\"."))
+}
+
 #Misc
 `%+%` <- function(...) {
   if (is_(..1, "atomic") && is_(..2, "atomic")) crayon::`%+%`(as.character(..1), as.character(..2))
