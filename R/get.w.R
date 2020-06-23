@@ -336,5 +336,5 @@ get.w.wimids <- function(x, ...) {
     return(weights)
 }
 get.w.sbwcau <- function(x, ...) {
-    return(x[["dat_weights"]][["weights"]])
+    return(x[["dat_weights"]][[ncol(x[["dat_weights"]])]])
 }
