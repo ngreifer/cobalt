@@ -670,6 +670,34 @@ get.treat.type <- function(treat) {
 has.treat.type <- function(treat) {
     is_not_null(get.treat.type(treat))
 }
+
+#Input processing
+process.bin.vars <- function(bin.vars, mat) {
+    if (missing(bin.vars)) bin.vars <- is_binary_col(mat)
+    else if (is_null(bin.vars)) bin.vars <- rep(FALSE, ncol(mat))
+    else {
+        if (is.logical(bin.vars)) {
+            bin.vars[is.na(bin.vars)] <- FALSE
+            if (length(bin.vars) != ncol(mat)) stop("If 'bin.vars' is logical, it must have length equal to the number of columns of 'mat'.")
+        }
+        else if (is.numeric(bin.vars)) {
+            bin.vars <- bin.vars[!is.na(bin.vars) & bin.vars != 0]
+            if (any(bin.vars < 0) && any(bin.vars > 0)) stop("Positive and negative indices cannot be mixed with 'bin.vars'.")
+            if (any(abs(bin.vars) > ncol(mat))) stop("If 'bin.vars' is numeric, none of its values can exceed the number of columns of 'mat'.")
+            logical.bin.vars <- rep(any(bin.vars < 0), ncol(mat))
+            logical.bin.vars[abs(bin.vars)] <- !logical.bin.vars[abs(bin.vars)]
+            bin.vars <- logical.bin.vars
+        }
+        else if (is.character(bin.vars)) {
+            bin.vars <- bin.vars[!is.na(bin.vars) & bin.vars != ""]
+            if (is_null(colnames(mat))) stop("If 'bin.vars' is character, 'mat' must have column names.")
+            if (any(bin.vars %nin% colnames(mat))) stop("If 'bin.vars' is character, all its values must be column names of 'mat'.")
+            bin.vars <- colnames(mat) %in% bin.vars
+        }
+        else stop("'bin.vars' must be a logical, numeric, or character vector.")
+    }
+    return(bin.vars)
+}
 process.s.weights <- function(s.weights, data = NULL) {
     #Process s.weights
     if (is_not_null(s.weights)) {
@@ -688,96 +716,6 @@ process.s.weights <- function(s.weights, data = NULL) {
     }
     else s.weights <- NULL
     return(s.weights)
-}
-process.focal.and.estimand <- function(focal, estimand, treat, treat.type, treated = NULL) {
-    reported.estimand <- estimand
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    #Check focal
-    if (treat.type == "multinomial") {
-        unique.treat <- unique(treat, nmax = length(treat)/4)
-        if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
-            warning(paste(estimand, "is not compatible with 'focal'. Setting 'estimand' to \"ATT\"."), call. = FALSE)
-            reported.estimand <- estimand <- "ATT"
-        }
-        
-        if (estimand == "ATT") {
-            if (is_null(focal)) {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    stop("When estimand = \"ATT\" for multinomial treatments, an argument must be supplied to 'focal'.", call. = FALSE)
-                }
-                focal <- treated
-            }
-        }
-        else if (estimand == "ATC") {
-            if (is_null(focal)) {
-                stop("When estimand = \"ATC\" for multinomial treatments, an argument must be supplied to 'focal'.", call. = FALSE)
-            }
-        }
-    }
-    else if (treat.type == "binary") {
-        unique.treat <- unique(treat, nmax = 2)
-        unique.treat.bin <- unique(binarize(treat), nmax = 2)
-        if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
-            warning(paste(estimand, "is not compatible with 'focal'. Setting 'estimand' to \"ATT\"."), call. = FALSE)
-            reported.estimand <- estimand <- "ATT"
-        }
-        
-        if (estimand == "ATT") {
-            if (is_null(focal)) {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
-                        #If is 0/1
-                        treated <- unique.treat[unique.treat.bin == 1]
-                    }
-                    else {
-                        treated <- names(which.min(table(treat))) #Smaller group is treated
-                        message(paste0("Assuming ", word_list(treated, quotes = !is.numeric(treat), is.are = TRUE),
-                                       " the treated level. If not, supply an argument to 'focal'."))
-                    }
-                }
-                focal <- treated
-            }
-            else {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    treated <- focal
-                }
-            }
-        }
-        else if (estimand == "ATC") {
-            if (is_null(focal)) {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    
-                    if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
-                        treated <- unique.treat[unique.treat.bin == 1]
-                    }
-                    else {
-                        treated <- names(which.min(table(treat))) #Smaller group is treated
-                        message(paste0("Assuming ", word_list(unique.treat[unique.treat %nin% treated], quotes = !is.numeric(treat), is.are = TRUE),
-                                       " the control level. If not, supply an argument to 'focal'."))
-                    }
-                }
-                focal <- unique.treat[unique.treat %nin% treated]
-            }
-            else {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    treated <- unique.treat[unique.treat %nin% focal]
-                }
-            }
-            estimand <- "ATT"
-        }
-    }
-    
-    if (is_not_null(focal) && (length(focal) > 1L || focal %nin% unique.treat)) {
-        stop("The argument supplied to 'focal' must be the name of a level of treatment.", call. = FALSE)
-    }
-    
-    return(list(focal = as.character(focal),
-                estimand = estimand,
-                reported.estimand = reported.estimand,
-                treated = if (is.factor(treated)) as.character(treated) else treated))
 }
 
 #Uniqueness
