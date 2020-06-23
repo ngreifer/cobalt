@@ -1085,11 +1085,16 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, met
   if (is_not_null(obj)) {
     weights <- get.w(obj, treat = treat, ...)
     
-    if (is_(weights, c("data.frame", "matrix"))) {
-      weights <- data.frame(weights)
+    if (is_not_null(weights)) {
+      if (is_(weights, c("data.frame", "matrix"))) {
+        weights <- data.frame(weights)
+      }
+      else {
+        weights <- setNames(data.frame(weights), class(obj)[which(paste.("get.w", class(obj)) %in% methods("get.w"))[1]])
+      }
     }
     else {
-      weights <- setNames(data.frame(weights), class(obj)[which(paste.("get.w", class(obj)) %in% methods("get.w"))[1]])
+      weights <- list()
     }
   }
   else weights <- list()
