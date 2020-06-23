@@ -2682,7 +2682,6 @@ x2base.sbwcau <- function(sbwcau, ...) {
     treat <- process_treat(sbwcau[["ind"]], datalist = list(data, sbw.data))
     
     #Process covs
-    # covs <- sbw.data[sbwcau[["bal"]][["bal_cov"]]]
     f <- f.build(sbwcau[["bal"]][["bal_cov"]])
     covs <- get_covs_from_formula(f, data = sbw.data)
     
