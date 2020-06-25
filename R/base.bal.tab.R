@@ -217,13 +217,13 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
         else treat.combinations <- lapply(levels(X$treat), function(x) c(x, "All"))
     }
     else {
-        if (length(X$focal) > 1) stop("focal must be a vector of length 1 containing the name or index of the focal treatment group.", call. = FALSE)
+        if (length(X$focal) > 1) stop("'focal' must be a vector of length 1 containing the name or index of the focal treatment group.", call. = FALSE)
         
         if (is.numeric(X$focal)) {
             X$focal <- levels(X$treat)[X$focal]
         }
         if (!is.character(X$focal)) {
-            stop("focal must be the name or index of the focal treatment group.", call. = FALSE)
+            stop("'focal' must be the name or index of the focal treatment group.", call. = FALSE)
         }
         
         treat.combinations <- lapply(levels(X$treat)[levels(X$treat) != X$focal], function(x) rev(c(X$focal, x)))

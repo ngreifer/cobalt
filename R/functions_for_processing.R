@@ -803,7 +803,7 @@ get_length_X <- function(X) {
   else if (is_not_null(X[["covs"]])) nrow(X[["covs"]])
   else if (is_not_null(X[["treat.list"]])) length(X[["treat.list"]][[1]])
   else if (is_not_null(X[["covs.list"]])) nrow(X[["covs.list"]][[1]])
-  else stop("Couldn't determine length of X componenets.")
+  else stop("Couldn't determine length of X components.")
 }
 subsettable <- function() {
   c("covs",
@@ -825,7 +825,7 @@ subset_X <- function(X, subset = NULL) {
   if (is_not_null(subset) && any(names(X) %in% subsettable())) {
     n <- get_length_X(X)
     if (is.logical(subset)) {
-      if (length(subset) != n) stop("Subset must have the same length as the other entries.")
+      if (length(subset) != n) stop("'subset' must have the same length as the other entries.")
       if (!any(subset)) stop("All 'subset' set to FALSE.", call. = FALSE)
       to_be_subset <- !all(subset)
       subset <- which(subset)
@@ -2090,7 +2090,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
   
   if (type == "bin") {
     if (length(method) == 1 && method == "subclassification") {
-      if (is_null(subclass)) stop("subclass must be a vector of subclasses.")
+      if (is_null(subclass)) stop("'subclass' must be a vector of subclasses.")
       
       nn <- make_df(c(levels(subclass), "All"), c(treat_names(treat), "Total"))
       
@@ -2171,7 +2171,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
   }
   else if (type == "cont") {
     if (length(method) == 1 && method == "subclassification") {
-      if (is_null(subclass)) stop("subclass must be a vector of subclasses.")
+      if (is_null(subclass)) stop("'subclass' must be a vector of subclasses.")
       
       nn <- make_df(c(levels(subclass), "All"), c("Total"))
       

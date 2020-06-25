@@ -144,7 +144,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     if (i == "treat") {
                         treat_levels <- attr(x, "print.options")$treat_names_multi
                         if (is.numeric(which.)) which. <- treat_levels[which.]
-                        if (any(which. %nin% treat_levels)) stop("All values in which.treat must be names or indices of treatment levels.", call. = FALSE)
+                        if (any(which. %nin% treat_levels)) stop("All values in 'which.treat' must be names or indices of treatment levels.", call. = FALSE)
                         if (attr(x, "print.options")$pairwise) {
                             vs.combs <- cbind(vs.tmp <- as.matrix(expand.grid(treat_levels, treat_levels, stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)), 
                                               apply(vs.tmp, 1, paste, collapse = " vs. "))
@@ -167,7 +167,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         else if (is.character(which.) && all(which. %in% unique(facet_mat[,i]))) {
                             facet_mat <- facet_mat[facet_mat[,i] %in% which., ,drop = FALSE]
                         }
-                        else stop(paste0("The argument to which.", i, " must be .none, .all, or the desired levels or indices of ", switch(i, time = "time points", i), "."), call. = FALSE)
+                        else stop(paste0("The argument to 'which.", i, "' must be .none, .all, or the desired levels or indices of ", switch(i, time = "time points", i), "."), call. = FALSE)
                     }
                 }
                 
@@ -238,7 +238,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             B[names(B) %in% one.level.facet] <- NULL
             
-            if (sum(facet %nin% one.level.facet) > 1) stop(paste("At least one of", word_list(paste.("which", facet), "or"), "must be .none or of length 1."), call. = FALSE)
+            if (sum(facet %nin% one.level.facet) > 1) stop(paste("At least one of", word_list(paste.("which", facet), "or", quotes = 1), "must be .none or of length 1."), call. = FALSE)
             
             facet <- facet[facet %nin% one.level.facet]
             
@@ -269,11 +269,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     if (is_not_null(facet) && length(stats) > 1) {
-        stop("stats can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment).", call. = FALSE)
+        stop("'stats' can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment).", call. = FALSE)
     }
     
     if (is_not_null(agg.fun) && config == "agg.none") {
-        warning("No aggregation will take place, so agg.fun will be ignored. Remember to set 'which.<ARG> = .none' to aggregate across <ARG>.", call. = FALSE)
+        warning("No aggregation will take place, so 'agg.fun' will be ignored. Remember to set 'which.<ARG> = .none' to aggregate across <ARG>.", call. = FALSE)
     }
     
     #Process variable names

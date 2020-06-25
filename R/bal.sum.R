@@ -208,7 +208,7 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
     if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
     
     if (!rlang::is_bool(abs)) {
-        stop("abs must be a logical of length 1.")
+        stop("'abs' must be a logical of length 1.")
     }
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
@@ -307,13 +307,13 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
         weights_[treat == tval1] <-  weights[treat == tval1]/sum(weights[treat == tval1])
         weights_[treat != tval1] <- -weights[treat != tval1]/sum(weights[treat != tval1])
         ks[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2, function(x) {
-            if (na.rm) x <- x[!is.na(x)]
-            if (!na.rm && anyNA(x)) return(NA_real_)
-            else {
-                ordered.index <- order(x)
-                cumv <- abs(cumsum(weights_[ordered.index]))[diff(x[ordered.index]) != 0]
-                return(if (is_null(cumv)) 0 else max(cumv))
+            if (anyNA(x)) {
+                if (na.rm) x <- x[!is.na(x)]
+                else return(NA_real_)
             }
+            ordered.index <- order(x)
+            cumv <- abs(cumsum(weights_[ordered.index]))[c(TRUE, diff(x[ordered.index]) != 0)]
+            return(if (is_null(cumv)) 0 else max(cumv))
         })
     }
     if (any(bin.vars)) {
@@ -473,7 +473,7 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
         bin.vars <- attr(mat, "split.with")[[1]]
     }
     
-    if (missing(treat) || !is.atomic(treat) || !is.numeric(treat)) stop("treat must be a numeric variable.")
+    if (missing(treat) || !is.atomic(treat) || !is.numeric(treat)) stop("'treat' must be a numeric variable.")
     
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {

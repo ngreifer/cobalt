@@ -219,15 +219,15 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                         in.imp <- !is.na(X$imp) & X$imp %in% levels(X$imp)[which.imp]
                     }
                     else {
-                        stop(paste0("The following inputs to which.imp do not correspond to given imputations:\n\t", word_list(which.imp[!which.imp %in% seq_len(nlevels(X$imp))])), call. = FALSE)
+                        stop(paste0("The following inputs to 'which.imp' do not correspond to given imputations:\n\t", word_list(which.imp[!which.imp %in% seq_len(nlevels(X$imp))])), call. = FALSE)
                     }
                 }
-                else stop("The argument to which.imp must be the indices corresponding to the imputations for which distributions are to be displayed.", call. = FALSE)
+                else stop("The argument to 'which.imp' must be the indices corresponding to the imputations for which distributions are to be displayed.", call. = FALSE)
             }
             facet <- c("imp", facet)
         }
         else if (is_not_null(which.imp)) {
-            warning("which.imp was specified but no imp values were supplied. Ignoring which.imp.", call. = FALSE)
+            warning("'which.imp' was specified but no 'imp' values were supplied. Ignoring 'which.imp'.", call. = FALSE)
         }
         
         in.cluster <- rep.int(TRUE, length(X$var))
@@ -241,7 +241,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                         in.cluster <- !is.na(X$cluster) & X$cluster %in% levels(X$cluster)[which.cluster]
                     }
                     else {
-                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word_list(which.cluster[!which.cluster %in% seq_len(nlevels(X$cluster))])), call. = FALSE)
+                        stop(paste0("The following inputs to 'which.cluster' do not correspond to given clusters:\n\t", word_list(which.cluster[!which.cluster %in% seq_len(nlevels(X$cluster))])), call. = FALSE)
                     }
                 }
                 else if (is.character(which.cluster)) {
@@ -249,15 +249,15 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                         in.cluster <- !is.na(X$cluster) & X$cluster %in% which.cluster
                     }
                     else {
-                        stop(paste0("The following inputs to which.cluster do not correspond to given clusters:\n\t", word_list(which.cluster[which.cluster %nin% levels(X$cluster)])), call. = FALSE)
+                        stop(paste0("The following inputs to 'which.cluster' do not correspond to given clusters:\n\t", word_list(which.cluster[which.cluster %nin% levels(X$cluster)])), call. = FALSE)
                     }
                 }
-                else stop("The argument to which.cluster must be the names or indices corresponding to the clusters for which distributions are to be displayed.", call. = FALSE)
+                else stop("The argument to 'which.cluster' must be the names or indices corresponding to the clusters for which distributions are to be displayed.", call. = FALSE)
             }
             facet <- c("cluster", facet)
         }
         else if (is_not_null(which.cluster)) {
-            warning("which.cluster was specified but no cluster values were supplied. Ignoring which.cluster.", call. = FALSE)
+            warning("'which.cluster' was specified but no 'cluster' values were supplied. Ignoring 'which.cluster'.", call. = FALSE)
         }
         
         in.time <- rep.int(TRUE, length(X$var))
@@ -728,11 +728,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     if (is_not_null(facet)) {
         if (is_not_null(facet.formula)) {
             if (!rlang::is_formula(facet.formula)) {
-                stop("facet.formula must be a formula.", call. = FALSE)
+                stop("'facet.formula' must be a formula.", call. = FALSE)
             }
             test.facet <- invisible(ggplot2::facet_grid(facet.formula))
             if (any(c(names(test.facet$params$rows), names(test.facet$params$cols)) %nin% facet)) {
-                stop(paste("Only", word_list(facet, is.are = TRUE, quotes = 2), "allowed in facet.formula."), call. = FALSE)
+                stop(paste("Only", word_list(facet, is.are = TRUE, quotes = 2), "allowed in 'facet.formula'."), call. = FALSE)
             }
             if ("which" %nin% c(names(test.facet$params$rows), names(test.facet$params$cols))) {
                 if (length(which) > 1) stop("\"which\" must be in the facet formula when the which argument refers to more than one sample.", call. = FALSE)
