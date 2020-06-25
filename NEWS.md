@@ -5,7 +5,7 @@ Version 4.2.2
 
 * Fixed a bug due to new version of `sbw`.
 
-* Minor improvements to error message and documentation.
+* Minor improvements to error messages and documentation.
 
 Version 4.2.1
 
