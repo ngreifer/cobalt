@@ -5,6 +5,8 @@ Version 4.2.2
 
 * Fixed a bug due to new version of `sbw`.
 
+* Minor improvements to error message and documentation.
+
 Version 4.2.1
 
 * Fixed a bug where `int` and `poly` were ignored with binary and continuous treatments.
