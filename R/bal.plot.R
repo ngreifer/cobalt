@@ -404,8 +404,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         D$treat <- X$treat[in.sub]
         D$var <- X$var[in.sub]
         D$subclass <- paste("Subclass", X$subclass[in.sub])
-        #title <- paste0(title, "\nin subclass ", which.sub)
-        
+
         if (which == "both") {
             #Make unadjusted sample
             D2 <- make_df(c("weights", "treat", "var", "subclass"), length(X$treat))
@@ -417,8 +416,6 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
             D$subclass <- relevel(factor(D$subclass), "Unadjusted Sample")
         }
         
-        subtitle <- NULL
-        
         facet <- "subclass"
         
         if (is_not_null(sample.names)) {
@@ -426,13 +423,6 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         }
         
     }
-    
-    # if ("which" %in% facet) {
-    #     if (length(which) == 1) {
-    #         subtitle <- levels(D$which)[1]
-    #         facet <- facet[facet %nin% "which"]
-    #     }
-    # }
     
     treat.type <- get.treat.type(assign.treat.type(D$treat))
     
