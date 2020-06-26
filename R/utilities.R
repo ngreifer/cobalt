@@ -183,7 +183,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
                 dropl[drop.level] <- TRUE
             }
             else {
-                stop(paste("drop must be the name of a level of", v, "that is to be dropped."), call. = FALSE)
+                stop(paste("'drop' must be the name of a level of", v, "that is to be dropped."), call. = FALSE)
             }
         }
         else {

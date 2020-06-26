@@ -32,7 +32,7 @@ Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
 an \code{sbwcau} object; the output of a call to \code{sbw()} from the \pkg{sbw} package.
 }
   \item{stats}{
-\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. Multiple options are allowed.
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary treatments, "mean.diffs" (i.e., mean differences) is the default. Multiple options are allowed.
 }
   \item{int}{
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.
@@ -86,7 +86,7 @@ further arguments to control display of output. See \link[=options-display]{disp
 \details{
 \code{bal.tab.sbwcau()} generates a list of balance summaries for the \code{sbwcau} object given, and functions similarly to \code{summarize()} in \pkg{sbw}.
 
-The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+The \code{thresholds} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 }
 \value{

@@ -19,7 +19,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!rlang::is_bool(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -38,7 +38,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         else p.ops$disp <- disp
     }
     if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
-        if (!rlang::is_bool(A[["disp.means"]])) stop("disp.means must be TRUE, FALSE, or \"as.is\".")
+        if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
         if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -239,7 +239,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!rlang::is_bool(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
@@ -280,7 +280,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
         stats_in_p.ops <- stats %in% p.ops$compute
         if (any(!stats_in_p.ops)) {
-            stop(paste0("stats cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
+            stop(paste0("'stats' cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
         }
         else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
     }
@@ -375,7 +375,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     if (!p.ops$quick || is_null(p.ops$cluster.fun)) computed.cluster.funs <- c("min", "mean", "max")
     else computed.cluster.funs <- p.ops$cluster.fun
     if (is_not_null(cluster.fun) && !identical(cluster.fun, "as.is")) {
-        if (!is.character(cluster.fun) || !all(cluster.fun %pin% computed.cluster.funs)) stop(paste0("cluster.fun must be ", word_list(c(computed.cluster.funs, "as.is"), and.or = "or", quotes = 2)), call. = FALSE)
+        if (!is.character(cluster.fun) || !all(cluster.fun %pin% computed.cluster.funs)) stop(paste0("'cluster.fun' must be ", word_list(c(computed.cluster.funs, "as.is"), and.or = "or", quotes = 2)), call. = FALSE)
     }
     else {
         if (p.ops$abs) cluster.fun <- c("mean", "max")
@@ -1049,7 +1049,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     #Adjustments to print options
     if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!rlang::is_bool(un)) stop("un must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (!rlang::is_bool(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
         if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }

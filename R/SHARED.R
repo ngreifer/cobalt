@@ -71,7 +71,7 @@ num_to_superscript <- function(x) {
     return(supx)
 }
 ordinal <- function(x) {
-    if (!is.numeric(x) || !is.vector(x) || is_null(x)) stop("x must be a numeric vector.")
+    if (!is.numeric(x) || !is.vector(x) || is_null(x)) stop("'x' must be a numeric vector.")
     if (length(x) > 1) return(vapply(x, ordinal, character(1L)))
     else {
         x0 <- abs(x)
@@ -210,14 +210,14 @@ check_if_zero <- function(x) {
     abs(x) < tolerance
 }
 between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
-    if (!all(is.numeric(x))) stop("x must be a numeric vector.", call. = FALSE)
-    if (length(range) != 2) stop("range must be of length 2.", call. = FALSE)
-    if (anyNA(range) || !is.numeric(range)) stop("range must contain numeric entries only.", call. = FALSE)
+    if (!all(is.numeric(x))) stop("'x' must be a numeric vector.", call. = FALSE)
+    if (length(range) != 2) stop("'range' must be of length 2.", call. = FALSE)
+    if (anyNA(range) || !is.numeric(range)) stop("'range' must contain numeric entries only.", call. = FALSE)
     
     if (range[2] < range[1]) range <- c(range[2], range[1])
     
     if (anyNA(x)) {
-        if (length(na.action) != 1 || !is.atomic(na.action)) stop("na.action must be an atomic vector of length 1.", call. = FALSE)
+        if (length(na.action) != 1 || !is.atomic(na.action)) stop("'na.action' must be an atomic vector of length 1.", call. = FALSE)
     }
     if (inclusive) out <- ifelse(is.na(x), na.action, x >= range[1] & x <= range[2])
     else out <- ifelse(is.na(x), na.action, x > range[1] & x < range[2])
@@ -257,11 +257,11 @@ binarize <- function(variable, zero = NULL, one = NULL) {
         }
         else {
             if (one %in% unique.vals) return(setNames(as.integer(variable.numeric == one), names(variable)))
-            else stop("The argument to \"one\" is not the name of a level of variable.", call. = FALSE)
+            else stop("The argument to 'one' is not the name of a level of variable.", call. = FALSE)
         }
     }
     else {
-        if (zero %nin% unique.vals) stop("The argument to \"zero\" is not the name of a level of variable.", call. = FALSE)
+        if (zero %nin% unique.vals) stop("The argument to 'zero' is not the name of a level of variable.", call. = FALSE)
     }
     
     newvar <- setNames(as.integer(variable.numeric != zero), names(variable))
@@ -275,15 +275,15 @@ center <- function(x, at = NULL, na.rm = TRUE) {
         x <- as.matrix.data.frame(x)
         type <- "df"
     }
-    if (!is.numeric(x)) stop("x must be numeric.")
-    else if (is.array(x) && length(dim(x)) > 2) stop("x must be a numeric or matrix-like (not array).")
+    if (!is.numeric(x)) stop("'x' must be numeric.")
+    else if (is.array(x) && length(dim(x)) > 2) stop("'x' must be a numeric or matrix-like (not array).")
     else if (!is.matrix(x)) {
         x <- matrix(x, ncol = 1)
         type <- "vec"
     }
     else type <- "matrix"
     if (is_null(at)) at <- colMeans(x, na.rm = na.rm)
-    else if (length(at) %nin% c(1, ncol(x))) stop("at is not the right length.")
+    else if (length(at) %nin% c(1, ncol(x))) stop("'at' is not the right length.")
     out <- x - matrix(at, byrow = TRUE, ncol = ncol(x), nrow = nrow(x))
     if (type == "df") out <- as.data.frame.matrix(out)
     else if (type == "vec") out <- drop(out)
@@ -303,19 +303,19 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
             if (any(vapply(mat, is_, logical(1L), types = c("factor", "character")))) {
-                stop("mat must be a numeric matrix.")
+                stop("'mat' must be a numeric matrix.")
             }
             else mat <- data.matrix(mat)
         }
         else if (is.numeric(mat)) {
             mat <- matrix(mat, ncol = 1)
         }
-        else stop("mat must be a numeric matrix.")
+        else stop("'mat' must be a numeric matrix.")
     }
     
     if (is_null(bin.vars)) bin.vars <- rep(FALSE, ncol(mat))
     else if (length(bin.vars) != ncol(mat) || anyNA(as.logical(bin.vars))) {
-        stop("bin.vars must be a logical vector with length equal to the number of columns of mat.", call. = FALSE)
+        stop("'bin.vars' must be a logical vector with length equal to the number of columns of 'mat'.", call. = FALSE)
     }
     bin.var.present <- any(bin.vars)
     non.bin.vars.present <- any(!bin.vars)
@@ -475,7 +475,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     
     env <- environment(f)
     
-    if (!is.formula(f)) stop("f must be a formula.")
+    if (!is.formula(f)) stop("'f' must be a formula.")
     
     eval.model.matrx <- identical(f, f <- subbars(f))
     
@@ -532,7 +532,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     }, logical(1L))
     
     if (any(rhs.vars.failed)) {
-        stop(paste0(c("All variables in formula must be variables in data or objects in the global environment.\nMissing variables: ",
+        stop(paste0(c("All variables in 'formula' must be variables in 'data' or objects in the global environment.\nMissing variables: ",
                       paste(rhs.vars.mentioned[rhs.vars.failed], collapse=", "))), call. = FALSE)
         
     }
@@ -609,7 +609,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
     
     if (eval.model.matrx) {
         if (s <- !identical(sep, "")) {
-            if (!is.character(sep) || length(sep) > 1) stop("sep must be a string of length 1.", call. = FALSE)
+            if (!is.character(sep) || length(sep) > 1) stop("'sep' must be a string of length 1.", call. = FALSE)
             original.covs.levels <- make_list(names(covs))
             for (i in names(covs)) {
                 if (is.character(covs[[i]])) covs[[i]] <- factor(covs[[i]])
@@ -670,114 +670,52 @@ get.treat.type <- function(treat) {
 has.treat.type <- function(treat) {
     is_not_null(get.treat.type(treat))
 }
+
+#Input processing
+process.bin.vars <- function(bin.vars, mat) {
+    if (missing(bin.vars)) bin.vars <- is_binary_col(mat)
+    else if (is_null(bin.vars)) bin.vars <- rep(FALSE, ncol(mat))
+    else {
+        if (is.logical(bin.vars)) {
+            bin.vars[is.na(bin.vars)] <- FALSE
+            if (length(bin.vars) != ncol(mat)) stop("If 'bin.vars' is logical, it must have length equal to the number of columns of 'mat'.")
+        }
+        else if (is.numeric(bin.vars)) {
+            bin.vars <- bin.vars[!is.na(bin.vars) & bin.vars != 0]
+            if (any(bin.vars < 0) && any(bin.vars > 0)) stop("Positive and negative indices cannot be mixed with 'bin.vars'.")
+            if (any(abs(bin.vars) > ncol(mat))) stop("If 'bin.vars' is numeric, none of its values can exceed the number of columns of 'mat'.")
+            logical.bin.vars <- rep(any(bin.vars < 0), ncol(mat))
+            logical.bin.vars[abs(bin.vars)] <- !logical.bin.vars[abs(bin.vars)]
+            bin.vars <- logical.bin.vars
+        }
+        else if (is.character(bin.vars)) {
+            bin.vars <- bin.vars[!is.na(bin.vars) & bin.vars != ""]
+            if (is_null(colnames(mat))) stop("If 'bin.vars' is character, 'mat' must have column names.")
+            if (any(bin.vars %nin% colnames(mat))) stop("If 'bin.vars' is character, all its values must be column names of 'mat'.")
+            bin.vars <- colnames(mat) %in% bin.vars
+        }
+        else stop("'bin.vars' must be a logical, numeric, or character vector.")
+    }
+    return(bin.vars)
+}
 process.s.weights <- function(s.weights, data = NULL) {
     #Process s.weights
     if (is_not_null(s.weights)) {
         if (!(is.character(s.weights) && length(s.weights) == 1) && !is.numeric(s.weights)) {
-            stop("The argument to s.weights must be a vector or data frame of sampling weights or the (quoted) names of the variable in data that contains sampling weights.", call. = FALSE)
+            stop("The argument to 's.weights' must be a vector or data frame of sampling weights or the (quoted) names of the variable in 'data' that contains sampling weights.", call. = FALSE)
         }
         if (is.character(s.weights) && length(s.weights)==1) {
             if (is_null(data)) {
-                stop("s.weights was specified as a string but there was no argument to data.", call. = FALSE)
+                stop("'s.weights' was specified as a string but there was no argument to 'data'.", call. = FALSE)
             }
             else if (s.weights %in% names(data)) {
                 s.weights <- data[[s.weights]]
             }
-            else stop("The name supplied to s.weights is not the name of a variable in data.", call. = FALSE)
+            else stop("The name supplied to 's.weights' is not the name of a variable in 'data'.", call. = FALSE)
         }
     }
     else s.weights <- NULL
     return(s.weights)
-}
-process.focal.and.estimand <- function(focal, estimand, treat, treat.type, treated = NULL) {
-    reported.estimand <- estimand
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    #Check focal
-    if (treat.type == "multinomial") {
-        unique.treat <- unique(treat, nmax = length(treat)/4)
-        if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
-            warning(paste(estimand, "is not compatible with 'focal'. Setting 'estimand' to \"ATT\"."), call. = FALSE)
-            reported.estimand <- estimand <- "ATT"
-        }
-        
-        if (estimand == "ATT") {
-            if (is_null(focal)) {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    stop("When estimand = \"ATT\" for multinomial treatments, an argument must be supplied to 'focal'.", call. = FALSE)
-                }
-                focal <- treated
-            }
-        }
-        else if (estimand == "ATC") {
-            if (is_null(focal)) {
-                stop("When estimand = \"ATC\" for multinomial treatments, an argument must be supplied to 'focal'.", call. = FALSE)
-            }
-        }
-    }
-    else if (treat.type == "binary") {
-        unique.treat <- unique(treat, nmax = 2)
-        unique.treat.bin <- unique(binarize(treat), nmax = 2)
-        if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
-            warning(paste(estimand, "is not compatible with 'focal'. Setting 'estimand' to \"ATT\"."), call. = FALSE)
-            reported.estimand <- estimand <- "ATT"
-        }
-        
-        if (estimand == "ATT") {
-            if (is_null(focal)) {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
-                        #If is 0/1
-                        treated <- unique.treat[unique.treat.bin == 1]
-                    }
-                    else {
-                        treated <- names(which.min(table(treat))) #Smaller group is treated
-                        message(paste0("Assuming ", word_list(treated, quotes = !is.numeric(treat), is.are = TRUE),
-                                       " the treated level. If not, supply an argument to 'focal'."))
-                    }
-                }
-                focal <- treated
-            }
-            else {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    treated <- focal
-                }
-            }
-        }
-        else if (estimand == "ATC") {
-            if (is_null(focal)) {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    
-                    if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
-                        treated <- unique.treat[unique.treat.bin == 1]
-                    }
-                    else {
-                        treated <- names(which.min(table(treat))) #Smaller group is treated
-                        message(paste0("Assuming ", word_list(unique.treat[unique.treat %nin% treated], quotes = !is.numeric(treat), is.are = TRUE),
-                                       " the control level. If not, supply an argument to 'focal'."))
-                    }
-                }
-                focal <- unique.treat[unique.treat %nin% treated]
-            }
-            else {
-                if (is_null(treated) || treated %nin% unique.treat) {
-                    treated <- unique.treat[unique.treat %nin% focal]
-                }
-            }
-            estimand <- "ATT"
-        }
-    }
-    
-    if (is_not_null(focal) && (length(focal) > 1L || focal %nin% unique.treat)) {
-        stop("The argument supplied to 'focal' must be the name of a level of treatment.", call. = FALSE)
-    }
-    
-    return(list(focal = as.character(focal),
-                estimand = estimand,
-                reported.estimand = reported.estimand,
-                treated = if (is.factor(treated)) as.character(treated) else treated))
 }
 
 #Uniqueness
@@ -791,8 +729,8 @@ nunique <- function(x, nmax = NA, na.rm = TRUE) {
     
 }
 nunique.gt <- function(x, n, na.rm = TRUE) {
-    if (missing(n)) stop("n must be supplied.")
-    if (n < 0) stop("n must be non-negative.")
+    if (missing(n)) stop("'n' must be supplied.")
+    if (n < 0) stop("'n' must be non-negative.")
     if (is_null(x)) FALSE
     else {
         if (n == 1) !all_the_same(x, na.rm)
@@ -848,9 +786,9 @@ make_df <- function(ncol, nrow = 0, types = "numeric") {
     colnames(df) <- col_names
     rownames(df) <- row_names
     if (is_not_null(types)) {
-        if (length(types) %nin% c(1, ncol)) stop("types must be equal to the number of columns.")
+        if (length(types) %nin% c(1, ncol)) stop("'types' must be equal to the number of columns.")
         if (any(types %nin% c("numeric", "integer", "logical", "character", NA))) {
-            stop("types must be an acceptable type. For factors, use NA.")
+            stop("'types' must be an acceptable type. For factors, use NA.")
         }
         if (length(types) == 1) types <- rep(types, ncol)
         for (i in seq_len(ncol)) if (!is.na(types)[i] && types[i] != "numeric") df[[i]] <- get(types[i])(nrow)

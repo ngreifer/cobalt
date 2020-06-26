@@ -41,15 +41,16 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
     
     s <- names(x$w)[match(tolower(rule1), tolower(names(x$w)))]
     criterion <- substr(tolower(s), 1, nchar(s)-4)
-
+    allowable.estimands <- c("ATT", "ATE", "ATC")
+    
     if (is_null(estimand)) estimand <- setNames(substr(toupper(s), nchar(s)-2, nchar(s)), s)
-    else if (!all(toupper(estimand) %in% c("ATT", "ATE", "ATC"))) {
-        stop('estimand must be "ATT", "ATE", or "ATC".', call. = FALSE)
+    else if (!all(toupper(estimand) %in% allowable.estimands)) {
+        stop(paste0("'estimand' must be ", word_list(allowable.estimands, "or", quotes = 1), "."), call. = FALSE)
     }
     else {
         if (length(estimand) == 1) estimand <- setNames(toupper(rep(estimand, length(s))), s)
         else if (length(estimand) >= length(s)) estimand <- setNames(toupper(estimand[seq_along(s)]), s)
-        else stop("estimand must be the same length as the number of sets of weights requested.", call. = FALSE)
+        else stop("'estimand' must be the same length as the number of sets of weights requested.", call. = FALSE)
     }
     
     w <- setNames(as.data.frame(matrix(1, nrow = nrow(x$ps), ncol = length(s))), s)
@@ -277,14 +278,14 @@ get.w.CBMSM <- function(x, ...) {
     return(x$weights[sort(unique(x$id))])
 }
 get.w.ebalance <- function(x, treat, ...) {
-    if (missing(treat)) stop("treat must be specified.", call. = FALSE)
+    if (missing(treat)) stop("'treat' must be specified.", call. = FALSE)
     
     if (!is_(treat, "processed.treat")) treat <- process_treat(treat)
     
     weights <- rep(1, length(treat))
     
     if (length(x$w) != sum(treat == treat_vals(treat)["Control"])) {
-        stop("There are more control units in treat than weights in the ebalance object.", call. = FALSE)
+        stop("There are more control units in 'treat' than weights in the ebalance object.", call. = FALSE)
     }
     weights[treat == treat_vals(treat)["Control"]] <- x$w
     return(weights)
@@ -313,7 +314,7 @@ get.w.weightit <- function(x, s.weights = FALSE, ...) {
     else return(x$weights)
 }
 get.w.designmatch <- function(x, treat, ...) {
-    if (missing(treat)) stop("treat must be specified.", call. = FALSE)
+    if (missing(treat)) stop("'treat' must be specified.", call. = FALSE)
     if (length(x[["group_id"]]) != length(x[["t_id"]]) + length(x[["c_id"]])) {
         stop("designmatch objects without 1:1 matching cannot be used.", call. = FALSE)
     }
@@ -336,5 +337,5 @@ get.w.wimids <- function(x, ...) {
     return(weights)
 }
 get.w.sbwcau <- function(x, ...) {
-    return(x[["dat_weights"]][["weights"]])
+    return(x[["dat_weights"]][[ncol(x[["dat_weights"]])]])
 }

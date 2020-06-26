@@ -107,7 +107,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with matchit objects.", call. = FALSE)
+        stop("'focal' is not allowed with matchit objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -118,7 +118,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with matchit objects.", call. = FALSE)
+        stop("Matching strata are not allowed with matchit objects.", call. = FALSE)
     }
     
     #Process weights
@@ -127,7 +127,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
-        stop("s.weights are not allowed with matchit objects.", call. = FALSE)
+        stop("Sampling weights are not allowed with matchit objects.", call. = FALSE)
     }
     
     #Process cluster
@@ -300,17 +300,17 @@ x2base.ps <- function(ps, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with ps objects.", call. = FALSE)
+        stop("'focal' is not allowed with ps objects.", call. = FALSE)
     }
     
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
-        stop("subclasses are not allowed with ps objects.", call. = FALSE)
+        stop("'subclasses' are not allowed with ps objects.", call. = FALSE)
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with ps objects.", call. = FALSE)
+        stop("Matching strata are not allowed with ps objects.", call. = FALSE)
     }
     
     #Process weights
@@ -503,7 +503,7 @@ x2base.mnps <- function(mnps, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with mnps objects.", call. = FALSE)
+        stop("Matching strata are not allowed with mnps objects.", call. = FALSE)
     }
     
     #Process weights
@@ -687,7 +687,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with ps.cont objects.", call. = FALSE)
+        stop("'focal' is not allowed with ps.cont objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -697,7 +697,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with ps.cont objects.", call. = FALSE)
+        stop("Matching strata are not allowed with ps.cont objects.", call. = FALSE)
     }
     
     #Process weights
@@ -854,7 +854,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with Match objects.", call. = FALSE)
+        stop("'focal' is not allowed with Match objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -864,7 +864,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with Match objects.", call. = FALSE)
+        stop("Matching strata are not allowed with Match objects.", call. = FALSE)
     }
     
     #Process weights
@@ -873,7 +873,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
-        stop("s.weights are not allowed with Match objects.", call. = FALSE)
+        stop("Sampling weights are not allowed with Match objects.", call. = FALSE)
     }
     
     #Process cluster
@@ -1023,7 +1023,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process covs
     if (is_null(covs)) {
-        stop("covs data.frame must be specified.", call. = FALSE)
+        stop("'covs' data.frame must be specified.", call. = FALSE)
     }
     # is_(covs, "data.frame", stop = TRUE)
     if (is_null(attr(covs, "co.names"))) covs <- get_covs_from_formula(~covs)
@@ -1360,7 +1360,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with CBPS objects.", call. = FALSE)
+        stop("Matching strata are not allowed with CBPS objects.", call. = FALSE)
     }
     
     #Process weights
@@ -1519,7 +1519,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with ebalance objects.", call. = FALSE)
+        stop("'focal' is not allowed with ebalance objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -1529,7 +1529,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with ebalance objects.", call. = FALSE)
+        stop("Matching strata are not allowed with ebalance objects.", call. = FALSE)
     }
     
     #Process weights
@@ -1691,12 +1691,12 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with optmatch objects.", call. = FALSE)
+        stop("'focal' is not allowed with optmatch objects.", call. = FALSE)
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with optmatch objects.", call. = FALSE)
+        stop("Matching strata are not allowed with optmatch objects.", call. = FALSE)
     }
     
     #Process weights
@@ -1705,7 +1705,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
-        stop("s.weights are not allowed with optmatch objects.", call. = FALSE)
+        stop("Sampling weights are not allowed with optmatch objects.", call. = FALSE)
     }
     
     #Process cluster
@@ -1822,7 +1822,7 @@ x2base.cem.match <- function(cem.match, ...) {
         }
     }
     if (is_null(data)) {
-        stop("An argument to data must be specified with cem.match objects.", call. = FALSE)
+        stop("An argument to 'data' must be specified with cem.match objects.", call. = FALSE)
     }
     
     #Process imp
@@ -1835,7 +1835,7 @@ x2base.cem.match <- function(cem.match, ...) {
         imp <- factor(imp)
     }
     else if (is_(cem.match, "cem.match.list") && sum(vapply(cem.match, is_, logical(1L), "cem.match")) != 1) {
-        stop("An argument to imp must be specified or the argument to data must be a mids object.", call. = FALSE)
+        stop("An argument to 'imp' must be specified or the argument to data must be a mids object.", call. = FALSE)
     }
     
     #Process treat
@@ -1868,7 +1868,7 @@ x2base.cem.match <- function(cem.match, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with cem.match objects.", call. = FALSE)
+        stop("Matching strata are not allowed with cem.match objects.", call. = FALSE)
     }
     
     #Process weights
@@ -1877,7 +1877,7 @@ x2base.cem.match <- function(cem.match, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
-        stop("s.weights are not allowed with cem.match objects.", call. = FALSE)
+        stop("Sampling weights are not allowed with cem.match objects.", call. = FALSE)
     }
     
     #Process cluster
@@ -2030,7 +2030,7 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with weightit objects.", call. = FALSE)
+        stop("Matching strata are not allowed with weightit objects.", call. = FALSE)
     }
     
     #Process weights
@@ -2190,7 +2190,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with designmatch objects.", call. = FALSE)
+        stop("'focal' is not allowed with designmatch objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -2200,7 +2200,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with designmatch objects.", call. = FALSE)
+        stop("Matching strata are not allowed with designmatch objects.", call. = FALSE)
     }
     
     #Process weights
@@ -2209,7 +2209,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
-        stop("s.weights are not allowed with designmatch objects.", call. = FALSE)
+        stop("Sampling weights are not allowed with designmatch objects.", call. = FALSE)
     }
     
     #Process cluster
@@ -2360,7 +2360,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with mimids objects.", call. = FALSE)
+        stop("'focal' is not allowed with mimids objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -2370,7 +2370,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with mimids objects.", call. = FALSE)
+        stop("Matching strata are not allowed with mimids objects.", call. = FALSE)
     }
     
     #Process weights
@@ -2379,7 +2379,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
-        stop("s.weights are not allowed with mimids objects.", call. = FALSE)
+        stop("Sampling weights are not allowed with mimids objects.", call. = FALSE)
     }
     
     #Process cluster
@@ -2539,7 +2539,7 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with wimids objects.", call. = FALSE)
+        stop("Matching strata are not allowed with wimids objects.", call. = FALSE)
     }
     
     #Process weights
@@ -2682,7 +2682,6 @@ x2base.sbwcau <- function(sbwcau, ...) {
     treat <- process_treat(sbwcau[["ind"]], datalist = list(data, sbw.data))
     
     #Process covs
-    # covs <- sbw.data[sbwcau[["bal"]][["bal_cov"]]]
     f <- f.build(sbwcau[["bal"]][["bal_cov"]])
     covs <- get_covs_from_formula(f, data = sbw.data)
     
@@ -2700,17 +2699,17 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with sbwcau objects.", call. = FALSE)
+        stop("'focal' is not allowed with sbwcau objects.", call. = FALSE)
     }
     
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
-        stop("match.strata are not allowed with sbwcau objects.", call. = FALSE)
+        stop("subclasses are not allowed with sbwcau objects.", call. = FALSE)
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with sbwcau objects.", call. = FALSE)
+        stop("Matching strata are not allowed with sbwcau objects.", call. = FALSE)
     }
     
     #Process weights
@@ -2923,7 +2922,7 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with iptw objects.", call. = FALSE)
+        stop("'focal' is not allowed with iptw objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -2933,7 +2932,7 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with iptw objects.", call. = FALSE)
+        stop("Matching strata are not allowed with iptw objects.", call. = FALSE)
     }
     
     #Process weights
@@ -3068,20 +3067,20 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process covs.list
     if (is_null(covs.list)) {
-        stop("covs.list must be specified.", call. = FALSE)
+        stop("'covs.list' must be specified.", call. = FALSE)
     }
     if (!is_(covs.list, "list")) {
-        stop("covs.list must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
+        stop("'covs.list' must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
     }
     if (any(!vapply(covs.list, is_, logical(1L), c("data.frame", "matrix")))) {
-        stop("Each item in covs.list must be a data frame.", call. = FALSE)
+        stop("Each item in 'covs.list' must be a data frame.", call. = FALSE)
     }
     if (any(vapply(covs.list, function(x) is_null(attr(x, "co.names")), logical(1L)))) {
         covs.list <- lapply(covs.list, function(x) get_covs_from_formula(~x))
     }
     
     if (length(treat.list) != length(covs.list)) {
-        stop("treat.list must be a list of treatment statuses at each time point.", call. = FALSE)
+        stop("'treat.list' must be a list of treatment statuses at each time point.", call. = FALSE)
     }
     
     #Get estimand
@@ -3091,7 +3090,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     specified <- setNames(rep(FALSE, 1), "weights")
     if (is_not_null(A$weights)) {
         if (!is_(A$weights, c("character", "numeric", "data.frame", "list"))) {
-            stop("The argument to weights must be a vector, list, or data frame of weights or the (quoted) names of variables in data that contain weights.", call. = FALSE)
+            stop("The argument to 'weights' must be a vector, list, or data frame of weights or the (quoted) names of variables in 'data' that contain weights.", call. = FALSE)
         }
         specified["weights"] <- TRUE
     }
@@ -3154,7 +3153,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
+        stop("'focal' is not allowed with longitudinal treatments.", call. = FALSE)
     }
     
     #Process subclass
@@ -3164,7 +3163,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("match.strata are not allowed with longitudinal treatments.", call. = FALSE)
+        stop("Matching strata are not allowed with longitudinal treatments.", call. = FALSE)
     }
     
     #Process weights
@@ -3358,7 +3357,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with CBMSM objects.", call. = FALSE)
+        stop("'focal' is not allowed with CBMSM objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -3368,7 +3367,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with CBMSM objects.", call. = FALSE)
+        stop("Matching strata are not allowed with CBMSM objects.", call. = FALSE)
     }
     
     #Process weights
@@ -3377,7 +3376,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A$s.weights)) {
-        stop("sampling weights are not allowed with CBMSM objects.", call. = FALSE)
+        stop("Sampling weights are not allowed with CBMSM objects.", call. = FALSE)
     }
     
     #Process cluster
@@ -3536,7 +3535,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process focal
     if (is_not_null(focal <- A$focal)) {
-        stop("focal is not allowed with weightitMSM objects.", call. = FALSE)
+        stop("'focal' is not allowed with weightitMSM objects.", call. = FALSE)
     }
     
     #Process subclass
@@ -3546,7 +3545,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
-        stop("match.strata are not allowed with weightitMSM objects.", call. = FALSE)
+        stop("Matching strata are not allowed with weightitMSM objects.", call. = FALSE)
     }
     
     #Process weights
@@ -3858,7 +3857,7 @@ x2base.default <- function(obj, ...) {
         #Process covs
         covs <- t.c[["covs"]]
         if (is_null(covs)) {
-            stop("covariates must be specified using 'covs' or 'formula'.", call. = FALSE)
+            stop("Covariates must be specified using 'covs' or 'formula'.", call. = FALSE)
         }
         
         #Get estimand
@@ -4166,16 +4165,16 @@ x2base.default <- function(obj, ...) {
         
         #Process covs.list
         if (is_null(covs.list <- A$covs.list)) {
-            stop("covs.list must be specified.", call. = FALSE)
+            stop("'covs.list' must be specified.", call. = FALSE)
         }
         if (!is_(covs.list, "list")) {
-            stop("covs.list must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
+            stop("'covs.list' must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
         }
         if (any(!vapply(covs.list, is.data.frame, logical(1L)))) {
-            stop("Each item in covs.list must be a data frame.", call. = FALSE)
+            stop("Each item in 'covs.list' must be a data frame.", call. = FALSE)
         }
         if (length(treat.list) != length(covs.list)) {
-            stop("treat.list must be a list of treatment statuses at each time point.", call. = FALSE)
+            stop("'treat.list' must be a list of treatment statuses at each time point.", call. = FALSE)
         }
         
         #Get estimand
@@ -4185,7 +4184,7 @@ x2base.default <- function(obj, ...) {
         specified <- setNames(rep(FALSE, 1), "weights")
         if (is_not_null(A$weights)) {
             if (!is_(A$weights, c("character", "numeric", "data.frame", "list"))) {
-                stop("The argument to weights must be a vector, list, or data frame of weights or the (quoted) names of variables in data that contain weights.", call. = FALSE)
+                stop("The argument to 'weights' must be a vector, list, or data frame of weights or the (quoted) names of variables in 'data' that contain weights.", call. = FALSE)
             }
             specified["weights"] <- TRUE
         }
@@ -4255,7 +4254,7 @@ x2base.default <- function(obj, ...) {
                                                covs.list = covs.list)
         #Process focal
         if (is_not_null(focal <- A$focal)) {
-            stop("focal is not allowed with longitudinal treatments.", call. = FALSE)
+            stop("'focal' is not allowed with longitudinal treatments.", call. = FALSE)
         }
         
         #Process subclass
@@ -4265,7 +4264,7 @@ x2base.default <- function(obj, ...) {
         
         #Process match.strata
         if (is_not_null(match.strata <- A$match.strata)) {
-            stop("match.strata are not allowed with longitudinal treatments.", call. = FALSE)
+            stop("Matching strata are not allowed with longitudinal treatments.", call. = FALSE)
         }
         
         #Process weights

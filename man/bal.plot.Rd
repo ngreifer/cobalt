@@ -128,6 +128,8 @@ a \code{formula} designating which facets should be on the rows and columns. Thi
 For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smoothing curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "auto"}. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.
 
 When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or \code{which = "both"}, or when treatment is longitudinal), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{\link[ggplot2]{facet_grid}}. Subclassification cannot be used with clusters or multiply imputed data.
+
+To change the plot and axis titles, use \code{\link[ggplot2]{labs}}. Because the output is a \code{ggplot} object, other elements can be changed using \pkg{ggplot2} functions; see \href{https://stackoverflow.com/questions/61255335/change-legend-generated-by-bal-plot}{here} for an example.
 }
 \value{
 A \code{"ggplot"} object, returned invisibly.
