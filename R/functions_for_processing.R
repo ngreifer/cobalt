@@ -1341,23 +1341,29 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   ttlabels <- attr(tt.covs, "term.labels")
   ttfactors <- attr(tt.covs, "factors")
   
-  rhs.df <- setNames(vapply(ttvars, function(v) {
-    is_(try(eval(str2expression(v), data, env), silent = TRUE),
-        c("data.frame", "matrix", "rms"))
-  }, logical(1L)), ttvars)
+  rhs.df.type <- setNames(vapply(ttvars, function(v) {
+    if (is_(try(eval(str2expression(paste0("`", v, "`")), data, env), silent = TRUE),
+        c("data.frame", "matrix", "rms"))) "lit"
+    else if (is_(try(eval(str2expression(v), data, env), silent = TRUE),
+                  c("data.frame", "matrix", "rms"))) "exp"
+    else "not.a.df"
+  }, character(1L)), ttvars)
+  
+  rhs.df <- setNames(rhs.df.type != "not.a.df", ttvars)
   
   if (any(rhs.df)) {
     term_is_interaction <- apply(ttfactors, 2, function(x) sum(x != 0) > 1)
     if (any(vapply(ttvars[rhs.df], function(x) any(ttfactors[x,] != 0 & term_is_interaction), logical(1L)))) {
       stop("Interactions with data.frames are not allowed in the input formula.", call. = FALSE)
     }
-    addl.dfs <- setNames(lapply(ttvars[rhs.df], function(x) {
-      df <- eval(str2expression(x), data, env)
+    addl.dfs <- setNames(lapply(ttvars[rhs.df], function(v) {
+      if (rhs.df.type[v] == "lit") df <- eval(str2expression(paste0("`", v, "`")), data, env)
+      else df <- eval(str2expression(v), data, env)
       if (is_(df, "rms")) {
-        if (length(dim(df)) == 2L) class(df) <- "matrix"
-        df <- setNames(as.data.frame.matrix(as.matrix(df)), attr(df, "colnames"))
+        df <- setNames(as.data.frame.matrix(as.matrix(df)), colnames(df))
+        return(df)
       }
-      else if (can_str2num(colnames(df))) colnames(df) <- paste(x, colnames(df), sep = "_")
+      else if (can_str2num(colnames(df))) colnames(df) <- paste(v, colnames(df), sep = "_")
       return(as.data.frame(df))
     }),
     ttvars[rhs.df])
