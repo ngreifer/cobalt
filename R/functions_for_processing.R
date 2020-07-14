@@ -1443,14 +1443,6 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }
   }
   
-  #Check for infinite values
-  covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
-  if (any(covs.with.inf)) {
-    s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
-    stop(paste0("The variable", s[1], " ", word_list(names(C)[covs.with.inf], quotes = 1), 
-                " contain", s[2], " non-finite values, which are not allowed."), call. = FALSE)
-  }
-  
   #Process NAs: make NA variables
   if (anyNA(tmpcovs)) {
     has_NA <- apply(tmpcovs, 2, anyNA)
@@ -1471,6 +1463,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     tt.covs <- terms(new.form, data = tmpcovs)
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
+    ttlabels <- attr(tt.covs, "term.labels")
     
     na_vars <- paste0(colnames(tmpcovs)[has_NA], ":<NA>")
     
@@ -1494,15 +1487,25 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   tmpcovs <- model.frame(tt.covs, data = tmpcovs, drop.unused.levels = TRUE,
                          na.action = "na.pass")
+
+  #Check for infinite values
+  covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
+  if (any(covs.with.inf)) {
+    s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
+    stop(paste0("The variable", s[1], " ", word_list(names(tmpcovs)[covs.with.inf], quotes = 1), 
+                " contain", s[2], " non-finite values, which are not allowed."), call. = FALSE)
+  }
   
   attr(tt.covs, "intercept") <- 1 #Add intercept to correctly process single-level factors
   mm <- model.matrix(tt.covs, data = tmpcovs, 
                      contrasts.arg = lapply(Filter(is.factor, tmpcovs),
                                             function(x) contrasts(x, contrasts = all_the_same(x))))
   
+  rownames(ttfactors) <- trim_string(rownames(ttfactors), "`")
+
   mmassign <- attr(mm, "assign")[-1]
   mmassign2 <- setNames(factor(mmassign, levels = sort(unique(mmassign), na.last = TRUE),
-                               labels = colnames(attr(tt.covs, "factors"))), colnames(mm)[-1])
+                               labels = colnames(ttfactors)), colnames(mm)[-1])
   
   vars_in_each_term <- setNames(lapply(colnames(ttfactors), function(x) {
     rownames(ttfactors)[ttfactors[,x] != 0]
