@@ -1,13 +1,17 @@
 `cobalt` News and Updates
 ======
 
-Version 4.2.2
+# cobalt (development version)
+
+* Fixed bugs in processing functions in formulas, including `rms` functions and `poly()` (#40)
+
+# cobalt 4.2.2
 
 * Fixed a bug due to new version of `sbw`.
 
 * Minor improvements to error messages and documentation.
 
-Version 4.2.1
+# cobalt 4.2.1
 
 * Fixed a bug where `int` and `poly` were ignored with binary and continuous treatments.
 
@@ -25,7 +29,7 @@ Version 4.2.1
 
 * Updated some warnings.
 
-Version 4.2.0
+# cobalt 4.2.0
 
 * Added support for `Matchby` objects resulting from a call to `Matchby()` in the `Matching` package. These function identically to `Match` objects.
 
@@ -57,7 +61,7 @@ Version 4.2.0
 
 * General speed and stability improvements.
 
-Version 4.1.0
+# cobalt 4.1.0
 
 * Added support for `sbwcau` objects from `sbw`. See Appendix 1 or `?bal.tab.sbw` for an example.
 
@@ -97,7 +101,7 @@ Version 4.1.0
 
 * Speedups and other small fixes.
 
-Version 4.0.0
+# cobalt 4.0.0
 
 **Major Updates**
 
@@ -159,7 +163,7 @@ Version 4.0.0
 
 * Other bug fixes and performance improvements here and there.
 
-Version 3.9.0
+# cobalt 3.9.0
 
 * Added vignette for use of `love.plot`.
 
@@ -175,7 +179,7 @@ Version 3.9.0
 
 * Other small bug fixes.
 
-Version 3.8.0
+# cobalt 3.8.0
 
 * Added the ability to display balance on multiple measures (e.g., mean differences, variance ratios, KS statistics) at the same time with `love.plot()`.
 
@@ -195,7 +199,7 @@ Version 3.8.0
 
 * Other bug fixes and improvements.
 
-Version 3.7.0
+# cobalt 3.7.0
 
 * Changes to some `bal.tab` defaults: `quick` is now set to `TRUE` by default. Adjusted and unadjusted means, standard deviations, and mean differences will always be computed, regardless of `quick`. Variance ratios and KS statistics will only be computed if `quick = FALSE` or `disp.v.ratio` or `disp.ks`, respectively, are `TRUE`.
 
@@ -215,11 +219,11 @@ Version 3.7.0
 
 * Fixed bug occurring when using `bal.tab()` on `mnps` objects with multiple stop methods.
 
-Version 3.6.1
+# cobalt 3.6.1
 
 * Fixed bug when installed version of R was earlier than 3.5.0.
 
-Version 3.6.0
+# cobalt 3.6.0
 
 * Added `poly` argument to `bal.tab()` to display polynomials of continuous covariates (e.g., squares, cubes, etc.). This used to only be available with the `int` argument, which also displayed all interactions. Now, the polynomials can be requested separately. When `int = TRUE`, squares of the covariates will no longer be displayed; to replicate the old behavior, set `int = 2`, which is equivalent to `int = TRUE, poly = 2`.
 
@@ -235,7 +239,7 @@ Version 3.6.0
 
 * Added `set.cobalt.options` function to more easily set the global options that can be used as defaults to some arguments. For example, `set.global.options(binary = "std")` makes it so that standardized mean difference are always displayed for binary covariates (in the present R session). The options can be retrieved with `get.cobalt.options`.
 
-Version 3.5.0
+# cobalt 3.5.0
 
 * Several changes to `bal.tab()` display options (i.e., `imbalanced.only`, `un`, `disp.means`, `disp.v.ratio`, `disp.ks`, `disp.bal.tab`, `disp.subclass`, and parameters related to the display of balance tables with multinomial treatments, clusters, multiple imputations, and longitudinal treatments). First, the named arguments have been removed from the method-specific functions in order to clean them up and make it easier to add new functions, but they are still available to be specified. Second, a help page devoted just to these functions has been created, which can be accessed with `?options-display`. Third, global options for these arguments can be set with `options()` so they don't need to be typed each time. For example, if you wanted `un = TRUE` all the time, you could set `options(cobalt_un = TRUE)` once and not have to include it in the call to `bal.tab()`.
 
@@ -257,7 +261,7 @@ Version 3.5.0
 
 * Major updates to the organization of the code and help files. Certain functions have simplified syntax, relying more on `...`, and help pages have been shorted and consolidated for some methods. In particular, the code and help documents for the `Matching`, `optmatch`, `ebal`, and `designmatch` methods of `bal.tab()` have been consolidated since they all rely on exactly the same syntax.
 
-Version 3.4.1
+# cobalt 3.4.1
 
 * Fixed a bug that would occur when `imabalanced.only = TRUE` in `bal.tab()` but all variables were balanced.
 
@@ -275,7 +279,7 @@ Version 3.4.1
 
 * Added `disp.means` option to `bal.tab` with continuous treatments.
 
-Version 3.4.0
+# cobalt 3.4.0
 
 * Added `default` method for `bal.tab` so it can be used with specially formatted output from other packages (e.g., from `optweight`). `bal.plot` should work with these outputs too. This, of course, will never be completely bug-free because infinite inputs are possible and cannot all be processed perfectly. Don't try to break this function :)
 
@@ -293,7 +297,7 @@ Version 3.4.0
 
 * When weighted correlations are computed for continuous treatments, the denominator of the correlation now uses the unweighted standard deviations. See `?bal.tab` for the rationale.
 
-Version 3.3.0
+# cobalt 3.3.0
 
 * Added methods for objects from the `designmatch` package.
 
@@ -311,7 +315,7 @@ Version 3.3.0
 
 * Added `abs` option to `bal.tab` to display absolute values of statistics, which can be especially helpful for aggregated output. This also affects how `love.plot()` handles aggregated balance statistics.
 
-Version 3.2.3
+# cobalt 3.2.3
 
 * Added support for data with missing covariates. `bal.tab()` will produce balance statistics for the non-missing values and will automatically create a new variable indicating whether the variable is missing or not and produce balance statistics on this variable as well. 
 
@@ -325,7 +329,7 @@ Version 3.2.3
 
 * Objects in the environment are now handled better by `bal.tab()` with the formula interface. The `data` argument is now optional if all variables in the formula exist in the environment.
 
-Version 3.2.2
+# cobalt 3.2.2
 
 * Fixed a bug when using `get.w()` (and `bal.tab()`) with `mnps` objects from `twang` with only one stop method.
 
@@ -341,7 +345,7 @@ Version 3.2.2
 
 * Restored some vignettes that required `WeightIt`.
 
-Version 3.2.1
+# cobalt 3.2.1
 
 * Edits to vignettes and help files to respond to missing packages. Some vignette items may not display if packages are (temporarily) unavailable.
 
@@ -349,7 +353,7 @@ Version 3.2.1
 
 * Added more support for sampling weights in `get.w()` and help files.
 
-Version 3.2.0
+# cobalt 3.2.0
 
 * Added support for longitudinal treatments in `bal.tab()`, `bal.plot()`, and `love.plot()`, including output from `iptw()` in `twang`, `CBMSM()` from `CBPS`, and `weightitMSM()` from `WeightIt`.
 
@@ -365,7 +369,7 @@ Version 3.2.0
 
 * Fixed bug with multiple methods when weights were entered as a list.
 
-Version 3.1.0
+# cobalt 3.1.0
 
 * Added full support for tibbles.
 
@@ -381,7 +385,7 @@ Version 3.1.0
 
 * Fixes to the vignettes. Also, creation of a new vignette to simplify the main one.
 
-Version 3.0.0
+# cobalt 3.0.0
 
 * Added support for multinomial treatments in `bal.tab()`, including output from `CBPS` and `twang`.
 
@@ -395,7 +399,7 @@ Version 3.0.0
 
 * Fixed bug when using `bal.tab()` with multiply imputed data without adjustment. Fixed bug when using `s.weights` with the `formula` method of `bal.tab()`.
 
-Version 2.2.0
+# cobalt 2.2.0
 
 * Added `disp.ks` and `ks.threshold` options to `bal.tab()` to display Kolmogorov-Smirnov statistics before and after preprocessing.
 
@@ -409,7 +413,7 @@ Version 2.2.0
 
 * Fixed a bug in `love.plot()` caused when `var.order` was specified to be a sample that was not present.
 
-Version 2.1.0
+# cobalt 2.1.0
 
 * Added support in `bal.tab()`, `bal.plot()`, and `love.plot()` for examining balance on multiple weight specifications at a time
 
@@ -429,7 +433,7 @@ Version 2.1.0
 
 * `distance`, `addl`, and `weights` can now be specified as lists of the usual arguments
 
-Version 2.0.0
+# cobalt 2.0.0
 
 * Added support for matching using the `optmatch` package or by specifying matching strata.
 
@@ -455,7 +459,7 @@ Version 2.0.0
 
 * Changed calculation of weighted variance to be in line with recommendations; `CBPS` can now be used with standardized weights
 
-Version 1.3.1
+# cobalt 1.3.1
 
 * Added support for entropy balancing through the `ebal` package.
 
@@ -465,7 +469,7 @@ Version 1.3.1
 
 * Edits to the vignette.
     
-Version 1.3.0
+# cobalt 1.3.0
 
 * Increased capabilities for cluster balance in `bal.tab()` and `love.plot()`
 
@@ -481,7 +485,7 @@ Version 1.3.0
 
 * Edits to the vignette
 
-Version 1.2.0
+# cobalt 1.2.0
 
 * Added support for continuous treatment variables in `bal.tab()`, `bal.plot()`, and `love.plot()`
 
@@ -491,7 +495,7 @@ Version 1.2.0
 
 * Major revisions and adjustments to the vignette
 
-Version 1.1.0
+# cobalt 1.1.0
 
 * Added a vignette.
 
