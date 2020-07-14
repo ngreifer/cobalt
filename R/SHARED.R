@@ -202,6 +202,28 @@ str2num <- function(x) {
     x_num[nas] <- NA
     return(x_num)
 }
+trim_string <- function(x, char = " ", symmetrical = TRUE, recursive = TRUE) {
+    sw <- startsWith(x, char)
+    ew <- endsWith(x, char)
+    
+    if (symmetrical) {
+        if (any(sw & ew)) x[sw & ew] <- gsub('^.|.$', '', x[sw & ew])
+        else return(x)
+    }
+    else {
+        asw <- any(sw)
+        aew <- any(ew)
+        if (asw || aew) {
+            if (asw) x[sw] <- gsub('^.', '', x[sw])
+            if (aew) x[ew] <- gsub('.$', '', x[ew])
+        }
+        else return(x)
+    }
+    if (recursive) {
+        trim_string(x, char, symmetrical, recursive)
+    }
+    else return(x)
+}
 
 #Numbers
 check_if_zero <- function(x) {
