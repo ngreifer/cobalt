@@ -3,7 +3,9 @@
 
 # cobalt (development version)
 
-* Fixed bugs in processing functions in formulas, including `rms` functions and `poly()` (#40)
+* Fixed bugs in processing functions in formulas, including `rms` functions and `poly()`. (#40)
+
+* Fixed a bug in how KS statistics were computed with `col_w_ks()`. Results now agree with those from `MatchIt` and `twang`.
 
 # cobalt 4.2.2
 
