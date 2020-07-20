@@ -138,7 +138,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     else p.ops$imbalanced.only <- FALSE
     
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
     }
     
     if (p.ops$disp.bal.tab) {
@@ -410,7 +410,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     
     #Printing
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
     }
     
     if (is_not_null(which.cluster)) {
@@ -667,7 +667,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     #Printing output
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
     }
     
     if (is_not_null(which.imp)) {
@@ -948,7 +948,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     
     #Printing output
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
     }
     
     if (is_not_null(disp.treat.pairs)) {
@@ -1213,7 +1213,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     
     #Printing output
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
     }
     
     if (is_not_null(which.time)) {
@@ -1426,7 +1426,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
     }
     
     if (is_not_null(call)) {
-        cat(underline("Call") %+% "\n " %+% paste(deparse1(call), collapse = "\n") %+% "\n\n")
+        cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
     }
     
     if (p.ops$disp.bal.tab) {
