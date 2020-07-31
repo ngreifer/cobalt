@@ -7,6 +7,8 @@
 
 * Fixed a bug in how KS statistics were computed with `col_w_ks()`. Results now agree with those from `MatchIt` and `twang`.
 
+* Fixed bugs in processing small and partially empty subclasses. 
+
 # cobalt 4.2.2
 
 * Fixed a bug due to new version of `sbw`.
