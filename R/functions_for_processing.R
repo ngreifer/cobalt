@@ -142,6 +142,7 @@ initialize_X <- function() {
                "distance",
                "addl",
                "s.d.denom",
+               "estimand",
                "call",
                "cluster",
                "imp",
@@ -183,7 +184,7 @@ weight.check <- function(w) {
   if (any(vapply(w, function(x) any(!is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
   if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found."), call. = FALSE)
 }
-strata2weights <- function(strata, treat, focal = NULL) {
+strata2weights <- function(strata, treat, estimand = NULL) {
   #Process strata into weights (similar to weight.subclass from MatchIt)
   
   #Checks
@@ -200,18 +201,17 @@ strata2weights <- function(strata, treat, focal = NULL) {
   weights <- rep(0, length(treat))
   
   if (get.treat.type(treat) == "continuous") {
-    
     stop("'strata' cannot be turned into weights for continuous treatments.", call. = FALSE)
   }
   else {
-    sub.tab <- table(treat[matched], strata.matched)[,levels(strata.matched)]
+    sub.tab <- table(treat[matched], strata.matched)[treat_vals(treat), levels(strata.matched)]
     totals <- colSums(sub.tab)
     
     # estimand <- get.estimand(subclass = strata, treat = treat)
-    s.d.denom <- get.s.d.denom(NULL, subclass = strata, treat = treat, focal = focal, quietly = TRUE)
+    s.d.denom <- as.character(get.s.d.denom(NULL, estimand = estimand, subclass = strata, treat = treat, quietly = TRUE))
     
     if (s.d.denom %in% treat_vals(treat)) {
-      sub.weights <- setNames(sub.tab[s.d.denom, levels(strata.matched)] / sub.tab[treat_vals(treat) != s.d.denom, levels(strata.matched)],
+      sub.weights <- setNames(sub.tab[treat_vals(treat) == s.d.denom, levels(strata.matched)] / sub.tab[treat_vals(treat) != s.d.denom, levels(strata.matched)],
                               levels(strata.matched))
       weights[matched & treat == s.d.denom] <- 1
       weights[matched & treat != s.d.denom] <- sub.weights[strata[matched & treat != s.d.denom]]
@@ -224,6 +224,11 @@ strata2weights <- function(strata, treat, focal = NULL) {
         weights[matched & treat == tn] <- sub.weights[strata[matched & treat == tn]]
         
       }
+    }
+    
+    if (any(na.w <- !is.finite(weights))) {
+      weights[na.w] <- 0
+      warning("Some units were given weights of zero due to zeros in stratum membership.", call. = FALSE)
     }
     
     if (all(check_if_zero(weights))) 
@@ -742,7 +747,7 @@ compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL
                                weighted.weights = weighted.weights, bin.vars = bin.vars[to.sd],
                                unique.treats = unique.treats, na.rm = na.rm)
     
-    if (any(zero_sds <- check_if_zero(denoms[to.sd]))) {
+    if (any(zero_sds <- !is.finite(denoms[to.sd]) | check_if_zero(denoms[to.sd]))) {
       denoms[to.sd][zero_sds] <- sqrt(col.w.v(mat[, to.sd, drop = FALSE][, zero_sds, drop = FALSE],
                                               w = s.weights,
                                               bin.vars = bin.vars[to.sd][zero_sds], na.rm = na.rm))
@@ -2141,11 +2146,13 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       matched <- !is.na(subclass)
       for (k in levels(subclass)) {
         qt <- treat[matched & subclass == k]
-        for (tnn in names(treat_names(treat))) {
-          if (sum(qt==treat_vals(treat)[treat_names(treat)[tnn]]) < 2)
-            warning(paste0("Not enough ", tnn, " units in subclass ", k, "."), call. = FALSE)
-        }
         nn[[k]] <- c(vapply(treat_vals(treat), function(tn) sum(qt==tn), numeric(1L)), length(qt))
+      }
+      for (tnn in names(treat_names(treat))) {
+        small.subclass <- nn[treat_names(treat)[tnn], levels(subclass)] <= 1
+        if (any(small.subclass))
+          warning(paste0("Not enough ", tnn, " units in ", ngettext(sum(small.subclass), "subclass ", "subclasses "), 
+                         word_list(levels(subclass)[small.subclass]), "."), call. = FALSE)
       }
       attr(nn, "tag") <- "Sample sizes by subclass"
     }
@@ -2221,11 +2228,12 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       
       matched <- !is.na(subclass)
       for (k in levels(subclass)) {
-        qt <- treat[matched & subclass == k]
-        if (length(qt) < 2)
-          warning(paste0("Not enough units in subclass ", k, "."), call. = FALSE)
-        nn[[k]] <- length(qt)
+        nn[[k]] <- sum(matched & subclass == k)
       }
+      small.subclass <- nn[, levels(subclass)] <= 1
+      if (any(small.subclass))
+        warning(paste0("Not enough units in ", ngettext(sum(small.subclass), "subclass ", "subclasses "), 
+                       word_list(levels(subclass)[small.subclass]), "."), call. = FALSE)
       attr(nn, "tag") <- "Sample sizes by subclass"
     }
     else {
@@ -2438,6 +2446,14 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
   binary <- match_arg(binary, c("raw", "std"))
   sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
   
+  if (type == "bin") 
+    subclass_w_empty <- vapply(levels(subclass), function(i) {
+    any(vapply(treat_vals(treat), function(t) !any(treat == t & subclass == i), logical(1L)))
+  }, logical(1L))
+  else {
+    subclass_w_empty <- vapply(levels(subclass), function(i) !any(subclass == i), logical(1L))
+  }
+  
   for (i in levels(subclass)) {
     
     in.subclass <- !is.na(subclass) & subclass==i
@@ -2472,7 +2488,7 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
     }
     
     for (s in all_STATS(type)) {
-      if (s %in% compute) {
+      if (s %in% compute && !subclass_w_empty[i]) {
         SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]] <- STATS[[s]]$fun(C[in.subclass,,drop = FALSE], 
                                                                                      treat = treat[in.subclass], weights = NULL, 
                                                                                      std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),

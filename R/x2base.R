@@ -84,7 +84,9 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Get estimand
-    estimand <- A$estimand
+    if (is_null(estimand <- A[["estimand"]])) {
+        estimand <- m$estimand
+    }
     
     #Get method
     if (any(class(m) == "matchit.subclass")) {
@@ -1185,7 +1187,7 @@ x2base.data.frame <- function(covs, ...) {
                                        missing.okay = TRUE)
         weights <- data.frame(weights = strata2weights(match.strata,
                                                        treat = treat,
-                                                       focal = focal))
+                                                       estimand = estimand))
     }
     #Process weights
     else if (is_not_null(A[["weights"]])) {
@@ -4010,7 +4012,8 @@ x2base.default <- function(obj, ...) {
                                            which = "matching strata membership",
                                            missing.okay = TRUE)
             weights <- data.frame(weights = strata2weights(match.strata,
-                                                           treat = treat))
+                                                           treat = treat,
+                                                           estimand = estimand))
         }
         
         #Process weights
