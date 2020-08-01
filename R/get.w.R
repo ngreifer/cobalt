@@ -290,17 +290,19 @@ get.w.ebalance <- function(x, treat, ...) {
     weights[treat == treat_vals(treat)["Control"]] <- x$w
     return(weights)
 }
-get.w.optmatch <- function(x, ...) {
+get.w.optmatch <- function(x, estimand, ...) {
+    if (missing(estimand) || is_null(estimand)) estimand <- "ATT"
     treat <- as.numeric(attr(x, "contrast.group"))
-    return(strata2weights(x, treat = treat))
+    return(strata2weights(x, treat = treat, estimand = estimand))
 }
-get.w.cem.match <- function(x, ...) {
+get.w.cem.match <- function(x, estimand, ...) {
     A <- list(...)
+    if (missing(estimand) || is_null(estimand)) estimand <- "ATT"
     if (isTRUE(A[["use.match.strata"]])) {
         if (is_(x, "cem.match.list")) {
-            return(unlist(lapply(x[vapply(x, is_, logical(1L), "cem.match")], function(cm) strata2weights(cm[["mstrata"]], treat = cm[["groups"]], focal = cm[["baseline.group"]])), use.names = FALSE))
+            return(unlist(lapply(x[vapply(x, is_, logical(1L), "cem.match")], function(cm) strata2weights(cm[["mstrata"]], treat = cm[["groups"]], estimand = estimand)), use.names = FALSE))
         }
-        else return(strata2weights(x[["mstrata"]], treat = x[["groups"]], focal = x[["baseline.group"]]))
+        else return(strata2weights(x[["mstrata"]], treat = x[["groups"]], estimand = estimand))
     }
     else {
         if (is_(x, "cem.match.list")) {
@@ -310,10 +312,11 @@ get.w.cem.match <- function(x, ...) {
     }
 }
 get.w.weightit <- function(x, s.weights = FALSE, ...) {
-    if (s.weights) return(x$weights * x$s.weights)
+    if (isTRUE(s.weights)) return(x$weights * x$s.weights)
     else return(x$weights)
 }
-get.w.designmatch <- function(x, treat, ...) {
+get.w.designmatch <- function(x, treat, estimand, ...) {
+    if (missing(estimand) || is_null(estimand)) estimand <- "ATT"
     if (missing(treat)) stop("'treat' must be specified.", call. = FALSE)
     if (length(x[["group_id"]]) != length(x[["t_id"]]) + length(x[["c_id"]])) {
         stop("designmatch objects without 1:1 matching cannot be used.", call. = FALSE)
@@ -324,7 +327,7 @@ get.w.designmatch <- function(x, treat, ...) {
                all.x = TRUE, by = "id")
     q <- q[order(q$id), , drop = FALSE]
     
-    return(strata2weights(q$group, treat))
+    return(strata2weights(q$group, treat, estimand))
 }
 get.w.mimids <- function(x, ...) {
     weights <- unlist(lapply(x[["models"]][-1], function(m) get.w.matchit(m)))

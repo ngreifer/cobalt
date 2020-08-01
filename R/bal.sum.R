@@ -312,7 +312,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
                 else return(NA_real_)
             }
             ordered.index <- order(x)
-            cumv <- abs(cumsum(weights_[ordered.index]))[c(TRUE, diff(x[ordered.index]) != 0)]
+            cumv <- abs(cumsum(weights_[ordered.index]))[c(diff(x[ordered.index]) != 0, TRUE)]
             return(if (is_null(cumv)) 0 else max(cumv))
         })
     }

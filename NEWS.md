@@ -3,7 +3,13 @@
 
 # cobalt (development version)
 
-* Fixed bugs in processing functions in formulas, including `rms` functions and `poly()` (#40)
+* Fixed bugs in processing functions in formulas, including `rms` functions and `poly()`. (#40)
+
+* Fixed a bug in how KS statistics were computed with `col_w_ks()`. Results now agree with those from `MatchIt` and `twang`.
+
+* Fixed bugs in processing small and partially empty subclasses. 
+
+* In functions that compute weights from matching strata (e.g., `get.w()` for some types of objects), an `estimand` argument can be supplied to choose which formula is used to compute the weights. Subclass propensity scores are computed as the number of treated units in each subclass, and then stabilized weights are computed from those propensity scores using the standard formulas.
 
 # cobalt 4.2.2
 
