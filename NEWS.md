@@ -9,6 +9,8 @@
 
 * Fixed bugs in processing small and partially empty subclasses. 
 
+* In functions that compute weights from matching strata (e.g., `get.w()` for some types of objects), an `estimand` argument can be supplied to choose which formula is used to compute the weights. Subclass propensity scores are computed as the number of treated units in each subclass, and then stabilized weights are computed from those propensity scores using the standard formulas.
+
 # cobalt 4.2.2
 
 * Fixed a bug due to new version of `sbw`.

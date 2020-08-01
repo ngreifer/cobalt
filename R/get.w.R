@@ -302,7 +302,7 @@ get.w.cem.match <- function(x, estimand, ...) {
         if (is_(x, "cem.match.list")) {
             return(unlist(lapply(x[vapply(x, is_, logical(1L), "cem.match")], function(cm) strata2weights(cm[["mstrata"]], treat = cm[["groups"]], estimand = estimand)), use.names = FALSE))
         }
-        else return(strata2weights(x[["mstrata"]], treat = x[["groups"]], focal = x[["baseline.group"]]))
+        else return(strata2weights(x[["mstrata"]], treat = x[["groups"]], estimand = estimand))
     }
     else {
         if (is_(x, "cem.match.list")) {
@@ -312,7 +312,7 @@ get.w.cem.match <- function(x, estimand, ...) {
     }
 }
 get.w.weightit <- function(x, s.weights = FALSE, ...) {
-    if (s.weights) return(x$weights * x$s.weights)
+    if (isTRUE(s.weights)) return(x$weights * x$s.weights)
     else return(x$weights)
 }
 get.w.designmatch <- function(x, treat, estimand, ...) {
