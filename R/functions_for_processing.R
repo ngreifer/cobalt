@@ -1307,6 +1307,32 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
 }
 get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " * ") {
   
+  rebuild_f <- function(ttfactors, tics = FALSE) {
+    #Set tics = TRUE if returned formula is used with tmpcovs,
+    #i.e., a model.frame. If used with data, leave FALSE
+    if (tics) rownames(ttfactors)[!startsWith(rownames(ttfactors), "`")] <- paste0("`", rownames(ttfactors)[!startsWith(rownames(ttfactors), "`")], "`")
+    as.formula(paste("~ 0 +", paste(vapply(seq_len(ncol(ttfactors)), 
+                                           function(x) paste0(rownames(ttfactors)[ttfactors[,x] > 0], collapse = ":"),
+                                           character(1L)), 
+                                    collapse = "+")))
+  }
+  append.ttfactor <- function(ttfactor, term, after) {
+    addrow <- matrix(0, ncol = ncol(ttfactor), nrow = 1, dimnames = list(term, colnames(ttfactor)))
+    addcol <- matrix(c(rep(0, nrow(ttfactor)), 1), ncol = 1, dimnames = list(c(rownames(ttfactor), term),
+                                                                             term))
+    
+    ttfactor <- rbind(ttfactor, addrow)
+    if (after == 0) {
+      return(cbind(addcol, ttfactor))
+    }
+    else if (after == ncol(ttfactor)) {
+      return(cbind(ttfactor, addcol))
+    }
+    else {
+      return(cbind(ttfactor[,seq_len(after)], addcol, ttfactor[,-seq_len(after)]))
+    }
+  }
+  
   if (!rlang::is_formula(f)) stop("'f' must be a formula.")
   
   env <- rlang::f_env(f)
@@ -1343,7 +1369,6 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   attr(tt.covs, "intercept") <- 0
   
   ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-  ttlabels <- attr(tt.covs, "term.labels")
   ttfactors <- attr(tt.covs, "factors")
   
   rhs.df.type <- setNames(vapply(ttvars, function(v) {
@@ -1373,27 +1398,26 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }),
     ttvars[rhs.df])
     
-    for (i in ttlabels[ttlabels %in% ttvars[rhs.df]]) {
+    for (i in colnames(ttfactors)[colnames(ttfactors) %in% ttvars[rhs.df]]) {
       for (j in seq_len(ncol(addl.dfs[[i]]))) {
         if (names(addl.dfs[[i]])[j] %in% c(ttvars[!rhs.df], unlist(lapply(addl.dfs[seq_len(which(names(addl.dfs) == i)-1)], names)))) {
           names(addl.dfs[[i]])[j] <- paste0(i, "_", names(addl.dfs[[i]])[j])
         }
       }
-      ind <- which(ttlabels == i)
-      ttlabels <- append(ttlabels[-ind],
-                         values = paste0("`", names(addl.dfs[[i]]), "`"),
-                         after = ind - 1)
+      ind <- which(colnames(ttfactors) == i)
+      ttfactors <- append.ttfactor(ttfactors[,-ind],
+                                   paste0("`", names(addl.dfs[[i]]), "`"),
+                                   ind - 1)
     }
     
     if (data.specified) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
     else data <- do.call("cbind", unname(addl.dfs))
     
-    new.form <- as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+")))
+    new.form <- rebuild_f(ttfactors)
     tt.covs <- terms(new.form, data = data)
     
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-    ttlabels <- attr(tt.covs, "term.labels")
   }
   
   #Check to make sure variables are valid
@@ -1422,20 +1446,15 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   }
   
   if (!identical(original_ttvars, rownames(ttfactors))) {
-    new.form <- as.formula(paste("~ 0 +", paste(vapply(seq_len(ncol(ttfactors)), 
-                                                       function(x) paste0(rownames(ttfactors)[ttfactors[,x] > 0], collapse = ":"),
-                                                       character(1L)), 
-                                                collapse = "+")))
+    new.form <- rebuild_f(ttfactors)
     tt.covs <- terms(new.form, data = data)
     
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-    ttlabels <- attr(tt.covs, "term.labels")
   }
   
-  mf.covs <- quote(stats::get_all_vars(tt.covs, data))
-  
-  tryCatch({tmpcovs <- eval(mf.covs)}, error = function(e) {stop(conditionMessage(e), call. = FALSE)})
+  tryCatch({tmpcovs <- stats::model.frame(tt.covs, data, na.action = "na.pass")},
+           error = function(e) {stop(conditionMessage(e), call. = FALSE)})
   
   for (i in ttvars) {
     if (is_binary(tmpcovs[[i]])) tmpcovs[[i]] <- factor(tmpcovs[[i]], nmax = 2)
@@ -1453,26 +1472,27 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     has_NA <- apply(tmpcovs, 2, anyNA)
     for (i in rev(colnames(tmpcovs)[has_NA])) {
       #Find which of ttlabels i first appears, and put `i: <NA>` after it
-      for (x in seq_along(ttlabels)) {
-        if (i %in% all.vars(str2expression(ttlabels[x]))) {
+      for (x in seq_along(colnames(ttfactors))) {
+        if (i %in% c(colnames(ttfactors)[x], all.vars(str2expression(colnames(ttfactors)[x])))) {
           ind <- x
           break
         }
       }
-      ttlabels <- append(ttlabels,
-                         values = paste0("`", i, ":<NA>`"),
-                         after = ind)
+      ttfactors <- append.ttfactor(ttfactors, 
+                                  paste0("`", i, ":<NA>`"),
+                                  ind)
+
       tmpcovs[[paste0(i, ":<NA>")]] <- as.numeric(is.na(tmpcovs[[i]]))
     }
-    new.form <- as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+")))
+    new.form <- rebuild_f(ttfactors, tics = TRUE)
+
     tt.covs <- terms(new.form, data = tmpcovs)
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-    ttlabels <- attr(tt.covs, "term.labels")
-    
+
     na_vars <- paste0(colnames(tmpcovs)[has_NA], ":<NA>")
-    
-    tryCatch({tmpcovs <- stats::get_all_vars(tt.covs, tmpcovs)}, 
+
+    tryCatch({tmpcovs <- stats::model.frame(tt.covs, tmpcovs, na.action = "na.pass")},
              error = function(e) {stop(conditionMessage(e), call. = FALSE)})
     
     for (i in ttvars[ttvars %nin% na_vars]) {
