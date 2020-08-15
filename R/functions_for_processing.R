@@ -1317,9 +1317,11 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                                     collapse = "+")))
   }
   append.ttfactor <- function(ttfactor, term, after) {
-    addrow <- matrix(0, ncol = ncol(ttfactor), nrow = 1, dimnames = list(term, colnames(ttfactor)))
-    addcol <- matrix(c(rep(0, nrow(ttfactor)), 1), ncol = 1, dimnames = list(c(rownames(ttfactor), term),
-                                                                             term))
+    addrow <- matrix(0, nrow = length(term), ncol = ncol(ttfactor), 
+                     dimnames = list(term, colnames(ttfactor)))
+    addcol <- matrix(0, nrow = nrow(ttfactor) + length(term), ncol = length(term),
+                     dimnames = list(c(rownames(ttfactor), term), term))
+    addcol[-seq_len(ncol(ttfactor)), ] <- diag(length(term))
     
     ttfactor <- rbind(ttfactor, addrow)
     if (after == 0) {
@@ -1405,9 +1407,9 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         }
       }
       ind <- which(colnames(ttfactors) == i)
-      ttfactors <- append.ttfactor(ttfactors[,-ind],
+      ttfactors <- append.ttfactor(ttfactors,
                                    paste0("`", names(addl.dfs[[i]]), "`"),
-                                   ind - 1)
+                                   ind)[,-ind, drop = FALSE]
     }
     
     if (data.specified) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
