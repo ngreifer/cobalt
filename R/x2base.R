@@ -3735,7 +3735,7 @@ x2base.default <- function(obj, ...) {
     }
     
     #covs 
-    if (is_not_null(covs)) A[["covs"]] <- as.data.frame(A[["covs"]])
+    if (is_not_null(A[["covs"]])) A[["covs"]] <- as.data.frame(A[["covs"]])
     
     #covs.list
     if (is_not_null(A[["covs.list"]])) {
