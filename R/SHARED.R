@@ -86,47 +86,45 @@ ordinal <- function(x) {
     }
 }
 round_df_char <- function(df, digits, pad = "0", na_vals = "") {
-    if (NROW(df) == 0) return(df)
-    nas <- is.na(df)
+    if (NROW(df) == 0 || NCOL(df) == 0) return(df)
     if (!is.data.frame(df)) df <- as.data.frame.matrix(df, stringsAsFactors = FALSE)
-    infs <- sapply(df, function(x) !is.na(x) & (x == Inf | x == -Inf), simplify = "array")
     rn <- rownames(df)
     cn <- colnames(df)
-    df <- as.data.frame(lapply(df, function(col) {
-        if (suppressWarnings(all(!is.na(as.numeric(as.character(col)))))) {
-            as.numeric(as.character(col))
-        } else {
-            col
-        }
-    }), stringsAsFactors = FALSE)
+    
+    infs <- o.negs <- array(FALSE, dim = dim(df))
+    nas <- is.na(df)
     nums <- vapply(df, is.numeric, logical(1))
-    o.negs <- sapply(1:NCOL(df), function(x) if (nums[x]) df[[x]] < 0 else rep(FALSE, length(df[[x]])))
-    df[nums] <- round(df[nums], digits = digits)
+    infs[,nums] <- vapply(which(nums), function(i) !nas[,i] & !is.finite(df[[i]]), logical(NROW(df)))
     
-    df[nas | infs] <- ""
-    
-    df <- as.data.frame(lapply(df, format, scientific = FALSE, justify = "none"), stringsAsFactors = FALSE)
-    
-    for (i in which(nums)) {
-        if (any(grepl(".", df[[i]], fixed = TRUE))) {
-            s <- strsplit(df[[i]], ".", fixed = TRUE)
-            lengths <- lengths(s)
-            digits.r.of.. <- sapply(seq_along(s), function(x) {
-                if (lengths[x] > 1) nchar(s[[x]][lengths[x]])
-                else 0 })
-            df[[i]] <- sapply(seq_along(df[[i]]), function(x) {
-                if (df[[i]][x] == "") ""
-                else if (lengths[x] <= 1) {
-                    paste0(c(df[[i]][x], rep(".", pad == 0), rep(pad, max(digits.r.of..) - digits.r.of..[x] + as.numeric(pad != 0))),
-                           collapse = "")
-                }
-                else paste0(c(df[[i]][x], rep(pad, max(digits.r.of..) - digits.r.of..[x])),
-                            collapse = "")
-            })
+    for (i in which(!nums)) {
+        if (can_str2num(df[[i]])) {
+            df[[i]] <- str2num(df[[i]])
+            nums[i] <- TRUE
         }
     }
     
-    df[o.negs & df == 0] <- paste0("-", df[o.negs & df == 0])
+    o.negs[,nums] <- !nas[,nums] & df[nums] < 0 & round(df[nums], digits) == 0
+    df[nums] <- round(df[nums], digits = digits)
+    
+    for (i in which(nums)) {
+        df[[i]] <- format(df[[i]], scientific = FALSE, justify = "none", trim = TRUE,
+                          drop0trailing = !identical(as.character(pad), "0"))
+        
+        if (!identical(as.character(pad), "0") && any(grepl(".", df[[i]], fixed = TRUE))) {
+            s <- strsplit(df[[i]], ".", fixed = TRUE)
+            lengths <- lengths(s)
+            digits.r.of.. <- rep(0, NROW(df))
+            digits.r.of..[lengths > 1] <- nchar(vapply(s[lengths > 1], `[[`, character(1L), 2))
+            max.dig <- max(digits.r.of..)
+            
+            dots <- ifelse(lengths > 1, "", if (as.character(pad) != "") "." else pad)
+            pads <- vapply(max.dig - digits.r.of.., function(n) paste(rep(pad, n), collapse = ""), character(1L))
+            
+            df[[i]] <- paste0(df[[i]], dots, pads)
+        }
+    }
+    
+    df[o.negs] <- paste0("-", df[o.negs])
     
     # Insert NA placeholders
     df[nas] <- na_vals
