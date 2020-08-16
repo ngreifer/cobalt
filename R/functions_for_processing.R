@@ -179,7 +179,7 @@ initialize_X_msm <- function() {
 weight.check <- function(w) {
   wname <- deparse1(substitute(w))
   if (!is.list(w)) w <- list(w)
-  if (any(anyNA_col(w))) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
+  if (anyNA(w, recursive = TRUE)) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
   if (any(vapply(w, function(x) any(!is.numeric(x)), logical(1L)))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)
   if (any(vapply(w, function(x) any(!is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
   if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found."), call. = FALSE)
@@ -1050,7 +1050,7 @@ process_thresholds <- function(thresholds, stats) {
     
     thresholds[names(thresholds)] <- as.numeric(thresholds)
   }
-  thresholds <- as.list(thresholds[!is.na(thresholds)])
+  thresholds <- as.list(na.rem(thresholds))
   return(thresholds)
 }
 process_subset <- function(subset, n) {
@@ -1723,7 +1723,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   names(co_list[["C"]]) <- vapply(co_list[["C"]], function(x) paste0(x[["component"]], collapse = ""), character(1L))
   
   if (is_not_null(distance)) {
-    if (any(anyNA_col(distance))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
+    if (anyNA(distance, recursive = TRUE)) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
     
     distance.co.names <- attr(distance, "co.names")
     
