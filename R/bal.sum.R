@@ -289,7 +289,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
     
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
-    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
     if (!is_binary(treat[subset])) stop("'treat' must be a binary variable.")
     
