@@ -179,7 +179,7 @@ initialize_X_msm <- function() {
 weight.check <- function(w) {
   wname <- deparse1(substitute(w))
   if (!is.list(w)) w <- list(w)
-  if (any(vapply(w, anyNA, logical(1L)))) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
+  if (any(anyNA_col(w))) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
   if (any(vapply(w, function(x) any(!is.numeric(x)), logical(1L)))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)
   if (any(vapply(w, function(x) any(!is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
   if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found."), call. = FALSE)
@@ -882,9 +882,9 @@ subset_X <- function(X, subset = NULL) {
 imp.complete <- function(data) {
   if (!is_(data, "mids")) stop("'data' not of class 'mids'")
   
-  single.complete <- function(data, where, imp, ell) {
+  single.complete <- function(data, where = NULL, imp, ell) {
     if (is_null(where)) where <- is.na(data)
-    idx <- seq_len(ncol(data))[apply(where, 2, any)]
+    idx <- seq_len(ncol(data))[which(colSums(where) > 0)]
     for (j in idx) {
       if (is_null(imp[[j]])) data[where[, j], j] <- NA
       else data[where[, j], j] <- imp[[j]][, ell]
@@ -1471,7 +1471,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   #Process NAs: make NA variables
   if (anyNA(tmpcovs)) {
-    has_NA <- apply(tmpcovs, 2, anyNA)
+    has_NA <- anyNA_col(tmpcovs)
     for (i in rev(colnames(tmpcovs)[has_NA])) {
       #Find which of ttlabels i first appears, and put `i: <NA>` after it
       for (x in seq_along(colnames(ttfactors))) {
@@ -1723,7 +1723,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   names(co_list[["C"]]) <- vapply(co_list[["C"]], function(x) paste0(x[["component"]], collapse = ""), character(1L))
   
   if (is_not_null(distance)) {
-    if (any(apply(distance, 2, anyNA))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
+    if (any(anyNA_col(distance))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
     
     distance.co.names <- attr(distance, "co.names")
     
@@ -1898,16 +1898,18 @@ find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
   #Finds indices of redundant vars in C1.
   C1.no.miss <- C1[,colnames(C1) %nin% attr(C1, "missing.ind"), drop = FALSE]
   if (is_null(C2)) {
-    suppressWarnings(C.cor <- fun(C1.no.miss, use = "pairwise.complete.obs"))
+    use <- if (anyNA(C1)) "pairwise.complete.obs" else "everything"
+    suppressWarnings(C.cor <- fun(C1.no.miss, use = use))
     s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
   }
   else {
     C2.no.miss <- C2[,colnames(C2) %nin% attr(C2, "missing.ind"), drop = FALSE]
-    suppressWarnings(C.cor <- fun(C2.no.miss, y = C1.no.miss, use = "pairwise.complete.obs"))
+    use <- if (anyNA(C1) || anyNA(C2)) "pairwise.complete.obs" else "everything"
+    suppressWarnings(C.cor <- fun(C2.no.miss, y = C1.no.miss, use = use))
     s <- !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
   }
   
-  redundant.var.indices <- which(apply(s, 2, any))
+  redundant.var.indices <- which(colSums(s) > 0)
   return(redundant.var.indices)
 }
 
