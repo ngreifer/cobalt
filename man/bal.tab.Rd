@@ -2,7 +2,7 @@
 \alias{bal.tab}
 
 \title{
-Generates Balance Statistics
+Display Balance Statistics in a Table
 }
 \description{
 Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument. This page links to each method page and documents the calculation and details of aspects all \code{bal.tab} methods use. For information on the use of \code{bal.tab} with specific types of objects, use the following links:

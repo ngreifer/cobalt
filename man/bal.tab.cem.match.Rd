@@ -1,7 +1,7 @@
 \name{bal.tab.cem.match}
 \alias{bal.tab.cem.match}
 \title{
-Balance Statistics for cem Objects
+Balance Statistics for \code{cem} Objects
 }
 \description{
 Generates balance statistics for \code{cem.match} objects from \pkg{cem}.

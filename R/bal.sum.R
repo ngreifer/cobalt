@@ -289,7 +289,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
     if (lengths["s.weights"] == 0) s.weights <- rep(1, NROW(mat))
     
     if (lengths["subset"] == 0) subset <- rep(TRUE, NROW(mat))
-    else if (anyNA(as.logical(subset))) stop("subset must be a logical vector.")
+    else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
     if (!is_binary(treat[subset])) stop("'treat' must be a binary variable.")
     
@@ -308,7 +308,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
         weights_[treat != tval1] <- -weights[treat != tval1]/sum(weights[treat != tval1])
         ks[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2, function(x) {
             if (anyNA(x)) {
-                if (na.rm) x <- x[!is.na(x)]
+                if (na.rm) x <- na.rem(x)
                 else return(NA_real_)
             }
             ordered.index <- order(x)
@@ -387,7 +387,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
         A[names(A) %nin% names(formals(density.default))] <- NULL
         
         ovl[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2, function(cov) {
-            if (na.rm) cov <- cov[!is.na(cov)]
+            if (na.rm) cov <- na.rem(cov)
             if (!na.rm && anyNA(cov)) return(NA_real_)
             else {
                 cov <- center(cov)/sd(cov)

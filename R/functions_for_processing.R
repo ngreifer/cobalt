@@ -179,7 +179,7 @@ initialize_X_msm <- function() {
 weight.check <- function(w) {
   wname <- deparse1(substitute(w))
   if (!is.list(w)) w <- list(w)
-  if (any(vapply(w, anyNA, logical(1L)))) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
+  if (anyNA(w, recursive = TRUE)) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
   if (any(vapply(w, function(x) any(!is.numeric(x)), logical(1L)))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)
   if (any(vapply(w, function(x) any(!is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
   if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found."), call. = FALSE)
@@ -882,9 +882,9 @@ subset_X <- function(X, subset = NULL) {
 imp.complete <- function(data) {
   if (!is_(data, "mids")) stop("'data' not of class 'mids'")
   
-  single.complete <- function(data, where, imp, ell) {
+  single.complete <- function(data, where = NULL, imp, ell) {
     if (is_null(where)) where <- is.na(data)
-    idx <- seq_len(ncol(data))[apply(where, 2, any)]
+    idx <- seq_len(ncol(data))[which(colSums(where) > 0)]
     for (j in idx) {
       if (is_null(imp[[j]])) data[where[, j], j] <- NA
       else data[where[, j], j] <- imp[[j]][, ell]
@@ -1050,7 +1050,7 @@ process_thresholds <- function(thresholds, stats) {
     
     thresholds[names(thresholds)] <- as.numeric(thresholds)
   }
-  thresholds <- as.list(thresholds[!is.na(thresholds)])
+  thresholds <- as.list(na.rem(thresholds))
   return(thresholds)
 }
 process_subset <- function(subset, n) {
@@ -1307,6 +1307,34 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
 }
 get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " * ") {
   
+  rebuild_f <- function(ttfactors, tics = FALSE) {
+    #Set tics = TRUE if returned formula is used with tmpcovs,
+    #i.e., a model.frame. If used with data, leave FALSE
+    if (tics) rownames(ttfactors)[!startsWith(rownames(ttfactors), "`")] <- paste0("`", rownames(ttfactors)[!startsWith(rownames(ttfactors), "`")], "`")
+    as.formula(paste("~ 0 +", paste(vapply(seq_len(ncol(ttfactors)), 
+                                           function(x) paste0(rownames(ttfactors)[ttfactors[,x] > 0], collapse = ":"),
+                                           character(1L)), 
+                                    collapse = "+")))
+  }
+  append.ttfactor <- function(ttfactor, term, after) {
+    addrow <- matrix(0, nrow = length(term), ncol = ncol(ttfactor), 
+                     dimnames = list(term, colnames(ttfactor)))
+    addcol <- matrix(0, nrow = nrow(ttfactor) + length(term), ncol = length(term),
+                     dimnames = list(c(rownames(ttfactor), term), term))
+    addcol[-seq_len(ncol(ttfactor)), ] <- diag(length(term))
+    
+    ttfactor <- rbind(ttfactor, addrow)
+    if (after == 0) {
+      return(cbind(addcol, ttfactor))
+    }
+    else if (after == ncol(ttfactor)) {
+      return(cbind(ttfactor, addcol))
+    }
+    else {
+      return(cbind(ttfactor[,seq_len(after)], addcol, ttfactor[,-seq_len(after)]))
+    }
+  }
+  
   if (!rlang::is_formula(f)) stop("'f' must be a formula.")
   
   env <- rlang::f_env(f)
@@ -1343,7 +1371,6 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   attr(tt.covs, "intercept") <- 0
   
   ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-  ttlabels <- attr(tt.covs, "term.labels")
   ttfactors <- attr(tt.covs, "factors")
   
   rhs.df.type <- setNames(vapply(ttvars, function(v) {
@@ -1373,27 +1400,26 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }),
     ttvars[rhs.df])
     
-    for (i in ttlabels[ttlabels %in% ttvars[rhs.df]]) {
+    for (i in colnames(ttfactors)[colnames(ttfactors) %in% ttvars[rhs.df]]) {
       for (j in seq_len(ncol(addl.dfs[[i]]))) {
         if (names(addl.dfs[[i]])[j] %in% c(ttvars[!rhs.df], unlist(lapply(addl.dfs[seq_len(which(names(addl.dfs) == i)-1)], names)))) {
           names(addl.dfs[[i]])[j] <- paste0(i, "_", names(addl.dfs[[i]])[j])
         }
       }
-      ind <- which(ttlabels == i)
-      ttlabels <- append(ttlabels[-ind],
-                         values = paste0("`", names(addl.dfs[[i]]), "`"),
-                         after = ind - 1)
+      ind <- which(colnames(ttfactors) == i)
+      ttfactors <- append.ttfactor(ttfactors,
+                                   paste0("`", names(addl.dfs[[i]]), "`"),
+                                   ind)[,-ind, drop = FALSE]
     }
     
     if (data.specified) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
     else data <- do.call("cbind", unname(addl.dfs))
     
-    new.form <- as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+")))
+    new.form <- rebuild_f(ttfactors)
     tt.covs <- terms(new.form, data = data)
     
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-    ttlabels <- attr(tt.covs, "term.labels")
   }
   
   #Check to make sure variables are valid
@@ -1422,20 +1448,15 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   }
   
   if (!identical(original_ttvars, rownames(ttfactors))) {
-    new.form <- as.formula(paste("~ 0 +", paste(vapply(seq_len(ncol(ttfactors)), 
-                                                       function(x) paste0(rownames(ttfactors)[ttfactors[,x] > 0], collapse = ":"),
-                                                       character(1L)), 
-                                                collapse = "+")))
+    new.form <- rebuild_f(ttfactors)
     tt.covs <- terms(new.form, data = data)
     
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-    ttlabels <- attr(tt.covs, "term.labels")
   }
   
-  mf.covs <- quote(stats::get_all_vars(tt.covs, data))
-  
-  tryCatch({tmpcovs <- eval(mf.covs)}, error = function(e) {stop(conditionMessage(e), call. = FALSE)})
+  tryCatch({tmpcovs <- stats::model.frame(tt.covs, data, na.action = "na.pass")},
+           error = function(e) {stop(conditionMessage(e), call. = FALSE)})
   
   for (i in ttvars) {
     if (is_binary(tmpcovs[[i]])) tmpcovs[[i]] <- factor(tmpcovs[[i]], nmax = 2)
@@ -1450,29 +1471,30 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   #Process NAs: make NA variables
   if (anyNA(tmpcovs)) {
-    has_NA <- apply(tmpcovs, 2, anyNA)
+    has_NA <- anyNA_col(tmpcovs)
     for (i in rev(colnames(tmpcovs)[has_NA])) {
       #Find which of ttlabels i first appears, and put `i: <NA>` after it
-      for (x in seq_along(ttlabels)) {
-        if (i %in% all.vars(str2expression(ttlabels[x]))) {
+      for (x in seq_along(colnames(ttfactors))) {
+        if (i %in% c(colnames(ttfactors)[x], all.vars(str2expression(colnames(ttfactors)[x])))) {
           ind <- x
           break
         }
       }
-      ttlabels <- append(ttlabels,
-                         values = paste0("`", i, ":<NA>`"),
-                         after = ind)
+      ttfactors <- append.ttfactor(ttfactors, 
+                                  paste0("`", i, ":<NA>`"),
+                                  ind)
+
       tmpcovs[[paste0(i, ":<NA>")]] <- as.numeric(is.na(tmpcovs[[i]]))
     }
-    new.form <- as.formula(paste("~ 0 +", paste(ttlabels, collapse = "+")))
+    new.form <- rebuild_f(ttfactors, tics = TRUE)
+
     tt.covs <- terms(new.form, data = tmpcovs)
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-    ttlabels <- attr(tt.covs, "term.labels")
-    
+
     na_vars <- paste0(colnames(tmpcovs)[has_NA], ":<NA>")
-    
-    tryCatch({tmpcovs <- stats::get_all_vars(tt.covs, tmpcovs)}, 
+
+    tryCatch({tmpcovs <- stats::model.frame(tt.covs, tmpcovs, na.action = "na.pass")},
              error = function(e) {stop(conditionMessage(e), call. = FALSE)})
     
     for (i in ttvars[ttvars %nin% na_vars]) {
@@ -1701,7 +1723,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   names(co_list[["C"]]) <- vapply(co_list[["C"]], function(x) paste0(x[["component"]], collapse = ""), character(1L))
   
   if (is_not_null(distance)) {
-    if (any(apply(distance, 2, anyNA))) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
+    if (anyNA(distance, recursive = TRUE)) stop("Missing values are not allowed in the distance measure.", call. = FALSE)
     
     distance.co.names <- attr(distance, "co.names")
     
@@ -1876,16 +1898,18 @@ find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
   #Finds indices of redundant vars in C1.
   C1.no.miss <- C1[,colnames(C1) %nin% attr(C1, "missing.ind"), drop = FALSE]
   if (is_null(C2)) {
-    suppressWarnings(C.cor <- fun(C1.no.miss, use = "pairwise.complete.obs"))
+    use <- if (anyNA(C1)) "pairwise.complete.obs" else "everything"
+    suppressWarnings(C.cor <- fun(C1.no.miss, use = use))
     s <- !lower.tri(C.cor, diag=TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
   }
   else {
     C2.no.miss <- C2[,colnames(C2) %nin% attr(C2, "missing.ind"), drop = FALSE]
-    suppressWarnings(C.cor <- fun(C2.no.miss, y = C1.no.miss, use = "pairwise.complete.obs"))
+    use <- if (anyNA(C1) || anyNA(C2)) "pairwise.complete.obs" else "everything"
+    suppressWarnings(C.cor <- fun(C2.no.miss, y = C1.no.miss, use = use))
     s <- !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
   }
   
-  redundant.var.indices <- which(apply(s, 2, any))
+  redundant.var.indices <- which(colSums(s) > 0)
   return(redundant.var.indices)
 }
 

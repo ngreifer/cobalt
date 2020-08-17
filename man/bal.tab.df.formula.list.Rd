@@ -4,7 +4,7 @@
 \alias{bal.tab.formula.list}
 \alias{bal.tab.data.frame.list}
 \title{
-Balance Statistics for Longitudinal Treatments
+Balance Statistics for Longitudinal Datasets
 }
 \description{
 Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. \code{bal.tab} automatically classifies this list as either a \code{data.frame.list} or \code{formula.list}, respectively.

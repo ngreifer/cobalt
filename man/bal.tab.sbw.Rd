@@ -1,7 +1,7 @@
 \name{bal.tab.sbw}
 \alias{bal.tab.sbwcau}
 \title{
-Balance Statistics for sbw Objects
+Balance Statistics for \code{sbw} Objects
 }
 \description{
 Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.

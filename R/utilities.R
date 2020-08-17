@@ -1,7 +1,7 @@
 #Utility functions
 f.build <- function(y, rhs) {
     if (missing(rhs)) {
-        if (missing(y)) stop("Right hand side argument to f.build() must be a vector of variable names or a data set with named variables.", call. = FALSE)
+        if (missing(y)) stop("The right hand side argument to f.build() must be a vector of variable names or a data set with named variables.", call. = FALSE)
         else {
             rhs <- y
             y <- ""

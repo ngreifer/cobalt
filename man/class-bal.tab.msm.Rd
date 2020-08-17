@@ -1,6 +1,5 @@
 \name{class-bal.tab.msm}
 \alias{class-bal.tab.msm}
-\alias{bal.tab.msm}
 
 \title{Using \code{bal.tab()} with Longitudinal Treatments}
 \description{

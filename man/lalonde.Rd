@@ -2,7 +2,7 @@
 \alias{lalonde}
 \alias{lalonde_mis}
 \docType{data}
-\title{Lalonde's National Supported Work Demonstration data}
+\title{Lalonde's National Supported Work Demonstration Data}
 \description{
 One of the datasets used by Dehejia and Wahba in their paper "Causal Effects in Non-Experimental Studies: Reevaluating the Evaluation of Training Programs." Versions of this data set have been used as an example data set in \pkg{MatchIt}, \pkg{twang}, \pkg{Matching}, and \pkg{CBPS}. The data set \code{lalonde_mis} is the same but with some values missing (set to \code{NA}).
 }
@@ -16,7 +16,7 @@ data("lalonde_mis")}
                         0 if from the Current Population Survey}
     \item{\code{age}}{age}
     \item{\code{educ}}{years of education}
-    \item{\code{race}}{factor; black, Hispanic (hispan), or white}
+    \item{\code{race}}{\code{factor}; black, Hispanic (hispan), or white}
     \item{\code{married}}{1 if married, 0 otherwise}
     \item{\code{nodegree}}{1 if no degree, 0 otherwise}
     \item{\code{re74}}{earnings in 1974 (pretreatment)}

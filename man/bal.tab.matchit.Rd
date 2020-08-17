@@ -1,7 +1,7 @@
 \name{bal.tab.matchit}
 \alias{bal.tab.matchit}
 \title{
-Balance Statistics for MatchIt Objects
+Balance Statistics for \code{MatchIt} Objects
 }
 \description{
 Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
