@@ -12,11 +12,11 @@ knitr::opts_chunk$set(
   tidy = TRUE,
   fig.align='center',
   comment = "#>",
-  fig.path = "inst/figures/README-"
+  fig.path = "man/figures/README-"
 )
 #if (!requireNamespace("MatchIt")) knitr::opts_chunk$set(eval = FALSE)
 ```
-# cobalt <img src="inst/figures/cobalt-logo.png" align="right" width="150"/>
+# cobalt <img src="man/figures/cobalt-logo.png" align="right" width="150"/>
 
 #### Covariate Balance Tables and Plots
 [![CRAN_Status_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt) [![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
@@ -58,7 +58,7 @@ bal.plot(m.out, var.name = "educ")
 bal.plot(m.out, var.name = "distance",
          mirror = TRUE, type = "histogram")
 ```
-![](inst/figures/README-unnamed-chunk-3-1.png){ display=inline } ![](inst/figures/README-unnamed-chunk-3-2.png){ display=inline }
+![](man/figures/README-unnamed-chunk-3-1.png){ display=inline } ![](man/figures/README-unnamed-chunk-3-2.png){ display=inline }
 
 
 ```{r}

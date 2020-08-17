@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# cobalt <img src="inst/figures/cobalt-logo.png" align="right" width="150"/>
+# cobalt <img src="man/figures/cobalt-logo.png" align="right" width="150"/>
 
 #### Covariate Balance Tables and Plots
 
@@ -124,8 +124,8 @@ bal.plot(m.out, var.name = "distance",
          mirror = TRUE, type = "histogram")
 ```
 
-![](inst/figures/README-unnamed-chunk-3-1.png)
-![](inst/figures/README-unnamed-chunk-3-2.png)
+![](man/figures/README-unnamed-chunk-3-1.png)
+![](man/figures/README-unnamed-chunk-3-2.png)
 
 ``` r
 #Generating a Love plot to report balance:
@@ -135,7 +135,7 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
           var.order = "unadjusted")
 ```
 
-<img src="inst/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
 
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, you could write: “Matching was performed using

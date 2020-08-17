@@ -1,10 +1,10 @@
 reference:
-- title: "Primary Balance Assessment Functions"
+- title: Primary Balance Assessment Functions
 - contents: 
   - bal.tab
   - bal.plot
   - love.plot
-- title: "bal.tab() Methods"
+- title: bal.tab() Methods
 - contents:
   - bal.tab.data.frame
   - bal.tab.data.frame.list
@@ -17,14 +17,14 @@ reference:
   - bal.tab.ps
   - bal.tab.weightit
   - bal.tab.default
-- title: "bal.tab() Classes"
+- title: bal.tab() Classes
 - contents:
   - starts_with("class-bal.tab")
-- title: "Balance and Display Options"
+- title: Balance and Display Options
 - contents:
   - "`Balance Statistics`"
   - "`Display Options`"
-- title: "Helper Functions"
+- title: Helper Functions
 - contents:
   - "`Balance Summary`"
   - f.build
@@ -33,6 +33,6 @@ reference:
   - set.cobalt.options
   - splitfactor
   - var.names
-- title: "Data"
+- title: Data
 - contents:
   - lalonde
