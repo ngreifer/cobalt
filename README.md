@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# cobalt <img src="man/figures/logo.png" align="right" width="150"/>
+# cobalt <img src="docs/reference/figures/logo.png" align="right" width="150"/>
 
 #### Covariate Balance Tables and Plots
 
