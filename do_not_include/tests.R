@@ -16,12 +16,18 @@ bal.tab(f.build("treat",covs), data = lalonde, ks.threshold = .1)
 
 #MatchIt: matching w/ PS
 library("MatchIt")
-m1 <- matchit(f.build("treat", covs), data = lalonde, replace = T, ratio = 2, 
+m1 <- matchit(treat ~ log(age)*married + educ + race + nodegree + re74 + re75, 
+              data = lalonde, replace = T, ratio = 2, 
               discard = "both", reestimate = TRUE)
 bal.tab(m1, int = T, v.threshold = 2, imbalanced.only = T)
 #MatchIt: matching w/ distance
 m1.1 <- matchit(f.build("treat", covs), data = lalonde, distance = runif(nrow(lalonde)))
 bal.tab(m1.1, data = lalonde)
+#Matching with complicated formula
+library(rms)
+m1.2 <- matchit(treat ~ log(age)*married + poly(educ,2) + rcs(age,3) + race + factor(nodegree) + re74 + re75, 
+              data = lalonde, replace = T, ratio = 2)
+bal.tab(m1.2, addl = ~ rcs(educ,3) + poly(age,2))
 #MatchIt: matching w/Mahalanobis
 m2 <- matchit(f.build("treat", covs[,-3]), data = lalonde, distance = "mahalanobis")
 bal.tab(m2, data = lalonde, int = T, v.threshold = 2, addl = "race")
