@@ -127,7 +127,7 @@
 <span class="no">covs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">lalonde</span>, <span class="kw">select</span> <span class="kw">=</span> -<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">treat</span>, <span class="no">re78</span>))
 <span class="fu"><a href="../reference/f.build.html">f.build</a></span>(<span class="st">"treat"</span>, <span class="no">covs</span>)</pre></body></html></div>
 <pre><code>## treat ~ age + educ + race + married + nodegree + re74 + re75
-## &lt;environment: 0x7fc06ef492d8&gt;</code></pre>
+## &lt;environment: 0x7fe378eef2d8&gt;</code></pre>
 <p>The function creates a <code>formula</code> object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of <code><a href="../reference/f.build.html">f.build()</a></code> is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># Generating propensity scores using logistic regression</span>
 <span class="no">p.score</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html">glm</a></span>(<span class="fu"><a href="../reference/f.build.html">f.build</a></span>(<span class="st">"treat"</span>, <span class="no">covs</span>), <span class="kw">data</span> <span class="kw">=</span> <span class="no">lalonde</span>, <span class="kw">family</span> <span class="kw">=</span> <span class="st">"binomial"</span>)$<span class="no">fitted.values</span>
@@ -450,20 +450,20 @@
 <div class="sourceCode" id="cb34"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">wt.out</span>)</pre></body></html></div>
 <pre><code>## Balance summary across all imputations
 ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## prop.score  Distance       0.1517        0.1600       0.1763
-## age          Contin.      -0.1949       -0.1910      -0.1878
-## educ         Contin.       0.0796        0.0846       0.0904
-## married       Binary      -0.1144       -0.1039      -0.0931
-## race_black    Binary       0.0545        0.0584       0.0662
-## race_hispan   Binary       0.0087        0.0111       0.0123
-## race_white    Binary      -0.0773       -0.0695      -0.0658
-## re74         Contin.      -0.2889       -0.2834      -0.2732
-## re75         Contin.      -0.1769       -0.1567      -0.1298
+## prop.score  Distance       0.1358        0.1527       0.1661
+## age          Contin.      -0.1895       -0.1855      -0.1817
+## educ         Contin.       0.0736        0.0805       0.0843
+## married       Binary      -0.1093       -0.0985      -0.0872
+## race_black    Binary       0.0478        0.0551       0.0622
+## race_hispan   Binary       0.0071        0.0094       0.0118
+## race_white    Binary      -0.0715       -0.0645      -0.0556
+## re74         Contin.      -0.3080       -0.2916      -0.2724
+## re75         Contin.      -0.1727       -0.1568      -0.1413
 ## 
 ## Average effective sample sizes across imputations
 ##            Control Treated
-## Unadjusted  429.     185. 
-## Adjusted    330.75    66.6</code></pre>
+## Unadjusted  429.    185.  
+## Adjusted    332.21   67.08</code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div id="using-bal-tab-with-cem" class="section level3">
@@ -513,22 +513,22 @@
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">cem.out.imp</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">imp.out</span>)</pre></body></html></div>
 <pre><code>## Balance summary across all imputations
 ##                Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age         Contin.       0.0426        0.0477       0.0505
-## educ        Contin.      -0.0386       -0.0339      -0.0165
+## age         Contin.       0.0411        0.0477       0.0524
+## educ        Contin.      -0.0434       -0.0353      -0.0165
 ## race_black   Binary      -0.0000       -0.0000       0.0000
-## race_hispan  Binary       0.0000        0.0000       0.0000
+## race_hispan  Binary      -0.0000        0.0000       0.0000
 ## race_white   Binary      -0.0000       -0.0000       0.0000
-## married      Binary      -0.0000       -0.0000       0.0000
-## nodegree     Binary      -0.0000       -0.0000       0.0000
-## re74        Contin.      -0.0489       -0.0400      -0.0335
-## re75        Contin.      -0.0705       -0.0538      -0.0465
+## married      Binary      -0.0000        0.0000       0.0000
+## nodegree     Binary       0.0000        0.0000       0.0000
+## re74        Contin.      -0.0390       -0.0349      -0.0331
+## re75        Contin.      -0.0608       -0.0521      -0.0473
 ## 
 ## Average sample sizes across imputations
 ##                      Control Treated
-## All                    429.    185. 
-## Matched (ESS)           35.6    66.2
-## Matched (Unweighted)    77.7    66.2
-## Unmatched              351.3   118.8</code></pre>
+## All                   429.     185. 
+## Matched (ESS)          35.64    66.2
+## Matched (Unweighted)   77.8     66.2
+## Unmatched             351.2    118.8</code></pre>
 </div>
 <div id="using-bal-tab-with-other-packages" class="section level3">
 <h3 class="hasAnchor">
