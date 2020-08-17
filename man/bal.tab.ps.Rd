@@ -4,7 +4,7 @@
 \alias{bal.tab.iptw}
 \alias{bal.tab.ps.cont}
 \title{
-Balance Statistics for twang Objects
+Balance Statistics for \code{twang} Objects
 }
 \description{
 Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{WeightIt}. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.

@@ -2,7 +2,7 @@
 \alias{set.cobalt.options}
 \alias{get.cobalt.options}
 \title{
-Set options in cobalt
+Set and Get Options in \code{cobalt}
 }
 \description{
 Makes it easier to set \pkg{cobalt} options. \code{set.cobalt.options} is essentially a wrapper for \code{\link{options}} but performs several checks, and \code{get.cobalt.options} is essentially a wrapper for \code{\link{getOption}}.

@@ -9,7 +9,7 @@
 \alias{col_w_corr}
 
 \title{
-Compute balance statistics for covariates
+Compute Balance Statistics for Covariates
 }
 \description{
 These functions quickly compute balance statistics for the given covariates. These functions are used in \code{\link{bal.tab}}, but they are available for use in programming without having to call \code{bal.tab()} to get them.

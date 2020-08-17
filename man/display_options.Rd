@@ -1,4 +1,4 @@
-\name{options-display}
+\name{Display Options}
 \alias{options-display}
 \alias{display_options}
 

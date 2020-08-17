@@ -2,7 +2,7 @@
 \alias{bal.tab.weightit}
 \alias{bal.tab.weightitMSM}
 \title{
-Balance Statistics for WeightIt Objects
+Balance Statistics for \code{WeightIt} Objects
 }
 \description{
 Generates balance statistics for \code{weightit} and \code{weightitMSM} objects from \pkg{WeightIt}.

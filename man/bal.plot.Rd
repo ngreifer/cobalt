@@ -2,7 +2,7 @@
 \alias{bal.plot}
 
 \title{
-Generate Univariate Balance Plots
+Visualize Distributional Balance
 }
 \description{
 Generates density plots, bar graphs, or scatterplots displaying distributional balance between treatment and covariates using \pkg{ggplot2}.

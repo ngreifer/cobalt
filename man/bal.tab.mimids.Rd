@@ -2,7 +2,7 @@
 \alias{bal.tab.mimids}
 \alias{bal.tab.wimids}
 \title{
-Balance Statistics for MatchThem Objects
+Balance Statistics for \code{MatchThem} Objects
 }
 \description{
 Generates balance statistics for \code{mimids} and \code{wimids} objects from \pkg{MatchThem}.

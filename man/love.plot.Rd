@@ -2,10 +2,10 @@
 \alias{love.plot}
 \alias{plot.bal.tab}
 \title{
-Generate Balance Plots for Publication
+Display Balance Statistics in a Love Plot
 }
 \description{
-Generates a "Love" plot graphically displaying covariate balance before and after adjusting.
+Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots.
 }
 \usage{
 love.plot(x, 

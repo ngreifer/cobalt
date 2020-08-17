@@ -3,7 +3,7 @@
 \alias{bal.tab.CBMSM}
 
 \title{
-Balance statistics for CBPS Objects
+Balance statistics for \code{CBPS} Objects
 }
 \description{
 Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \pkg{CBPS} package.
