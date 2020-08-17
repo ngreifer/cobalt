@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# cobalt <img src="docs/logo.png" align="right" width="150"/>
+# cobalt <img src="man/figures/logo.png" align="right" width="150"/>
 
 #### Covariate Balance Tables and Plots
 
@@ -77,12 +77,11 @@ library("cobalt")
 library("MatchIt")
 data("lalonde", package = "cobalt")
 
-#Nearest neighbor matching with MatchIt
-m.out <- matchit(treat ~ age + educ + race + married + nodegree +
-                     re74 + re75, data = lalonde)
+# Nearest neighbor matching with MatchIt
+m.out <- matchit(treat ~ age + educ + race + married + nodegree + re74 + re75, data = lalonde)
 
-#Checking balance before and after matching:
-bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
+# Checking balance before and after matching:
+bal.tab(m.out, thresholds = c(m = 0.1), un = TRUE)
 ```
 
     #> Call
@@ -118,21 +117,18 @@ bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
     #> Unmatched     244       0
 
 ``` r
-#Examining distributional balance with plots:
+# Examining distributional balance with plots:
 bal.plot(m.out, var.name = "educ")
-bal.plot(m.out, var.name = "distance",
-         mirror = TRUE, type = "histogram")
+bal.plot(m.out, var.name = "distance", mirror = TRUE, type = "histogram")
 ```
 
 ![](man/figures/README-unnamed-chunk-3-1.png)
 ![](man/figures/README-unnamed-chunk-3-2.png)
 
 ``` r
-#Generating a Love plot to report balance:
-love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
-          thresholds = c(m = .1, v = 2), abs = TRUE, 
-          binary = "std",
-          var.order = "unadjusted")
+# Generating a Love plot to report balance:
+love.plot(m.out, stats = c("mean.diffs", "variance.ratios"), thresholds = c(m = 0.1, 
+    v = 2), abs = TRUE, binary = "std", var.order = "unadjusted")
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />

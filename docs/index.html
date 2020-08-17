@@ -127,12 +127,11 @@
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"MatchIt"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>)
 
-<span class="co">#Nearest neighbor matching with MatchIt</span>
-<span class="no">m.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit</a></span>(<span class="no">treat</span> ~ <span class="no">age</span> + <span class="no">educ</span> + <span class="no">race</span> + <span class="no">married</span> + <span class="no">nodegree</span> +
-                     <span class="no">re74</span> + <span class="no">re75</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">lalonde</span>)
+<span class="co"># Nearest neighbor matching with MatchIt</span>
+<span class="no">m.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit</a></span>(<span class="no">treat</span> ~ <span class="no">age</span> + <span class="no">educ</span> + <span class="no">race</span> + <span class="no">married</span> + <span class="no">nodegree</span> + <span class="no">re74</span> + <span class="no">re75</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">lalonde</span>)
 
-<span class="co">#Checking balance before and after matching:</span>
-<span class="fu"><a href="reference/bal.tab.html">bal.tab</a></span>(<span class="no">m.out</span>, <span class="kw">thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">m</span> <span class="kw">=</span> <span class="fl">.1</span>), <span class="kw">un</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></div>
+<span class="co"># Checking balance before and after matching:</span>
+<span class="fu"><a href="reference/bal.tab.html">bal.tab</a></span>(<span class="no">m.out</span>, <span class="kw">thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">m</span> <span class="kw">=</span> <span class="fl">0.1</span>), <span class="kw">un</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">#&gt; Call</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt;  matchit(formula = treat ~ age + educ + race + married + nodegree + </span></span>
 <span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt;     re74 + re75, data = lalonde)</span></span>
@@ -164,16 +163,13 @@
 <span id="cb2-29"><a href="#cb2-29"></a><span class="co">#&gt; All           429     185</span></span>
 <span id="cb2-30"><a href="#cb2-30"></a><span class="co">#&gt; Matched       185     185</span></span>
 <span id="cb2-31"><a href="#cb2-31"></a><span class="co">#&gt; Unmatched     244       0</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="r"><span class="co">#Examining distributional balance with plots:</span>
+<div class="sourceCode" id="cb3"><pre class="r"><span class="co"># Examining distributional balance with plots:</span>
 <span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span>(<span class="no">m.out</span>, <span class="kw">var.name</span> <span class="kw">=</span> <span class="st">"educ"</span>)
-<span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span>(<span class="no">m.out</span>, <span class="kw">var.name</span> <span class="kw">=</span> <span class="st">"distance"</span>,
-         <span class="kw">mirror</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"histogram"</span>)</pre></div>
+<span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span>(<span class="no">m.out</span>, <span class="kw">var.name</span> <span class="kw">=</span> <span class="st">"distance"</span>, <span class="kw">mirror</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">type</span> <span class="kw">=</span> <span class="st">"histogram"</span>)</pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-3-1.png"><img src="reference/figures/README-unnamed-chunk-3-2.png"></p>
-<div class="sourceCode" id="cb4"><pre class="r"><span class="co">#Generating a Love plot to report balance:</span>
-<span class="fu"><a href="reference/love.plot.html">love.plot</a></span>(<span class="no">m.out</span>, <span class="kw">stats</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span>),
-          <span class="kw">thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">m</span> <span class="kw">=</span> <span class="fl">.1</span>, <span class="kw">v</span> <span class="kw">=</span> <span class="fl">2</span>), <span class="kw">abs</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-          <span class="kw">binary</span> <span class="kw">=</span> <span class="st">"std"</span>,
-          <span class="kw">var.order</span> <span class="kw">=</span> <span class="st">"unadjusted"</span>)</pre></div>
+<div class="sourceCode" id="cb4"><pre class="r"><span class="co"># Generating a Love plot to report balance:</span>
+<span class="fu"><a href="reference/love.plot.html">love.plot</a></span>(<span class="no">m.out</span>, <span class="kw">stats</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span>), <span class="kw">thresholds</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="kw">m</span> <span class="kw">=</span> <span class="fl">0.1</span>,
+    <span class="kw">v</span> <span class="kw">=</span> <span class="fl">2</span>), <span class="kw">abs</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">binary</span> <span class="kw">=</span> <span class="st">"std"</span>, <span class="kw">var.order</span> <span class="kw">=</span> <span class="st">"unadjusted"</span>)</pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;"></p>
 <p>Please remember to cite this package when using it to analyze data. For example, in a manuscript, you could write: “Matching was performed using the <em>Matching</em> package (Sekhon, 2011), and covariate balance was assessed using <em>cobalt</em> (Greifer, 2020), both in R (R Core Team, 2020).” Use <code><a href="https://rdrr.io/r/utils/citation.html">citation("cobalt")</a></code> to generate a bibliographic reference for the <code>cobalt</code> package.</p>
 <p>Bugs appear in <code>cobalt</code> occasionally, often found by users. Please report any bugs at <a href="https://github.com/ngreifer/cobalt/issues" class="uri">https://github.com/ngreifer/cobalt/issues</a>. To install the latest development version of <code>cobalt</code>, which may have removed a bug you’re experiencing, use the following code:</p>

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 #if (!requireNamespace("MatchIt")) knitr::opts_chunk$set(eval = FALSE)
 ```
-# cobalt <img src="docs/logo.png" align="right" width="150"/>
+# cobalt <img src="man/figures/logo.png" align="right" width="150"/>
 
 #### Covariate Balance Tables and Plots
 [![CRAN_Status_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt) [![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
