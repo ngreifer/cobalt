@@ -18,7 +18,7 @@ balance assessment tools found in other R packages. To examine how
 for `bal.tab()` with `?bal.tab`, which links to the methods used for
 each package. Each page has examples of how `bal.tab()` is used with the
 package. There are also five vignettes detailing the use of `cobalt`,
-which can be accessed at `vignettes("cobalt")`: one for basic uses of
+which can be accessed at `vignette("cobalt")`: one for basic uses of
 `cobalt`, one for the use of `cobalt` with additional packages, one for
 the use of `cobalt` with multiply imputed and/or clustered data, one for
 the use of `cobalt` with longitudinal treatments, and one for the use of
