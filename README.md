@@ -3,12 +3,9 @@
 
 # cobalt <img src="docs/reference/figures/logo.png" align="right" width="150"/>
 
-#### Covariate Balance Tables and Plots
+## [![CRAN\_Status\_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt) [![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
 
-[![CRAN\_Status\_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
-[![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
-
------
+### Overview
 
 Welcome to `cobalt`, which stands for **Co**variate **Bal**ance
 **T**ables (and Plots). `cobalt` allows users to assess balance on
@@ -30,7 +27,7 @@ compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`,
 `CBPS`, `ebal`, `WeightIt`, `designmatch`, `sbw`, `MatchThem`, and `cem`
 as well as data not processed through these packages.
 
-## Why cobalt?
+### Why cobalt?
 
 Most of the major conditioning packages contain functions to assess
 balance; so why use `cobalt` at all? `cobalt` arose out of several
@@ -68,7 +65,7 @@ methodological work on balance assessment. As new packages and methods
 are developed, `cobalt` will be ready to integrate them to further our
 goal of simple, unified balance assessment.
 
-## Examples
+### Examples
 
 Below are examples of `cobalt`’s primary functions:
 
