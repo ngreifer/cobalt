@@ -2,10 +2,10 @@ pandoc: 2.7.3
 pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
-  cobalt_A0_basic_use: cobalt_A0_basic_use.html
+  cobalt: cobalt.html
   cobalt_A1_other_packages: cobalt_A1_other_packages.html
   cobalt_A2_segmented_data: cobalt_A2_segmented_data.html
   cobalt_A3_longitudinal_treat: cobalt_A3_longitudinal_treat.html
   cobalt_A4_love.plot: cobalt_A4_love.plot.html
-last_built: 2020-08-17T19:57Z
+last_built: 2020-08-18T02:52Z
 
