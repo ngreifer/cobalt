@@ -73,7 +73,7 @@
       <a href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
     </li>
     <li>
-      <a href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using `love.plot` To Generate Love Plots</a>
+      <a href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
     </li>
   </ul>
 </li>
@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Appendix 1: Using cobalt with Other Preprocessing Packages</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2020-08-17</h4>
+            <h4 class="date">2020-08-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A1_other_packages.Rmd"><code>vignettes/cobalt_A1_other_packages.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A1_other_packages.Rmd</code></div>
@@ -127,7 +127,7 @@
 <span class="no">covs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">lalonde</span>, <span class="kw">select</span> <span class="kw">=</span> -<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">treat</span>, <span class="no">re78</span>))
 <span class="fu"><a href="../reference/f.build.html">f.build</a></span>(<span class="st">"treat"</span>, <span class="no">covs</span>)</pre></body></html></div>
 <pre><code>## treat ~ age + educ + race + married + nodegree + re74 + re75
-## &lt;environment: 0x7f82c14702d8&gt;</code></pre>
+## &lt;environment: 0x7ffe52561270&gt;</code></pre>
 <p>The function creates a <code>formula</code> object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of <code><a href="../reference/f.build.html">f.build()</a></code> is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># Generating propensity scores using logistic regression</span>
 <span class="no">p.score</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html">glm</a></span>(<span class="fu"><a href="../reference/f.build.html">f.build</a></span>(<span class="st">"treat"</span>, <span class="no">covs</span>), <span class="kw">data</span> <span class="kw">=</span> <span class="no">lalonde</span>, <span class="kw">family</span> <span class="kw">=</span> <span class="st">"binomial"</span>)$<span class="no">fitted.values</span>
@@ -197,6 +197,28 @@
              <span class="kw">stop.method</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"es.mean"</span>, <span class="st">"es.max"</span>),
              <span class="kw">estimand</span> <span class="kw">=</span> <span class="st">"ATT"</span>, <span class="kw">n.trees</span> <span class="kw">=</span> <span class="fl">1000</span>, <span class="kw">verbose</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">ps.out</span>, <span class="kw">stop.method</span> <span class="kw">=</span> <span class="st">"es.mean"</span>)</pre></body></html></div>
+<pre><code>## Call
+##  ps(formula = f.build("treat", covs0), data = lalonde, n.trees = 1000, 
+##     verbose = FALSE, estimand = "ATT", stop.method = c("es.mean", 
+##         "es.max"))
+## 
+## Balance Measures
+##                 Type Diff.Adj
+## prop.score  Distance   0.5188
+## age          Contin.   0.0411
+## educ         Contin.  -0.0834
+## race_black    Binary   0.0256
+## race_hispan   Binary  -0.0010
+## race_white    Binary  -0.0246
+## married       Binary  -0.0121
+## nodegree      Binary   0.0880
+## re74         Contin.   0.0671
+## re75         Contin.   0.0934
+## 
+## Effective sample sizes
+##            Control Treated
+## Unadjusted  429.       185
+## Adjusted     33.38     185</code></pre>
 <p>The output looks a bit different from <code>twang</code>’s <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html">bal.table()</a></code> output. First is the original call to <code><a href="https://rdrr.io/pkg/twang/man/ps.html">ps()</a></code>. Next is the balance table containing mean differences for the covariates included in the input to <code><a href="https://rdrr.io/pkg/twang/man/ps.html">ps()</a></code>. Last is a table displaying sample size information, similar to what would be generated using <code>twang</code>’s <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> function. The “effective” sample size is displayed when weighting is used; it is calculated as is done in <code>twang</code>. See the <code>twang</code> documentation, <code><a href="../reference/bal.tab.html">?bal.tab</a></code>, or “Details on Calculations” in the main vignette for details on this calculation.</p>
 <p>When using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>twang</code>, the user must specify the <code>ps</code> object, the output of a call to <code><a href="https://rdrr.io/pkg/twang/man/ps.html">ps()</a></code>, as the first argument. The second argument, <code>stop.method</code>, is the name of the stop method(s) for which balance is to be assessed, since a <code>ps</code> object may contain more than one if so specified. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> can display the balance for more than one stop method at a time by specifying a vector of stop method names. If this argument is left empty or if the argument to <code>stop.method</code> does not correspond to any of the stop methods in the <code>ps</code> object, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> will default to displaying balance for all stop methods available. Abbreviations are allowed for the stop method, which is not case sensitive.</p>
 <p>The other arguments to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> when using it with <code>twang</code> have the same form and function as those given when using it without a conditioning package, except for <code>s.d.denom</code>. If the estimand of the stop method used is the ATT, <code>s.d.denom</code> will default to <code>"treated"</code> if not specified, and if the estimand is the ATE, <code>s.d.denom</code> will default to <code>"pooled"</code>, mimicking the behavior of <code>twang</code>. The user can specify their own argument to <code>s.d.denom</code>, but using the defaults is advised.</p>
@@ -208,7 +230,7 @@
 <a href="#using-bal-tab-with-matching" class="anchor"></a>Using <code>bal.tab()</code> with <code>Matching</code>
 </h3>
 <p>The <code>Matching</code> package is used for propensity score matching, and was also the first package to implement genetic matching. <code>MatchIt</code> calls <code>Matching</code> to use genetic matching and can accomplish many of the matching methods <code>Matching</code> can, but <code>Matching</code> is still a widely used package with its own strengths. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> functions similarly to <code>Matching</code>’s <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html">MatchBalance()</a></code> command, which yields a thorough presentation of balance, and makes <code>Matching</code> the only package of those integrated with <code>cobalt</code> to display variance ratios by default. Below is a simple example of the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>Matching</code>:</p>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"Matching"</span>)
+<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"Matching"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>) <span class="co">#If not yet loaded</span>
 <span class="no">covs0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">lalonde</span>, <span class="kw">select</span> <span class="kw">=</span> -<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">treat</span>, <span class="no">re78</span>))
 
@@ -239,7 +261,7 @@
 ## Unmatched             293.         0</code></pre>
 <p>The output looks quite different from <code>Matching</code>’s <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html">MatchBalance()</a></code> output. Rather than being stacked vertically, balance statistics are arranged horizontally in a table format, allowing for quick balance checking. Below the balance table is a summary of the sample size before and after matching, similar to what <code>Matching</code>’s <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> command would display. The sample size can include a “weighted” and “unweighted” count; the “weighted” count is the sum of the matching weights, while the “unweighted” is the count of units with nonzero matching weights.</p>
 <p>The input to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> is similar to that given to <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html">MatchBalance()</a></code>: the <code>Match</code> object resulting from the call to <code><a href="https://rdrr.io/pkg/Matching/man/Match.html">Match()</a></code>, a formula relating treatment to the covariates for which balance is to be assessed, and the original data set. This is not the only way to call <code><a href="../reference/bal.tab.html">bal.tab()</a></code>: instead of a formula and a data set, one can also input a data frame of covariates and a vector of treatment status indicators, just as when using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> without a conditioning package. For example, the code below will yield the same results as the call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> above:</p>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">match.out</span>, <span class="kw">treat</span> <span class="kw">=</span> <span class="no">lalonde</span>$<span class="no">treat</span>, <span class="kw">covs</span> <span class="kw">=</span> <span class="no">covs0</span>,
+<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">match.out</span>, <span class="kw">treat</span> <span class="kw">=</span> <span class="no">lalonde</span>$<span class="no">treat</span>, <span class="kw">covs</span> <span class="kw">=</span> <span class="no">covs0</span>,
         <span class="kw">distance</span> <span class="kw">=</span> ~ <span class="no">p.score</span>)</pre></body></html></div>
 <p>The other arguments to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> when using it with <code>Matching</code> have the same form and function as those given when using it without a conditioning package, except for <code>s.d.denom</code>. If the estimand of the original call to <code><a href="https://rdrr.io/pkg/Matching/man/Match.html">Match()</a></code> is the ATT, <code>s.d.denom</code> will default to <code>"treated"</code> if not specified; if the estimand is the ATE, <code>s.d.denom</code> will default to <code>"pooled"</code>; if the estimand is the ATC, <code>s.d.denom</code> will default to <code>"control"</code>. The user can specify their own argument to <code>s.d.denom</code>, but using the defaults is advisable. In addition, the use of the <code>addl</code> argument is unnecessary because the covariates are entered manually as arguments, so all covariates for which balance is to be assessed can be entered through the <code>formula</code> or <code>covs</code> argument. If the covariates are stored in two separate data frames, it may be useful to include one in <code>formula</code> or <code>covs</code> and the other in <code>addl</code>.</p>
 </div>
@@ -248,7 +270,7 @@
 <a href="#using-bal-tab-with-optmatch" class="anchor"></a>Using <code>bal.tab()</code> with <code>optmatch</code>
 </h3>
 <p>The <code>optmatch</code> package is useful for performing optimal pairwise or full matching. Most functions in <code>optmatch</code> are subsumed in <code>MatchIt</code>, but <code>optmatch</code> sees use from those who want finer control of the matching process than <code>MatchIt</code> allows. The output of calls to functions in <code>optmatch</code> is an <code>optmatch</code> object, which contains matching stratum membership for each unit in the given data set. Units that are matched with each other are assigned the same matching stratum. The user guide for <code>optmatch</code> recommends using the <code>RItools</code> package for balance assessment, but below is an example of how to use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> for the same purpose. Note that some results will differ between <code>cobalt</code> and <code>RItools</code> because of differences in how balance is calculated in each.</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="co">#Optimal full matching on the propensity score</span>
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="co">#Optimal full matching on the propensity score</span>
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"optmatch"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>) <span class="co">#If not yet loaded</span>
 <span class="no">covs0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">lalonde</span>, <span class="kw">select</span> <span class="kw">=</span> -<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">treat</span>, <span class="no">re78</span>))
@@ -286,14 +308,14 @@
 <a href="#using-bal-tab-with-cbps" class="anchor"></a>Using <code>bal.tab()</code> with <code>CBPS</code>
 </h3>
 <p>The <code>CBPS</code> (Covariate Balancing Propensity Score) package is a great tool for generating covariate balancing propensity scores, a class of propensity scores that are quite effective at balancing covariates among groups. <code>CBPS</code> includes functions for estimating propensity scores for binary, multi-category, and continuous treatments. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> functions similarly to <code>CBPS</code>’s <code><a href="https://rdrr.io/pkg/CBPS/man/balance.html">balance()</a></code> command. Below is a simple example of its use with a binary treatment:</p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"CBPS"</span>)
+<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"CBPS"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>) <span class="co">#If not yet loaded</span>
 <span class="no">covs0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">lalonde</span>, <span class="kw">select</span> <span class="kw">=</span> -<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">treat</span>, <span class="no">re78</span>))
 
 <span class="co">#Generating covariate balancing propensity score weights for ATT</span>
 <span class="no">cbps.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CBPS/man/CBPS.html">CBPS</a></span>(<span class="fu"><a href="../reference/f.build.html">f.build</a></span>(<span class="st">"treat"</span>, <span class="no">covs0</span>), <span class="kw">data</span> <span class="kw">=</span> <span class="no">lalonde</span>)</pre></body></html></div>
 <pre><code>## [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"</code></pre>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">cbps.out</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">cbps.out</span>)</pre></body></html></div>
 <pre><code>## Call
 ##  CBPS(formula = f.build("treat", covs0), data = lalonde)
 ## 
@@ -324,14 +346,14 @@
 <a href="#using-bal-tab-with-ebal" class="anchor"></a>Using <code>bal.tab()</code> with <code>ebal</code>
 </h3>
 <p>The <code>ebal</code> package implements entropy balancing, a method of weighting for the ATT that yields perfect balance on all desired moments of the covariate distributions between groups. Rather than estimate a propensity score, entropy balancing generates weights directly that satisfy a user-defined moment condition, specifying which moments are to be balanced. Not that all the functionality of <code>ebal</code> is contained within <code>Weightit</code>. <code>ebal</code> does not have its own balance assessment function; thus, <code>cobalt</code> is the only way to assess balance without programming, which the <code>ebal</code> documentation instructs. Below is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>ebal</code>:</p>
-<div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"ebal"</span>)
+<div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"ebal"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>) <span class="co">#If not yet loaded</span>
 <span class="no">covs0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">lalonde</span>, <span class="kw">select</span> <span class="kw">=</span> -<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">treat</span>, <span class="no">re78</span>, <span class="no">race</span>))
 
 <span class="co">#Generating entropy balancing weights</span>
 <span class="no">e.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebal/man/ebalance.html">ebalance</a></span>(<span class="no">lalonde</span>$<span class="no">treat</span>, <span class="no">covs0</span>)</pre></body></html></div>
 <pre><code>## Converged within tolerance</code></pre>
-<div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">e.out</span>, <span class="kw">treat</span> <span class="kw">=</span> <span class="no">lalonde</span>$<span class="no">treat</span>, <span class="kw">covs</span> <span class="kw">=</span> <span class="no">covs0</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb23"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">e.out</span>, <span class="kw">treat</span> <span class="kw">=</span> <span class="no">lalonde</span>$<span class="no">treat</span>, <span class="kw">covs</span> <span class="kw">=</span> <span class="no">covs0</span>)</pre></body></html></div>
 <pre><code>## Balance Measures
 ##             Type Diff.Adj
 ## age      Contin.       -0
@@ -353,7 +375,7 @@
 <a href="#using-bal-tab-with-designmatch" class="anchor"></a>Using <code>bal.tab()</code> with <code>designmatch</code>
 </h3>
 <p>The <code>designmatch</code> package implements various matching methods that use optimization to find matches that satisfy certain balance constraints. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> functions similarly to <code>designmatch</code>’s <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html">meantab()</a></code> command but provides additional flexibility and convenience. Below is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>designmatch</code>:</p>
-<div class="sourceCode" id="cb24"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"designmatch"</span>)
+<div class="sourceCode" id="cb25"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"designmatch"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>) <span class="co">#If not yet loaded</span>
 <span class="no">covs0</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">lalonde</span>, <span class="kw">select</span> <span class="kw">=</span> -<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">treat</span>, <span class="no">re78</span>, <span class="no">race</span>))
 
@@ -369,7 +391,7 @@
 ##   GLPK optimizer is open... 
 ##   Finding the optimal matches... 
 ##   Optimal matches found</code></pre>
-<div class="sourceCode" id="cb26"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">dmout</span>, <span class="kw">treat</span> <span class="kw">=</span> <span class="no">lalonde</span>$<span class="no">treat</span>, <span class="kw">covs</span> <span class="kw">=</span> <span class="no">covs0</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb27"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">dmout</span>, <span class="kw">treat</span> <span class="kw">=</span> <span class="no">lalonde</span>$<span class="no">treat</span>, <span class="kw">covs</span> <span class="kw">=</span> <span class="no">covs0</span>)</pre></body></html></div>
 <pre><code>## Balance Measures
 ##             Type Diff.Adj
 ## age      Contin.   0.0038
@@ -391,7 +413,7 @@
 <a href="#using-bal-tab-with-sbw" class="anchor"></a>Using <code>bal.tab()</code> with <code>sbw</code>
 </h3>
 <p>The <code>sbw</code> package implements optimization-based weighting to estimate weights that satisfy certain balance constraints and have minimal variance. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> functions similarly to <code>sbw</code>’s <code><a href="https://rdrr.io/pkg/sbw/man/summarize.html">summarize()</a></code> function but provides additional flexibility and convenience. Below is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>sbw</code>:</p>
-<div class="sourceCode" id="cb28"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"sbw"</span>)
+<div class="sourceCode" id="cb29"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"sbw"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>) <span class="co">#If not yet loaded</span>
 <span class="no">lalonde_split</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/splitfactor.html">splitfactor</a></span>(<span class="no">lalonde</span>, <span class="kw">drop.first</span> <span class="kw">=</span> <span class="st">"if2"</span>)
 <span class="no">cov.names</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"age"</span>, <span class="st">"educ"</span>, <span class="st">"race_black"</span>, <span class="st">"race_hispan"</span>,
@@ -408,7 +430,7 @@
 <pre><code>##   quadprog optimizer is opening... 
 ##   Finding the optimal weights... 
 ##   Optimal weights found.</code></pre>
-<div class="sourceCode" id="cb30"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">sbw.out</span>, <span class="kw">un</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">disp.means</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb31"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">sbw.out</span>, <span class="kw">un</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">disp.means</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
 <pre><code>## Balance Measures
 ##                Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj
 ## age         Contin.   28.0303   25.8162 -0.3094   25.8054   25.8162   0.0015
@@ -432,12 +454,12 @@
 <a href="#using-bal-tab-with-matchthem" class="anchor"></a>Using <code>bal.tab()</code> with <code>MatchThem</code>
 </h3>
 <p>The <code>MatchThem</code> package is essentially a wrapper for <code><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit()</a></code> from <code>MatchIt</code> and <code>weightit()</code> from <code>WeightIt</code> but for use with multiply imputed data. Using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> on <code>mimids</code> or <code>wimids</code> objects from <code>MatchThem</code> activates the features that accompany multiply imputed data; balance is assessed within each imputed dataset and aggregated across imputations. See <code>?bal.tab.imp</code> or the accompanying Appendix 2 for more information about using <code>cobalt</code> with multiply imputed data. Below is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchThem</code>:</p>
-<div class="sourceCode" id="cb32"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"mice"</span>); <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"MatchThem"</span>)
+<div class="sourceCode" id="cb33"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"mice"</span>); <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"MatchThem"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde_mis"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>)
 
 <span class="co">#Generate imputed data sets</span>
 <span class="no">m</span> <span class="kw">&lt;-</span> <span class="fl">10</span> <span class="co">#number of imputed data sets</span>
-<span class="no">imp.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="http://stefvanbuuren.github.io/mice/reference/mice.html">mice</a></span>(<span class="no">lalonde_mis</span>, <span class="kw">m</span> <span class="kw">=</span> <span class="no">m</span>, <span class="kw">print</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
+<span class="no">imp.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mice/man/mice.html">mice</a></span>(<span class="no">lalonde_mis</span>, <span class="kw">m</span> <span class="kw">=</span> <span class="no">m</span>, <span class="kw">print</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
 
 <span class="co">#Matching for balance on covariates</span>
 <span class="no">wt.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchThem/man/weightthem.html">weightthem</a></span>(<span class="no">treat</span> ~ <span class="no">age</span> + <span class="no">educ</span> + <span class="no">married</span> +
@@ -447,23 +469,23 @@
                      <span class="kw">method</span> <span class="kw">=</span> <span class="st">"ps"</span>,
                      <span class="kw">estimand</span> <span class="kw">=</span> <span class="st">"ATE"</span>)</pre></body></html></div>
 <pre><code>## Estimating weights     | dataset: #1 #2 #3 #4 #5 #6 #7 #8 #9 #10</code></pre>
-<div class="sourceCode" id="cb34"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">wt.out</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb35"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">wt.out</span>)</pre></body></html></div>
 <pre><code>## Balance summary across all imputations
 ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## prop.score  Distance       0.1415        0.1576       0.1673
-## age          Contin.      -0.1956       -0.1891      -0.1829
-## educ         Contin.       0.0765        0.0841       0.0921
-## married       Binary      -0.1109       -0.0999      -0.0828
-## race_black    Binary       0.0524        0.0577       0.0625
-## race_hispan   Binary       0.0073        0.0094       0.0111
-## race_white    Binary      -0.0736       -0.0671      -0.0608
-## re74         Contin.      -0.3007       -0.2843      -0.2713
-## re75         Contin.      -0.1663       -0.1516      -0.1398
+## prop.score  Distance       0.1470        0.1561       0.1656
+## age          Contin.      -0.1951       -0.1878      -0.1838
+## educ         Contin.       0.0741        0.0817       0.0907
+## married       Binary      -0.1133       -0.1029      -0.0889
+## race_black    Binary       0.0533        0.0563       0.0605
+## race_hispan   Binary       0.0069        0.0104       0.0134
+## race_white    Binary      -0.0730       -0.0667      -0.0602
+## re74         Contin.      -0.2986       -0.2876      -0.2684
+## re75         Contin.      -0.1695       -0.1556      -0.1439
 ## 
 ## Average effective sample sizes across imputations
 ##            Control Treated
 ## Unadjusted  429.    185.  
-## Adjusted    331.61   66.83</code></pre>
+## Adjusted    332.17   67.47</code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div id="using-bal-tab-with-cem" class="section level3">
@@ -471,9 +493,9 @@
 <a href="#using-bal-tab-with-cem" class="anchor"></a>Using <code>bal.tab()</code> with <code>cem</code>
 </h3>
 <p>The <code>cem</code> package implements coarsened exact matching for binary and multi-category treatments. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> functions similarly to <code>cems</code>’s <code><a href="https://rdrr.io/pkg/cem/man/imbalance.html">imbalance()</a></code>. Below is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>cem</code>:</p>
-<div class="sourceCode" id="cb36"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"cem"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb37"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"cem"</span>)</pre></body></html></div>
 <pre><code>## Warning in fun(libname, pkgname): couldn't connect to display ":0"</code></pre>
-<div class="sourceCode" id="cb38"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>) <span class="co">#If not yet loaded</span>
+<div class="sourceCode" id="cb39"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>) <span class="co">#If not yet loaded</span>
 
 <span class="co">#Matching for balance on covariates</span>
 <span class="no">cem.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/cem/man/cem.html">cem</a></span>(<span class="st">"treat"</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">lalonde</span>, <span class="kw">drop</span> <span class="kw">=</span> <span class="st">"re78"</span>)
@@ -499,12 +521,12 @@
 ## Unmatched             351.       117</code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>Matching</code> or <code>optmatch</code>. In addition to the <code><a href="https://rdrr.io/pkg/cem/man/cem.html">cem()</a></code> output object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates. Unlike with <code>Matching</code>, entering the treatment variable is optional as it is already stored in the output object. The output is similar to that of <code>optmatch</code>.</p>
 <p>When using <code><a href="https://rdrr.io/pkg/cem/man/cem.html">cem()</a></code> with multiply imputed data (i.e., by supplying a list of data.frames to the <code>datalist</code> argument in <code><a href="https://rdrr.io/pkg/cem/man/cem.html">cem()</a></code>), an argument to <code>imp</code> should be specified to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or a <code>mids</code> object from the <code>mice</code> package should be given as the argument to <code>data</code>. See <code>?bal.tab.imp</code> or the accompanying Appendix 2 for more information about using <code>cobalt</code> with multiply imputed data. Below is an example of using <code>cem</code> with multiply imputed data from <code>mice</code>:</p>
-<div class="sourceCode" id="cb40"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"mice"</span>); <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"cem"</span>)
+<div class="sourceCode" id="cb41"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"mice"</span>); <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"cem"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde_mis"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>)
 
 <span class="co">#Generate imputed data sets</span>
 <span class="no">m</span> <span class="kw">&lt;-</span> <span class="fl">10</span> <span class="co">#number of imputed data sets</span>
-<span class="no">imp.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="http://stefvanbuuren.github.io/mice/reference/mice.html">mice</a></span>(<span class="no">lalonde_mis</span>, <span class="kw">m</span> <span class="kw">=</span> <span class="no">m</span>, <span class="kw">print</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
+<span class="no">imp.out</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mice/man/mice.html">mice</a></span>(<span class="no">lalonde_mis</span>, <span class="kw">m</span> <span class="kw">=</span> <span class="no">m</span>, <span class="kw">print</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
 <span class="no">imp.data.list</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="fl">1</span>:<span class="no">m</span>, <span class="no">complete</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">imp.out</span>)
 
 <span class="co">#Match within each imputed dataset</span>
@@ -513,22 +535,22 @@
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">cem.out.imp</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">imp.out</span>)</pre></body></html></div>
 <pre><code>## Balance summary across all imputations
 ##                Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age         Contin.       0.0454        0.0476       0.0495
-## educ        Contin.      -0.0386       -0.0374      -0.0315
+## age         Contin.       0.0461        0.0477       0.0492
+## educ        Contin.      -0.0386       -0.0382      -0.0380
 ## race_black   Binary      -0.0000       -0.0000       0.0000
 ## race_hispan  Binary      -0.0000        0.0000       0.0000
 ## race_white   Binary      -0.0000       -0.0000       0.0000
-## married      Binary      -0.0000       -0.0000       0.0000
-## nodegree     Binary       0.0000        0.0000       0.0000
-## re74        Contin.      -0.0405       -0.0353      -0.0316
-## re75        Contin.      -0.0730       -0.0524      -0.0410
+## married      Binary      -0.0000        0.0000       0.0000
+## nodegree     Binary      -0.0000       -0.0000       0.0000
+## re74        Contin.      -0.0412       -0.0347      -0.0334
+## re75        Contin.      -0.0608       -0.0525      -0.0467
 ## 
 ## Average sample sizes across imputations
 ##                      Control Treated
 ## All                   429.     185. 
-## Matched (ESS)          35.59    66.8
-## Matched (Unweighted)   78.2     66.8
-## Unmatched             350.8    118.2</code></pre>
+## Matched (ESS)          35.49    66.6
+## Matched (Unweighted)   77.9     66.6
+## Unmatched             351.1    118.4</code></pre>
 </div>
 <div id="using-bal-tab-with-other-packages" class="section level3">
 <h3 class="hasAnchor">
@@ -536,7 +558,7 @@
 <p>It is possible to use <code>bal.tab</code> with objects that don’t come from these packages using the <code>default</code> method. If an object that doesn’t correspond to the output from one of the specifically supported packages is passed as the first argument to <code>bal.tab</code>, <code>bal.tab</code> will do its best to process that object as if it did come from a supported package. It will search through the components of the object for items with names like <code>"treat"</code>, <code>"covs"</code>, <code>"data"</code>, <code>"weights"</code>, etc., that have the correct object types. Any additional arguments can be specified by the user.</p>
 <p>The goal of the <code>default</code> method is to allow package authors to rely on <code>cobalt</code> as a substitute for any balancing function they might otherwise write. By ensuring compatibility with the <code>default</code> method, package authors can have their users simply supply the output of a compatible function into <code>cobalt</code> functions without having to write a specific method in <code>cobalt</code>. A package author would need to make sure the output of their package contained enough information with correctly named components; if so, <code>cobalt</code> functions can be used as conveniently with the output as it is with specifically supported packages.</p>
 <p>Below, we demonstrate this capability with the output of <code>optweight</code>, which performs a version of propensity score weighting using optimization, similar to <code>sbw</code>. No <code>bal.tab</code> method has been written with <code>optweight</code> output in mind; rather, <code>optweight</code> was written to have output compatible with the <code>default</code> method of <code>bal.tab</code>.</p>
-<div class="sourceCode" id="cb42"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"optweight"</span>)
+<div class="sourceCode" id="cb43"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"optweight"</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"cobalt"</span>)
 
 <span class="co">#Estimate the weights using optimization</span>
@@ -547,7 +569,7 @@
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">ow.out</span>)</pre></body></html></div>
 <pre><code>##  [1] "weights"   "treat"     "covs"      "s.weights" "estimand"  "focal"    
 ##  [7] "call"      "tols"      "duals"     "info"</code></pre>
-<div class="sourceCode" id="cb44"><html><body><pre class="r"><span class="co">#Use bal.tab() directly on the output</span>
+<div class="sourceCode" id="cb45"><html><body><pre class="r"><span class="co">#Use bal.tab() directly on the output</span>
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">ow.out</span>)</pre></body></html></div>
 <pre><code>## Call
 ##  optweight(formula = treat ~ age + educ + married + race + re74 + 

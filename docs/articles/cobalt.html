@@ -73,7 +73,7 @@
       <a href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
     </li>
     <li>
-      <a href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using `love.plot` To Generate Love Plots</a>
+      <a href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
     </li>
   </ul>
 </li>
@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Covariate Balance Tables and Plots: A Guide to the cobalt Package</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2020-08-17</h4>
+            <h4 class="date">2020-08-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt.Rmd"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt.Rmd</code></div>
@@ -570,19 +570,19 @@
 ## 
 ## Balance Measures
 ##                 Type Diff.Adj
-## prop.score  Distance  -2.4273
-## age          Contin.  -0.9085
-## educ         Contin.   0.0954
-## race_black    Binary   0.8348
-## race_hispan   Binary  -0.0064
-## race_white    Binary  -0.8283
-## re74         Contin.  -1.8070
-## re75         Contin.  -0.5277
+## prop.score  Distance  -0.0397
+## age          Contin.   0.1112
+## educ         Contin.  -0.0641
+## race_black    Binary  -0.0044
+## race_hispan   Binary   0.0016
+## race_white    Binary   0.0028
+## re74         Contin.  -0.0039
+## re75         Contin.  -0.0428
 ## 
 ## Effective sample sizes
 ##            Control Treated
-## Unadjusted  429.       185
-## Adjusted    209.73     185</code></pre>
+## Unadjusted   429.      185
+## Adjusted     108.2     185</code></pre>
 </div>
 </div>
 <div id="bal-plot" class="section level3">
@@ -828,21 +828,21 @@
         <span class="kw">disp.v.ratio</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
 <pre><code>## Balance Measures
 ##                Type Diff.Matched V.Ratio.Matched Diff.IPW V.Ratio.IPW
-## age         Contin.       0.2395          0.5557  -0.9085      0.3986
-## educ        Contin.      -0.0161          0.5765   0.0954      0.4897
-## race_black   Binary       0.0054                   0.8348            
-## race_hispan  Binary      -0.0054                  -0.0064            
-## race_white   Binary       0.0000                  -0.8283            
-## married      Binary       0.0595                  -0.5226            
-## nodegree     Binary       0.0054                   0.1302            
-## re74        Contin.      -0.0493          1.0349  -1.8070      0.3288
-## re75        Contin.       0.0087          2.1264  -0.5277      0.7444
+## age         Contin.       0.2395          0.5557   0.1112      0.5086
+## educ        Contin.      -0.0161          0.5765  -0.0641      0.6018
+## race_black   Binary       0.0054                  -0.0044            
+## race_hispan  Binary      -0.0054                   0.0016            
+## race_white   Binary       0.0000                   0.0028            
+## married      Binary       0.0595                  -0.0938            
+## nodegree     Binary       0.0054                   0.1151            
+## re74        Contin.      -0.0493          1.0349  -0.0039      1.4821
+## re75        Contin.       0.0087          2.1264  -0.0428      1.1712
 ## 
 ## Effective sample sizes
 ##         Control Treated
 ## All      429.       185
 ## Matched   43.49     185
-## IPW      209.73     185</code></pre>
+## IPW      108.2      185</code></pre>
 <p>To use <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, the same syntax can be used:</p>
 <div class="sourceCode" id="cb42"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span>(<span class="no">treat</span> ~ <span class="no">covs</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">lalonde</span>,
          <span class="kw">weights</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">Matched</span> <span class="kw">=</span> <span class="no">m.out</span>,

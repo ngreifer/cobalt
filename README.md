@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# cobalt <img src="docs/reference/figures/logo.png" align="right" width="150"/>
+# cobalt <img src="man/figures/logo.png" align="right" width="150"/>
 
 ## [![CRAN\_Status\_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt) [![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
 

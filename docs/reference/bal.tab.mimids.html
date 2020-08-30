@@ -115,7 +115,7 @@
       <a href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
     </li>
     <li>
-      <a href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using `love.plot` To Generate Love Plots</a>
+      <a href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
     </li>
   </ul>
 </li>
@@ -291,7 +291,7 @@
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde_mis"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)
 
 <span class='co'>#Imputing the missing data</span>
-<span class='no'>imp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://stefvanbuuren.github.io/mice/reference/mice.html'>mice</a></span>(<span class='no'>lalonde_mis</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div><div class='output co'>#&gt; 
+<span class='no'>imp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/mice/man/mice.html'>mice</a></span>(<span class='no'>lalonde_mis</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div><div class='output co'>#&gt; 
 #&gt;  iter imp variable
 #&gt;   1   1  married  re74  re75
 #&gt;   1   2  married  re74  re75
@@ -353,21 +353,21 @@
                        <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>imp</span>, <span class='kw'>approach</span> <span class='kw'>=</span> <span class='st'>"within"</span>,
                        <span class='kw'>estimand</span> <span class='kw'>=</span> <span class='st'>"ATT"</span>)</div><div class='output co'>#&gt; Estimating weights     | dataset: #1 #2 #3 #4 #5</div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>wt.out</span>)</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance summary across all imputations</span><span>
 #&gt;                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-#&gt; prop.score  Distance      -2.4245       -2.4118      -2.4032
-#&gt; age          Contin.      -0.7992       -0.7397      -0.6905
-#&gt; educ         Contin.       0.1371        0.1714       0.2037
-#&gt; race_black    Binary       0.8343        0.8347       0.8352
-#&gt; race_hispan   Binary      -0.0165       -0.0137      -0.0106
-#&gt; race_white    Binary      -0.8246       -0.8210      -0.8179
-#&gt; married       Binary      -0.6184       -0.6041      -0.5870
-#&gt; nodegree      Binary       0.1742        0.1827       0.1883
-#&gt; re74         Contin.      -1.7074       -1.5418      -1.3375
-#&gt; re75         Contin.      -0.5848       -0.5357      -0.5034
+#&gt; prop.score  Distance      -0.0368       -0.0247      -0.0180
+#&gt; age          Contin.       0.0863        0.1142       0.1350
+#&gt; educ         Contin.      -0.0517       -0.0401      -0.0350
+#&gt; race_black    Binary      -0.0034       -0.0024      -0.0019
+#&gt; race_hispan   Binary      -0.0001        0.0002       0.0005
+#&gt; race_white    Binary       0.0017        0.0022       0.0029
+#&gt; married       Binary       0.0138        0.0170       0.0228
+#&gt; nodegree      Binary       0.0147        0.0188       0.0240
+#&gt; re74         Contin.       0.0011        0.0081       0.0155
+#&gt; re75         Contin.      -0.0129       -0.0012       0.0098
 #&gt; 
 #&gt; </span><span style='text-decoration: underline;'>Average effective sample sizes across imputations</span><span>
 #&gt;            Control Treated
 #&gt; Unadjusted  429.       185
-#&gt; Adjusted    214.11     185</div><div class='input'>
+#&gt; Adjusted    100.49     185</div><div class='input'>
 </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -114,7 +114,7 @@
       <a href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
     </li>
     <li>
-      <a href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using `love.plot` To Generate Love Plots</a>
+      <a href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
     </li>
   </ul>
 </li>
@@ -299,7 +299,7 @@
 <li><p>Added ability to hide the gridlines easily in <code><a href="../reference/love.plot.html">love.plot()</a></code>.</p></li>
 <li><p>Changed the calculation of standard deviations (and standardized differences in proportion) for binary variables to be more in line with recommendations, as noted by <a href='https://github.com/mbloechl05'>@mbloechl05</a>. Note this will make these values different from those in <code>MatchIt::summary</code> by a small amount.</p></li>
 <li><p>The KS statistic is now computed for binary variables. It is simply the difference in proportion.</p></li>
-<li><p>Allowed some methods to accept <code>mids</code> objects (the output of a call to <code><a href="http://stefvanbuuren.github.io/mice/reference/mice.html">mice::mice()</a></code>) in the <code>data</code> argument to supply multiply imputed data. This essentially replaces <code>data = complete(imp.out, "long"), imp = ".imp"</code> with <code>data = imp.put</code>, assuming <code>imp.out</code> is a <code>mids</code> object.</p></li>
+<li><p>Allowed some methods to accept <code>mids</code> objects (the output of a call to <code><a href="https://rdrr.io/pkg/mice/man/mice.html">mice::mice()</a></code>) in the <code>data</code> argument to supply multiply imputed data. This essentially replaces <code>data = complete(imp.out, "long"), imp = ".imp"</code> with <code>data = imp.put</code>, assuming <code>imp.out</code> is a <code>mids</code> object.</p></li>
 <li><p>Other bug fixes and improvements.</p></li>
 </ul>
 </div>
