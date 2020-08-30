@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
       </span>
     </div>
 
@@ -195,17 +195,17 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the specified treatment and covariates. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
-<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code>bal.tab.cluster</code> for details.</p>
-<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See <code>bal.tab.imp</code> for details.</p>
-<p>If multi-category treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code>bal.tab.multi</code> for details.</p>
-<p>If longitudinal treatments are used, an object of class <code>"bal.tab.msm"</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code>bal.tab.msm</code> for more details.</p>
+<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
+<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p>
+<p>If multi-category treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
+<p>If longitudinal treatments are used, an object of class <code>"bal.tab.msm"</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more details.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code> and <code>link{bal.tab.time.list}</code> for additional arguments to be supplied.
 <code><a href='bal.tab.html'>bal.tab</a></code> for output and details of calculations.
-<code>bal.tab.cluster</code> for more information on clustered data.
-<code>bal.tab.imp</code> for more information on multiply imputed data.
-<code>bal.tab.multi</code> for more information on multi-category treatments.</p></div>
+<code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for more information on clustered data.
+<code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for more information on multiply imputed data.
+<code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for more information on multi-category treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)

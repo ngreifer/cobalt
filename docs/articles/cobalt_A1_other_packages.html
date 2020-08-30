@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
       </span>
     </div>
 
@@ -127,7 +127,7 @@
 <span class="no">covs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">lalonde</span>, <span class="kw">select</span> <span class="kw">=</span> -<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">treat</span>, <span class="no">re78</span>))
 <span class="fu"><a href="../reference/f.build.html">f.build</a></span>(<span class="st">"treat"</span>, <span class="no">covs</span>)</pre></body></html></div>
 <pre><code>## treat ~ age + educ + race + married + nodegree + re74 + re75
-## &lt;environment: 0x7ffe52561270&gt;</code></pre>
+## &lt;environment: 0x7fee1e5562b0&gt;</code></pre>
 <p>The function creates a <code>formula</code> object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of <code><a href="../reference/f.build.html">f.build()</a></code> is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># Generating propensity scores using logistic regression</span>
 <span class="no">p.score</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html">glm</a></span>(<span class="fu"><a href="../reference/f.build.html">f.build</a></span>(<span class="st">"treat"</span>, <span class="no">covs</span>), <span class="kw">data</span> <span class="kw">=</span> <span class="no">lalonde</span>, <span class="kw">family</span> <span class="kw">=</span> <span class="st">"binomial"</span>)$<span class="no">fitted.values</span>
@@ -472,20 +472,20 @@
 <div class="sourceCode" id="cb35"><html><body><pre class="r"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">wt.out</span>)</pre></body></html></div>
 <pre><code>## Balance summary across all imputations
 ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## prop.score  Distance       0.1470        0.1561       0.1656
-## age          Contin.      -0.1951       -0.1878      -0.1838
-## educ         Contin.       0.0741        0.0817       0.0907
-## married       Binary      -0.1133       -0.1029      -0.0889
-## race_black    Binary       0.0533        0.0563       0.0605
-## race_hispan   Binary       0.0069        0.0104       0.0134
-## race_white    Binary      -0.0730       -0.0667      -0.0602
-## re74         Contin.      -0.2986       -0.2876      -0.2684
-## re75         Contin.      -0.1695       -0.1556      -0.1439
+## prop.score  Distance       0.1382        0.1540       0.1694
+## age          Contin.      -0.1948       -0.1896      -0.1825
+## educ         Contin.       0.0770        0.0847       0.0921
+## married       Binary      -0.1087       -0.0992      -0.0891
+## race_black    Binary       0.0485        0.0563       0.0635
+## race_hispan   Binary       0.0076        0.0105       0.0124
+## race_white    Binary      -0.0741       -0.0668      -0.0575
+## re74         Contin.      -0.3069       -0.2812      -0.2646
+## re75         Contin.      -0.1724       -0.1574      -0.1388
 ## 
 ## Average effective sample sizes across imputations
 ##            Control Treated
 ## Unadjusted  429.    185.  
-## Adjusted    332.17   67.47</code></pre>
+## Adjusted    331.17   66.37</code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div id="using-bal-tab-with-cem" class="section level3">
@@ -535,22 +535,22 @@
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span>(<span class="no">cem.out.imp</span>, <span class="kw">data</span> <span class="kw">=</span> <span class="no">imp.out</span>)</pre></body></html></div>
 <pre><code>## Balance summary across all imputations
 ##                Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age         Contin.       0.0461        0.0477       0.0492
-## educ        Contin.      -0.0386       -0.0382      -0.0380
+## age         Contin.       0.0386        0.0481       0.0561
+## educ        Contin.      -0.0454       -0.0370      -0.0306
 ## race_black   Binary      -0.0000       -0.0000       0.0000
 ## race_hispan  Binary      -0.0000        0.0000       0.0000
 ## race_white   Binary      -0.0000       -0.0000       0.0000
 ## married      Binary      -0.0000        0.0000       0.0000
 ## nodegree     Binary      -0.0000       -0.0000       0.0000
-## re74        Contin.      -0.0412       -0.0347      -0.0334
-## re75        Contin.      -0.0608       -0.0525      -0.0467
+## re74        Contin.      -0.0421       -0.0368      -0.0340
+## re75        Contin.      -0.0857       -0.0610      -0.0508
 ## 
 ## Average sample sizes across imputations
 ##                      Control Treated
 ## All                   429.     185. 
-## Matched (ESS)          35.49    66.6
-## Matched (Unweighted)   77.9     66.6
-## Unmatched             351.1    118.4</code></pre>
+## Matched (ESS)          35.79    66.1
+## Matched (Unweighted)   77.9     66.1
+## Unmatched             351.1    118.9</code></pre>
 </div>
 <div id="using-bal-tab-with-other-packages" class="section level3">
 <h3 class="hasAnchor">

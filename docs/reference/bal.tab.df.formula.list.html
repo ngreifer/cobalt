@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
       </span>
     </div>
 
@@ -243,15 +243,15 @@
     </tr>
     <tr>
       <th>cluster</th>
-      <td><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code>. See <code>bal.tab.cluster</code> for details.</p></td>
+      <td><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code>. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>imp</th>
-      <td><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code>. See <code>bal.tab.imp</code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></td>
+      <td><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code>. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></td>
     </tr>
     <tr>
       <th>pairwise</th>
-      <td><p>when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code>bal.tab.multi</code> for details.</p></td>
+      <td><p>when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>s.weights</th>
@@ -286,13 +286,13 @@
 <p>Multiple sets of weights can be supplied simultaneously by including entering a data frame or a character vector containing the names of weight variables found in <code>data</code> or a list thereof. The arguments to <code>method</code>, <code>s.d.denom</code>, and <code>estimand</code>, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to <code>s.d.denom</code> or <code>estimand</code>. When only one set of weights is supplied, the output for the adjusted group will simply be called <code>"Adj"</code>, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other output of <code><a href='bal.tab.html'>bal.tab()</a></code>.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An object of class <code>bal.tab.msm</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code>bal.tab.msm</code> for more details.</p>
+    <p>An object of class <code>bal.tab.msm</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more details.</p>
 <p>Currently, clusters and multiply imputed data are not compatible with longitudinal treatments.</p>
 <p>See <code><a href='bal.tab.df.formula.html'>bal.tab base methods</a></code> for more detailed information on the value of the <code>bal.tab</code> objects produced for each time point.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.df.formula.html'>bal.tab base methods</a></code> for details of calculations.</p>
-<p><code>bal.tab.msm</code> for output and related options.</p></div>
+<p><code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for output and related options.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"iptwExWide"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"twang"</span>)

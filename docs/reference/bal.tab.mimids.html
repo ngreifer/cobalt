@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
       </span>
     </div>
 
@@ -244,11 +244,11 @@
     </tr>
     <tr>
       <th>cluster</th>
-      <td><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the <code>mimids</code> or <code>wimids</code> object. See <code>bal.tab.cluster</code> for details.</p></td>
+      <td><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the <code>mimids</code> or <code>wimids</code> object. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>pairwise</th>
-      <td><p>whether balance should be computed for pairs of treatments or for each treatment against all others combined. See <code>bal.tab.multi</code> for details.</p></td>
+      <td><p>whether balance should be computed for pairs of treatments or for each treatment against all others combined. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>abs</th>
@@ -274,7 +274,7 @@
 <p>The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>If clusters are not specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code>bal.tab.imp</code> for details.</p>
+    <p>If clusters are not specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.imp.cluster"</code> containing summaries between and across all clusters and imputations.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
