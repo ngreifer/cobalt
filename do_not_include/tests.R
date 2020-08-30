@@ -19,10 +19,10 @@ library("MatchIt")
 m1 <- matchit(treat ~ log(age)*married + educ + race + nodegree + re74 + re75, 
               data = lalonde, replace = T, ratio = 2, 
               discard = "both", reestimate = TRUE)
-bal.tab(m1, int = T, v.threshold = 2, imbalanced.only = T)
+bal.tab(m1, int = T, v.threshold = 2, imbalanced.only = F)
 #MatchIt: matching w/ distance
 m1.1 <- matchit(f.build("treat", covs), data = lalonde, distance = runif(nrow(lalonde)))
-bal.tab(m1.1, data = lalonde)
+bal.tab(m1.1, data = lalonde) #Not needed for MatchIt 4.0.0
 #Matching with complicated formula
 library(rms)
 m1.2 <- matchit(treat ~ log(age)*married + poly(educ,2) + rcs(age,3) + race + factor(nodegree) + re74 + re75, 
@@ -39,7 +39,7 @@ m4 <- matchit(f.build("treat", covs), data = lalonde, method = "full", distance 
 bal.tab(m4, int = T, quick = T, ks.threshold = .05)
 #Matchit: genetic matching, using matching weights
 m5 <- matchit(f.build("treat", covs), data = lalonde, method = "genetic", replace = F,
-              ratio = 1, print.level = 0, pop.size = 50)
+              ratio = 1, pop.size = 50)
 bal.tab(m5, method = "m", estimand = "ATT")
 #twang
 library("twang")
@@ -57,7 +57,7 @@ bal.tab(covs, lalonde$treat, weights = get.w(ps.out.s), s.weights = sampw,
         un = T, distance = ps.out.s$ps)
 #CBPS: binary
 library("CBPS")
-cbps.out <- CBPS(f.build("treat", covs), data = lalonde, ATT = F)
+cbps.out <- CBPS(treat ~ log(age)*married + poly(educ,2) + rcs(age,3) + race + factor(nodegree) + re74 + re75, data = lalonde, ATT = F)
 bal.tab(cbps.out, disp.bal.tab = T)
 cbps.out.e <- CBPS(f.build("treat", covs), data = lalonde, method = "exact", ATT = F)
 bal.tab(cbps.out, weights = list("exact" = (cbps.out.e)),
@@ -103,7 +103,7 @@ bal.tab(pm,  ~ age + educ + race +
 
 #WeightIt
 library(WeightIt)
-W <- weightit(f.build("treat", covs), data = lalonde,
+W <- weightit(treat ~ log(age)*married + poly(educ,2) + rcs(age,3) + race + factor(nodegree) + re74 + re75, data = lalonde,
               method = "ps", estimand = "ATT")
 bal.tab(W)
 W.cont <- weightit(f.build("re75", covs[-7]), data = lalonde,
