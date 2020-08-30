@@ -62,7 +62,7 @@ Variance ratios are computed within-sample using \code{\link{col_w_vr}}, with th
 
 When weighting or matching are used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}, as is used in \pkg{twang}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being down-weighted. When matching is used, an additional "unweighted" sample size will be displayed indicating the total number of units contributing to the weighted sample.
 
-When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass}, the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See \code{\link{bal.tab.subclass}} for more details.}
+When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass}, the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more details.}
 
 \subsection{With Continuous Point Treatments}{
 
@@ -70,15 +70,15 @@ When continuous treatment variables are considered, the balance statistic calcul
 }
 \subsection{With Multi-Category Point Treatments}{
 
-For information on using \code{bal.tab()} with multi-category treatments, see \code{\link{bal.tab.multi}}. Essentially, \code{bal.tab()} compares pairs of treatment groups in a standard way.
+For information on using \code{bal.tab()} with multi-category treatments, see \code{\link[=class-bal.tab.multi]{bal.tab.multi}}. Essentially, \code{bal.tab()} compares pairs of treatment groups in a standard way.
 }
 \subsection{With Longitudinal Treatments}{
 
-For information on using \code{bal.tab()} with longitudinal treatments, see \code{\link{bal.tab.msm}}. Essentially, \code{bal.tab()} summarizes balance at each time point and summarizes across time points.
+For information on using \code{bal.tab()} with longitudinal treatments, see \code{\link[=class-bal.tab.msm]{bal.tab.msm}}. Essentially, \code{bal.tab()} summarizes balance at each time point and summarizes across time points.
 }
 \subsection{With Clustered or Multiply Imputed Data}{
 
-For information on using \code{bal.tab()} with clustered data, see \code{\link{bal.tab.cluster}}. For information on using \code{bal.tab()} with multiply imputed data, see \code{\link{bal.tab.imp}}. 
+For information on using \code{bal.tab()} with clustered data, see \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}}. For information on using \code{bal.tab()} with multiply imputed data, see \code{\link[=class-bal.tab.imp]{bal.tab.imp}}. 
 }
 \subsection{Quick}{
 
@@ -108,18 +108,17 @@ For scenarios with binary point treatments and no subclasses, imputations, or cl
 \item{\code{SD.1.Adj}: The standard deviation of the treated group after adjusting.}
 \item{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
 \item{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{thresholds}.  If a threshold for mean differences is not specified, this column will be \code{NA}.}
-
 }}
-\item{Balanced.Means}{If \code{m.threshold} is specified, a table tallying the number of variables that exceed or are within the threshold for mean differences.}
-\item{Max.Imbalance.Means}{If \code{m.threshold} is specified, a table displaying the variable with the greatest absolute mean difference.}
+\item{Balanced.Means}{If a threshold on mean differences is specified, a table tallying the number of variables that exceed or are within the threshold.}
+\item{Max.Imbalance.Means}{If a threshold on mean differences is specified, a table displaying the variable with the greatest absolute mean difference.}
 \item{Observations}{A table displaying the sample sizes before and after adjusting. Often the effective sample size (ESS) will be displayed. See Details.}
 \item{call}{The original function call, if adjustment was performed by a function in another package.}
 
-If the treatment is continuous, instead of producing mean differences, \code{bal.tab()} will produce correlations between the covariates and the treatment. The corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.threshold" (and accordingly for the balance tally and maximum imbalance tables).
+If the treatment is continuous, instead of producing mean differences, \code{bal.tab()} will produce correlations between the covariates and the treatment. The corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.Threshold" (and accordingly for the balance tally and maximum imbalance tables).
 
 If multiple weights are supplied, \code{"Adj"} in \code{Balance} will be replaced by the provided names of the sets of weights, and extra columns will be added for each set of weights. Additional columns and rows for other items in the output will be created as well.
 
-For \code{bal.tab} output with subclassification, see \code{\link{bal.tab.subclass}}.
+For \code{bal.tab} output with subclassification, see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}}.
 }
 
 \references{

@@ -82,13 +82,13 @@ whether mean differences for binary variables (i.e., difference in proportion) s
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{cluster}{
-either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 }
   \item{imp}{
-either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
+either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
 }
   \item{pairwise}{
-when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link{bal.tab.multi}} for details. 
+when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. 
 }
   \item{s.weights}{
 optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.
@@ -118,7 +118,7 @@ Multiple sets of weights can be supplied simultaneously by including entering a 
 
 }
 \value{
-An object of class \code{bal.tab.msm} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details.
+An object of class \code{bal.tab.msm} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more details.
 
 Currently, clusters and multiply imputed data are not compatible with longitudinal treatments.
 
@@ -133,7 +133,7 @@ Noah Greifer
 \seealso{
 \code{\link[=bal.tab.formula]{bal.tab base methods}} for details of calculations.
 
-\code{\link{bal.tab.msm}} for output and related options.
+\code{\link[=class-bal.tab.msm]{bal.tab.msm}} for output and related options.
 
 }
 \examples{

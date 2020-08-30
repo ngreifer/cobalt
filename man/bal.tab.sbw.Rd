@@ -65,10 +65,10 @@ a named vector of balance thresholds, where the name corresponds to the statisti
 a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \code{\link{get.w}} method.
 }
   \item{cluster}{
-either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{sbwcau} object. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{sbwcau} object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 }
   \item{imp}{
-either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{sbw()}. See \code{\link{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
+either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{sbw()}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
@@ -93,7 +93,7 @@ The \code{thresholds} argument controls whether extra columns should be inserted
 
 If clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{sbwcau} object. See \code{\link{bal.tab}} for details.
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 }
 
 \author{

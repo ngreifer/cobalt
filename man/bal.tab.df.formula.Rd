@@ -89,16 +89,16 @@ whether mean differences for binary variables (i.e., difference in proportion) s
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{cluster}{
-either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link{bal.tab.cluster}} for details.
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data}. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 }
   \item{imp}{
-either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
+either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
 }
   \item{pairwise}{
-when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link{bal.tab.multi}} for details.
+when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 }
   \item{focal}{
-The name of the focal treatment when multiple categorical treatments are used. See \code{\link{bal.tab.multi}} for details.
+The name of the focal treatment when multiple categorical treatments are used. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 }
   \item{s.weights}{
 Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.
@@ -122,7 +122,7 @@ For \code{bal.tab.formula}, other arguments to be passed to \code{bal.tab.data.f
 \details{
 \code{bal.tab.data.frame()} generates a list of balance summaries for the covariates and treatment status values given. \code{bal.tab.formula()} does the same but uses a formula interface instead.  When the formula interface is used, the formula and data are reshaped into a treatment vector and \code{data.frame} of covariates and then simply passed through the \code{data.frame} method.  
 
-The argument to \code{match.strata} corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of \code{weights}, \code{subclass}, or \code{match.strata} are specified, \code{bal.tab()} will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate. See \code{\link{bal.tab.subclass}} for more information.
+The argument to \code{match.strata} corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of \code{weights}, \code{subclass}, or \code{match.strata} are specified, \code{bal.tab()} will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more information.
 
 All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 
@@ -136,15 +136,15 @@ Clusters and imputations can be used at the same time, but the resulting output 
 \value{
 For point treatments, if clusters and imputations are not specified, an object of class \code{"bal.tab"} containing balance summaries for the specified treatment and covariates. See \code{\link{bal.tab}} for details.
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 
-If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See \code{\link{bal.tab.imp}} for details.
+If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.
 
 If both clusters and imputations are specified, an object of class \code{"bal.tab.imp.cluster"} containing summaries between and across all clusters and imputations.
 
 If treatment is continuous, then means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{distance}, \code{addl}, \code{un}, cluster and imputation arguments are still used as described above.
 
-If multiple categorical treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
+If multiple categorical treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 }
 
 
@@ -154,9 +154,9 @@ Noah Greifer
 
 \seealso{
 \code{\link{bal.tab}} for output and details of calculations.
-\code{\link{bal.tab.cluster}} for more information on clustered data.
-\code{\link{bal.tab.imp}} for more information on multiply imputed data.
-\code{\link{bal.tab.multi}} for more information on multiple categorical treatments.
+\code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for more information on clustered data.
+\code{\link[=class-bal.tab.imp]{bal.tab.imp}} for more information on multiply imputed data.
+\code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multiple categorical treatments.
 }
 \examples{
 data("lalonde", package = "cobalt")

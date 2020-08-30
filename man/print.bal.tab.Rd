@@ -127,16 +127,16 @@ whether to display the imputation summary table. If \code{which.imp} is \code{NA
 a character vector of functions of balance statistics to display when displaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed.
 }
   \item{which.treat}{
-which treatments to display when multi-category treatments are used. See \code{\link{bal.tab.multi}} for details.
+which treatments to display when multi-category treatments are used. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 }
  \item{multi.summary}{
-\code{logical}; whether to display the balance summary table across pairwise comparisons when multi-category treatments are used. See \code{\link{bal.tab.multi}} for details.
+\code{logical}; whether to display the balance summary table across pairwise comparisons when multi-category treatments are used. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 }
   \item{which.time}{
-which time periods to display if longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
+which time periods to display if longitudinal treatments are used. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for details.
 }
   \item{msm.summary}{
-\code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link{bal.tab.msm}} for details.
+\code{logical}; whether to display the balance summary table across time periods when longitudinal treatments are used. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for details.
 }
   \item{digits}{
 the number of digits to display.

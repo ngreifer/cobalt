@@ -67,13 +67,13 @@ At least some inputs containing information to create the treatment and covariat
 \value{
 For point treatments, if clusters and imputations are not specified, an object of class \code{"bal.tab"} containing balance summaries for the specified treatment and covariates. See \code{\link{bal.tab}} for details.
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{bal.tab.cluster}} for details.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 
-If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See \code{\link{bal.tab.imp}} for details.
+If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.
 
-If multi-category treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link{bal.tab.multi}} for details.
+If multi-category treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 
-If longitudinal treatments are used, an object of class \code{"bal.tab.msm"} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{bal.tab.msm}} for more details.
+If longitudinal treatments are used, an object of class \code{"bal.tab.msm"} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more details.
 }
 
 
@@ -84,9 +84,9 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab.data.frame}} and \code{link{bal.tab.time.list}} for additional arguments to be supplied.
 \code{\link{bal.tab}} for output and details of calculations.
-\code{\link{bal.tab.cluster}} for more information on clustered data.
-\code{\link{bal.tab.imp}} for more information on multiply imputed data.
-\code{\link{bal.tab.multi}} for more information on multi-category treatments.
+\code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for more information on clustered data.
+\code{\link[=class-bal.tab.imp]{bal.tab.imp}} for more information on multiply imputed data.
+\code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multi-category treatments.
 }
 \examples{
 data("lalonde", package = "cobalt")
