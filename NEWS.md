@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.2.3
 
 * Fixed bugs in processing functions in formulas, including `rms` functions and `poly()`. (#40)
 
