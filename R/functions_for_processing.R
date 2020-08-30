@@ -1321,7 +1321,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                      dimnames = list(term, colnames(ttfactor)))
     addcol <- matrix(0, nrow = nrow(ttfactor) + length(term), ncol = length(term),
                      dimnames = list(c(rownames(ttfactor), term), term))
-    addcol[-seq_len(ncol(ttfactor)), ] <- diag(length(term))
+    addcol[-seq_len(nrow(ttfactor)), ] <- diag(length(term))
     
     ttfactor <- rbind(ttfactor, addrow)
     if (after == 0) {
@@ -1331,7 +1331,9 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       return(cbind(ttfactor, addcol))
     }
     else {
-      return(cbind(ttfactor[,seq_len(after)], addcol, ttfactor[,-seq_len(after)]))
+      return(cbind(ttfactor[,seq_len(after), drop = FALSE], 
+                   addcol, 
+                   ttfactor[,-seq_len(after), drop = FALSE]))
     }
   }
   
@@ -1352,8 +1354,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       data <- env
       data.specified <- FALSE
     }
-  }
-  else {
+  } else {
     data <- env
     data.specified <- FALSE
   }
@@ -1370,8 +1371,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   tt.covs <- delete.response(tt)
   attr(tt.covs, "intercept") <- 0
   
-  ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
   ttfactors <- attr(tt.covs, "factors")
+  ttvars <- setNames(vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1], rownames(ttfactors))
   
   rhs.df.type <- setNames(vapply(ttvars, function(v) {
     if (is_(try(eval(str2expression(paste0("`", v, "`")), data, env), silent = TRUE),
@@ -1383,9 +1384,9 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   rhs.df <- setNames(rhs.df.type != "not.a.df", ttvars)
   
-  if (any(rhs.df)) {
+  while (any(rhs.df)) {
     term_is_interaction <- apply(ttfactors, 2, function(x) sum(x != 0) > 1)
-    if (any(vapply(ttvars[rhs.df], function(x) any(ttfactors[x,] != 0 & term_is_interaction), logical(1L)))) {
+    if (any(vapply(seq_along(ttvars)[rhs.df], function(x) any(ttfactors[x,] != 0 & term_is_interaction), logical(1L)))) {
       stop("Interactions with data.frames are not allowed in the input formula.", call. = FALSE)
     }
     addl.dfs <- setNames(lapply(ttvars[rhs.df], function(v) {
@@ -1400,26 +1401,40 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }),
     ttvars[rhs.df])
     
-    for (i in colnames(ttfactors)[colnames(ttfactors) %in% ttvars[rhs.df]]) {
-      for (j in seq_len(ncol(addl.dfs[[i]]))) {
-        if (names(addl.dfs[[i]])[j] %in% c(ttvars[!rhs.df], unlist(lapply(addl.dfs[seq_len(which(names(addl.dfs) == i)-1)], names)))) {
-          names(addl.dfs[[i]])[j] <- paste0(i, "_", names(addl.dfs[[i]])[j])
+    for (i in colnames(ttfactors)[colnames(ttfactors) %in% names(ttvars)[rhs.df]]) {
+      for (j in seq_len(ncol(addl.dfs[[ttvars[i]]]))) {
+        if (names(addl.dfs[[ttvars[i]]])[j] %in% c(ttvars[!rhs.df], unlist(lapply(addl.dfs[seq_len(which(names(addl.dfs) == ttvars[i]) - 1)], names)))) {
+          names(addl.dfs[[ttvars[i]]])[j] <- paste0(ttvars[i], "_", names(addl.dfs[[ttvars[i]]])[j])
         }
       }
       ind <- which(colnames(ttfactors) == i)
       ttfactors <- append.ttfactor(ttfactors,
-                                   paste0("`", names(addl.dfs[[i]]), "`"),
+                                   paste0("`", names(addl.dfs[[ttvars[i]]]), "`"),
                                    ind)[,-ind, drop = FALSE]
     }
     
-    if (data.specified) data <- do.call("cbind", unname(c(addl.dfs, list(data))))
-    else data <- do.call("cbind", unname(addl.dfs))
+    if (data.specified) {
+      data <- do.call("cbind", unname(c(addl.dfs, list(data))))
+    } else {
+      data <- do.call("cbind", unname(addl.dfs))
+      data.specified <- TRUE
+    }
     
     new.form <- rebuild_f(ttfactors)
     tt.covs <- terms(new.form, data = data)
     
     ttfactors <- attr(tt.covs, "factors")
-    ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
+    ttvars <- setNames(vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1], rownames(ttfactors))
+    
+    rhs.df.type <- setNames(vapply(ttvars, function(v) {
+      if (is_(try(eval(str2expression(paste0("`", v, "`")), data, env), silent = TRUE),
+              c("data.frame", "matrix", "rms"))) "lit"
+      else if (is_(try(eval(str2expression(v), data, env), silent = TRUE),
+                   c("data.frame", "matrix", "rms"))) "exp"
+      else "not.a.df"
+    }, character(1L)), ttvars)
+    
+    rhs.df <- setNames(rhs.df.type != "not.a.df", ttvars)
   }
   
   #Check to make sure variables are valid
@@ -1510,6 +1525,33 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   }
   else {
     na_vars <- character(0)
+  }
+  
+  #Re-check ttfactors
+  original_ttvars <- rownames(ttfactors)
+  for (i in seq_along(rownames(ttfactors))) {
+    #Check if evaluable in tmpcovs
+    #If not, check if evaluable i tmpcovs after changing to literal using ``
+    #If not, stop() (shouldn't occur)
+    
+    evaled.var <- try(eval(str2expression(rownames(ttfactors)[i]), tmpcovs), silent = TRUE)
+    if (null_or_error(evaled.var)) {
+      evaled.var <- try(eval(str2expression(paste0("`", rownames(ttfactors)[i], "`")), tmpcovs), silent = TRUE)
+      if (null_or_error(evaled.var)) {
+        stop(conditionMessage(attr(evaled.var, "condition")), call. = FALSE)
+      }
+      else {
+        rownames(ttfactors)[i] <- paste0("`", rownames(ttfactors)[i], "`")
+      }
+    }
+  }
+  
+  if (!identical(original_ttvars, rownames(ttfactors))) {
+    new.form <- rebuild_f(ttfactors)
+    tt.covs <- terms(new.form, data = data)
+    
+    ttfactors <- attr(tt.covs, "factors")
+    ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
   }
   
   tmpcovs <- model.frame(tt.covs, data = tmpcovs, drop.unused.levels = TRUE,
@@ -1887,6 +1929,34 @@ co.bind <- function(..., deparse.level = 1) {
   out
 }
 
+df_clean <- function(df) {
+  if (!is.list(df)) df <- as.data.frame(df)
+  #If a data.frame has matrix columns, clean those into vector columns and rename
+  if (any(vapply(df, function(x) is_not_null(dim(x)), logical(1L)))) {
+    rn <- rownames(df)
+    
+    df <- do.call("cbind", lapply(seq_along(df), function(x) {
+      if (is_null(dim(df[[x]]))) {
+        setNames(data.frame(df[[x]]), names(df)[x])
+      }
+      else {
+        if (is_(df[[x]], "rms")) {
+          setNames(as.data.frame.matrix(as.matrix(df[[x]])), colnames(df[[x]]))
+        }
+        else if (can_str2num(colnames(df[[x]]))) {
+          setNames(as.data.frame(df[[x]]), paste(names(df)[x], colnames(df[[x]]), sep = "_"))
+        }
+        else {
+          setNames(as.data.frame(df[[x]]), colnames(df[[x]]))
+        }
+      }
+    }))
+    
+    rownames(df) <- rn
+  }
+  
+  df
+}
 get.types <- function(C) {
   vapply(colnames(C), function(x) {
     if (any(attr(C, "distance.names") == x)) "Distance"
