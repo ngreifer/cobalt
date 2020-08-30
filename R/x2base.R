@@ -36,7 +36,10 @@ x2base.matchit <- function(m, ...) {
     treat <- process_treat(m[["treat"]], datalist = list(data, m.data), pairwise = A$pairwise)
     
     #Process covs
-    if (is_not_null(m$model$model)) {
+    if (is.data.frame(m$X)) {
+        covs <- get_covs_from_formula(~m$X)
+    }
+    else if (is_not_null(m$model$model)) {
         if (nrow(m$model$model) == length(treat)) {
             covs <- get_covs_from_formula(m$formula, data = m$model$model)
         }
