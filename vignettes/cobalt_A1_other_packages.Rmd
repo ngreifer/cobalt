@@ -82,7 +82,7 @@ if (!"twang" %in% rownames(installed.packages())) knitr::opts_chunk$set(eval = F
 Generalized boosted modeling (GBM), as implemented in `twang`, can be an effective way to generate propensity scores and weights for use in propensity score weighting. `bal.tab()` functions similarly to the functions `bal.table()` and `summary()` when used with GBM in `twang`. Below is a simple example of its use:
 
 
-```{r, warning = FALSE, eval = FALSE}
+```{r, warning = FALSE, eval = TRUE}
 library("twang")
 data("lalonde", package = "cobalt") ##If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
