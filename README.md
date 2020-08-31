@@ -3,7 +3,7 @@
 
 # cobalt <img src="man/figures/logo.png" align="right" width="150"/>
 
-## [![CRAN\_Status\_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt) [![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
+## [![CRAN\_Status\_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt) [![CRAN\_Downloads\_Badge](https://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
 
 ### Overview
 

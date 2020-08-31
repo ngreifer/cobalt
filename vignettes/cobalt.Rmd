@@ -604,21 +604,21 @@ I thank Kirsten Kainz and Elizabeth Stuart for their support and advice on `coba
 
 Ahmed, A., Rich, M.W., Sanders, P.W., Perry, G.J., Bakris, G.L., Zile, M.R., Love, T.E., Aban, I.B. & Shlipak, M.G. (2007) Chronic kidney disease associated mortality in diastolic versus systolic heart failure: a propensity matched study. The American journal of cardiology, 99(3), pp.393-398.
 
-Ali, M. S., Groenwold, R. H. H., Belitser, S. V., Pestman, W. R., Hoes, A. W., Roes, K. C. B., … Klungel, O. H. (2015). Reporting of covariate selection and balance assessment in propensity score analysis is suboptimal: a systematic review. Journal of Clinical Epidemiology, 68(2), 122–131. http://doi.org/10.1016/j.jclinepi.2014.08.011
+Ali, M. S., Groenwold, R. H. H., Belitser, S. V., Pestman, W. R., Hoes, A. W., Roes, K. C. B., … Klungel, O. H. (2015). Reporting of covariate selection and balance assessment in propensity score analysis is suboptimal: a systematic review. Journal of Clinical Epidemiology, 68(2), 122–131. https://doi.org/10.1016/j.jclinepi.2014.08.011
 
 Ali, M. S., Groenwold, R. H. H., Pestman, W. R., Belitser, S. V., Roes, K. C. B., Hoes, A. W., … Klungel, O. H. (2014). Propensity score balance measures in pharmacoepidemiology: a simulation study. Pharmacoepidemiology and Drug Safety, 23(8), 802–811. https://doi.org/10.1002/pds.3574
 
-Austin, P. C. (2008). A critical appraisal of propensity-score matching in the medical literature between 1996 and 2003. Statistics in Medicine, 27(12), 2037–2049. http://doi.org/10.1002/sim.3150
+Austin, P. C. (2008). A critical appraisal of propensity-score matching in the medical literature between 1996 and 2003. Statistics in Medicine, 27(12), 2037–2049. https://doi.org/10.1002/sim.3150
 
-Austin, P. C. (2009). Balance diagnostics for comparing the distribution of baseline covariates between treatment groups in propensity-score matched samples. Statistics in Medicine, 28(25), 3083–3107. http://doi.org/10.1002/sim.3697
+Austin, P. C. (2009). Balance diagnostics for comparing the distribution of baseline covariates between treatment groups in propensity-score matched samples. Statistics in Medicine, 28(25), 3083–3107. https://doi.org/10.1002/sim.3697
 
-Austin, P. C. (2011). An Introduction to Propensity Score Methods for Reducing the Effects of Confounding in Observational Studies. Multivariate Behavioral Research, 46(3), 399–424. http://doi.org/10.1080/00273171.2011.568786
+Austin, P. C. (2011). An Introduction to Propensity Score Methods for Reducing the Effects of Confounding in Observational Studies. Multivariate Behavioral Research, 46(3), 399–424. https://doi.org/10.1080/00273171.2011.568786
 
 Austin, P. C. (2019). Assessing covariate balance when using the generalized propensity score with quantitative or continuous exposures. Statistical Methods in Medical Research, 28(5), 1365–1377. https://doi.org/10.1177/0962280218756159
 
-Austin, P. C., & Stuart, E. A. (2015). Moving towards best practice when using inverse probability of treatment weighting (IPTW) using the propensity score to estimate causal treatment effects in observational studies. Statistics in Medicine, 34(28), 3661–3679. http://doi.org/10.1002/sim.6607
+Austin, P. C., & Stuart, E. A. (2015). Moving towards best practice when using inverse probability of treatment weighting (IPTW) using the propensity score to estimate causal treatment effects in observational studies. Statistics in Medicine, 34(28), 3661–3679. https://doi.org/10.1002/sim.6607
 
-Belitser, S. V., Martens, E. P., Pestman, W. R., Groenwold, R. H. H., de Boer, A., & Klungel, O. H. (2011). Measuring balance and model selection in propensity score methods. Pharmacoepidemiology and Drug Safety, 20(11), 1115–1129. http://doi.org/10.1002/pds.2188
+Belitser, S. V., Martens, E. P., Pestman, W. R., Groenwold, R. H. H., de Boer, A., & Klungel, O. H. (2011). Measuring balance and model selection in propensity score methods. Pharmacoepidemiology and Drug Safety, 20(11), 1115–1129. https://doi.org/10.1002/pds.2188
 
 Fong, C., Ratkovic, M., Hazlett, C., Yang, X., & Imai, K. (2019). CBPS: Covariate Balancing Propensity Score. R package version 0.21. https://CRAN.R-project.org/package=CBPS
 
@@ -636,9 +636,9 @@ Hansen, B.B. and Klopfer, S.O. (2006) Optimal full matching and related designs 
 
 Hirano, K., and G. W. Imbens. (2004) The Propensity Score with Continuous Treatments. in Applied Bayesian Modeling and Causal Inference From Incomplete Data Perspectives, edited by A.Gelman and X. L.Meng. England : West Sussex, 2004: 73–84.
 
-Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2007). Matching as Nonparametric Preprocessing for Reducing Model Dependence in Parametric Causal Inference. Political Analysis, 15(3), 199–236. http://doi.org/10.1093/pan/mpl013
+Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2007). Matching as Nonparametric Preprocessing for Reducing Model Dependence in Parametric Causal Inference. Political Analysis, 15(3), 199–236. https://doi.org/10.1093/pan/mpl013
 
-Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2011). MatchIt: Nonparametric preprocessing for parametric causal inference. Journal of Statistical Software, 42, 1–28. Retrieved from http://www.jstatsoft.org/v42/i08/
+Ho, D. E., Imai, K., King, G., & Stuart, E. A. (2011). MatchIt: Nonparametric preprocessing for parametric causal inference. Journal of Statistical Software, 42, 1–28. Retrieved from https://www.jstatsoft.org/v42/i08/
 
 Iacus, S. M., King, G., & Porro, G. (2018). cem: Coarsened Exact Matching. R package version 1.1.19. https://CRAN.R-project.org/package=cem
   
@@ -648,29 +648,29 @@ Keller, B., & Tipton, E. (2016). Propensity Score Analysis in R: A Software Revi
 
 King, G., & Nielsen, R. (2019). Why Propensity Scores Should Not Be Used for Matching. Political Analysis, 1–20. https://doi.org/10.1017/pan.2019.11
 
-Linden, A. (2015), Graphical displays for assessing covariate balance in matching studies. Journal of Evaluation in Clinical Practice, 21: 242–247. http://doi.org/10.1111/jep.12297
+Linden, A. (2015), Graphical displays for assessing covariate balance in matching studies. Journal of Evaluation in Clinical Practice, 21: 242–247. https://doi.org/10.1111/jep.12297
 
-Lopez, M. J., & Gutman, R. (2017). Estimation of causal effects with multiple treatments: a review and new ideas. arXiv:1701.05132 [Stat]. Retrieved from http://arxiv.org/abs/1701.05132
+Lopez, M. J., & Gutman, R. (2017). Estimation of causal effects with multiple treatments: a review and new ideas. arXiv:1701.05132 [Stat]. Retrieved from https://arxiv.org/abs/1701.05132
 
 Pishgar, F., and Greifer, N. (2020). MatchThem: Matching and Weighting Multiply Imputed Datasets. R package version 0.9.3. https://CRAN.R-project.org/package=MatchThem
   
 Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2020). twang: Toolkit for Weighting and Analysis of Nonequivalent Groups. R package version 1.6. https://CRAN.R-project.org/package=twang
 
-Rosenbaum, P. R., & Rubin, D. B. (1983). The central role of the propensity score in observational studies for causal effects. Biometrika, 70(1), 41–55. http://doi.org/10.1093/biomet/70.1.41
+Rosenbaum, P. R., & Rubin, D. B. (1983). The central role of the propensity score in observational studies for causal effects. Biometrika, 70(1), 41–55. https://doi.org/10.1093/biomet/70.1.41
 
 R Core Team (2019). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
 
 Rubin, D. B. (2001). Using Propensity Scores to Help Design Observational Studies: Application to the Tobacco Litigation. Health Services and Outcomes Research Methodology, 2(3-4), 169–188. https://doi.org/10.1023/A:1020363010465
 
-Sekhon, J. S. (2011). Multivariate and Propensity Score Matching Software with Automated Balance Optimization: The Matching Package for R. Journal of Statistical Software, 42(7), 1-52. http://www.jstatsoft.org/v42/i07/.
+Sekhon, J. S. (2011). Multivariate and Propensity Score Matching Software with Automated Balance Optimization: The Matching Package for R. Journal of Statistical Software, 42(7), 1-52. https://www.jstatsoft.org/v42/i07/.
 
-Shook-Sa, B. E., & Hudgens, M. G. (2020). Power and Sample Size for Marginal Structural Models. ArXiv:2003.05979 [Stat]. http://arxiv.org/abs/2003.05979
+Shook-Sa, B. E., & Hudgens, M. G. (2020). Power and Sample Size for Marginal Structural Models. ArXiv:2003.05979 [Stat]. https://arxiv.org/abs/2003.05979
 
 Stuart, E. A. (2008). Developing practical recommendations for the use of propensity scores: Discussion of “A critical appraisal of propensity score matching in the medical literature between 1996 and 2003” by Peter Austin, Statistics in Medicine. Statistics in Medicine, 27(12), 2062–2065. https://doi.org/10.1002/sim.3207
 
 Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1–21. https://doi.org/10.1214/09-STS313
 
-Stuart, E. A., Lee, B. K., & Leacy, F. P. (2013). Prognostic score-based balance measures can be a useful diagnostic for propensity score methods in comparative effectiveness research. Journal of Clinical Epidemiology, 66(8), S84. http://doi.org/10.1016/j.jclinepi.2013.01.013
+Stuart, E. A., Lee, B. K., & Leacy, F. P. (2013). Prognostic score-based balance measures can be a useful diagnostic for propensity score methods in comparative effectiveness research. Journal of Clinical Epidemiology, 66(8), S84. https://doi.org/10.1016/j.jclinepi.2013.01.013
 
 Thoemmes, F. J., & Kim, E. S. (2011). A Systematic Review of Propensity Score Methods in the Social Sciences. Multivariate Behavioral Research, 46(1), 90–118. https://doi.org/10.1080/00273171.2011.540475
 
