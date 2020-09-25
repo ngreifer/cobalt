@@ -1,5 +1,8 @@
 `cobalt` News and Updates
 ======
+# cobalt (development version)
+
+* Fixed a bug in `print.bal.tab()` when no units were unmatched but some were discarded.
 
 # cobalt 4.2.3
 
