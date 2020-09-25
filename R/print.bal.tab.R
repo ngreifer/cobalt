@@ -186,12 +186,11 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     }
     
     if (is_not_null(nn)) {
-        for (i in seq_len(NROW(nn))) {
-            if (all(nn[i,] == 0)) {
-                nn <- nn[-i, , drop = FALSE]
-                attr(nn, "ss.type") <- attr(nn, "ss.type")[-i]
-            }
-        }
+        
+        drop.nn <- rowSums(nn) == 0
+        ss.type <- attr(nn, "ss.type")[!drop.nn]
+        nn <- nn[!drop.nn, , drop = FALSE]
+        
         if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
             all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
             nn <- nn[rownames(nn)!="Matched (Unweighted)", , drop = FALSE]
@@ -199,8 +198,8 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         }
         cat(underline(attr(nn, "tag")) %+% "\n")
         print.warning <- FALSE
-        if (length(attr(nn, "ss.type")) > 1 && nunique.gt(attr(nn, "ss.type")[-1], 1)) {
-            ess <- ifelse(attr(nn, "ss.type") == "ess", "*", "")
+        if (length(ss.type) > 1 && nunique.gt(ss.type[-1], 1)) {
+            ess <- ifelse(ss.type == "ess", "*", "")
             nn <- setNames(cbind(nn, ess), c(names(nn), ""))
             print.warning <- TRUE
         }
@@ -449,9 +448,9 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         }
         
         if (is_not_null(nn)) {
-            for (i in rownames(nn)) {
-                if (all(nn[i,] == 0)) nn <- nn[rownames(nn)!=i,]
-            }
+            drop.nn <- rowSums(nn) == 0
+            ss.type <- attr(nn, "ss.type")[!drop.nn]
+            nn <- nn[!drop.nn, , drop = FALSE]
             if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
                 all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
                 nn <- nn[rownames(nn)!="Matched (Unweighted)", , drop = FALSE]
@@ -459,8 +458,8 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
             }
             cat(underline(attr(nn, "tag")) %+% "\n")
             print.warning <- FALSE
-            if (length(attr(nn, "ss.type")) > 1 && nunique.gt(attr(nn, "ss.type")[-1], 1)) {
-                ess <- ifelse(attr(nn, "ss.type") == "ess", "*", "")
+            if (length(ss.type) > 1 && nunique.gt(ss.type[-1], 1)) {
+                ess <- ifelse(ss.type == "ess", "*", "")
                 nn <- setNames(cbind(nn, ess), c(names(nn), ""))
                 print.warning <- TRUE
             }
@@ -705,9 +704,9 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         }
         
         if (is_not_null(nn)) {
-            for (i in rownames(nn)) {
-                if (all(nn[i,] == 0)) nn <- nn[rownames(nn)!=i,]
-            }
+            drop.nn <- rowSums(nn) == 0
+            ss.type <- attr(nn, "ss.type")[!drop.nn]
+            nn <- nn[!drop.nn, , drop = FALSE]
             if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
                 all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
                 nn <- nn[rownames(nn)!="Matched (Unweighted)", , drop = FALSE]
@@ -715,8 +714,8 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
             }
             cat(underline(attr(nn, "tag")) %+% "\n")
             print.warning <- FALSE
-            if (length(attr(nn, "ss.type")) > 1 && nunique.gt(attr(nn, "ss.type")[-1], 1)) {
-                ess <- ifelse(attr(nn, "ss.type") == "ess", "*", "")
+            if (length(ss.type) > 1 && nunique.gt(ss.type[-1], 1)) {
+                ess <- ifelse(ss.type == "ess", "*", "")
                 nn <- setNames(cbind(nn, ess), c(names(nn), ""))
                 print.warning <- TRUE
             }
@@ -993,10 +992,9 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
         
         if (is_not_null(nn)) {
             tag <- attr(nn, "tag")
-            ss.type <- attr(nn, "ss.type")
-            for (i in rownames(nn)) {
-                if (all(nn[i,] == 0)) nn <- nn[rownames(nn)!=i,]
-            }
+            drop.nn <- rowSums(nn) == 0
+            ss.type <- attr(nn, "ss.type")[!drop.nn]
+            nn <- nn[!drop.nn, , drop = FALSE]
             if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn)) && 
                 all(check_if_zero(nn["Matched (ESS)",] - nn["Matched (Unweighted)",]))) {
                 nn <- nn[rownames(nn)!="Matched (Unweighted)", , drop = FALSE]
@@ -1260,16 +1258,16 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
             
             for (ti in seq_along(nn)) {
                 cat(" - " %+% italic("Time " %+% as.character(ti)) %+% "\n")
-                for (i in rownames(nn[[ti]])) {
-                    if (all(nn[[ti]][i,] == 0)) nn[[ti]] <- nn[[ti]][rownames(nn[[ti]])!=i,]
-                }
+                drop.nn <- rowSums(nn[[ti]]) == 0
+                ss.type <- attr(nn[[ti]], "ss.type")[!drop.nn]
+                nn[[ti]] <- nn[[ti]][!drop.nn, , drop = FALSE]
                 if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn[[ti]])) && 
                     all(check_if_zero(nn[[ti]]["Matched (ESS)",] - nn[[ti]]["Matched (Unweighted)",]))) {
                     nn[[ti]] <- nn[[ti]][rownames(nn[[ti]])!="Matched (Unweighted)", , drop = FALSE]
                     rownames(nn[[ti]])[rownames(nn[[ti]]) == "Matched (ESS)"] <- "Matched"
                 }
-                if (length(attr(nn[[ti]], "ss.type")) > 1 && nunique.gt(attr(nn[[ti]], "ss.type")[-1], 1)) {
-                    ess <- ifelse(attr(nn[[ti]], "ss.type") == "ess", "*", "")
+                if (length(ss.type) > 1 && nunique.gt(ss.type[-1], 1)) {
+                    ess <- ifelse(ss.type == "ess", "*", "")
                     nn[[ti]] <- setNames(cbind(nn[[ti]], ess), c(names(nn[[ti]]), ""))
                     print.warning <- TRUE
                 }
