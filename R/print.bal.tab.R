@@ -168,7 +168,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         
         cat(underline("Balance Measures") %+% "\n")
         if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-        else print.data.frame_(round_df_char(balance[keep.row, keep.col, drop = FALSE], digits))
+        else print.data.frame_(round_df_char(balance[keep.row, keep.col, drop = FALSE], digits, na_vals = "."))
         cat("\n")
     }
     
@@ -180,7 +180,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
         }
         if (is_not_null(maximbal[[s]])) {
             cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-            print.data.frame_(round_df_char(maximbal[[s]], digits), row.names = FALSE)
+            print.data.frame_(round_df_char(maximbal[[s]], digits, na_vals = "."), row.names = FALSE)
             cat("\n")
         }
     }
@@ -443,7 +443,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
         
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all clusters") %+% "\n")
-            print.data.frame_(round_df_char(c.balance.summary[, s.keep.col, drop = FALSE], digits))
+            print.data.frame_(round_df_char(c.balance.summary[, s.keep.col, drop = FALSE], digits, na_vals = "."))
             cat("\n")
         }
         
@@ -699,7 +699,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all imputations") %+% "\n")
-            print.data.frame_(round_df_char(i.balance.summary[, s.keep.col, drop = FALSE], digits))
+            print.data.frame_(round_df_char(i.balance.summary[, s.keep.col, drop = FALSE], digits, na_vals = "."))
             cat("\n")
         }
         
@@ -986,7 +986,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all treatment pairs") %+% "\n")
             if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-            else print.data.frame_(round_df_char(m.balance.summary[keep.row, s.keep.col, drop = FALSE], digits))
+            else print.data.frame_(round_df_char(m.balance.summary[keep.row, s.keep.col, drop = FALSE], digits, na_vals = "."))
             cat("\n")
         }
         
@@ -1248,7 +1248,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all time points") %+% "\n")
             if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-            else print.data.frame_(round_df_char(msm.balance.summary[keep.row, s.keep.col, drop = FALSE], digits))
+            else print.data.frame_(round_df_char(msm.balance.summary[keep.row, s.keep.col, drop = FALSE], digits, na_vals = "."))
             cat("\n")
         }
         
@@ -1448,7 +1448,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
                 
                 cat("\n - - - " %+% italic("Subclass " %+% as.character(i)) %+% " - - - \n")
                 if (all(!s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-                else print.data.frame_(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], digits))
+                else print.data.frame_(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], digits, na_vals = "."))
             }
             cat("\n")
         }
@@ -1480,7 +1480,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
             
             cat(underline("Balance measures across subclasses") %+% "\n")
             if (all(!a.s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-            else print.data.frame_(round_df_char(b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE], digits))
+            else print.data.frame_(round_df_char(b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE], digits, na_vals = "."))
             cat("\n")
         }
     }
@@ -1493,7 +1493,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
         }
         if (is_not_null(maximbal[[s]])) {
             cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest, "across subclasses")) %+% "\n")
-            print.data.frame_(round_df_char(maximbal[[s]], digits), row.names = FALSE)
+            print.data.frame_(round_df_char(maximbal[[s]], digits, na_vals = "."), row.names = FALSE)
             cat("\n")
         }
     }
