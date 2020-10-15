@@ -13,7 +13,7 @@ Imports:
     ggplot2 (>= 3.3.0),
     grid,
     gtable (>= 0.3.0),
-    gridExtra (>= 2.3.0),
+    gridExtra (>= 2.3),
     rlang (>= 0.4.0),
     crayon,
     backports (>= 1.1.8)
