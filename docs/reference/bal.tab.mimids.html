@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Balance Statistics for <code>MatchThem</code> Objects — bal.tab.mimids • cobalt</title>
+<title>Balance Statistics for MatchThem Objects — bal.tab.mimids • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Balance Statistics for <code>MatchThem</code> Objects — bal.tab.mimids" />
+<meta property="og:title" content="Balance Statistics for MatchThem Objects — bal.tab.mimids" />
 <meta property="og:description" content="Generates balance statistics for mimids and wimids objects from MatchThem." />
 <meta property="og:image" content="/logo.png" />
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -153,43 +153,43 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for mimids</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-    <span class='no'>stats</span>,
-    <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-    <span class='kw'>distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>addl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='no'>continuous</span>,
-    <span class='no'>binary</span>,
-    <span class='no'>s.d.denom</span>,
-    <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-    <span class='no'>...</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+    <span class='kw'>stats</span>,
+    int = <span class='fl'>FALSE</span>, 
+    poly = <span class='fl'>1</span>, 
+    distance = <span class='kw'>NULL</span>, 
+    addl = <span class='kw'>NULL</span>, 
+    data = <span class='kw'>NULL</span>, 
+    <span class='kw'>continuous</span>,  
+    <span class='kw'>binary</span>, 
+    <span class='kw'>s.d.denom</span>, 
+    thresholds = <span class='kw'>NULL</span>,
+    weights = <span class='kw'>NULL</span>,
+    cluster = <span class='kw'>NULL</span>, 
+    abs = <span class='fl'>FALSE</span>,
+    subset = <span class='kw'>NULL</span>,
+    quick = <span class='fl'>TRUE</span>, 
+    <span class='kw'>...</span>)
 
 <span class='co'># S3 method for wimids</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-    <span class='no'>stats</span>,
-    <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-    <span class='kw'>distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>addl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='no'>continuous</span>,
-    <span class='no'>binary</span>,
-    <span class='no'>s.d.denom</span>,
-    <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-    <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-    <span class='no'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+    <span class='kw'>stats</span>,
+    int = <span class='fl'>FALSE</span>, 
+    poly = <span class='fl'>1</span>, 
+    distance = <span class='kw'>NULL</span>, 
+    addl = <span class='kw'>NULL</span>, 
+    data = <span class='kw'>NULL</span>, 
+    <span class='kw'>continuous</span>,  
+    <span class='kw'>binary</span>, 
+    <span class='kw'>s.d.denom</span>, 
+    thresholds = <span class='kw'>NULL</span>,
+    weights = <span class='kw'>NULL</span>,
+    cluster = <span class='kw'>NULL</span>, 
+    pairwise = <span class='fl'>TRUE</span>, 
+    abs = <span class='fl'>FALSE</span>,
+    subset = <span class='kw'>NULL</span>,
+    quick = <span class='fl'>TRUE</span>, 
+    <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -200,7 +200,7 @@
     </tr>
     <tr>
       <th>stats</th>
-      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='balance.stats.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
+      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='Balance Statistics.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
     </tr>
     <tr>
       <th>int</th>
@@ -232,7 +232,7 @@
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='balance.summary.html'>col_w_smd</a></code> for allowable options. The defaults depend on the options specified in the original function calls; see <code><a href='bal.tab.matchit.html'>bal.tab.matchit</a></code> and <code><a href='bal.tab.weightit.html'>bal.tab.weightit</a></code> for details on the defaults. Abbreviations allowed.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. The defaults depend on the options specified in the original function calls; see <code><a href='bal.tab.matchit.html'>bal.tab.matchit</a></code> and <code><a href='bal.tab.weightit.html'>bal.tab.weightit</a></code> for details on the defaults. Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -264,7 +264,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>further arguments to control display of output. See <a href='display_options.html'>display options</a> for details.</p></td>
+      <td><p>further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
     </tr>
     </table>
 
@@ -276,22 +276,28 @@
 
     <p>If clusters are not specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.imp.cluster"</code> containing summaries between and across all clusters and imputations.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>mice</span>)</div><div class='output co'>#&gt; <span class='message'></span>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://github.com/stefvanbuuren/mice'>mice</a></span>)
+</div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘mice’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:base’:</span>
 #&gt; <span class='message'></span>
-#&gt; <span class='message'>    cbind, rbind</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>MatchThem</span>)</div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>    cbind, rbind</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://github.com/FarhadPishgar/MatchThem'>MatchThem</a></span>)
+</div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘MatchThem’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:mice’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    pool</span></div><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde_mis"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde_mis"</span>, package = <span class='st'>"cobalt"</span>)
 
 <span class='co'>#Imputing the missing data</span>
-<span class='no'>imp</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/mice/man/mice.html'>mice</a></span>(<span class='no'>lalonde_mis</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>5</span>)</div><div class='output co'>#&gt; 
+<span class='kw'>imp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/mice/man/mice.html'>mice</a></span>(<span class='kw'>lalonde_mis</span>, m = <span class='fl'>5</span>)
+</div><div class='output co'>#&gt; 
 #&gt;  iter imp variable
 #&gt;   1   1  married  re74  re75
 #&gt;   1   2  married  re74  re75
@@ -319,9 +325,11 @@
 #&gt;   5   4  married  re74  re75
 #&gt;   5   5  married  re74  re75</div><div class='input'>
 <span class='co'>#Matching using within-imputation propensity scores</span>
-<span class='no'>mt.out1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchThem/man/matchthem.html'>matchthem</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>race</span> +
-                       <span class='no'>married</span> + <span class='no'>nodegree</span> + <span class='no'>re74</span> + <span class='no'>re75</span>,
-                       <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>imp</span>, <span class='kw'>approach</span> <span class='kw'>=</span> <span class='st'>"within"</span>)</div><div class='output co'>#&gt; Matching Observations  | dataset: #1 #2 #3 #4 #5</div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>mt.out1</span>)</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance summary across all imputations</span><span>
+<span class='kw'>mt.out1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchThem/man/matchthem.html'>matchthem</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
+                       <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
+                       data = <span class='kw'>imp</span>, approach = <span class='st'>"within"</span>)
+</div><div class='output co'>#&gt; Matching Observations  | dataset: #1 #2 #3 #4 #5</div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>mt.out1</span>)
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance summary across all imputations</span><span>
 #&gt;                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
 #&gt; distance    Distance       0.9657        0.9707       0.9744
 #&gt; age          Contin.       0.0242        0.0600       0.1050
@@ -339,19 +347,21 @@
 #&gt; All           429     185
 #&gt; Matched       185     185
 #&gt; Unmatched     244       0</div><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'>#Matching using across-imputation average propensity scores</span>
-<span class='no'>mt.out2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchThem/man/matchthem.html'>matchthem</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>race</span> +
-                       <span class='no'>married</span> + <span class='no'>nodegree</span> + <span class='no'>re74</span> + <span class='no'>re75</span>,
-                       <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>imp</span>, <span class='kw'>approach</span> <span class='kw'>=</span> <span class='st'>"across"</span>)
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>mt.out2</span>)
+<span class='kw'>mt.out2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchThem/man/matchthem.html'>matchthem</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
+                       <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
+                       data = <span class='kw'>imp</span>, approach = <span class='st'>"across"</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>mt.out2</span>)
 }
 
 <span class='co'>#Weighting using within-imputation propensity scores</span>
-<span class='no'>wt.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchThem/man/weightthem.html'>weightthem</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>race</span> +
-                       <span class='no'>married</span> + <span class='no'>nodegree</span> + <span class='no'>re74</span> + <span class='no'>re75</span>,
-                       <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>imp</span>, <span class='kw'>approach</span> <span class='kw'>=</span> <span class='st'>"within"</span>,
-                       <span class='kw'>estimand</span> <span class='kw'>=</span> <span class='st'>"ATT"</span>)</div><div class='output co'>#&gt; Estimating weights     | dataset: #1 #2 #3 #4 #5</div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>wt.out</span>)</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance summary across all imputations</span><span>
+<span class='kw'>wt.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchThem/man/weightthem.html'>weightthem</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
+                       <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
+                       data = <span class='kw'>imp</span>, approach = <span class='st'>"within"</span>,
+                       estimand = <span class='st'>"ATT"</span>)
+</div><div class='output co'>#&gt; Estimating weights     | dataset: #1 #2 #3 #4 #5</div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>wt.out</span>)
+</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance summary across all imputations</span><span>
 #&gt;                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
 #&gt; prop.score  Distance      -0.0368       -0.0247      -0.0180
 #&gt; age          Contin.       0.0863        0.1142       0.1350
@@ -384,7 +394,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

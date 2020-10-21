@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Balance Statistics for <code>sbw</code> Objects — bal.tab.sbw • cobalt</title>
+<title>Balance Statistics for sbw Objects — bal.tab.sbw • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Balance Statistics for <code>sbw</code> Objects — bal.tab.sbw" />
+<meta property="og:title" content="Balance Statistics for sbw Objects — bal.tab.sbw" />
 <meta property="og:description" content="Generates balance statistics for sbwcau objects from sbw." />
 <meta property="og:image" content="/logo.png" />
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -153,24 +153,24 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for sbwcau</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-    <span class='no'>stats</span>,
-    <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-    <span class='kw'>distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>addl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='no'>continuous</span>,
-    <span class='no'>binary</span>,
-    <span class='no'>s.d.denom</span>,
-    <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-    <span class='no'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+    <span class='kw'>stats</span>,
+    int = <span class='fl'>FALSE</span>, 
+    poly = <span class='fl'>1</span>, 
+    distance = <span class='kw'>NULL</span>, 
+    addl = <span class='kw'>NULL</span>, 
+    data = <span class='kw'>NULL</span>, 
+    <span class='kw'>continuous</span>,  
+    <span class='kw'>binary</span>, 
+    <span class='kw'>s.d.denom</span>, 
+    thresholds = <span class='kw'>NULL</span>,
+    weights = <span class='kw'>NULL</span>,
+    cluster = <span class='kw'>NULL</span>, 
+    imp = <span class='kw'>NULL</span>,
+    abs = <span class='fl'>FALSE</span>,
+    subset = <span class='kw'>NULL</span>,
+    quick = <span class='fl'>TRUE</span>, 
+    <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,7 +181,7 @@
     </tr>
     <tr>
       <th>stats</th>
-      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='balance.stats.html'>stats</a></code> for allowable options. For binary treatments, "mean.diffs" (i.e., mean differences) is the default. Multiple options are allowed.</p></td>
+      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='Balance Statistics.html'>stats</a></code> for allowable options. For binary treatments, "mean.diffs" (i.e., mean differences) is the default. Multiple options are allowed.</p></td>
     </tr>
     <tr>
       <th>int</th>
@@ -205,15 +205,15 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='balance.summary.html'>col_w_smd</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='balance.summary.html'>col_w_smd</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='balance.summary.html'>col_w_smd</a></code> for allowable options. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the <code>par</code> component of the <code>sbwcau</code> object: if "att", "treated"; if "atc", "control"; otherwise "pooled". Abbreviations allowed.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the <code>par</code> component of the <code>sbwcau</code> object: if "att", "treated"; if "atc", "control"; otherwise "pooled". Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -245,7 +245,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>further arguments to control display of output. See <a href='display_options.html'>display options</a> for details.</p></td>
+      <td><p>further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
     </tr>
     </table>
 
@@ -259,26 +259,30 @@
 
 <p>If clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>sbwcau</code> object. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>sbw</span>); <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: quadprog</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: slam</span></div><div class='output co'>#&gt; <span class='message'>Registered S3 method overwritten by 'spatstat':</span>
-#&gt; <span class='message'>  method     from</span>
-#&gt; <span class='message'>  print.boxx cli </span></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>sbw</span>); <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
+</div><div class='output co'>#&gt; <span class='message'>Loading required package: quadprog</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: slam</span></div><div class='input'>
 <span class='co'>## Stable balancing weights for the ATT</span>
-<span class='no'>sbw.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/sbw/man/sbw.html'>sbw</a></span>(<span class='fu'><a href='splitfactor.html'>splitfactor</a></span>(<span class='no'>lalonde</span>, <span class='kw'>drop.first</span> <span class='kw'>=</span> <span class='st'>"if2"</span>),
-               <span class='kw'>ind</span> <span class='kw'>=</span> <span class='st'>"treat"</span>,
-               <span class='kw'>bal</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>bal_cov</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>,
-                                      <span class='st'>"race_hispan"</span>, <span class='st'>"race_white"</span>,
-                                      <span class='st'>"married"</span>, <span class='st'>"nodegree"</span>,
+<span class='kw'>sbw.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/sbw/man/sbw.html'>sbw</a></span>(<span class='fu'><a href='splitfactor.html'>splitfactor</a></span>(<span class='kw'>lalonde</span>, drop.first = <span class='st'>"if2"</span>),
+               ind = <span class='st'>"treat"</span>,
+               bal = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(bal_cov = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>, 
+                                      <span class='st'>"race_hispan"</span>, <span class='st'>"race_white"</span>, 
+                                      <span class='st'>"married"</span>, <span class='st'>"nodegree"</span>, 
                                       <span class='st'>"re74"</span>, <span class='st'>"re75"</span>),
-                          <span class='kw'>bal_alg</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-                          <span class='kw'>bal_tol</span> <span class='kw'>=</span> <span class='fl'>.001</span>),
-               <span class='kw'>par</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>par_est</span> <span class='kw'>=</span> <span class='st'>"att"</span>))</div><div class='output co'>#&gt;   quadprog optimizer is opening... 
+                          bal_alg = <span class='fl'>FALSE</span>, 
+                          bal_tol = <span class='fl'>.001</span>),
+               par = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(par_est = <span class='st'>"att"</span>))
+</div><div class='output co'>#&gt;   quadprog optimizer is opening... 
 #&gt;   Finding the optimal weights... 
-#&gt;   Optimal weights found. </div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>sbw.out</span>, <span class='kw'>un</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span><span>
+#&gt;   Optimal weights found. </div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>sbw.out</span>, un = <span class='fl'>TRUE</span>, poly = <span class='fl'>2</span>)
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span><span>
 #&gt;                Type Diff.Un Diff.Adj
 #&gt; age         Contin. -0.3094   0.0015
 #&gt; educ        Contin.  0.0550   0.0014
@@ -314,7 +318,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

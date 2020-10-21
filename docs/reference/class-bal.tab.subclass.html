@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Using <code>bal.tab()</code> with Subclassified Data — class-bal.tab.subclass • cobalt</title>
+<title>Using bal.tab() with Subclassified Data — class-bal.tab.subclass • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Using <code>bal.tab()</code> with Subclassified Data — class-bal.tab.subclass" />
+<meta property="og:title" content="Using bal.tab() with Subclassified Data — class-bal.tab.subclass" />
 <meta property="og:description" content="When using bal.tab() with subclassified data, i.e., data split into subclasses where balance may hold, the output will be different from the standard, non-subclassified case, and there is an additional option for controlling display. This page outlines the outputs and options in this case.
 There are two main components of the output of bal.tab() with subclassified data: the balance within subclasses and the balance summary across subclasses. The within-subclass balance displays essentially are standard balance displays for each subclass, except that only &quot;adjusted&quot; values are available, because the subclassification itself is the adjustment.
 The balance summary is, for each variable, like a weighted average of the balance statistics across subclasses. This is computed internally by assigning each individual a weight based on their subclass and treatment group membership and then computing weighted balance statistics as usual with these weights. This summary is the same one would get if subclasses were supplied to the match.strata argument rather than to subclass. Because the means and mean differences are additive, their computed values will be weighted averages of the subclass-specific values, but for other statistics, the computed values will not be." />
@@ -82,7 +82,7 @@ The balance summary is, for each variable, like a weighted average of the balanc
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -162,7 +162,7 @@ The balance summary is, for each variable, like a weighted average of the balanc
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>subclass</th>
-      <td><p>For the data.frame and formula methods of <code>bal.tab</code>, a vector of subclass membership or the name of the variable in <code>data</code> containing subclass membership. When using subclassification with a function compatible with <span class="pkg">cobalt</span>, such as <code>matchit()</code> in <span class="pkg">MatchIt</span>, this argument can be omitted because the subclass are in the output object.</p></td>
+      <td><p>For the data.frame and formula methods of <code>bal.tab</code>, a vector of subclass membership or the name of the variable in <code>data</code> containing subclass membership. When using subclassification with a function compatible with <span class="pkg">cobalt</span>, such as <code><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit()</a></code> in <span class="pkg">MatchIt</span>, this argument can be omitted because the subclass are in the output object.</p></td>
     </tr>
     <tr>
       <th>disp.subclass</th>
@@ -177,6 +177,9 @@ The balance summary is, for each variable, like a weighted average of the balanc
 
 <dt>Balance.Across.Subclass</dt><dd><p>A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted). See <code><a href='bal.tab.html'>bal.tab</a></code> for details on what this includes.</p></dd>
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code>, <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab.subclass</a></code></p></div>
@@ -196,7 +199,7 @@ The balance summary is, for each variable, like a weighted average of the balanc
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

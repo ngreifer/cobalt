@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Balance Statistics in <code>bal.tab</code> and <code>love.plot</code> — Balance Statistics • cobalt</title>
+<title>Balance Statistics in bal.tab and love.plot — Balance Statistics • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Balance Statistics in <code>bal.tab</code> and <code>love.plot</code> — Balance Statistics" />
+<meta property="og:title" content="Balance Statistics in bal.tab and love.plot — Balance Statistics" />
 <meta property="og:description" content="bal.tab and love.plot display balance statistics for the included covariates. Which balance statistics are displayed is controlled by the stats argument in each of these functions. The argument to stats should be a character vector with the names of the balance statistics to be displayed. This page describes all of the available balance statistics and how to request them. Abbreviations are allowed, so you can use the first few letters of each balance statistics to request it instead of typing out its whole name. That convention is used throughout the documentation. For example, to request mean differences and variance ratios in bal.tab or love.plot, you could include stats = c(&quot;m&quot;, &quot;v&quot;). In addition, the thresholds argument uses the same naming conventions and can be used to request balance thresholds on each statistic. For example, to request a balance threshold of .1 for mean differences, you could include thresholds = c(m = .1).
 Below, each allowable entry to stats and thresholds are described, along with other details or option that accompany them.
 Binary/Multi-Category Treatments
@@ -105,7 +105,7 @@ If a statistic is requested in thresholds, it will automatically be placed in st
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -176,25 +176,25 @@ If a statistic is requested in thresholds, it will automatically be placed in st
     <div class="ref-description">
     <p><code><a href='bal.tab.html'>bal.tab</a></code> and <code><a href='love.plot.html'>love.plot</a></code> display balance statistics for the included covariates. Which balance statistics are displayed is controlled by the <code>stats</code> argument in each of these functions. The argument to <code>stats</code> should be a character vector with the names of the balance statistics to be displayed. This page describes all of the available balance statistics and how to request them. Abbreviations are allowed, so you can use the first few letters of each balance statistics to request it instead of typing out its whole name. That convention is used throughout the documentation. For example, to request mean differences and variance ratios in <code>bal.tab</code> or <code>love.plot</code>, you could include <code>stats = c("m", "v")</code>. In addition, the <code>thresholds</code> argument uses the same naming conventions and can be used to request balance thresholds on each statistic. For example, to request a balance threshold of .1 for mean differences, you could include <code>thresholds = c(m = .1)</code>.</p>
 <p>Below, each allowable entry to <code>stats</code> and <code>thresholds</code> are described, along with other details or option that accompany them.</p>
-<h3>Binary/Multi-Category Treatments</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Binary/Multi-Category Treatments</h3>
 
-<dl'>
-<dt><code>"mean.diffs"</code></dt><dd><p>Mean differences as computed by <code><a href='balance.summary.html'>col_w_smd</a></code>. Can be abbreviated as <code>"m"</code>. Setting the arguments <code>continuous</code> and <code>binary</code> to either <code>"std"</code> or <code>"raw"</code> will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When standardized mean differences are requested, the <code>s.d.denom</code> argument controls how the standardization occurs. When <code>abs = TRUE</code>, negative values become positive. Mean differences are requested by default when no entry to <code>stats</code> is provided. Can also be requested using the <code>disp.diff</code> argument. Thresholds can also be requested using <code>m.threshold</code>.</p></dd>
+<dl>
+<dt><code>"mean.diffs"</code></dt><dd><p>Mean differences as computed by <code><a href='Balance Summary.html'>col_w_smd</a></code>. Can be abbreviated as <code>"m"</code>. Setting the arguments <code>continuous</code> and <code>binary</code> to either <code>"std"</code> or <code>"raw"</code> will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When standardized mean differences are requested, the <code>s.d.denom</code> argument controls how the standardization occurs. When <code>abs = TRUE</code>, negative values become positive. Mean differences are requested by default when no entry to <code>stats</code> is provided. Can also be requested using the <code>disp.diff</code> argument. Thresholds can also be requested using <code>m.threshold</code>.</p></dd>
 
-<dt><code>"variance.ratios"</code></dt><dd><p>Variance ratios as computed by <code><a href='balance.summary.html'>col_w_vr</a></code>. Can be abbreviated as <code>"v"</code>. Will not be computed for binary variables. When <code>abs = TRUE</code>, values less than 1 will have their inverse taken. Can also be requested using the <code>disp.v.ratio</code> argument. Thresholds can also be requested using <code>v.threshold</code>. When used with <code>love.plot</code>, the x-axis scaled will be logged so that, e.g., .5 is as far away from 1 as 2 is.</p></dd>
+<dt><code>"variance.ratios"</code></dt><dd><p>Variance ratios as computed by <code><a href='Balance Summary.html'>col_w_vr</a></code>. Can be abbreviated as <code>"v"</code>. Will not be computed for binary variables. When <code>abs = TRUE</code>, values less than 1 will have their inverse taken. Can also be requested using the <code>disp.v.ratio</code> argument. Thresholds can also be requested using <code>v.threshold</code>. When used with <code>love.plot</code>, the x-axis scaled will be logged so that, e.g., .5 is as far away from 1 as 2 is.</p></dd>
 
-<dt><code>"ks.statistics"</code></dt><dd><p>Kolmogrov-Smirnov (KS) statistics as computed by <code><a href='balance.summary.html'>col_w_ks</a></code>. Can be abbreviated as <code>"ks"</code>. Can also be requested using the <code>disp.ks</code> argument. Thresholds can also be requested using <code>ks.threshold</code>.</p></dd>
+<dt><code>"ks.statistics"</code></dt><dd><p>Kolmogrov-Smirnov (KS) statistics as computed by <code><a href='Balance Summary.html'>col_w_ks</a></code>. Can be abbreviated as <code>"ks"</code>. Can also be requested using the <code>disp.ks</code> argument. Thresholds can also be requested using <code>ks.threshold</code>.</p></dd>
 
-<dt><code>"ovl.coefficients"</code></dt><dd><p>Overlapping (OVL) statistics as computed by <code><a href='balance.summary.html'>col_w_ovl</a></code>. Can be abbreviated as <code>"ovl"</code>. Additional arguments passed to <code>col_w_ovl</code>, such as <code>integrate</code> or <code>bw</code>, can be supplied to <code>bal.tab</code> or <code>love.plot</code>. Can also be requested using the <code>disp.ovl</code> argument. Thresholds can also be requested using <code>ovl.threshold</code>.</p></dd>
+<dt><code>"ovl.coefficients"</code></dt><dd><p>Overlapping (OVL) statistics as computed by <code><a href='Balance Summary.html'>col_w_ovl</a></code>. Can be abbreviated as <code>"ovl"</code>. Additional arguments passed to <code>col_w_ovl</code>, such as <code>integrate</code> or <code>bw</code>, can be supplied to <code>bal.tab</code> or <code>love.plot</code>. Can also be requested using the <code>disp.ovl</code> argument. Thresholds can also be requested using <code>ovl.threshold</code>.</p></dd>
 
 </dl>
 
-<h3>Continuous Treatments</h3>
+<h3 class='hasAnchor' id='arguments'><a class='anchor' href='#arguments'></a>Continuous Treatments</h3>
 
-<dl'>
-<dt><code>"correlations"</code></dt><dd><p>Pearson correlations as computed by <code><a href='balance.summary.html'>col_w_cov</a></code>. Can be abbreviated as <code>"cor"</code>. Setting the arguments <code>continuous</code> and <code>binary</code> to either <code>"std"</code> or <code>"raw"</code> will determine whether correlations or covariances are calculated for continuous and categorical variables, respectively (they are both <code>"std"</code> by default). When correlations are requested, the <code>s.d.denom</code> argument controls how the standardization occurs. When <code>abs = TRUE</code>, negative values become positive. Pearson correlations are requested by default when no entry to <code>stats</code> is provided. Can also be requested using the <code>disp.corr</code> argument. Thresholds can also be requested using <code>r.threshold</code>.</p></dd>
+<dl>
+<dt><code>"correlations"</code></dt><dd><p>Pearson correlations as computed by <code><a href='Balance Summary.html'>col_w_cov</a></code>. Can be abbreviated as <code>"cor"</code>. Setting the arguments <code>continuous</code> and <code>binary</code> to either <code>"std"</code> or <code>"raw"</code> will determine whether correlations or covariances are calculated for continuous and categorical variables, respectively (they are both <code>"std"</code> by default). When correlations are requested, the <code>s.d.denom</code> argument controls how the standardization occurs. When <code>abs = TRUE</code>, negative values become positive. Pearson correlations are requested by default when no entry to <code>stats</code> is provided. Can also be requested using the <code>disp.corr</code> argument. Thresholds can also be requested using <code>r.threshold</code>.</p></dd>
 
-<dt><code>"spearman.correlations"</code></dt><dd><p>Spearman correlations as computed by <code><a href='balance.summary.html'>col_w_cov</a></code>. Can be abbreviated as <code>"sp"</code>. All arguments are the same as those for <code>"correlations"</code>. When <code>abs = TRUE</code>, negative values become positive. Can also be requested using the <code>disp.spear</code> argument. Thresholds can also be requested using <code>s.threshold</code>.</p></dd>
+<dt><code>"spearman.correlations"</code></dt><dd><p>Spearman correlations as computed by <code><a href='Balance Summary.html'>col_w_cov</a></code>. Can be abbreviated as <code>"sp"</code>. All arguments are the same as those for <code>"correlations"</code>. When <code>abs = TRUE</code>, negative values become positive. Can also be requested using the <code>disp.spear</code> argument. Thresholds can also be requested using <code>s.threshold</code>.</p></dd>
 
 </dl>
 
@@ -206,18 +206,22 @@ If a statistic is requested in thresholds, it will automatically be placed in st
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>lalonde</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>lalonde</span>)
 
 <span class='co'>#Binary treatments</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>married</span> + <span class='no'>re74</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>,
-        <span class='kw'>stats</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"v"</span>, <span class='st'>"ks"</span>))</div><div class='output co'>#&gt; <span class='error'>Error: The given response variable, "treat", is not a variable in 'data' or the global environment.</span></div><div class='input'><span class='fu'><a href='love.plot.html'>love.plot</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>married</span> + <span class='no'>re74</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>,
-          <span class='kw'>stats</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"v"</span>, <span class='st'>"ks"</span>), <span class='kw'>binary</span> <span class='kw'>=</span> <span class='st'>"std"</span>,
-          <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>.1</span>, <span class='kw'>v</span> <span class='kw'>=</span> <span class='fl'>2</span>))</div><div class='output co'>#&gt; <span class='error'>Error: The given response variable, "treat", is not a variable in 'data' or the global environment.</span></div><div class='input'>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>re74</span>, data = <span class='kw'>lalonde</span>,
+        stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"v"</span>, <span class='st'>"ks"</span>))
+</div><div class='output co'>#&gt; <span class='error'>Error: The given response variable, "treat", is not a variable in 'data' or the global environment.</span></div><div class='input'><span class='fu'><a href='love.plot.html'>love.plot</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>re74</span>, data = <span class='kw'>lalonde</span>,
+          stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"v"</span>, <span class='st'>"ks"</span>), binary = <span class='st'>"std"</span>,
+          thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(m = <span class='fl'>.1</span>, v = <span class='fl'>2</span>))
+</div><div class='output co'>#&gt; <span class='error'>Error: The given response variable, "treat", is not a variable in 'data' or the global environment.</span></div><div class='input'>
 <span class='co'>#Continuous treatments</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>re75</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>married</span> + <span class='no'>re74</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>,
-        <span class='kw'>stats</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cor"</span>, <span class='st'>"sp"</span>))</div><div class='output co'>#&gt; <span class='error'>Error: object 'educ' not found</span></div><div class='input'><span class='fu'><a href='love.plot.html'>love.plot</a></span>(<span class='no'>re75</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>married</span> + <span class='no'>re74</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>,
-          <span class='kw'>stats</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cor"</span>, <span class='st'>"sp"</span>), <span class='kw'>continuous</span> <span class='kw'>=</span> <span class='st'>"std"</span>,
-          <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>cor</span> <span class='kw'>=</span> <span class='fl'>.1</span>, <span class='kw'>sp</span> <span class='kw'>=</span> <span class='fl'>.1</span>))</div><div class='output co'>#&gt; <span class='error'>Error: object 'educ' not found</span></div></pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>re75</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>re74</span>, data = <span class='kw'>lalonde</span>,
+        stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cor"</span>, <span class='st'>"sp"</span>))
+</div><div class='output co'>#&gt; <span class='error'>Error: object 'educ' not found</span></div><div class='input'><span class='fu'><a href='love.plot.html'>love.plot</a></span>(<span class='kw'>re75</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>re74</span>, data = <span class='kw'>lalonde</span>,
+          stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"cor"</span>, <span class='st'>"sp"</span>), continuous = <span class='st'>"std"</span>,
+          thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(cor = <span class='fl'>.1</span>, sp = <span class='fl'>.1</span>))
+</div><div class='output co'>#&gt; <span class='error'>Error: object 'educ' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -233,7 +237,7 @@ If a statistic is requested in thresholds, it will automatically be placed in st
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

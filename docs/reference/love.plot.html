@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -152,30 +152,30 @@
     <p>Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>love.plot</span>(<span class='no'>x</span>,
-          <span class='no'>stats</span>,
-          <span class='no'>abs</span>,
-          <span class='kw'>agg.fun</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-          <span class='kw'>var.order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-          <span class='kw'>drop.missing</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-          <span class='kw'>drop.distance</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-          <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-          <span class='kw'>line</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-          <span class='kw'>stars</span> <span class='kw'>=</span> <span class='st'>"none"</span>,
-          <span class='kw'>grid</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-          <span class='kw'>limits</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-          <span class='kw'>colors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-          <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-          <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-          <span class='kw'>size</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-          <span class='kw'>wrap</span> <span class='kw'>=</span> <span class='fl'>30</span>,
-          <span class='kw'>var.names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-          <span class='no'>title</span>,
-          <span class='no'>sample.names</span>,
-          <span class='kw'>labels</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-          <span class='kw'>position</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-          <span class='kw'>themes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-          <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>love.plot</span>(<span class='kw'>x</span>, 
+          <span class='kw'>stats</span>, 
+          <span class='kw'>abs</span>, 
+          agg.fun = <span class='kw'>NULL</span>, 
+          var.order = <span class='kw'>NULL</span>, 
+          drop.missing = <span class='fl'>TRUE</span>, 
+          drop.distance = <span class='fl'>FALSE</span>, 
+          thresholds = <span class='kw'>NULL</span>, 
+          line = <span class='fl'>FALSE</span>, 
+          stars = <span class='st'>"none"</span>, 
+          grid = <span class='fl'>FALSE</span>, 
+          limits = <span class='kw'>NULL</span>, 
+          colors = <span class='kw'>NULL</span>, 
+          shapes = <span class='kw'>NULL</span>, 
+          alpha = <span class='fl'>1</span>, 
+          size = <span class='fl'>3</span>, 
+          wrap = <span class='fl'>30</span>, 
+          var.names = <span class='kw'>NULL</span>, 
+          <span class='kw'>title</span>, 
+          <span class='kw'>sample.names</span>, 
+          labels = <span class='fl'>FALSE</span>,
+          position = <span class='st'>"right"</span>, 
+          themes = <span class='kw'>NULL</span>,
+          <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -186,7 +186,7 @@
     </tr>
     <tr>
       <th>stats</th>
-      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='balance.stats.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
+      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='Balance Statistics.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
     </tr>
     <tr>
       <th>abs</th>
@@ -210,7 +210,7 @@
     </tr>
     <tr>
       <th>thresholds</th>
-      <td><p><code>numeric</code>; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at <code><a href='balance.stats.html'>stats</a></code>. If <code>x</code> is a <code>bal.tab</code> object and a threshold was set in it (e.g., with <code>thresholds</code>), its threshold will be used unless overridden using the <code>threshold</code> argument in <code>love.plot</code>.</p></td>
+      <td><p><code>numeric</code>; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at <code><a href='Balance Statistics.html'>stats</a></code>. If <code>x</code> is a <code>bal.tab</code> object and a threshold was set in it (e.g., with <code>thresholds</code>), its threshold will be used unless overridden using the <code>threshold</code> argument in <code>love.plot</code>.</p></td>
     </tr>
     <tr>
       <th>line</th>
@@ -274,10 +274,10 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>additional arguments passed to <code><a href='bal.tab.html'>bal.tab()</a></code> or options for display of the plot. The following related arguments are currently accepted:</p><dl'>
+      <td><p>additional arguments passed to <code><a href='bal.tab.html'>bal.tab()</a></code> or options for display of the plot. The following related arguments are currently accepted:</p><dl>
   <dt><code>use.grid</code></dt><dd><p>whether to use <code><a href='https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html'>arrangeGrob</a></code> in <code>gridExtra</code> to make the plot when <code>stats</code> has length 1. See section Value.</p></dd>
   <dt><code>disp.subclass</code></dt><dd><p>whether to display individual subclasses if subclassification is used. Overrides the <code>disp.subclass</code> option in the original <code><a href='bal.tab.html'>bal.tab()</a></code> call if <code>x</code> is a <code>bal.tab</code> object.</p></dd>
-  <dt><code>star_char</code></dt><dd><p><code>character</code>; when <code>stars</code> are used, the character that should be the "star" next to the starred variables. The default is <code><a href='https://rdrr.io/r/base/Arithmetic.html'>"*"</a></code>. <code>"†"</code> or <code>"\u2020"</code> (i.e., dagger) might be appealing as well.</p></dd>
+  <dt><code>star_char</code></dt><dd><p><code>character</code>; when <code>stars</code> are used, the character that should be the "star" next to the starred variables. The default is <code>"*"</code>. <code>"†"</code> or <code>"\u2020"</code> (i.e., dagger) might be appealing as well.</p></dd>
   
 </dl><p>Additionally, any of the <code>which.</code> arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to <code>.none</code> to aggregate across groups (in which <code>agg.fun</code> comes into effect) and set to <code>.all</code> to view all groups. See <code>display_options</code> for options, and see the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for details and examples.</p></td>
     </tr>
@@ -307,44 +307,51 @@
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p><code>love.plot</code> can also be called by using <code>plot</code> or <code>autoplot</code> on a <code>bal.tab</code> object. If used in this way, some messages may appear twice. It is recommended that you just use <code>love.plot</code> instead.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>MatchIt</span>); <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>MatchIt</span>); <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
 
 <span class='co'>## Nearest Neighbor matching</span>
-<span class='no'>m.out1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>race</span> +
-                  <span class='no'>married</span> + <span class='no'>nodegree</span> + <span class='no'>re74</span> + <span class='no'>re75</span>,
-                  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>)
+<span class='kw'>m.out1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
+                  <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
+                  data = <span class='kw'>lalonde</span>)
 
-<span class='fu'>love.plot</span>(<span class='no'>m.out1</span>, <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>.1</span>), <span class='kw'>var.order</span> <span class='kw'>=</span> <span class='st'>"unadjusted"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
+<span class='fu'>love.plot</span>(<span class='kw'>m.out1</span>, thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(m = <span class='fl'>.1</span>), var.order = <span class='st'>"unadjusted"</span>)
+</div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
 #&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='img'><img src='love.plot-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='co'>## Using alternate variable names</span>
-<span class='no'>v</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>old</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>, <span class='st'>"race_hispan"</span>,
-                        <span class='st'>"race_white"</span>, <span class='st'>"married"</span>, <span class='st'>"nodegree"</span>, <span class='st'>"re74"</span>,
+<span class='kw'>v</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(old = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>, <span class='st'>"race_hispan"</span>, 
+                        <span class='st'>"race_white"</span>, <span class='st'>"married"</span>, <span class='st'>"nodegree"</span>, <span class='st'>"re74"</span>, 
                         <span class='st'>"re75"</span>, <span class='st'>"distance"</span>),
-                <span class='kw'>new</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Age"</span>, <span class='st'>"Years of Education"</span>, <span class='st'>"Black"</span>,
-                        <span class='st'>"Hispanic"</span>, <span class='st'>"White"</span>, <span class='st'>"Married"</span>, <span class='st'>"No Degree"</span>,
-                        <span class='st'>"Earnings 1974"</span>, <span class='st'>"Earnings 1975"</span>,
+                new = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Age"</span>, <span class='st'>"Years of Education"</span>, <span class='st'>"Black"</span>, 
+                        <span class='st'>"Hispanic"</span>, <span class='st'>"White"</span>, <span class='st'>"Married"</span>, <span class='st'>"No Degree"</span>, 
+                        <span class='st'>"Earnings 1974"</span>, <span class='st'>"Earnings 1975"</span>, 
                         <span class='st'>"Propensity Score"</span>))
-
-<span class='fu'>love.plot</span>(<span class='no'>m.out1</span>, <span class='kw'>stats</span> <span class='kw'>=</span> <span class='st'>"m"</span>, <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fl'>.1</span>,
-          <span class='kw'>var.order</span> <span class='kw'>=</span> <span class='st'>"unadjusted"</span>, <span class='kw'>var.names</span> <span class='kw'>=</span> <span class='no'>v</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
-#&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='img'><img src='love.plot-2.png' alt='' width='700' height='433' /></div><div class='input'>
+                
+<span class='fu'>love.plot</span>(<span class='kw'>m.out1</span>, stats = <span class='st'>"m"</span>, threshold = <span class='fl'>.1</span>, 
+          var.order = <span class='st'>"unadjusted"</span>, var.names = <span class='kw'>v</span>)
+</div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
+#&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='img'><img src='love.plot-2.png' alt='' width='700' height='433' /></div><div class='input'>          
 <span class='co'>#Using multiple stats</span>
-<span class='fu'>love.plot</span>(<span class='no'>m.out1</span>, <span class='kw'>stats</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"ks"</span>),
-          <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>.1</span>, <span class='kw'>ks</span> <span class='kw'>=</span> <span class='fl'>.05</span>),
-          <span class='kw'>var.order</span> <span class='kw'>=</span> <span class='st'>"unadjusted"</span>, <span class='kw'>var.names</span> <span class='kw'>=</span> <span class='no'>v</span>, <span class='kw'>stars</span> <span class='kw'>=</span> <span class='st'>"raw"</span>,
-          <span class='kw'>position</span> <span class='kw'>=</span> <span class='st'>"bottom"</span>, <span class='kw'>wrap</span> <span class='kw'>=</span> <span class='fl'>20</span>)</div><div class='img'><img src='love.plot-3.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>love.plot</span>(<span class='kw'>m.out1</span>, stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"ks"</span>), 
+          thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(m = <span class='fl'>.1</span>, ks = <span class='fl'>.05</span>), 
+          var.order = <span class='st'>"unadjusted"</span>, var.names = <span class='kw'>v</span>, stars = <span class='st'>"raw"</span>,
+          position = <span class='st'>"bottom"</span>, wrap = <span class='fl'>20</span>)
+</div><div class='img'><img src='love.plot-3.png' alt='' width='700' height='433' /></div><div class='input'>          
 <span class='co'>#Changing visual elements</span>
-<span class='fu'>love.plot</span>(<span class='no'>m.out1</span>, <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>.1</span>),
-          <span class='kw'>var.order</span> <span class='kw'>=</span> <span class='st'>"unadjusted"</span>, <span class='kw'>var.names</span> <span class='kw'>=</span> <span class='no'>v</span>, <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-          <span class='kw'>shapes</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"triangle filled"</span>, <span class='st'>"circle"</span>),
-          <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"red"</span>, <span class='st'>"blue"</span>), <span class='kw'>line</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-          <span class='kw'>grid</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>sample.names</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Unmatched"</span>, <span class='st'>"Matched"</span>),
-          <span class='kw'>stars</span> <span class='kw'>=</span> <span class='st'>"raw"</span>, <span class='kw'>position</span> <span class='kw'>=</span> <span class='st'>"top"</span>)</div><div class='img'><img src='love.plot-4.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>love.plot</span>(<span class='kw'>m.out1</span>, thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(m = <span class='fl'>.1</span>), 
+          var.order = <span class='st'>"unadjusted"</span>, var.names = <span class='kw'>v</span>, abs = <span class='fl'>TRUE</span>,
+          shapes = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"triangle filled"</span>, <span class='st'>"circle"</span>), 
+          colors = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"red"</span>, <span class='st'>"blue"</span>), line = <span class='fl'>TRUE</span>,
+          grid = <span class='fl'>FALSE</span>, sample.names = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Unmatched"</span>, <span class='st'>"Matched"</span>),
+          stars = <span class='st'>"raw"</span>, position = <span class='st'>"top"</span>)
+</div><div class='img'><img src='love.plot-4.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -361,7 +368,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

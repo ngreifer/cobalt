@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -152,26 +152,26 @@
     <p>Generates density plots, bar graphs, or scatterplots displaying distributional balance between treatment and covariates using <span class="pkg">ggplot2</span>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>bal.plot</span>(<span class='no'>x</span>,
-    <span class='no'>var.name</span>,
-    <span class='no'>...</span>,
-    <span class='no'>which</span>,
-    <span class='kw'>which.sub</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>which.cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>which.imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>which.treat</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>which.time</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>mirror</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"density"</span>,
-    <span class='kw'>colors</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>grid</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='no'>sample.names</span>,
-    <span class='kw'>position</span> <span class='kw'>=</span> <span class='st'>"right"</span>,
-    <span class='kw'>facet.formula</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>disp.means</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"cobalt_disp.means"</span>, <span class='fl'>FALSE</span>),
-    <span class='kw'>alpha.weight</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>bal.plot</span>(<span class='kw'>x</span>, 
+    <span class='kw'>var.name</span>, 
+    <span class='kw'>...</span>, 
+    <span class='kw'>which</span>, 
+    which.sub = <span class='kw'>NULL</span>, 
+    cluster = <span class='kw'>NULL</span>,
+    which.cluster = <span class='kw'>NULL</span>, 
+    imp = <span class='kw'>NULL</span>,
+    which.imp = <span class='kw'>NULL</span>, 
+    which.treat = <span class='kw'>NULL</span>,
+    which.time = <span class='kw'>NULL</span>,
+    mirror = <span class='fl'>FALSE</span>, 
+    type = <span class='st'>"density"</span>, 
+    colors = <span class='kw'>NULL</span>,
+    grid = <span class='fl'>FALSE</span>,
+    <span class='kw'>sample.names</span>,
+    position = <span class='st'>"right"</span>, 
+    facet.formula = <span class='kw'>NULL</span>, 
+    disp.means = <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"cobalt_disp.means"</span>, <span class='fl'>FALSE</span>),
+    alpha.weight = <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -285,32 +285,42 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A <code>"ggplot"</code> object, returned invisibly.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
 
 <span class='co'>#Nearest Neighbor Matching</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>MatchIt</span>)</div><div class='output co'>#&gt; <span class='message'></span>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>MatchIt</span>)
+</div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘MatchIt’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked _by_ ‘.GlobalEnv’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    lalonde</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:cobalt’:</span>
 #&gt; <span class='message'></span>
-#&gt; <span class='message'>    lalonde</span></div><div class='input'><span class='no'>m.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>race</span> +
-                 <span class='no'>married</span> + <span class='no'>nodegree</span> + <span class='no'>re74</span> + <span class='no'>re75</span>,
-                 <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>)
+#&gt; <span class='message'>    lalonde</span></div><div class='input'><span class='kw'>m.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
+                 <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
+                 data = <span class='kw'>lalonde</span>)
 
-<span class='fu'>bal.plot</span>(<span class='no'>m.out</span>, <span class='st'>"age"</span>, <span class='kw'>which</span> <span class='kw'>=</span> <span class='st'>"both"</span>)</div><div class='img'><img src='bal.plot-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='no'>m.out</span>, <span class='st'>"re74"</span>, <span class='kw'>which</span> <span class='kw'>=</span> <span class='st'>"both"</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"ecdf"</span>)</div><div class='img'><img src='bal.plot-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='no'>m.out</span>, <span class='st'>"race"</span>, <span class='kw'>which</span> <span class='kw'>=</span> <span class='st'>"both"</span>)</div><div class='img'><img src='bal.plot-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='no'>m.out</span>, <span class='st'>"distance"</span>, <span class='kw'>which</span> <span class='kw'>=</span> <span class='st'>"both"</span>, <span class='kw'>mirror</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-         <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"histogram"</span>, <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"white"</span>, <span class='st'>"black"</span>))</div><div class='img'><img src='bal.plot-4.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>bal.plot</span>(<span class='kw'>m.out</span>, <span class='st'>"age"</span>, which = <span class='st'>"both"</span>)
+</div><div class='img'><img src='bal.plot-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='kw'>m.out</span>, <span class='st'>"re74"</span>, which = <span class='st'>"both"</span>, type = <span class='st'>"ecdf"</span>)
+</div><div class='img'><img src='bal.plot-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='kw'>m.out</span>, <span class='st'>"race"</span>, which = <span class='st'>"both"</span>)
+</div><div class='img'><img src='bal.plot-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='kw'>m.out</span>, <span class='st'>"distance"</span>, which = <span class='st'>"both"</span>, mirror = <span class='fl'>TRUE</span>,
+         type = <span class='st'>"histogram"</span>, colors = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"white"</span>, <span class='st'>"black"</span>))
+</div><div class='img'><img src='bal.plot-4.png' alt='' width='700' height='433' /></div><div class='input'>         
 <span class='co'>#PS weighting with a continuous treatment</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>WeightIt</span>)
-<span class='no'>w.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='no'>re75</span> ~ <span class='no'>age</span> + <span class='fu'><a href='https://rdrr.io/r/base/AsIs.html'>I</a></span>(<span class='no'>age</span>^<span class='fl'>2</span>) + <span class='no'>educ</span> +
-                  <span class='no'>race</span> + <span class='no'>married</span> + <span class='no'>nodegree</span>,
-                  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>)
-
-<span class='fu'>bal.plot</span>(<span class='no'>w.out</span>, <span class='st'>"age"</span>, <span class='kw'>which</span> <span class='kw'>=</span> <span class='st'>"both"</span>)</div><div class='img'><img src='bal.plot-5.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='no'>w.out</span>, <span class='st'>"married"</span>, <span class='kw'>which</span> <span class='kw'>=</span> <span class='st'>"both"</span>)</div><div class='img'><img src='bal.plot-6.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://ngreifer.github.io/WeightIt'>WeightIt</a></span>)
+<span class='kw'>w.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='kw'>re75</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='fu'><a href='https://rdrr.io/r/base/AsIs.html'>I</a></span>(<span class='kw'>age</span><span class='op'>^</span><span class='fl'>2</span>) <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> 
+                  <span class='kw'>race</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span>,
+                  data = <span class='kw'>lalonde</span>)
+                  
+<span class='fu'>bal.plot</span>(<span class='kw'>w.out</span>, <span class='st'>"age"</span>, which = <span class='st'>"both"</span>)
+</div><div class='img'><img src='bal.plot-5.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='kw'>w.out</span>, <span class='st'>"married"</span>, which = <span class='st'>"both"</span>)
+</div><div class='img'><img src='bal.plot-6.png' alt='' width='700' height='433' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -327,7 +337,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

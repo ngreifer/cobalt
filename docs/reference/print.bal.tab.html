@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Print Results of a Call to <code>bal.tab()</code> — print.bal.tab • cobalt</title>
+<title>Print Results of a Call to bal.tab() — print.bal.tab • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Print Results of a Call to <code>bal.tab()</code> — print.bal.tab" />
+<meta property="og:title" content="Print Results of a Call to bal.tab() — print.bal.tab" />
 <meta property="og:description" content="Prints bal.tab() output in a clean way. Provides options for printing." />
 <meta property="og:image" content="/logo.png" />
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -153,81 +153,81 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for bal.tab</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>,
-      <span class='kw'>imbalanced.only</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>un</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.bal.tab</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>stats</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.thresholds</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) - <span class='fl'>3</span>),
-      <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>x</span>, 
+      imbalanced.only = <span class='st'>"as.is"</span>, 
+      un = <span class='st'>"as.is"</span>, 
+      disp.bal.tab = <span class='st'>"as.is"</span>, 
+      stats = <span class='st'>"as.is"</span>, 
+      disp.thresholds = <span class='st'>"as.is"</span>, 
+      disp = <span class='st'>"as.is"</span>, 
+      digits = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) <span class='op'>-</span> <span class='fl'>3</span>), 
+      <span class='kw'>...</span>)
 
 <span class='co'># S3 method for bal.tab.subclass</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>,
-      <span class='kw'>imbalanced.only</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>un</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.bal.tab</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>stats</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.thresholds</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.subclass</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) - <span class='fl'>3</span>),
-      <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>x</span>, 
+      imbalanced.only = <span class='st'>"as.is"</span>, 
+      un = <span class='st'>"as.is"</span>, 
+      disp.bal.tab = <span class='st'>"as.is"</span>, 
+      stats = <span class='st'>"as.is"</span>, 
+      disp.thresholds = <span class='st'>"as.is"</span>, 
+      disp = <span class='st'>"as.is"</span>, 
+      disp.subclass = <span class='st'>"as.is"</span>, 
+      digits = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) <span class='op'>-</span> <span class='fl'>3</span>), 
+      <span class='kw'>...</span>)
 
 <span class='co'># S3 method for bal.tab.cluster</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>,
-      <span class='kw'>imbalanced.only</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>un</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.bal.tab</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>stats</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.thresholds</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='no'>which.cluster</span>,
-      <span class='kw'>cluster.summary</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>cluster.fun</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) - <span class='fl'>3</span>),
-      <span class='no'>...</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>x</span>, 
+      imbalanced.only = <span class='st'>"as.is"</span>, 
+      un = <span class='st'>"as.is"</span>, 
+      disp.bal.tab = <span class='st'>"as.is"</span>, 
+      stats = <span class='st'>"as.is"</span>, 
+      disp.thresholds = <span class='st'>"as.is"</span>, 
+      disp = <span class='st'>"as.is"</span>, 
+      <span class='kw'>which.cluster</span>, 
+      cluster.summary = <span class='st'>"as.is"</span>, 
+      cluster.fun = <span class='st'>"as.is"</span>, 
+      digits = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) <span class='op'>-</span> <span class='fl'>3</span>), 
+      <span class='kw'>...</span>)
 
 <span class='co'># S3 method for bal.tab.imp</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>,
-      <span class='kw'>imbalanced.only</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>un</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.bal.tab</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>stats</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.thresholds</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='no'>which.imp</span>,
-      <span class='kw'>imp.summary</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>imp.fun</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) - <span class='fl'>3</span>),
-      <span class='no'>...</span>)
-
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>x</span>, 
+      imbalanced.only = <span class='st'>"as.is"</span>, 
+      un = <span class='st'>"as.is"</span>, 
+      disp.bal.tab = <span class='st'>"as.is"</span>, 
+      stats = <span class='st'>"as.is"</span>, 
+      disp.thresholds = <span class='st'>"as.is"</span>, 
+      disp = <span class='st'>"as.is"</span>, 
+      <span class='kw'>which.imp</span>, 
+      imp.summary = <span class='st'>"as.is"</span>, 
+      imp.fun = <span class='st'>"as.is"</span>, 
+      digits = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) <span class='op'>-</span> <span class='fl'>3</span>), 
+      <span class='kw'>...</span>)
+    
 <span class='co'># S3 method for bal.tab.multi</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>,
-      <span class='kw'>imbalanced.only</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>un</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.bal.tab</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>stats</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.thresholds</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='no'>which.treat</span>,
-      <span class='kw'>multi.summary</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) - <span class='fl'>3</span>),
-      <span class='no'>...</span>)
-
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>x</span>, 
+      imbalanced.only = <span class='st'>"as.is"</span>, 
+      un = <span class='st'>"as.is"</span>, 
+      disp.bal.tab = <span class='st'>"as.is"</span>, 
+      stats = <span class='st'>"as.is"</span>, 
+      disp.thresholds = <span class='st'>"as.is"</span>, 
+      disp = <span class='st'>"as.is"</span>, 
+      <span class='kw'>which.treat</span>, 
+      multi.summary = <span class='st'>"as.is"</span>, 
+      digits = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) <span class='op'>-</span> <span class='fl'>3</span>), 
+      <span class='kw'>...</span>)
+    
 <span class='co'># S3 method for bal.tab.msm</span>
-<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>x</span>,
-      <span class='kw'>imbalanced.only</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>un</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.bal.tab</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>stats</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp.thresholds</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>disp</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='no'>which.time</span>,
-      <span class='kw'>msm.summary</span> <span class='kw'>=</span> <span class='st'>"as.is"</span>,
-      <span class='kw'>digits</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) - <span class='fl'>3</span>),
-      <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>x</span>, 
+      imbalanced.only = <span class='st'>"as.is"</span>, 
+      un = <span class='st'>"as.is"</span>, 
+      disp.bal.tab = <span class='st'>"as.is"</span>, 
+      stats = <span class='st'>"as.is"</span>, 
+      disp.thresholds = <span class='st'>"as.is"</span>, 
+      disp = <span class='st'>"as.is"</span>, 
+      <span class='kw'>which.time</span>, 
+      msm.summary = <span class='st'>"as.is"</span>, 
+      digits = <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span>(<span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"digits"</span>) <span class='op'>-</span> <span class='fl'>3</span>), 
+      <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -319,22 +319,28 @@
     <p>Simply calling <code><a href='bal.tab.html'>bal.tab()</a></code> will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> function automatically dispatches the correct method for the <code>bal.tab</code> object given. For balance tables generated from using weighting, matching, or no adjustment with binary or continuous treatments, <code>print.bal.tab()</code> will be used. For balance tables generated from using weighting, matching, or no adjustment with clusters, <code>print.bal.tab.cluster()</code> will be used. For balance tables generated from using subclassification, <code>print.bal.tab.subclass()</code> will be used. For balance tables generated with multi-category treatments, <code>print.bal.tab.multi()</code> will be used. For balance tables generated with sequential treatments, <code>print.bal.tab.msm()</code> will be used. For balance tables generated with multiply imputed data, <code>print.bal.tab.imp()</code> will be used.</p>
 <p>For all parameters except <code>which.cluster</code>, <code>which.imp</code>, <code>which.treat</code>, and <code>which.time</code>, either omitting the argument or setting it to <code>"as.is"</code> will use the corresponding print option stored in the <code>bal.tab</code> object, which results from the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>. For these other arguments, to retain the display option of the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, the argument must omitted, as using <code>"as.is"</code> would cause <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> to attempt to display balance for, e.g., a cluster called <code>"as.is"</code>. If such a cluster existed and it was desired, it would otherwise be impossible to display it.</p>
 <p>Any parameter used in <code><a href='bal.tab.html'>bal.tab()</a></code> for calculations, such as <code>int</code>, <code>addl</code>, or <code>distance</code>, cannot be used with <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code>; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to <code><a href='bal.tab.html'>bal.tab()</a></code> must be performed.</p>
-<p>Prior versions of <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> used different arguments, such as <code>m.threshold</code> to display thresholds and <code>disp.means</code> to display group means, and these arguments still work but are not documented here. See <code><a href='display_options.html'>display_options</a></code>.</p>
+<p>Prior versions of <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> used different arguments, such as <code>m.threshold</code> to display thresholds and <code>disp.means</code> to display group means, and these arguments still work but are not documented here. See <code><a href='Display Options.html'>display_options</a></code>.</p>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p>Unless <code>quick = FALSE</code> in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, some values may not be calculated, in which case using <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> will not display these values even when requested. For example, if <code>stats = "m"</code> and <code>quick = TRUE</code> in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code> (the default for both), setting <code>stats = "ks"</code> in <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> will not print the KS statistics because they were not calculated.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='https://rdrr.io/r/base/print.html'>print</a></code>, <code><a href='bal.tab.html'>bal.tab</a></code>
-<a href='display_options.html'>display options</a> for further information on some of these options.</p></div>
+<a href='Display Options.html'>display options</a> for further information on some of these options.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>lalonde</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>WeightIt</span>)
-<span class='no'>w.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>married</span> + <span class='no'>race</span> + <span class='no'>re74</span> + <span class='no'>re75</span>,
-                  <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>)</div><div class='output co'>#&gt; <span class='error'>Error: The given response variable, "treat", is not a variable in data or the global environment.</span></div><div class='input'><span class='no'>b</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>w.out</span>, <span class='kw'>stats</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"v"</span>, <span class='st'>"ks"</span>),
-             <span class='kw'>un</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>v.threshold</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; <span class='error'>Error: object 'w.out' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='no'>b</span>, <span class='kw'>un</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>stats</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"v"</span>),
-      <span class='kw'>disp.thresholds</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>v</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>))</div><div class='output co'>#&gt; <span class='error'>Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'print': object 'b' not found</span></div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>lalonde</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://ngreifer.github.io/WeightIt'>WeightIt</a></span>)
+<span class='kw'>w.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
+                  data = <span class='kw'>lalonde</span>)
+</div><div class='output co'>#&gt; <span class='error'>Error: The given response variable, "treat", is not a variable in data or the global environment.</span></div><div class='input'><span class='kw'>b</span> <span class='op'>&lt;-</span> <span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>w.out</span>, stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"v"</span>, <span class='st'>"ks"</span>), 
+             un = <span class='fl'>TRUE</span>, v.threshold = <span class='fl'>2</span>)
+</div><div class='output co'>#&gt; <span class='error'>Error: object 'w.out' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span>(<span class='kw'>b</span>, un = <span class='fl'>FALSE</span>, stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"v"</span>),
+      disp.thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(v = <span class='fl'>FALSE</span>))
+</div><div class='output co'>#&gt; <span class='error'>Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'print': object 'b' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -350,7 +356,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

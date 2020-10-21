@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Balance statistics for <code>CBPS</code> Objects — bal.tab.CBPS • cobalt</title>
+<title>Balance statistics for CBPS Objects — bal.tab.CBPS • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Balance statistics for <code>CBPS</code> Objects — bal.tab.CBPS" />
+<meta property="og:title" content="Balance statistics for CBPS Objects — bal.tab.CBPS" />
 <meta property="og:description" content="Generates balance statistics for CBPS and CBMSM objects from the CBPS package." />
 <meta property="og:image" content="/logo.png" />
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -153,47 +153,47 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for CBPS</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-        <span class='no'>stats</span>,
-        <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-        <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-        <span class='kw'>distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>addl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='no'>continuous</span>,
-        <span class='no'>binary</span>,
-        <span class='no'>s.d.denom</span>,
-        <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-        <span class='kw'>s.weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-        <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-        <span class='no'>...</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+        <span class='kw'>stats</span>,
+        int = <span class='fl'>FALSE</span>, 
+        poly = <span class='fl'>1</span>, 
+        distance = <span class='kw'>NULL</span>, 
+        addl = <span class='kw'>NULL</span>, 
+        data = <span class='kw'>NULL</span>, 
+        <span class='kw'>continuous</span>,  
+        <span class='kw'>binary</span>, 
+        <span class='kw'>s.d.denom</span>, 
+        thresholds = <span class='kw'>NULL</span>,
+        weights = <span class='kw'>NULL</span>,
+        cluster = <span class='kw'>NULL</span>, 
+        imp = <span class='kw'>NULL</span>,
+        pairwise = <span class='fl'>TRUE</span>, 
+        s.weights = <span class='kw'>NULL</span>,
+        abs = <span class='fl'>FALSE</span>,
+        subset = <span class='kw'>NULL</span>,
+        quick = <span class='fl'>TRUE</span>, 
+        <span class='kw'>...</span>)
 
 <span class='co'># S3 method for CBMSM</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-        <span class='no'>stats</span>,
-        <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-        <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-        <span class='kw'>distance.list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>addl.list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='no'>continuous</span>,
-        <span class='no'>binary</span>,
-        <span class='no'>s.d.denom</span>,
-        <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>s.weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-        <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-        <span class='no'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+        <span class='kw'>stats</span>,
+        int = <span class='fl'>FALSE</span>, 
+        poly = <span class='fl'>1</span>, 
+        distance.list = <span class='kw'>NULL</span>, 
+        addl.list = <span class='kw'>NULL</span>, 
+        data = <span class='kw'>NULL</span>, 
+        <span class='kw'>continuous</span>,  
+        <span class='kw'>binary</span>, 
+        <span class='kw'>s.d.denom</span>, 
+        thresholds = <span class='kw'>NULL</span>,
+        weights = <span class='kw'>NULL</span>,
+        cluster = <span class='kw'>NULL</span>, 
+        imp = <span class='kw'>NULL</span>,
+        s.weights = <span class='kw'>NULL</span>,
+        abs = <span class='fl'>FALSE</span>,
+        subset = <span class='kw'>NULL</span>,
+        quick = <span class='fl'>TRUE</span>, 
+        <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -204,7 +204,7 @@
     </tr>
     <tr>
       <th>stats</th>
-      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='balance.stats.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
+      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='Balance Statistics.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
     </tr>
     <tr>
       <th>int</th>
@@ -236,11 +236,11 @@
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='balance.summary.html'>col_w_smd</a></code> for allowable options. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will use "treated" if the estimand of the call to <code>CBPS()</code> is the ATT and "pooled" if the estimand is the ATE. Abbreviations allowed.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will use "treated" if the estimand of the call to <code>CBPS()</code> is the ATT and "pooled" if the estimand is the ATE. Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
-      <td><p>a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in <code>stats</code>) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set <code>thresholds = c(m = .05, v = 2)</code>. Requesting a threshold automatically requests the display of that statistic. See <code><a href='balance.stats.html'>stats</a></code>.</p></td>
+      <td><p>a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in <code>stats</code>) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set <code>thresholds = c(m = .05, v = 2)</code>. Requesting a threshold automatically requests the display of that statistic. See <code><a href='Balance Statistics.html'>stats</a></code>.</p></td>
     </tr>
     <tr>
       <th>weights</th>
@@ -276,7 +276,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Further arguments to control display of output. See <a href='display_options.html'>display options</a> for details.</p></td>
+      <td><p>Further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
     </tr>
     </table>
 
@@ -291,6 +291,9 @@
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
 <p>If <code><a href='https://rdrr.io/pkg/CBPS/man/CBPS.html'>CBPS()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
 <p>If <code><a href='https://rdrr.io/pkg/CBPS/man/CBMSM.html'>CBMSM()</a></code> is used for longitudinal treatments, an object of class <code>"bal.tab.msm"</code> containing balance summaries for each time period and a summary of balance across time periods. See <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for details.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.
@@ -299,19 +302,22 @@
 <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more information on longitudinal treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>CBPS</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: MASS</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: nnet</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: numDeriv</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: glmnet</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: Matrix</span></div><div class='output co'>#&gt; <span class='message'>Loaded glmnet 4.0-2</span></div><div class='output co'>#&gt; <span class='message'>CBPS: Covariate Balancing Propensity Score</span>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>CBPS</span>)
+</div><div class='output co'>#&gt; <span class='message'>Loading required package: MASS</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: nnet</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: numDeriv</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: glmnet</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: Matrix</span></div><div class='output co'>#&gt; <span class='message'>Loaded glmnet 4.0-2</span></div><div class='output co'>#&gt; <span class='message'>CBPS: Covariate Balancing Propensity Score</span>
 #&gt; <span class='message'>Version: 0.21</span>
 #&gt; <span class='message'>Authors: Christian Fong [aut, cre],</span>
 #&gt; <span class='message'>  Marc Ratkovic [aut],</span>
 #&gt; <span class='message'>  Kosuke Imai [aut],</span>
 #&gt; <span class='message'>  Chad Hazlett [ctb],</span>
 #&gt; <span class='message'>  Xiaolin Yang [ctb],</span>
-#&gt; <span class='message'>  Sida Peng [ctb]</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)
+#&gt; <span class='message'>  Sida Peng [ctb]</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
 
 <span class='co'>## Using CBPS() for generating covariate balancing </span>
 <span class='co'>## propensity score weights</span>
-<span class='no'>cbps.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/CBPS/man/CBPS.html'>CBPS</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>married</span> + <span class='no'>race</span> +
-             <span class='no'>nodegree</span> + <span class='no'>re74</span> + <span class='no'>re75</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>)</div><div class='output co'>#&gt; [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"</div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>cbps.out</span>)</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
+<span class='kw'>cbps.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/CBPS/man/CBPS.html'>CBPS</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span>
+             <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, data = <span class='kw'>lalonde</span>)
+</div><div class='output co'>#&gt; [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"</div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>cbps.out</span>)
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
 #&gt;  CBPS(formula = treat ~ age + educ + married + race + nodegree + 
 #&gt;     re74 + re75, data = lalonde)
 #&gt; 
@@ -347,7 +353,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

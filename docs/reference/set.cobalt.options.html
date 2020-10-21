@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Set and Get Options in <code>cobalt</code> — set.cobalt.options • cobalt</title>
+<title>Set and Get Options in cobalt — set.cobalt.options • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Set and Get Options in <code>cobalt</code> — set.cobalt.options" />
+<meta property="og:title" content="Set and Get Options in cobalt — set.cobalt.options" />
 <meta property="og:description" content="Makes it easier to set cobalt options. set.cobalt.options is essentially a wrapper for options but performs several checks, and get.cobalt.options is essentially a wrapper for getOption." />
 <meta property="og:image" content="/logo.png" />
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -152,9 +152,9 @@
     <p>Makes it easier to set <span class="pkg">cobalt</span> options. <code>set.cobalt.options</code> is essentially a wrapper for <code><a href='https://rdrr.io/r/base/options.html'>options</a></code> but performs several checks, and <code>get.cobalt.options</code> is essentially a wrapper for <code><a href='https://rdrr.io/r/base/options.html'>getOption</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set.cobalt.options</span>(<span class='no'>...</span>, <span class='kw'>default</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>set.cobalt.options</span>(<span class='kw'>...</span>, default = <span class='fl'>FALSE</span>)
 
-<span class='fu'>get.cobalt.options</span>(<span class='no'>...</span>)</pre>
+<span class='fu'>get.cobalt.options</span>(<span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -172,11 +172,11 @@
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>When an option is set to <code>NULL</code>, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed <a href='display_options.html'>here</a>. Some others (e.g., <code>continous</code> and <code>binary</code>) are described on the <code><a href='bal.tab.html'>bal.tab</a></code> help page.</p>
+    <p>When an option is set to <code>NULL</code>, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed <a href='Display Options.html'>here</a>. Some others (e.g., <code>continous</code> and <code>binary</code>) are described on the <code><a href='bal.tab.html'>bal.tab</a></code> help page.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='https://rdrr.io/r/base/options.html'>options</a></code></p>
-<p><code><a href='display_options.html'>display_options</a></code> for some arguments that can be set via options.</p></div>
+<p><code><a href='Display Options.html'>display_options</a></code> for some arguments that can be set via options.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Set un to be TRUE to always display unadjusted </span>
@@ -184,13 +184,14 @@
 <span class='co'># produce standardized mean differences for </span>
 <span class='co'># binary variables.</span>
 
-<span class='fu'>set.cobalt.options</span>(<span class='kw'>un</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>binary</span> <span class='kw'>=</span> <span class='st'>"std"</span>)
+<span class='fu'>set.cobalt.options</span>(un = <span class='fl'>TRUE</span>, binary = <span class='st'>"std"</span>)
 
 <span class='co'># Note: the above is equivalent to:</span>
 <span class='co'># options(cobalt_un = TRUE, cobalt_binary = "std")</span>
 <span class='co'># but performs some additional checks</span>
 
-<span class='fu'>get.cobalt.options</span>(<span class='st'>"un"</span>, <span class='st'>"binary"</span>)</div><div class='output co'>#&gt; $un
+<span class='fu'>get.cobalt.options</span>(<span class='st'>"un"</span>, <span class='st'>"binary"</span>)
+</div><div class='output co'>#&gt; $un
 #&gt; [1] TRUE
 #&gt; 
 #&gt; $binary
@@ -202,10 +203,11 @@
 
 <span class='co'># Return all cobalt options to their defaults</span>
 
-<span class='fu'>set.cobalt.options</span>(<span class='kw'>default</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>set.cobalt.options</span>(default = <span class='fl'>TRUE</span>)
 
 <span class='co'># View all available options</span>
-<span class='fu'>get.cobalt.options</span>()</div><div class='output co'>#&gt; $stats
+<span class='fu'>get.cobalt.options</span>()
+</div><div class='output co'>#&gt; $stats
 #&gt; NULL
 #&gt; 
 #&gt; $un
@@ -289,7 +291,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

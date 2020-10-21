@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Balance Statistics for <code>twang</code> Objects — bal.tab.ps • cobalt</title>
+<title>Balance Statistics for twang Objects — bal.tab.ps • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Balance Statistics for <code>twang</code> Objects — bal.tab.ps" />
+<meta property="og:title" content="Balance Statistics for twang Objects — bal.tab.ps" />
 <meta property="og:description" content="Generates balance statistics for ps, mnps, and iptw objects from twang and for ps.cont objects from WeightIt. Note that several arguments that used to be documented here are now documented in display options. They are still available." />
 <meta property="og:image" content="/logo.png" />
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -149,105 +149,105 @@
     </div>
 
     <div class="ref-description">
-    <p>Generates balance statistics for <code>ps</code>, <code>mnps</code>, and <code>iptw</code> objects from <span class="pkg">twang</span> and for <code>ps.cont</code> objects from <span class="pkg">WeightIt</span>. Note that several arguments that used to be documented here are now documented in <a href='display_options.html'>display options</a>. They are still available.</p>
+    <p>Generates balance statistics for <code>ps</code>, <code>mnps</code>, and <code>iptw</code> objects from <span class="pkg">twang</span> and for <code>ps.cont</code> objects from <span class="pkg">WeightIt</span>. Note that several arguments that used to be documented here are now documented in <a href='Display Options.html'>display options</a>. They are still available.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for ps</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-    <span class='no'>stop.method</span>,
-    <span class='no'>stats</span>,
-    <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-    <span class='kw'>distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>addl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='no'>continuous</span>,
-    <span class='no'>binary</span>,
-    <span class='no'>s.d.denom</span>,
-    <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+    <span class='kw'>stop.method</span>, 
+    <span class='kw'>stats</span>,
+    int = <span class='fl'>FALSE</span>, 
+    poly = <span class='fl'>1</span>, 
+    distance = <span class='kw'>NULL</span>, 
+    addl = <span class='kw'>NULL</span>, 
+    data = <span class='kw'>NULL</span>, 
+    <span class='kw'>continuous</span>,  
+    <span class='kw'>binary</span>, 
+    <span class='kw'>s.d.denom</span>, 
+    thresholds = <span class='kw'>NULL</span>, 
+    weights = <span class='kw'>NULL</span>,
+    cluster = <span class='kw'>NULL</span>, 
+    imp = <span class='kw'>NULL</span>,
+    abs = <span class='fl'>FALSE</span>,
+    subset = <span class='kw'>NULL</span>,
+    quick = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for mnps</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-    <span class='no'>stop.method</span>,
-    <span class='no'>stats</span>,
-    <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-    <span class='kw'>distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>addl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='no'>continuous</span>,
-    <span class='no'>binary</span>,
-    <span class='no'>s.d.denom</span>,
-    <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-    <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)
-
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+    <span class='kw'>stop.method</span>, 
+    <span class='kw'>stats</span>,
+    int = <span class='fl'>FALSE</span>, 
+    poly = <span class='fl'>1</span>, 
+    distance = <span class='kw'>NULL</span>, 
+    addl = <span class='kw'>NULL</span>, 
+    data = <span class='kw'>NULL</span>, 
+    <span class='kw'>continuous</span>,  
+    <span class='kw'>binary</span>, 
+    <span class='kw'>s.d.denom</span>, 
+    thresholds = <span class='kw'>NULL</span>, 
+    weights = <span class='kw'>NULL</span>,
+    cluster = <span class='kw'>NULL</span>, 
+    imp = <span class='kw'>NULL</span>,
+    pairwise = <span class='fl'>TRUE</span>, 
+    abs = <span class='fl'>FALSE</span>,
+    subset = <span class='kw'>NULL</span>,
+    quick = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
+    
 <span class='co'># S3 method for iptw</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-    <span class='no'>stop.method</span>,
-    <span class='no'>stats</span>,
-    <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-    <span class='kw'>distance.list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>addl.list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='no'>continuous</span>,
-    <span class='no'>binary</span>,
-    <span class='no'>s.d.denom</span>,
-    <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-    <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+    <span class='kw'>stop.method</span>, 
+    <span class='kw'>stats</span>,
+    int = <span class='fl'>FALSE</span>, 
+    poly = <span class='fl'>1</span>, 
+    distance.list = <span class='kw'>NULL</span>, 
+    addl.list = <span class='kw'>NULL</span>, 
+    data = <span class='kw'>NULL</span>, 
+    <span class='kw'>continuous</span>,  
+    <span class='kw'>binary</span>, 
+    <span class='kw'>s.d.denom</span>, 
+    thresholds = <span class='kw'>NULL</span>, 
+    weights = <span class='kw'>NULL</span>,
+    cluster = <span class='kw'>NULL</span>,
+    imp = <span class='kw'>NULL</span>,
+    pairwise = <span class='fl'>TRUE</span>, 
+    abs = <span class='fl'>FALSE</span>, 
+    subset = <span class='kw'>NULL</span>, 
+    quick = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for ps.cont</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-    <span class='no'>stop.method</span>,
-    <span class='no'>stats</span>,
-    <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-    <span class='kw'>distance</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>addl</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='no'>continuous</span>,
-    <span class='no'>binary</span>,
-    <span class='no'>s.d.denom</span>,
-    <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-    <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-    <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+    <span class='kw'>stop.method</span>, 
+    <span class='kw'>stats</span>,
+    int = <span class='fl'>FALSE</span>, 
+    poly = <span class='fl'>1</span>, 
+    distance = <span class='kw'>NULL</span>, 
+    addl = <span class='kw'>NULL</span>, 
+    data = <span class='kw'>NULL</span>, 
+    <span class='kw'>continuous</span>,
+    <span class='kw'>binary</span>,
+    <span class='kw'>s.d.denom</span>,
+    thresholds = <span class='kw'>NULL</span>, 
+    weights = <span class='kw'>NULL</span>,
+    cluster = <span class='kw'>NULL</span>, 
+    imp = <span class='kw'>NULL</span>,
+    abs = <span class='fl'>FALSE</span>, 
+    subset = <span class='kw'>NULL</span>, 
+    quick = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>a <code>ps</code>, <code>mnps</code>, <code>iptw</code>, or <code>ps.cont</code> object; the output of a call to <code>ps()</code>, <code>mnps()</code>, or <code>iptw()</code> from <span class="pkg">twang</span> or from a call to <code>ps.cont()</code> from <span class="pkg">WeightIt</span>.</p></td>
+      <td><p>a <code>ps</code>, <code>mnps</code>, <code>iptw</code>, or <code>ps.cont</code> object; the output of a call to <code>ps()</code>, <code>mnps()</code>, or <code>iptw()</code> from <span class="pkg">twang</span> or from a call to <code><a href='https://rdrr.io/pkg/WeightIt/man/ps.cont.html'>ps.cont()</a></code> from <span class="pkg">WeightIt</span>.</p></td>
     </tr>
     <tr>
       <th>stop.method</th>
-      <td><p>a string containing the names of the stopping methods used in the original call to <code>ps()</code>, <code>mnps()</code>, <code>iptw()</code>, or <code>ps.cont()</code>. Examples include "es.max" or "ks.mean" for <code>ps</code> and <code>mnps</code> objects and "p.mean" or "s.max" for <code>ps.cont</code> objects. <code>bal.tab</code> will assess balance for the weights created by those stopping methods. The names can be abbreviated as long as the abbreviations are specific enough. If no stopping methods are provided, <code>bal.tab</code> will default to displaying balance for all available stopping methods. This argument used to be called <code>full.stop.method</code>, and that name still works.</p></td>
+      <td><p>a string containing the names of the stopping methods used in the original call to <code>ps()</code>, <code>mnps()</code>, <code>iptw()</code>, or <code><a href='https://rdrr.io/pkg/WeightIt/man/ps.cont.html'>ps.cont()</a></code>. Examples include "es.max" or "ks.mean" for <code>ps</code> and <code>mnps</code> objects and "p.mean" or "s.max" for <code>ps.cont</code> objects. <code>bal.tab</code> will assess balance for the weights created by those stopping methods. The names can be abbreviated as long as the abbreviations are specific enough. If no stopping methods are provided, <code>bal.tab</code> will default to displaying balance for all available stopping methods. This argument used to be called <code>full.stop.method</code>, and that name still works.</p></td>
     </tr>
     <tr>
       <th>stats</th>
-      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='balance.stats.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
+      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='Balance Statistics.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
     </tr>
     <tr>
       <th>int</th>
@@ -259,7 +259,7 @@
     </tr>
     <tr>
       <th>distance, distance.list</th>
-      <td><p>an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will look in the argument to <code>data</code>, if specified. Note that the propensity scores generated by <code>ps()</code> and <code>iptw()</code> (but not <code>mnps()</code> or <code>ps.cont()</code>) are automatically included and named "prop.score.stop.method".</p></td>
+      <td><p>an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will look in the argument to <code>data</code>, if specified. Note that the propensity scores generated by <code>ps()</code> and <code>iptw()</code> (but not <code>mnps()</code> or <code><a href='https://rdrr.io/pkg/WeightIt/man/ps.cont.html'>ps.cont()</a></code>) are automatically included and named "prop.score.stop.method".</p></td>
     </tr>
     <tr>
       <th>addl, addl.list</th>
@@ -271,15 +271,15 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous covariates should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='balance.summary.html'>col_w_smd</a></code> and <code><a href='balance.summary.html'>col_w_corr</a></code>.</p></td>
+      <td><p>whether mean differences for continuous covariates should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code> and <code><a href='Balance Summary.html'>col_w_corr</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary covariates (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='balance.summary.html'>col_w_smd</a></code> and <code><a href='balance.summary.html'>col_w_corr</a></code>.</p></td>
+      <td><p>whether mean differences for binary covariates (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code> and <code><a href='Balance Summary.html'>col_w_corr</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='balance.summary.html'>col_w_smd</a></code> for allowable options. If not specified, for <code>ps</code> objects, <code><a href='bal.tab.html'>bal.tab()</a></code> will use "treated" if the estimand of the call to <code>ps()</code> is the ATT and "pooled" if the estimand is the ATE; for <code>mnps</code> objects, <code><a href='bal.tab.html'>bal.tab()</a></code> will use "treated" if <code>treatATT</code> was specified in the original call to <code>mnps</code> and "pooled" otherwise. Use "all" to get the same values computed by <code>bal.table</code> in <span class="pkg">twang</span>. Abbreviations allowed.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If not specified, for <code>ps</code> objects, <code><a href='bal.tab.html'>bal.tab()</a></code> will use "treated" if the estimand of the call to <code>ps()</code> is the ATT and "pooled" if the estimand is the ATE; for <code>mnps</code> objects, <code><a href='bal.tab.html'>bal.tab()</a></code> will use "treated" if <code>treatATT</code> was specified in the original call to <code>mnps</code> and "pooled" otherwise. Use "all" to get the same values computed by <code>bal.table</code> in <span class="pkg">twang</span>. Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -295,7 +295,7 @@
     </tr>
     <tr>
       <th>imp</th>
-      <td><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the original data set used in the call to <code>ps()</code>, <code>mnps()</code>, <code>iptw()</code>, or <code>ps.cont()</code>. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></td>
+      <td><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the original data set used in the call to <code>ps()</code>, <code>mnps()</code>, <code>iptw()</code>, or <code><a href='https://rdrr.io/pkg/WeightIt/man/ps.cont.html'>ps.cont()</a></code>. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></td>
     </tr>
     <tr>
       <th>pairwise</th>
@@ -307,7 +307,7 @@
     </tr>
     <tr>
       <th>subset</th>
-      <td><p>a <code>logical</code> or <code>numeric</code> vector denoting whether each observation should be included or which observations should be included. If <code>logical</code>, it should be the same length as the variables in the original call to <code>ps()</code>, <code>mnps()</code>, or <code>ps.cont()</code>. <code>NA</code>s will be treated as <code>FALSE</code>. This can be used as an alternative to <code>cluster</code> to examine balance on subsets of the data.</p></td>
+      <td><p>a <code>logical</code> or <code>numeric</code> vector denoting whether each observation should be included or which observations should be included. If <code>logical</code>, it should be the same length as the variables in the original call to <code>ps()</code>, <code>mnps()</code>, or <code><a href='https://rdrr.io/pkg/WeightIt/man/ps.cont.html'>ps.cont()</a></code>. <code>NA</code>s will be treated as <code>FALSE</code>. This can be used as an alternative to <code>cluster</code> to examine balance on subsets of the data.</p></td>
     </tr>
     <tr>
       <th>quick</th>
@@ -315,7 +315,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>further arguments to control display of output. See <a href='display_options.html'>display options</a> for details.</p></td>
+      <td><p>further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
     </tr>
     </table>
 
@@ -328,10 +328,13 @@
     <p>For binary point treatments, if clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>ps</code> object. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
 <p>If <code><a href='https://rdrr.io/pkg/twang/man/mnps.html'>mnps()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
-<p>If <code>ps.cont()</code> is used with continuous treatments, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment as calculated using <code><a href='balance.summary.html'>col_w_corr</a></code>. The <code>r.threshold</code> argument works the same as <code>m.threshold</code>, <code>v.threshold</code>, or <code>ks.threshold</code>, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The <code>int</code>, <code>addl</code>, <code>un</code>, <code>distance</code>, and cluster arguments are still used as described above.</p>
+<p>If <code><a href='https://rdrr.io/pkg/WeightIt/man/ps.cont.html'>ps.cont()</a></code> is used with continuous treatments, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment as calculated using <code><a href='Balance Summary.html'>col_w_corr</a></code>. The <code>r.threshold</code> argument works the same as <code>m.threshold</code>, <code>v.threshold</code>, or <code>ks.threshold</code>, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The <code>int</code>, <code>addl</code>, <code>un</code>, <code>distance</code>, and cluster arguments are still used as described above.</p>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
-    <p>The function <code>bal.table</code> in <span class="pkg">twang</span> performs a similar function. The variances used in the denominator of the standardized mean difference are weighted and computed using <code><a href='https://rdrr.io/pkg/survey/man/surveysummary.html'>survey::svyvar</a></code> in <span class="pkg">twang</span> and are unweighted here (except when <code>s.weights</code> are specified, in which case <code><a href='balance.summary.html'>col_w_sd</a></code> is used). <span class="pkg">twang</span> also uses "all" as the default <code>s.d.denom</code> when the estimand is the ATE; the default here is "pooled". For this reason, results may differ slightly between the two packages.</p>
+    <p>The function <code>bal.table</code> in <span class="pkg">twang</span> performs a similar function. The variances used in the denominator of the standardized mean difference are weighted and computed using <code><a href='https://rdrr.io/pkg/survey/man/surveysummary.html'>survey::svyvar</a></code> in <span class="pkg">twang</span> and are unweighted here (except when <code>s.weights</code> are specified, in which case <code><a href='Balance Summary.html'>col_w_sd</a></code> is used). <span class="pkg">twang</span> also uses "all" as the default <code>s.d.denom</code> when the estimand is the ATE; the default here is "pooled". For this reason, results may differ slightly between the two packages.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.
@@ -340,19 +343,21 @@
 <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more information on longitudinal treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>twang</span>); <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)</div><div class='output co'>#&gt; <span class='message'>Loading required package: gbm</span></div><div class='output co'>#&gt; <span class='message'>Loaded gbm 2.1.8</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: survey</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: grid</span></div><div class='output co'>#&gt; <span class='message'></span>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>twang</span>); <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
+</div><div class='output co'>#&gt; <span class='message'>Loading required package: gbm</span></div><div class='output co'>#&gt; <span class='message'>Loaded gbm 2.1.8</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: survey</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: grid</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘survey’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:graphics’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    dotchart</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: xtable</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: latticeExtra</span></div><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'>## Using ps() for generalized boosted modeling</span>
-<span class='no'>ps.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/twang/man/ps.html'>ps</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>married</span> + <span class='no'>race</span> +
-             <span class='no'>nodegree</span> + <span class='no'>re74</span> + <span class='no'>re75</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>,
-             <span class='kw'>stop.method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ks.mean"</span>, <span class='st'>"es.mean"</span>),
-             <span class='kw'>estimand</span> <span class='kw'>=</span> <span class='st'>"ATT"</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>ps.out</span>, <span class='kw'>stop.method</span> <span class='kw'>=</span> <span class='st'>"es.max"</span>, <span class='kw'>un</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-        <span class='kw'>m.threshold</span> <span class='kw'>=</span> <span class='fl'>.1</span>, <span class='kw'>disp.ks</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-}</div></pre>
+<span class='kw'>ps.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/twang/man/ps.html'>ps</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span>
+             <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, data = <span class='kw'>lalonde</span>, 
+             stop.method = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ks.mean"</span>, <span class='st'>"es.mean"</span>), 
+             estimand = <span class='st'>"ATT"</span>, verbose = <span class='fl'>FALSE</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>ps.out</span>, stop.method = <span class='st'>"es.max"</span>, un = <span class='fl'>TRUE</span>, 
+        m.threshold = <span class='fl'>.1</span>, disp.ks = <span class='fl'>TRUE</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -368,7 +373,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

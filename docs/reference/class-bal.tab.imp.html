@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Using <code>bal.tab()</code> with Multiply Imputed Data — class-bal.tab.imp • cobalt</title>
+<title>Using bal.tab() with Multiply Imputed Data — class-bal.tab.imp • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Using <code>bal.tab()</code> with Multiply Imputed Data — class-bal.tab.imp" />
+<meta property="og:title" content="Using bal.tab() with Multiply Imputed Data — class-bal.tab.imp" />
 <meta property="og:description" content="When using bal.tab() with multiply imputed data, the output will be different from the case with a single data set. Multiply imputed data can be used with the data.frame, formula, and weightit bal.tab() methods, and the mimids and wimids methods for MatchThem objects automatically incorporates multiply imputed data. This page outlines the outputs and options available with multiply imputed data.
 There are two main components of the output of bal.tab() with multiply imputed data: the within-imputation balance summaries and the across-imputation balance summary. The within-imputation balance summaries display balance for units within each imputed data set separately. In general, this will not be very useful because interest rarely lies in the qualities of any individual imputed data set.
 The across-imputation balance summary pools information across the within-imputation balance summaries to simplify balance assessment. It provides the average, smallest, and largest balance statistic for each covariate across all imputations. This allows you to see how bad the worst imbalance is and what balance looks like on average across the imputations. The summary behaves differently depending on whether abs is specified as TRUE or FALSE. When abs = TRUE, the across-imputation balance summary will display the mean absolute balance statistics and the maximum absolute balance statistics. When abs = FALSE, the across-imputation balance summary will display the minimum, mean, and maximum of the balance statistic in its original form." />
@@ -82,7 +82,7 @@ The across-imputation balance summary pools information across the within-imputa
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -162,7 +162,7 @@ The across-imputation balance summary pools information across the within-imputa
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>imp</th>
-      <td><p>A vector of imputation membership. This can be factor, character, or numeric vector. This argument is required to let <code><a href='bal.tab.html'>bal.tab()</a></code> know that the data is multiply imputed unless <span class="pkg">MatchThem</span> objects are used. If a <code>data</code> argument is specified, this can also be the name of a variable in <code>data</code> that contains imputation membership. If the <code>data</code> argument is a <code>mids</code> object, the output of a call to <code>mice()</code>, <code>imp</code> does not need to be specified and will automatically be extracted from the <code>mids</code> object.</p></td>
+      <td><p>A vector of imputation membership. This can be factor, character, or numeric vector. This argument is required to let <code><a href='bal.tab.html'>bal.tab()</a></code> know that the data is multiply imputed unless <span class="pkg">MatchThem</span> objects are used. If a <code>data</code> argument is specified, this can also be the name of a variable in <code>data</code> that contains imputation membership. If the <code>data</code> argument is a <code>mids</code> object, the output of a call to <code><a href='https://rdrr.io/pkg/mice/man/mice.html'>mice()</a></code>, <code>imp</code> does not need to be specified and will automatically be extracted from the <code>mids</code> object.</p></td>
     </tr>
     <tr>
       <th>which.imp</th>
@@ -187,6 +187,9 @@ The across-imputation balance summary pools information across the within-imputa
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code>, <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab.imp</a></code></p></div>
@@ -206,7 +209,7 @@ As with other methods, multiple weights can be specified, and values for all wei
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

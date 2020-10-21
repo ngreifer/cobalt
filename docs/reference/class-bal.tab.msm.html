@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Using <code>bal.tab()</code> with Longitudinal Treatments — class-bal.tab.msm • cobalt</title>
+<title>Using bal.tab() with Longitudinal Treatments — class-bal.tab.msm • cobalt</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,7 @@
 
 
 
-<meta property="og:title" content="Using <code>bal.tab()</code> with Longitudinal Treatments — class-bal.tab.msm" />
+<meta property="og:title" content="Using bal.tab() with Longitudinal Treatments — class-bal.tab.msm" />
 <meta property="og:description" content="When using bal.tab() with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all bal.tab methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
 There are two main components of the output of bal.tab() with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
 The across-time-points balance summary is, for each variable, the greatest imbalance across all time-point-specific balance summaries. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. The balance summary will not be computed if multi-category treatments or multiply imputed data are used." />
@@ -82,7 +82,7 @@ The across-time-points balance summary is, for each variable, the greatest imbal
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -179,6 +179,9 @@ The across-time-points balance summary is, for each variable, the greatest imbal
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code>, <code><a href='bal.tab.df.formula.list.html'>bal.tab.list</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab.msm</a></code></p></div>
@@ -198,7 +201,7 @@ As with other methods, multiple weights can be specified, and values for all wei
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

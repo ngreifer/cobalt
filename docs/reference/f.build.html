@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -149,10 +149,10 @@
     </div>
 
     <div class="ref-description">
-    <p><code>f.build()</code> returns a formula of the form <code>y ~ x1 + x2 + ...</code> from a data frame input. It can be much quicker to use <code>f.build()</code> than to hand-write the precise formula, which may contain errors. It can be used in place of a formula in, for example, <code><a href='https://rdrr.io/r/stats/glm.html'>glm</a>()</code>, <code>matchit()</code>, or <code><a href='bal.tab.html'>bal.tab</a>()</code>.</p>
+    <p><code>f.build()</code> returns a formula of the form <code>y ~ x1 + x2 + ...</code> from a data frame input. It can be much quicker to use <code>f.build()</code> than to hand-write the precise formula, which may contain errors. It can be used in place of a formula in, for example, <code><a href='https://rdrr.io/r/stats/glm.html'>glm</a>()</code>, <code><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit()</a></code>, or <code><a href='bal.tab.html'>bal.tab</a>()</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>f.build</span>(<span class='no'>y</span>, <span class='no'>rhs</span>)</pre>
+    <pre class="usage"><span class='fu'>f.build</span>(<span class='kw'>y</span>, <span class='kw'>rhs</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -175,8 +175,10 @@
     <div class='dont-index'><p><code><a href='https://rdrr.io/r/stats/delete.response.html'>reformulate</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>lalonde</span>)
-<span class='no'>covs</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='no'>lalonde</span>, <span class='kw'>select</span> <span class='kw'>=</span> -<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>treat</span>, <span class='no'>re78</span>))</div><div class='output co'>#&gt; <span class='error'>Error in eval(substitute(select), nl, parent.frame()): object 'treat' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span>(<span class='fu'>f.build</span>(<span class='st'>"treat"</span>, <span class='no'>covs</span>), <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>)</div><div class='output co'>#&gt; <span class='error'>Error: object 'covs' not found</span></div></pre>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>lalonde</span>)
+<span class='kw'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='kw'>lalonde</span>, select = <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>treat</span>, <span class='kw'>re78</span>))
+</div><div class='output co'>#&gt; <span class='error'>Error in eval(substitute(select), nl, parent.frame()): object 'treat' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span>(<span class='fu'>f.build</span>(<span class='st'>"treat"</span>, <span class='kw'>covs</span>), data = <span class='kw'>lalonde</span>)
+</div><div class='output co'>#&gt; <span class='error'>Error: object 'covs' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -192,7 +194,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

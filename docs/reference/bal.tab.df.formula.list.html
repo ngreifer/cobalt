@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -153,34 +153,34 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for data.frame.list</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-        <span class='kw'>treat.list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='no'>stats</span>,
-        <span class='kw'>int</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-        <span class='kw'>poly</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-        <span class='kw'>distance.list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>addl.list</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='no'>method</span>,
-        <span class='no'>continuous</span>,
-        <span class='no'>binary</span>,
-        <span class='no'>s.d.denom</span>,
-        <span class='kw'>thresholds</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>cluster</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>imp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>pairwise</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-        <span class='kw'>s.weights</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>estimand</span> <span class='kw'>=</span> <span class='st'>"ATE"</span>,
-        <span class='kw'>abs</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-        <span class='kw'>subset</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='kw'>quick</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-        <span class='no'>...</span>)
-
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
+        treat.list = <span class='kw'>NULL</span>, 
+        data = <span class='kw'>NULL</span>, 
+        weights = <span class='kw'>NULL</span>, 
+        <span class='kw'>stats</span>,
+        int = <span class='fl'>FALSE</span>, 
+        poly = <span class='fl'>1</span>, 
+        distance.list = <span class='kw'>NULL</span>, 
+        addl.list = <span class='kw'>NULL</span>, 
+        <span class='kw'>method</span>, 
+        <span class='kw'>continuous</span>,  
+        <span class='kw'>binary</span>, 
+        <span class='kw'>s.d.denom</span>, 
+        thresholds = <span class='kw'>NULL</span>,
+        cluster = <span class='kw'>NULL</span>, 
+        imp = <span class='kw'>NULL</span>, 
+        pairwise = <span class='fl'>TRUE</span>, 
+        s.weights = <span class='kw'>NULL</span>, 
+        estimand = <span class='st'>"ATE"</span>,
+        abs = <span class='fl'>FALSE</span>,
+        subset = <span class='kw'>NULL</span>,
+        quick = <span class='fl'>TRUE</span>, 
+        <span class='kw'>...</span>)
+    
 <span class='co'># S3 method for formula.list</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>,
-        <span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-        <span class='no'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>,
+        data = <span class='kw'>NULL</span>,
+        <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -203,7 +203,7 @@
     </tr>
     <tr>
       <th>stats</th>
-      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='balance.stats.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
+      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='Balance Statistics.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
     </tr>
     <tr>
       <th>int</th>
@@ -235,7 +235,7 @@
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='balance.summary.html'>col_w_smd</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. If left blank and weights are supplied, <code><a href='bal.tab.html'>bal.tab()</a></code> will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply <code>s.d.denom</code> accordingly. Abbreviations allowed. If left blank, <code><a href='bal.tab.html'>bal.tab()</a></code> will try to use the <code>estimand</code> argument. It is recommended not to set this argument for longitudinal treatments.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. If left blank and weights are supplied, <code><a href='bal.tab.html'>bal.tab()</a></code> will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply <code>s.d.denom</code> accordingly. Abbreviations allowed. If left blank, <code><a href='bal.tab.html'>bal.tab()</a></code> will try to use the <code>estimand</code> argument. It is recommended not to set this argument for longitudinal treatments.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -275,7 +275,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>For <code>bal.tab.formula.list</code>, other arguments to be passed to <code>bal.tab.data.frame.list</code>. Otherwise, further arguments to control display of output. See <a href='display_options.html'>display options</a> for details.</p></td>
+      <td><p>For <code>bal.tab.formula.list</code>, other arguments to be passed to <code>bal.tab.data.frame.list</code>. Otherwise, further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
     </tr>
     </table>
 
@@ -289,40 +289,44 @@
     <p>An object of class <code>bal.tab.msm</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more details.</p>
 <p>Currently, clusters and multiply imputed data are not compatible with longitudinal treatments.</p>
 <p>See <code><a href='bal.tab.df.formula.html'>bal.tab base methods</a></code> for more detailed information on the value of the <code>bal.tab</code> objects produced for each time point.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.df.formula.html'>bal.tab base methods</a></code> for details of calculations.</p>
 <p><code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for output and related options.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"iptwExWide"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"twang"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='st'>"cobalt"</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"iptwExWide"</span>, package = <span class='st'>"twang"</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='st'><a href='https://ngreifer.github.io/cobalt'>"cobalt"</a></span>)
 
 <span class='co'>## Estimating longitudinal propensity scores and weights</span>
-<span class='no'>ps1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='no'>tx1</span> ~ <span class='no'>age</span> + <span class='no'>gender</span> + <span class='no'>use0</span>,
-            <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>iptwExWide</span>,
-            <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"binomial"</span>)$<span class='no'>fitted.values</span>
-<span class='no'>w1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='no'>iptwExWide</span>$<span class='no'>tx1</span> <span class='kw'>==</span> <span class='fl'>1</span>, <span class='fl'>1</span>/<span class='no'>ps1</span>, <span class='fl'>1</span>/(<span class='fl'>1</span>-<span class='no'>ps1</span>))
-<span class='no'>ps2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='no'>tx2</span> ~ <span class='no'>age</span> + <span class='no'>gender</span> + <span class='no'>use0</span> + <span class='no'>tx1</span> + <span class='no'>use1</span>,
-            <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>iptwExWide</span>,
-            <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"binomial"</span>)$<span class='no'>fitted.values</span>
-<span class='no'>w2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='no'>iptwExWide</span>$<span class='no'>tx2</span> <span class='kw'>==</span> <span class='fl'>1</span>, <span class='fl'>1</span>/<span class='no'>ps2</span>, <span class='fl'>1</span>/(<span class='fl'>1</span>-<span class='no'>ps2</span>))
-<span class='no'>ps3</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='no'>tx3</span> ~ <span class='no'>age</span> + <span class='no'>gender</span> + <span class='no'>use0</span> + <span class='no'>tx1</span> + <span class='no'>use1</span> + <span class='no'>tx2</span> + <span class='no'>use2</span>,
-            <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>iptwExWide</span>,
-            <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"binomial"</span>)$<span class='no'>fitted.values</span>
-<span class='no'>w3</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='no'>iptwExWide</span>$<span class='no'>tx3</span> <span class='kw'>==</span> <span class='fl'>1</span>, <span class='fl'>1</span>/<span class='no'>ps3</span>, <span class='fl'>1</span>/(<span class='fl'>1</span>-<span class='no'>ps3</span>))
-
-<span class='no'>w</span> <span class='kw'>&lt;-</span> <span class='no'>w1</span>*<span class='no'>w2</span>*<span class='no'>w3</span>
+<span class='kw'>ps1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='kw'>tx1</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>gender</span> <span class='op'>+</span> <span class='kw'>use0</span>,
+            data = <span class='kw'>iptwExWide</span>, 
+            family = <span class='st'>"binomial"</span>)<span class='op'>$</span><span class='kw'>fitted.values</span>
+<span class='kw'>w1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='kw'>iptwExWide</span><span class='op'>$</span><span class='kw'>tx1</span> <span class='op'>==</span> <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>/</span><span class='kw'>ps1</span>, <span class='fl'>1</span><span class='op'>/</span>(<span class='fl'>1</span><span class='op'>-</span><span class='kw'>ps1</span>))
+<span class='kw'>ps2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='kw'>tx2</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>gender</span> <span class='op'>+</span> <span class='kw'>use0</span> <span class='op'>+</span> <span class='kw'>tx1</span> <span class='op'>+</span> <span class='kw'>use1</span>,
+            data = <span class='kw'>iptwExWide</span>, 
+            family = <span class='st'>"binomial"</span>)<span class='op'>$</span><span class='kw'>fitted.values</span>
+<span class='kw'>w2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='kw'>iptwExWide</span><span class='op'>$</span><span class='kw'>tx2</span> <span class='op'>==</span> <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>/</span><span class='kw'>ps2</span>, <span class='fl'>1</span><span class='op'>/</span>(<span class='fl'>1</span><span class='op'>-</span><span class='kw'>ps2</span>))
+<span class='kw'>ps3</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='kw'>tx3</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>gender</span> <span class='op'>+</span> <span class='kw'>use0</span> <span class='op'>+</span> <span class='kw'>tx1</span> <span class='op'>+</span> <span class='kw'>use1</span> <span class='op'>+</span> <span class='kw'>tx2</span> <span class='op'>+</span> <span class='kw'>use2</span>,
+            data = <span class='kw'>iptwExWide</span>, 
+            family = <span class='st'>"binomial"</span>)<span class='op'>$</span><span class='kw'>fitted.values</span>
+<span class='kw'>w3</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='kw'>iptwExWide</span><span class='op'>$</span><span class='kw'>tx3</span> <span class='op'>==</span> <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>/</span><span class='kw'>ps3</span>, <span class='fl'>1</span><span class='op'>/</span>(<span class='fl'>1</span><span class='op'>-</span><span class='kw'>ps3</span>))
+                     
+<span class='kw'>w</span> <span class='op'>&lt;-</span> <span class='kw'>w1</span><span class='op'>*</span><span class='kw'>w2</span><span class='op'>*</span><span class='kw'>w3</span>
 
 <span class='co'># Formula interface plus addl.list:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>tx1</span> ~ <span class='no'>use0</span> + <span class='no'>gender</span>,
-             <span class='no'>tx2</span> ~ <span class='no'>use0</span> + <span class='no'>gender</span> + <span class='no'>use1</span> + <span class='no'>tx1</span>,
-             <span class='no'>tx3</span> ~ <span class='no'>use0</span> + <span class='no'>gender</span> + <span class='no'>use1</span> + <span class='no'>tx1</span> + <span class='no'>use2</span> + <span class='no'>tx2</span>),
-        <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>iptwExWide</span>,
-        <span class='kw'>weights</span> <span class='kw'>=</span> <span class='no'>w</span>,
-        <span class='kw'>distance.list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(~<span class='no'>ps1</span>, ~<span class='no'>ps2</span>, ~<span class='no'>ps3</span>),
-        <span class='kw'>addl.list</span> <span class='kw'>=</span> ~<span class='no'>age</span>*<span class='no'>gender</span>,
-        <span class='kw'>un</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance summary across all time points</span><span>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>tx1</span> <span class='op'>~</span> <span class='kw'>use0</span> <span class='op'>+</span> <span class='kw'>gender</span>,
+             <span class='kw'>tx2</span> <span class='op'>~</span> <span class='kw'>use0</span> <span class='op'>+</span> <span class='kw'>gender</span> <span class='op'>+</span> <span class='kw'>use1</span> <span class='op'>+</span> <span class='kw'>tx1</span>,
+             <span class='kw'>tx3</span> <span class='op'>~</span> <span class='kw'>use0</span> <span class='op'>+</span> <span class='kw'>gender</span> <span class='op'>+</span> <span class='kw'>use1</span> <span class='op'>+</span> <span class='kw'>tx1</span> <span class='op'>+</span> <span class='kw'>use2</span> <span class='op'>+</span> <span class='kw'>tx2</span>),
+        data = <span class='kw'>iptwExWide</span>, 
+        weights = <span class='kw'>w</span>,
+        distance.list = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='op'>~</span><span class='kw'>ps1</span>, <span class='op'>~</span><span class='kw'>ps2</span>, <span class='op'>~</span><span class='kw'>ps3</span>),
+        addl.list = <span class='op'>~</span><span class='kw'>age</span><span class='op'>*</span><span class='kw'>gender</span>,
+        un = <span class='fl'>TRUE</span>)
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance summary across all time points</span><span>
 #&gt;                  Times     Type Max.Diff.Un Max.Diff.Adj
 #&gt; ps1                  1 Distance      0.7862       0.0251
 #&gt; use0           1, 2, 3  Contin.      0.2668       0.0558
@@ -349,15 +353,16 @@
 #&gt;  - </span><span style='font-style: italic;'>Time 3</span><span>
 #&gt;            Control Treated
 #&gt; Unadjusted  415.     585. 
-#&gt; Adjusted    235.67   366.4</div><div class='input'>
+#&gt; Adjusted    235.67   366.4</div><div class='input'>        
 <span class='co'># data frame interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>iptwExWide</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"use0"</span>, <span class='st'>"gender"</span>)],
-             <span class='no'>iptwExWide</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"use0"</span>, <span class='st'>"gender"</span>, <span class='st'>"use1"</span>, <span class='st'>"tx1"</span>)],
-             <span class='no'>iptwExWide</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"use0"</span>, <span class='st'>"gender"</span>, <span class='st'>"use1"</span>, <span class='st'>"tx1"</span>, <span class='st'>"use2"</span>, <span class='st'>"tx2"</span>)]),
-        <span class='kw'>treat.list</span> <span class='kw'>=</span> <span class='no'>iptwExWide</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"tx1"</span>, <span class='st'>"tx2"</span>, <span class='st'>"tx3"</span>)],
-        <span class='kw'>weights</span> <span class='kw'>=</span> <span class='no'>w</span>,
-        <span class='kw'>distance.list</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(~<span class='no'>ps1</span>, ~<span class='no'>ps2</span>, ~<span class='no'>ps3</span>),
-        <span class='kw'>un</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance summary across all time points</span><span>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>iptwExWide</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"use0"</span>, <span class='st'>"gender"</span>)],
+             <span class='kw'>iptwExWide</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"use0"</span>, <span class='st'>"gender"</span>, <span class='st'>"use1"</span>, <span class='st'>"tx1"</span>)],
+             <span class='kw'>iptwExWide</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"use0"</span>, <span class='st'>"gender"</span>, <span class='st'>"use1"</span>, <span class='st'>"tx1"</span>, <span class='st'>"use2"</span>, <span class='st'>"tx2"</span>)]),
+        treat.list = <span class='kw'>iptwExWide</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"tx1"</span>, <span class='st'>"tx2"</span>, <span class='st'>"tx3"</span>)], 
+        weights = <span class='kw'>w</span>,
+        distance.list = <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='op'>~</span><span class='kw'>ps1</span>, <span class='op'>~</span><span class='kw'>ps2</span>, <span class='op'>~</span><span class='kw'>ps3</span>),
+        un = <span class='fl'>TRUE</span>)
+</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance summary across all time points</span><span>
 #&gt;          Times     Type Max.Diff.Un Max.Diff.Adj
 #&gt; ps1          1 Distance      0.7862       0.0251
 #&gt; use0   1, 2, 3  Contin.      0.2668       0.0558
@@ -397,7 +402,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -153,7 +153,7 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for default</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -171,7 +171,7 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p><code>bal.tab.default()</code> processes its input and attempt to extract enough information from it to display covariate balance for <code>x</code>. The goal of this method was to allow users who have created their own objects containing conditioning information (i.e., weights, subclasses, treatments, covariates, etc.) to access the capabilities of <code><a href='bal.tab.html'>bal.tab()</a></code> without having a special method written for them. By including the correct items in <code>x</code>, <code>bal.tab.default</code> can present balance tables as if the input was the output of one of the specifically supported packages (e.g., <span class="pkg">MatchIt</span>, <span class="pkg">twang</span>, etc.).</p>
-<p>The function will search <code>x</code> for the following named items and attempt to process them:</p><dl'>
+<p>The function will search <code>x</code> for the following named items and attempt to process them:</p><dl>
 <dt><code>treat</code></dt><dd><p>A vector (<code>numeric</code>, <code>character</code>, <code>factor</code>) containing the values of the treatment for each unit or the name of the column in <code>data</code> containing them. Essentially the same input to <code>treat</code> in <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code>.</p></dd>
 <dt><code>treat.list</code></dt><dd><p>A list of vectors (<code>numeric</code>, <code>character</code>, <code>factor</code>) containing, for each time point, the values of the treatment for each unit or the name of the column in <code>data</code> containing them. Essentially the same input to <code>treat.list</code> in <code><a href='bal.tab.df.formula.list.html'>bal.tab.time.list</a></code>.</p></dd>
 <dt><code>covs</code></dt><dd><p>A <code>data.frame</code> containing the values of the covariates for each unit. Essentially the same input to <code>covs</code> in <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code>.</p></dd>
@@ -199,6 +199,9 @@
 <p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p>
 <p>If multi-category treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
 <p>If longitudinal treatments are used, an object of class <code>"bal.tab.msm"</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more details.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code> and <code>link{bal.tab.time.list}</code> for additional arguments to be supplied.
@@ -208,31 +211,32 @@
 <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for more information on multi-category treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)
-<span class='no'>covs</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='no'>lalonde</span>,  <span class='kw'>select</span> <span class='kw'>=</span> -<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>treat</span>, <span class='no'>re78</span>))
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
+<span class='kw'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='kw'>lalonde</span>,  select = <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>treat</span>, <span class='kw'>re78</span>))
 
 <span class='co'>##Writing a function the produces output for direct</span>
 <span class='co'>##use in bal.tab.default</span>
 
-<span class='no'>ate.weights</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>treat</span>, <span class='no'>covs</span>) {
-    <span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='no'>treat</span>, <span class='no'>covs</span>)
-    <span class='no'>formula</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/formula.html'>formula</a></span>(<span class='no'>data</span>)
-    <span class='no'>ps</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='no'>formula</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>data</span>,
-              <span class='kw'>family</span> <span class='kw'>=</span> <span class='st'>"binomial"</span>)$<span class='no'>fitted.values</span>
-    <span class='no'>weights</span> <span class='kw'>&lt;-</span> <span class='no'>treat</span>/<span class='no'>ps</span> + (<span class='fl'>1</span>-<span class='no'>treat</span>)/(<span class='fl'>1</span>-<span class='no'>ps</span>)
-    <span class='no'>call</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/match.call.html'>match.call</a></span>()
-    <span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>treat</span> <span class='kw'>=</span> <span class='no'>treat</span>,
-                <span class='kw'>covs</span> <span class='kw'>=</span> <span class='no'>covs</span>,
-                <span class='kw'>distance</span> <span class='kw'>=</span> <span class='no'>ps</span>,
-                <span class='kw'>weights</span> <span class='kw'>=</span> <span class='no'>weights</span>,
-                <span class='kw'>estimand</span> <span class='kw'>=</span> <span class='st'>"ATE"</span>,
-                <span class='kw'>call</span> <span class='kw'>=</span> <span class='no'>call</span>)
-    <span class='fu'><a href='https://rdrr.io/r/base/function.html'>return</a></span>(<span class='no'>out</span>)
+<span class='kw'>ate.weights</span> <span class='op'>&lt;-</span> <span class='fu'>function</span>(<span class='kw'>treat</span>, <span class='kw'>covs</span>) {
+    <span class='kw'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>treat</span>, <span class='kw'>covs</span>)
+    <span class='kw'>formula</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/formula.html'>formula</a></span>(<span class='kw'>data</span>)
+    <span class='kw'>ps</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='kw'>formula</span>, data = <span class='kw'>data</span>, 
+              family = <span class='st'>"binomial"</span>)<span class='op'>$</span><span class='kw'>fitted.values</span>
+    <span class='kw'>weights</span> <span class='op'>&lt;-</span> <span class='kw'>treat</span><span class='op'>/</span><span class='kw'>ps</span> <span class='op'>+</span> (<span class='fl'>1</span><span class='op'>-</span><span class='kw'>treat</span>)<span class='op'>/</span>(<span class='fl'>1</span><span class='op'>-</span><span class='kw'>ps</span>)
+    <span class='kw'>call</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/match.call.html'>match.call</a></span>()
+    <span class='kw'>out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(treat = <span class='kw'>treat</span>,
+                covs = <span class='kw'>covs</span>,
+                distance = <span class='kw'>ps</span>,
+                weights = <span class='kw'>weights</span>,
+                estimand = <span class='st'>"ATE"</span>,
+                call = <span class='kw'>call</span>)
+    <span class='fu'><a href='https://rdrr.io/r/base/function.html'>return</a></span>(<span class='kw'>out</span>)
 }
 
-<span class='no'>out</span> <span class='kw'>&lt;-</span> <span class='fu'>ate.weights</span>(<span class='no'>lalonde</span>$<span class='no'>treat</span>, <span class='no'>covs</span>)
+<span class='kw'>out</span> <span class='op'>&lt;-</span> <span class='fu'>ate.weights</span>(<span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>treat</span>, <span class='kw'>covs</span>)
 
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>out</span>, <span class='kw'>un</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>out</span>, un = <span class='fl'>TRUE</span>)
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
 #&gt;  ate.weights(treat = lalonde$treat, covs = covs)
 #&gt; 
 #&gt; </span><span style='text-decoration: underline;'>Balance Measures</span><span>
@@ -267,7 +271,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

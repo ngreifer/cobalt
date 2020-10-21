@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
       </span>
     </div>
 
@@ -152,49 +152,49 @@
     <p>Extracts weights from the outputs of preprocessing functions.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+    <pre class="usage"><span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for matchit</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for ps</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='kw'>stop.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>estimand</span>, <span class='kw'>s.weights</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, stop.method = <span class='kw'>NULL</span>, <span class='kw'>estimand</span>, s.weights = <span class='fl'>FALSE</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for mnps</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='kw'>stop.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>s.weights</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, stop.method = <span class='kw'>NULL</span>, s.weights = <span class='fl'>FALSE</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for iptw</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='kw'>stop.method</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>s.weights</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, stop.method = <span class='kw'>NULL</span>, s.weights = <span class='fl'>FALSE</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for Match</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for CBPS</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>estimand</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>estimand</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for ebalance</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>treat</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>treat</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for optmatch</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>estimand</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>estimand</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for cem.match</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>estimand</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>estimand</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for weightit</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='kw'>s.weights</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, s.weights = <span class='fl'>FALSE</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for mimids</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for wimids</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for designmatch</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>treat</span>, <span class='no'>estimand</span>, <span class='no'>...</span>)
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>treat</span>, <span class='kw'>estimand</span>, <span class='kw'>...</span>)
 
 <span class='co'># S3 method for sbwcau</span>
-<span class='fu'>get.w</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+<span class='fu'>get.w</span>(<span class='kw'>x</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -205,7 +205,7 @@
     </tr>
     <tr>
       <th>stop.method</th>
-      <td><p>the name of the stop method used in the original call to <code>ps()</code> or <code>mnps()</code> in <span class="pkg">twang</span>, e.g., <code>"es.mean"</code>. If empty, will return weights from all stop method available into a data.frame. Abbreviations allowed.</p></td>
+      <td><p>the name of the stop method used in the original call to <code><a href='https://rdrr.io/pkg/twang/man/ps.html'>ps()</a></code> or <code><a href='https://rdrr.io/pkg/twang/man/mnps.html'>mnps()</a></code> in <span class="pkg">twang</span>, e.g., <code>"es.mean"</code>. If empty, will return weights from all stop method available into a data.frame. Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>estimand</th>
@@ -229,32 +229,36 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The output of <code>get.w()</code> can be used in calls to the formula and data frame methods of <code><a href='bal.tab.html'>bal.tab</a></code> (see example below). In this way, the output of multiple preprocessing packages can be viewed simultaneously and compared. The weights can also be used in <code>weights</code> statements in regression methods to compute weighted effects.</p>
-<p><span class="pkg">twang</span> has a function called <code>get.weights()</code> that performs the same function on <code>ps</code> objects but offers slightly finer control. Note that the weights generated by <code>get.w()</code> for <code>ps</code> objects do not include sampling weights by default.</p>
-<p>When sampling weights are used with <code>CBPS()</code> in <span class="pkg">CBPS</span>, the returned weights will already have the sampling weights incorporated. To retrieve the balancing weights on their own, divide the returned weights by the original sampling weights. For other packages, the balancing weights are returned separately unless <code>s.weights = TRUE</code>, which means they must be multiplied by the sampling weights for effect estimation.</p>
-<p>When <code>Match()</code> in <span class="pkg">Matching</span> is used with <code>CommonSupport = TRUE</code>, the returned weights will be incorrect. This option is not recommended by the package authors.</p>
+<p><span class="pkg">twang</span> has a function called <code><a href='https://rdrr.io/pkg/twang/man/get.weights.html'>get.weights()</a></code> that performs the same function on <code>ps</code> objects but offers slightly finer control. Note that the weights generated by <code>get.w()</code> for <code>ps</code> objects do not include sampling weights by default.</p>
+<p>When sampling weights are used with <code><a href='https://rdrr.io/pkg/CBPS/man/CBPS.html'>CBPS()</a></code> in <span class="pkg">CBPS</span>, the returned weights will already have the sampling weights incorporated. To retrieve the balancing weights on their own, divide the returned weights by the original sampling weights. For other packages, the balancing weights are returned separately unless <code>s.weights = TRUE</code>, which means they must be multiplied by the sampling weights for effect estimation.</p>
+<p>When <code><a href='https://rdrr.io/pkg/Matching/man/Match.html'>Match()</a></code> in <span class="pkg">Matching</span> is used with <code>CommonSupport = TRUE</code>, the returned weights will be incorrect. This option is not recommended by the package authors.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A vector or data frame of weights for each unit. These may be matching weights or balancing weights.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/twang/man/get.weights.html'>get.weights</a></code> in <span class="pkg">twang</span>.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"cobalt"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='st'>"MatchIt"</span>); <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='st'>"WeightIt"</span>)
+    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='st'>"MatchIt"</span>); <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='st'><a href='https://ngreifer.github.io/WeightIt'>"WeightIt"</a></span>)
 
-<span class='no'>m.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>race</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>)
+<span class='kw'>m.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span>, data = <span class='kw'>lalonde</span>) 
 
-<span class='no'>w.out</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>race</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>,
-                  <span class='kw'>estimand</span> <span class='kw'>=</span> <span class='st'>"ATT"</span>)
+<span class='kw'>w.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span>, data = <span class='kw'>lalonde</span>,
+                  estimand = <span class='st'>"ATT"</span>)
 
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='no'>treat</span> ~ <span class='no'>age</span> + <span class='no'>educ</span> + <span class='no'>race</span>, <span class='kw'>data</span> <span class='kw'>=</span> <span class='no'>lalonde</span>,
-        <span class='kw'>weights</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>matched</span> <span class='kw'>=</span> <span class='fu'>get.w</span>(<span class='no'>m.out</span>),
-                             <span class='kw'>weighted</span> <span class='kw'>=</span> <span class='fu'>get.w</span>(<span class='no'>w.out</span>)),
-        <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"matching"</span>, <span class='st'>"weighting"</span>),
-        <span class='kw'>estimand</span> <span class='kw'>=</span> <span class='st'>"ATT"</span>)
-}</div></pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span>, data = <span class='kw'>lalonde</span>,
+        weights = <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(matched = <span class='fu'>get.w</span>(<span class='kw'>m.out</span>),
+                             weighted = <span class='fu'>get.w</span>(<span class='kw'>w.out</span>)),
+        method = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"matching"</span>, <span class='st'>"weighting"</span>), 
+        estimand = <span class='st'>"ATT"</span>)
+}
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -270,7 +274,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
