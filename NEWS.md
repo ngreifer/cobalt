@@ -4,6 +4,8 @@
 
 * Fixed a bug in `print.bal.tab()` when no units were unmatched but some were discarded.
 
+* Fixed an issue with the version number for `gridExtra` in `DESCRIPTION`. (#47)
+
 # cobalt 4.2.3
 
 * Fixed bugs in processing functions in formulas, including `rms` functions and `poly()`. (#40)
