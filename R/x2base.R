@@ -2177,6 +2177,7 @@ x2base.designmatch <- function(dm, ...) {
     #Process treat
     t.c <- use.tc.fd(A$formula, data, A$treat, A$covs)
     treat <- process_treat(t.c[["treat"]], datalist = list(data))
+    if (is.unsorted(treat)) warning("designmatch requires the input data to be sorted by treatment; the data supplied to bal.tab() was not, indicating a possible coding error.", call. = FALSE)
     
     #Process covs
     covs <- t.c[["covs"]]
