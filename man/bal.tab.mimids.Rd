@@ -121,7 +121,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{
+\examples{\dontshow{if (all(sapply(c("mice", "MatchThem"), requireNamespace, quietly = TRUE))) \{}
 library(mice)
 library(MatchThem)
 
@@ -136,20 +136,19 @@ mt.out1 <- matchthem(treat ~ age + educ + race +
                        data = imp, approach = "within")
 bal.tab(mt.out1)
 
-\dontrun{
 #Matching using across-imputation average propensity scores
 mt.out2 <- matchthem(treat ~ age + educ + race + 
                        married + nodegree + re74 + re75, 
                        data = imp, approach = "across")
+                       
 bal.tab(mt.out2)
-}
 
 #Weighting using within-imputation propensity scores
 wt.out <- weightthem(treat ~ age + educ + race + 
                        married + nodegree + re74 + re75, 
                        data = imp, approach = "within",
                        estimand = "ATT")
+                       
 bal.tab(wt.out)
-
-}
+\dontshow{\}}}
 \keyword{tables}

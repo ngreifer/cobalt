@@ -165,13 +165,15 @@ Noah Greifer
 \code{\link[base]{print}}, \code{\link{bal.tab}}
 \link[=options-display]{display options} for further information on some of these options.
 }
-\examples{
-data(lalonde)
-library(WeightIt)
+\examples{\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) \{}
+library(WeightIt); data("lalonde", package = "cobalt")
+
 w.out <- weightit(treat ~ age + educ + married + race + re74 + re75, 
                   data = lalonde)
+                  
 b <- bal.tab(w.out, stats = c("m", "v", "ks"), 
              un = TRUE, v.threshold = 2)
+             
 print(b, un = FALSE, stats = c("m", "v"),
       disp.thresholds = c(v = FALSE))
-}
+\dontshow{\}}}

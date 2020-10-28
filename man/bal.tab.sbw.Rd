@@ -103,7 +103,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{
+\examples{\dontshow{if (requireNamespace("sbw", quietly = TRUE)) \{}
 library(sbw); data("lalonde", package = "cobalt")
 
 ## Stable balancing weights for the ATT
@@ -116,7 +116,7 @@ sbw.out <- sbw(splitfactor(lalonde, drop.first = "if2"),
                           bal_alg = FALSE, 
                           bal_tol = .001),
                par = list(par_est = "att"))
+               
 bal.tab(sbw.out, un = TRUE, poly = 2)
-
-}
+\dontshow{\}}}
 \keyword{tables}

@@ -142,7 +142,7 @@ Noah Greifer
 \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multi-category treatments.
 \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more information on longitudinal treatments.
 }
-\examples{
+\examples{\dontshow{if (requireNamespace("CBPS", quietly = TRUE)) \{}
 library(CBPS)
 data("lalonde", package = "cobalt")
 
@@ -150,6 +150,7 @@ data("lalonde", package = "cobalt")
 ## propensity score weights
 cbps.out <- CBPS(treat ~ age + educ + married + race +
              nodegree + re74 + re75, data = lalonde)
+             
 bal.tab(cbps.out)
-}
+\dontshow{\}}}
 \keyword{tables}

@@ -108,12 +108,14 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{library(MatchIt); data("lalonde", package = "cobalt")
+\examples{\dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) \{}
+library(MatchIt); data("lalonde", package = "cobalt")
 
 ## Nearest Neighbor matching
 m.out1 <- matchit(treat ~ age + educ + race + 
                   married + nodegree + re74 + re75, 
                   data = lalonde, method = "nearest")
+                  
 bal.tab(m.out1, un = TRUE, m.threshold = .1, 
         v.threshold = 2)
 
@@ -121,6 +123,7 @@ bal.tab(m.out1, un = TRUE, m.threshold = .1,
 m.out2 <- matchit(treat ~ age + educ + race + 
                   married + nodegree + re74 + re75, 
                   data = lalonde, method = "subclass")
+                  
 bal.tab(m.out2, disp.subclass = TRUE)
-}
+\dontshow{\}}}
 \keyword{tables}

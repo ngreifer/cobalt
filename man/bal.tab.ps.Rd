@@ -181,15 +181,15 @@ Noah Greifer
 \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multi-category treatments.
 \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more information on longitudinal treatments.
 }
-\examples{
+\examples{\dontrun{takes too long
 library(twang); data("lalonde", package = "cobalt")
 
-\dontrun{
 ## Using ps() for generalized boosted modeling
 ps.out <- ps(treat ~ age + educ + married + race +
              nodegree + re74 + re75, data = lalonde, 
              stop.method = c("ks.mean", "es.mean"), 
              estimand = "ATT", verbose = FALSE)
+             
 bal.tab(ps.out, stop.method = "es.max", un = TRUE, 
         m.threshold = .1, disp.ks = TRUE)
 }

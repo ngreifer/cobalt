@@ -150,9 +150,9 @@ What Works Clearinghouse. (2020). WWC Procedures Handbook (Version 4.1). Retriev
 \seealso{
 \code{\link{bal.tab}}
 }
-\examples{
-data("lalonde", package = "cobalt")
-library(WeightIt)
+\examples{\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) \{}
+library(WeightIt); data("lalonde", package = "cobalt")
+
 treat <- lalonde$treat
 covs <- subset(lalonde, select = -c(treat, re78))
 covs <- splitfactor(covs, drop.first = "if2")
@@ -182,6 +182,5 @@ round(data.frame(
 bal.tab(covs, treat, weights = weights, disp.means = TRUE,
         disp.sds = TRUE, disp.v.ratio = TRUE, disp.ks = TRUE, 
         estimand = "ATE", method = "weighting", binary = "std")
-         
-}
+\dontshow{\}}}
 \keyword{support functions}

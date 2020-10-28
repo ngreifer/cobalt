@@ -133,23 +133,23 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{
+\examples{\dontshow{if (all(sapply(c("WeightIt", "twang"), requireNamespace, quietly = TRUE))) \{}
 library(WeightIt)
 data("lalonde", package = "cobalt")
 
 ## Basic propensity score weighting
 w.out1 <- weightit(treat ~ age + educ + race + 
-                  married + nodegree + re74 + re75, 
-                  data = lalonde, method = "ps")
+                     married + nodegree + re74 + re75, 
+                   data = lalonde, method = "ps")
 bal.tab(w.out1, un = TRUE, m.threshold = .1, 
         v.threshold = 2)
 
-## Entropy balancing for the ATE
-w.out2 <- weightit(treat ~ age + educ + race + 
-                  married + nodegree + re74 + re75, 
-                  data = lalonde, method = "entropy",
-                  estimand = "ATE")
-bal.tab(w.out2)
+## Weighting with a multi-category treatment
+w.out2 <- weightit(race ~ age + educ + married + 
+                     nodegree + re74 + re75, 
+                   data = lalonde, method = "ps",
+                   estimand = "ATE", use.mlogit = FALSE)
+bal.tab(w.out2, un = TRUE)
 
 ## IPW for longitudinal treatments
 data("iptwExWide", package = "twang")
@@ -159,5 +159,5 @@ wmsm.out <- weightitMSM(list(tx1 ~ use0 + gender,
                         data = iptwExWide,
                         stabilize = TRUE)
 bal.tab(wmsm.out)
-}
+\dontshow{\}}}
 \keyword{tables}

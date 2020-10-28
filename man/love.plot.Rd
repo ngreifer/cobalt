@@ -72,16 +72,16 @@ when mean differences are to be displayed, which variable names should have a st
 \code{numeric}; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of \code{stats} that is to have limits; e.g., \code{list(m = c(-.2, .2))}. If values exceed the limits, they will be plotted at the edge.
 }
   \item{colors}{
-the colors of the points on the plot. See 'Color Specification' at \code{\link[graphics]{par}} or the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill}{aesthetic specifications} page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.
+the colors of the points on the plot. See 'Color Specification' at \pkgfun{graphics}{par} or the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill}{aesthetic specifications} page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.
 }
   \item{shapes}{
 the shapes of the points on the plot. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point}{aesthetic specifications} page for valid options. Values 15 to 25 are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 19 (\code{"circle filled"}).
 }
   \item{alpha}{
-\code{numeric}; the transparency of the points. See \code{\link[ggplot2]{scale_alpha}}.
+\code{numeric}; the transparency of the points. See \pkgfun{ggplot2}{scale_alpha}.
 }
   \item{size}{
-\code{numeric}; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now \code{size} corresponds directly to the \code{size} aesthetic in \code{\link[ggplot2]{geom_point}}.
+\code{numeric}; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now \code{size} corresponds directly to the \code{size} aesthetic in \pkgfun{ggplot2}{geom_point}.
 }
   \item{wrap}{
 \code{numeric}; the number of characters at which to wrap axis labels to the next line. Defaults to 30. Decrease this if the axis labels are excessively long.
@@ -99,15 +99,15 @@ an optional object providing alternate names for the variables in the plot, whic
 \code{logical} or \code{character}; labels to give the plots when multiple \code{stats} are requested. If \code{TRUE}, the labels will be capital letters. Otherwise, must be a string with the same length as \code{stats}. This can be useful when the plots are to be used in an article.
 }
   \item{position}{
-the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2]{theme}}. When \code{stat} has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".
+the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in \pkgfun{ggplot2}{theme}. When \code{stat} has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".
 }
   \item{themes}{
-an optional list of \code{theme} objects to append to each individual plot. Each entry should be the output of a call to \code{\link[ggplot2]{theme}} in \pkg{ggplot2}. This is a way to customize the individual plots when multiple \code{stats} are requested since the final output is not a manipulable \code{ggplot} object. It can be used with length-1 \code{stats}, but it probably makes more sense to just add the \code{theme()} call after \code{love.plot()}.
+an optional list of \code{theme} objects to append to each individual plot. Each entry should be the output of a call to \pkgfun{ggplot2}{theme} in \pkg{ggplot2}. This is a way to customize the individual plots when multiple \code{stats} are requested since the final output is not a manipulable \code{ggplot} object. It can be used with length-1 \code{stats}, but it probably makes more sense to just add the \code{theme()} call after \code{love.plot()}.
 }
   \item{...}{
 additional arguments passed to \code{bal.tab()} or options for display of the plot. The following related arguments are currently accepted:
 \describe{
-  \item{\code{use.grid}}{whether to use \code{\link[gridExtra]{arrangeGrob}} in \code{gridExtra} to make the plot when \code{stats} has length 1. See section Value.}
+  \item{\code{use.grid}}{whether to use \pkgfun{gridExtra}{arrangeGrob} in \code{gridExtra} to make the plot when \code{stats} has length 1. See section Value.}
   \item{\code{disp.subclass}}{whether to display individual subclasses if subclassification is used. Overrides the \code{disp.subclass} option in the original \code{bal.tab()} call if \code{x} is a \code{bal.tab} object.}
   \item{\code{star_char}}{\code{character}; when \code{stars} are used, the character that should be the "star" next to the starred variables. The default is \code{"*"}. \code{"†"} or \code{"\u2020"} (i.e., dagger) might be appealing as well.}
   }
@@ -146,7 +146,7 @@ The default is to display standardized mean differences for continuous variables
 \value{
 When only one type of balance statistic is requested, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot} provides automatically. 
 
-When more than one type of balance statistic is requested, the plot is constructed using \code{\link[gridExtra]{arrangeGrob}} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
+When more than one type of balance statistic is requested, the plot is constructed using \pkgfun{gridExtra}{arrangeGrob} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
 }
 \note{
 \code{love.plot} can also be called by using \code{plot} or \code{autoplot} on a \code{bal.tab} object. If used in this way, some messages may appear twice. It is recommended that you just use \code{love.plot} instead.
@@ -159,15 +159,15 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}}
 }
-\examples{
-library(MatchIt); data("lalonde", package = "cobalt")
+\examples{\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) \{}
+library(WeightIt); data("lalonde", package = "cobalt")
 
-## Nearest Neighbor matching
-m.out1 <- matchit(treat ~ age + educ + race + 
+## Propensity score weighting
+w.out1 <- weightit(treat ~ age + educ + race + 
                   married + nodegree + re74 + re75, 
                   data = lalonde)
 
-love.plot(m.out1, thresholds = c(m = .1), var.order = "unadjusted")
+love.plot(w.out1, thresholds = c(m = .1), var.order = "unadjusted")
 
 ## Using alternate variable names
 v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
@@ -178,22 +178,21 @@ v <- data.frame(old = c("age", "educ", "race_black", "race_hispan",
                         "Earnings 1974", "Earnings 1975", 
                         "Propensity Score"))
                 
-love.plot(m.out1, stats = "m", threshold = .1, 
+love.plot(w.out1, stats = "m", threshold = .1, 
           var.order = "unadjusted", var.names = v)
           
 #Using multiple stats
-love.plot(m.out1, stats = c("m", "ks"), 
+love.plot(w.out1, stats = c("m", "ks"), 
           thresholds = c(m = .1, ks = .05), 
           var.order = "unadjusted", var.names = v, stars = "raw",
           position = "bottom", wrap = 20)
           
 #Changing visual elements
-love.plot(m.out1, thresholds = c(m = .1), 
+love.plot(w.out1, thresholds = c(m = .1), 
           var.order = "unadjusted", var.names = v, abs = TRUE,
           shapes = c("triangle filled", "circle"), 
           colors = c("red", "blue"), line = TRUE,
-          grid = FALSE, sample.names = c("Unmatched", "Matched"),
+          grid = FALSE, sample.names = c("Original", "Weighted"),
           stars = "raw", position = "top")
-
-}
+\dontshow{\}}}
 \keyword{plots}

@@ -161,9 +161,8 @@ Noah Greifer
 \examples{
 data("lalonde", package = "cobalt")
 lalonde$p.score <- glm(treat ~ age + educ + race, data = lalonde, 
-            family = "binomial")$fitted.values
-covariates <- subset(lalonde, 
-                     select = c(age, educ, race))
+                       family = "binomial")$fitted.values
+covariates <- subset(lalonde, select = c(age, educ, race))
                      
 ## Propensity score weighting using IPTW
 lalonde$iptw.weights <- ifelse(lalonde$treat==1, 
@@ -172,13 +171,11 @@ lalonde$iptw.weights <- ifelse(lalonde$treat==1,
 
 # data frame interface:
 bal.tab(covariates, treat = "treat", data = lalonde, 
-      weights = "iptw.weights", method = "weighting", 
-      s.d.denom = "pooled")
+        weights = "iptw.weights", s.d.denom = "pooled")
 
 # Formula interface:
 bal.tab(treat ~ age + educ + race, data = lalonde, 
-      weights = "iptw.weights", method = "weighting", 
-      s.d.denom = "pooled")
+        weights = "iptw.weights", s.d.denom = "pooled")
       
 ## Propensity score subclassification
 lalonde$subclass <- findInterval(lalonde$p.score, 
@@ -187,12 +184,12 @@ lalonde$subclass <- findInterval(lalonde$p.score,
 
 # data frame interface:
 bal.tab(covariates, treat = "treat", data = lalonde, 
-      subclass = "subclass", method = "subclassification", 
-      disp.subclass = TRUE, s.d.denom = "pooled")
+        subclass = "subclass", disp.subclass = TRUE, 
+        s.d.denom = "pooled")
 
 # Formula interface:
 bal.tab(treat ~ age + educ + race, data = lalonde, 
-      subclass = "subclass", method = "subclassification", 
-      disp.subclass = TRUE, s.d.denom = "pooled")
+      subclass = "subclass", disp.subclass = TRUE, 
+      s.d.denom = "pooled")
 }
 \keyword{tables}

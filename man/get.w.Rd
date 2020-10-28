@@ -94,10 +94,9 @@ Noah Greifer
 }
 
 \seealso{
-\code{\link[twang]{get.weights}} in \pkg{twang}.
+\pkgfun{twang}{get.weights} in \pkg{twang}.
 }
-\examples{
-\dontrun{
+\examples{\dontshow{if (all(sapply(c("WeightIt", "MatchIt"), requireNamespace, quietly = TRUE))) \{}
 data("lalonde", package = "cobalt")
 library("MatchIt"); library("WeightIt")
 
@@ -111,6 +110,5 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
                              weighted = get.w(w.out)),
         method = c("matching", "weighting"), 
         estimand = "ATT")
-}
-}
+\dontshow{\}}}
 \keyword{support functions}

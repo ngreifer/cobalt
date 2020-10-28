@@ -37,7 +37,7 @@ the object for which balance is to be assessed; can be any object for which ther
 \code{character}; the name of the variable whose values are to be plotted. To view distributions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate \code{data.frame} from \code{obj}, followed by \code{addl}, and then \code{distance}, if any. If not specified, will use the first covariate available with a warning.
 }
   \item{\dots}{
-other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments. Can also be used to supply the \code{bw}, \code{adjust}, \code{kernel}, and \code{n} arguments for \code{\link[ggplot2]{geom_density}} and the \code{bins} argument for \code{\link[ggplot2]{geom_histogram}}.
+other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments. Can also be used to supply the \code{bw}, \code{adjust}, \code{kernel}, and \code{n} arguments for \pkgfun{ggplot2}{geom_density} and the \code{bins} argument for \pkgfun{ggplot2}{geom_histogram}.
 }
   \item{which}{
 whether to display distributional balance for the adjusted (\code{"adjusted"}) or unadjusted sample (\code{"unadjusted"}) or both at the same time (\code{"both"}). When multiple weights are present, the names of the weights can be supplied, too. The default is to display balance for the adjusted sample only unless no weights, subclasses, or matching strata are specified. Multiple values and abbreviations allowed.
@@ -70,7 +70,7 @@ for longitudinal treatments, which time points to display. Can be treatment name
 \code{character}; for binary and multi-category treatments with a continuous covariate, whether to display densities (\code{"density"}), histograms  (\code{"histogram"}), or empirical cumulative density function plots (\code{"ecdf"}). The default is to display densities. Abbreviations are allowed.
 }
   \item{colors}{
-a vector of colors for the plotted densities/histograms. See 'Color Specification' at \code{\link[graphics]{par}}. Defaults to the default \pkg{ggplot2} colors.
+a vector of colors for the plotted densities/histograms. See 'Color Specification' at \pkgfun{graphics}{par}. Defaults to the default \pkg{ggplot2} colors.
 }
   \item{grid}{
 \code{logical}; whether gridlines should be shown on the plot. Default is \code{TRUE}.
@@ -79,10 +79,10 @@ a vector of colors for the plotted densities/histograms. See 'Color Specificatio
 \code{character}; new names to be given to the samples (i.e., in place of "Unadjusted Sample" and "Adjusted Sample"). For example, when matching it used, it may be useful to enter \code{c("Unmatched", "Matched")}.
 }
   \item{position}{
-the position of the legend. This can be any value that would be appropriate as an argument to \code{legend.position} in \code{\link[ggplot2]{theme}}.
+the position of the legend. This can be any value that would be appropriate as an argument to \code{legend.position} in \pkgfun{ggplot2}{theme}.
 }
   \item{facet.formula}{
-a \code{formula} designating which facets should be on the rows and columns. This should be of the "historical" formula interface to \code{\link[ggplot2]{facet_grid}}. If of the form \code{a ~ b}, \code{a} will be faceted on the rows and \code{b} on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form \code{a ~ .} (i.e., with only \code{.} on the right-hand side). The allowable facets depend on which arguments have been supplied to \code{bal.plot}; possible values include \code{which}, \code{cluster}, \code{imp}, and (for longitudinal treatments) \code{time}. If \code{NULL}, \code{bal.plot} will decide what looks best; this argument exists in case you disagree with its choice.
+a \code{formula} designating which facets should be on the rows and columns. This should be of the "historical" formula interface to \pkgfun{ggplot2}{facet_grid}. If of the form \code{a ~ b}, \code{a} will be faceted on the rows and \code{b} on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form \code{a ~ .} (i.e., with only \code{.} on the right-hand side). The allowable facets depend on which arguments have been supplied to \code{bal.plot}; possible values include \code{which}, \code{cluster}, \code{imp}, and (for longitudinal treatments) \code{time}. If \code{NULL}, \code{bal.plot} will decide what looks best; this argument exists in case you disagree with its choice.
 }
   \item{disp.means}{
 \code{logical}; for a categorical treatment with a continuous covariate, whether a line should be drawn for each treatment level denoting the (weighted) mean of the covariate. Ignored if \code{type} is not "density" or "histogram". Default is \code{FALSE}.
@@ -123,13 +123,13 @@ a \code{formula} designating which facets should be on the rows and columns. Thi
 }
 }
 \details{
-\code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \code{\link[ggplot2]{geom_density}}, histograms are created using \code{\link[ggplot2]{geom_histogram}}, and empirical CDF plots are created using \code{\link[ggplot2:geom_path]{geom_step}}; for categorical treatments with categorical covariates, bar graphs are created using \code{\link[ggplot2]{geom_bar}}; for continuous treatments with continuous covariates, scatterplots are created using \code{\link[ggplot2]{geom_point}}.
+\code{bal.plot()} uses \code{ggplot()} from the \pkg{ggplot2} package, and (invisibly) returns a \code{"ggplot"} object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using \pkgfun{ggplot2}{geom_density}, histograms are created using \pkgfun{ggplot2}{geom_histogram}, and empirical CDF plots are created using \pkgfun2{ggplot2}{geom_path}{geom_step}; for categorical treatments with categorical covariates, bar graphs are created using \pkgfun{ggplot2}{geom_bar}; for continuous treatments with continuous covariates, scatterplots are created using \pkgfun{ggplot2}{geom_point}.
 
-For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smoothing curve generated with \pkg{ggplot2}'s \code{\link[ggplot2]{geom_smooth}} with \code{method = "auto"}. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.
+For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smoothing curve generated with \pkg{ggplot2}'s \pkgfun{ggplot2}{geom_smooth} with \code{method = "auto"}. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.
 
-When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or \code{which = "both"}, or when treatment is longitudinal), the plots will be displayed in a grid using \pkg{ggplot2}'s \code{\link[ggplot2]{facet_grid}}. Subclassification cannot be used with clusters or multiply imputed data.
+When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or \code{which = "both"}, or when treatment is longitudinal), the plots will be displayed in a grid using \pkg{ggplot2}'s \pkgfun{ggplot2}{facet_grid}. Subclassification cannot be used with clusters or multiply imputed data.
 
-To change the plot and axis titles, use \code{\link[ggplot2]{labs}}. Because the output is a \code{ggplot} object, other elements can be changed using \pkg{ggplot2} functions; see \href{https://stackoverflow.com/questions/61255335/change-legend-generated-by-bal-plot}{here} for an example.
+To change the plot and axis titles, use \pkgfun{ggplot2}{labs}. Because the output is a \code{ggplot} object, other elements can be changed using \pkg{ggplot2} functions; see \href{https://stackoverflow.com/questions/61255335/change-legend-generated-by-bal-plot}{here} for an example.
 }
 \value{
 A \code{"ggplot"} object, returned invisibly.
@@ -143,7 +143,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}}
 }
-\examples{
+\examples{\dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) \{}
 data("lalonde", package = "cobalt")
 
 #Nearest Neighbor Matching
@@ -157,7 +157,7 @@ bal.plot(m.out, "re74", which = "both", type = "ecdf")
 bal.plot(m.out, "race", which = "both")
 bal.plot(m.out, "distance", which = "both", mirror = TRUE,
          type = "histogram", colors = c("white", "black"))
-         
+\dontshow{\}; if (requireNamespace("WeightIt", quietly = TRUE)) \{}
 #PS weighting with a continuous treatment
 library(WeightIt)
 w.out <- weightit(re75 ~ age + I(age^2) + educ + 
@@ -166,6 +166,5 @@ w.out <- weightit(re75 ~ age + I(age^2) + educ +
                   
 bal.plot(w.out, "age", which = "both")
 bal.plot(w.out, "married", which = "both")
-
-}
+\dontshow{\}}}
 \keyword{plots}

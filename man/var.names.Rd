@@ -55,7 +55,6 @@ var.names(b2, file = "varnames.csv")
 v2 <- read.csv("varnames.csv")
 love.plot(b2, var.names = v2)
 }
-
 }
 
 \keyword{support functions}

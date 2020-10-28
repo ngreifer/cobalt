@@ -110,7 +110,7 @@ For \code{bal.tab.formula.list}, other arguments to be passed to \code{bal.tab.d
 }
 }
 \details{
-\code{bal.tab.formula.list()} and \code{bal.tab.data.frame.list()} generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the \code{\link[WeightIt]{weightitMSM}} documentation for an example of how to transform long data into wide data using \code{\link{reshape}}. 
+\code{bal.tab.formula.list()} and \code{bal.tab.data.frame.list()} generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the \pkgfun{WeightIt}{weightitMSM} documentation for an example of how to transform long data into wide data using \code{\link{reshape}}. 
 
 All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
@@ -136,7 +136,7 @@ Noah Greifer
 \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for output and related options.
 
 }
-\examples{
+\examples{\dontshow{if (requireNamespace("twang", quietly = TRUE)) \{}
 data("iptwExWide", package = "twang")
 library("cobalt")
 
@@ -174,5 +174,5 @@ bal.tab(list(iptwExWide[c("use0", "gender")],
         weights = w,
         distance.list = list(~ps1, ~ps2, ~ps3),
         un = TRUE)
-}
+\dontshow{\}}}
 \keyword{tables}
