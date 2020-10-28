@@ -11,9 +11,8 @@ vignette: >
 ---
 ```{r, include = FALSE}
   knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.width = 5)
-#knitr::opts_chunk$set(eval = FALSE)
+  if (any(!sapply(c("MatchIt", "MatchThem", "mice"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
 ```
-
 This is a guide for the use of `cobalt` with more complicated data than is typical in studies using propensity scores and similar methods. In particular, this guide will explain `cobalt`'s features for handling multilevel or grouped data and data arising from multiple imputation. The features described here set `cobalt` apart from other packages that assess balance because they exist only in `cobalt`. It will be assumed that the basic functions of `cobalt` are understood; this guide will only address issues that are unique to these data scenarios.
 
 ## `cobalt` and Segmented Data

@@ -16,6 +16,7 @@ editor_options:
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE, fig.width=6, fig.height = 4)
+if (any(!sapply(c("WeightIt", "CBPS"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
 ```
 
 This is a guide on how to use `love.plot()` to its fullest potential, taking advantage of all of its many options and features. Other vignettes have described the basics of `love.plot()`, but this guide goes more in depth. See the help file for `love.plot()` with `?love.plot` for the full documentation.

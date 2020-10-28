@@ -15,13 +15,14 @@ editor_options:
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE)
+if (any(!sapply(c("WeightIt", "MatchIt"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
 ```
 
 This is an introductory guide for the use of `cobalt` in most common scenarios. Three appendices are available for its use with more complicated data scenarios and packages not demonstrated here.^[If none of the examples are working, this may be because `MatchIt`, `twang`, or `WeightIt` are missing. Such issues should be fixed soon.]
 
 ## Introduction
 
-Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader’s knowledge of the causal assumption of strong ignorability is assumed.
+Preprocessing data through matching, weighting, or subclassification can be an effective way to reduce model dependence and improve efficiency when estimating the causal effect of a treatment (Ho, Imai, King, & Stuart, 2007). Propensity scores and other related methods (e.g., coarsened exact matching, Mahalanobis distance matching, genetic matching) have become popular in the social and health sciences as tools for this purpose. Two excellent introductions to propensity scores and other preprocessing methods are Stuart (2010) and Austin (2011), which describe them simply and clearly and point to other sources of knowledge. The logic and theory behind preprocessing will not be discussed here, and reader's knowledge of the causal assumption of strong ignorability is assumed.
 
 Several packages in R exist to perform preprocessing and causal effect estimation, and some were reviewed by Keller & Tipton (2016). Of primary note are `MatchIt` (Ho, Imai, King, & Stuart, 2011), `twang` (Ridgeway, McCaffrey, Morral, Burgette, & Griffin, 2020), `Matching` (Sekhon, 2011), `optmatch` (Hansen & Klopfer, 2006), `CBPS` (Fong, Ratkovic, Hazlett, Yang, & Imai, 2019), `ebal` (Hainmueller, 2014), `sbw` (Zubizarreta & Li, 2019), `designmatch` (Zubizarreta, Kilcioglu, & Vielma, 2018), `WeightIt` (Greifer, 2020), `MatchThem` (Pishgar & Greifer, 2020), and `cem` (Iacus, King, & Porro, 2018); these together provide a near complete set of preprocessing tools in R to date.
 
