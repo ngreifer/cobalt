@@ -157,10 +157,15 @@ text_box_plot <- function(range.list, width = 12) {
     return(d)
 }
 equivalent.factors <- function(f1, f2) {
-    nu1 <- nunique(f1)
-    nu2 <- nunique(f2)
-    if (nu1 == nu2) {
-        return(nu1 == nunique(paste.(f1, f2)))
+    if (is_(f1, c("character", "factor")) && is_(f1, c("character", "factor"))) {
+        nu1 <- nunique(f1)
+        nu2 <- nunique(f2)
+        if (nu1 == nu2) {
+            return(nu1 == nunique(paste.(f1, f2)))
+        }
+        else {
+            return(FALSE)
+        }
     }
     else {
         return(FALSE)
