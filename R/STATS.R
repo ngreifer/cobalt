@@ -101,7 +101,7 @@ STATS[["mean.diffs"]] <- {list(
                   std = std, s.d.denom = s.d.denom,
                   abs = abs, s.weights = s.weights, bin.vars = bin.vars,
                   weighted.weights = weighted.weights,
-                  subset = NULL)
+                  subset = subset)
     }
 )}
 
@@ -134,7 +134,7 @@ STATS[["variance.ratios"]] <- {list(
             vrs[!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat = treat, 
                                        weights = weights, abs = abs, 
                                        s.weights = s.weights, bin.vars = bin.vars[!bin.vars],
-                                       subset = NULL)
+                                       subset = subset)
         }
         vrs
     }
@@ -165,7 +165,7 @@ STATS[["ks.statistics"]] <- {list(
     fun = function(C, treat, weights, s.weights, bin.vars, subset = NULL, ...) {
         A <- list(...)
         do.call("col_w_ks", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
-                                   subset = NULL), A))
+                                   subset = subset), A))
     }
 )}
 
@@ -194,7 +194,7 @@ STATS[["ovl.coefficients"]] <- {list(
     fun = function(C, treat, weights, s.weights, bin.vars, integrate = FALSE, subset = NULL, ...) {
         A <- list(...)
         do.call("col_w_ovl", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
-                                    subset = NULL, integrate = integrate), A))
+                                    subset = subset, integrate = integrate), A))
     }
 )}
 
@@ -229,7 +229,7 @@ STATS[["correlations"]] <- {list(
                   std = std, type = "pearson",
                   s.d.denom = s.d.denom,
                   bin.vars = bin.vars, weighted.weights = weighted.weights, na.rm = TRUE,
-                  subset = NULL)
+                  subset = subset)
     }
 )}
 
@@ -264,7 +264,7 @@ STATS[["spearman.correlations"]] <- {list(
                   std = std, type = "spearman",
                   s.d.denom = s.d.denom,
                   bin.vars = bin.vars, weighted.weights = weighted.weights, na.rm = TRUE,
-                  subset = NULL)
+                  subset = subset)
     }
 )}
 

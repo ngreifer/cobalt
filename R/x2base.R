@@ -8,15 +8,14 @@ x2base.matchit <- function(m, ...) {
     #Process matchit
     
     #Process data and get imp
-    m.data <- if (NROW(m$model$data) != length(m$weights)) NULL else m$model$data
+    m.data <- if (NROW(m$model$data) != length(m$treat)) NULL else m$model$data
     imp <- A$imp
     if (is_not_null(data <- A$data)) {
         if (is_(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
-        {
+        else if (!is_(data, "data.frame")) {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
         }
@@ -92,11 +91,11 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Get method
-    if (any(class(m) == "matchit.subclass")) {
-        method <- "subclassification"
-    }
-    else if (any(class(m) == "matchit.full")) {
-        method <- "weighting"
+    if (inherits(m, "matchit.subclass")) {
+        if (is_not_null(method <- A$method) && rlang::is_string(method)) {
+            method <- match_arg(method, c("weighting", "subclassification"))
+        }
+        else method <- "subclassification"
     }
     else {
         method <- "matching"
@@ -116,8 +115,8 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Process subclass
-    if ("matchit.subclass" %in% class(m)) {
-        subclass <- factor(m$subclass)
+    if (method == "subclassification") {
+        subclass <- as.factor(m$subclass)
     }
     else subclass <- NULL
     
@@ -127,12 +126,20 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Process weights
-    weights <- process_weights(m, A, treat, covs, method, addl.data = list(data, m.data))
-    method <- attr(weights, "method")
+    if (is_not_null(m$weights) && !all_the_same(m$weights)) {
+        weights <- process_weights(m, A, treat, covs, method, addl.data = list(data, m.data))
+        method <- attr(weights, "method")
+    }
+    else weights <- NULL
     
     #Process s.weights
-    if (is_not_null(s.weights <- A$s.weights)) {
-        stop("Sampling weights are not allowed with matchit objects.", call. = FALSE)
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, m$s.weights))) {
+        s.weights <- vector.process(s.weights, 
+                                    datalist = list(data, m.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
