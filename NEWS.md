@@ -1,10 +1,16 @@
 `cobalt` News and Updates
 ======
-# cobalt (development version)
+# cobalt 4.2.4
+
+* Sampling weights now function correctly with subclassification.
 
 * Fixed a bug in `print.bal.tab()` when no units were unmatched but some were discarded.
 
 * Fixed an issue with the version number for `gridExtra` in `DESCRIPTION`. (#47)
+
+* `cem` removed from Suggests because it has been removed from CRAN.
+
+* Updated to support `MatchIt` 4.0.0, which includes sampling weights and improved processing of the covariates.
 
 # cobalt 4.2.3
 

@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.2.3.9000
+Version: 4.2.4
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -23,7 +23,6 @@ Suggests:
     twang (>= 1.6),
     Matching,
     optmatch,
-    cem,
     ebal,
     CBPS (>= 0.17),
     designmatch,
