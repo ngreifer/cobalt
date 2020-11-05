@@ -22,7 +22,7 @@ bal.tab <- function(x, ...) {
 }
 
 #Point treatments
-bal.tab.matchit <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
+bal.tab.matchit <- function(x, method, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE, ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
