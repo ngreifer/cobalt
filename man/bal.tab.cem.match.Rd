@@ -51,10 +51,10 @@ an optional formula or data frame containing distance values (e.g., propensity s
 an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look in the arguments to \code{covs} and \code{data}, if specified.
 }
   \item{continuous}{
-whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}}.
+whether mean differences for continuous variables should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"std"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}}.
 }
   \item{binary}{
-whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}}.
+whether mean differences for binary variables (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}}.
 }
   \item{s.d.denom}{
 \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. The default is "treated", where the treated group corresponds to the \code{baseline.group} in the call to \code{cem}. Abbreviations allowed.
@@ -110,7 +110,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{\dontshow{if (requireNamespace("cem", quietly = TRUE)) \{}
+\examples{\dontrun{
 library(cem); data("lalonde", package = "cobalt")
 
 ## Coarsened exact matching
@@ -118,5 +118,5 @@ cem.out <- cem("treat", data = lalonde, drop = "re78")
 
 bal.tab(cem.out, data = lalonde, un = TRUE, 
         stats = c("m", "k"))
-\dontshow{\}}}
+}}
 \keyword{tables}
