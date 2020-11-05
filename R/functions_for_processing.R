@@ -180,9 +180,9 @@ weight.check <- function(w) {
   wname <- deparse1(substitute(w))
   if (!is.list(w)) w <- list(w)
   if (anyNA(w, recursive = TRUE)) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
-  if (any(vapply(w, function(x) any(!is.numeric(x)), logical(1L)))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)
-  if (any(vapply(w, function(x) any(!is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
-  if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found."), call. = FALSE)
+  if (any(vapply(w, function(x) !all(is.numeric(x)), logical(1L)))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)
+  if (any(vapply(w, function(x) !all(is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
+  if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found. This may yield nonsensical results and errors as the square root of negative weights is encountered."), call. = FALSE)
 }
 strata2weights <- function(strata, treat, estimand = NULL) {
   #Process strata into weights (similar to weight.subclass from MatchIt)
@@ -1664,15 +1664,15 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
     test.cluster <- is_not_null(cluster) && !all_the_same(cluster, na.rm = FALSE)
     drop_vars <- vapply(seq_len(ncol(C)), 
                         function(i) {
-                          if (all_the_same(C[,i], na.rm = FALSE)) return(TRUE)
-                          else if (anyNA(C[,i])) return(FALSE)
+                          # if (all_the_same(C[,i], na.rm = FALSE)) return(TRUE)
+                          # else 
+                            if (anyNA(C[,i])) return(FALSE)
                           else if (test.treat && equivalent.factors2(C[,i], treat)) return(TRUE)
                           else if (test.cluster && equivalent.factors2(C[,i], cluster)) return(TRUE)
                           else return(FALSE)
                         }, logical(1L))
     
     if (all(drop_vars)) stop("There are no variables for which to display balance.", call. = FALSE)
-    
     C <- C[,!drop_vars, drop = FALSE]
     co.names[drop_vars] <- NULL
   }
@@ -2084,16 +2084,14 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
       
       if (un || !quick) {
         for (t in c("0", "1")) {
-          B[[paste.("M", t, "Un")]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = NULL,
-                                                  s.weights = s.weights[treat==tn01[t]])
+          B[[paste.("M", t, "Un")]] <- col_w_mean(C, weights = NULL, s.weights = s.weights, subset = treat == tn01[t])
         }
       }
       
       if (!no.adj && (!quick || "means" %in% disp)) {
         for (i in weight.names) {
           for (t in c("0", "1")) {
-            B[[paste.("M", t, i)]] <- col_w_mean(C[treat == tn01[t], , drop = FALSE], weights = weights[[i]][treat==tn01[t]],
-                                                 s.weights = s.weights[treat==tn01[t]])
+            B[[paste.("M", t, i)]] <- col_w_mean(C, weights = weights[[i]], s.weights = s.weights, subset = treat == tn01[t])
           }
         }
       }
@@ -2121,9 +2119,8 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
         for (t in c("0", "1")) {
           sds <- rep(NA_real_, NCOL(C))
           if (any(sd.computable)) {
-            sds[sd.computable] <- col_w_sd(C[treat == tn01[t], sd.computable, drop = FALSE],
-                                           weights = NULL, s.weights = s.weights[treat==tn01[t]],
-                                           bin.vars = bin.vars[sd.computable])
+            sds[sd.computable] <- col_w_sd(C[, sd.computable,drop = FALSE], weights = NULL, s.weights = s.weights,
+                                           bin.vars = bin.vars[sd.computable], subset = treat == tn01[t])
           }
           B[[paste.("SD", t, "Un")]] <- sds
         }
@@ -2134,9 +2131,8 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
           for (t in c("0", "1")) {
             sds <- rep(NA_real_, NCOL(C))
             if (any(sd.computable)) {
-              sds[sd.computable] <- col_w_sd(C[treat == tn01[t], sd.computable, drop = FALSE],
-                                             weights = weights[[i]][treat==tn01[t]], s.weights = s.weights[treat==tn01[t]],
-                                             bin.vars = bin.vars[sd.computable])
+              sds[sd.computable] <- col_w_sd(C[, sd.computable,drop = FALSE], weights = weights[[i]], s.weights = s.weights,
+                                             bin.vars = bin.vars[sd.computable], subset = treat == tn01[t])
             }
             B[[paste.("SD", t, i)]] <- sds
           }
@@ -2510,9 +2506,9 @@ samplesize.across.clusters <- function(obs.list) {
 #base.bal.tab.subclass
 balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
                                    continuous, binary, s.d.denom, 
-                                   thresholds = list(),
-                                   un = FALSE, disp = NULL, stats = NULL, 
-                                   s.weights = rep(1, length(treat)), abs = FALSE, var_types = NULL, quick = TRUE) {
+                                   thresholds = list(), un = FALSE, disp = NULL, stats = NULL, 
+                                   s.weights = rep(1, length(treat)), abs = FALSE, 
+                                   var_types = NULL, quick = TRUE, ...) {
   #Creates list SB of balance tables for each subclass
   #C=frame of variables, including distance; distance name (if any) stores in attr(C, "distance.name")
   
@@ -2557,11 +2553,11 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
       if (type == "bin") {
         tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
         for (t in c("0", "1")) {
-          SB[[i]][[paste.("M", t, "Adj")]] <- col_w_mean(C, subset = treat==tn01[t] & in.subclass)
+          SB[[i]][[paste.("M", t, "Adj")]] <- col_w_mean(C, subset = treat==tn01[t] & in.subclass, s.weights = s.weights)
         }
       }
       else if (type == "cont") {
-        SB[[i]][["M.Adj"]] <- col_w_mean(C, subset = in.subclass)
+        SB[[i]][["M.Adj"]] <- col_w_mean(C, subset = in.subclass, s.weights = s.weights)
       }
     }
     
@@ -2570,25 +2566,24 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
       if (type == "bin") {
         for (t in c("0", "1")) {
           sds <- rep(NA_real_, NCOL(C))
-          sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == tn01[t] & in.subclass)
+          sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == tn01[t] & in.subclass, s.weights = s.weights)
           SB[[i]][[paste.("SD", t, "Adj")]] <- sds
         }
       }
       else if (type == "cont") {
         sds <- rep(NA_real_, NCOL(C))
-        sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == in.subclass)
+        sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == in.subclass, s.weights = s.weights)
         SB[[i]][["SD.Adj"]] <- sds
       }
     }
     
     for (s in all_STATS(type)) {
       if (s %in% compute && !subclass_w_empty[i]) {
-        SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]] <- STATS[[s]]$fun(C[in.subclass,,drop = FALSE], 
-                                                                                     treat = treat[in.subclass], weights = NULL, 
+        SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]] <- STATS[[s]]$fun(C, treat = treat, weights = NULL, 
                                                                                      std = (bin.vars & binary == "std") | (!bin.vars & continuous == "std"),
                                                                                      s.d.denom = s.d.denom,
-                                                                                     abs = FALSE, s.weights = s.weights[in.subclass], 
-                                                                                     bin.vars = bin.vars)
+                                                                                     abs = FALSE, s.weights = s.weights, 
+                                                                                     bin.vars = bin.vars, subset = in.subclass)
         
         if (all(vapply(SB[[i]][paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")], 
                        function(x) all(!is.finite(x)), logical(1L)))) {
