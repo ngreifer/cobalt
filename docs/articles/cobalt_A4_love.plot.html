@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -98,13 +98,14 @@
 
       
 
-      </header><script src="cobalt_A4_love.plot_files/header-attrs-2.3/header-attrs.js"></script><script src="cobalt_A4_love.plot_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="cobalt_A4_love.plot_files/header-attrs-2.5/header-attrs.js"></script><link href="cobalt_A4_love.plot_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="cobalt_A4_love.plot_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Appendix 4: Using love.plot To Generate Love Plots</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2020-10-21</h4>
+            <h4 class="date">2020-11-05</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A4_love.plot.Rmd"><code>vignettes/cobalt_A4_love.plot.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A4_love.plot.Rmd</code></div>
@@ -117,179 +118,166 @@
 <p>This document will only go over the options for <code><a href="../reference/love.plot.html">love.plot()</a></code> with binary treatments. Many of the options apply to continuous and multi-category treatments and clustered and multiply imputed data as well. I’ll use the Lalonde data and <code>WeightIt</code> for all examples. <code>WeightIt</code> performs a variety of weighting methods, including propensity score weighting, which, for simplicity, will be the focus here.</p>
 <p>First, let’s load in the data set and estimate the weights.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://ngreifer.github.io/cobalt">cobalt</a></span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, package = <span class="st">"cobalt"</span>)
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/cobalt/">cobalt</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://ngreifer.github.io/WeightIt">WeightIt</a></span>)
-<span class="kw">w.out1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeightIt/man/weightit.html">weightit</a></span>(<span class="kw">treat</span> <span class="op">~</span> <span class="kw">age</span> <span class="op">+</span> <span class="kw">educ</span> <span class="op">+</span> <span class="kw">married</span> <span class="op">+</span> <span class="kw">nodegree</span> <span class="op">+</span> <span class="kw">race</span> <span class="op">+</span> <span class="kw">re74</span> <span class="op">+</span> <span class="kw">re75</span>,
-                   data = <span class="kw">lalonde</span>, estimand = <span class="st">"ATE"</span>, method = <span class="st">"ps"</span>)
-</pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/WeightIt/">WeightIt</a></span><span class="op">)</span>
+<span class="va">w.out1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,
+                   data <span class="op">=</span> <span class="va">lalonde</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>, method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></pre></div>
 <p>Next, because in this example we want to display standardized mean difference for all of the covariates, let’s set the global <code>binary</code> option to <code>"std"</code> so we don’t have to type it every time.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="fu"><a href="../reference/set.cobalt.options.html">set.cobalt.options</a></span>(binary = <span class="st">"std"</span>)
-</pre></div>
+<span class="fu"><a href="../reference/set.cobalt.options.html">set.cobalt.options</a></span><span class="op">(</span>binary <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></pre></div>
 <p>The most basic way to use <code><a href="../reference/love.plot.html">love.plot()</a></code> is simply to call it as you would <code><a href="../reference/bal.tab.html">bal.tab()</a></code> on the output of the preprocessing function (in this case, <code>weightit</code>).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">w.out1</span>)
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span><span class="op">)</span></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-4-1.png" width="576"></p>
 <p>We could also have supplied other arguments that would normally go in <code><a href="../reference/bal.tab.html">bal.tab()</a></code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit">
 <span class="co">#This produces the same output as the prior block but with </span>
 <span class="co">#the additional covariates included in the formula.</span>
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">treat</span> <span class="op">~</span> <span class="kw">age</span> <span class="op">+</span> <span class="kw">educ</span> <span class="op">+</span> <span class="kw">married</span> <span class="op">+</span> <span class="kw">nodegree</span> <span class="op">+</span> <span class="kw">race</span> <span class="op">+</span> <span class="kw">re74</span> <span class="op">+</span> <span class="kw">re75</span> <span class="op">+</span>
-            <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span>(<span class="kw">age</span><span class="op">^</span><span class="fl">2</span>) <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span>(<span class="kw">educ</span><span class="op">^</span><span class="fl">2</span>), data = <span class="kw">lalonde</span>, weights = <span class="fu"><a href="../reference/get.w.html">get.w</a></span>(<span class="kw">w.out1</span>),
-          method = <span class="st">"weighting"</span>, estimand = <span class="st">"ATE"</span>)
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span> <span class="op">+</span>
+            <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span><span class="op">(</span><span class="va">age</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span><span class="op">(</span><span class="va">educ</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="fu"><a href="../reference/get.w.html">get.w</a></span><span class="op">(</span><span class="va">w.out1</span><span class="op">)</span>,
+          method <span class="op">=</span> <span class="st">"weighting"</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span><span class="op">)</span></pre></div>
 <p>Let’s start with some basic customizations. First, we’ll remove the propensity score from the balance display by setting <code>drop.distance = TRUE</code>. We’ll change the order the covariates so they are displayed in descending order of their unadjusted mean differences by setting <code>var.order = "unadjusted"</code>. We’ll display the absolute mean difference by setting <code>abs = TRUE</code>. We’ll also add some lines to make the change in balance clearer by setting <code>line = TRUE</code>. Finally, we’ll add a threshold line at 0.1 by setting <code>thresholds = c(m = .1)</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">w.out1</span>, 
-          drop.distance = <span class="fl">TRUE</span>, 
-          var.order = <span class="st">"unadjusted"</span>,
-          abs = <span class="fl">TRUE</span>,
-          line = <span class="fl">TRUE</span>, 
-          thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(m = <span class="fl">.1</span>))
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, 
+          drop.distance <span class="op">=</span> <span class="cn">TRUE</span>, 
+          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>,
+          abs <span class="op">=</span> <span class="cn">TRUE</span>,
+          line <span class="op">=</span> <span class="cn">TRUE</span>, 
+          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-6-1.png" width="576"></p>
 <p>The plot is already looking much better and more informative, but let’s change a few things to make it more professional. First, we’ll change the names of the variables so they are easier to read. We can create a vector of new variable names and then supply that to the <code>var.names</code> argument in <code><a href="../reference/love.plot.html">love.plot()</a></code>. If it would be a burden to type out all the names, you can use the <code><a href="../reference/var.names.html">var.names()</a></code> function to create a CSV file (i.e., spreadsheet) that can be customized and loaded back into R to be used with <code><a href="../reference/love.plot.html">love.plot()</a></code>. See <code><a href="../reference/var.names.html">?var.names</a></code> for more information. Because we only have a few variable names, we’ll just manually create a vector of names.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="kw">new.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(age = <span class="st">"Age (Years)"</span>,
-               educ = <span class="st">"Education (Years)"</span>,
-               married = <span class="st">"Married (Y/N)"</span>,
-               nodegree = <span class="st">"Degree Earned (Y/N)"</span>,
-               race_white = <span class="st">"Race: White"</span>,
-               race_black = <span class="st">"Race: Black"</span>,
-               race_hispan = <span class="st">"Race: Hispanic"</span>,
-               re74 = <span class="st">"Earnings in 1974 ($)"</span>,
-               re75 = <span class="st">"Earnings in 1975 ($)"</span>
-)
-</pre></div>
+<span class="va">new.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>age <span class="op">=</span> <span class="st">"Age (Years)"</span>,
+               educ <span class="op">=</span> <span class="st">"Education (Years)"</span>,
+               married <span class="op">=</span> <span class="st">"Married (Y/N)"</span>,
+               nodegree <span class="op">=</span> <span class="st">"Degree Earned (Y/N)"</span>,
+               race_white <span class="op">=</span> <span class="st">"Race: White"</span>,
+               race_black <span class="op">=</span> <span class="st">"Race: Black"</span>,
+               race_hispan <span class="op">=</span> <span class="st">"Race: Hispanic"</span>,
+               re74 <span class="op">=</span> <span class="st">"Earnings in 1974 ($)"</span>,
+               re75 <span class="op">=</span> <span class="st">"Earnings in 1975 ($)"</span>
+<span class="op">)</span></pre></div>
 <p>We’ll change the colors of the points and lines with the <code>colors</code> argument so they aren’t the <code>ggplot2</code> defaults. We’ll also change the shape of the points to further clarify the different samples using the <code>shapes</code> argument.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">w.out1</span>, 
-          drop.distance = <span class="fl">TRUE</span>, 
-          var.order = <span class="st">"unadjusted"</span>,
-          abs = <span class="fl">TRUE</span>,
-          line = <span class="fl">TRUE</span>, 
-          thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(m = <span class="fl">.1</span>),
-          var.names = <span class="kw">new.names</span>,
-          colors = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"red"</span>, <span class="st">"blue"</span>),
-          shapes = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span>))
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, 
+          drop.distance <span class="op">=</span> <span class="cn">TRUE</span>, 
+          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>,
+          abs <span class="op">=</span> <span class="cn">TRUE</span>,
+          line <span class="op">=</span> <span class="cn">TRUE</span>, 
+          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>,
+          var.names <span class="op">=</span> <span class="va">new.names</span>,
+          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span>,
+          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-8-1.png" width="576"></p>
 <p>Finally, let’s makes some changed to the legend. First, we’ll rename the samples to be “Unweighted” and “PS Weighted” using the <code>sample.names</code> argument. Second, we’ll change the plot limits to give more padding on the right side using the <code>limits</code> argument. Third, to save some space, we’ll move the legend into the plot using the <code>position</code> argument, and we’ll give it a border. We can do this last step using <code>ggplot2</code> syntax because the <code>love.plot</code> output is a <code>ggplot</code> object. We need to load in <code>ggplot2</code> first to do this.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span>)
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
 
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">w.out1</span>, 
-          drop.distance = <span class="fl">TRUE</span>, 
-          var.order = <span class="st">"unadjusted"</span>,
-          abs = <span class="fl">TRUE</span>,
-          line = <span class="fl">TRUE</span>, 
-          thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(m = <span class="fl">.1</span>),
-          var.names = <span class="kw">new.names</span>,
-          colors = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"red"</span>, <span class="st">"blue"</span>),
-          shapes = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span>),
-          sample.names = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Unweighted"</span>, <span class="st">"PS Weighted"</span>),
-          limits = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">.82</span>),
-          position = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">.75</span>, <span class="fl">.25</span>)) <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(legend.box.background = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span>(), 
-        legend.box.margin = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span>(<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>))
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, 
+          drop.distance <span class="op">=</span> <span class="cn">TRUE</span>, 
+          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>,
+          abs <span class="op">=</span> <span class="cn">TRUE</span>,
+          line <span class="op">=</span> <span class="cn">TRUE</span>, 
+          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>,
+          var.names <span class="op">=</span> <span class="va">new.names</span>,
+          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span>,
+          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span><span class="op">)</span>,
+          sample.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Unweighted"</span>, <span class="st">"PS Weighted"</span><span class="op">)</span>,
+          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.82</span><span class="op">)</span>,
+          position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.75</span>, <span class="fl">.25</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.box.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span><span class="op">)</span>, 
+        legend.box.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-9-1.png" width="576"></p>
 <p>This is starting to look like a publication-ready plot. There are still other options you can change, such as the title, subtitle, and axis names, some of which can be done using <code>love.plot</code> arguments and others which require <code>ggplot2</code> code. Sizing the plot and making sure everything still looks good will be its own challenge, but that’s true of all plots in R.</p>
 <p>Perhaps we want to display balance for a second set of weights, maybe using a different method to estimate them, like the covariate balancing propensity score (CBPS, Imai &amp; Ratkovic, 2014) that is popular in political science. These can be easily added (but we’ll have to use the formula interface to set multiple weights).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit">
-<span class="kw">w.out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/WeightIt/man/weightit.html">weightit</a></span>(<span class="kw">treat</span> <span class="op">~</span> <span class="kw">age</span> <span class="op">+</span> <span class="kw">educ</span> <span class="op">+</span> <span class="kw">married</span> <span class="op">+</span> <span class="kw">nodegree</span> <span class="op">+</span> <span class="kw">race</span> <span class="op">+</span> <span class="kw">re74</span> <span class="op">+</span> <span class="kw">re75</span>,
-                   data = <span class="kw">lalonde</span>, estimand = <span class="st">"ATE"</span>, method = <span class="st">"cbps"</span>)
+<span class="va">w.out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,
+                   data <span class="op">=</span> <span class="va">lalonde</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>, method <span class="op">=</span> <span class="st">"cbps"</span><span class="op">)</span>
 
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">treat</span> <span class="op">~</span> <span class="kw">age</span> <span class="op">+</span> <span class="kw">educ</span> <span class="op">+</span> <span class="kw">married</span> <span class="op">+</span> <span class="kw">nodegree</span> <span class="op">+</span> <span class="kw">race</span> <span class="op">+</span> <span class="kw">re74</span> <span class="op">+</span> <span class="kw">re75</span>,
-          data = <span class="kw">lalonde</span>, estimand = <span class="st">"ATE"</span>,
-          weights = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(w1 = <span class="fu"><a href="../reference/get.w.html">get.w</a></span>(<span class="kw">w.out1</span>),
-                         w2 = <span class="fu"><a href="../reference/get.w.html">get.w</a></span>(<span class="kw">w.out2</span>)),
-          var.order = <span class="st">"unadjusted"</span>,
-          abs = <span class="fl">TRUE</span>,
-          line = <span class="fl">TRUE</span>, 
-          thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(m = <span class="fl">.1</span>),
-          var.names = <span class="kw">new.names</span>,
-          colors = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"darkgreen"</span>),
-          shapes = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span>, <span class="st">"square filled"</span>),
-          sample.names = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Unweighted"</span>, <span class="st">"PS Weighted"</span>, <span class="st">"CBPS Weighted"</span>),
-          limits = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">.82</span>)) <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(legend.position = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">.75</span>, <span class="fl">.3</span>),
-        legend.box.background = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span>(), 
-        legend.box.margin = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span>(<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>))
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,
+          data <span class="op">=</span> <span class="va">lalonde</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>,
+          weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>w1 <span class="op">=</span> <span class="fu"><a href="../reference/get.w.html">get.w</a></span><span class="op">(</span><span class="va">w.out1</span><span class="op">)</span>,
+                         w2 <span class="op">=</span> <span class="fu"><a href="../reference/get.w.html">get.w</a></span><span class="op">(</span><span class="va">w.out2</span><span class="op">)</span><span class="op">)</span>,
+          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>,
+          abs <span class="op">=</span> <span class="cn">TRUE</span>,
+          line <span class="op">=</span> <span class="cn">TRUE</span>, 
+          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>,
+          var.names <span class="op">=</span> <span class="va">new.names</span>,
+          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"darkgreen"</span><span class="op">)</span>,
+          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span>, <span class="st">"square filled"</span><span class="op">)</span>,
+          sample.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Unweighted"</span>, <span class="st">"PS Weighted"</span>, <span class="st">"CBPS Weighted"</span><span class="op">)</span>,
+          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.82</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.75</span>, <span class="fl">.3</span><span class="op">)</span>,
+        legend.box.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span><span class="op">)</span>, 
+        legend.box.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-10-1.png" width="576"></p>
-<p>We can see there is little benefit to using these weights over standard logistic regression weights, although significant imbalance remains for both sets of weights. (Try using entropy balancing by setting <code>method = "ebal"</code> in <code><a href="https://rdrr.io/pkg/WeightIt/man/weightit.html">weightit()</a></code> if you want to see the power of modern weighting methods.)</p>
+<p>We can see there is little benefit to using these weights over standard logistic regression weights, although significant imbalance remains for both sets of weights. (Try using entropy balancing by setting <code>method = "ebal"</code> in <code><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html">weightit()</a></code> if you want to see the power of modern weighting methods.)</p>
 <p>Perhaps balance on mean differences is not enough, and you want to display balance on KS statistics. In general, this is good practice; mean differences don’t tell the whole story. We can simply request <code>stats = ks.statistics"</code> in <code><a href="../reference/love.plot.html">love.plot()</a></code>. We could also request <code>"variance.ratios"</code> to get variance ratios, another potentially useful balance measure. Below we’ll use similar formatting to request KS statistics:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit">
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">treat</span> <span class="op">~</span> <span class="kw">age</span> <span class="op">+</span> <span class="kw">educ</span> <span class="op">+</span> <span class="kw">married</span> <span class="op">+</span> <span class="kw">nodegree</span> <span class="op">+</span> <span class="kw">race</span> <span class="op">+</span> <span class="kw">re74</span> <span class="op">+</span> <span class="kw">re75</span>,
-          data = <span class="kw">lalonde</span>, estimand = <span class="st">"ATE"</span>,
-          stats = <span class="st">"ks.statistics"</span>,
-          weights = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(w1 = <span class="fu"><a href="../reference/get.w.html">get.w</a></span>(<span class="kw">w.out1</span>),
-                         w2 = <span class="fu"><a href="../reference/get.w.html">get.w</a></span>(<span class="kw">w.out2</span>)),
-          var.order = <span class="st">"unadjusted"</span>,
-          abs = <span class="fl">TRUE</span>,
-          line = <span class="fl">TRUE</span>, 
-          thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(m = <span class="fl">.1</span>),
-          var.names = <span class="kw">new.names</span>,
-          colors = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"darkgreen"</span>),
-          shapes = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span>, <span class="st">"square filled"</span>),
-          sample.names = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Unweighted"</span>, <span class="st">"PS Weighted"</span>, <span class="st">"CBPS Weighted"</span>),
-          limits = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">.45</span>)) <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(legend.position = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">.75</span>, <span class="fl">.25</span>),
-        legend.box.background = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span>(), 
-        legend.box.margin = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span>(<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>))
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,
+          data <span class="op">=</span> <span class="va">lalonde</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>,
+          stats <span class="op">=</span> <span class="st">"ks.statistics"</span>,
+          weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>w1 <span class="op">=</span> <span class="fu"><a href="../reference/get.w.html">get.w</a></span><span class="op">(</span><span class="va">w.out1</span><span class="op">)</span>,
+                         w2 <span class="op">=</span> <span class="fu"><a href="../reference/get.w.html">get.w</a></span><span class="op">(</span><span class="va">w.out2</span><span class="op">)</span><span class="op">)</span>,
+          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>,
+          abs <span class="op">=</span> <span class="cn">TRUE</span>,
+          line <span class="op">=</span> <span class="cn">TRUE</span>, 
+          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>,
+          var.names <span class="op">=</span> <span class="va">new.names</span>,
+          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"darkgreen"</span><span class="op">)</span>,
+          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span>, <span class="st">"square filled"</span><span class="op">)</span>,
+          sample.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Unweighted"</span>, <span class="st">"PS Weighted"</span>, <span class="st">"CBPS Weighted"</span><span class="op">)</span>,
+          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.45</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.75</span>, <span class="fl">.25</span><span class="op">)</span>,
+        legend.box.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span><span class="op">)</span>, 
+        legend.box.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-11-1.png" width="576"></p>
 <p>Below, we’ll put two plots side-by-side, one for mean differences and one for KS statistics. This can be done by requesting multiple values for the <code>stats</code> argument (e.g., with <code>stats = c("mean.diffs", "ks.statistics")</code>). To reduce clutter, we’ll remove the lines by setting <code>lines = FALSE</code>. To prevent the axis titles from bumping into each other, we’ll set <code>wrap = 20</code>, where 20 is the number of characters at which to wrap to the next line. When <code>stats</code> has length greater than 1, the output is not longer a <code>ggplot</code> object and can’t be manipulated using <code>ggplot2</code> syntax. This limits some of the options we have to customize it, but the available options using <code><a href="../reference/love.plot.html">love.plot()</a></code>’s syntax are still useful. We’ll move the legend to the top of the plot to save space using the <code>position</code> argument. We can give the plots different limits by entering a named list into the <code>limits</code> argument. We can do the same for the <code>thresholds</code> argument. Finally, by setting <code>var.order = "unadjusted"</code>, we ensure that the variable order is the same in both plots (which it will be regardless) and ordered by the first balance statistic (in this case, mean differences).</p>
 <div class="sourceCode" id="cb11"><pre class="downlit">
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">treat</span> <span class="op">~</span> <span class="kw">age</span> <span class="op">+</span> <span class="kw">educ</span> <span class="op">+</span> <span class="kw">married</span> <span class="op">+</span> <span class="kw">nodegree</span> <span class="op">+</span> <span class="kw">race</span> <span class="op">+</span> <span class="kw">re74</span> <span class="op">+</span> <span class="kw">re75</span>,
-          data = <span class="kw">lalonde</span>, estimand = <span class="st">"ATE"</span>,
-          stats = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"mean.diffs"</span>, <span class="st">"ks.statistics"</span>),
-          weights = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(w1 = <span class="fu"><a href="../reference/get.w.html">get.w</a></span>(<span class="kw">w.out1</span>),
-                         w2 = <span class="fu"><a href="../reference/get.w.html">get.w</a></span>(<span class="kw">w.out2</span>)),
-          var.order = <span class="st">"unadjusted"</span>,
-          abs = <span class="fl">TRUE</span>,
-          line = <span class="fl">FALSE</span>, 
-          thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(m = <span class="fl">.1</span>, ks = <span class="fl">.05</span>),
-          var.names = <span class="kw">new.names</span>,
-          colors = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"darkgreen"</span>),
-          shapes = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span>, <span class="st">"square filled"</span>),
-          sample.names = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Unweighted"</span>, <span class="st">"PS Weighted"</span>, <span class="st">"CBPS Weighted"</span>),
-          limits = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(m = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">.82</span>),
-                        ks = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0</span>, <span class="fl">.45</span>)),
-          wrap = <span class="fl">20</span>,
-          position = <span class="st">"top"</span>) 
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,
+          data <span class="op">=</span> <span class="va">lalonde</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>,
+          stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"ks.statistics"</span><span class="op">)</span>,
+          weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>w1 <span class="op">=</span> <span class="fu"><a href="../reference/get.w.html">get.w</a></span><span class="op">(</span><span class="va">w.out1</span><span class="op">)</span>,
+                         w2 <span class="op">=</span> <span class="fu"><a href="../reference/get.w.html">get.w</a></span><span class="op">(</span><span class="va">w.out2</span><span class="op">)</span><span class="op">)</span>,
+          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>,
+          abs <span class="op">=</span> <span class="cn">TRUE</span>,
+          line <span class="op">=</span> <span class="cn">FALSE</span>, 
+          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span>, ks <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span>,
+          var.names <span class="op">=</span> <span class="va">new.names</span>,
+          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span>, <span class="st">"darkgreen"</span><span class="op">)</span>,
+          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"triangle filled"</span>, <span class="st">"circle filled"</span>, <span class="st">"square filled"</span><span class="op">)</span>,
+          sample.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Unweighted"</span>, <span class="st">"PS Weighted"</span>, <span class="st">"CBPS Weighted"</span><span class="op">)</span>,
+          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.82</span><span class="op">)</span>,
+                        ks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.45</span><span class="op">)</span><span class="op">)</span>,
+          wrap <span class="op">=</span> <span class="fl">20</span>,
+          position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> </pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-12-1.png" width="576"></p>
 <p>Below we recreate the plot in West et al. (2014), which uses a simple theme and avoids color, which can be important for publication. In addition, the plot has labels and puts the legend in a different position. We can include those features by including an argument to <code>labels</code> and by supplying a <code>theme</code> object to <code>themes</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit">
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">w.out1</span>, abs = <span class="fl">FALSE</span>,
-          stats = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span>),
-          drop.distance = <span class="fl">TRUE</span>,
-          var.names = <span class="kw">new.names</span>,
-          thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(v = <span class="fl">2</span>),
-          limits = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(m = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="fl">.9</span>, <span class="fl">.9</span>),
-                        v = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">.3</span>, <span class="fl">6</span>)),
-          shapes = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"circle filled"</span>, <span class="st">"circle"</span>),
-          position = <span class="st">"none"</span>,
-          labels = <span class="fl">TRUE</span>,
-          title = <span class="kw">NULL</span>,
-          wrap = <span class="fl">20</span>,
-          themes = <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(v = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(legend.position = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">.75</span>, <span class="fl">1.09</span>), 
-                                  legend.title = <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span>(), 
-                                  legend.key.size = <span class="fu"><a href="https://rdrr.io/r/grid/unit.html">unit</a></span>(<span class="fl">.02</span>, <span class="st">"npc"</span>))))
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, abs <span class="op">=</span> <span class="cn">FALSE</span>,
+          stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>,
+          drop.distance <span class="op">=</span> <span class="cn">TRUE</span>,
+          var.names <span class="op">=</span> <span class="va">new.names</span>,
+          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,
+          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.9</span>, <span class="fl">.9</span><span class="op">)</span>,
+                        v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.3</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span>,
+          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"circle filled"</span>, <span class="st">"circle"</span><span class="op">)</span>,
+          position <span class="op">=</span> <span class="st">"none"</span>,
+          labels <span class="op">=</span> <span class="cn">TRUE</span>,
+          title <span class="op">=</span> <span class="cn">NULL</span>,
+          wrap <span class="op">=</span> <span class="fl">20</span>,
+          themes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.75</span>, <span class="fl">1.09</span><span class="op">)</span>, 
+                                  legend.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, 
+                                  legend.key.size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html">unit</a></span><span class="op">(</span><span class="fl">.02</span>, <span class="st">"npc"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-13-1.png" width="576"></p>
 <p>When using <code>love.plot</code>, you might see a warning that says <code>Standardized mean differences and raw mean differences are present in the same plot. Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</code>. We avoided this here by setting <code>binary</code> to <code>"std"</code> so that only standardized mean differences are produced when requesting <code>stats = "mean.diffs"</code>. The <code>stars</code> argument adds an asterisk (or a character of your choice) to the names of variables that either have standardized mean difference or raw mean differences, whichever you choose. The idea is that the asterisk will be explain in a caption below the plot, indicating that the axis title doesn’t fully represent how that variable’s mean difference is displayed. For example, you might make the following plot:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit">
-<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span>(<span class="kw">w.out1</span>, binary = <span class="st">"raw"</span>,
-          stars = <span class="st">"raw"</span>,
-          drop.distance = <span class="fl">TRUE</span>,
-          var.names = <span class="kw">new.names</span>)
-</pre></div>
+<span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, binary <span class="op">=</span> <span class="st">"raw"</span>,
+          stars <span class="op">=</span> <span class="st">"raw"</span>,
+          drop.distance <span class="op">=</span> <span class="cn">TRUE</span>,
+          var.names <span class="op">=</span> <span class="va">new.names</span><span class="op">)</span></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
 <p>By setting <code>stars = "raw"</code>, asterisks appear next to the variables for which the raw difference in means (i.e., proportions) is displayed, contradicting the axis title. In the figure’s caption, you might write</p>
 <blockquote>

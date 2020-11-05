@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -152,30 +152,30 @@
     <p>Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>love.plot</span>(<span class='kw'>x</span>, 
-          <span class='kw'>stats</span>, 
-          <span class='kw'>abs</span>, 
-          agg.fun = <span class='kw'>NULL</span>, 
-          var.order = <span class='kw'>NULL</span>, 
-          drop.missing = <span class='fl'>TRUE</span>, 
-          drop.distance = <span class='fl'>FALSE</span>, 
-          thresholds = <span class='kw'>NULL</span>, 
-          line = <span class='fl'>FALSE</span>, 
-          stars = <span class='st'>"none"</span>, 
-          grid = <span class='fl'>FALSE</span>, 
-          limits = <span class='kw'>NULL</span>, 
-          colors = <span class='kw'>NULL</span>, 
-          shapes = <span class='kw'>NULL</span>, 
-          alpha = <span class='fl'>1</span>, 
-          size = <span class='fl'>3</span>, 
-          wrap = <span class='fl'>30</span>, 
-          var.names = <span class='kw'>NULL</span>, 
-          <span class='kw'>title</span>, 
-          <span class='kw'>sample.names</span>, 
-          labels = <span class='fl'>FALSE</span>,
-          position = <span class='st'>"right"</span>, 
-          themes = <span class='kw'>NULL</span>,
-          <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>x</span>, 
+          <span class='va'>stats</span>, 
+          <span class='va'>abs</span>, 
+          agg.fun <span class='op'>=</span> <span class='cn'>NULL</span>, 
+          var.order <span class='op'>=</span> <span class='cn'>NULL</span>, 
+          drop.missing <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+          drop.distance <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+          thresholds <span class='op'>=</span> <span class='cn'>NULL</span>, 
+          line <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+          stars <span class='op'>=</span> <span class='st'>"none"</span>, 
+          grid <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+          limits <span class='op'>=</span> <span class='cn'>NULL</span>, 
+          colors <span class='op'>=</span> <span class='cn'>NULL</span>, 
+          shapes <span class='op'>=</span> <span class='cn'>NULL</span>, 
+          alpha <span class='op'>=</span> <span class='fl'>1</span>, 
+          size <span class='op'>=</span> <span class='fl'>3</span>, 
+          wrap <span class='op'>=</span> <span class='fl'>30</span>, 
+          var.names <span class='op'>=</span> <span class='cn'>NULL</span>, 
+          <span class='va'>title</span>, 
+          <span class='va'>sample.names</span>, 
+          labels <span class='op'>=</span> <span class='cn'>FALSE</span>,
+          position <span class='op'>=</span> <span class='st'>"right"</span>, 
+          themes <span class='op'>=</span> <span class='cn'>NULL</span>,
+          <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -230,7 +230,7 @@
     </tr>
     <tr>
       <th>colors</th>
-      <td><p>the colors of the points on the plot. See 'Color Specification' at <code><a href='https://rdrr.io/r/graphics/par.html'>par</a></code> or the <code>ggplot2</code> <a href='https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill'>aesthetic specifications</a> page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default <span class="pkg">ggplot2</span> colors.</p></td>
+      <td><p>the colors of the points on the plot. See 'Color Specification' at <code>par</code> or the <code>ggplot2</code> <a href='https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill'>aesthetic specifications</a> page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default <span class="pkg">ggplot2</span> colors.</p></td>
     </tr>
     <tr>
       <th>shapes</th>
@@ -238,11 +238,11 @@
     </tr>
     <tr>
       <th>alpha</th>
-      <td><p><code>numeric</code>; the transparency of the points. See <code><a href='https://ggplot2.tidyverse.org/reference/scale_alpha.html'>scale_alpha</a></code>.</p></td>
+      <td><p><code>numeric</code>; the transparency of the points. See <code>scale_alpha</code>.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p><code>numeric</code>; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now <code>size</code> corresponds directly to the <code>size</code> aesthetic in <code><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></code>.</p></td>
+      <td><p><code>numeric</code>; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now <code>size</code> corresponds directly to the <code>size</code> aesthetic in <code>geom_point</code>.</p></td>
     </tr>
     <tr>
       <th>wrap</th>
@@ -266,16 +266,16 @@
     </tr>
     <tr>
       <th>position</th>
-      <td><p>the position of the legend. When <code>stats</code> has length 1, this can be any value that would be appropriate as an argument to <code>legend.position</code> in <code><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></code>. When <code>stat</code> has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".</p></td>
+      <td><p>the position of the legend. When <code>stats</code> has length 1, this can be any value that would be appropriate as an argument to <code>legend.position</code> in <code>theme</code>. When <code>stat</code> has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".</p></td>
     </tr>
     <tr>
       <th>themes</th>
-      <td><p>an optional list of <code>theme</code> objects to append to each individual plot. Each entry should be the output of a call to <code><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></code> in <span class="pkg">ggplot2</span>. This is a way to customize the individual plots when multiple <code>stats</code> are requested since the final output is not a manipulable <code>ggplot</code> object. It can be used with length-1 <code>stats</code>, but it probably makes more sense to just add the <code>theme()</code> call after <code>love.plot()</code>.</p></td>
+      <td><p>an optional list of <code>theme</code> objects to append to each individual plot. Each entry should be the output of a call to <code>theme</code> in <span class="pkg">ggplot2</span>. This is a way to customize the individual plots when multiple <code>stats</code> are requested since the final output is not a manipulable <code>ggplot</code> object. It can be used with length-1 <code>stats</code>, but it probably makes more sense to just add the <code>theme()</code> call after <code>love.plot()</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional arguments passed to <code><a href='bal.tab.html'>bal.tab()</a></code> or options for display of the plot. The following related arguments are currently accepted:</p><dl>
-  <dt><code>use.grid</code></dt><dd><p>whether to use <code><a href='https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html'>arrangeGrob</a></code> in <code>gridExtra</code> to make the plot when <code>stats</code> has length 1. See section Value.</p></dd>
+  <dt><code>use.grid</code></dt><dd><p>whether to use <code>arrangeGrob</code> in <code>gridExtra</code> to make the plot when <code>stats</code> has length 1. See section Value.</p></dd>
   <dt><code>disp.subclass</code></dt><dd><p>whether to display individual subclasses if subclassification is used. Overrides the <code>disp.subclass</code> option in the original <code><a href='bal.tab.html'>bal.tab()</a></code> call if <code>x</code> is a <code>bal.tab</code> object.</p></dd>
   <dt><code>star_char</code></dt><dd><p><code>character</code>; when <code>stars</code> are used, the character that should be the "star" next to the starred variables. The default is <code>"*"</code>. <code>"†"</code> or <code>"\u2020"</code> (i.e., dagger) might be appealing as well.</p></dd>
   
@@ -303,7 +303,7 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>When only one type of balance statistic is requested, the returned object is a standard <code>ggplot</code> object that can be manipulated using <span class="pkg">ggplot2</span> syntax. This facilitates changing fonts, background colors, and features of the legend outside of what <code>love.plot</code> provides automatically.</p>
-<p>When more than one type of balance statistic is requested, the plot is constructed using <code><a href='https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html'>arrangeGrob</a></code> in <code>gridExtra</code>, which arranges multiple plots and their shared legend into one plot. Because the output of <code>arrangeGrob</code> is a <code>gtable</code> object, its features cannot be manipulated in the standard way. Use the <code>themes</code> argument to change theme elements of the component plots. The original plots are stored in the <code>"plots"</code> attribute of the output object.</p>
+<p>When more than one type of balance statistic is requested, the plot is constructed using <code>arrangeGrob</code> in <code>gridExtra</code>, which arranges multiple plots and their shared legend into one plot. Because the output of <code>arrangeGrob</code> is a <code>gtable</code> object, its features cannot be manipulated in the standard way. Use the <code>themes</code> argument to change theme elements of the component plots. The original plots are stored in the <code>"plots"</code> attribute of the output object.</p>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p><code>love.plot</code> can also be called by using <code>plot</code> or <code>autoplot</code> on a <code>bal.tab</code> object. If used in this way, some messages may appear twice. It is recommended that you just use <code>love.plot</code> instead.</p>
@@ -315,44 +315,44 @@
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>MatchIt</span>); <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"WeightIt"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ngreifer.github.io/WeightIt/'>WeightIt</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
 
-<span class='co'>## Nearest Neighbor matching</span>
-<span class='kw'>m.out1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
-                  <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
-                  data = <span class='kw'>lalonde</span>)
+<span class='co'>## Propensity score weighting</span>
+<span class='va'>w.out1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> 
+                  <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, 
+                  data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span>
 
-<span class='fu'>love.plot</span>(<span class='kw'>m.out1</span>, thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(m = <span class='fl'>.1</span>), var.order = <span class='st'>"unadjusted"</span>)
-</div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
-#&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='img'><img src='love.plot-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span><span class='op'>)</span>, var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span><span class='op'>)</span>
+
 <span class='co'>## Using alternate variable names</span>
-<span class='kw'>v</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(old = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>, <span class='st'>"race_hispan"</span>, 
+<span class='va'>v</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>old <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>, <span class='st'>"race_hispan"</span>, 
                         <span class='st'>"race_white"</span>, <span class='st'>"married"</span>, <span class='st'>"nodegree"</span>, <span class='st'>"re74"</span>, 
-                        <span class='st'>"re75"</span>, <span class='st'>"distance"</span>),
-                new = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Age"</span>, <span class='st'>"Years of Education"</span>, <span class='st'>"Black"</span>, 
+                        <span class='st'>"re75"</span>, <span class='st'>"distance"</span><span class='op'>)</span>,
+                new <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Age"</span>, <span class='st'>"Years of Education"</span>, <span class='st'>"Black"</span>, 
                         <span class='st'>"Hispanic"</span>, <span class='st'>"White"</span>, <span class='st'>"Married"</span>, <span class='st'>"No Degree"</span>, 
                         <span class='st'>"Earnings 1974"</span>, <span class='st'>"Earnings 1975"</span>, 
-                        <span class='st'>"Propensity Score"</span>))
+                        <span class='st'>"Propensity Score"</span><span class='op'>)</span><span class='op'>)</span>
                 
-<span class='fu'>love.plot</span>(<span class='kw'>m.out1</span>, stats = <span class='st'>"m"</span>, threshold = <span class='fl'>.1</span>, 
-          var.order = <span class='st'>"unadjusted"</span>, var.names = <span class='kw'>v</span>)
-</div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
-#&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='img'><img src='love.plot-2.png' alt='' width='700' height='433' /></div><div class='input'>          
+<span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, stats <span class='op'>=</span> <span class='st'>"m"</span>, threshold <span class='op'>=</span> <span class='fl'>.1</span>, 
+          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span><span class='op'>)</span>
+          
 <span class='co'>#Using multiple stats</span>
-<span class='fu'>love.plot</span>(<span class='kw'>m.out1</span>, stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"ks"</span>), 
-          thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(m = <span class='fl'>.1</span>, ks = <span class='fl'>.05</span>), 
-          var.order = <span class='st'>"unadjusted"</span>, var.names = <span class='kw'>v</span>, stars = <span class='st'>"raw"</span>,
-          position = <span class='st'>"bottom"</span>, wrap = <span class='fl'>20</span>)
-</div><div class='img'><img src='love.plot-3.png' alt='' width='700' height='433' /></div><div class='input'>          
+<span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"m"</span>, <span class='st'>"ks"</span><span class='op'>)</span>, 
+          thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span>, ks <span class='op'>=</span> <span class='fl'>.05</span><span class='op'>)</span>, 
+          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span>, stars <span class='op'>=</span> <span class='st'>"raw"</span>,
+          position <span class='op'>=</span> <span class='st'>"bottom"</span>, wrap <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
+          
 <span class='co'>#Changing visual elements</span>
-<span class='fu'>love.plot</span>(<span class='kw'>m.out1</span>, thresholds = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(m = <span class='fl'>.1</span>), 
-          var.order = <span class='st'>"unadjusted"</span>, var.names = <span class='kw'>v</span>, abs = <span class='fl'>TRUE</span>,
-          shapes = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"triangle filled"</span>, <span class='st'>"circle"</span>), 
-          colors = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"red"</span>, <span class='st'>"blue"</span>), line = <span class='fl'>TRUE</span>,
-          grid = <span class='fl'>FALSE</span>, sample.names = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Unmatched"</span>, <span class='st'>"Matched"</span>),
-          stars = <span class='st'>"raw"</span>, position = <span class='st'>"top"</span>)
-</div><div class='img'><img src='love.plot-4.png' alt='' width='700' height='433' /></div><div class='input'>
-</div></pre>
+<span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span><span class='op'>)</span>, 
+          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span>, abs <span class='op'>=</span> <span class='cn'>TRUE</span>,
+          shapes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"triangle filled"</span>, <span class='st'>"circle"</span><span class='op'>)</span>, 
+          colors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"red"</span>, <span class='st'>"blue"</span><span class='op'>)</span>, line <span class='op'>=</span> <span class='cn'>TRUE</span>,
+          grid <span class='op'>=</span> <span class='cn'>FALSE</span>, sample.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Original"</span>, <span class='st'>"Weighted"</span><span class='op'>)</span>,
+          stars <span class='op'>=</span> <span class='st'>"raw"</span>, position <span class='op'>=</span> <span class='st'>"top"</span><span class='op'>)</span>
+<span class='op'>}</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
+#&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
+#&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='img'><img src='love.plot-1.png' alt='' width='700' height='433' /></div><div class='img'><img src='love.plot-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

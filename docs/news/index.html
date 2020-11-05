@@ -79,7 +79,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -146,13 +146,16 @@
       <small>Source: <a href='https://github.com/ngreifer/cobalt/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="cobalt-development-version" class="section level1">
-<h1 class="page-header" data-toc-text="development version">
-<a href="#cobalt-development-version" class="anchor"></a>cobalt (development version)<small> Unreleased </small>
+    <div id="cobalt-424" class="section level1">
+<h1 class="page-header" data-toc-text="4.2.4">
+<a href="#cobalt-424" class="anchor"></a>cobalt 4.2.4<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>Sampling weights now function correctly with subclassification.</p></li>
 <li><p>Fixed a bug in <code><a href="../reference/print.bal.tab.html">print.bal.tab()</a></code> when no units were unmatched but some were discarded.</p></li>
 <li><p>Fixed an issue with the version number for <code>gridExtra</code> in <code>DESCRIPTION</code>. (<a href='https://github.com/ngreifer/cobalt/issues/47'>#47</a>)</p></li>
+<li><p><code>cem</code> removed from Suggests because it has been removed from CRAN.</p></li>
+<li><p>Updated to support <code>MatchIt</code> 4.0.0, which includes sampling weights and improved processing of the covariates.</p></li>
 </ul>
 </div>
     <div id="cobalt-423" class="section level1">
@@ -391,7 +394,7 @@
 <li><p>Fixed some bugs occurring when standardized mean differences are not finite, thanks to Noémie Kiefer.</p></li>
 <li><p>Speed improvements in <code>bal.plot</code>, especially with multiple facets, and in <code>bal.tab</code>.</p></li>
 <li><p>Added new options to <code>bal.plot</code>, including the ability to display histograms rather than densities and mirrored rather than overlapping plots. This makes it possible to make the popular mirrored histogram plot for propensity scores. In addition, it’s now easier to change the colors of the components of the plots.</p></li>
-<li><p>Made behavior around binary variables with interactions more like documentation, where interactions with both levels of the variable are present (thanks to <a href='https://github.com/victorn1'>@victorn1</a>). Also, replaced <code>_</code> with ` * <code>as the delimiter between variable names in interactions. For the old behavior, use</code>int_sep = "_"<code>in</code>bal.tab`.</p></li>
+<li><p>Made behavior around binary variables with interactions more like documentation, where interactions with both levels of the variable are present (thanks to <a href='https://github.com/victorn1'>@victorn1</a>). Also, replaced <code>_</code> with <code><a href="https://rdrr.io/r/base/Arithmetic.html">*</a></code> as the delimiter between variable names in interactions. For the old behavior, use <code>int_sep = "_"</code> in <code>bal.tab</code>.</p></li>
 <li><p>Expanded the flexibility of <code>var.names</code> in <code>love.plot</code> so that replacing the name of a variable will replace it everywhere it appears, including interactions. Thanks to <a href='https://github.com/victorn1'>@victorn1</a> for the suggestion.</p></li>
 <li><p>Added <code>var.names</code> function to extract and save variable names from <code>bal.tab</code> objects. This makes it a lot easier to create replacement names for use in <code>love.plot</code>. Thanks to <a href='https://github.com/victorn1'>@victorn1</a> for the suggestion.</p></li>
 <li><p>When weighted correlations are computed for continuous treatments, the denominator of the correlation now uses the unweighted standard deviations. See <code><a href="../reference/bal.tab.html">?bal.tab</a></code> for the rationale.</p></li>
@@ -454,7 +457,7 @@
 <a href="#cobalt-320" class="anchor"></a>cobalt 3.2.0<small> 2018-01-17 </small>
 </h1>
 <ul>
-<li><p>Added support for longitudinal treatments in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, including output from <code><a href="https://rdrr.io/pkg/twang/man/iptw.html">iptw()</a></code> in <code>twang</code>, <code><a href="https://rdrr.io/pkg/CBPS/man/CBMSM.html">CBMSM()</a></code> from <code>CBPS</code>, and <code><a href="https://rdrr.io/pkg/WeightIt/man/weightitMSM.html">weightitMSM()</a></code> from <code>WeightIt</code>.</p></li>
+<li><p>Added support for longitudinal treatments in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, including output from <code><a href="https://rdrr.io/pkg/twang/man/iptw.html">iptw()</a></code> in <code>twang</code>, <code><a href="https://rdrr.io/pkg/CBPS/man/CBMSM.html">CBMSM()</a></code> from <code>CBPS</code>, and <code><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html">weightitMSM()</a></code> from <code>WeightIt</code>.</p></li>
 <li><p>Added a vignette to explain use with longitudinal treatments.</p></li>
 <li><p>Edits to help files.</p></li>
 <li><p>Added ability to change density options in <code><a href="../reference/bal.plot.html">bal.plot()</a></code>.</p></li>

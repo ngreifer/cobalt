@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -153,37 +153,37 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for data.frame</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
-    <span class='kw'>treat</span>, 
-    data = <span class='kw'>NULL</span>, 
-    weights = <span class='kw'>NULL</span>, 
-    subclass = <span class='kw'>NULL</span>, 
-    match.strata = <span class='kw'>NULL</span>, 
-    <span class='kw'>method</span>, 
-    <span class='kw'>stats</span>,
-    int = <span class='fl'>FALSE</span>, 
-    poly = <span class='fl'>1</span>, 
-    distance = <span class='kw'>NULL</span>,
-    addl = <span class='kw'>NULL</span>, 
-    <span class='kw'>continuous</span>,  
-    <span class='kw'>binary</span>, 
-    <span class='kw'>s.d.denom</span>, 
-    thresholds = <span class='kw'>NULL</span>,
-    cluster = <span class='kw'>NULL</span>, 
-    imp = <span class='kw'>NULL</span>, 
-    pairwise = <span class='fl'>TRUE</span>, 
-    focal = <span class='kw'>NULL</span>, 
-    s.weights = <span class='kw'>NULL</span>, 
-    estimand = <span class='kw'>NULL</span>, 
-    abs = <span class='fl'>FALSE</span>,
-    subset = <span class='kw'>NULL</span>,
-    quick = <span class='fl'>TRUE</span>, 
-    <span class='kw'>...</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>x</span>, 
+    <span class='va'>treat</span>, 
+    data <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    weights <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    subclass <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    match.strata <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    <span class='va'>method</span>, 
+    <span class='va'>stats</span>,
+    int <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+    poly <span class='op'>=</span> <span class='fl'>1</span>, 
+    distance <span class='op'>=</span> <span class='cn'>NULL</span>,
+    addl <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    <span class='va'>continuous</span>,  
+    <span class='va'>binary</span>, 
+    <span class='va'>s.d.denom</span>, 
+    thresholds <span class='op'>=</span> <span class='cn'>NULL</span>,
+    cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    imp <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+    focal <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    estimand <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
+    subset <span class='op'>=</span> <span class='cn'>NULL</span>,
+    quick <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+    <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for formula</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
-    data = <span class='kw'>NULL</span>, 
-    <span class='kw'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>x</span>, 
+    data <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -214,7 +214,7 @@
     </tr>
     <tr>
       <th>method</th>
-      <td><p>A character vector containing the method of adjustment, if any.  If <code>weights</code> are specified, the user must specify either "matching" or "weighting"; "weighting" is the default. If multiple sets of weights are used, each must have a corresponding value for <code>method</code>, but if they are all of the same type, only one value is required. If <code>subclass</code> is specified, "subclassification" is the default.  Abbreviations allowed.</p></td>
+      <td><p>A character vector containing the method of adjustment, if any.  If <code>weights</code> are specified, the user can specify either "matching" or "weighting"; "weighting" is the default. If multiple sets of weights are used, each must have a corresponding value for <code>method</code>, but if they are all of the same type, only one value is required. If <code>subclass</code> is specified, "subclassification" is the default. Abbreviations allowed. The only distinction between "matching" and "weighting" is how sample sizes are displayed.</p></td>
     </tr>
     <tr>
       <th>stats</th>
@@ -238,11 +238,11 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
@@ -321,21 +321,19 @@
 <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for more information on multiple categorical treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
-<span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>p.score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span>, data = <span class='kw'>lalonde</span>, 
-            family = <span class='st'>"binomial"</span>)<span class='op'>$</span><span class='kw'>fitted.values</span>
-<span class='kw'>covariates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='kw'>lalonde</span>, 
-                     select = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>age</span>, <span class='kw'>educ</span>, <span class='kw'>race</span>))
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
+<span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
+                       family <span class='op'>=</span> <span class='st'>"binomial"</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span>
+<span class='va'>covariates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>, select <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>age</span>, <span class='va'>educ</span>, <span class='va'>race</span><span class='op'>)</span><span class='op'>)</span>
                      
 <span class='co'>## Propensity score weighting using IPTW</span>
-<span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>iptw.weights</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span>(<span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>treat</span><span class='op'>==</span><span class='fl'>1</span>, 
-                               <span class='fl'>1</span><span class='op'>/</span><span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>p.score</span>, 
-                               <span class='fl'>1</span><span class='op'>/</span>(<span class='fl'>1</span><span class='op'>-</span><span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>p.score</span>))
+<span class='va'>lalonde</span><span class='op'>$</span><span class='va'>iptw.weights</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span><span class='op'>==</span><span class='fl'>1</span>, 
+                               <span class='fl'>1</span><span class='op'>/</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, 
+                               <span class='fl'>1</span><span class='op'>/</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='co'># data frame interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>covariates</span>, treat = <span class='st'>"treat"</span>, data = <span class='kw'>lalonde</span>, 
-      weights = <span class='st'>"iptw.weights"</span>, method = <span class='st'>"weighting"</span>, 
-      s.d.denom = <span class='st'>"pooled"</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covariates</span>, treat <span class='op'>=</span> <span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
+        weights <span class='op'>=</span> <span class='st'>"iptw.weights"</span>, s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span><span>
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.  -0.1242
@@ -349,9 +347,8 @@
 #&gt; Unadjusted  429.    185.  
 #&gt; Adjusted    344.33   65.47</div><div class='input'>
 <span class='co'># Formula interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span>, data = <span class='kw'>lalonde</span>, 
-      weights = <span class='st'>"iptw.weights"</span>, method = <span class='st'>"weighting"</span>, 
-      s.d.denom = <span class='st'>"pooled"</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
+        weights <span class='op'>=</span> <span class='st'>"iptw.weights"</span>, s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance Measures</span><span>
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.  -0.1242
@@ -365,59 +362,59 @@
 #&gt; Unadjusted  429.    185.  
 #&gt; Adjusted    344.33   65.47</div><div class='input'>      
 <span class='co'>## Propensity score subclassification</span>
-<span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>subclass</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/findInterval.html'>findInterval</a></span>(<span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>p.score</span>, 
-                        <span class='fu'><a href='https://rdrr.io/r/stats/quantile.html'>quantile</a></span>(<span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>p.score</span>, 
-                        (<span class='fl'>0</span><span class='op'>:</span><span class='fl'>6</span>)<span class='op'>/</span><span class='fl'>6</span>), all.inside = <span class='fl'>TRUE</span>)
+<span class='va'>lalonde</span><span class='op'>$</span><span class='va'>subclass</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/findInterval.html'>findInterval</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, 
+                        <span class='fu'><a href='https://rdrr.io/r/stats/quantile.html'>quantile</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, 
+                        <span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>6</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>6</span><span class='op'>)</span>, all.inside <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'># data frame interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>covariates</span>, treat = <span class='st'>"treat"</span>, data = <span class='kw'>lalonde</span>, 
-      subclass = <span class='st'>"subclass"</span>, method = <span class='st'>"subclassification"</span>, 
-      disp.subclass = <span class='fl'>TRUE</span>, s.d.denom = <span class='st'>"pooled"</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covariates</span>, treat <span class='op'>=</span> <span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
+        subclass <span class='op'>=</span> <span class='st'>"subclass"</span>, disp.subclass <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance by subclass</span><span>
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 1</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.  -1.1367
-#&gt; educ        Contin.  -0.3080
+#&gt; age         Contin.  -1.2029
+#&gt; educ        Contin.  -0.2551
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 2</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.4867
-#&gt; educ        Contin.   0.4896
+#&gt; age         Contin.   0.4108
+#&gt; educ        Contin.   0.3005
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 3</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.  -0.2462
-#&gt; educ        Contin.   0.0306
+#&gt; age         Contin.  -0.1400
+#&gt; educ        Contin.   0.0295
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary  -0.0833
 #&gt; race_white   Binary   0.0833
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 4</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.1994
-#&gt; educ        Contin.  -0.4272
+#&gt; age         Contin.   0.2294
+#&gt; educ        Contin.  -0.4409
 #&gt; race_black   Binary   0.3467
 #&gt; race_hispan  Binary  -0.3467
 #&gt; race_white   Binary   0.0000
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 5</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.6005
-#&gt; educ        Contin.   0.5486
+#&gt; age         Contin.   0.4675
+#&gt; educ        Contin.   0.3427
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 6</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.3195
-#&gt; educ        Contin.  -0.1454
+#&gt; age         Contin.   0.1293
+#&gt; educ        Contin.  -0.0838
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
@@ -436,54 +433,54 @@
 #&gt; Treated   3   9   6  29  78  60 185
 #&gt; Total   103 102 102 102 102 103 614</div><div class='input'>
 <span class='co'># Formula interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span>, data = <span class='kw'>lalonde</span>, 
-      subclass = <span class='st'>"subclass"</span>, method = <span class='st'>"subclassification"</span>, 
-      disp.subclass = <span class='fl'>TRUE</span>, s.d.denom = <span class='st'>"pooled"</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
+      subclass <span class='op'>=</span> <span class='st'>"subclass"</span>, disp.subclass <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+      s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance by subclass</span><span>
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 1</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.  -1.1367
-#&gt; educ        Contin.  -0.3080
+#&gt; age         Contin.  -1.2029
+#&gt; educ        Contin.  -0.2551
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 2</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.4867
-#&gt; educ        Contin.   0.4896
+#&gt; age         Contin.   0.4108
+#&gt; educ        Contin.   0.3005
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 3</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.  -0.2462
-#&gt; educ        Contin.   0.0306
+#&gt; age         Contin.  -0.1400
+#&gt; educ        Contin.   0.0295
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary  -0.0833
 #&gt; race_white   Binary   0.0833
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 4</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.1994
-#&gt; educ        Contin.  -0.4272
+#&gt; age         Contin.   0.2294
+#&gt; educ        Contin.  -0.4409
 #&gt; race_black   Binary   0.3467
 #&gt; race_hispan  Binary  -0.3467
 #&gt; race_white   Binary   0.0000
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 5</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.6005
-#&gt; educ        Contin.   0.5486
+#&gt; age         Contin.   0.4675
+#&gt; educ        Contin.   0.3427
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
 #&gt;  - - - </span><span style='font-style: italic;'>Subclass 6</span><span> - - - 
 #&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.3195
-#&gt; educ        Contin.  -0.1454
+#&gt; age         Contin.   0.1293
+#&gt; educ        Contin.  -0.0838
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000

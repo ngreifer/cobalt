@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -152,9 +152,9 @@
     <p>Makes it easier to set <span class="pkg">cobalt</span> options. <code>set.cobalt.options</code> is essentially a wrapper for <code><a href='https://rdrr.io/r/base/options.html'>options</a></code> but performs several checks, and <code>get.cobalt.options</code> is essentially a wrapper for <code><a href='https://rdrr.io/r/base/options.html'>getOption</a></code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set.cobalt.options</span>(<span class='kw'>...</span>, default = <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>set.cobalt.options</span><span class='op'>(</span><span class='va'>...</span>, default <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
-<span class='fu'>get.cobalt.options</span>(<span class='kw'>...</span>)</pre>
+<span class='fu'>get.cobalt.options</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -184,13 +184,13 @@
 <span class='co'># produce standardized mean differences for </span>
 <span class='co'># binary variables.</span>
 
-<span class='fu'>set.cobalt.options</span>(un = <span class='fl'>TRUE</span>, binary = <span class='st'>"std"</span>)
+<span class='fu'>set.cobalt.options</span><span class='op'>(</span>un <span class='op'>=</span> <span class='cn'>TRUE</span>, binary <span class='op'>=</span> <span class='st'>"std"</span><span class='op'>)</span>
 
 <span class='co'># Note: the above is equivalent to:</span>
 <span class='co'># options(cobalt_un = TRUE, cobalt_binary = "std")</span>
 <span class='co'># but performs some additional checks</span>
 
-<span class='fu'>get.cobalt.options</span>(<span class='st'>"un"</span>, <span class='st'>"binary"</span>)
+<span class='fu'>get.cobalt.options</span><span class='op'>(</span><span class='st'>"un"</span>, <span class='st'>"binary"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; $un
 #&gt; [1] TRUE
 #&gt; 
@@ -203,10 +203,10 @@
 
 <span class='co'># Return all cobalt options to their defaults</span>
 
-<span class='fu'>set.cobalt.options</span>(default = <span class='fl'>TRUE</span>)
+<span class='fu'>set.cobalt.options</span><span class='op'>(</span>default <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'># View all available options</span>
-<span class='fu'>get.cobalt.options</span>()
+<span class='fu'>get.cobalt.options</span><span class='op'>(</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; $stats
 #&gt; NULL
 #&gt; 

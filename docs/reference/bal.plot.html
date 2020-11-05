@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -152,26 +152,26 @@
     <p>Generates density plots, bar graphs, or scatterplots displaying distributional balance between treatment and covariates using <span class="pkg">ggplot2</span>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>bal.plot</span>(<span class='kw'>x</span>, 
-    <span class='kw'>var.name</span>, 
-    <span class='kw'>...</span>, 
-    <span class='kw'>which</span>, 
-    which.sub = <span class='kw'>NULL</span>, 
-    cluster = <span class='kw'>NULL</span>,
-    which.cluster = <span class='kw'>NULL</span>, 
-    imp = <span class='kw'>NULL</span>,
-    which.imp = <span class='kw'>NULL</span>, 
-    which.treat = <span class='kw'>NULL</span>,
-    which.time = <span class='kw'>NULL</span>,
-    mirror = <span class='fl'>FALSE</span>, 
-    type = <span class='st'>"density"</span>, 
-    colors = <span class='kw'>NULL</span>,
-    grid = <span class='fl'>FALSE</span>,
-    <span class='kw'>sample.names</span>,
-    position = <span class='st'>"right"</span>, 
-    facet.formula = <span class='kw'>NULL</span>, 
-    disp.means = <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span>(<span class='st'>"cobalt_disp.means"</span>, <span class='fl'>FALSE</span>),
-    alpha.weight = <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>bal.plot</span><span class='op'>(</span><span class='va'>x</span>, 
+    <span class='va'>var.name</span>, 
+    <span class='va'>...</span>, 
+    <span class='va'>which</span>, 
+    which.sub <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    cluster <span class='op'>=</span> <span class='cn'>NULL</span>,
+    which.cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    imp <span class='op'>=</span> <span class='cn'>NULL</span>,
+    which.imp <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    which.treat <span class='op'>=</span> <span class='cn'>NULL</span>,
+    which.time <span class='op'>=</span> <span class='cn'>NULL</span>,
+    mirror <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+    type <span class='op'>=</span> <span class='st'>"density"</span>, 
+    colors <span class='op'>=</span> <span class='cn'>NULL</span>,
+    grid <span class='op'>=</span> <span class='cn'>FALSE</span>,
+    <span class='va'>sample.names</span>,
+    position <span class='op'>=</span> <span class='st'>"right"</span>, 
+    facet.formula <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    disp.means <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"cobalt_disp.means"</span>, <span class='cn'>FALSE</span><span class='op'>)</span>,
+    alpha.weight <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -186,7 +186,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments. Can also be used to supply the <code>bw</code>, <code>adjust</code>, <code>kernel</code>, and <code>n</code> arguments for <code><a href='https://ggplot2.tidyverse.org/reference/geom_density.html'>geom_density</a></code> and the <code>bins</code> argument for <code><a href='https://ggplot2.tidyverse.org/reference/geom_histogram.html'>geom_histogram</a></code>.</p></td>
+      <td><p>other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments. Can also be used to supply the <code>bw</code>, <code>adjust</code>, <code>kernel</code>, and <code>n</code> arguments for <code>geom_density</code> and the <code>bins</code> argument for <code>geom_histogram</code>.</p></td>
     </tr>
     <tr>
       <th>which</th>
@@ -230,7 +230,7 @@
     </tr>
     <tr>
       <th>colors</th>
-      <td><p>a vector of colors for the plotted densities/histograms. See 'Color Specification' at <code><a href='https://rdrr.io/r/graphics/par.html'>par</a></code>. Defaults to the default <span class="pkg">ggplot2</span> colors.</p></td>
+      <td><p>a vector of colors for the plotted densities/histograms. See 'Color Specification' at <code>par</code>. Defaults to the default <span class="pkg">ggplot2</span> colors.</p></td>
     </tr>
     <tr>
       <th>grid</th>
@@ -242,11 +242,11 @@
     </tr>
     <tr>
       <th>position</th>
-      <td><p>the position of the legend. This can be any value that would be appropriate as an argument to <code>legend.position</code> in <code><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme</a></code>.</p></td>
+      <td><p>the position of the legend. This can be any value that would be appropriate as an argument to <code>legend.position</code> in <code>theme</code>.</p></td>
     </tr>
     <tr>
       <th>facet.formula</th>
-      <td><p>a <code>formula</code> designating which facets should be on the rows and columns. This should be of the "historical" formula interface to <code><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid</a></code>. If of the form <code>a ~ b</code>, <code>a</code> will be faceted on the rows and <code>b</code> on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form <code>a ~ .</code> (i.e., with only <code>.</code> on the right-hand side). The allowable facets depend on which arguments have been supplied to <code>bal.plot</code>; possible values include <code>which</code>, <code>cluster</code>, <code>imp</code>, and (for longitudinal treatments) <code>time</code>. If <code>NULL</code>, <code>bal.plot</code> will decide what looks best; this argument exists in case you disagree with its choice.</p></td>
+      <td><p>a <code>formula</code> designating which facets should be on the rows and columns. This should be of the "historical" formula interface to <code>facet_grid</code>. If of the form <code>a ~ b</code>, <code>a</code> will be faceted on the rows and <code>b</code> on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form <code>a ~ .</code> (i.e., with only <code>.</code> on the right-hand side). The allowable facets depend on which arguments have been supplied to <code>bal.plot</code>; possible values include <code>which</code>, <code>cluster</code>, <code>imp</code>, and (for longitudinal treatments) <code>time</code>. If <code>NULL</code>, <code>bal.plot</code> will decide what looks best; this argument exists in case you disagree with its choice.</p></td>
     </tr>
     <tr>
       <th>disp.means</th>
@@ -278,10 +278,10 @@
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>bal.plot()</code> uses <code>ggplot()</code> from the <span class="pkg">ggplot2</span> package, and (invisibly) returns a <code>"ggplot"</code> object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using <code><a href='https://ggplot2.tidyverse.org/reference/geom_density.html'>geom_density</a></code>, histograms are created using <code><a href='https://ggplot2.tidyverse.org/reference/geom_histogram.html'>geom_histogram</a></code>, and empirical CDF plots are created using <code><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_step</a></code>; for categorical treatments with categorical covariates, bar graphs are created using <code><a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar</a></code>; for continuous treatments with continuous covariates, scatterplots are created using <code><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point</a></code>.</p>
-<p>For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smoothing curve generated with <span class="pkg">ggplot2</span>'s <code><a href='https://ggplot2.tidyverse.org/reference/geom_smooth.html'>geom_smooth</a></code> with <code>method = "auto"</code>. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.</p>
-<p>When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or <code>which = "both"</code>, or when treatment is longitudinal), the plots will be displayed in a grid using <span class="pkg">ggplot2</span>'s <code><a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid</a></code>. Subclassification cannot be used with clusters or multiply imputed data.</p>
-<p>To change the plot and axis titles, use <code><a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs</a></code>. Because the output is a <code>ggplot</code> object, other elements can be changed using <span class="pkg">ggplot2</span> functions; see <a href='https://stackoverflow.com/questions/61255335/change-legend-generated-by-bal-plot'>here</a> for an example.</p>
+    <p><code>bal.plot()</code> uses <code>ggplot()</code> from the <span class="pkg">ggplot2</span> package, and (invisibly) returns a <code>"ggplot"</code> object. For categorical treatments with continuous covariates or continuous treatments with categorical covariates, density plots are created using <code>geom_density</code>, histograms are created using <code>geom_histogram</code>, and empirical CDF plots are created using <code>geom_step</code>; for categorical treatments with categorical covariates, bar graphs are created using <code>geom_bar</code>; for continuous treatments with continuous covariates, scatterplots are created using <code>geom_point</code>.</p>
+<p>For continuous treatments with continuous covariates, four additional lines are presented for aid in balance assessment. The red line is the linear fit line. The blue line is a smoothing curve generated with <span class="pkg">ggplot2</span>'s <code>geom_smooth</code> with <code>method = "auto"</code>. The horizontal black line is a horizontal reference line intercepting the (unweighted) treatment mean. The vertical black line is a reference line intercepting the (unweighted) treatment mean. Balance is indicated by the flatness of both fit lines and whether they pass through the intersection of the two black reference lines.</p>
+<p>When multiple plots are to be displayed (i.e., when requesting subclass balance, cluster balance, or imputation balance, or when multiple sets of weights are provided or <code>which = "both"</code>, or when treatment is longitudinal), the plots will be displayed in a grid using <span class="pkg">ggplot2</span>'s <code>facet_grid</code>. Subclassification cannot be used with clusters or multiply imputed data.</p>
+<p>To change the plot and axis titles, use <code>labs</code>. Because the output is a <code>ggplot</code> object, other elements can be changed using <span class="pkg">ggplot2</span> functions; see <a href='https://stackoverflow.com/questions/61255335/change-legend-generated-by-bal-plot'>here</a> for an example.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A <code>"ggplot"</code> object, returned invisibly.</p>
@@ -293,35 +293,35 @@
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"MatchIt"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
 
 <span class='co'>#Nearest Neighbor Matching</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>MatchIt</span>)
-</div><div class='output co'>#&gt; <span class='message'></span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>MatchIt</span><span class='op'>)</span>
+<span class='va'>m.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> 
+                 <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, 
+                 data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span>
+
+<span class='fu'>bal.plot</span><span class='op'>(</span><span class='va'>m.out</span>, <span class='st'>"age"</span>, which <span class='op'>=</span> <span class='st'>"both"</span><span class='op'>)</span>
+<span class='fu'>bal.plot</span><span class='op'>(</span><span class='va'>m.out</span>, <span class='st'>"re74"</span>, which <span class='op'>=</span> <span class='st'>"both"</span>, type <span class='op'>=</span> <span class='st'>"ecdf"</span><span class='op'>)</span>
+<span class='fu'>bal.plot</span><span class='op'>(</span><span class='va'>m.out</span>, <span class='st'>"race"</span>, which <span class='op'>=</span> <span class='st'>"both"</span><span class='op'>)</span>
+<span class='fu'>bal.plot</span><span class='op'>(</span><span class='va'>m.out</span>, <span class='st'>"distance"</span>, which <span class='op'>=</span> <span class='st'>"both"</span>, mirror <span class='op'>=</span> <span class='cn'>TRUE</span>,
+         type <span class='op'>=</span> <span class='st'>"histogram"</span>, colors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"white"</span>, <span class='st'>"black"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>; <span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"WeightIt"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='co'>#PS weighting with a continuous treatment</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ngreifer.github.io/WeightIt/'>WeightIt</a></span><span class='op'>)</span>
+<span class='va'>w.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit</a></span><span class='op'>(</span><span class='va'>re75</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='fu'><a href='https://rdrr.io/r/base/AsIs.html'>I</a></span><span class='op'>(</span><span class='va'>age</span><span class='op'>^</span><span class='fl'>2</span><span class='op'>)</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> 
+                  <span class='va'>race</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span>,
+                  data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span>
+                  
+<span class='fu'>bal.plot</span><span class='op'>(</span><span class='va'>w.out</span>, <span class='st'>"age"</span>, which <span class='op'>=</span> <span class='st'>"both"</span><span class='op'>)</span>
+<span class='fu'>bal.plot</span><span class='op'>(</span><span class='va'>w.out</span>, <span class='st'>"married"</span>, which <span class='op'>=</span> <span class='st'>"both"</span><span class='op'>)</span>
+<span class='op'>}</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘MatchIt’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked _by_ ‘.GlobalEnv’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    lalonde</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:cobalt’:</span>
 #&gt; <span class='message'></span>
-#&gt; <span class='message'>    lalonde</span></div><div class='input'><span class='kw'>m.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/MatchIt/man/matchit.html'>matchit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
-                 <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
-                 data = <span class='kw'>lalonde</span>)
-
-<span class='fu'>bal.plot</span>(<span class='kw'>m.out</span>, <span class='st'>"age"</span>, which = <span class='st'>"both"</span>)
-</div><div class='img'><img src='bal.plot-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='kw'>m.out</span>, <span class='st'>"re74"</span>, which = <span class='st'>"both"</span>, type = <span class='st'>"ecdf"</span>)
-</div><div class='img'><img src='bal.plot-2.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='kw'>m.out</span>, <span class='st'>"race"</span>, which = <span class='st'>"both"</span>)
-</div><div class='img'><img src='bal.plot-3.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='kw'>m.out</span>, <span class='st'>"distance"</span>, which = <span class='st'>"both"</span>, mirror = <span class='fl'>TRUE</span>,
-         type = <span class='st'>"histogram"</span>, colors = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"white"</span>, <span class='st'>"black"</span>))
-</div><div class='img'><img src='bal.plot-4.png' alt='' width='700' height='433' /></div><div class='input'>         
-<span class='co'>#PS weighting with a continuous treatment</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://ngreifer.github.io/WeightIt'>WeightIt</a></span>)
-<span class='kw'>w.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='kw'>re75</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='fu'><a href='https://rdrr.io/r/base/AsIs.html'>I</a></span>(<span class='kw'>age</span><span class='op'>^</span><span class='fl'>2</span>) <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> 
-                  <span class='kw'>race</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span>,
-                  data = <span class='kw'>lalonde</span>)
-                  
-<span class='fu'>bal.plot</span>(<span class='kw'>w.out</span>, <span class='st'>"age"</span>, which = <span class='st'>"both"</span>)
-</div><div class='img'><img src='bal.plot-5.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'>bal.plot</span>(<span class='kw'>w.out</span>, <span class='st'>"married"</span>, which = <span class='st'>"both"</span>)
-</div><div class='img'><img src='bal.plot-6.png' alt='' width='700' height='433' /></div><div class='input'>
-</div></pre>
+#&gt; <span class='message'>    lalonde</span></div><div class='img'><img src='bal.plot-1.png' alt='' width='700' height='433' /></div><div class='img'><img src='bal.plot-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

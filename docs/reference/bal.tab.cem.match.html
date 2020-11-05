@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -153,25 +153,25 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for cem.match</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
-        <span class='kw'>data</span>, 
-        <span class='kw'>stats</span>,
-        int = <span class='fl'>FALSE</span>, 
-        poly = <span class='fl'>1</span>, 
-        distance = <span class='kw'>NULL</span>, 
-        addl = <span class='kw'>NULL</span>, 
-        <span class='kw'>continuous</span>,  
-        <span class='kw'>binary</span>, 
-        <span class='kw'>s.d.denom</span>, 
-        thresholds = <span class='kw'>NULL</span>,
-        weights = <span class='kw'>NULL</span>,
-        cluster = <span class='kw'>NULL</span>, 
-        imp = <span class='kw'>NULL</span>,
-        pairwise = <span class='fl'>TRUE</span>,
-        abs = <span class='fl'>FALSE</span>,
-        subset = <span class='kw'>NULL</span>,
-        quick = <span class='fl'>TRUE</span>, 
-        <span class='kw'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>x</span>, 
+        <span class='va'>data</span>, 
+        <span class='va'>stats</span>,
+        int <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+        poly <span class='op'>=</span> <span class='fl'>1</span>, 
+        distance <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        addl <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        <span class='va'>continuous</span>,  
+        <span class='va'>binary</span>, 
+        <span class='va'>s.d.denom</span>, 
+        thresholds <span class='op'>=</span> <span class='cn'>NULL</span>,
+        weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+        cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        imp <span class='op'>=</span> <span class='cn'>NULL</span>,
+        pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>,
+        abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
+        subset <span class='op'>=</span> <span class='cn'>NULL</span>,
+        quick <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -206,11 +206,11 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
@@ -256,13 +256,13 @@
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>bal.tab.cem.match()</code> generates a list of balance summaries for the <code>cem.match</code> object given, and functions similarly to <code><a href='https://rdrr.io/pkg/cem/man/imbalance.html'>imbalance()</a></code> in <span class="pkg">cem</span>.</p>
+    <p><code>bal.tab.cem.match()</code> generates a list of balance summaries for the <code>cem.match</code> object given, and functions similarly to <code>imbalance()</code> in <span class="pkg">cem</span>.</p>
 <p>The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>If clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>cem.match</code> object. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
 <p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p>
-<p>If <code><a href='https://rdrr.io/pkg/cem/man/cem.html'>cem()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
+<p>If <code>cem()</code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
@@ -272,35 +272,15 @@
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='http://gking.harvard.edu/cem'>cem</a></span>); <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
-</div><div class='output co'>#&gt; <span class='message'>Loading required package: tcltk</span></div><div class='output co'>#&gt; <span class='warning'>Warning: couldn't connect to display ":0"</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: lattice</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>How to use CEM? Type vignette("cem")</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: ‘cem’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:optmatch’:</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    pair</span></div><div class='input'>
-<span class='co'>## Coarsened exact matching</span>
-<span class='kw'>cem.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/cem/man/cem.html'>cem</a></span>(<span class='st'>"treat"</span>, data = <span class='kw'>lalonde</span>, drop = <span class='st'>"re78"</span>)
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>cem</span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
 
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>cem.out</span>, data = <span class='kw'>lalonde</span>, un = <span class='fl'>TRUE</span>, 
-        stats = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"m"</span>, <span class='st'>"k"</span>))
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span><span>
-#&gt;                Type Diff.Un  KS.Un Diff.Adj KS.Adj
-#&gt; age         Contin. -0.3094 0.1577   0.0512 0.1581
-#&gt; educ        Contin.  0.0550 0.1114  -0.0441 0.0445
-#&gt; race_black   Binary  0.6404 0.6404   0.0000 0.0000
-#&gt; race_hispan  Binary -0.0827 0.0827   0.0000 0.0000
-#&gt; race_white   Binary -0.5577 0.5577   0.0000 0.0000
-#&gt; married      Binary -0.3236 0.3236   0.0000 0.0000
-#&gt; nodegree     Binary  0.1114 0.1114   0.0000 0.0000
-#&gt; re74        Contin. -0.7211 0.4470  -0.0341 0.2418
-#&gt; re75        Contin. -0.2903 0.2876  -0.0528 0.1162
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Sample sizes</span><span>
-#&gt;                      Control Treated
-#&gt; All                   429.       185
-#&gt; Matched (ESS)          36.29      68
-#&gt; Matched (Unweighted)   78.        68
-#&gt; Unmatched             351.       117</div></span></pre>
+<span class='co'>## Coarsened exact matching</span>
+<span class='va'>cem.out</span> <span class='op'>&lt;-</span> <span class='fu'>cem</span><span class='op'>(</span><span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, drop <span class='op'>=</span> <span class='st'>"re78"</span><span class='op'>)</span>
+
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>cem.out</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"m"</span>, <span class='st'>"k"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

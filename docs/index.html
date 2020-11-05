@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -126,64 +126,60 @@
 <a href="#examples" class="anchor"></a>Examples</h3>
 <p>Below are examples of <code>cobalt</code>’s primary functions:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st"><a href="https://ngreifer.github.io/cobalt">"cobalt"</a></span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="st">"MatchIt"</span>)
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"lalonde"</span>, package = <span class="st">"cobalt"</span>)
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st">"MatchIt"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
 
 <span class="co"># Nearest neighbor matching with MatchIt</span>
-<span class="kw">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit</a></span>(<span class="kw">treat</span> <span class="op">~</span> <span class="kw">age</span> <span class="op">+</span> <span class="kw">educ</span> <span class="op">+</span> <span class="kw">race</span> <span class="op">+</span> <span class="kw">married</span> <span class="op">+</span> <span class="kw">nodegree</span> <span class="op">+</span> <span class="kw">re74</span> <span class="op">+</span> <span class="kw">re75</span>, data = <span class="kw">lalonde</span>)
+<span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span>
 
 <span class="co"># Checking balance before and after matching:</span>
-<span class="fu"><a href="reference/bal.tab.html">bal.tab</a></span>(<span class="kw">m.out</span>, thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(m = <span class="fl">0.1</span>), un = <span class="fl">TRUE</span>)
-</pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">#&gt; Call</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt;  matchit(formula = treat ~ age + educ + race + married + nodegree + </span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt;     re74 + re75, data = lalonde)</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; </span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt; Balance Measures</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt;                 Type Diff.Un Diff.Adj        M.Threshold</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt; distance    Distance  1.7941   0.9739                   </span></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt; age          Contin. -0.3094   0.0718     Balanced, &lt;0.1</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; educ         Contin.  0.0550  -0.1290 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="co">#&gt; race_black    Binary  0.6404   0.3730 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="co">#&gt; race_hispan   Binary -0.0827  -0.1568 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a><span class="co">#&gt; race_white    Binary -0.5577  -0.2162 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#&gt; married       Binary -0.3236  -0.0216     Balanced, &lt;0.1</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#&gt; nodegree      Binary  0.1114   0.0703     Balanced, &lt;0.1</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a><span class="co">#&gt; re74         Contin. -0.7211  -0.0505     Balanced, &lt;0.1</span></span>
-<span id="cb2-16"><a href="#cb2-16"></a><span class="co">#&gt; re75         Contin. -0.2903  -0.0257     Balanced, &lt;0.1</span></span>
-<span id="cb2-17"><a href="#cb2-17"></a><span class="co">#&gt; </span></span>
-<span id="cb2-18"><a href="#cb2-18"></a><span class="co">#&gt; Balance tally for mean differences</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a><span class="co">#&gt;                    count</span></span>
-<span id="cb2-20"><a href="#cb2-20"></a><span class="co">#&gt; Balanced, &lt;0.1         5</span></span>
-<span id="cb2-21"><a href="#cb2-21"></a><span class="co">#&gt; Not Balanced, &gt;0.1     4</span></span>
-<span id="cb2-22"><a href="#cb2-22"></a><span class="co">#&gt; </span></span>
-<span id="cb2-23"><a href="#cb2-23"></a><span class="co">#&gt; Variable with the greatest mean difference</span></span>
-<span id="cb2-24"><a href="#cb2-24"></a><span class="co">#&gt;    Variable Diff.Adj        M.Threshold</span></span>
-<span id="cb2-25"><a href="#cb2-25"></a><span class="co">#&gt;  race_black    0.373 Not Balanced, &gt;0.1</span></span>
-<span id="cb2-26"><a href="#cb2-26"></a><span class="co">#&gt; </span></span>
-<span id="cb2-27"><a href="#cb2-27"></a><span class="co">#&gt; Sample sizes</span></span>
-<span id="cb2-28"><a href="#cb2-28"></a><span class="co">#&gt;           Control Treated</span></span>
-<span id="cb2-29"><a href="#cb2-29"></a><span class="co">#&gt; All           429     185</span></span>
-<span id="cb2-30"><a href="#cb2-30"></a><span class="co">#&gt; Matched       185     185</span></span>
-<span id="cb2-31"><a href="#cb2-31"></a><span class="co">#&gt; Unmatched     244       0</span></span></code></pre></div>
+<span class="fu"><a href="reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Call</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  matchit(formula = treat ~ age + educ + race + married + nodegree + </span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     re74 + re75, data = lalonde)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Balance Measures</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 Type Diff.Un Diff.Adj        M.Threshold</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; distance    Distance  1.7941   0.9739                   </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; age          Contin. -0.3094   0.0718     Balanced, &lt;0.1</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; educ         Contin.  0.0550  -0.1290 Not Balanced, &gt;0.1</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; race_black    Binary  0.6404   0.3730 Not Balanced, &gt;0.1</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; race_hispan   Binary -0.0827  -0.1568 Not Balanced, &gt;0.1</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; race_white    Binary -0.5577  -0.2162 Not Balanced, &gt;0.1</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; married       Binary -0.3236  -0.0216     Balanced, &lt;0.1</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; nodegree      Binary  0.1114   0.0703     Balanced, &lt;0.1</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; re74         Contin. -0.7211  -0.0505     Balanced, &lt;0.1</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; re75         Contin. -0.2903  -0.0257     Balanced, &lt;0.1</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Balance tally for mean differences</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                    count</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Balanced, &lt;0.1         5</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Not Balanced, &gt;0.1     4</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Variable with the greatest mean difference</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    Variable Diff.Adj        M.Threshold</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  race_black    0.373 Not Balanced, &gt;0.1</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Sample sizes</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Control Treated</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; All           429     185</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Matched       185     185</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Unmatched     244       0</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit">
 <span class="co"># Examining distributional balance with plots:</span>
-<span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span>(<span class="kw">m.out</span>, var.name = <span class="st">"educ"</span>)
-<span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span>(<span class="kw">m.out</span>, var.name = <span class="st">"distance"</span>, mirror = <span class="fl">TRUE</span>, type = <span class="st">"histogram"</span>)
-</pre></div>
+<span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"educ"</span><span class="op">)</span>
+<span class="fu"><a href="reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"distance"</span>, mirror <span class="op">=</span> <span class="cn">TRUE</span>, type <span class="op">=</span> <span class="st">"histogram"</span><span class="op">)</span></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-3-1.png"><img src="reference/figures/README-unnamed-chunk-3-2.png"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit">
 <span class="co"># Generating a Love plot to report balance:</span>
-<span class="fu"><a href="reference/love.plot.html">love.plot</a></span>(<span class="kw">m.out</span>, stats = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span>), thresholds = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(m = <span class="fl">0.1</span>, 
-    v = <span class="fl">2</span>), abs = <span class="fl">TRUE</span>, binary = <span class="st">"std"</span>, var.order = <span class="st">"unadjusted"</span>)
-</pre></div>
+<span class="fu"><a href="reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">0.1</span>, 
+    v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, abs <span class="op">=</span> <span class="cn">TRUE</span>, binary <span class="op">=</span> <span class="st">"std"</span>, var.order <span class="op">=</span> <span class="st">"unadjusted"</span><span class="op">)</span></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;"></p>
 <p>Please remember to cite this package when using it to analyze data. For example, in a manuscript, you could write: “Matching was performed using the <em>Matching</em> package (Sekhon, 2011), and covariate balance was assessed using <em>cobalt</em> (Greifer, 2020), both in R (R Core Team, 2020).” Use <code><a href="https://rdrr.io/r/utils/citation.html">citation("cobalt")</a></code> to generate a bibliographic reference for the <code>cobalt</code> package.</p>
 <p>Bugs appear in <code>cobalt</code> occasionally, often found by users. Please report any bugs at <a href="https://github.com/ngreifer/cobalt/issues" class="uri">https://github.com/ngreifer/cobalt/issues</a>. To install the latest development version of <code>cobalt</code>, which may have removed a bug you’re experiencing, use the following code:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="kw">devtools</span>::<span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"ngreifer/cobalt"</span>)
-</pre></div>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"ngreifer/cobalt"</span><span class="op">)</span></pre></div>
 </div>
 </div>
 </div>

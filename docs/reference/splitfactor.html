@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -152,14 +152,14 @@
     <p><code>splitfactor()</code> splits factor variables into dummy (0/1) variables. This can be useful when functions do not process factor variables well or require numeric matrices to operate. <code>unsplitfactor()</code> combines dummy variables into factor variables, undoing the operation of <code>splitfactor()</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>splitfactor</span>(<span class='kw'>data</span>, <span class='kw'>var.name</span>, drop.level = <span class='kw'>NULL</span>, 
-            drop.first = <span class='fl'>TRUE</span>, drop.singleton = <span class='fl'>FALSE</span>, 
-            drop.na = <span class='fl'>TRUE</span>, sep = <span class='st'>"_"</span>, replace = <span class='fl'>TRUE</span>, 
-            split.with = <span class='kw'>NULL</span>, check = <span class='fl'>TRUE</span>)
+    <pre class="usage"><span class='fu'>splitfactor</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>var.name</span>, drop.level <span class='op'>=</span> <span class='cn'>NULL</span>, 
+            drop.first <span class='op'>=</span> <span class='cn'>TRUE</span>, drop.singleton <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+            drop.na <span class='op'>=</span> <span class='cn'>TRUE</span>, sep <span class='op'>=</span> <span class='st'>"_"</span>, replace <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+            split.with <span class='op'>=</span> <span class='cn'>NULL</span>, check <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
-<span class='fu'>unsplitfactor</span>(<span class='kw'>data</span>, <span class='kw'>var.name</span>, dropped.level = <span class='kw'>NULL</span>, 
-              dropped.na = <span class='fl'>TRUE</span>, sep = <span class='st'>"_"</span>, 
-              replace = <span class='fl'>TRUE</span>)</pre>
+<span class='fu'>unsplitfactor</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>var.name</span>, dropped.level <span class='op'>=</span> <span class='cn'>NULL</span>, 
+              dropped.na <span class='op'>=</span> <span class='cn'>TRUE</span>, sep <span class='op'>=</span> <span class='st'>"_"</span>, 
+              replace <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -224,27 +224,27 @@
     <p>For <code>splitfactor()</code>, a data frame containing the original data set with the newly created dummies. For <code>unsplitfactor()</code>. a data frame containing the original data set with the newly created factor variables.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
 
-<span class='kw'>lalonde.split</span> <span class='op'>&lt;-</span> <span class='fu'>splitfactor</span>(<span class='kw'>lalonde</span>, <span class='st'>"race"</span>, 
-                           replace = <span class='fl'>TRUE</span>, 
-                           drop.first = <span class='fl'>TRUE</span>)
+<span class='va'>lalonde.split</span> <span class='op'>&lt;-</span> <span class='fu'>splitfactor</span><span class='op'>(</span><span class='va'>lalonde</span>, <span class='st'>"race"</span>, 
+                           replace <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+                           drop.first <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 <span class='co'># A data set with "race_hispan" and "race_white" instead</span>
 <span class='co'># of "race".</span>
 
-<span class='kw'>lalonde.unsplit</span> <span class='op'>&lt;-</span> <span class='fu'>unsplitfactor</span>(<span class='kw'>lalonde.split</span>, <span class='st'>"race"</span>, 
-                        replace = <span class='fl'>TRUE</span>,
-                        dropped.level = <span class='st'>"black"</span>)
+<span class='va'>lalonde.unsplit</span> <span class='op'>&lt;-</span> <span class='fu'>unsplitfactor</span><span class='op'>(</span><span class='va'>lalonde.split</span>, <span class='st'>"race"</span>, 
+                        replace <span class='op'>=</span> <span class='cn'>TRUE</span>,
+                        dropped.level <span class='op'>=</span> <span class='st'>"black"</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span>(<span class='kw'>lalonde</span>, <span class='kw'>lalonde.unsplit</span>) <span class='co'>#TRUE</span>
+<span class='fu'><a href='https://rdrr.io/r/base/all.equal.html'>all.equal</a></span><span class='op'>(</span><span class='va'>lalonde</span>, <span class='va'>lalonde.unsplit</span><span class='op'>)</span> <span class='co'>#TRUE</span>
 </div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 <span class='co'># Demonstrating the use of split.with:</span>
-<span class='kw'>to.split</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>letters</span>[<span class='fl'>1</span><span class='op'>:</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='kw'>lalonde</span>)],
-                 <span class='fl'>1</span><span class='op'>:</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='kw'>lalonde</span>))
+<span class='va'>to.split</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>letters</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>)</span><span class='op'>]</span>,
+                 <span class='fl'>1</span><span class='op'>:</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>)</span><span class='op'>)</span>
                  
-<span class='kw'>lalonde.split</span> <span class='op'>&lt;-</span> <span class='fu'>splitfactor</span>(<span class='kw'>lalonde</span>, split.with = <span class='kw'>to.split</span>,
-                             drop.first = <span class='fl'>FALSE</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span>(<span class='kw'>lalonde.split</span>, <span class='st'>"split.with"</span>)
+<span class='va'>lalonde.split</span> <span class='op'>&lt;-</span> <span class='fu'>splitfactor</span><span class='op'>(</span><span class='va'>lalonde</span>, split.with <span class='op'>=</span> <span class='va'>to.split</span>,
+                             drop.first <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span><span class='op'>(</span><span class='va'>lalonde.split</span>, <span class='st'>"split.with"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; [[1]]
 #&gt;       treat         age        educ  race_black race_hispan  race_white 
 #&gt;         "a"         "b"         "c"         "d"         "d"         "d" 

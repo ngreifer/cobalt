@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -153,53 +153,53 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for weightit</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
-        <span class='kw'>stats</span>,
-        int = <span class='fl'>FALSE</span>, 
-        poly = <span class='fl'>1</span>, 
-        distance = <span class='kw'>NULL</span>, 
-        addl = <span class='kw'>NULL</span>, 
-        data = <span class='kw'>NULL</span>, 
-        <span class='kw'>continuous</span>,  
-        <span class='kw'>binary</span>, 
-        <span class='kw'>s.d.denom</span>, 
-        thresholds = <span class='kw'>NULL</span>, 
-        weights = <span class='kw'>NULL</span>,
-        cluster = <span class='kw'>NULL</span>, 
-        imp = <span class='kw'>NULL</span>, 
-        pairwise = <span class='fl'>TRUE</span>, 
-        abs = <span class='fl'>FALSE</span>,
-        subset = <span class='kw'>NULL</span>,
-        quick = <span class='fl'>TRUE</span>, 
-        <span class='kw'>...</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>x</span>, 
+        <span class='va'>stats</span>,
+        int <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+        poly <span class='op'>=</span> <span class='fl'>1</span>, 
+        distance <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        addl <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        data <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        <span class='va'>continuous</span>,  
+        <span class='va'>binary</span>, 
+        <span class='va'>s.d.denom</span>, 
+        thresholds <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+        cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        imp <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
+        subset <span class='op'>=</span> <span class='cn'>NULL</span>,
+        quick <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for weightitMSM</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
-        <span class='kw'>stats</span>,
-        int = <span class='fl'>FALSE</span>, 
-        poly = <span class='fl'>1</span>, 
-        distance.list = <span class='kw'>NULL</span>, 
-        addl.list = <span class='kw'>NULL</span>, 
-        data = <span class='kw'>NULL</span>, 
-        <span class='kw'>continuous</span>,  
-        <span class='kw'>binary</span>, 
-        <span class='kw'>s.d.denom</span>, 
-        thresholds = <span class='kw'>NULL</span>, 
-        weights = <span class='kw'>NULL</span>,
-        cluster = <span class='kw'>NULL</span>, 
-        imp = <span class='kw'>NULL</span>, 
-        pairwise = <span class='fl'>TRUE</span>, 
-        abs = <span class='fl'>FALSE</span>,
-        subset = <span class='kw'>NULL</span>,
-        quick = <span class='fl'>TRUE</span>, 
-        <span class='kw'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>x</span>, 
+        <span class='va'>stats</span>,
+        int <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+        poly <span class='op'>=</span> <span class='fl'>1</span>, 
+        distance.list <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        addl.list <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        data <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        <span class='va'>continuous</span>,  
+        <span class='va'>binary</span>, 
+        <span class='va'>s.d.denom</span>, 
+        thresholds <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+        cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        imp <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
+        subset <span class='op'>=</span> <span class='cn'>NULL</span>,
+        quick <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>a <code>weightit</code> or <code>weightitMSM</code> object; the output of a call to <code><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit()</a></code> or <code><a href='https://rdrr.io/pkg/WeightIt/man/weightitMSM.html'>weightitMSM()</a></code> from the <span class="pkg">WeightIt</span> package.</p></td>
+      <td><p>a <code>weightit</code> or <code>weightitMSM</code> object; the output of a call to <code><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit()</a></code> or <code><a href='https://ngreifer.github.io/WeightIt/reference/weightitMSM.html'>weightitMSM()</a></code> from the <span class="pkg">WeightIt</span> package.</p></td>
     </tr>
     <tr>
       <th>stats</th>
@@ -215,7 +215,7 @@
     </tr>
     <tr>
       <th>distance, distance.list</th>
-      <td><p>an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will look first in the argument to <code>data</code>, if specified, and next in the <code>weightit</code> or <code>weightitMSM</code> object. Note that propensity scores generated by <code><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit()</a></code> and <code><a href='https://rdrr.io/pkg/WeightIt/man/weightitMSM.html'>weightitMSM()</a></code> are automatically included and named "prop.score". For <code>weightitMSM</code> objects, can be a list of distance values as described above, with one list entry per time period.</p></td>
+      <td><p>an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will look first in the argument to <code>data</code>, if specified, and next in the <code>weightit</code> or <code>weightitMSM</code> object. Note that propensity scores generated by <code><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit()</a></code> and <code><a href='https://ngreifer.github.io/WeightIt/reference/weightitMSM.html'>weightitMSM()</a></code> are automatically included and named "prop.score". For <code>weightitMSM</code> objects, can be a list of distance values as described above, with one list entry per time period.</p></td>
     </tr>
     <tr>
       <th>addl, addl.list</th>
@@ -227,11 +227,11 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code> and <code><a href='Balance Summary.html'>col_w_corr</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code> and <code><a href='Balance Summary.html'>col_w_corr</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code> and <code><a href='Balance Summary.html'>col_w_corr</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code> and <code><a href='Balance Summary.html'>col_w_corr</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
@@ -251,7 +251,7 @@
     </tr>
     <tr>
       <th>imp</th>
-      <td><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the original data set used in the call to <code><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit()</a></code>. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></td>
+      <td><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the original data set used in the call to <code><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit()</a></code>. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></td>
     </tr>
     <tr>
       <th>pairwise</th>
@@ -263,7 +263,7 @@
     </tr>
     <tr>
       <th>subset</th>
-      <td><p>a <code>logical</code> or <code>numeric</code> vector denoting whether each observation should be included or which observations should be included. If <code>logical</code>, it should be the same length as the variables in the original call to <code><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit()</a></code> or <code><a href='https://rdrr.io/pkg/WeightIt/man/weightitMSM.html'>weightitMSM()</a></code>. <code>NA</code>s will be treated as <code>FALSE</code>. This can be used as an alternative to <code>cluster</code> to examine balance on subsets of the data.</p></td>
+      <td><p>a <code>logical</code> or <code>numeric</code> vector denoting whether each observation should be included or which observations should be included. If <code>logical</code>, it should be the same length as the variables in the original call to <code><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit()</a></code> or <code><a href='https://ngreifer.github.io/WeightIt/reference/weightitMSM.html'>weightitMSM()</a></code>. <code>NA</code>s will be treated as <code>FALSE</code>. This can be used as an alternative to <code>cluster</code> to examine balance on subsets of the data.</p></td>
     </tr>
     <tr>
       <th>quick</th>
@@ -283,8 +283,8 @@
 
     <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>weightit</code> object. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
 <p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p>
-<p>If <code><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
-<p>If <code><a href='https://rdrr.io/pkg/WeightIt/man/weightitMSM.html'>weightitMSM()</a></code> is used for longitudinal treatments, an object of class <code>"bal.tab.msm"</code> containing balance summaries for each time period. See <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for details.</p>
+<p>If <code><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
+<p>If <code><a href='https://ngreifer.github.io/WeightIt/reference/weightitMSM.html'>weightitMSM()</a></code> is used for longitudinal treatments, an object of class <code>"bal.tab.msm"</code> containing balance summaries for each time period. See <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
@@ -294,100 +294,33 @@
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://ngreifer.github.io/WeightIt'>WeightIt</a></span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/all.html'>all</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>sapply</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"WeightIt"</span>, <span class='st'>"twang"</span><span class='op'>)</span>, <span class='va'>requireNamespace</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ngreifer.github.io/WeightIt/'>WeightIt</a></span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
 
 <span class='co'>## Basic propensity score weighting</span>
-<span class='kw'>w.out1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
-                  <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
-                  data = <span class='kw'>lalonde</span>, method = <span class='st'>"ps"</span>)
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>w.out1</span>, un = <span class='fl'>TRUE</span>, m.threshold = <span class='fl'>.1</span>, 
-        v.threshold = <span class='fl'>2</span>)
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
-#&gt;  weightit(formula = treat ~ age + educ + race + married + nodegree + 
-#&gt;     re74 + re75, data = lalonde, method = "ps")
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Balance Measures</span><span>
-#&gt;                 Type Diff.Un V.Ratio.Un Diff.Adj        M.Threshold V.Ratio.Adj
-#&gt; prop.score  Distance  1.7569     0.9211   0.1360                         0.9758
-#&gt; age          Contin. -0.2419     0.4400  -0.1676 Not Balanced, &gt;0.1      0.3689
-#&gt; educ         Contin.  0.0448     0.4959   0.1296 Not Balanced, &gt;0.1      0.5657
-#&gt; race_black    Binary  0.6404          .   0.0499     Balanced, &lt;0.1           .
-#&gt; race_hispan   Binary -0.0827          .   0.0047     Balanced, &lt;0.1           .
-#&gt; race_white    Binary -0.5577          .  -0.0546     Balanced, &lt;0.1           .
-#&gt; married       Binary -0.3236          .  -0.0944     Balanced, &lt;0.1           .
-#&gt; nodegree      Binary  0.1114          .  -0.0547     Balanced, &lt;0.1           .
-#&gt; re74         Contin. -0.5958     0.5181  -0.2740 Not Balanced, &gt;0.1      0.8208
-#&gt; re75         Contin. -0.2870     0.9563  -0.1579 Not Balanced, &gt;0.1      0.9562
-#&gt;                  V.Threshold
-#&gt; prop.score      Balanced, &lt;2
-#&gt; age         Not Balanced, &gt;2
-#&gt; educ            Balanced, &lt;2
-#&gt; race_black                  
-#&gt; race_hispan                 
-#&gt; race_white                  
-#&gt; married                     
-#&gt; nodegree                    
-#&gt; re74            Balanced, &lt;2
-#&gt; re75            Balanced, &lt;2
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Balance tally for mean differences</span><span>
-#&gt;                    count
-#&gt; Balanced, &lt;0.1         5
-#&gt; Not Balanced, &gt;0.1     4
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Variable with the greatest mean difference</span><span>
-#&gt;  Variable Diff.Adj        M.Threshold
-#&gt;      re74   -0.274 Not Balanced, &gt;0.1
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Balance tally for variance ratios</span><span>
-#&gt;                  count
-#&gt; Balanced, &lt;2         4
-#&gt; Not Balanced, &gt;2     1
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Variable with the greatest variance ratio</span><span>
-#&gt;  Variable V.Ratio.Adj      V.Threshold
-#&gt;       age      0.3689 Not Balanced, &gt;2
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Effective sample sizes</span><span>
-#&gt;            Control Treated
-#&gt; Unadjusted  429.    185.  
-#&gt; Adjusted    329.01   58.33</div><div class='input'>
-<span class='co'>## Entropy balancing for the ATE</span>
-<span class='kw'>w.out2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span> 
-                  <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, 
-                  data = <span class='kw'>lalonde</span>, method = <span class='st'>"entropy"</span>,
-                  estimand = <span class='st'>"ATE"</span>)
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>w.out2</span>)
-</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Call</span><span>
-#&gt;  weightit(formula = treat ~ age + educ + race + married + nodegree + 
-#&gt;     re74 + re75, data = lalonde, method = "entropy", estimand = "ATE")
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Balance Measures</span><span>
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.  -0.0002
-#&gt; educ        Contin.   0.0001
-#&gt; race_black   Binary   0.0003
-#&gt; race_hispan  Binary  -0.0001
-#&gt; race_white   Binary  -0.0002
-#&gt; married      Binary  -0.0001
-#&gt; nodegree     Binary   0.0000
-#&gt; re74        Contin.  -0.0003
-#&gt; re75        Contin.  -0.0002
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Effective sample sizes</span><span>
-#&gt;            Control Treated
-#&gt; Unadjusted  429.     185. 
-#&gt; Adjusted    342.55    40.4</div><div class='input'>
+<span class='va'>w.out1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> 
+                     <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, 
+                   data <span class='op'>=</span> <span class='va'>lalonde</span>, method <span class='op'>=</span> <span class='st'>"ps"</span><span class='op'>)</span>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>w.out1</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span>, m.threshold <span class='op'>=</span> <span class='fl'>.1</span>, 
+        v.threshold <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
+
+<span class='co'>## Weighting with a multi-category treatment</span>
+<span class='va'>w.out2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit</a></span><span class='op'>(</span><span class='va'>race</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> 
+                     <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, 
+                   data <span class='op'>=</span> <span class='va'>lalonde</span>, method <span class='op'>=</span> <span class='st'>"ps"</span>,
+                   estimand <span class='op'>=</span> <span class='st'>"ATE"</span>, use.mlogit <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>w.out2</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
 <span class='co'>## IPW for longitudinal treatments</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"iptwExWide"</span>, package = <span class='st'>"twang"</span>)
-<span class='kw'>wmsm.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightitMSM.html'>weightitMSM</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>tx1</span> <span class='op'>~</span> <span class='kw'>use0</span> <span class='op'>+</span> <span class='kw'>gender</span>,
-                             <span class='kw'>tx2</span> <span class='op'>~</span> <span class='kw'>use0</span> <span class='op'>+</span> <span class='kw'>gender</span> <span class='op'>+</span> <span class='kw'>use1</span> <span class='op'>+</span> <span class='kw'>tx1</span>,
-                             <span class='kw'>tx3</span> <span class='op'>~</span> <span class='kw'>use0</span> <span class='op'>+</span> <span class='kw'>gender</span> <span class='op'>+</span> <span class='kw'>use1</span> <span class='op'>+</span> <span class='kw'>tx1</span> <span class='op'>+</span> <span class='kw'>use2</span> <span class='op'>+</span> <span class='kw'>tx2</span>),
-                        data = <span class='kw'>iptwExWide</span>,
-                        stabilize = <span class='fl'>TRUE</span>)
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>wmsm.out</span>)
-</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Call</span><span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"iptwExWide"</span>, package <span class='op'>=</span> <span class='st'>"twang"</span><span class='op'>)</span>
+<span class='va'>wmsm.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ngreifer.github.io/WeightIt/reference/weightitMSM.html'>weightitMSM</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>tx1</span> <span class='op'>~</span> <span class='va'>use0</span> <span class='op'>+</span> <span class='va'>gender</span>,
+                             <span class='va'>tx2</span> <span class='op'>~</span> <span class='va'>use0</span> <span class='op'>+</span> <span class='va'>gender</span> <span class='op'>+</span> <span class='va'>use1</span> <span class='op'>+</span> <span class='va'>tx1</span>,
+                             <span class='va'>tx3</span> <span class='op'>~</span> <span class='va'>use0</span> <span class='op'>+</span> <span class='va'>gender</span> <span class='op'>+</span> <span class='va'>use1</span> <span class='op'>+</span> <span class='va'>tx1</span> <span class='op'>+</span> <span class='va'>use2</span> <span class='op'>+</span> <span class='va'>tx2</span><span class='op'>)</span>,
+                        data <span class='op'>=</span> <span class='va'>iptwExWide</span>,
+                        stabilize <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>wmsm.out</span><span class='op'>)</span>
+<span class='op'>}</span></div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
 #&gt;  weightitMSM(formula.list = list(tx1 ~ use0 + gender, tx2 ~ use0 + 
 #&gt;     gender + use1 + tx1, tx3 ~ use0 + gender + use1 + tx1 + use2 + 
 #&gt;     tx2), data = iptwExWide, stabilize = TRUE)

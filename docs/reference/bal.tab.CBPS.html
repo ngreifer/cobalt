@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -153,47 +153,47 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for CBPS</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
-        <span class='kw'>stats</span>,
-        int = <span class='fl'>FALSE</span>, 
-        poly = <span class='fl'>1</span>, 
-        distance = <span class='kw'>NULL</span>, 
-        addl = <span class='kw'>NULL</span>, 
-        data = <span class='kw'>NULL</span>, 
-        <span class='kw'>continuous</span>,  
-        <span class='kw'>binary</span>, 
-        <span class='kw'>s.d.denom</span>, 
-        thresholds = <span class='kw'>NULL</span>,
-        weights = <span class='kw'>NULL</span>,
-        cluster = <span class='kw'>NULL</span>, 
-        imp = <span class='kw'>NULL</span>,
-        pairwise = <span class='fl'>TRUE</span>, 
-        s.weights = <span class='kw'>NULL</span>,
-        abs = <span class='fl'>FALSE</span>,
-        subset = <span class='kw'>NULL</span>,
-        quick = <span class='fl'>TRUE</span>, 
-        <span class='kw'>...</span>)
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>x</span>, 
+        <span class='va'>stats</span>,
+        int <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+        poly <span class='op'>=</span> <span class='fl'>1</span>, 
+        distance <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        addl <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        data <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        <span class='va'>continuous</span>,  
+        <span class='va'>binary</span>, 
+        <span class='va'>s.d.denom</span>, 
+        thresholds <span class='op'>=</span> <span class='cn'>NULL</span>,
+        weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+        cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        imp <span class='op'>=</span> <span class='cn'>NULL</span>,
+        pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        s.weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+        abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
+        subset <span class='op'>=</span> <span class='cn'>NULL</span>,
+        quick <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        <span class='va'>...</span><span class='op'>)</span>
 
 <span class='co'># S3 method for CBMSM</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>x</span>, 
-        <span class='kw'>stats</span>,
-        int = <span class='fl'>FALSE</span>, 
-        poly = <span class='fl'>1</span>, 
-        distance.list = <span class='kw'>NULL</span>, 
-        addl.list = <span class='kw'>NULL</span>, 
-        data = <span class='kw'>NULL</span>, 
-        <span class='kw'>continuous</span>,  
-        <span class='kw'>binary</span>, 
-        <span class='kw'>s.d.denom</span>, 
-        thresholds = <span class='kw'>NULL</span>,
-        weights = <span class='kw'>NULL</span>,
-        cluster = <span class='kw'>NULL</span>, 
-        imp = <span class='kw'>NULL</span>,
-        s.weights = <span class='kw'>NULL</span>,
-        abs = <span class='fl'>FALSE</span>,
-        subset = <span class='kw'>NULL</span>,
-        quick = <span class='fl'>TRUE</span>, 
-        <span class='kw'>...</span>)</pre>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>x</span>, 
+        <span class='va'>stats</span>,
+        int <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+        poly <span class='op'>=</span> <span class='fl'>1</span>, 
+        distance.list <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        addl.list <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        data <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        <span class='va'>continuous</span>,  
+        <span class='va'>binary</span>, 
+        <span class='va'>s.d.denom</span>, 
+        thresholds <span class='op'>=</span> <span class='cn'>NULL</span>,
+        weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+        cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
+        imp <span class='op'>=</span> <span class='cn'>NULL</span>,
+        s.weights <span class='op'>=</span> <span class='cn'>NULL</span>,
+        abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
+        subset <span class='op'>=</span> <span class='cn'>NULL</span>,
+        quick <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -228,11 +228,11 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized ("std") or raw ("raw"). Default "std". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized ("std") or raw ("raw"). Default "raw". Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
@@ -302,22 +302,24 @@
 <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more information on longitudinal treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'>CBPS</span>)
-</div><div class='output co'>#&gt; <span class='message'>Loading required package: MASS</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: nnet</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: numDeriv</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: glmnet</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: Matrix</span></div><div class='output co'>#&gt; <span class='message'>Loaded glmnet 4.0-2</span></div><div class='output co'>#&gt; <span class='message'>CBPS: Covariate Balancing Propensity Score</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"CBPS"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>CBPS</span><span class='op'>)</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
+
+<span class='co'>## Using CBPS() for generating covariate balancing </span>
+<span class='co'>## propensity score weights</span>
+<span class='va'>cbps.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/CBPS/man/CBPS.html'>CBPS</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span>
+             <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span>
+             
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>cbps.out</span><span class='op'>)</span>
+<span class='op'>}</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: MASS</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: nnet</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: numDeriv</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: glmnet</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: Matrix</span></div><div class='output co'>#&gt; <span class='message'>Loaded glmnet 4.0-2</span></div><div class='output co'>#&gt; <span class='message'>CBPS: Covariate Balancing Propensity Score</span>
 #&gt; <span class='message'>Version: 0.21</span>
 #&gt; <span class='message'>Authors: Christian Fong [aut, cre],</span>
 #&gt; <span class='message'>  Marc Ratkovic [aut],</span>
 #&gt; <span class='message'>  Kosuke Imai [aut],</span>
 #&gt; <span class='message'>  Chad Hazlett [ctb],</span>
 #&gt; <span class='message'>  Xiaolin Yang [ctb],</span>
-#&gt; <span class='message'>  Sida Peng [ctb]</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
-
-<span class='co'>## Using CBPS() for generating covariate balancing </span>
-<span class='co'>## propensity score weights</span>
-<span class='kw'>cbps.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/CBPS/man/CBPS.html'>CBPS</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>age</span> <span class='op'>+</span> <span class='kw'>educ</span> <span class='op'>+</span> <span class='kw'>married</span> <span class='op'>+</span> <span class='kw'>race</span> <span class='op'>+</span>
-             <span class='kw'>nodegree</span> <span class='op'>+</span> <span class='kw'>re74</span> <span class='op'>+</span> <span class='kw'>re75</span>, data = <span class='kw'>lalonde</span>)
-</div><div class='output co'>#&gt; [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"</div><div class='input'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>cbps.out</span>)
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
+#&gt; <span class='message'>  Sida Peng [ctb]</span></div><div class='output co'>#&gt; [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
 #&gt;  CBPS(formula = treat ~ age + educ + married + race + nodegree + 
 #&gt;     re74 + re75, data = lalonde)
 #&gt; 

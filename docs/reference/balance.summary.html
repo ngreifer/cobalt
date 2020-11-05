@@ -89,7 +89,7 @@ col_w_cov and col_w_corr compute the (weighted) (absolute) treatment-covariate c
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.3.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
       </span>
     </div>
 
@@ -170,42 +170,42 @@ col_w_cov and col_w_corr compute the (weighted) (absolute) treatment-covariate c
 
     </div>
 
-    <pre class="usage"><span class='fu'>col_w_mean</span>(<span class='kw'>mat</span>, weights = <span class='kw'>NULL</span>, s.weights = <span class='kw'>NULL</span>, 
-           subset = <span class='kw'>NULL</span>, na.rm = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
+    <pre class="usage"><span class='fu'>col_w_mean</span><span class='op'>(</span><span class='va'>mat</span>, weights <span class='op'>=</span> <span class='cn'>NULL</span>, s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, 
+           subset <span class='op'>=</span> <span class='cn'>NULL</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span>
            
-<span class='fu'>col_w_sd</span>(<span class='kw'>mat</span>, weights = <span class='kw'>NULL</span>, s.weights = <span class='kw'>NULL</span>, 
-         <span class='kw'>bin.vars</span>, subset = <span class='kw'>NULL</span>, na.rm = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
+<span class='fu'>col_w_sd</span><span class='op'>(</span><span class='va'>mat</span>, weights <span class='op'>=</span> <span class='cn'>NULL</span>, s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, 
+         <span class='va'>bin.vars</span>, subset <span class='op'>=</span> <span class='cn'>NULL</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span>
          
-<span class='fu'>col_w_smd</span>(<span class='kw'>mat</span>, <span class='kw'>treat</span>, weights = <span class='kw'>NULL</span>, std = <span class='fl'>TRUE</span>, 
-          s.d.denom = <span class='st'>"pooled"</span>, abs = <span class='fl'>FALSE</span>, 
-          s.weights = <span class='kw'>NULL</span>, <span class='kw'>bin.vars</span>, 
-          subset = <span class='kw'>NULL</span>, weighted.weights = <span class='kw'>weights</span>, 
-          na.rm = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
+<span class='fu'>col_w_smd</span><span class='op'>(</span><span class='va'>mat</span>, <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='cn'>NULL</span>, std <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+          s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span>, abs <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+          s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>bin.vars</span>, 
+          subset <span class='op'>=</span> <span class='cn'>NULL</span>, weighted.weights <span class='op'>=</span> <span class='va'>weights</span>, 
+          na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span>
           
-<span class='fu'>col_w_vr</span>(<span class='kw'>mat</span>, <span class='kw'>treat</span>, weights = <span class='kw'>NULL</span>, abs = <span class='fl'>FALSE</span>, 
-         s.weights = <span class='kw'>NULL</span>, <span class='kw'>bin.vars</span>, 
-         subset = <span class='kw'>NULL</span>, na.rm = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
+<span class='fu'>col_w_vr</span><span class='op'>(</span><span class='va'>mat</span>, <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='cn'>NULL</span>, abs <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+         s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>bin.vars</span>, 
+         subset <span class='op'>=</span> <span class='cn'>NULL</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span>
          
-<span class='fu'>col_w_ks</span>(<span class='kw'>mat</span>, <span class='kw'>treat</span>, weights = <span class='kw'>NULL</span>, 
-         s.weights = <span class='kw'>NULL</span>, <span class='kw'>bin.vars</span>, 
-         subset = <span class='kw'>NULL</span>, na.rm = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
+<span class='fu'>col_w_ks</span><span class='op'>(</span><span class='va'>mat</span>, <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='cn'>NULL</span>, 
+         s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>bin.vars</span>, 
+         subset <span class='op'>=</span> <span class='cn'>NULL</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span>
          
-<span class='fu'>col_w_ovl</span>(<span class='kw'>mat</span>, <span class='kw'>treat</span>, weights = <span class='kw'>NULL</span>, 
-         s.weights = <span class='kw'>NULL</span>, <span class='kw'>bin.vars</span>, 
-         integrate = <span class='fl'>FALSE</span>, subset = <span class='kw'>NULL</span>, 
-         na.rm = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
+<span class='fu'>col_w_ovl</span><span class='op'>(</span><span class='va'>mat</span>, <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='cn'>NULL</span>, 
+         s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>bin.vars</span>, 
+         integrate <span class='op'>=</span> <span class='cn'>FALSE</span>, subset <span class='op'>=</span> <span class='cn'>NULL</span>, 
+         na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span>
          
-<span class='fu'>col_w_cov</span>(<span class='kw'>mat</span>, <span class='kw'>treat</span>, weights = <span class='kw'>NULL</span>, type = <span class='st'>"pearson"</span>,
-          std = <span class='fl'>FALSE</span>, s.d.denom = <span class='st'>"all"</span>, abs = <span class='fl'>FALSE</span>, 
-          s.weights = <span class='kw'>NULL</span>, <span class='kw'>bin.vars</span>, 
-          subset = <span class='kw'>NULL</span>, weighted.weights = <span class='kw'>weights</span>, 
-          na.rm = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)
+<span class='fu'>col_w_cov</span><span class='op'>(</span><span class='va'>mat</span>, <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='cn'>NULL</span>, type <span class='op'>=</span> <span class='st'>"pearson"</span>,
+          std <span class='op'>=</span> <span class='cn'>FALSE</span>, s.d.denom <span class='op'>=</span> <span class='st'>"all"</span>, abs <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+          s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>bin.vars</span>, 
+          subset <span class='op'>=</span> <span class='cn'>NULL</span>, weighted.weights <span class='op'>=</span> <span class='va'>weights</span>, 
+          na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span>
            
-<span class='fu'>col_w_corr</span>(<span class='kw'>mat</span>, <span class='kw'>treat</span>, weights = <span class='kw'>NULL</span>, type = <span class='st'>"pearson"</span>,
-           s.d.denom = <span class='st'>"all"</span>, abs = <span class='fl'>FALSE</span>, 
-           s.weights = <span class='kw'>NULL</span>, <span class='kw'>bin.vars</span>, 
-           subset = <span class='kw'>NULL</span>, weighted.weights = <span class='kw'>weights</span>, 
-           na.rm = <span class='fl'>TRUE</span>, <span class='kw'>...</span>)</pre>
+<span class='fu'>col_w_corr</span><span class='op'>(</span><span class='va'>mat</span>, <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='cn'>NULL</span>, type <span class='op'>=</span> <span class='st'>"pearson"</span>,
+           s.d.denom <span class='op'>=</span> <span class='st'>"all"</span>, abs <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+           s.weights <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>bin.vars</span>, 
+           subset <span class='op'>=</span> <span class='cn'>NULL</span>, weighted.weights <span class='op'>=</span> <span class='va'>weights</span>, 
+           na.rm <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -300,47 +300,39 @@ col_w_cov and col_w_corr compute the (weighted) (absolute) treatment-covariate c
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='st'>"lalonde"</span>, package = <span class='st'>"cobalt"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://ngreifer.github.io/WeightIt'>WeightIt</a></span>)
-<span class='kw'>treat</span> <span class='op'>&lt;-</span> <span class='kw'>lalonde</span><span class='op'>$</span><span class='kw'>treat</span>
-<span class='kw'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span>(<span class='kw'>lalonde</span>, select = <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>treat</span>, <span class='kw'>re78</span>))
-<span class='kw'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='splitfactor.html'>splitfactor</a></span>(<span class='kw'>covs</span>, drop.first = <span class='st'>"if2"</span>)
-<span class='kw'>bin.vars</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>FALSE</span>, <span class='fl'>FALSE</span>, <span class='fl'>TRUE</span>, <span class='fl'>TRUE</span>, <span class='fl'>TRUE</span>,
-              <span class='fl'>TRUE</span>, <span class='fl'>TRUE</span>, <span class='fl'>FALSE</span>, <span class='fl'>FALSE</span>)
-<span class='kw'>W</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/WeightIt/man/weightit.html'>weightit</a></span>(<span class='kw'>treat</span> <span class='op'>~</span> <span class='kw'>covs</span>, method = <span class='st'>"ps"</span>, 
-              estimand = <span class='st'>"ATE"</span>, tols = <span class='fl'>.01</span>)
-<span class='kw'>weights</span> <span class='op'>&lt;-</span> <span class='kw'>W</span><span class='op'>$</span><span class='kw'>weights</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"WeightIt"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ngreifer.github.io/WeightIt/'>WeightIt</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
 
-<span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-    m0 = <span class='fu'>col_w_mean</span>(<span class='kw'>covs</span>, weights = <span class='kw'>weights</span>, subset = <span class='kw'>treat</span> <span class='op'>==</span> <span class='fl'>0</span>),
-    sd0 = <span class='fu'>col_w_sd</span>(<span class='kw'>covs</span>, weights = <span class='kw'>weights</span>,
-                   bin.vars = <span class='kw'>bin.vars</span>, subset = <span class='kw'>treat</span> <span class='op'>==</span> <span class='fl'>0</span>),
-    m1 = <span class='fu'>col_w_mean</span>(<span class='kw'>covs</span>, weights = <span class='kw'>weights</span>, subset = <span class='kw'>treat</span> <span class='op'>==</span> <span class='fl'>1</span>),
-    sd1 = <span class='fu'>col_w_sd</span>(<span class='kw'>covs</span>, weights = <span class='kw'>weights</span>,
-                   bin.vars = <span class='kw'>bin.vars</span>, subset = <span class='kw'>treat</span> <span class='op'>==</span> <span class='fl'>1</span>),
-    smd = <span class='fu'>col_w_smd</span>(<span class='kw'>covs</span>, treat = <span class='kw'>treat</span>, weights = <span class='kw'>weights</span>,
-                     std = <span class='fl'>TRUE</span>, bin.vars = <span class='kw'>bin.vars</span>),
-    vr = <span class='fu'>col_w_vr</span>(<span class='kw'>covs</span>, treat = <span class='kw'>treat</span>, weights = <span class='kw'>weights</span>,
-                  bin.vars = <span class='kw'>bin.vars</span>),
-    ks = <span class='fu'>col_w_ks</span>(<span class='kw'>covs</span>, treat = <span class='kw'>treat</span>, weights = <span class='kw'>weights</span>,
-                  bin.vars = <span class='kw'>bin.vars</span>),
-    row.names = <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='kw'>covs</span>)
-), <span class='fl'>4</span>)
-</div><div class='output co'>#&gt;                    m0       sd0        m1       sd1     smd     vr     ks
-#&gt; age           27.1000   10.8071   25.5663    6.5640 -0.1676 0.3689 0.1912
-#&gt; educ          10.2863    2.7430   10.6064    2.0631  0.1296 0.5657 0.0768
-#&gt; race_black     0.3979    0.4895    0.4478    0.4973  0.1302 1.0322 0.0499
-#&gt; race_hispan    0.1170    0.3215    0.1217    0.3269  0.0156 1.0344 0.0047
-#&gt; race_white     0.4851    0.4998    0.4305    0.4951 -0.1378 0.9815 0.0546
-#&gt; married        0.4089    0.4916    0.3146    0.4643 -0.2102 0.8920 0.0944
-#&gt; nodegree       0.6250    0.4841    0.5702    0.4950 -0.1157 1.0456 0.0547
-#&gt; re74        4552.7364 6339.3397 2932.1844 5743.4196 -0.2740 0.8208 0.3121
-#&gt; re75        2172.0386 3161.2645 1658.0651 3091.1829 -0.1579 0.9562 0.1526</div><div class='input'>
+<span class='va'>treat</span> <span class='op'>&lt;-</span> <span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>
+<span class='va'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>, select <span class='op'>=</span> <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>re78</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='splitfactor.html'>splitfactor</a></span><span class='op'>(</span><span class='va'>covs</span>, drop.first <span class='op'>=</span> <span class='st'>"if2"</span><span class='op'>)</span>
+<span class='va'>bin.vars</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>FALSE</span>, <span class='cn'>FALSE</span>, <span class='cn'>TRUE</span>, <span class='cn'>TRUE</span>, <span class='cn'>TRUE</span>,
+              <span class='cn'>TRUE</span>, <span class='cn'>TRUE</span>, <span class='cn'>FALSE</span>, <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='va'>W</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>covs</span>, method <span class='op'>=</span> <span class='st'>"ps"</span>, 
+              estimand <span class='op'>=</span> <span class='st'>"ATE"</span>, tols <span class='op'>=</span> <span class='fl'>.01</span><span class='op'>)</span>
+<span class='va'>weights</span> <span class='op'>&lt;-</span> <span class='va'>W</span><span class='op'>$</span><span class='va'>weights</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+    m0 <span class='op'>=</span> <span class='fu'>col_w_mean</span><span class='op'>(</span><span class='va'>covs</span>, weights <span class='op'>=</span> <span class='va'>weights</span>, subset <span class='op'>=</span> <span class='va'>treat</span> <span class='op'>==</span> <span class='fl'>0</span><span class='op'>)</span>,
+    sd0 <span class='op'>=</span> <span class='fu'>col_w_sd</span><span class='op'>(</span><span class='va'>covs</span>, weights <span class='op'>=</span> <span class='va'>weights</span>,
+                   bin.vars <span class='op'>=</span> <span class='va'>bin.vars</span>, subset <span class='op'>=</span> <span class='va'>treat</span> <span class='op'>==</span> <span class='fl'>0</span><span class='op'>)</span>,
+    m1 <span class='op'>=</span> <span class='fu'>col_w_mean</span><span class='op'>(</span><span class='va'>covs</span>, weights <span class='op'>=</span> <span class='va'>weights</span>, subset <span class='op'>=</span> <span class='va'>treat</span> <span class='op'>==</span> <span class='fl'>1</span><span class='op'>)</span>,
+    sd1 <span class='op'>=</span> <span class='fu'>col_w_sd</span><span class='op'>(</span><span class='va'>covs</span>, weights <span class='op'>=</span> <span class='va'>weights</span>,
+                   bin.vars <span class='op'>=</span> <span class='va'>bin.vars</span>, subset <span class='op'>=</span> <span class='va'>treat</span> <span class='op'>==</span> <span class='fl'>1</span><span class='op'>)</span>,
+    smd <span class='op'>=</span> <span class='fu'>col_w_smd</span><span class='op'>(</span><span class='va'>covs</span>, treat <span class='op'>=</span> <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='va'>weights</span>,
+                     std <span class='op'>=</span> <span class='cn'>TRUE</span>, bin.vars <span class='op'>=</span> <span class='va'>bin.vars</span><span class='op'>)</span>,
+    vr <span class='op'>=</span> <span class='fu'>col_w_vr</span><span class='op'>(</span><span class='va'>covs</span>, treat <span class='op'>=</span> <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='va'>weights</span>,
+                  bin.vars <span class='op'>=</span> <span class='va'>bin.vars</span><span class='op'>)</span>,
+    ks <span class='op'>=</span> <span class='fu'>col_w_ks</span><span class='op'>(</span><span class='va'>covs</span>, treat <span class='op'>=</span> <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='va'>weights</span>,
+                  bin.vars <span class='op'>=</span> <span class='va'>bin.vars</span><span class='op'>)</span>,
+    row.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span><span class='op'>(</span><span class='va'>covs</span><span class='op'>)</span>
+<span class='op'>)</span>, <span class='fl'>4</span><span class='op'>)</span>
+
 <span class='co'># Compare to bal.tab():</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span>(<span class='kw'>covs</span>, <span class='kw'>treat</span>, weights = <span class='kw'>weights</span>, disp.means = <span class='fl'>TRUE</span>,
-        disp.sds = <span class='fl'>TRUE</span>, disp.v.ratio = <span class='fl'>TRUE</span>, disp.ks = <span class='fl'>TRUE</span>, 
-        estimand = <span class='st'>"ATE"</span>, method = <span class='st'>"weighting"</span>, binary = <span class='st'>"std"</span>)
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span><span>
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covs</span>, <span class='va'>treat</span>, weights <span class='op'>=</span> <span class='va'>weights</span>, disp.means <span class='op'>=</span> <span class='cn'>TRUE</span>,
+        disp.sds <span class='op'>=</span> <span class='cn'>TRUE</span>, disp.v.ratio <span class='op'>=</span> <span class='cn'>TRUE</span>, disp.ks <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+        estimand <span class='op'>=</span> <span class='st'>"ATE"</span>, method <span class='op'>=</span> <span class='st'>"weighting"</span>, binary <span class='op'>=</span> <span class='st'>"std"</span><span class='op'>)</span>
+<span class='op'>}</span></div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span><span>
 #&gt;                Type   M.0.Adj  SD.0.Adj   M.1.Adj  SD.1.Adj Diff.Adj
 #&gt; age         Contin.   27.1000   10.8071   25.5663    6.5640  -0.1676
 #&gt; educ        Contin.   10.2863    2.7430   10.6064    2.0631   0.1296
@@ -365,8 +357,7 @@ col_w_cov and col_w_corr compute the (weighted) (absolute) treatment-covariate c
 #&gt; </span><span style='text-decoration: underline;'>Effective sample sizes</span><span>
 #&gt;            Control Treated
 #&gt; Unadjusted  429.    185.  
-#&gt; Adjusted    329.01   58.33</div><div class='input'>         
-</div></span></pre>
+#&gt; Adjusted    329.01   58.33</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
