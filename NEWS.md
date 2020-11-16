@@ -1,5 +1,10 @@
 `cobalt` News and Updates
 ======
+
+# cobalt (development version)
+
+* Returned `cem` to Suggests.
+
 # cobalt 4.2.4
 
 * Sampling weights now function correctly with subclassification.

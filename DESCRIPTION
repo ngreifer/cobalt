@@ -30,6 +30,7 @@ Suggests:
     mice (>= 3.8.0),
     MatchThem (>= 0.9.3),
     sbw,
+    cem (>= 1.1.27),
     mlogit,
     knitr,
     rmarkdown

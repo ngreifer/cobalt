@@ -110,7 +110,7 @@ Noah Greifer
 \seealso{
 \code{\link{bal.tab}} for details of calculations.
 }
-\examples{\dontrun{
+\examples{\dontshow{if (requireNamespace("cem", quietly = TRUE)) \{}
 library(cem); data("lalonde", package = "cobalt")
 
 ## Coarsened exact matching
@@ -118,5 +118,5 @@ cem.out <- cem("treat", data = lalonde, drop = "re78")
 
 bal.tab(cem.out, data = lalonde, un = TRUE, 
         stats = c("m", "k"))
-}}
+\dontshow{\}}}
 \keyword{tables}
