@@ -167,18 +167,19 @@ e.out <- ebalance(lalonde$treat, covariates)
 bal.tab(e.out, treat = lalonde$treat, covs = covariates)
 \dontshow{\}}
 ########## designmatch ##########
-\dontrun{
+\donttest{
 library("designmatch"); data("lalonde", package = "cobalt")
 
 covariates <- as.matrix(lalonde[c("age", "educ", "re74", "re75")])
-dmout <- bmatch(lalonde$treat,
-                total_groups = sum(lalonde$treat == 1),
+treat <- lalonde$treat
+dmout <- bmatch(treat,
+                total_groups = sum(treat == 1),
                 mom = list(covs = covariates,
-                           tols = absstddif(covs, treat, .05))
+                           tols = absstddif(covariates, 
+                                            treat, .05))
                 )
 
 ## Using treat and covs
-bal.tab(dmout, treat = lalonde$treat, covs = covariates)
-}
-}
+bal.tab(dmout, treat = treat, covs = covariates)
+}}
 \keyword{tables}

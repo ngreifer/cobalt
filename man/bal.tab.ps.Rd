@@ -182,7 +182,7 @@ Noah Greifer
 \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more information on longitudinal treatments.
 }
 \examples{
-\dontrun{
+\donttest{
 library(twang); data("lalonde", package = "cobalt")
 
 ## Using ps() for generalized boosted modeling

@@ -32,3 +32,4 @@ Noah Greifer \email{noah.greifer@gmail.com}
 If you have found \pkg{cobalt} helpful, please let me know!
 }
 
+\keyword{internal}
