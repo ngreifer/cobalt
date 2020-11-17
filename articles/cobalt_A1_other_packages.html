@@ -45,6 +45,12 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
+  <a href="../index.html">
+    <span class="fas fa fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
+<li>
   <a href="../articles/cobalt.html">Get started</a>
 </li>
 <li>
@@ -92,13 +98,14 @@
 
       
 
-      </header><script src="cobalt_A1_other_packages_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="cobalt_A1_other_packages_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="cobalt_A1_other_packages_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="cobalt_A1_other_packages_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Appendix 1: Using cobalt with Other Preprocessing Packages</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2020-11-16</h4>
+            <h4 class="date">2020-11-17</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A1_other_packages.Rmd"><code>vignettes/cobalt_A1_other_packages.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A1_other_packages.Rmd</code></div>
@@ -122,7 +129,7 @@
 <span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span></code></pre></div>
 <pre><code>## treat ~ age + educ + race + married + nodegree + re74 + re75
-## &lt;environment: 0x7fc0c0bd89b0&gt;</code></pre>
+## &lt;environment: 0x7fe2ea1f36d0&gt;</code></pre>
 <p>The function creates a <code>formula</code> object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of <code><a href="../reference/f.build.html">f.build()</a></code> is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Generating propensity scores using logistic regression</span>
@@ -487,20 +494,20 @@
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance summary across all imputations
 ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## prop.score  Distance       0.1413        0.1555       0.1629
-## age          Contin.      -0.1964       -0.1894      -0.1828
-## educ         Contin.       0.0751        0.0812       0.0869
-## married       Binary      -0.1121       -0.1018      -0.0897
-## race_black    Binary       0.0509        0.0562       0.0599
-## race_hispan   Binary       0.0085        0.0111       0.0145
-## race_white    Binary      -0.0736       -0.0672      -0.0594
-## re74         Contin.      -0.3033       -0.2848      -0.2734
-## re75         Contin.      -0.1690       -0.1565      -0.1437
+## prop.score  Distance       0.1493        0.1558       0.1661
+## age          Contin.      -0.1920       -0.1880      -0.1848
+## educ         Contin.       0.0753        0.0839       0.0903
+## married       Binary      -0.1134       -0.1020      -0.0895
+## race_black    Binary       0.0537        0.0564       0.0599
+## race_hispan   Binary       0.0080        0.0096       0.0122
+## race_white    Binary      -0.0692       -0.0660      -0.0636
+## re74         Contin.      -0.3008       -0.2865      -0.2748
+## re75         Contin.      -0.1695       -0.1616      -0.1515
 ## 
 ## Average effective sample sizes across imputations
 ##            Control Treated
 ## Unadjusted  429.    185.  
-## Adjusted    331.09   66.72</code></pre>
+## Adjusted    331.48   66.43</code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div id="using-bal-tab-with-cem" class="section level3">
@@ -592,7 +599,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
