@@ -119,8 +119,8 @@ bal.plot(m.out, var.name = "educ")
 bal.plot(m.out, var.name = "distance", mirror = TRUE, type = "histogram")
 ```
 
-![](man/figures/README-unnamed-chunk-3-1.png)
-![](man/figures/README-unnamed-chunk-3-2.png)
+<img src="man/figures/README-unnamed-chunk-3-1.png" data-display="inline" />
+<img src="man/figures/README-unnamed-chunk-3-2.png" data-display="inline" />
 
 ``` r
 # Generating a Love plot to report balance:
