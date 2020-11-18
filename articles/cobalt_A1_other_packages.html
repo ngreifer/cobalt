@@ -105,7 +105,7 @@
       <h1 data-toc-skip>Appendix 1: Using cobalt with Other Preprocessing Packages</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2020-11-17</h4>
+            <h4 class="date">2020-11-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A1_other_packages.Rmd"><code>vignettes/cobalt_A1_other_packages.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A1_other_packages.Rmd</code></div>
@@ -129,7 +129,7 @@
 <span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span></code></pre></div>
 <pre><code>## treat ~ age + educ + race + married + nodegree + re74 + re75
-## &lt;environment: 0x7fe2ea1f36d0&gt;</code></pre>
+## &lt;environment: 0x7fc25493edd8&gt;</code></pre>
 <p>The function creates a <code>formula</code> object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of <code><a href="../reference/f.build.html">f.build()</a></code> is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Generating propensity scores using logistic regression</span>
@@ -494,20 +494,20 @@
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance summary across all imputations
 ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## prop.score  Distance       0.1493        0.1558       0.1661
-## age          Contin.      -0.1920       -0.1880      -0.1848
-## educ         Contin.       0.0753        0.0839       0.0903
-## married       Binary      -0.1134       -0.1020      -0.0895
-## race_black    Binary       0.0537        0.0564       0.0599
-## race_hispan   Binary       0.0080        0.0096       0.0122
-## race_white    Binary      -0.0692       -0.0660      -0.0636
-## re74         Contin.      -0.3008       -0.2865      -0.2748
-## re75         Contin.      -0.1695       -0.1616      -0.1515
+## prop.score  Distance       0.1418        0.1567       0.1630
+## age          Contin.      -0.1924       -0.1885      -0.1834
+## educ         Contin.       0.0763        0.0805       0.0847
+## married       Binary      -0.1130       -0.1022      -0.0905
+## race_black    Binary       0.0511        0.0565       0.0593
+## race_hispan   Binary       0.0067        0.0114       0.0136
+## race_white    Binary      -0.0707       -0.0679      -0.0579
+## re74         Contin.      -0.2962       -0.2872      -0.2789
+## re75         Contin.      -0.1691       -0.1593      -0.1482
 ## 
 ## Average effective sample sizes across imputations
 ##            Control Treated
 ## Unadjusted  429.    185.  
-## Adjusted    331.48   66.43</code></pre>
+## Adjusted    331.56   66.18</code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div id="using-bal-tab-with-cem" class="section level3">
