@@ -37,12 +37,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
     disp <- do.call("process_disp", c(list(disp), A), quote = TRUE)
     
     #Actions
-    out.names <- c("Balance", 
-                   expand.grid_string(c("Balanced", "Max.Imbalance"),
-                                      X$stats,
-                                      collapse = "."), 
-                   "Observations", "call")
-    out <- make_list(out.names)
+    out <- list()
     
     C <- do.call("get.C2", c(X, A[names(A) %nin% names(X)], list(int = int, poly = poly)), quote = TRUE)
     
@@ -62,41 +57,11 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
     thresholds <- attr(out[["Balance"]], "thresholds")
     disp <- attr(out[["Balance"]], "disp")
     
-    for (s in compute) {
-        if (is_not_null(thresholds[[s]])) {
-            if (no.adj) {
-                out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[paste.(STATS[[s]]$Threshold, "Un")]])
-                out[[paste.("Max.Imbalance", s)]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                               col.name = paste.(STATS[[s]]$bal.tab_column_prefix, "Un"), 
-                                                               thresh.col.name = paste.(STATS[[s]]$Threshold, "Un"), 
-                                                               abs_stat = STATS[[s]]$abs)
-            }
-            else if (ncol(X$weights) == 1) {
-                out[[paste.("Balanced", s)]] <- baltal(out[["Balance"]][[STATS[[s]]$Threshold]])
-                out[[paste.("Max.Imbalance", s)]] <- max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                               col.name = paste.(STATS[[s]]$bal.tab_column_prefix, "Adj"), 
-                                                               thresh.col.name = STATS[[s]]$Threshold, 
-                                                               abs_stat = STATS[[s]]$abs)
-            }
-            else if (ncol(X$weights) > 1) {
-                out[[paste.("Balanced", s)]] <- setNames(do.call("cbind", lapply(names(X$weights), function(x) baltal(out[["Balance"]][[paste.(STATS[[s]]$Threshold, x)]]))),
-                                                         names(X$weights))
-                out[[paste.("Max.Imbalance", s)]] <- cbind(Weights = names(X$weights),
-                                                           do.call("rbind", lapply(names(X$weights), function(x) setNames(max.imbal(out[["Balance"]][out[["Balance"]][["Type"]]!="Distance", , drop = FALSE], 
-                                                                                                                                    col.name = paste.(STATS[[s]]$bal.tab_column_prefix, x), 
-                                                                                                                                    thresh.col.name = paste.(STATS[[s]]$Threshold, x), 
-                                                                                                                                    abs_stat = STATS[[s]]$abs),
-                                                                                                                          c("Variable", 
-                                                                                                                            STATS[[s]]$bal.tab_column_prefix, 
-                                                                                                                            STATS[[s]]$Threshold)))),
-                                                           stringsAsFactors = FALSE)
-            }
-        }
-        else {
-            out[[paste.("Balanced", s)]] <- NULL
-            out[[paste.("Max.Imbalance", s)]] <- NULL
-        }
-    }
+    out <- c(out, threshold.summary(compute = compute,
+                                    thresholds = thresholds,
+                                    no.adj = no.adj,
+                                    balance.table = out[["Balance"]],
+                                    weight.names = names(X$weights)))
     
     out[["Observations"]] <- samplesize(treat = X$treat, type = type, weights = X$weights, s.weights = X$s.weights, method = X$method, discarded = X$discarded)
     
@@ -149,7 +114,9 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
                  (is.numeric(which.imp) && !any(which.imp %in% seq_len(nlevels(imp)))))
     }
     
-    imp.fun <- if_null_then(imp.fun, A[["agg.fun"]])
+    all.agg.funs <- c("min", "mean", "max")
+    agg.fun <- tolower(as.character(if_null_then(imp.fun, A[["agg.fun"]], all.agg.funs)))
+    agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
     
     #Setup output object
     out.names <- c("Imputation.Balance", 
@@ -172,7 +139,16 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     
     if (imp.summary || !A$quick) {
         out[["Balance.Across.Imputations"]] <- balance.summary(out[["Imputation.Balance"]], 
-                                                               agg.funs = if_null_then(imp.fun, c("min", "mean", "max")))
+                                                               agg.funs = agg.fun)
+
+        if (length(agg.fun) == 1) {
+            out <- c(out, threshold.summary(compute = attr(out[["Imputation.Balance"]][[1]][["Balance"]], "compute"),
+                                            thresholds = attr(out[["Imputation.Balance"]][[1]][["Balance"]], "thresholds"),
+                                            no.adj = !attr(out[["Imputation.Balance"]][[1]], "print.options")$disp.adj,
+                                            balance.table = out[["Balance.Across.Imputations"]],
+                                            weight.names = attr(out[["Imputation.Balance"]][[1]], "print.options")$weight.names,
+                                            agg.fun = agg.fun))
+        }
         
         observations <- lapply(out[["Imputation.Balance"]], function(x) x[["Observations"]])
         
@@ -183,7 +159,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     attr(out, "print.options") <- c(attr(out[["Imputation.Balance"]][[1]], "print.options"),
                                     list(which.imp = which.imp,
                                          imp.summary = imp.summary,
-                                         imp.fun = imp.fun))
+                                         imp.fun = agg.fun))
     class(out) <- c("bal.tab.imp", "bal.tab")
     
     return(out)
@@ -232,11 +208,12 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     }
     
     #Setup output object
-    out.names <- c("Pair.Balance", 
-                   "Balance.Across.Pairs", 
-                   "Observations", 
-                   "call")
-    out <- make_list(out.names)
+    # out.names <- c("Pair.Balance", 
+    #                "Balance.Across.Pairs", 
+    #                "Observations", 
+    #                "call")
+    # out <- make_list(out.names)
+    out <- list()
     
     if ("mean.diffs" %in% X$stats) {
         C <- do.call("get.C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
@@ -282,6 +259,14 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     if ((multi.summary || !A$quick) && is_null(X$imp)) {
         out[["Balance.Across.Pairs"]] <- balance.summary(balance.tables, 
                                                          agg.funs = "max")
+        
+        out <- c(out, threshold.summary(compute = attr(out[["Pair.Balance"]][[1]][["Balance"]], "compute"),
+                                        thresholds = attr(out[["Pair.Balance"]][[1]][["Balance"]], "thresholds"),
+                                        no.adj = !attr(out[["Pair.Balance"]][[1]], "print.options")$disp.adj,
+                                        balance.table = out[["Balance.Across.Pairs"]],
+                                        weight.names = attr(out[["Pair.Balance"]][[1]], "print.options")$weight.names,
+                                        agg.fun = "max"))
+        
         out[["Observations"]] <- samplesize.multi(balance.tables, treat_names(X$treat), X$focal)
     }
     
@@ -328,11 +313,12 @@ base.bal.tab.msm <- function(X, which.time, msm.summary = getOption("cobalt_msm.
     }
     
     #Setup output object
-    out.names <- c("Time.Balance", 
-                   "Balance.Across.Times", 
-                   "Observations", 
-                   "call")
-    out <- make_list(out.names)
+    # out.names <- c("Time.Balance", 
+    #                "Balance.Across.Times", 
+    #                "Observations", 
+    #                "call")
+    # out <- make_list(out.names)
+    out <- list()
     
     out[["Time.Balance"]] <- make_list(length(X$covs.list))
     
@@ -362,6 +348,14 @@ base.bal.tab.msm <- function(X, which.time, msm.summary = getOption("cobalt_msm.
         out[["Balance.Across.Times"]] <- balance.summary(out[["Time.Balance"]],
                                                          agg.funs = "max",
                                                          include.times = TRUE)
+        
+        out <- c(out, threshold.summary(compute = attr(out[["Time.Balance"]][[1]][["Balance"]], "compute"),
+                                        thresholds = attr(out[["Time.Balance"]][[1]][["Balance"]], "thresholds"),
+                                        no.adj = !attr(out[["Time.Balance"]][[1]], "print.options")$disp.adj,
+                                        balance.table = out[["Balance.Across.Times"]],
+                                        weight.names = attr(out[["Time.Balance"]][[1]], "print.options")$weight.names,
+                                        agg.fun = "max"))
+        
         out[["Observations"]] <- lapply(out[["Time.Balance"]], function(x) x$Observations)
     }
     
@@ -394,14 +388,17 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
         cluster.summary <- is_not_null(which.cluster) && anyNA(which.cluster)
     }
     
-    cluster.fun <- if_null_then(cluster.fun, A[["agg.fun"]])
+    all.agg.funs <- c("min", "mean", "max")
+    agg.fun <- tolower(as.character(if_null_then(cluster.fun, A[["agg.fun"]], all.agg.funs)))
+    agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
     
     #Setup output object
-    out.names <- c("Cluster.Balance", 
-                   "Balance.Across.Clusters", 
-                   "Observations", 
-                   "call")
-    out <- make_list(out.names)
+    # out.names <- c("Cluster.Balance", 
+    #                "Balance.Across.Clusters", 
+    #                "Observations", 
+    #                "call")
+    # out <- make_list(out.names)
+    out <- list()
     
     #Get list of bal.tabs for each imputation
     out[["Cluster.Balance"]] <- lapply(levels(cluster), function(cl) {
@@ -416,7 +413,17 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
     
     if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
         out[["Balance.Across.Clusters"]] <- balance.summary(out[["Cluster.Balance"]], 
-                                                            agg.funs = if_null_then(cluster.fun, c("min", "mean", "max")))
+                                                            agg.funs = if_null_then(agg.fun, c("min", "mean", "max")))
+        
+        if (length(agg.fun) == 1) {
+            out <- c(out, threshold.summary(compute = attr(out[["Cluster.Balance"]][[1]][["Balance"]], "compute"),
+                                            thresholds = attr(out[["Cluster.Balance"]][[1]][["Balance"]], "thresholds"),
+                                            no.adj = !attr(out[["Cluster.Balance"]][[1]], "print.options")$disp.adj,
+                                            balance.table = out[["Balance.Across.Clusters"]],
+                                            weight.names = attr(out[["Cluster.Balance"]][[1]], "print.options")$weight.names,
+                                            agg.fun = agg.fun))
+        }
+        
         observations <- lapply(out[["Cluster.Balance"]], function(x) x[["Observations"]])
         
         out[["Observations"]] <- samplesize.across.clusters(observations)
@@ -427,7 +434,7 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
     attr(out, "print.options") <- c(attr(out[["Cluster.Balance"]][[1]], "print.options"),
                                     list(which.cluster = which.cluster,
                                          cluster.summary = cluster.summary,
-                                         cluster.fun = cluster.fun))
+                                         cluster.fun = agg.fun))
     class(out) <- c("bal.tab.cluster", "bal.tab")
     
     return(out)

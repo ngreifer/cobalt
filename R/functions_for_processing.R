@@ -2044,6 +2044,52 @@ max.imbal <- function(balance.table, col.name, thresh.col.name, abs_stat) {
   maxed <- data.frame(Variable = rownames(maxed), maxed)
   return(maxed)
 }
+threshold.summary <- function(compute, thresholds, no.adj, balance.table, weight.names = NULL, agg.fun = NULL) {
+  out <- do.call("c", lapply(compute, function(s) make_list(paste.(c("Balanced", "Max.Imbalance"), s))))
+  
+  for (s in compute) {
+    
+    if (is_not_null(thresholds[[s]])) {
+      
+      if (no.adj) {
+        out[[paste.("Balanced", s)]] <- baltal(balance.table[[paste.(STATS[[s]]$Threshold, "Un")]])
+        out[[paste.("Max.Imbalance", s)]] <- max.imbal(balance.table[balance.table[["Type"]]!="Distance", , drop = FALSE], 
+                                                       col.name = if (is_null(agg.fun)) paste.(STATS[[s]]$bal.tab_column_prefix, "Un")
+                                                       else paste.(firstup(agg.fun), STATS[[s]]$bal.tab_column_prefix, "Un"), 
+                                                       thresh.col.name = paste.(STATS[[s]]$Threshold, "Un"), 
+                                                       abs_stat = STATS[[s]]$abs)
+      }
+      else if (length(weight.names) == 1) {
+        out[[paste.("Balanced", s)]] <- baltal(balance.table[[STATS[[s]]$Threshold]])
+        out[[paste.("Max.Imbalance", s)]] <- max.imbal(balance.table[balance.table[["Type"]]!="Distance", , drop = FALSE], 
+                                                       col.name = if (is_null(agg.fun)) paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")
+                                                       else paste.(firstup(agg.fun), STATS[[s]]$bal.tab_column_prefix, "Adj"), 
+                                                       thresh.col.name = STATS[[s]]$Threshold, 
+                                                       abs_stat = STATS[[s]]$abs)
+      }
+      else if (length(weight.names) > 1) {
+        out[[paste.("Balanced", s)]] <- setNames(do.call("cbind", lapply(weight.names, function(x) baltal(balance.table[[paste.(STATS[[s]]$Threshold, x)]]))),
+                                                 weight.names)
+        out[[paste.("Max.Imbalance", s)]] <- cbind(Weights = weight.names,
+                                                   do.call("rbind", lapply(weight.names, function(x) setNames(max.imbal(balance.table[balance.table[["Type"]]!="Distance", , drop = FALSE], 
+                                                                                                                        col.name = if (is_null(agg.fun)) paste.(STATS[[s]]$bal.tab_column_prefix, x)
+                                                                                                                        else paste.(firstup(agg.fun), STATS[[s]]$bal.tab_column_prefix, x),  
+                                                                                                                        thresh.col.name = paste.(STATS[[s]]$Threshold, x), 
+                                                                                                                        abs_stat = STATS[[s]]$abs),
+                                                                                                              c("Variable", 
+                                                                                                                STATS[[s]]$bal.tab_column_prefix, 
+                                                                                                                STATS[[s]]$Threshold)))),
+                                                   stringsAsFactors = FALSE)
+      }
+    }
+    else {
+      out[[paste.("Balanced", s)]] <- NULL
+      out[[paste.("Max.Imbalance", s)]] <- NULL
+    }
+  }
+  
+  out
+}
 
 balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.d.denom, 
                           thresholds = list(), un = FALSE, disp = NULL, stats = NULL, 
@@ -2405,9 +2451,8 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   
   Brownames <- unique(unlist(lapply(balance.list, rownames), use.names = FALSE))
   
-  agg.funs <- tolower(agg.funs)
-  all.agg.funs <- c("min", "mean", "max")
-  Agg.Funs <- firstup(if (quick) match_arg(agg.funs, all.agg.funs, several.ok = TRUE) else all.agg.funs)
+  Agg.Funs <- firstup(if (quick) agg.funs else c("min", "mean", "max"))
+  Agg.Funs.Given <- firstup(agg.funs)
   
   if (length(Agg.Funs) == 1 && Agg.Funs == "Max") abs <- TRUE
   
@@ -2443,19 +2488,19 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
     }
   }
   
-  if (length(Agg.Funs) == 1) {
+  if (length(Agg.Funs.Given) == 1) {
     #Assign X.Threshold values
     for (s in compute[compute %in% all_STATS(type)]) {
       if (is_not_null(thresholds[[s]])) {
         if (no.adj) {
-          B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab_column_prefix, "Un")]]), "", 
-                                                             STATS[[s]]$abs(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab_column_prefix, "Un")]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3)),
+          B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]]), "", 
+                                                             STATS[[s]]$abs(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3)),
                                                              paste0("Not Balanced, >", round(thresholds[[s]], 3)))
         }
         else {
           for (i in weight.names) {
-            B[[paste.(STATS[[s]]$Threshold, i)]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab_column_prefix, i)]]), "", 
-                                                            STATS[[s]]$abs(B[[paste.(Agg.Funs, STATS[[s]]$bal.tab_column_prefix, i)]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3)),
+            B[[paste.(STATS[[s]]$Threshold, i)]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, i)]]), "", 
+                                                            STATS[[s]]$abs(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, i)]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3)),
                                                             paste0("Not Balanced, >", round(thresholds[[s]], 3)))
           }
         }
@@ -2466,6 +2511,7 @@ balance.summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   
   return(B)
 }
+
 
 #base.bal.tab.imp
 samplesize.across.imps <- function(obs.list) {

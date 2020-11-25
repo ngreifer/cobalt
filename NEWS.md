@@ -5,6 +5,8 @@
 
 * Returned `cem` to Suggests.
 
+* Added ability to display threshold summaries with multiply imputed datasets, clustered datasets, multi-category treatments, and longitudinal treatments.
+
 # cobalt 4.2.4
 
 * Sampling weights now function correctly with subclassification.

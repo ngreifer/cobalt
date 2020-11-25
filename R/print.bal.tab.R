@@ -226,7 +226,7 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
     p.ops <- attr(x, "print.options")
     
     baltal <- maximbal <- list()
-    for (s in p.ops$stats) {
+    for (s in p.ops$compute) {
         baltal[[s]] <- x[[paste.("Balanced", s)]]
         maximbal[[s]] <- x[[paste.("Max.Imbalance", s)]]
     }
@@ -447,6 +447,19 @@ print.bal.tab.cluster <- function(x, imbalanced.only = "as.is", un = "as.is", di
             cat("\n")
         }
         
+        for (s in p.ops$compute) {
+            if (is_not_null(baltal[[s]])) {
+                cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
+                print.data.frame_(baltal[[s]])
+                cat("\n")
+            }
+            if (is_not_null(maximbal[[s]])) {
+                cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+                print.data.frame_(round_df_char(maximbal[[s]], digits, na_vals = "."), row.names = FALSE)
+                cat("\n")
+            }
+        }
+        
         if (is_not_null(nn)) {
             drop.nn <- rowSums(nn) == 0
             ss.type <- attr(nn, "ss.type")[!drop.nn]
@@ -488,7 +501,7 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     p.ops <- attr(x, "print.options")
     
     baltal <- maximbal <- list()
-    for (s in p.ops$stats) {
+    for (s in p.ops$compute) {
         baltal[[s]] <- x[[paste.("Balanced", s)]]
         maximbal[[s]] <- x[[paste.("Max.Imbalance", s)]]
     }
@@ -703,6 +716,19 @@ print.bal.tab.imp <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
             cat("\n")
         }
         
+        for (s in p.ops$compute) {
+            if (is_not_null(baltal[[s]])) {
+                cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
+                print.data.frame_(baltal[[s]])
+                cat("\n")
+            }
+            if (is_not_null(maximbal[[s]])) {
+                cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+                print.data.frame_(round_df_char(maximbal[[s]], digits, na_vals = "."), row.names = FALSE)
+                cat("\n")
+            }
+        }
+        
         if (is_not_null(nn)) {
             drop.nn <- rowSums(nn) == 0
             ss.type <- attr(nn, "ss.type")[!drop.nn]
@@ -745,7 +771,7 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
     p.ops <- attr(x, "print.options")
     
     baltal <- maximbal <- list()
-    for (s in p.ops$stats) {
+    for (s in p.ops$compute) {
         baltal[[s]] <- x[[paste.("Balanced", s)]]
         maximbal[[s]] <- x[[paste.("Max.Imbalance", s)]]
     }
@@ -990,6 +1016,19 @@ print.bal.tab.multi <- function(x, imbalanced.only = "as.is", un = "as.is", disp
             cat("\n")
         }
         
+        for (s in p.ops$compute) {
+            if (is_not_null(baltal[[s]])) {
+                cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
+                print.data.frame_(baltal[[s]])
+                cat("\n")
+            }
+            if (is_not_null(maximbal[[s]])) {
+                cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+                print.data.frame_(round_df_char(maximbal[[s]], digits, na_vals = "."), row.names = FALSE)
+                cat("\n")
+            }
+        }
+        
         if (is_not_null(nn)) {
             tag <- attr(nn, "tag")
             drop.nn <- rowSums(nn) == 0
@@ -1035,7 +1074,7 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
     p.ops <- attr(x, "print.options")
     
     baltal <- maximbal <- list()
-    for (s in p.ops$stats) {
+    for (s in p.ops$compute) {
         baltal[[s]] <- x[[paste.("Balanced", s)]]
         maximbal[[s]] <- x[[paste.("Max.Imbalance", s)]]
     }
@@ -1250,6 +1289,19 @@ print.bal.tab.msm <- function(x, imbalanced.only = "as.is", un = "as.is", disp.b
             if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
             else print.data.frame_(round_df_char(msm.balance.summary[keep.row, s.keep.col, drop = FALSE], digits, na_vals = "."))
             cat("\n")
+        }
+        
+        for (s in p.ops$compute) {
+            if (is_not_null(baltal[[s]])) {
+                cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
+                print.data.frame_(baltal[[s]])
+                cat("\n")
+            }
+            if (is_not_null(maximbal[[s]])) {
+                cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+                print.data.frame_(round_df_char(maximbal[[s]], digits, na_vals = "."), row.names = FALSE)
+                cat("\n")
+            }
         }
         
         if (is_not_null(nn)) {
@@ -1485,7 +1537,7 @@ print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", d
         }
     }
     
-    for (s in p.ops$stats) {
+    for (s in p.ops$compute) {
         if (is_not_null(baltal[[s]])) {
             cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for, "across subclasses")) %+% "\n")
             print.data.frame_(baltal[[s]])
