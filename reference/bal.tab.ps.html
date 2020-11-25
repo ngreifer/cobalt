@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4.9000</span>
       </span>
     </div>
 
@@ -358,55 +358,39 @@
              stop.method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ks.mean"</span>, <span class='st'>"es.mean"</span><span class='op'>)</span>, 
              estimand <span class='op'>=</span> <span class='st'>"ATT"</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
              
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>ps.out</span>, stop.method <span class='op'>=</span> <span class='st'>"es.max"</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>ps.out</span>, stop.method <span class='op'>=</span> <span class='st'>"ks.mean"</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span>, 
         m.threshold <span class='op'>=</span> <span class='fl'>.1</span>, disp.ks <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Warning: stop.method should be "ks.mean.ATT" or "es.mean.ATT".</span>
-#&gt; <span class='message'>Using all available stop methods instead.</span></div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span><span>
 #&gt;  ps(formula = treat ~ age + educ + married + race + nodegree + 
 #&gt;     re74 + re75, data = lalonde, verbose = FALSE, estimand = "ATT", 
 #&gt;     stop.method = c("ks.mean", "es.mean"))
 #&gt; 
 #&gt; </span><span style='text-decoration: underline;'>Balance Measures</span><span>
-#&gt;                        Type Diff.Un  KS.Un Diff.ks.mean M.Threshold.ks.mean
-#&gt; prop.score.ks.mean Distance  2.9419 0.8421       0.6007                    
-#&gt; prop.score.es.mean Distance  2.8344 0.8294       0.5311                    
-#&gt; age                 Contin. -0.3094 0.1577       0.0539      Balanced, &lt;0.1
-#&gt; educ                Contin.  0.0550 0.1114      -0.0709      Balanced, &lt;0.1
-#&gt; married              Binary -0.3236 0.3236       0.0089      Balanced, &lt;0.1
-#&gt; race_black           Binary  0.6404 0.6404       0.0130      Balanced, &lt;0.1
-#&gt; race_hispan          Binary -0.0827 0.0827       0.0029      Balanced, &lt;0.1
-#&gt; race_white           Binary -0.5577 0.5577      -0.0159      Balanced, &lt;0.1
-#&gt; nodegree             Binary  0.1114 0.1114       0.0523      Balanced, &lt;0.1
-#&gt; re74                Contin. -0.7211 0.4470       0.1236  Not Balanced, &gt;0.1
-#&gt; re75                Contin. -0.2903 0.2876       0.1434  Not Balanced, &gt;0.1
-#&gt;                    KS.ks.mean Diff.es.mean M.Threshold.es.mean KS.es.mean
-#&gt; prop.score.ks.mean     0.2293       0.6506                         0.2434
-#&gt; prop.score.es.mean     0.2098       0.5769                         0.2237
-#&gt; age                    0.0918       0.0533      Balanced, &lt;0.1     0.0969
-#&gt; educ                   0.0692      -0.0801      Balanced, &lt;0.1     0.0685
-#&gt; married                0.0089       0.0037      Balanced, &lt;0.1     0.0037
-#&gt; race_black             0.0130       0.0168      Balanced, &lt;0.1     0.0168
-#&gt; race_hispan            0.0029       0.0017      Balanced, &lt;0.1     0.0017
-#&gt; race_white             0.0159      -0.0184      Balanced, &lt;0.1     0.0184
-#&gt; nodegree               0.0523       0.0622      Balanced, &lt;0.1     0.0622
-#&gt; re74                   0.0693       0.1103  Not Balanced, &gt;0.1     0.0612
-#&gt; re75                   0.1022       0.1257  Not Balanced, &gt;0.1     0.0953
+#&gt;                 Type Diff.Un  KS.Un Diff.Adj        M.Threshold KS.Adj
+#&gt; prop.score  Distance  2.9419 0.8421   0.6007                    0.2293
+#&gt; age          Contin. -0.3094 0.1577   0.0539     Balanced, &lt;0.1 0.0918
+#&gt; educ         Contin.  0.0550 0.1114  -0.0709     Balanced, &lt;0.1 0.0692
+#&gt; married       Binary -0.3236 0.3236   0.0089     Balanced, &lt;0.1 0.0089
+#&gt; race_black    Binary  0.6404 0.6404   0.0130     Balanced, &lt;0.1 0.0130
+#&gt; race_hispan   Binary -0.0827 0.0827   0.0029     Balanced, &lt;0.1 0.0029
+#&gt; race_white    Binary -0.5577 0.5577  -0.0159     Balanced, &lt;0.1 0.0159
+#&gt; nodegree      Binary  0.1114 0.1114   0.0523     Balanced, &lt;0.1 0.0523
+#&gt; re74         Contin. -0.7211 0.4470   0.1236 Not Balanced, &gt;0.1 0.0693
+#&gt; re75         Contin. -0.2903 0.2876   0.1434 Not Balanced, &gt;0.1 0.1022
 #&gt; 
 #&gt; </span><span style='text-decoration: underline;'>Balance tally for mean differences</span><span>
-#&gt;                    ks.mean es.mean
-#&gt; Balanced, &lt;0.1           7       7
-#&gt; Not Balanced, &gt;0.1       2       2
+#&gt;                    count
+#&gt; Balanced, &lt;0.1         7
+#&gt; Not Balanced, &gt;0.1     2
 #&gt; 
 #&gt; </span><span style='text-decoration: underline;'>Variable with the greatest mean difference</span><span>
-#&gt;  Weights Variable   Diff        M.Threshold
-#&gt;  ks.mean     re75 0.1434 Not Balanced, &gt;0.1
-#&gt;  es.mean     re75 0.1257 Not Balanced, &gt;0.1
+#&gt;  Variable Diff.Adj        M.Threshold
+#&gt;      re75   0.1434 Not Balanced, &gt;0.1
 #&gt; 
 #&gt; </span><span style='text-decoration: underline;'>Effective sample sizes</span><span>
-#&gt;         Control Treated
-#&gt; All      429.       185
-#&gt; ks.mean   22.45     185
-#&gt; es.mean   24.97     185</div><div class='input'><span class='co'># }</span>
+#&gt;            Control Treated
+#&gt; Unadjusted  429.       185
+#&gt; Adjusted     22.45     185</div><div class='input'><span class='co'># }</span>
 </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
