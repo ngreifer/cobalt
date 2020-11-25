@@ -191,7 +191,7 @@ ps.out <- ps(treat ~ age + educ + married + race +
              stop.method = c("ks.mean", "es.mean"), 
              estimand = "ATT", verbose = FALSE)
              
-bal.tab(ps.out, stop.method = "es.max", un = TRUE, 
+bal.tab(ps.out, stop.method = "ks.mean", un = TRUE, 
         m.threshold = .1, disp.ks = TRUE)
 }
 }
