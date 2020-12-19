@@ -111,6 +111,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         B_list <- unpack_bal.tab(x)
         namesep <- attr(B_list, "namesep")
         class_sequence <- attr(B_list, "class_sequence")
+
         if (is_not_null(class_sequence)) {
             #Multiple layers present
             facet_mat <- as.matrix(do.call(rbind, strsplit(names(B_list), namesep, fixed = TRUE)))
@@ -122,7 +123,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             dimnames(facet_mat) <- list(names(B_list), facet)
             
             for (b in seq_along(B_list)) {
-                B_list[[b]][["variable.names"]] <- rownames(B_list[[b]])
+                B_list[[b]][["variable.names"]] <- factor(rownames(B_list[[b]]), levels = rownames(B_list[[b]]))
                 for (i in facet) {
                     if (i == "imp") B_list[[b]][[i]] <- factor(paste("Imputation:", facet_mat[b, i]),
                                                                levels = paste("Imputation:", sort(unique(as.numeric(facet_mat[b, i])))))
@@ -215,6 +216,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     B <- aggregate_B(agg.fun, B_stack)
                 }
                 
+                B <- B[order(B[["variable.names"]]),]
+
                 subtitle1 <- paste0(Agg.Fun, " across ", word_list(vapply(agg.over, switch, character(1L),
                                                                           "cluster" = "clusters",
                                                                           "time" = "time points",
@@ -251,7 +254,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         else {
             #Single-layer bal.tab
-            B <- data.frame(B_list, variable.names = rownames(B_list))
+            B <- data.frame(B_list, 
+                            variable.names = factor(rownames(B_list), levels = rownames(B_list)))
             
             facet <- one.level.facet <- agg.over <- NULL
             
@@ -530,7 +534,6 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                                         "Adj" = "Adjusted", w),
                                                         B[facet],
                                                         row.names = NULL)))
-            
             if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) 
                 stop(paste("No balance statistics to display. This can occur when", 
                            STATS[[s]]$disp_stat, 
