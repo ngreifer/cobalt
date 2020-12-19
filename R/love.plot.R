@@ -584,7 +584,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         covnames <- unlist(covnames0)
                     }
                     else covnames <- sort(levels(SS[["var"]]))
-                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
+                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
                     
                 }
                 else if (var.order %in% ua) {
@@ -604,7 +604,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
             if (is_null(var.order)) {
                 covnames <- as.character(unique(SS[["var"]]))
-                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
+                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
             }
             # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
             SS[["Sample"]] <- factor(SS[["Sample"]])
@@ -674,7 +674,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         covnames <- unlist(covnames0)
                     }
                     else covnames <- sort(levels(SS[["var"]]))
-                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[!covnames %in% distance.names]), sort(distance.names, decreasing = TRUE)))
+                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
                     
                 }
                 else if (var.order %in% ua) {
