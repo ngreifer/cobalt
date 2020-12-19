@@ -7,6 +7,8 @@
 
 * Added ability to display threshold summaries with multiply imputed datasets, clustered datasets, multi-category treatments, and longitudinal treatments.
 
+* Fixed a bug where `bal.plot()` would incorrectly process 2-level factor variables (#48).
+
 # cobalt 4.2.4
 
 * Sampling weights now function correctly with subclassification.
