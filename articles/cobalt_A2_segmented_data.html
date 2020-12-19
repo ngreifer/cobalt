@@ -46,7 +46,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -84,7 +84,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/ngreifer/cobalt/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -98,14 +98,13 @@
 
       
 
-      </header><script src="cobalt_A2_segmented_data_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="cobalt_A2_segmented_data_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
-<script src="cobalt_A2_segmented_data_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
+      </header><script src="cobalt_A2_segmented_data_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2020-11-25</h4>
+            <h4 class="date">2020-12-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A2_segmented_data.Rmd"><code>vignettes/cobalt_A2_segmented_data.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A2_segmented_data.Rmd</code></div>
@@ -129,10 +128,10 @@
 <p>In clustered data, the data set must contain a variable denoting the group each individual belongs to. This may be a group considered a nuisance that must be accounted for to eliminate confounding (e.g., hospitals in a multi-site medical treatment study), or a group of concern for effect moderation (e.g., race or gender). In the examples below, we will imagine that we are interested in the ATT of <code>treat</code> on <code>re78</code> stratified by <code>race</code>. Thus, we will condition on the propensity score within each cluster.</p>
 <p>First, let’s estimate propensity scores and perform matching within each race group. We can do this by performing separate analyses within each cluster, but we can also use exact matching in <code>MatchIt</code> to ensure matches occur within clusters. It is important to note that this analysis does not necessarily represent a sound statistical analysis and is being used for illustrative purposes only.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st">"MatchIt"</span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://kosukeimai.github.io/MatchIt/">"MatchIt"</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
 
-<span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">race</span><span class="op">*</span><span class="op">(</span><span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>, 
+<span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">race</span><span class="op">*</span><span class="op">(</span><span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>, 
                  data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span>, exact <span class="op">=</span> <span class="st">"race"</span>, 
                  replace <span class="op">=</span> <span class="cn">TRUE</span>, ratio <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
 <div id="bal-tab" class="section level3">
@@ -358,18 +357,18 @@
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance summary across all imputations
 ##                Type Min.Corr.Adj Mean.Corr.Adj Max.Corr.Adj
-## age         Contin.       0.0074        0.0334       0.0457
-## race_black   Binary      -0.0521       -0.0397      -0.0250
-## race_hispan  Binary       0.0050        0.0098       0.0138
-## race_white   Binary       0.0175        0.0326       0.0421
-## married      Binary       0.0299        0.0412       0.0571
-## re74        Contin.      -0.0384       -0.0135       0.0059
-## re75        Contin.      -0.0269       -0.0087       0.0010
+## age         Contin.       0.0045        0.0325       0.0499
+## race_black   Binary      -0.0498       -0.0367      -0.0251
+## race_hispan  Binary       0.0065        0.0097       0.0167
+## race_white   Binary       0.0138        0.0296       0.0443
+## married      Binary       0.0101        0.0364       0.0520
+## re74        Contin.      -0.1103       -0.0265       0.0091
+## re75        Contin.      -0.0646       -0.0169       0.0088
 ## 
 ## Average effective sample sizes across imputations
 ##             Total
 ## Unadjusted 614.  
-## Adjusted   540.96</code></pre>
+## Adjusted   537.27</code></pre>
 <p>First, we see a balance summary across all the imputations. This table presents the minimum, mean, and maximum balance statistics for each variable across imputations. Setting <code>un = TRUE</code> will also display the same values for the adjusted data set. Setting <code>abs = TRUE</code> will make <code>bal.tab</code> report summaries of the absolute values of the balance statistics. This table functions in the same way as the table for balance across clusters. Below is the average sample size across imputations; in some matching and weighting schemes, the sample size (or effective sample size) may differ across imputations.</p>
 <p>To view balance on individual imputations, you can specify an imputation number to <code>which.imp</code>. (The summary across imputations is automatically hidden but can be forced to be displayed using <code>imp.summary</code>.)</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -379,18 +378,18 @@
 ##  - - - Imputation 1 - - - 
 ## Balance Measures
 ##                Type Corr.Adj
-## age         Contin.   0.0418
-## race_black   Binary  -0.0351
-## race_hispan  Binary   0.0083
-## race_white   Binary   0.0290
-## married      Binary   0.0355
-## re74        Contin.  -0.0294
-## re75        Contin.  -0.0269
+## age         Contin.   0.0499
+## race_black   Binary  -0.0408
+## race_hispan  Binary   0.0065
+## race_white   Binary   0.0357
+## married      Binary   0.0461
+## re74        Contin.  -0.0072
+## re75        Contin.  -0.0076
 ## 
 ## Effective sample sizes
 ##             Total
 ## Unadjusted 614.  
-## Adjusted   540.82
+## Adjusted   545.81
 ##  - - - - - - - - - - - - - -</code></pre>
 <p>As with clustered data, all <code><a href="../reference/bal.tab.html">bal.tab()</a></code> options work as with non-imputed data. Indeed, the functions for clustered and imputed data are nearly identical except that for imputed data, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes the average sample size across imputations, whereas for other forms of segmented data, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes the total sample size across groups.</p>
 </div>
@@ -439,47 +438,47 @@
 ##  - - - black (0) vs. hispan (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.      -0.0192        0.0105       0.0568
-## educ     Contin.      -0.1293       -0.1035      -0.0872
-## married   Binary      -0.0392       -0.0324      -0.0217
-## nodegree  Binary       0.0352        0.0482       0.0632
-## re74     Contin.      -0.1388       -0.0917      -0.0253
-## re75     Contin.      -0.1169       -0.0824      -0.0333
+## age      Contin.      -0.0002        0.0124       0.0301
+## educ     Contin.      -0.1193       -0.1033      -0.0806
+## married   Binary      -0.0440       -0.0309      -0.0228
+## nodegree  Binary       0.0417        0.0489       0.0576
+## re74     Contin.      -0.1126       -0.0819      -0.0236
+## re75     Contin.      -0.1128       -0.0890      -0.0464
 ## 
 ## Average effective sample sizes across imputations
 ##             black hispan
 ## Unadjusted 243.    72.  
-## Adjusted   156.19  55.49
+## Adjusted   154.03  55.66
 ## 
 ##  - - - black (0) vs. white (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.       0.0157        0.0353       0.0492
-## educ     Contin.      -0.0799       -0.0602      -0.0449
-## married   Binary       0.0018        0.0063       0.0111
-## nodegree  Binary       0.0135        0.0196       0.0279
-## re74     Contin.      -0.1400       -0.1068      -0.0483
-## re75     Contin.      -0.1157       -0.1028      -0.0745
+## age      Contin.       0.0188        0.0413       0.0599
+## educ     Contin.      -0.0749       -0.0618      -0.0434
+## married   Binary       0.0023        0.0055       0.0096
+## nodegree  Binary       0.0138        0.0206       0.0265
+## re74     Contin.      -0.1374       -0.1104      -0.0634
+## re75     Contin.      -0.1285       -0.1089      -0.0651
 ## 
 ## Average effective sample sizes across imputations
 ##             black  white
 ## Unadjusted 243.   299.  
-## Adjusted   156.19 261.42
+## Adjusted   154.03 260.25
 ## 
 ##  - - - hispan (0) vs. white (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.      -0.0095        0.0248       0.0534
-## educ     Contin.       0.0356        0.0433       0.0537
-## married   Binary       0.0306        0.0386       0.0445
-## nodegree  Binary      -0.0393       -0.0287      -0.0180
-## re74     Contin.      -0.0581       -0.0151       0.0042
-## re75     Contin.      -0.0412       -0.0204       0.0037
+## age      Contin.       0.0151        0.0289       0.0450
+## educ     Contin.       0.0372        0.0415       0.0462
+## married   Binary       0.0300        0.0365       0.0494
+## nodegree  Binary      -0.0312       -0.0284      -0.0254
+## re74     Contin.      -0.0706       -0.0284      -0.0049
+## re75     Contin.      -0.0407       -0.0199       0.0023
 ## 
 ## Average effective sample sizes across imputations
 ##            hispan  white
 ## Unadjusted  72.   299.  
-## Adjusted    55.49 261.42
+## Adjusted    55.66 260.25
 ##  - - - - - - - - - - - - - - - - - - - -</code></pre>
 <p>Other options can be supplied to choose how balance is computed with multi-category treatments; these are described at <code>?bal.tab.multi</code> and in the main vignette. Importantly, though, a balance summary across treatment pairs is not available.</p>
 </div>

@@ -87,7 +87,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -125,7 +125,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/ngreifer/cobalt/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -153,6 +153,8 @@
 <ul>
 <li><p>Returned <code>cem</code> to Suggests.</p></li>
 <li><p>Added ability to display threshold summaries with multiply imputed datasets, clustered datasets, multi-category treatments, and longitudinal treatments.</p></li>
+<li><p>Fixed a bug where <code><a href="../reference/bal.plot.html">bal.plot()</a></code> would incorrectly process 2-level factor variables (<a href='https://github.com/ngreifer/cobalt/issues/48'>#48</a>).</p></li>
+<li><p>Fixed a bug where <code><a href="../reference/love.plot.html">love.plot()</a></code> would not display variables in the correct order when using aggregation and setting <code>var.order = NULL</code>. Thanks to Florian Kaiser.</p></li>
 </ul>
 </div>
     <div id="cobalt-424" class="section level1">
@@ -315,7 +317,7 @@
 <ul>
 <li><p>Added the ability to display balance on multiple measures (e.g., mean differences, variance ratios, KS statistics) at the same time with <code><a href="../reference/love.plot.html">love.plot()</a></code>.</p></li>
 <li><p>Bug fixes that make <code><a href="../reference/bal.tab.html">bal.tab()</a></code> and <code><a href="../reference/love.plot.html">love.plot()</a></code> more usable within other functions and especially when called with <code><a href="https://rdrr.io/r/base/do.call.html">do.call()</a></code>.</p></li>
-<li><p>Made it easier to get proper <code>bal.tab</code> output when using <code><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit()</a></code> with an argument to <code>distance</code> (in the call to <code><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit()</a></code>). Include the original dataset in the <code>data</code> argument of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> to get the variables to display correctly.</p></li>
+<li><p>Made it easier to get proper <code>bal.tab</code> output when using <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html">matchit()</a></code> with an argument to <code>distance</code> (in the call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html">matchit()</a></code>). Include the original dataset in the <code>data</code> argument of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> to get the variables to display correctly.</p></li>
 <li><p>Changed the default shape in <code><a href="../reference/love.plot.html">love.plot()</a></code> to <code>"circle"</code>, which is a solid circle. I found this a prettier alternative to the open circle, especially on Windows. To get back open circles you set <code>shapes = "circle filled"</code> (yes, that is a bit confusing).</p></li>
 <li><p>Added ability to hide the gridlines easily in <code><a href="../reference/love.plot.html">love.plot()</a></code>.</p></li>
 <li><p>Changed the calculation of standard deviations (and standardized differences in proportion) for binary variables to be more in line with recommendations, as noted by <a href='https://github.com/mbloechl05'>@mbloechl05</a>. Note this will make these values different from those in <code>MatchIt::summary</code> by a small amount.</p></li>
@@ -334,7 +336,7 @@
 <li><p><code>love.plot</code> has several changes that make it much more user-friendly. First, rather than supplying a <code>bal.tab</code> object to <code>love.plot</code>, you can simply supply the arguments that would have gone into the <code><a href="../reference/bal.tab.html">bal.tab()</a></code> call straight into <code><a href="../reference/love.plot.html">love.plot()</a></code>. Second, if <code>quick = TRUE</code> (the new default) and the first argument to <code><a href="../reference/love.plot.html">love.plot()</a></code> is a call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> (or arguments provided to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>) and <code>stat</code> is set to <code>"variance.ratios"</code> or <code>"ks.statistics"</code>, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> will be re-called with the corresponding <code>disp</code> argument set to <code>TRUE</code> so that <code><a href="../reference/love.plot.html">love.plot()</a></code> will display those statistics regardless of <code>quick</code>. This will not work if the argument supplied to <code><a href="../reference/love.plot.html">love.plot()</a></code> is a <code>bal.tab</code> object. Third, because unadjusted mean differences are computed regardless of <code>quick</code>, there will never be a circumstance in which only adjusted values will be displayed. If <code>quick = TRUE</code>, <code>un = FALSE</code>, and <code>stat</code> is <code>"variance.ratios"</code> or <code>"ks.statistics"</code>, <code>un</code> will automatically be set to <code>TRUE</code> in the <code><a href="../reference/bal.tab.html">bal.tab()</a></code> re-call.</p></li>
 <li><p>When using <code>which.</code> arguments (e.g., <code>which.cluster</code>, <code>which.imp</code>, etc.), instead of supplying <code>NULL</code> and <code>NA</code>, you can supply <code>.all</code> and <code>.none</code> (not in quotes). This should make them easier to use. Note that these new inputs are not variables; they are keywords and are evaluated using nonstandard evaluation. If you actually have objects with those names, they will be ignored.</p></li>
 <li><p>Bugs in scoping related to the formula interface have been solved, in particularly making <code><a href="../reference/bal.tab.html">bal.tab()</a></code> more usable within other functions.</p></li>
-<li><p>Fixed bug occurring when using <code>matchit</code> objects having set <code>discard</code> to something other than <code>NULL</code> and <code>reestimate = TRUE</code> in the call to <code><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit()</a></code>. Thank you to Weiyi Xie for finding this bug.</p></li>
+<li><p>Fixed bug occurring when using <code>matchit</code> objects having set <code>discard</code> to something other than <code>NULL</code> and <code>reestimate = TRUE</code> in the call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html">matchit()</a></code>. Thank you to Weiyi Xie for finding this bug.</p></li>
 <li><p>Fixed bug occurring when using balance thresholds with subclassification.</p></li>
 <li><p>Fixed bug occurring when printing <code>bal.tab</code> output for continuous treatments with clusters.</p></li>
 <li><p>Fixed bug occurring when using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> on <code>mnps</code> objects with multiple stop methods.</p></li>

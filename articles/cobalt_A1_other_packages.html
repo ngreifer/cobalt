@@ -46,7 +46,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -84,7 +84,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/ngreifer/cobalt/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -98,14 +98,13 @@
 
       
 
-      </header><script src="cobalt_A1_other_packages_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="cobalt_A1_other_packages_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
-<script src="cobalt_A1_other_packages_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
+      </header><script src="cobalt_A1_other_packages_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Appendix 1: Using cobalt with Other Preprocessing Packages</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2020-11-25</h4>
+            <h4 class="date">2020-12-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A1_other_packages.Rmd"><code>vignettes/cobalt_A1_other_packages.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A1_other_packages.Rmd</code></div>
@@ -129,15 +128,15 @@
 <span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span></code></pre></div>
 <pre><code>## treat ~ age + educ + race + married + nodegree + re74 + re75
-## &lt;environment: 0x7f8007f6c3e0&gt;</code></pre>
+## &lt;environment: 0x7fb06ab75698&gt;</code></pre>
 <p>The function creates a <code>formula</code> object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of <code><a href="../reference/f.build.html">f.build()</a></code> is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Generating propensity scores using logistic regression</span>
 <span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html">glm</a></span><span class="op">(</span><span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span>
 
 <span class="co"># Using matchit() from the MatchIt package</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st">"MatchIt"</span><span class="op">)</span>
-<span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit</a></span><span class="op">(</span><span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span><span class="op">)</span></code></pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://kosukeimai.github.io/MatchIt/">"MatchIt"</a></span><span class="op">)</span>
+<span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html">matchit</a></span><span class="op">(</span><span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="splitfactor-and-unsplitfactor" class="section level3">
 <h3 class="hasAnchor">
@@ -473,7 +472,7 @@
 <h3 class="hasAnchor">
 <a href="#using-bal-tab-with-matchthem" class="anchor"></a>Using <code>bal.tab()</code> with <code>MatchThem</code>
 </h3>
-<p>The <code>MatchThem</code> package is essentially a wrapper for <code><a href="https://rdrr.io/pkg/MatchIt/man/matchit.html">matchit()</a></code> from <code>MatchIt</code> and <code><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html">weightit()</a></code> from <code>WeightIt</code> but for use with multiply imputed data. Using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> on <code>mimids</code> or <code>wimids</code> objects from <code>MatchThem</code> activates the features that accompany multiply imputed data; balance is assessed within each imputed dataset and aggregated across imputations. See <code>?bal.tab.imp</code> or the accompanying Appendix 2 for more information about using <code>cobalt</code> with multiply imputed data. Below is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchThem</code>:</p>
+<p>The <code>MatchThem</code> package is essentially a wrapper for <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html">matchit()</a></code> from <code>MatchIt</code> and <code><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html">weightit()</a></code> from <code>WeightIt</code> but for use with multiply imputed data. Using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> on <code>mimids</code> or <code>wimids</code> objects from <code>MatchThem</code> activates the features that accompany multiply imputed data; balance is assessed within each imputed dataset and aggregated across imputations. See <code>?bal.tab.imp</code> or the accompanying Appendix 2 for more information about using <code>cobalt</code> with multiply imputed data. Below is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchThem</code>:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/amices/mice">"mice"</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/FarhadPishgar/MatchThem">"MatchThem"</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"lalonde_mis"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
@@ -494,20 +493,20 @@
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance summary across all imputations
 ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## prop.score  Distance       0.1425        0.1583       0.1720
-## age          Contin.      -0.1939       -0.1873      -0.1811
-## educ         Contin.       0.0751        0.0816       0.0877
-## married       Binary      -0.1137       -0.1040      -0.0883
-## race_black    Binary       0.0509        0.0572       0.0628
-## race_hispan   Binary       0.0085        0.0107       0.0135
-## race_white    Binary      -0.0754       -0.0679      -0.0593
-## re74         Contin.      -0.3061       -0.2907      -0.2746
-## re75         Contin.      -0.1710       -0.1592      -0.1455
+## prop.score  Distance       0.1490        0.1573       0.1632
+## age          Contin.      -0.1917       -0.1883      -0.1859
+## educ         Contin.       0.0788        0.0840       0.0907
+## married       Binary      -0.1163       -0.1034      -0.0926
+## race_black    Binary       0.0527        0.0571       0.0601
+## race_hispan   Binary       0.0076        0.0102       0.0116
+## race_white    Binary      -0.0716       -0.0673      -0.0628
+## re74         Contin.      -0.3027       -0.2835      -0.2724
+## re75         Contin.      -0.1765       -0.1595      -0.1437
 ## 
 ## Average effective sample sizes across imputations
 ##            Control Treated
 ## Unadjusted  429.    185.  
-## Adjusted    331.79   66.97</code></pre>
+## Adjusted    331.54   66.64</code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div id="using-bal-tab-with-cem" class="section level3">
