@@ -20,7 +20,7 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
         A <- A[names(A) %in% names(formals(splitfactor)) & 
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
-        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2"),
+        mat <- do.call("splitfactor", c(list(mat, drop.first ="if2"),
                                       A))
     }
     
@@ -65,7 +65,7 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
         A <- A[names(A) %in% names(formals(splitfactor)) & 
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
-        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
+        mat <- do.call("splitfactor", c(list(mat, drop.first ="if2",
                                            split.with = bin.vars),
                                       A))
         bin.vars <- attr(mat, "split.with")[[1]]

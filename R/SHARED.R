@@ -750,6 +750,7 @@ process.s.weights <- function(s.weights, data = NULL) {
     return(s.weights)
 }
 
+
 #Uniqueness
 nunique <- function(x, nmax = NA, na.rm = TRUE) {
     if (is_null(x)) return(0)
