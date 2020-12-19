@@ -97,7 +97,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
             var.name_in_name_and_factor <- var.name_in_name & vapply(co.names.list[[i]], function(x) "fsep" %in% x[["type"]], logical(1L))
             if (any(var.name_in_name_and_factor)) {
                 var.list[[i]] <- unsplitfactor(as.data.frame(X$covs.list[[i]][,var.name_in_name_and_factor, drop = FALSE]), 
-                                               var.name, sep = attr(co.names, "seps")["factor"])[[1]]
+                                               var.name, sep = attr(co.names.list[[i]], "seps")["factor"])[[1]]
             }
             else if (any(var.name_in_name)) {
                 var.list[[i]] <- X$covs.list[[i]][,var.name]
