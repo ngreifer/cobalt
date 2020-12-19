@@ -481,11 +481,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
       if (!treat.is.processed) treat <- process_treat(treat)
       try.estimand <- tryCatch(match_arg(toupper(estimand), c("ATT", "ATC", "ATE", "ATO", "ATM"), several.ok = TRUE),
                                error = function(cond) NA_character_)
-      if (anyNA(try.estimand)) {
-        check.focal <- TRUE
-        # bad.estimand <- TRUE
-      }
-      else if (any(try.estimand %in% c("ATC", "ATT")) && length(treat_vals(treat)) > 2) {
+      if (anyNA(try.estimand) || any(try.estimand %in% c("ATC", "ATT"))) {
         check.focal <- TRUE
       }
       else {
@@ -1376,9 +1372,9 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   rhs.df.type <- setNames(vapply(ttvars, function(v) {
     if (is_(try(eval(str2expression(paste0("`", v, "`")), data, env), silent = TRUE),
-        c("data.frame", "matrix", "rms"))) "lit"
+            c("data.frame", "matrix", "rms"))) "lit"
     else if (is_(try(eval(str2expression(v), data, env), silent = TRUE),
-                  c("data.frame", "matrix", "rms"))) "exp"
+                 c("data.frame", "matrix", "rms"))) "exp"
     else "not.a.df"
   }, character(1L)), ttvars)
   
@@ -1496,19 +1492,19 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         }
       }
       ttfactors <- append.ttfactor(ttfactors, 
-                                  paste0("`", i, ":<NA>`"),
-                                  ind)
-
+                                   paste0("`", i, ":<NA>`"),
+                                   ind)
+      
       tmpcovs[[paste0(i, ":<NA>")]] <- as.numeric(is.na(tmpcovs[[i]]))
     }
     new.form <- rebuild_f(ttfactors, tics = TRUE)
-
+    
     tt.covs <- terms(new.form, data = tmpcovs)
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
-
+    
     na_vars <- paste0(colnames(tmpcovs)[has_NA], ":<NA>")
-
+    
     tryCatch({tmpcovs <- stats::model.frame(tt.covs, tmpcovs, na.action = "na.pass")},
              error = function(e) {stop(conditionMessage(e), call. = FALSE)})
     
@@ -1556,7 +1552,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   tmpcovs <- model.frame(tt.covs, data = tmpcovs, drop.unused.levels = TRUE,
                          na.action = "na.pass")
-
+  
   #Check for infinite values
   covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
   if (any(covs.with.inf)) {
@@ -1571,7 +1567,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                                             function(x) contrasts(x, contrasts = all_the_same(x))))
   
   rownames(ttfactors) <- trim_string(rownames(ttfactors), "`")
-
+  
   mmassign <- attr(mm, "assign")[-1]
   mmassign2 <- setNames(factor(mmassign, levels = sort(unique(mmassign), na.last = TRUE),
                                labels = colnames(ttfactors)), colnames(mm)[-1])
@@ -1666,7 +1662,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
                         function(i) {
                           # if (all_the_same(C[,i], na.rm = FALSE)) return(TRUE)
                           # else 
-                            if (anyNA(C[,i])) return(FALSE)
+                          if (anyNA(C[,i])) return(FALSE)
                           else if (test.treat && equivalent.factors2(C[,i], treat)) return(TRUE)
                           else if (test.cluster && equivalent.factors2(C[,i], cluster)) return(TRUE)
                           else return(FALSE)
@@ -1731,36 +1727,38 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
   }
   
   #Drop 0 category of 0/1 variables and rename 1 category
-  drop_0_1 <- rep(NA, length(co_list[["C"]]))
-  for (i in seq_along(co_list[["C"]])) {
-    if (is.na(drop_0_1[i])) {
-      if ("isep" %nin% co_list[["C"]][[i]][["type"]] && "fsep" %in% co_list[["C"]][[i]][["type"]]) {
-        which_are_buddies <- which(vapply(co_list[["C"]], function(j) "isep" %nin% j[["type"]] && 
-                                            "fsep" %in% j[["type"]] &&
-                                            j[["component"]][j[["type"]] == "base"][1] == co_list[["C"]][[i]][["component"]][co_list[["C"]][[i]][["type"]] == "base"][1], 
-                                          logical(1L)))
-        buddies <- co_list[["C"]][which_are_buddies]
-        if (length(buddies) <= 2) {
-          buddy_is_0 <- vapply(buddies, function(x) x[["component"]][x[["type"]] == "level"] %in% c("0", "FALSE"), logical(1L))
-          buddy_is_1 <- vapply(buddies, function(x) x[["component"]][x[["type"]] == "level"] %in% c("1", "TRUE"), logical(1L))
-          if (all(buddy_is_0 | buddy_is_1)) {
-            drop_0_1[which_are_buddies[buddy_is_0]] <- TRUE
-            drop_0_1[which_are_buddies[buddy_is_1]] <- FALSE
-            
-            buddy_1 <- which_are_buddies[buddy_is_1]
-            co_list[["C"]][[buddy_1]][["component"]] <- co_list[["C"]][[buddy_1]][["component"]][co_list[["C"]][[buddy_1]][["type"]] == "base"][1]
-            co_list[["C"]][[buddy_1]][["type"]] <- "base"
+  if (drop) {
+    drop_0_1 <- rep(NA, length(co_list[["C"]]))
+    for (i in seq_along(co_list[["C"]])) {
+      if (is.na(drop_0_1[i])) {
+        if ("isep" %nin% co_list[["C"]][[i]][["type"]] && "fsep" %in% co_list[["C"]][[i]][["type"]]) {
+          which_are_buddies <- which(vapply(co_list[["C"]], function(j) "isep" %nin% j[["type"]] && 
+                                              "fsep" %in% j[["type"]] &&
+                                              j[["component"]][j[["type"]] == "base"][1] == co_list[["C"]][[i]][["component"]][co_list[["C"]][[i]][["type"]] == "base"][1], 
+                                            logical(1L)))
+          buddies <- co_list[["C"]][which_are_buddies]
+          if (length(buddies) <= 2) {
+            buddy_is_0 <- vapply(buddies, function(x) x[["component"]][x[["type"]] == "level"] %in% c("0", "FALSE"), logical(1L))
+            buddy_is_1 <- vapply(buddies, function(x) x[["component"]][x[["type"]] == "level"] %in% c("1", "TRUE"), logical(1L))
+            if (all(buddy_is_0 | buddy_is_1)) {
+              drop_0_1[which_are_buddies[buddy_is_0]] <- TRUE
+              drop_0_1[which_are_buddies[buddy_is_1]] <- FALSE
+              
+              buddy_1 <- which_are_buddies[buddy_is_1]
+              co_list[["C"]][[buddy_1]][["component"]] <- co_list[["C"]][[buddy_1]][["component"]][co_list[["C"]][[buddy_1]][["type"]] == "base"][1]
+              co_list[["C"]][[buddy_1]][["type"]] <- "base"
+            }
+            else drop_0_1[which_are_buddies] <- c(TRUE, FALSE)
           }
-          else drop_0_1[which_are_buddies] <- c(TRUE, FALSE)
+          else drop_0_1[which_are_buddies] <- FALSE
         }
-        else drop_0_1[which_are_buddies] <- FALSE
+        else drop_0_1[i] <- FALSE
       }
-      else drop_0_1[i] <- FALSE
     }
+    
+    C_list[["C"]] <- C_list[["C"]][,!drop_0_1, drop = FALSE]
+    co_list[["C"]][drop_0_1] <- NULL
   }
-  
-  C_list[["C"]] <- C_list[["C"]][,!drop_0_1, drop = FALSE]
-  co_list[["C"]][drop_0_1] <- NULL
   
   names(co_list[["C"]]) <- vapply(co_list[["C"]], function(x) paste0(x[["component"]], collapse = ""), character(1L))
   
@@ -2584,8 +2582,8 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
   
   if (type == "bin") 
     subclass_w_empty <- vapply(levels(subclass), function(i) {
-    any(vapply(treat_vals(treat), function(t) !any(treat == t & subclass == i), logical(1L)))
-  }, logical(1L))
+      any(vapply(treat_vals(treat), function(t) !any(treat == t & subclass == i), logical(1L)))
+    }, logical(1L))
   else {
     subclass_w_empty <- vapply(levels(subclass), function(i) !any(subclass == i), logical(1L))
   }
