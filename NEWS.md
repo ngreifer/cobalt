@@ -9,6 +9,8 @@
 
 * Fixed a bug where `bal.plot()` would incorrectly process 2-level factor variables (#48).
 
+* Fixed a bug where `love.plot()` would not display variables in the correct order when using aggregation and setting `var.order = NULL`. Thanks to Florian Kaiser.
+
 # cobalt 4.2.4
 
 * Sampling weights now function correctly with subclassification.
