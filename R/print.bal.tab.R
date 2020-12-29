@@ -1,4 +1,5 @@
 print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", 
+                          which.subclass, subclass.summary = "as.is",
                           which.imp, imp.summary = "as.is", imp.fun = "as.is", 
                           which.treat, multi.summary = "as.is", 
                           which.time, msm.summary = "as.is",
@@ -18,11 +19,13 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
     
     unpack_p.ops <- function(b) {
-        if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return(NULL)
+        out <- do.call("print_process", c(list(b), args), quote = TRUE)
+        
+        if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return(out)
         else {
             b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1]]
-            return(c(do.call("print_process", c(list(b), args), quote = TRUE), 
-                     unpack_p.ops(b_)))
+            if (is_(b_, "bal.tab")) out <- c(out, unpack_p.ops(b_))
+            else return(out)
         }
     }
     
@@ -32,7 +35,7 @@ print.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.t
     op <- options(scipen=getOption("scipen"))
     options(scipen = 999)
     on.exit(options(op))
-    
+
     bal.tab_print(x, p.ops)
 }
 
@@ -501,154 +504,24 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops){
     invisible(x)
 }
 
-bal.tab_print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", disp.subclass = "as.is", digits = max(3, getOption("digits") - 3), ...) {
+bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
     
-    A <- list(...)
     call <- x$call
     s.balance <- x$Subclass.Balance
     b.a.subclass <- x$Balance.Across.Subclass
     s.nn <- x$Observations
-    p.ops <- attr(x, "print.options")
-    
-    baltal <- maximbal <- list()
-    for (s in p.ops$compute) {
-        baltal[[s]] <- x[[paste.("Balanced", s, "Subclass")]]
-        maximbal[[s]] <- x[[paste.("Max.Imbalance", s, "Subclass")]]
-    }
-    
-    #Prevent exponential notation printing
-    op <- options(scipen=getOption("scipen"))
-    options(scipen = 999)
-    on.exit(options(op))
-    
-    #Adjustments to print options
-    if (!identical(un, "as.is") && p.ops$disp.adj) {
-        if (!rlang::is_bool(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
-        if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
-            warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
-        }
-        else p.ops$un <- un
-    }
-    if (!identical(disp, "as.is")) {
-        if (!is.character(disp)) stop("'disp.means' must be a character vector.")
-        allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
-        if (any(disp %nin% allowable.disp)) {
-            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = 2, is.are = TRUE),
-                       "not allowed in 'disp'."), call. = FALSE)
-        }
-        if (any(disp %nin% p.ops$compute)) {
-            warning(paste("'disp' cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = 2), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
-        }
-        else p.ops$disp <- disp
-    }
-    if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
-        if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
-        if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
-            warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
-        }
-        else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
-    }
-    if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
-        if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
-        if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
-            warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
-        }
-        else p.ops$disp <- unique(c(p.ops$disp, "sds"[A[["disp.sds"]]]))
-    }
-    if (!identical(stats, "as.is")) {
-        if (!is_(stats, "character")) stop("'stats' must be a string.")
-        stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
-        stats_in_p.ops <- stats %in% p.ops$compute
-        if (any(!stats_in_p.ops)) {
-            stop(paste0("'stats' cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " if quick = TRUE in the original call to bal.tab()."), call. = TRUE)
-        }
-        else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
-    }
-    for (s in all_STATS(p.ops$type)) {
-        if (is_not_null(A[[STATS[[s]]$disp_stat]]) && !identical(A[[STATS[[s]]$disp_stat]], "as.is")) {
-            if (!rlang::is_bool(A[[STATS[[s]]$disp_stat]])) {
-                stop(paste0("'", STATS[[s]]$disp_stat, "' must be TRUE, FALSE, or \"as.is\"."), call. = FALSE)
-            }
-            if (s %nin% p.ops$compute && isTRUE(A[[STATS[[s]]$disp_stat]])) {
-                warning(paste0("'", STATS[[s]]$disp_stat, "' cannot be set to TRUE if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
-            }
-            else p.ops$disp <- unique(c(p.ops$disp, s))
-        }
-    }
-    
-    for (s in p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)]) {
-        if (STATS[[s]]$threshold %in% names(A) && !identical(temp.thresh <- A[[STATS[[s]]$threshold]], "as.is")) {
-            if (is_not_null(temp.thresh) &&
-                (!is.numeric(temp.thresh) || length(temp.thresh) != 1 ||
-                 is_null(p.ops[["thresholds"]][[s]]) ||
-                 p.ops[["thresholds"]][[s]] != temp.thresh))
-                stop(paste0("'", STATS[[s]]$threshold, "' must be NULL or \"as.is\"."))
-            if (is_null(temp.thresh)) {
-                p.ops[["thresholds"]][[s]] <- NULL
-                baltal[[s]] <- NULL
-                maximbal[[s]] <- NULL
-            }
-        }
-        if (s %nin% p.ops$disp) {
-            p.ops[["thresholds"]][[s]] <- NULL
-            baltal[[s]] <- NULL
-            maximbal[[s]] <- NULL
-        }
-    }
-    if (!identical(disp.thresholds, "as.is")) {
-        if (!is.logical(disp.thresholds) || anyNA(disp.thresholds)) stop("'disp.thresholds' must only contain TRUE or FALSE.", call. = FALSE)
-        if (is_null(names(disp.thresholds))) {
-            if (length(disp.thresholds) <= length(p.ops[["thresholds"]])) {
-                names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
-            }
-            else {
-                stop("More entries were given to 'disp.thresholds' than there are thresholds in the bal.tab object.", call. = FALSE)
-            }
-        }
-        
-        if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
-            warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
-                                     quotes = 2, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
-            disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
-        }
-        names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
-        for (x in names(disp.thresholds)) {
-            if (!disp.thresholds[x]) {
-                p.ops[["thresholds"]][[x]] <- NULL
-                baltal[[x]] <- NULL
-                maximbal[[x]] <- NULL
-            }
-        }
-    }
-    if (!identical(disp.bal.tab, "as.is")) {
-        if (!rlang::is_bool(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
-        p.ops$disp.bal.tab <- disp.bal.tab
-    }
-    if (p.ops$disp.bal.tab) {
-        if (!identical(imbalanced.only, "as.is")) {
-            if (!rlang::is_bool(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
-            p.ops$imbalanced.only <- imbalanced.only
-        }
-        if (p.ops$imbalanced.only) {
-            if (is_null(p.ops$thresholds)) {
-                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
-                p.ops$imbalanced.only <- FALSE
-            }
-        }
-    }
-    else p.ops$imbalanced.only <- FALSE
-    
-    if (!identical(disp.subclass, "as.is")) {
-        if (!rlang::is_bool(disp.subclass)) stop("'disp.subclass' must be TRUE, FALSE, or \"as.is\".")
-        p.ops$disp.subclass <- disp.subclass
-    }
+
+    thresholds <- setdiff(p.ops$compute, p.ops$drop.thresholds)
+    baltal <- setNames(x[paste.("Balanced", thresholds, "Subclass")], thresholds)
+    maximbal <- setNames(x[paste.("Max.Imbalance", thresholds, "Subclass")], thresholds)
     
     if (is_not_null(call)) {
         cat(underline("Call") %+% "\n " %+% paste(deparse(call), collapse = "\n") %+% "\n\n")
     }
     
+    #Print subclass balance
     if (p.ops$disp.bal.tab) {
-        if (p.ops$disp.subclass) {
+        if (is_not_null(p.ops$which.subclass)) {
             s.keep.col <- setNames(c(TRUE,
                                      rep(unlist(lapply(p.ops$compute[p.ops$compute %nin% all_STATS()], function(s) {
                                          s %in% p.ops$disp
@@ -660,7 +533,7 @@ bal.tab_print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "a
                                    names(s.balance[[1]]))
             
             cat(underline("Balance by subclass"))
-            for (i in names(s.balance)) {
+            for (i in p.ops$which.subclass) {
                 if (p.ops$imbalanced.only) {
                     s.keep.row <- rowSums(apply(s.balance[[i]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
                 }
@@ -668,12 +541,16 @@ bal.tab_print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "a
                 
                 cat("\n - - - " %+% italic("Subclass " %+% as.character(i)) %+% " - - - \n")
                 if (all(!s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-                else print.data.frame_(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], digits, na_vals = "."))
+                else print.data.frame_(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
             }
             cat("\n")
         }
+    }
+    
+    #Print balance across subclasses
+    if (p.ops$subclass.summary && is_not_null(b.a.subclass)) {
         
-        if (is_not_null(b.a.subclass)) {
+        if (p.ops$disp.bal.tab) {
             if (p.ops$imbalanced.only) {
                 a.s.keep.row <- rowSums(apply(b.a.subclass[grepl(".Threshold", names(b.a.subclass), fixed = TRUE)], 2, function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
             }
@@ -700,27 +577,27 @@ bal.tab_print.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "a
             
             cat(underline("Balance measures across subclasses") %+% "\n")
             if (all(!a.s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-            else print.data.frame_(round_df_char(b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE], digits, na_vals = "."))
+            else print.data.frame_(round_df_char(b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
             cat("\n")
         }
-    }
-    
-    for (s in p.ops$compute) {
-        if (is_not_null(baltal[[s]])) {
-            cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for, "across subclasses")) %+% "\n")
-            print.data.frame_(baltal[[s]])
-            cat("\n")
+        
+        for (s in p.ops$compute) {
+            if (is_not_null(baltal[[s]])) {
+                cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for, "across subclasses")) %+% "\n")
+                print.data.frame_(baltal[[s]])
+                cat("\n")
+            }
+            if (is_not_null(maximbal[[s]])) {
+                cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest, "across subclasses")) %+% "\n")
+                print.data.frame_(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+                cat("\n")
+            }
         }
-        if (is_not_null(maximbal[[s]])) {
-            cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest, "across subclasses")) %+% "\n")
-            print.data.frame_(round_df_char(maximbal[[s]], digits, na_vals = "."), row.names = FALSE)
-            cat("\n")
+        
+        if (is_not_null(s.nn)) {
+            cat(underline(attr(s.nn, "tag")) %+% "\n")
+            print.data.frame_(round_df_char(s.nn, digits = min(2, p.ops$digits), pad = " "))
         }
-    }
-    
-    if (is_not_null(s.nn)) {
-        cat(underline(attr(s.nn, "tag")) %+% "\n")
-        print.data.frame_(round_df_char(s.nn, digits = min(2, digits), pad = " "))
     }
     
     invisible(x)
@@ -792,7 +669,7 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary = "a
                 which.cluster = which.cluster,
                 computed.cluster.funs = computed.cluster.funs)
     
-    c(out, NextMethod("print_process"))
+    out
 }
 print_process.bal.tab.imp <- function(x, which.imp, imp.summary = "as.is", imp.fun = "as.is", ...) {
     A <- list(...) 
@@ -849,7 +726,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary = "as.is", imp.f
                 which.imp = which.imp,
                 computed.imp.funs = computed.imp.funs)
     
-    c(out, NextMethod("print_process"))
+    out
 }
 print_process.bal.tab.multi <- function(x, which.treat, multi.summary = "as.is", ...) {
     A <- list(...)    
@@ -942,7 +819,7 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary = "as.is",
                 multi.summary = p.ops$multi.summary,
                 pairwise = p.ops$pairwise)
     
-    c(out, NextMethod("print_process"))
+    out
 }
 print_process.bal.tab.msm <- function(x, which.time, msm.summary = "as.is", ...) {
 
@@ -997,7 +874,7 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary = "as.is", ...)
     out <- list(msm.summary = p.ops$msm.summary,
                 which.time = which.time)
     
-    c(out, NextMethod("print_process"))
+    out
 }
 print_process.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", digits = max(3, getOption("digits") - 3), ...) {
     
@@ -1134,4 +1011,174 @@ print_process.bal.tab <- function(x, imbalanced.only = "as.is", un = "as.is", di
     
     out
     
+}
+print_process.bal.tab.subclass <- function(x, imbalanced.only = "as.is", un = "as.is", disp.bal.tab = "as.is", stats = "as.is", disp.thresholds = "as.is", disp = "as.is", digits = max(3, getOption("digits") - 3), which.subclass, subclass.summary = "as.is", ...) {
+    A <- list(...)
+    
+    s.balance <- x$Subclass.Balance
+    p.ops <- attr(x, "print.options")
+    
+    drop.thresholds <- c()
+    
+    #Adjustments to print options
+    if (!identical(un, "as.is") && p.ops$disp.adj) {
+        if (!rlang::is_bool(un)) stop("'un' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
+            warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$un <- un
+    }
+    if (!identical(disp, "as.is")) {
+        if (!is.character(disp)) stop("'disp' must be a character vector.")
+        allowable.disp <- c("means", "sds", all_STATS(p.ops$type))
+        if (any(disp %nin% allowable.disp)) {
+            stop(paste(word_list(disp[disp %nin% allowable.disp], and.or = "and", quotes = 2, is.are = TRUE),
+                       "not allowed in 'disp'."), call. = FALSE)
+        }
+        if (any(disp %nin% p.ops$compute)) {
+            warning(paste("'disp' cannot include", word_list(disp[disp %nin% p.ops$compute], and.or = "or", quotes = 2), "if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+        }
+        else p.ops$disp <- disp
+    }
+    if (is_not_null(A[["disp.means"]]) && !identical(A[["disp.means"]], "as.is")) {
+        if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE, FALSE, or \"as.is\".")
+        if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
+            warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
+    }
+    if (is_not_null(A[["disp.sds"]]) && !identical(A[["disp.sds"]], "as.is")) {
+        if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE, FALSE, or \"as.is\".", call. = FALSE)
+        if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
+            warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$disp <- unique(c(p.ops$disp, "sds"[A[["disp.sds"]]]))
+    }
+    if (!identical(stats, "as.is")) {
+        if (!is_(stats, "character")) stop("'stats' must be a string.")
+        stats <- match_arg(stats, all_STATS(p.ops$type), several.ok = TRUE)
+        stats_in_p.ops <- stats %in% p.ops$compute
+        if (any(!stats_in_p.ops)) {
+            stop(paste0("'stats' cannot contain ", word_list(stats[!stats_in_p.ops], and.or = "or", quotes = 2), " when ", 
+                        if (sum(!stats_in_p.ops) > 1) "they were " else "it was ", 
+                        "not requested in the original call to bal.tab()."), call. = TRUE)
+        }
+        else p.ops$disp <- unique(c(p.ops$disp[p.ops$disp %nin% all_STATS()], stats))
+    }
+    for (s in all_STATS(p.ops$type)) {
+        if (is_not_null(A[[STATS[[s]]$disp_stat]]) && !identical(A[[STATS[[s]]$disp_stat]], "as.is")) {
+            if (!rlang::is_bool(A[[STATS[[s]]$disp_stat]])) {
+                stop(paste0("'", STATS[[s]]$disp_stat, "' must be TRUE, FALSE, or \"as.is\"."), call. = FALSE)
+            }
+            if (s %nin% p.ops$compute && isTRUE(A[[STATS[[s]]$disp_stat]])) {
+                warning(paste0("'", STATS[[s]]$disp_stat, "' cannot be set to TRUE if quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            }
+            else p.ops$disp <- unique(c(p.ops$disp, s))
+        }
+    }
+    
+    for (s in p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)]) {
+        if (STATS[[s]]$threshold %in% names(A) && !identical(temp.thresh <- A[[STATS[[s]]$threshold]], "as.is")) {
+            if (is_not_null(temp.thresh) &&
+                (!is.numeric(temp.thresh) || length(temp.thresh) != 1 ||
+                 is_null(p.ops[["thresholds"]][[s]]) ||
+                 p.ops[["thresholds"]][[s]] != temp.thresh))
+                stop(paste0("'", STATS[[s]]$threshold, "' must be NULL or \"as.is\"."))
+            if (is_null(temp.thresh)) {
+                drop.thresholds <- c(drop.thresholds, s)
+            }
+        }
+        if (s %nin% p.ops$disp) {
+            drop.thresholds <- c(drop.thresholds, s)
+        }
+    }
+    if (!identical(disp.thresholds, "as.is")) {
+        if (!is.logical(disp.thresholds) || anyNA(disp.thresholds)) stop("'disp.thresholds' must only contain TRUE or FALSE.", call. = FALSE)
+        if (is_null(names(disp.thresholds))) {
+            if (length(disp.thresholds) <= length(p.ops[["thresholds"]])) {
+                names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]
+            }
+            else {
+                stop("More entries were given to 'disp.thresholds' than there are thresholds in the bal.tab object.", call. = FALSE)
+            }
+        }
+        
+        if (!all(names(disp.thresholds) %pin% names(p.ops[["thresholds"]]))) {
+            warning(paste0(word_list(names(disp.thresholds)[!names(disp.thresholds) %pin% names(p.ops[["thresholds"]])],
+                                     quotes = 2, is.are = TRUE), " not available in thresholds and will be ignored."), call. = FALSE)
+            disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
+        }
+        names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
+        for (x in names(disp.thresholds)) {
+            if (!disp.thresholds[x]) {
+                drop.thresholds <- c(drop.thresholds, x)
+            }
+        }
+    }
+    
+    if (!identical(disp.bal.tab, "as.is")) {
+        if (!rlang::is_bool(disp.bal.tab)) stop("'disp.bal.tab' must be TRUE, FALSE, or \"as.is\".")
+        p.ops$disp.bal.tab <- disp.bal.tab
+    }
+    if (p.ops$disp.bal.tab) {
+        if (!identical(imbalanced.only, "as.is")) {
+            if (!rlang::is_bool(imbalanced.only)) stop("'imbalanced.only' must be TRUE, FALSE, or \"as.is\".")
+            p.ops$imbalanced.only <- imbalanced.only
+        }
+        if (p.ops$imbalanced.only) {
+            if (is_null(p.ops$thresholds)) {
+                warning("A threshold must be specified if imbalanced.only = TRUE. Displaying all covariates.", call. = FALSE)
+                p.ops$imbalanced.only <- FALSE
+            }
+        }
+    }
+    else p.ops$imbalanced.only <- FALSE
+    
+    if (!identical(subclass.summary, "as.is")) {
+        if (!rlang::is_bool(subclass.summary)) stop("'subclass.summary' must be TRUE, FALSE, or \"as.is\".")
+        if (p.ops$quick && p.ops$subclass.summary == FALSE && subclass.summary == TRUE) {
+            warning("'subclass.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        else p.ops$subclass.summary <- subclass.summary
+    }
+    
+    if (!missing(which.subclass)) {
+        p.ops$which.subclass <- which.subclass
+    }
+    else if (is_not_null(A[["disp.subclass"]])) {
+        p.ops$which.subclass <- if (isTRUE(A[["disp.subclass"]])) NULL else NA
+    }
+    
+    #Checks and Adjustments
+    if (is_null(p.ops$which.subclass)) 
+        which.subclass <- seq_along(s.balance)
+    else if (anyNA(p.ops$which.subclass)) {
+        which.subclass <- integer(0)
+    }
+    else if (is.numeric(p.ops$which.subclass)) {
+        which.subclass <- intersect(seq_along(s.balance), p.ops$which.subclass)
+        if (is_null(which.subclass)) {
+            warning("No indices in 'which.subclass' are subclass indices. No subclasses will be displayed.", call. = FALSE)
+            which.subclass <- NA
+        }
+    }
+    else {
+        warning("The argument to 'which.subclass' must be .all, .none, or a vector of subclass indices. No subclasses will be displayed.", call. = FALSE)
+        which.subclass <- NA
+    }
+    
+    out <- list(un = p.ops$un,
+                disp = p.ops$disp,
+                compute = p.ops$compute,
+                drop.thresholds = drop.thresholds,
+                disp.bal.tab = p.ops$disp.bal.tab,
+                imbalanced.only = p.ops$imbalanced.only,
+                digits = digits,
+                disp.adj = p.ops$disp.adj,
+                threshold = p.ops$thresholds,
+                type = p.ops$type,
+                subclass.summary = p.ops$subclass.summary,
+                which.subclass = which.subclass)
+    
+    out
 }

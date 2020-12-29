@@ -139,7 +139,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     if (imp.summary || !A$quick) {
         out[["Balance.Across.Imputations"]] <- balance.summary(out[["Imputation.Balance"]], 
                                                                agg.funs = agg.fun)
-
+        
         if (length(agg.fun) == 1) {
             out <- c(out, threshold.summary(compute = attr(out[["Imputation.Balance"]][[1]][["Balance"]], "compute"),
                                             thresholds = attr(out[["Imputation.Balance"]][[1]][["Balance"]], "thresholds"),
@@ -440,7 +440,7 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
 }
 
 #NEEDS UPDATING with STATS
-base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, disp.subclass = getOption("cobalt_disp.subclass", FALSE), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, which.subclass = NA, subclass.summary = getOption("cobalt_subclass.summary"), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
     
     A <- clear_null(list(...))
@@ -457,6 +457,19 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
         if (missing(binary)) binary <- getOption("cobalt_binary", "std")
     }
     
+    subclass <- factor(X$subclass)
+    
+    if (missing(which.subclass)) {
+        if (isTRUE(A[["disp.subclass"]])) which.subclass <- seq_len(nlevels(subclass))
+        else which.subclass <- NA
+    }
+    
+    if (is_null(subclass.summary)) {
+        subclass.summary <- is_not_null(which.subclass) && 
+            (anyNA(which.subclass) || !is.numeric(which.subclass) || 
+                 (is.numeric(which.subclass) && !any(which.subclass %in% seq_len(nlevels(subclass)))))
+    }
+    
     no.adj <- FALSE
     
     if (is_null(X$s.weights)) {
@@ -467,24 +480,10 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
     
     #Actions
     
-    out.names <- c("Subclass.Balance", "Balance.Across.Subclass", 
-                   expand.grid_string(c("Balanced", "Max.Imbalance"),
-                                      X$stats,
-                                      "Subclass",
-                                      collapse = "."), 
-                   "Observations", "call")
-    out <- make_list(out.names)
+    out <- list()
     
     C <- do.call("get.C2", c(X, A[names(A) %nin% names(X)], list(int = int, poly = poly)), quote = TRUE)
     co.names <- attr(C, "co.names")
-    
-    out[["Observations"]] <- samplesize(treat = X$treat, 
-                                        type = type,
-                                        weights = NULL, 
-                                        subclass = X$subclass,
-                                        s.weights = X$s.weights, 
-                                        method = X$method, 
-                                        discarded = X$discarded)
     
     out[["Subclass.Balance"]] <- do.call("balance.table.subclass", 
                                          c(list(C, type = type, 
@@ -499,45 +498,48 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                                 s.weights = X$s.weights, 
                                                 abs = abs, 
                                                 quick = quick), A), quote = TRUE)
-    if (type == "bin") {
-        out[["Balance.Across.Subclass"]] <- do.call("balance.table", 
-                                                    c(list(C, 
-                                                           type = type, 
-                                                           weights = data.frame(Adj = strata2weights(X$subclass, X$treat, X$estimand)), 
-                                                           treat = X$treat, 
-                                                           s.d.denom = X$s.d.denom[1], 
-                                                           s.weights = X$s.weights, 
-                                                           continuous = continuous, 
-                                                           binary = binary, 
-                                                           thresholds = X$thresholds,
-                                                           un = un, 
-                                                           disp = disp,
-                                                           stats = X$stats, 
-                                                           abs = abs, 
-                                                           no.adj = FALSE, quick = quick, 
-                                                           s.d.denom.list = X$s.d.denom.list), A), quote = TRUE)
-    }
-    else if (type == "cont") {
-        out[["Balance.Across.Subclass"]] <- do.call("balance.table.across.subclass.cont", 
-                                                    c(list(do.call("balance.table", c(list(C, 
-                                                                                           type = type, 
-                                                                                           weights = NULL,
-                                                                                           treat = X$treat, 
-                                                                                           s.d.denom = X$s.d.denom[1], 
-                                                                                           s.weights = X$s.weights, 
-                                                                                           continuous = continuous, 
-                                                                                           binary = binary, 
-                                                                                           thresholds = X$thresholds,
-                                                                                           un = un, 
-                                                                                           disp = disp,
-                                                                                           stats = X$stats, 
-                                                                                           abs = abs, 
-                                                                                           no.adj = TRUE, 
-                                                                                           quick = quick, 
-                                                                                           s.d.denom.list = X$s.d.denom.list), A), quote = TRUE), 
-                                                           balance.table.subclass.list = out[["Subclass.Balance"]], 
-                                                           subclass.obs = out[["Observations"]], 
-                                                           r.threshold = X$thresholds[["correlations"]]), A), quote = TRUE)
+    
+    if (subclass.summary || !quick) {
+        if (type == "bin") {
+            out[["Balance.Across.Subclass"]] <- do.call("balance.table", 
+                                                        c(list(C, 
+                                                               type = type, 
+                                                               weights = data.frame(Adj = strata2weights(X$subclass, X$treat, X$estimand)), 
+                                                               treat = X$treat, 
+                                                               s.d.denom = X$s.d.denom[1], 
+                                                               s.weights = X$s.weights, 
+                                                               continuous = continuous, 
+                                                               binary = binary, 
+                                                               thresholds = X$thresholds,
+                                                               un = un, 
+                                                               disp = disp,
+                                                               stats = X$stats, 
+                                                               abs = abs, 
+                                                               no.adj = FALSE, quick = quick, 
+                                                               s.d.denom.list = X$s.d.denom.list), A), quote = TRUE)
+        }
+        else if (type == "cont") {
+            out[["Balance.Across.Subclass"]] <- do.call("balance.table.across.subclass.cont", 
+                                                        c(list(do.call("balance.table", c(list(C, 
+                                                                                               type = type, 
+                                                                                               weights = NULL,
+                                                                                               treat = X$treat, 
+                                                                                               s.d.denom = X$s.d.denom[1], 
+                                                                                               s.weights = X$s.weights, 
+                                                                                               continuous = continuous, 
+                                                                                               binary = binary, 
+                                                                                               thresholds = X$thresholds,
+                                                                                               un = un, 
+                                                                                               disp = disp,
+                                                                                               stats = X$stats, 
+                                                                                               abs = abs, 
+                                                                                               no.adj = TRUE, 
+                                                                                               quick = quick, 
+                                                                                               s.d.denom.list = X$s.d.denom.list), A), quote = TRUE), 
+                                                               balance.table.subclass.list = out[["Subclass.Balance"]], 
+                                                               subclass.obs = out[["Observations"]], 
+                                                               r.threshold = X$thresholds[["correlations"]]), A), quote = TRUE)
+        }
     }
     
     #Reassign disp... and ...threshold based on balance table output
@@ -558,11 +560,16 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
             out[[paste.("Max.Imbalance", s, "Subclass")]] <- data.frame(do.call("rbind", max.imbal.list), 
                                                                         row.names = paste("Subclass", levels(X$subclass)))
         }
-        else {
-            out[[paste.("Balanced", s, "Subclass")]] <- NULL
-            out[[paste.("Max.Imbalance", s, "Subclass")]] <- NULL
-        }
     }
+    
+    out[["Observations"]] <- samplesize(treat = X$treat, 
+                                        type = type,
+                                        weights = NULL, 
+                                        subclass = X$subclass,
+                                        s.weights = X$s.weights, 
+                                        method = X$method, 
+                                        discarded = X$discarded)
+    
     
     out[["call"]] <- X$call
     attr(out, "print.options") <- list(thresholds = thresholds,
@@ -571,7 +578,8 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                        disp=disp,
                                        compute = compute, 
                                        disp.adj = !no.adj, 
-                                       disp.subclass = disp.subclass,
+                                       which.subclass = which.subclass,
+                                       subclass.summary = subclass.summary,
                                        disp.bal.tab = disp.bal.tab, 
                                        abs = abs,
                                        continuous = continuous,
@@ -580,7 +588,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                        treat_names = treat_vals(X$treat),
                                        type = type,
                                        co.names = co.names)
-    class(out) <- c("bal.tab.subclass", paste.("bal.tab", type), "bal.tab")
+    class(out) <- c("bal.tab.subclass", "bal.tab")
     
     return(out)
 }
