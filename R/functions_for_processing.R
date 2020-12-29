@@ -2813,7 +2813,7 @@ ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
   invisible(gt)
 }
 bal.tab_class_sequence <- function(b) {
-  if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return("bal.tab")
+  if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return(NULL)
   else {
     b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1]]
     return(c(class(b)[1], bal.tab_class_sequence(b_)))
