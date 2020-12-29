@@ -28,6 +28,6 @@ The output is a \code{bal.tab.cluster} object, which inherits from \code{bal.tab
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.
 }
 \seealso{
-\code{\link{bal.tab}}, \code{\link{bal.tab.data.frame}}, \code{\link{print.bal.tab.cluster}}
+\code{\link{bal.tab}}, \code{\link{bal.tab.data.frame}}, \code{\link{print.bal.tab}}
 }
 \keyword{tables}

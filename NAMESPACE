@@ -12,11 +12,6 @@ export(bal.tab, bal.plot, love.plot, f.build, splitfactor,
        col_w_mean, col_w_sd, col_w_smd, col_w_vr, col_w_ks, col_w_ovl, 
        col_w_cov, col_w_corr)
 S3method(print, bal.tab)
-S3method(print, bal.tab.subclass)
-S3method(print, bal.tab.cluster)
-S3method(print, bal.tab.imp)
-S3method(print, bal.tab.multi)
-S3method(print, bal.tab.msm)
 S3method(plot, bal.tab)
 S3method(autoplot, bal.tab)
 S3method(bal.tab, matchit)
