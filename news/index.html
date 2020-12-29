@@ -153,6 +153,9 @@
 <ul>
 <li><p>Returned <code>cem</code> to Suggests.</p></li>
 <li><p>Added ability to display threshold summaries with multiply imputed datasets, clustered datasets, multi-category treatments, and longitudinal treatments.</p></li>
+<li><p>Added <code>pairwise</code> argument for binary treatments. When set to <code>FALSE</code>, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> will display balance between each treatment group and the full sample (i.e., the target population). This functionality already existed for multi-category treatments; indeed, for binary treatments, it works by treating the treatment as multi-category.</p></li>
+<li><p>With subclassification methods, the arguments <code>which.subclass</code> and <code>subclass.summary</code> have been added to display balance on individual subclasses and control output of the balance across subclasses summary. Tehse arguments replace the <code>disp.subclass</code> argument, which can still be used.</p></li>
+<li><p>Changed processing of the <code><a href="https://rdrr.io/r/base/print.html">print()</a></code> method. Now there is only one <code><a href="https://rdrr.io/r/base/print.html">print()</a></code> method (<code>print.bal.tab</code>) for all <code>bal.tab</code> objects. Processing is a little smoother and some smaller printing bugs have been fixed.</p></li>
 <li><p>Fixed a bug where <code><a href="../reference/bal.plot.html">bal.plot()</a></code> would incorrectly process 2-level factor variables (<a href='https://github.com/ngreifer/cobalt/issues/48'>#48</a>).</p></li>
 <li><p>Fixed a bug where <code><a href="../reference/love.plot.html">love.plot()</a></code> would not display variables in the correct order when using aggregation and setting <code>var.order = NULL</code>. Thanks to Florian Kaiser.</p></li>
 </ul>

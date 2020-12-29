@@ -165,8 +165,12 @@ The balance summary is, for each variable, like a weighted average of the balanc
       <td><p>For the data.frame and formula methods of <code>bal.tab</code>, a vector of subclass membership or the name of the variable in <code>data</code> containing subclass membership. When using subclassification with a function compatible with <span class="pkg">cobalt</span>, such as <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code> in <span class="pkg">MatchIt</span>, this argument can be omitted because the subclass are in the output object.</p></td>
     </tr>
     <tr>
-      <th>disp.subclass</th>
-      <td><p>This is a display option that does not affect computation. If <code>TRUE</code>, balance for each subclass will be displayed. This can be cumbersome with many subclasses or covariates. The default is <code>FALSE</code>.</p></td>
+      <th>which.subclass</th>
+      <td><p>This is a display option that does not affect computation. If <code>.all</code>, all subclasses in <code>subclass</code> will be displayed. If <code>.none</code> (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.</p></td>
+    </tr>
+    <tr>
+      <th>subclass.summary</th>
+      <td><p>This is a display option that does not affect computation. If <code>TRUE</code>, the balance summary across subclasses will be displayed. The default is <code>TRUE</code>, and if <code>which.subclass</code> is <code>.none</code>, it will automatically be set to <code>TRUE</code>.</p></td>
     </tr>
     </table>
 
@@ -182,7 +186,7 @@ The balance summary is, for each variable, like a weighted average of the balanc
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code>, <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab.subclass</a></code></p></div>
+    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code>, <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

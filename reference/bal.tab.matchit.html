@@ -168,6 +168,7 @@
     weights <span class='op'>=</span> <span class='cn'>NULL</span>,
     cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
     imp <span class='op'>=</span> <span class='cn'>NULL</span>,
+    pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>,
     s.weights <span class='op'>=</span> <span class='cn'>NULL</span>,
     abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
     subset <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -236,6 +237,10 @@
     <tr>
       <th>imp</th>
       <td><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the original data set used in the call to <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code>. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>pairwise</th>
+      <td><p>whether balance should be computed between the treatment groups or for each treatment against all groups combined. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>s.weights</th>
@@ -378,25 +383,7 @@
 #&gt; nodegree      Binary  -0.1290
 #&gt; re74         Contin.  -0.0152
 #&gt; re75         Contin.  -0.2407
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Balance measures across subclasses</span><span>
-#&gt;                 Type Diff.Adj
-#&gt; distance    Distance   0.0744
-#&gt; age          Contin.  -0.0609
-#&gt; educ         Contin.   0.0323
-#&gt; race_black    Binary   0.0154
-#&gt; race_hispan   Binary   0.0234
-#&gt; race_white    Binary  -0.0388
-#&gt; married       Binary  -0.0533
-#&gt; nodegree      Binary   0.0097
-#&gt; re74         Contin.  -0.1466
-#&gt; re75         Contin.  -0.0940
-#&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Sample sizes by subclass</span><span>
-#&gt;           1  2  3  4  5  6 All
-#&gt; Control 346 24 17 21 18  3 429
-#&gt; Treated  31 31 29 32 31 31 185
-#&gt; Total   377 55 46 53 49 34 614</div></span></pre>
+#&gt; </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

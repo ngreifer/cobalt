@@ -166,6 +166,7 @@
     thresholds <span class='op'>=</span> <span class='cn'>NULL</span>,
     weights <span class='op'>=</span> <span class='cn'>NULL</span>,
     cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
+    pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>,
     abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
     subset <span class='op'>=</span> <span class='cn'>NULL</span>,
     quick <span class='op'>=</span> <span class='cn'>TRUE</span>, 
@@ -248,7 +249,7 @@
     </tr>
     <tr>
       <th>pairwise</th>
-      <td><p>whether balance should be computed for pairs of treatments or for each treatment against all others combined. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p></td>
+      <td><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></td>
     </tr>
     <tr>
       <th>abs</th>

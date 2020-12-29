@@ -168,6 +168,7 @@
     weights <span class='op'>=</span> <span class='cn'>NULL</span>,
     cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
     imp <span class='op'>=</span> <span class='cn'>NULL</span>,
+    pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>,
     abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
     subset <span class='op'>=</span> <span class='cn'>NULL</span>,
     quick <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span>
@@ -299,7 +300,7 @@
     </tr>
     <tr>
       <th>pairwise</th>
-      <td><p>when treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p></td>
+      <td><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></td>
     </tr>
     <tr>
       <th>abs</th>
@@ -366,17 +367,17 @@
 #&gt;     stop.method = c("ks.mean", "es.mean"))
 #&gt; 
 #&gt; </span><span style='text-decoration: underline;'>Balance Measures</span><span>
-#&gt;                 Type Diff.Un  KS.Un Diff.Adj        M.Threshold KS.Adj
-#&gt; prop.score  Distance  2.9419 0.8421   0.6007                    0.2293
-#&gt; age          Contin. -0.3094 0.1577   0.0539     Balanced, &lt;0.1 0.0918
-#&gt; educ         Contin.  0.0550 0.1114  -0.0709     Balanced, &lt;0.1 0.0692
-#&gt; married       Binary -0.3236 0.3236   0.0089     Balanced, &lt;0.1 0.0089
-#&gt; race_black    Binary  0.6404 0.6404   0.0130     Balanced, &lt;0.1 0.0130
-#&gt; race_hispan   Binary -0.0827 0.0827   0.0029     Balanced, &lt;0.1 0.0029
-#&gt; race_white    Binary -0.5577 0.5577  -0.0159     Balanced, &lt;0.1 0.0159
-#&gt; nodegree      Binary  0.1114 0.1114   0.0523     Balanced, &lt;0.1 0.0523
-#&gt; re74         Contin. -0.7211 0.4470   0.1236 Not Balanced, &gt;0.1 0.0693
-#&gt; re75         Contin. -0.2903 0.2876   0.1434 Not Balanced, &gt;0.1 0.1022
+#&gt;                 Type Diff.Un  KS.Un Diff.Adj KS.Adj
+#&gt; prop.score  Distance  2.9419 0.8421   0.6007 0.2293
+#&gt; age          Contin. -0.3094 0.1577   0.0539 0.0918
+#&gt; educ         Contin.  0.0550 0.1114  -0.0709 0.0692
+#&gt; married       Binary -0.3236 0.3236   0.0089 0.0089
+#&gt; race_black    Binary  0.6404 0.6404   0.0130 0.0130
+#&gt; race_hispan   Binary -0.0827 0.0827   0.0029 0.0029
+#&gt; race_white    Binary -0.5577 0.5577  -0.0159 0.0159
+#&gt; nodegree      Binary  0.1114 0.1114   0.0523 0.0523
+#&gt; re74         Contin. -0.7211 0.4470   0.1236 0.0693
+#&gt; re75         Contin. -0.2903 0.2876   0.1434 0.1022
 #&gt; 
 #&gt; </span><span style='text-decoration: underline;'>Balance tally for mean differences</span><span>
 #&gt;                    count

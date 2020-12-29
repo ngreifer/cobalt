@@ -167,6 +167,7 @@
     weights <span class='op'>=</span> <span class='cn'>NULL</span>,
     cluster <span class='op'>=</span> <span class='cn'>NULL</span>, 
     imp <span class='op'>=</span> <span class='cn'>NULL</span>,
+    pairwise <span class='op'>=</span> <span class='cn'>TRUE</span>,
     abs <span class='op'>=</span> <span class='cn'>FALSE</span>,
     subset <span class='op'>=</span> <span class='cn'>NULL</span>,
     quick <span class='op'>=</span> <span class='cn'>TRUE</span>, 
@@ -230,6 +231,10 @@
     <tr>
       <th>imp</th>
       <td><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the original data set used in the call to <code>sbw()</code>. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></td>
+    </tr>
+    <tr>
+      <th>pairwise</th>
+      <td><p>whether balance should be computed between the treatment groups or for each treatment against all groups combined. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>abs</th>
