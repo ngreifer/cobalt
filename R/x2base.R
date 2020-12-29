@@ -32,7 +32,7 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Process treat
-    treat <- process_treat(m[["treat"]], datalist = list(data, m.data), pairwise = A$pairwise)
+    treat <- process_treat(m[["treat"]], datalist = list(data, m.data))
     
     #Process covs
     if (is.data.frame(m$X)) {
@@ -112,6 +112,17 @@ x2base.matchit <- function(m, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with matchit objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -313,6 +324,17 @@ x2base.ps <- function(ps, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with ps objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -867,6 +889,17 @@ x2base.Match <- function(Match, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with Match objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -1175,6 +1208,17 @@ x2base.data.frame <- function(covs, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal) && get.treat.type(treat) != "continuous") {
         focal <- process_focal(focal, treat)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -1363,6 +1407,17 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with CBPS objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -1532,6 +1587,17 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with ebalance objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -1704,6 +1770,17 @@ x2base.optmatch <- function(optmatch, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with optmatch objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process match.strata
@@ -1878,6 +1955,12 @@ x2base.cem.match <- function(cem.match, ...) {
     #Process focal
     focal <- cem.match[["baseline.group"]]
     
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
+    }
+    
     #Process match.strata
     if (is_not_null(match.strata <- A$match.strata)) {
         stop("Matching strata are not allowed with cem.match objects.", call. = FALSE)
@@ -2034,6 +2117,12 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process focal
     focal <- weightit$focal
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
+    }
     
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
@@ -2204,6 +2293,17 @@ x2base.designmatch <- function(dm, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with designmatch objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -2355,7 +2455,7 @@ x2base.mimids <- function(mimids, ...) {
     covs <- get_covs_from_formula(mimids[["models"]][[2]]$formula, data = m.data)
     
     #Get estimand
-    estimand <- A$estimand
+    estimand <- mimids[["models"]][[2]]$estimand
     
     #Get method
     method <- "matching"
@@ -2374,6 +2474,17 @@ x2base.mimids <- function(mimids, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with mimids objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -2507,7 +2618,6 @@ x2base.wimids <- function(wimids, ...) {
         }
     }
     
-    
     #Process imp
     if (is_not_null(imp)) {
         imp <- vector.process(imp, 
@@ -2544,6 +2654,12 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process focal
     focal <- unique(unlist(lapply(wimids[["models"]][-1], function(w) w[["focal"]])))
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
+    }
     
     #Process subclass
     if (is_not_null(subclass <- A$subclass)) {
@@ -2713,6 +2829,17 @@ x2base.sbwcau <- function(sbwcau, ...) {
     #Process focal
     if (is_not_null(focal <- A$focal)) {
         stop("'focal' is not allowed with sbwcau objects.", call. = FALSE)
+    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        focal <- switch(toupper(estimand), 
+                        "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                        "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                        NULL)
+    }
+    
+    #Process pairwise
+    if (get.treat.type(treat) == "binary" && is_null(focal)) {
+        if (is_null(A$pairwise)) A$pairwise <- TRUE
+        if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -4072,6 +4199,17 @@ x2base.default <- function(obj, ...) {
         #Process focal
         if (is_not_null(focal <- A$focal) && get.treat.type(treat) != "continuous") {
             focal <- process_focal(focal, treat)
+        } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+            focal <- switch(toupper(estimand), 
+                            "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
+                            "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
+                            NULL)
+        }
+        
+        #Process pairwise
+        if (get.treat.type(treat) == "binary" && is_null(focal)) {
+            if (is_null(A$pairwise)) A$pairwise <- TRUE
+            if (!A$pairwise) attr(treat, "treat.type") <- "multinomial"
         }
         
         #Process stats and thresholds

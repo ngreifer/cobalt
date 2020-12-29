@@ -43,7 +43,7 @@ process_obj <- function(obj) {
 }
 
 #x2base
-process_treat <- function(treat, datalist = list(), pairwise = TRUE) {
+process_treat <- function(treat, datalist = list()) {
   
   if (missing(treat)) stop("'treat' must be specified.", call. = FALSE)
   
@@ -61,11 +61,11 @@ process_treat <- function(treat, datalist = list(), pairwise = TRUE) {
                             which = "treatment statuses", 
                             datalist = datalist, missing.okay = FALSE)
     
-    treat <- assign.treat.type(treat, use.multi = !if_null_then(pairwise, TRUE))
+    treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
     if (treat.type == "binary") {
-      treat <- factor(treat, levels = sort(unique(treat, nmax = 2)))
+      if (!is.factor(treat)) treat <- factor(treat, levels = sort(unique(treat, nmax = 2)))
       original_values <- levels(treat)
       if (!keep_values && can_str2num(as.character(treat)) && all(original_values %in% c("0", "1"))) {
         treat_names(treat) <- setNames(c("Control", "Treated"), c("control", "treated"))
@@ -846,24 +846,24 @@ subset_X <- function(X, subset = NULL) {
                                     subset_X_internal, subset = subset)
         }
         
-        if (is_not_null(x)) {
-          if ((is.matrix(x) || is.data.frame(x))) out <- x[subset, , drop = FALSE]
-          else if (is.factor(x)) out <- factor(x[subset], nmax = nlevels(x))
-          else if (is.atomic(x)) out <- x[subset]
-          else if (is.list(x)) out <- lapply(x, subset_X_internal, subset = subset)
-          else out <- x
-        }
+        if (is_null(x)) out <- x
+        else if (is_(x, "processed.treat")) out <- x[subset]
+        else if ((is.matrix(x) || is.data.frame(x))) out <- x[subset, , drop = FALSE]
+        else if (is.factor(x)) out <- factor(x[subset], nmax = nlevels(x))
+        else if (is.atomic(x)) out <- x[subset]
+        else if (is.list(x)) out <- lapply(x, subset_X_internal, subset = subset)
         else out <- x
         
         if (is_not_null(attrs)) {
-          if (all(c("treat_names", "treat_vals", "treat.type") %in% names(attrs))) {
+          if (all(c("treat_names", "treat_vals", "treat.type") %in% 
+                  names(attrs))) {
             out <- process_treat(out)
           }
           else {
-            for (i in names(attrs)[names(attrs) %nin% names(attributes(out))]) {
-              if (i %in% attrs_to_subset) attr(out, i) <- subsetted_attrs[[i]]
-              else attr(out, i) <- attrs[[i]]
-            }
+          for (i in names(attrs)[names(attrs) %nin% names(attributes(out))]) {
+            if (i %in% attrs_to_subset) attr(out, i) <- subsetted_attrs[[i]]
+            else attr(out, i) <- attrs[[i]]
+          }
           }
         }
         
@@ -2812,6 +2812,13 @@ ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
   
   invisible(gt)
 }
+bal.tab_class_sequence <- function(b) {
+  if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return("bal.tab")
+  else {
+    b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1]]
+    return(c(class(b)[1], bal.tab_class_sequence(b_)))
+  }
+}
 unpack_bal.tab <- function(b) {
   unpack_bal.tab_internal <- function(b) {
     if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return(b[["Balance"]])
@@ -2873,13 +2880,6 @@ unpack_bal.tab <- function(b) {
     }
     return(NList)
   }
-  class_sequence <- function(b) {
-    if (is_(b, c("bal.tab.bin", "bal.tab.cont"))) return(NULL)
-    else {
-      b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1]]
-      return(c(class(b)[1], class_sequence(b_)))
-    }
-  }
   
   namesep <- paste(c("|", do.call(c, lapply(1:20, function(i) sample(LETTERS, 1))), "|"), collapse = "")
   
@@ -2887,7 +2887,7 @@ unpack_bal.tab <- function(b) {
   out <- LinearizeNestedList(out_, NameSep = namesep)
   
   attr(out, "namesep") <- namesep
-  attr(out, "class_sequence") <- class_sequence(b)
+  attr(out, "class_sequence") <- bal.tab_class_sequence(b)
   
   return(out)
 }

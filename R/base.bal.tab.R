@@ -6,7 +6,6 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
     
     A <- clear_null(list(...))
     A$subset <- NULL
-    
     X$treat <- process_treat(X$treat) 
     
     if (type == "bin") {
@@ -79,7 +78,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                        quick = quick,
                                        nweights = ifelse(no.adj, 0, ncol(X$weights)),
                                        weight.names = names(X$weights),
-                                       treat_names = treat_vals(X$treat),
+                                       treat_names = treat_names(X$treat),
                                        type = type,
                                        co.names = co.names)
     class(out) <- c(paste.("bal.tab", type), "bal.tab")
@@ -96,7 +95,7 @@ base.bal.tab.cont <- function(X, ...) {
 base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_imp.summary"), imp.fun = getOption("cobalt_imp.fun", NULL), ...) {
     A <- list(...)
     
-    X$treat <- process_treat(X$treat)
+    # X$treat <- process_treat(X$treat)
     
     #Preparations
     
@@ -167,7 +166,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
 base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = getOption("cobalt_multi.summary"), ...) {
     A <- list(...)
     
-    X$treat <- process_treat(X$treat)
+    # X$treat <- process_treat(X$treat)
     
     #Preparations
     
@@ -183,15 +182,13 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     }
     
     if (is_null(multi.summary)) {
-        multi.summary <- is_not_null(which.treat) && (anyNA(which.treat) || !is_(which.treat, c("character", "numeric")) ||
-                                                          (is.numeric(which.treat) && !any(which.treat %in% seq_len(nlevels(X$treat)))) ||
-                                                          (is.character(which.treat) && !any(which.treat %in% levels(X$treat))))
+        multi.summary <- is_not_null(which.treat) && anyNA(which.treat)
     }
     
     #Treat is a factor variable
     if (is_null(X$focal)) {
-        if (pairwise) treat.combinations <- combn(levels(X$treat), 2, simplify = FALSE)
-        else treat.combinations <- lapply(levels(X$treat), function(x) c(x, "All"))
+        if (pairwise) treat.combinations <- combn(treat_names(X$treat), 2, simplify = FALSE)
+        else treat.combinations <- lapply(treat_names(X$treat), function(x) c(x, "All"))
     }
     else {
         if (length(X$focal) > 1) stop("'focal' must be a vector of length 1 containing the name or index of the focal treatment group.", call. = FALSE)
@@ -231,7 +228,9 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     
     if (pairwise || is_not_null(X$focal)) {
         balance.tables <- lapply(treat.combinations, function(t) {
-            X_t <- assign.X.class(subset_X(X, X$treat %in% t))
+            X_t <- subset_X(X, X$treat %in% treat_vals(X$treat)[t])
+            X_t$treat <- process_treat(X_t$treat)
+            X_t <- assign.X.class(X_t)
             X_t$call <- NULL
             do.call("base.bal.tab", c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
         })
@@ -242,9 +241,9 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
             n <- length(X$treat)
             X_t <- X
             X_t$call <- NULL
-            X_t <- subset_X(X_t, c(seq_len(n), which(X$treat == t[1])))
-            X_t$treat <- factor(c(rep("All", n), rep(t[1], sum(X$treat == t[1]))), nmax = 2,
-                                levels = c("All", t[1]))
+            X_t <- subset_X(X_t, c(seq_len(n), which(X$treat == treat_vals(X$treat)[t[1]])))
+            X_t$treat <- factor(rep(0:1, times = c(n, sum(X$treat == treat_vals(X$treat)[t[1]]))),
+                                levels = c(0, 1), labels = c("All", t[1]))
             X_t <- assign.X.class(X_t)
             do.call("base.bal.tab", c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
         })
@@ -273,7 +272,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     out[["call"]] <- X$call
     
     attr(out, "print.options") <- c(attr(out[["Pair.Balance"]][[1]], "print.options"),
-                                    list(treat_names_multi = treat_vals(X$treat),
+                                    list(treat_vals_multi = treat_vals(X$treat),
                                          which.treat = which.treat,
                                          multi.summary = multi.summary,
                                          pairwise = pairwise))
@@ -293,7 +292,7 @@ base.bal.tab.msm <- function(X, which.time, msm.summary = getOption("cobalt_msm.
     
     A <- list(...)
     
-    X$treat.list <- process_treat.list(X$treat)
+    # X$treat.list <- process_treat.list(X$treat)
     
     #Preparations
     
