@@ -143,7 +143,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 }
                 else {
                     if (i == "treat") {
-                        treat_levels <- attr(x, "print.options")$treat_names_multi
+                        treat_levels <- attr(x, "print.options")$treat_vals_multi
                         if (is.numeric(which.)) which. <- treat_levels[which.]
                         if (any(which. %nin% treat_levels)) stop("All values in 'which.treat' must be names or indices of treatment levels.", call. = FALSE)
                         if (attr(x, "print.options")$pairwise) {
