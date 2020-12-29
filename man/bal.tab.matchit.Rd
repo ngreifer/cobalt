@@ -22,6 +22,7 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note
     weights = NULL,
     cluster = NULL, 
     imp = NULL,
+    pairwise = TRUE,
     s.weights = NULL,
     abs = FALSE,
     subset = NULL,
@@ -74,6 +75,9 @@ either a vector containing cluster membership for each unit or a string containi
 }
   \item{imp}{
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{matchit()}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
+}
+  \item{pairwise}{
+whether balance should be computed between the treatment groups or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 }
   \item{s.weights}{
 optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used. If \code{s.weights} was supplied in the call to \code{matchit()}, they will automatically be included and do not need be specified again (though there is no harm if they are).

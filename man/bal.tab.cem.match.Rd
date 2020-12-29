@@ -72,7 +72,7 @@ either a vector containing cluster membership for each unit or a string containi
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
 }
   \item{pairwise}{
-when the treatment is multi-category, whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. Default is \code{TRUE}.
+whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 

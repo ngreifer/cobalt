@@ -28,6 +28,7 @@ Generates balance statistics for output objects from \pkg{Matching}, \pkg{optmat
     weights = NULL,
     cluster = NULL, 
     imp = NULL,
+    pairwise = TRUE,
     abs = FALSE,
     subset = NULL,
     quick = TRUE, 
@@ -91,6 +92,9 @@ either a vector containing cluster membership for each unit or a string containi
 }
   \item{imp}{
 either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the original data set used in the call to \code{weightit()}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
+}
+  \item{pairwise}{
+whether balance should be computed between the treatment groups or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 

@@ -21,6 +21,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
     thresholds = NULL,
     weights = NULL,
     cluster = NULL, 
+    pairwise = TRUE,
     abs = FALSE,
     subset = NULL,
     quick = TRUE, 
@@ -87,7 +88,7 @@ a named list containing additional weights on which to assess balance. Each entr
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{mimids} or \code{wimids} object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 }
   \item{pairwise}{
-whether balance should be computed for pairs of treatments or for each treatment against all others combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. 
+whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.
 }
   \item{abs}{
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
