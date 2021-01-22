@@ -68,7 +68,7 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
                                           rep(unlist(lapply(p.ops$compute[p.ops$compute %nin% all_STATS()], function(s) {
                                               p.ops$un && s %in% p.ops$disp
                                           })), switch(p.ops$type, bin = 2, cont = 1)),
-                                          unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
+                                          unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()[!get_from_STATS("adj_only")]], function(s) {
                                               c(p.ops$un && s %in% p.ops$disp,
                                                 p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
                                           })),
@@ -154,14 +154,14 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
     
     if (isTRUE(as.logical(p.ops$cluster.summary)) && is_not_null(c.balance.summary)) {
         s.keep.col <- as.logical(c(TRUE, 
-                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()[!get_from_STATS("adj_only")]], function(s) {
                                        c(unlist(lapply(p.ops$computed.cluster.funs, function(af) {
                                            p.ops$un && s %in% p.ops$disp && af %in% p.ops$cluster.fun
                                        })), 
                                        p.ops$un && !p.ops$disp.adj && length(p.ops$cluster.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
                                    })),
                                    rep(
-                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
                                            c(unlist(lapply(p.ops$computed.cluster.funs, function(af) {
                                                p.ops$disp.adj && s %in% p.ops$disp && af %in% p.ops$cluster.fun
                                            })), 
@@ -169,7 +169,7 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
                                        })),
                                        p.ops$nweights + !p.ops$disp.adj)
         ))
-        
+    
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all clusters") %+% "\n")
             print.data.frame_(round_df_char(c.balance.summary[, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
@@ -241,14 +241,14 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
     
     if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
         s.keep.col <- as.logical(c(TRUE, 
-                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()[!get_from_STATS("adj_only")]], function(s) {
                                        c(unlist(lapply(p.ops$computed.imp.funs, function(af) {
                                            p.ops$un && s %in% p.ops$disp && af %in% p.ops$imp.fun
                                        })), 
                                        p.ops$un && !p.ops$disp.adj && length(p.ops$imp.fun) == 1 && is_not_null(p.ops$thresholds[[s]]))
                                    })),
                                    rep(
-                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
                                            c(unlist(lapply(p.ops$computed.imp.funs, function(af) {
                                                p.ops$disp.adj && s %in% p.ops$disp && af %in% p.ops$imp.fun
                                            })), 
@@ -340,7 +340,7 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
         
         computed.agg.funs <- "max"
         s.keep.col <- as.logical(c(TRUE, 
-                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS("bin")], function(s) {
+                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS("bin")[!get_from_STATS("adj_only")]], function(s) {
                                        c(unlist(lapply(computed.agg.funs, function(af) {
                                            p.ops$un && s %in% p.ops$disp && af %in% "max"
                                        })), 
@@ -438,14 +438,14 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops){
         computed.agg.funs <- "max"
         s.keep.col <- as.logical(c(TRUE, 
                                    TRUE,
-                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()[!get_from_STATS("adj_only")]], function(s) {
                                        c(unlist(lapply(computed.agg.funs, function(af) {
                                            p.ops$un && s %in% p.ops$disp && af %in% "max"
                                        })), 
                                        p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
                                    })),
                                    rep(
-                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS(p.ops$type)], function(s) {
+                                       unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
                                            c(unlist(lapply(computed.agg.funs, function(af) {
                                                p.ops$disp.adj && s %in% p.ops$disp && af %in% "max"
                                            })), 
@@ -560,7 +560,7 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
                                                   rep(unlist(lapply(p.ops$compute[p.ops$compute %nin% all_STATS()], function(s) {
                                                       p.ops$un && s %in% p.ops$disp
                                                   })), switch(p.ops$type, bin = 2, cont = 1)),
-                                                  unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
+                                                  unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()[!get_from_STATS("adj_only")]], function(s) {
                                                       c(p.ops$un && s %in% p.ops$disp,
                                                         p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
                                                   })),
