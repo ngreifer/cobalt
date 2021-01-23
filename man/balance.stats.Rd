@@ -25,6 +25,10 @@ Below, each allowable entry to \code{stats} and \code{thresholds} are described,
 
 \item{\code{"spearman.correlations"}}{Spearman correlations as computed by \code{\link{col_w_cov}}. Can be abbreviated as \code{"sp"}. All arguments are the same as those for \code{"correlations"}. When \code{abs = TRUE}, negative values become positive. Can also be requested using the \code{disp.spear} argument. Thresholds can also be requested using \code{s.threshold}.}
 }
+\item{\code{"mean.diffs.target"}}{Mean differences computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"m"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When \code{abs = TRUE}, negative values become positive. Thresholds can also be requested using \code{m.threshold}. This statistic is only computed for the adjusted samples.}
+}
+\item{\code{"ks.statistics.target"}}{KS-statistics computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"ks"}. Thresholds can also be requested using \code{ks.threshold}. This statistic is only computed for the adjusted samples.}
+}
 }
 
 If a statistic is requested in \code{thresholds}, it will automatically be placed in \code{stats}. For example, \code{bal.tab(..., stats = "m", thresholds = c(v = 2))} will display both mean differences and variance ratios, and the variance ratios will have a balance threshold set to 2.
@@ -43,6 +47,5 @@ love.plot(treat ~ age + educ + married + re74, data = lalonde,
 bal.tab(re75 ~ age + educ + married + re74, data = lalonde,
         stats = c("cor", "sp"))
 love.plot(re75 ~ age + educ + married + re74, data = lalonde,
-          stats = c("cor", "sp"), continuous = "std",
           thresholds = c(cor = .1, sp = .1))
 }

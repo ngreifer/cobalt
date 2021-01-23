@@ -9,6 +9,8 @@
 
 * Added `pairwise` argument for binary treatments. When set to `FALSE`, `bal.tab()` will display balance between each treatment group and the full sample (i.e., the target population). This functionality already existed for multi-category treatments; indeed, for binary treatments, it works by treating the treatment as multi-category.
 
+* Added two new `stats` options in `bal.tab()` and `love.plot()` for continuous treatments: `"mean.diffs.target"` (abbreviated as `"m"`) and `"ks.statistics.target"` (abbreviated as `"ks"`). These compute (standardized) mean differences and KS statistics between the weighted and unweighted samples to ensure the weighted sample is representative of the original population. These statistics are only computed for the adjusted sample (i.e., they will not appear in the absence of adjustment).
+
 * With subclassification methods, the arguments `which.subclass` and `subclass.summary` have been added to display balance on individual subclasses and control output of the balance across subclasses summary. Tehse arguments replace the `disp.subclass` argument, which can still be used.
 
 * Changed processing of the `print()` method. Now there is only one `print()` method (`print.bal.tab`) for all `bal.tab` objects. Processing is a little smoother and some smaller printing bugs have been fixed.
@@ -16,6 +18,10 @@
 * Fixed a bug where `bal.plot()` would incorrectly process 2-level factor variables (#48).
 
 * Fixed a bug where `love.plot()` would not display variables in the correct order when using aggregation and setting `var.order = NULL`. Thanks to Florian Kaiser.
+
+* Fixed a bug in `love.plot()` where the color of points could be incorrect.
+
+***DOCUMENT functions for assessing distributional balance for continuous treatments
 
 # cobalt 4.2.4
 
