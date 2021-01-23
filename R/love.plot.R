@@ -174,10 +174,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 
             }
             B_list <- B_list[rownames(facet_mat)]
+            B_names <- names(B_list[[1]])
             
             stat.cols <- expand.grid_string(vapply(stats, function(s) STATS[[s]]$bal.tab_column_prefix, character(1L)),
                                             c("Un", attr(x, "print.options")[["weight.names"]]),
                                             collapse = ".")
+            stat.cols <- stat.cols[stat.cols %in% B_names]
             cols.to.keep <- c("variable.names", "Type", facet, stat.cols)
             
             for (b in seq_along(B_list)) {
@@ -259,9 +261,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             facet <- one.level.facet <- agg.over <- NULL
             
+            B_names <- names(B)
+            
             stat.cols <- expand.grid_string(vapply(stats, function(s) STATS[[s]]$bal.tab_column_prefix, character(1L)),
                                             c("Un", attr(x, "print.options")[["weight.names"]]),
                                             collapse = ".")
+            stat.cols <- stat.cols[stat.cols %in% B_names]
+            
             cols.to.keep <- c("variable.names", "Type", stat.cols)
             B <- B[cols.to.keep]
             
@@ -371,13 +377,22 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             ua <- c("Unadjusted", attr(x, "print.options")$weight.names, "Alphabetical")
             names(ua) <- c("unadjusted", attr(x, "print.options")$weight.names, "alphabetical")
         }
+        if (get_from_STATS("adj_only")[stats[1]]) ua <- ua[names(ua) != "unadjusted"]
         var.order <- ua[match_arg(var.order, tolower(ua))]
     }
     
     #Process sample names
-    ntypes <- if (is_null(subclass.names)) length(attr(x, "print.options")$weight.names) + 1 else 2
+    
+    if (is_null(subclass.names)) {
+        ntypes <- length(attr(x, "print.options")$weight.names) + 1
+    }
+    else ntypes <- 2
+
+    original.sample.names <- c("Unadjusted", attr(x, "print.options")$weight.names)
+    if (length(original.sample.names) == 2) original.sample.names[2] <- "Adjusted"
+    
     if (!missing(sample.names)) {
-        if (!is.vector(sample.names, "character")) {
+        if (!is.character(sample.names)) {
             warning("The argument to 'sample.names' must be a character vector. Ignoring 'sample.names'.", call. = FALSE)
             sample.names <- NULL
         }
@@ -387,6 +402,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
     }
     else sample.names <- NULL
+    
+    if (is_not_null(sample.names)) {
+        if (length(sample.names) == ntypes - 1) {
+            sample.names <- c("Unadjusted", sample.names)
+        }
+    }
+    else sample.names <- original.sample.names
+    names(sample.names) <- original.sample.names
     
     #Process limits
     if (is_not_null(limits)) {
@@ -447,6 +470,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         
     }
     # colors[] <- vapply(colors, col_plus_alpha, character(1L), alpha = alpha)
+    names(colors) <- sample.names
     fill <- colors
     
     #Shapes
@@ -461,6 +485,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
     }
+    names(shapes) <- sample.names
     
     #Size
     if (is.numeric(size)) size <- size[1]
@@ -517,14 +542,17 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
     }
     
+    variable.names <- as.character(B[["variable.names"]])
+    
     plot.list <- make_list(stats)
     for (s in stats) {
-        variable.names <- as.character(B[["variable.names"]])
+        adj_only <- get_from_STATS("adj_only")[s]
+        col.sample.names <- c("Un"[!adj_only], attr(x, "print.options")$weight.names)
         
         #Get SS
         if (agg.range) {
             SS <- do.call("rbind", 
-                          lapply(c("Un", attr(x, "print.options")$weight.names),
+                          lapply(col.sample.names,
                                  function(w) data.frame(var = variable.names,
                                                         type = B[["Type"]],
                                                         min.stat = B[[paste.("Min", STATS[[s]]$bal.tab_column_prefix, w)]],
@@ -533,7 +561,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                         Sample = switch(w, "Un"= "Unadjusted", 
                                                                         "Adj" = "Adjusted", w),
                                                         B[facet],
-                                                        row.names = NULL)))
+                                                        row.names = NULL,
+                                                        stringsAsFactors = TRUE)))
+           
+            sample.vals <- sample.names[levels(SS[["Sample"]])]
+            SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
+            
             if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) 
                 stop(paste("No balance statistics to display. This can occur when", 
                            STATS[[s]]$disp_stat, 
@@ -546,10 +579,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                           " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
             
             gone <- character(0)
-            for (i in levels(SS$Sample)) {
-                if (all(sapply(SS[SS$Sample == i, c("min.stat", "max.stat", "mean.stat")], is.na))) {
+            for (i in sample.vals) {
+                if (all(sapply(SS[SS[["Sample"]] == i, c("min.stat", "max.stat", "mean.stat")], is.na))) {
                     gone <- c(gone, i)
-                    if (i == "Unadjusted") warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
+                    if (i == sample.names["Unadjusted"] && !adj_only) warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
                     SS <- SS[SS[["Sample"]] != i,]
                 }
             }
@@ -606,8 +639,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 covnames <- as.character(unique(SS[["var"]]))
                 SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
             }
-            # SS[, "Sample"] <- factor(SS[, "Sample"], levels = c("Adjusted", "Unadjusted"))
-            SS[["Sample"]] <- factor(SS[["Sample"]])
+
             if (s == "mean.diffs" && any(base::abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
             if (length(stats) == 1 && drop.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
             SS[["stat"]] <- SS[["mean.stat"]]
@@ -615,7 +647,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         else {
             
             SS <- do.call("rbind", 
-                          lapply(c("Un", attr(x, "print.options")$weight.names),
+                          lapply(col.sample.names,
                                  function(w) data.frame(var = variable.names,
                                                         type = B[["Type"]],
                                                         stat = B[[ifelse(is_null(Agg.Fun), paste.(STATS[[s]]$bal.tab_column_prefix, w),
@@ -623,20 +655,24 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                         Sample = switch(w, "Un"= "Unadjusted",
                                                                         "Adj" = "Adjusted", w),
                                                         B[facet],
-                                                        row.names = NULL)
+                                                        row.names = NULL,
+                                                        stringsAsFactors = TRUE)
                           ))
             
+            sample.vals <- sample.names[levels(SS[["Sample"]])]
+            SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
+
             missing.stat <- all(is.na(SS[["stat"]]))
             if (missing.stat) stop(paste0(word_list(firstup(STATS[[s]]$balance_tally_for)), 
                                           " cannot be displayed. This can occur when ", 
                                           word_list(STATS[[s]]$disp_stat, and.or = "and", is.are = TRUE), 
                                           " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
-            
+           
             gone <- character(0)
-            for (i in levels(SS$Sample)) {
-                if (all(is.na(SS[["stat"]][SS$Sample==i]))) {
+            for (i in sample.vals) {
+                if (all(is.na(SS[["stat"]][SS[["Sample"]]==i]))) {
                     gone <- c(gone, i)
-                    if (i == "Unadjusted") warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
+                    if (i == sample.names["Unadjusted"] && !adj_only) warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
                     SS <- SS[SS[["Sample"]]!=i,]
                 }
             }
@@ -696,13 +732,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 covnames <- as.character(unique(SS[["var"]])) #Don't use levels here to preserve original order
                 SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
             }
-            SS[["Sample"]] <- factor(SS[["Sample"]])
+            SS[["Sample"]] <- droplevels(SS[["Sample"]])
             if (s == "mean.diffs" && any(base::abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
             if (length(stats) == 1 && drop.missing) SS <- SS[!is.na(SS[["stat"]]),]
         }
         
         SS <- SS[order(SS[["var"]], na.last = FALSE),]
-        SS[["var"]] <- factor(SS[["var"]])
+        SS[["var"]] <- droplevels(SS[["var"]])
         
         #Make the plot
         #library(ggplot2)
@@ -765,15 +801,6 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
             
             apply.limits <- TRUE
-        }
-        
-        if (is_not_null(sample.names)) {
-            if (length(sample.names) == ntypes - 1) {
-                levels(SS$Sample)[-1] <- sample.names
-            }
-            else if (length(sample.names) == ntypes) {
-                levels(SS$Sample) <- sample.names
-            }
         }
         
         lp <- ggplot2::ggplot(aes(y = .data$var, x = .data$stat, group = .data$Sample), data = SS) +
@@ -852,8 +879,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 
             }
             else {
-                SS.u.a <- SS[SS$Sample %in% c("Unadjusted", "Adjusted"),]
-                SS.u.a$Sample <- factor(SS.u.a$Sample)
+                SS.u.a <- SS[SS[["Sample"]] %in% c("Unadjusted", "Adjusted"),]
+                SS.u.a[["Sample"]] <- factor(SS.u.a[["Sample"]])
                 if (line == TRUE) { #Add line except to distance
                     f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                     lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a),
@@ -870,7 +897,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                    color = .data$Sample),
                                                fill = "white",
                                                na.rm = TRUE)
-                lp <- lp + ggplot2::geom_text(data = SS[SS$Sample %nin% c("Unadjusted", "Adjusted"),],
+                lp <- lp + ggplot2::geom_text(data = SS[SS[["Sample"]] %nin% c("Unadjusted", "Adjusted"),],
                                               mapping = aes(label = gsub("Subclass ", "", .data$Sample)),
                                               size = 2.5*size0[1]/3, na.rm = TRUE)
             }
@@ -961,7 +988,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             p <- gridExtra::arrangeGrob(grobs = list(g), nrow = 1)
         }
         else {
-            legg <- ggplot2::ggplotGrob(plots.to.combine[[1]] + ggplot2::theme(legend.position = position))
+            if (any(!get_from_STATS("adj_only")[stats])) {
+                    legend.to.get <- which(!get_from_STATS("adj_only")[stats])[1]
+            }
+            else legend.to.get <- 1
+            
+            legg <- ggplot2::ggplotGrob(plots.to.combine[[legend.to.get]] + ggplot2::theme(legend.position = position))
             leg <- legg$grobs[[which(legg$layout$name == "guide-box")]]
             
             if (position == "left") {
