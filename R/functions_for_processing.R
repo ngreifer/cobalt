@@ -1664,10 +1664,10 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
                           # else 
                           if (anyNA(C[,i])) return(FALSE)
                           else if (test.treat && equivalent.factors2(C[,i], treat)) return(TRUE)
-                          else if (test.cluster && equivalent.factors2(C[,i], cluster)) return(TRUE)
+                          # else if (test.cluster && equivalent.factors2(C[,i], cluster)) return(TRUE) #Note: doesn't work with multi-cat cluster vars due to splitting
                           else return(FALSE)
                         }, logical(1L))
-    
+
     if (all(drop_vars)) stop("There are no variables for which to display balance.", call. = FALSE)
     C <- C[,!drop_vars, drop = FALSE]
     co.names[drop_vars] <- NULL
