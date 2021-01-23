@@ -54,7 +54,7 @@ Generates balance statistics for \code{weightit} and \code{weightitMSM} objects 
 a \code{weightit} or \code{weightitMSM} object; the output of a call to \code{weightit()} or \code{weightitMSM()} from the \pkg{WeightIt} package.
 }
   \item{stats}{
-\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
 }
   \item{int}{
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
@@ -78,7 +78,7 @@ whether mean differences for continuous variables should be standardized (\code{
 whether mean differences for binary variables (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}} and \code{\link{col_w_corr}}.
 }
   \item{s.d.denom}{
-\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. Can also be the name of the treatment group or "focal" if \code{focal} is specified in the original call to \code{weightit}. If not specified, \code{bal.tab()} will figure out which one is best based on the estimand of the \code{weightit} object: if ATT, "treated"; if ATC, "control", otherwise "pooled". Abbreviations allowed.
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. Can also be the name of the treatment group or \code{"focal"} if \code{focal} is specified in the original call to \code{weightit}. If not specified, \code{bal.tab()} will figure out which one is best based on the estimand of the \code{weightit} object: if ATT, \code{"treated"}; if ATC, \code{"control"}; otherwise \code{"pooled"}. Abbreviations allowed.
 }
   \item{thresholds}{
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
