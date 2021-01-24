@@ -24,9 +24,9 @@ Below, each allowable entry to \code{stats} and \code{thresholds} are described,
 \item{\code{"correlations"}}{Pearson correlations as computed by \code{\link{col_w_cov}}. Can be abbreviated as \code{"cor"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether correlations or covariances are calculated for continuous and categorical variables, respectively (they are both \code{"std"} by default). When correlations are requested, the \code{s.d.denom} argument controls how the standardization occurs. When \code{abs = TRUE}, negative values become positive. Pearson correlations are requested by default when no entry to \code{stats} is provided. Can also be requested using the \code{disp.corr} argument. Thresholds can also be requested using \code{r.threshold}.}
 
 \item{\code{"spearman.correlations"}}{Spearman correlations as computed by \code{\link{col_w_cov}}. Can be abbreviated as \code{"sp"}. All arguments are the same as those for \code{"correlations"}. When \code{abs = TRUE}, negative values become positive. Can also be requested using the \code{disp.spear} argument. Thresholds can also be requested using \code{s.threshold}.}
-}
+
 \item{\code{"mean.diffs.target"}}{Mean differences computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"m"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When \code{abs = TRUE}, negative values become positive. Thresholds can also be requested using \code{m.threshold}. This statistic is only computed for the adjusted samples.}
-}
+
 \item{\code{"ks.statistics.target"}}{KS-statistics computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"ks"}. Thresholds can also be requested using \code{ks.threshold}. This statistic is only computed for the adjusted samples.}
 }
 }
