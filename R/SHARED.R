@@ -750,7 +750,6 @@ process.s.weights <- function(s.weights, data = NULL) {
     return(s.weights)
 }
 
-
 #Uniqueness
 nunique <- function(x, nmax = NA, na.rm = TRUE) {
     if (is_null(x)) return(0)
@@ -1001,6 +1000,12 @@ check_if_call_from_fun <- function(fun) {
         if (identical(fun, x)) return(TRUE)
     }
     FALSE
+}
+has_method <- function(class, fun) {
+    if (!is.character(fun) || length(fun) != 1) stop("'fun' must be a string of length 1.")
+    if (!is.character(class)) stop("'class' must be a character vector.")
+    
+    vapply(class, function(cl) fun %in% attr(methods(class = cl), "info")$generic, logical(1L))
 }
 
 #Not used cobalt; replaced with rlang
