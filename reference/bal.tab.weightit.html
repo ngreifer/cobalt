@@ -203,7 +203,7 @@
     </tr>
     <tr>
       <th>stats</th>
-      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='Balance Statistics.html'>stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
+      <td><p><code>character</code>; which statistic(s) should be reported. See <code><a href='Balance Statistics.html'>stats</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. For continuous treatments, <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></td>
     </tr>
     <tr>
       <th>int</th>
@@ -235,7 +235,7 @@
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. Can also be the name of the treatment group or "focal" if <code>focal</code> is specified in the original call to <code>weightit</code>. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the estimand of the <code>weightit</code> object: if ATT, "treated"; if ATC, "control", otherwise "pooled". Abbreviations allowed.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. Can also be the name of the treatment group or <code>"focal"</code> if <code>focal</code> is specified in the original call to <code>weightit</code>. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the estimand of the <code>weightit</code> object: if ATT, <code>"treated"</code>; if ATC, <code>"control"</code>; otherwise <code>"pooled"</code>. Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>

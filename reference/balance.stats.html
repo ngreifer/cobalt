@@ -69,6 +69,10 @@ Continuous Treatments
 
 &quot;spearman.correlations&quot;Spearman correlations as computed by col_w_cov. Can be abbreviated as &quot;sp&quot;. All arguments are the same as those for &quot;correlations&quot;. When abs = TRUE, negative values become positive. Can also be requested using the disp.spear argument. Thresholds can also be requested using s.threshold.
 
+&quot;mean.diffs.target&quot;Mean differences computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as &quot;m&quot;. Setting the arguments continuous and binary to either &quot;std&quot; or &quot;raw&quot; will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When abs = TRUE, negative values become positive. Thresholds can also be requested using m.threshold. This statistic is only computed for the adjusted samples.
+
+&quot;ks.statistics.target&quot;KS-statistics computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as &quot;ks&quot;. Thresholds can also be requested using ks.threshold. This statistic is only computed for the adjusted samples.
+
 
 
 
@@ -196,6 +200,10 @@ If a statistic is requested in thresholds, it will automatically be placed in st
 
 <dt><code>"spearman.correlations"</code></dt><dd><p>Spearman correlations as computed by <code><a href='Balance Summary.html'>col_w_cov</a></code>. Can be abbreviated as <code>"sp"</code>. All arguments are the same as those for <code>"correlations"</code>. When <code>abs = TRUE</code>, negative values become positive. Can also be requested using the <code>disp.spear</code> argument. Thresholds can also be requested using <code>s.threshold</code>.</p></dd>
 
+<dt><code>"mean.diffs.target"</code></dt><dd><p>Mean differences computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as <code>"m"</code>. Setting the arguments <code>continuous</code> and <code>binary</code> to either <code>"std"</code> or <code>"raw"</code> will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When <code>abs = TRUE</code>, negative values become positive. Thresholds can also be requested using <code>m.threshold</code>. This statistic is only computed for the adjusted samples.</p></dd>
+
+<dt><code>"ks.statistics.target"</code></dt><dd><p>KS-statistics computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as <code>"ks"</code>. Thresholds can also be requested using <code>ks.threshold</code>. This statistic is only computed for the adjusted samples.</p></dd>
+
 </dl>
 
 
@@ -219,7 +227,6 @@ If a statistic is requested in thresholds, it will automatically be placed in st
 <span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>re75</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>re74</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>,
         stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"cor"</span>, <span class='st'>"sp"</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='error'>Error: object 'educ' not found</span></div><div class='input'><span class='fu'><a href='love.plot.html'>love.plot</a></span><span class='op'>(</span><span class='va'>re75</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>re74</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>,
-          stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"cor"</span>, <span class='st'>"sp"</span><span class='op'>)</span>, continuous <span class='op'>=</span> <span class='st'>"std"</span>,
           thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>cor <span class='op'>=</span> <span class='fl'>.1</span>, sp <span class='op'>=</span> <span class='fl'>.1</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='error'>Error: object 'educ' not found</span></div></pre>
   </div>
