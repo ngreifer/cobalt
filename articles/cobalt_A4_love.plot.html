@@ -252,11 +252,9 @@
                         ks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.45</span><span class="op">)</span><span class="op">)</span>,
           wrap <span class="op">=</span> <span class="fl">20</span>,
           position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> </code></pre></div>
-<pre><code>## Warning: The love.plot object in 'var.order' doesn't have the same variables as
-## the current input. Ignoring 'var.order'.</code></pre>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-12-1.png" width="576"></p>
 <p>Below we recreate the plot in West et al. (2014), which uses a simple theme and avoids color, which can be important for publication. In addition, the plot has labels and puts the legend in a different position. We can include those features by including an argument to <code>labels</code> and by supplying a <code>theme</code> object to <code>themes</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, abs <span class="op">=</span> <span class="cn">FALSE</span>,
           stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>,
           drop.distance <span class="op">=</span> <span class="cn">TRUE</span>,
@@ -274,7 +272,7 @@
                                   legend.key.size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html">unit</a></span><span class="op">(</span><span class="fl">.02</span>, <span class="st">"npc"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-13-1.png" width="576"></p>
 <p>When using <code>love.plot</code>, you might see a warning that says <code>Standardized mean differences and raw mean differences are present in the same plot. Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</code>. We avoided this here by setting <code>binary</code> to <code>"std"</code> so that only standardized mean differences are produced when requesting <code>stats = "mean.diffs"</code>. The <code>stars</code> argument adds an asterisk (or a character of your choice) to the names of variables that either have standardized mean difference or raw mean differences, whichever you choose. The idea is that the asterisk will be explain in a caption below the plot, indicating that the axis title doesn’t fully represent how that variable’s mean difference is displayed. For example, you might make the following plot:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, binary <span class="op">=</span> <span class="st">"raw"</span>,
           stars <span class="op">=</span> <span class="st">"raw"</span>,
           drop.distance <span class="op">=</span> <span class="cn">TRUE</span>,

@@ -650,8 +650,6 @@
           sample.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Unmatched"</span>, <span class="st">"Matched"</span><span class="op">)</span>,
           position <span class="op">=</span> <span class="st">"top"</span>, shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"triangle"</span><span class="op">)</span>,
           colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: The love.plot object in 'var.order' doesn't have the same variables as
-## the current input. Ignoring 'var.order'.</code></pre>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-17-1.png" width="480"></p>
 <p>This plot shows that balance was improved on almost all variables after adjustment, bringing all but two below the threshold of .1 for absolute mean differences.</p>
 <p>A helper function, <code><a href="../reference/var.names.html">var.names()</a></code> can be used to more easily create new variable names when many variables are present. See <code><a href="../reference/var.names.html">?var.names</a></code> for details.</p>
@@ -670,7 +668,7 @@
 <p>In <code>cobalt</code>, users can assess and present balance for continuous treatments using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach <code>cobalt</code> takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in <code>CBPS</code> and described in Zhu et al. (2015) and Austin (2019), but not that described in Hirano &amp; Imbens (2004) or implemented in <code>gpscore</code> (Bia &amp; Mattei, 2008), which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator, so correlations above 1 may be observed in rare cases.</p>
 <p>In addition to assessing the treatment-covariate correlations, it is important to assess the degree to which the adjusted sample is representative of the original target population. If the weighted sample differs greatly from the original sample, the estimated effect may be biased for the target population of interest, even if the covariates are independent from treatment. <code>cobalt</code> offers methods to compare the weighted sample to the unweighted sample in the context of continuous treatments, such as computing the standardized mean difference or KS statistic between the weighted and unweighted sample for each covariate.</p>
 <p>Below is an example of the workflow for using propensity scores for continuous treatments in the <code>WeightIt</code> package. To demonstrate, we use the <code>lalonde</code> package included in <code>cobalt</code>, using an arbitrary continuous variable as the treatment, though substantively this analysis makes little sense.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/WeightIt/">"WeightIt"</a></span><span class="op">)</span>
 
@@ -679,7 +677,7 @@
                         <span class="va">re74</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span><span class="op">(</span><span class="va">re74</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, 
                     data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></code></pre></div>
 <p>First, we can assess balance numerically using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. The main balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using <code>thresholds</code>; Zhu et al. (2015) recommend using .1 as indicating balance, but in general lower is better. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and polynomial terms through the use of arguments to <code>int</code> and <code>poly</code> is recommended (we just display the use of <code>poly</code> here for brevity). In addition to treatment-covariate correlations, we request standardized mean difference between the weighted and unweighted samples by include <code>"m"</code> (for <code>"mean.diffs.target"</code>) in the argument to <code>stats</code> along with <code>"c"</code> (for <code>"correlations"</code>).</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Assessing balance numerically</span>
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"m"</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, 
         thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, poly <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></code></pre></div>
@@ -720,15 +718,15 @@
 ## Unadjusted 614.  
 ## Adjusted   181.28</code></pre>
 <p>We can also visually assess balance using <code><a href="../reference/bal.plot.html">bal.plot()</a></code>. For continuous covariates, <code><a href="../reference/bal.plot.html">bal.plot()</a></code> displays a scatterplot of treatment against the covariate, and includes a linear fit line (red), a smoothed fit curve (blue), and a horizontal reference line (black) at the unweighted mean of the treatment variable, and a vertical line at the unweighted mean of the covariate. These lines can be used to diagnose dependence. If either fit line is not close to flat and not lying on top of the reference line, there may be some remaining dependence between treatment and the covariate. The points in the weighted plot are shaded according to the size of their corresponding weight. If the linear fit line (red) does not cross through the intersection of the black reference lines, the target population of the weighted estimate differs from the original population. For categorical covariates, including binary, <code><a href="../reference/bal.plot.html">bal.plot()</a></code> displays a density plot of the treatment variable in each category. If treatment and the covariate are independent, the densities for each category should overlap with each other. A distinct lack of overlap is indicative of remaining dependence between treatment and the covariate.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Assessing balance graphically</span>
 <span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, <span class="st">"re74"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-20-1.png" width="480"></p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, <span class="st">"married"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-20-2.png" width="480"></p>
 <p>When balance has been achieved to a satisfactory level, users can present balance improvements in a Love plot using the <code><a href="../reference/love.plot.html">love.plot()</a></code> command, just as with binary treatments.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Summarizing balance in a Love plot</span>
 <span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"ks"</span><span class="op">)</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, 
           abs <span class="op">=</span> <span class="cn">TRUE</span>, 
@@ -742,7 +740,7 @@
 <p>In <code>cobalt</code>, users can assess and present balance for multi-category treatments using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, just as with binary treatments. The output is slightly different, though, and is similar to the output generated when using these functions with clusters. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes balance statistics for all pairwise comparisons between treatment groups and a table containing the worst balance for each covariate across pairwise comparisons. For mean differences, this is described in Lopez &amp; Gutman (2017) as “Max2SB,” or the maximum pairwise standardized bias. In <code>cobalt</code>, this has been extended to variance ratios and KS statistics as well. If the worst imbalance is not too great, then imbalance for all pairwise comparisons will not be too great either. When the ATT is desired, a focal group must be specified (unless done so automatically for some methods), and only the treatment group comparisons that involve that focal group will be computed and displayed.</p>
 <p><code><a href="../reference/love.plot.html">love.plot()</a></code> allows for the display of each pairwise treatment or the range of balance across treatment pairs for each covariate. <code><a href="../reference/bal.plot.html">bal.plot()</a></code> displays distributional balance for the requested covariate across all treatment groups. Currently, multi-category treatments are not supported with clustered or multiply imputed data.</p>
 <p>Below is an example of using <code>cobalt</code> with multi-category treatments. For this example, race will be the “treatment”; this type of analysis is not meant to be causal, but rather represents a method to examine disparities among groups accounting for covariates that might otherwise explain differences among groups. We will use <code>WeightIt</code> to generate balanced groups by estimating propensity score weights with multinomial logistic regression.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/WeightIt/">"WeightIt"</a></span><span class="op">)</span>
 <span class="va">cov.mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span>
@@ -752,7 +750,7 @@
 <span class="va">W.out.mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html">weightit</a></span><span class="op">(</span><span class="va">race</span> <span class="op">~</span> <span class="va">cov.mn</span>, data <span class="op">=</span> <span class="va">lalonde</span>,
                      method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></code></pre></div>
 <p>First, we can examine balance numerically using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. There are three possible pairwise comparisons, all of which can be requested with <code>which.treat = .all</code>. See <code>?bal.tab.multi</code> for more details.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Balance summary across treatment pairs</span>
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code>## Call
@@ -771,7 +769,7 @@
 ##             black hispan  white
 ## Unadjusted 243.    72.   299.  
 ## Adjusted   138.38  54.99 259.59</code></pre>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Assessing balance for each pair of treatments</span>
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, disp.means <span class="op">=</span> <span class="cn">TRUE</span>, which.treat <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></code></pre></div>
 <pre><code>## Call
@@ -825,15 +823,15 @@
 ## Adjusted    54.99 259.59
 ##  - - - - - - - - - - - - - - - - - - - -</code></pre>
 <p>We can also assess balance graphically. The same guidelines apply for multi-category treatments as do for binary treatments. Ideally, covariate distributions will look similar across all treatment groups.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Assessing balance graphically</span>
 <span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-24-1.png" width="480"></p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, <span class="st">"married"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-24-2.png" width="480"></p>
 <p>Finally, we can use <code><a href="../reference/love.plot.html">love.plot()</a></code> to display balance across treatments. By default, <code><a href="../reference/love.plot.html">love.plot()</a></code> displays the values in the summary across pairwise comparisons. To request individual treatment comparisons, use <code>which.treat = .all</code> in <code><a href="../reference/love.plot.html">love.plot()</a></code>.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Summarizing balance in a Love plot</span>
 <span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, binary <span class="op">=</span> <span class="st">"std"</span>,
           which.treat <span class="op">=</span> <span class="va">.all</span>, abs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
@@ -843,7 +841,7 @@
 <h3 class="hasAnchor">
 <a href="#comparing-balancing-methods" class="anchor"></a>Comparing balancing methods</h3>
 <p>It is possible to display balance for multiple balancing methods at the same time in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>. To do so, weights generated from each balancing method need to be supplied together in each call. This can be done by supplying the weights or the output objects themselves. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, 
         weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,
                        IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,
@@ -866,14 +864,14 @@
 ## Matched   43.49     185
 ## IPW      108.2      185</code></pre>
 <p>To use <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, the same syntax can be used:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, 
          weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,
                         IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,
          var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-27-1.png" width="672"></p>
 <p>With <code><a href="../reference/love.plot.html">love.plot()</a></code>, <code>var.order</code> can be <code>"unadjusted"</code>, <code>"alphabetical"</code>, or one of the names of the weights to order the variables. Also, <code>colors</code> and <code>shapes</code> should have the same length as the number of weights or have length 1.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, 
           weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,
                          IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,
@@ -883,7 +881,7 @@
           line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-28-1.png" width="480"></p>
 <p>Another way to compare weights from multiple objects is to call <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with one object as usual and supply the other(s) to the <code>weights</code> argument; see below for an example:</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="using-the-prognostic-score-for-balance-assessment" class="section level3">
@@ -897,7 +895,7 @@
 <li>Assess balance on prognostic scores by comparing standardized mean differences</li>
 </ol>
 <p>To use prognostic scores in <code>cobalt</code>, simply add the prognostic score as a variable in the argument to <code>distance</code>. Below is an example of how to do so after a call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html">matchit()</a></code>:</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ctrl.data</span> <span class="op">&lt;-</span> <span class="va">lalonde</span><span class="op">[</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span> <span class="op">==</span> <span class="fl">0</span>,<span class="op">]</span>
 <span class="va">ctrl.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html">glm</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> 
                     <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,
