@@ -21,7 +21,11 @@
 
 * Fixed a bug in `love.plot()` where the color of points could be incorrect.
 
-***DOCUMENT functions for assessing distributional balance for continuous treatments
+* Fixed a bug in `love.plot()` where samples were not always displayed in the right order. Now they are displayed in the same order they are in `bal.tab()`.
+
+* Fixed a bug in `love.plot()` when the weight names had spaces in them.
+
+* Fixed a bug when supplying the `weights` argument as a list of supported objects (e..g, `weightit` objects) if they were unnamed. Samples are more conveniently named.
 
 # cobalt 4.2.4
 
