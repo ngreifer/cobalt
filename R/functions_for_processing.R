@@ -341,17 +341,26 @@ data.frame.process <- function(i, df, treat = NULL, covs = NULL, addl.data = lis
   val <- df
   val.df <- NULL
   if (is_not_null(val)) {
+    if (i == "weights" && any(has_method(class(val), "get.w"))) {
+      val <- list(val)
+    }
     if (is_(val, "list")) {
       if (i == "weights") {
         #Use get.w() on inputs
         for (x in seq_along(val)) {
           val[[x]] <- process_obj(val[[x]])
-          if (any(paste.("get.w", class(val[[x]])) %in% methods("get.w"))) {
+          if (any(has_method(class(val[[x]]), "get.w"))) {
+            get.w_class <- class(val[[x]])[has_method(class(val[[x]]), "get.w")][1]
             val[[x]] <- get.w(val[[x]], treat = treat, ...)
+            if (rlang::names2(val)[x] == "") names(val)[x] <- get.w_class
           }
         }
+        val.list <- lapply(val, function(x) process.val(x, i, treat, covs, addl.data = addl.data))
       }
-      val.list <- lapply(val, function(x) process.val(x, i, treat, covs, addl.data = addl.data))
+      else {
+        val.list <- lapply(val, function(x) process.val(x, i, treat, covs, addl.data = addl.data))
+      }
+      
       if (!rlang::is_named(val.list)) {
         stop(paste0("All entries in '", i, "' must have names."), call. = FALSE)
       }
@@ -362,7 +371,7 @@ data.frame.process <- function(i, df, treat = NULL, covs = NULL, addl.data = lis
         stop(paste0("Not all items in '", i, "' have the same length."), call. = FALSE)
       }
       val.df <- setNames(do.call("cbind", val.list),
-                         make.unique(unlist(lapply(val.list, names))))
+                         unlist(lapply(val.list, names)))
     }
     else {
       val.df <- process.val(val, i, treat, covs, addl.data = addl.data)
@@ -1091,7 +1100,7 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, met
         weights <- data.frame(weights)
       }
       else {
-        weights <- setNames(data.frame(weights), class(obj)[which(paste.("get.w", class(obj)) %in% methods("get.w"))[1]])
+        weights <- setNames(data.frame(weights), class(obj)[has_method(class(obj), "get.w")][1])
       }
     }
     else {
@@ -1111,14 +1120,21 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, met
       if (length(addl.methods) != ncol(addl.weights)) 
         stop("Valid inputs to 'method' must have length 1 or equal to the number of valid sets of additional weights.", call. = FALSE)
     }
+    
+    w.names <- c(names(weights), names(addl.weights))
+    unique.names <- unique(w.names)
+    if (length(unique.names) != length(w.names)) {
+      for (i in unique.names) {
+        if (sum(w.names == i) > 1) w.names[w.names == i] <- make.unique(c(i, w.names[w.names == i]))[-1]
+      } 
+    }
     if (is_not_null(weights)) {
-      weights <- setNames(data.frame(weights, addl.weights),
-                          make.unique(c(names(weights), names(addl.weights))))
-      method <- setNames(c(method, addl.methods), names(weights))
+      weights <- setNames(cbind(weights, addl.weights), w.names)
+      method <- setNames(c(method, addl.methods), w.names)
     }
     else {
-      weights <- addl.weights
-      method <- setNames(addl.methods, names(weights))
+      weights <- setNames(addl.weights, w.names)
+      method <- setNames(addl.methods, w.names)
     }
   }
   weight.check(weights)
