@@ -256,9 +256,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         else {
             #Single-layer bal.tab
-            B <- data.frame(B_list, 
+            B <- cbind(B_list, 
                             variable.names = factor(rownames(B_list), levels = rownames(B_list)))
-            
+
             facet <- one.level.facet <- agg.over <- NULL
             
             B_names <- names(B)
@@ -645,7 +645,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             SS[["stat"]] <- SS[["mean.stat"]]
         }
         else {
-            
+
             SS <- do.call("rbind", 
                           lapply(col.sample.names,
                                  function(w) data.frame(var = variable.names,

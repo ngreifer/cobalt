@@ -248,7 +248,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
     D <- NULL
     if (is_not_null(data)) D <- data
     if (is_not_null(covs) && is_(covs, c("data.frame", "matrix"))) {
-      if (is_not_null(D)) D <- data.frame(D, covs) 
+      if (is_not_null(D)) D <- cbind(D, as.data.frame(covs)) 
       else D <- as.data.frame(covs)
     }
     treat <- get_treat_from_formula(formula, D, treat = treat)
@@ -2692,7 +2692,7 @@ balance.table.across.subclass.cont <- function(balance.table, balance.table.subc
       }
     }
   }
-  B.A.df <- data.frame(balance.table[c("Type", "M.Un", "SD.Un", "Corr.Un", "R.Threshold.Un")], 
+  B.A.df <- cbind(balance.table[c("Type", "M.Un", "SD.Un", "Corr.Un", "R.Threshold.Un")], 
                        B.A, R.Threshold = NA_character_)
   if (is_not_null(r.threshold)) B.A.df[["R.Threshold"]] <- ifelse(B.A.df[["Type"]]=="Distance", "", paste0(ifelse(is.finite(B.A.df[["Corr.Adj"]]) & abs_(B.A.df[["Corr.Adj"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold))
   return(B.A.df)
