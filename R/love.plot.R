@@ -626,7 +626,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         var.order <- NULL
                     }
                     else {
-                        v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==var.order], decreasing = dec, na.last = FALSE)])
+                        v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==sample.names[var.order]], decreasing = dec, na.last = FALSE)])
                         
                         SS[["var"]] <- factor(SS[["var"]], 
                                               levels=c(v[v %nin% distance.names], 
@@ -672,7 +672,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             for (i in sample.vals) {
                 if (all(is.na(SS[["stat"]][SS[["Sample"]]==i]))) {
                     gone <- c(gone, i)
-                    if (i == sample.names["Unadjusted"] && !adj_only) warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
+                    if (!adj_only && i == sample.names["Unadjusted"]) warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
                     SS <- SS[SS[["Sample"]]!=i,]
                 }
             }
@@ -719,7 +719,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         var.order <- NULL
                     }
                     else {
-                        v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]]==var.order], decreasing = dec, na.last = FALSE)])
+                        v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]]==sample.names[var.order]], decreasing = dec, na.last = FALSE)])
                         
                         SS[["var"]] <- factor(SS[["var"]], 
                                               levels=c(v[v %nin% distance.names], 
