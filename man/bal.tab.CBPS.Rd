@@ -53,13 +53,13 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
 
 \arguments{
   \item{x}{
-a \code{CBPS} or \code{CBMSM} object; the output of a call to \code{CBPS()} or \code{CBMSM()} from the \pkg{CBPS} package.
+a \code{CBPS} or \code{CBMSM} object; the output of a call to \code{CBPS::CBPS()} or \code{CBPS::CBMSM()}.
 }
   \item{stats}{
 \code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
 }
   \item{int}{
-\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
+\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.
 }
   \item{poly}{
 \code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
@@ -71,22 +71,22 @@ an optional formula or data frame containing distance values (e.g., propensity s
 an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look first in the argument to \code{data}, if specified, and next in the input object. For \code{CBMSM} objects, can be a list of additional covariate values as described above, with one list entry per time period. Each data set must have one row per individual, unlike the data frame in the original call to \code{CBMSM()}.
 }
   \item{data}{
-an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, \code{cluster}, and \code{imp}. Can also be \code{mids} object, the output of a call to \code{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
+an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, \code{cluster}, and \code{imp}. Can also be \code{mids} object, the output of a call to \pkgfun{mice}{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
 }
   \item{continuous}{
-whether mean differences for continuous variables should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"std"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
+whether mean differences for continuous variables should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"std"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}.
 }
   \item{binary}{
-whether mean differences for binary variables (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}.
+whether mean differences for binary variables (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}.
 }
   \item{s.d.denom}{
-\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{CBPS()} is the ATT and "pooled" if the estimand is the ATE. Abbreviations allowed.
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \fun{col_w_smd} for allowable options. If not specified, \code{bal.tab()} will use "treated" if the estimand of the call to \code{CBPS()} is the ATT and "pooled" if the estimand is the ATE. Abbreviations allowed.
 }
   \item{thresholds}{
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See \code{\link[=balance.stats]{stats}}.
 }
   \item{weights}{
-a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \code{\link{get.w}} method.
+a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \fun{get.w} method.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the CBPS object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
@@ -114,7 +114,7 @@ Further arguments to control display of output. See \link[=options-display]{disp
 }
 }
 \details{
-\code{bal.tab.CBPS} and code{bal.tab.CBMSM} generates a list of balance summaries for the \code{CBPS} or \code{CBMSM} object given and functions similarly to \code{balance()} in \pkg{CBPS}.
+\code{bal.tab.CBPS()} and \code{bal.tab.CBMSM()} generate a list of balance summaries for the \code{CBPS} or \code{CBMSM} object given and functions similarly to \code{CBPS::balance()}.
 
 The \code{thresholds} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
@@ -122,7 +122,7 @@ The \code{CBPS} object does not return sampling weights even if they are used; r
 
 }
 \value{
-For point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{CBPS} object. See \code{\link{bal.tab}} for details.
+For point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{CBPS} object. See \fun{bal.tab} for details.
 
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 
@@ -137,7 +137,7 @@ Noah Greifer
 }
 
 \seealso{
-\code{\link{bal.tab}} for details of calculations.
+\fun{bal.tab} for details of calculations.
 \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for more information on clustered data.
 \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multi-category treatments.
 \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more information on longitudinal treatments.

@@ -4,7 +4,7 @@
 Balance Statistics for \code{MatchIt} Objects
 }
 \description{
-Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
+Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 }
 \usage{
 \method{bal.tab}{matchit}(x, 
@@ -32,7 +32,7 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}. Note
 
 \arguments{
   \item{x}{
-a \code{matchit} object; the output of a call to \code{matchit()} from the \pkg{MatchIt} package.
+a \code{matchit} object; the output of a call to \code{MatchIt::matchit()}.
 }
   \item{method}{
 a character vector containing the method of adjustment. Ignored unless subclassification was used in the original call to \code{matchit()}. If \code{"weighting"}, the subclassification weights will be used and subclasses will be ignored. If \code{"subclassification"}, balance will be assessed using the subclasses (see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details). Abbreviations allowed.
@@ -41,7 +41,7 @@ a character vector containing the method of adjustment. Ignored unless subclassi
 \code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. Multiple options are allowed.
 }
   \item{int}{
-\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
+\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.
 }
   \item{poly}{
 \code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
@@ -53,22 +53,22 @@ an optional formula or data frame containing distance values (e.g., propensity s
 an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look first in the argument to \code{data}, if specified, and next in the \code{matchit} object.
 }
   \item{data}{
-an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, \code{cluster}, and \code{imp}. Can also be \code{mids} object, the output of a call to \code{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
+an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, \code{cluster}, and \code{imp}. Can also be \code{mids} object, the output of a call to \pkgfun{mice}{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
 }
   \item{continuous}{
-whether mean differences for continuous variables should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"std"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}}.
+whether mean differences for continuous variables should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"std"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}. This argument is used to set \code{std} in \fun{col_w_smd}.
 }
   \item{binary}{
-whether mean differences for binary variables (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}}.
+whether mean differences for binary variables (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}. This argument is used to set \code{std} in \fun{col_w_smd}.
 }
   \item{s.d.denom}{
-\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If not specified, \code{bal.tab()} will figure out which one is best based on the estimand of the \code{matchit} object: if ATT, \code{"treated"}; if ATC, \code{"control"}, otherwise \code{"pooled"}. Abbreviations allowed.
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \fun{col_w_smd} for allowable options. If not specified, \code{bal.tab()} will figure out which one is best based on the estimand of the \code{matchit} object: if ATT, \code{"treated"}; if ATC, \code{"control"}, otherwise \code{"pooled"}. Abbreviations allowed.
 }
   \item{thresholds}{
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{weights}{
-a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \code{\link{get.w}} method.
+a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \fun{get.w} method.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the \code{matchit} object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
@@ -96,21 +96,17 @@ further arguments to control display of output. See \link[=options-display]{disp
 }
 }
 \details{
-\code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \code{summary.matchit()} in \pkg{MatchIt}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate; see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more information. 
+\code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \code{MatchIt::summary.matchit()}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate; see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more information. 
 
 The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 
 }
 \value{
-If subclassification is used and \code{method} is not \code{"weighting"}, an object of class \code{"bal.tab.subclass"} containing balance summaries within and across subclasses. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.
+If subclassification is used and \code{method} is set to \code{"subclassification"}, an object of class \code{"bal.tab.subclass"} containing balance summaries within and across subclasses. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.
 
-If matching is used and clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{matchit} object. See \code{\link{bal.tab}} for details.
+If matching is used and clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{matchit} object. See \fun{bal.tab} for details.
 
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
-}
-
-\note{
-When a user-supplied distance measure or Mahalanobis distance matching (\code{method = "mahalanobis"}) are used with \code{matchit()}, full covariate information is not stored in the \code{matchit} output object. In particular, categorical variables are not retained as such, and so the dummies are treated as their own variables. The consequence of this is that for all but the first factor variable supplied to \code{matchit()}, the first category will be absent. In addition, full compatibility with functions that rely on variable names (like \code{\link{love.plot}}) will be hampered. To get around this issue, users can supply the original data frame to \code{bal.tab()} through the \code{data} argument, and the variables will be processed correctly.
 }
 
 \author{
@@ -118,7 +114,7 @@ Noah Greifer
 }
 
 \seealso{
-\code{\link{bal.tab}} for details of calculations.
+\fun{bal.tab} for details of calculations.
 }
 \examples{\dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) \{}
 library(MatchIt); data("lalonde", package = "cobalt")

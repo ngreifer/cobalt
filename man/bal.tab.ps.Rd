@@ -7,7 +7,7 @@
 Balance Statistics for \code{twang} Objects
 }
 \description{
-Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{WeightIt}. Note that several arguments that used to be documented here are now documented in \link[=options-display]{display options}. They are still available.
+Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{WeightIt}.
 }
 \usage{
 \method{bal.tab}{ps}(x, 
@@ -92,16 +92,16 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
 
 \arguments{
   \item{x}{
-a \code{ps}, \code{mnps}, \code{iptw}, or \code{ps.cont} object; the output of a call to \code{ps()}, \code{mnps()}, or \code{iptw()} from \pkg{twang} or from a call to \code{ps.cont()} from \pkg{WeightIt}.
+a \code{ps}, \code{mnps}, \code{iptw}, or \code{ps.cont} object; the output of a call to \code{twang::ps()}, \code{twang::mnps()}, \code{twang::iptw()} or \code{WeightIt::ps.cont()}.
 }
   \item{stop.method}{
-a string containing the names of the stopping methods used in the original call to \code{ps()}, \code{mnps()}, \code{iptw()}, or \code{ps.cont()}. Examples include "es.max" or "ks.mean" for \code{ps} and \code{mnps} objects and "p.mean" or "s.max" for \code{ps.cont} objects. \code{bal.tab} will assess balance for the weights created by those stopping methods. The names can be abbreviated as long as the abbreviations are specific enough. If no stopping methods are provided, \code{bal.tab} will default to displaying balance for all available stopping methods. This argument used to be called \code{full.stop.method}, and that name still works.
+a string containing the names of the stopping methods used in the original call to \code{ps()}, \code{mnps()}, \code{iptw()}, or \code{ps.cont()}. Examples include \code{"es.max"} or \code{"ks.mean"} for \code{ps} and \code{mnps} objects and \code{"p.mean"} or \code{"s.max"} for \code{ps.cont} objects. \code{bal.tab} will assess balance for the weights created by those stopping methods. The names can be abbreviated as long as the abbreviations are specific enough. If no stopping methods are provided, \code{bal.tab} will default to displaying balance for all available stopping methods.
   }
     \item{stats}{
-\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
 }
   \item{int}{
-\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well. In older versions of \pkg{cobalt}, setting \code{int = TRUE} displayed squares of covariates; to replicate this behavior, set \code{int = 2}.
+\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.
 }
   \item{poly}{
 \code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
@@ -113,22 +113,22 @@ an optional formula or data frame containing distance values (e.g., propensity s
 an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look first in the argument to \code{data}, if specified, and next in the input object. For \code{iptw} objects, can be a list of additional covariate values as described above, with one list entry per time period.
 }
   \item{data}{
-an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, \code{cluster}, and \code{imp}. Can also be \code{mids} object, the output of a call to \code{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
+an optional data frame containing variables that might be named in arguments to \code{distance}, \code{addl}, \code{cluster}, and \code{imp}. Can also be \code{mids} object, the output of a call to \pkgfun{mice}{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object.
 }
   \item{continuous}{
-whether mean differences for continuous covariates should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"std"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}} and \code{\link{col_w_corr}}.
+whether mean differences for continuous covariates should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"std"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}. This argument is used to set \code{std} in \fun{col_w_smd} and \code{\link{col_w_corr}}.
 }
   \item{binary}{
-whether mean differences for binary covariates (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \code{\link{set.cobalt.options}}. This argument is used to set \code{std} in \code{\link{col_w_smd}} and \code{\link{col_w_corr}}.
+whether mean differences for binary covariates (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}. This argument is used to set \code{std} in \fun{col_w_smd} and \code{\link{col_w_corr}}.
 }
   \item{s.d.denom}{
-\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \code{\link{col_w_smd}} for allowable options. If not specified, for \code{ps} objects, \code{bal.tab()} will use "treated" if the estimand of the call to \code{ps()} is the ATT and "pooled" if the estimand is the ATE; for \code{mnps} objects, \code{bal.tab()} will use "treated" if \code{treatATT} was specified in the original call to \code{mnps} and "pooled" otherwise. Use "all" to get the same values computed by \code{bal.table} in \pkg{twang}. Abbreviations allowed.
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \fun{col_w_smd} for allowable options. If not specified, for \code{ps} objects, \code{bal.tab()} will use "treated" if the estimand of the call to \code{ps()} is the ATT and "pooled" if the estimand is the ATE; for \code{mnps} objects, \code{bal.tab()} will use "treated" if \code{treatATT} was specified in the original call to \code{mnps} and "pooled" otherwise. Use "all" to get the same values computed by \code{bal.table} in \pkg{twang}. Abbreviations allowed.
 }
   \item{thresholds}{
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. See Details.
 }
   \item{weights}{
-a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \code{\link{get.w}} method.
+a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in \code{data} that contains weights, or an object with a \fun{get.w} method.
 }
   \item{cluster}{
 either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in data or the \code{ps}, \code{mnps}, \code{iptw}, or \code{ps.cont}  object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
@@ -153,23 +153,21 @@ further arguments to control display of output. See \link[=options-display]{disp
 }
 }
 \details{
-\code{bal.tab.ps()} generates a list of balance summaries for the \code{ps} object given, and functions similarly to \code{bal.table()} in \pkg{twang}.
+\code{bal.tab.ps()} generates a list of balance summaries for the \code{ps} object given, and functions similarly to \code{twang::bal.table()}.
 
-All balance statistics are calculated whether they are displayed by \code{print} or not, unless \code{quick = TRUE}. The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 }
 \value{
-For binary point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{ps} object. See \code{\link{bal.tab}} for details.
+For binary point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{ps} object. See \fun{bal.tab} for details.
 
 If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 
 If \code{mnps()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
 
-If \code{ps.cont()} is used with continuous treatments, means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment as calculated using \code{\link{col_w_corr}}. The \code{r.threshold} argument works the same as \code{m.threshold}, \code{v.threshold}, or \code{ks.threshold}, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The \code{int}, \code{addl}, \code{un}, \code{distance}, and cluster arguments are still used as described above.
-
 }
 \note{
-The function \code{bal.table} in \pkg{twang} performs a similar function. The variances used in the denominator of the standardized mean difference are weighted and computed using \code{survey::svyvar} in \pkg{twang} and are unweighted here (except when \code{s.weights} are specified, in which case \code{\link{col_w_sd}} is used). \pkg{twang} also uses "all" as the default \code{s.d.denom} when the estimand is the ATE; the default here is "pooled". For this reason, results may differ slightly between the two packages. 
+The function \code{bal.table} in \pkg{twang} performs a similar function. The variances used in the denominator of the standardized mean difference are weighted and computed using \code{survey::svyvar()} in \pkg{twang} and are unweighted here (except when \code{s.weights} are specified, in which case \code{\link{col_w_sd}} is used). \pkg{twang} also uses "all" as the default \code{s.d.denom} when the estimand is the ATE; the default here is "pooled". For this reason, results may differ slightly between the two packages. 
 }
 
 \author{
@@ -177,9 +175,12 @@ Noah Greifer
 }
 
 \seealso{
-\code{\link{bal.tab}} for details of calculations.
+\fun{bal.tab} for details of calculations.
+
 \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for more information on clustered data.
+
 \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multi-category treatments.
+
 \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more information on longitudinal treatments.
 }
 \examples{

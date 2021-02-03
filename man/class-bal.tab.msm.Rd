@@ -3,7 +3,7 @@
 
 \title{Using \code{bal.tab()} with Longitudinal Treatments}
 \description{
-When using \code{bal.tab()} with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all \code{bal.tab} methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
+When using \fun{bal.tab} with longitudinal treatments, the output will be different from the case with point treatments, and there are some options that are common across all \code{bal.tab()} methods for dealing with longitudinal data. This page outlines the outputs and options in this case.
 
 There are two main components of the output of \code{bal.tab()} with longitudinal treatments: the time-point-specific balance summary and across-time-points balance summary. The time-point-specific balance summaries are standard point treatment balance summaries at each time point.
 
@@ -29,6 +29,6 @@ Noah Greifer
 }
 
 \seealso{
-\code{\link{bal.tab}}, \code{\link{bal.tab.list}}, \code{\link{print.bal.tab}}
+\fun{bal.tab}, \code{\link{bal.tab.list}}, \fun{print.bal.tab}
 }
 \keyword{tables}

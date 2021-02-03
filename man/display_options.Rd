@@ -2,14 +2,14 @@
 \alias{options-display}
 \alias{display_options}
 
-\title{Options for Displaying \code{bal.tab} Output}
+\title{Options for Displaying \code{bal.tab()} Output}
 
 \description{
-Several additional arguments can be passed to \code{bal.tab()} that control the display of the output but don't affect computations. These arguments are documented here.
+Several additional arguments can be passed to \fun{bal.tab} that control the display of the output; these arguments are documented here.
 
-Not all arguments are applicable to all uses of \code{bal.tab()}; for example, \code{disp.subclass}, which controls whether individual subclasses are displayed when subclassification is used, won't do anything when subclassification is not used.
+Not all arguments are applicable to all uses of \code{bal.tab()}; for example, \code{which.subclass}, which controls which subclasses are displayed when subclassification is used, won't do anything when subclassification is not used.
 
-Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting any of these arguments to \code{FALSE} can prevent some values from being computed, which can have unintended effects.
+Note that when \code{quick = TRUE} is set in the call to \code{bal.tab()} (which is the default), setting any of these arguments to \code{FALSE} can prevent some values from being computed, which can have unintended effects.
 }
 \arguments{
 \item{disp.bal.tab}{\code{logical}; whether to display the table of balance statistics. Default is \code{TRUE}, so the balance table is displayed.
@@ -27,7 +27,8 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab}, setting
 \item{int_sep}{\code{character}; the string used to separate two variables involved in an interaction when variable names are printed. Default is \code{" * "}. Older versions of \pkg{cobalt} used \code{"_"}.
 }
 \bold{When subclassification is used}
-\item{disp.subclass}{\code{logical}; whether to display balance information for individual subclasses if subclassification is used in conditioning. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details. Default is \code{FALSE}, so individual subclasses are not displayed.
+\item{which.subclass}{Which subclasses (if any) should be displayed. If \code{.all}, all subclasses will be displayed. If \code{.none} (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.}
+\item{subclass.summary}{\code{logical}; whether to display the balance summary across subclasses. If \code{TRUE}, the balance summary across subclasses will be displayed. The default is \code{TRUE}, and if \code{which.subclass} is \code{.none}, it will automatically be set to \code{TRUE}.}
 }
 \bold{When the treatment is multi-category}
 \item{which.treat}{For which treatments or treatment combinations balance tables should be displayed. If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, setting  \code{which.treat = "A"} will display "A vs. B" and "A vs. C", while setting \code{which.treat = c("A", "B")} will only display "A vs. B". \code{.none} indicates no treatment comparisons will be displayed, and \code{.all} indicates all treatment comparisons will be displayed. Default is \code{.none}. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}}.
@@ -72,12 +73,12 @@ The following arguments are deprecated but still work.
 }
 
 \details{
-In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \code{\link{set.cobalt.options}} and retrieve it using \code{\link{get.cobalt.options}}. Note that global options cannot be set for \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.
+In addition to being able to be specified as arguments, if you find you frequently set a display option to something other than its default, you can set that as a global option (for the present R session) using \fun{set.cobalt.options} and retrieve it using \fun{get.cobalt.options}. Note that global options cannot be set for \code{which.subclass}, \code{which.cluster}, \code{which.imp}, \code{which.treat}, or \code{which.time}.
 }
 \note{
-When calling \code{bal.tab()} using \code{\link{do.call}}, if you are using \code{.all} or \code{.none} as inputs to arguments, you need to use \code{\link{alist}} rather than \code{list} to group the arguments. For example, \code{do.call(bal.tab, list(., which.cluster = .none))} will produce an error, but \code{do.call(bal.tab, alist(., which.cluster = .none))} should work correctly.
+When calling \code{bal.tab()} using \fun{do.call}, if you are using \code{.all} or \code{.none} as inputs to arguments, you need to use \fun{alist} rather than \fun{list} to group the arguments. For example, \code{do.call(bal.tab, list(., which.cluster = .none))} will produce an error, but \code{do.call(bal.tab, alist(., which.cluster = .none))} should work correctly.
 }
 
 \seealso{
-\code{\link{bal.tab}}, \code{\link{print.bal.tab}}
+\fun{bal.tab}, \fun{print.bal.tab}
 }

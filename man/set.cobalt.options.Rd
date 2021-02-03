@@ -5,7 +5,7 @@
 Set and Get Options in \code{cobalt}
 }
 \description{
-Makes it easier to set \pkg{cobalt} options. \code{set.cobalt.options} is essentially a wrapper for \code{\link{options}} but performs several checks, and \code{get.cobalt.options} is essentially a wrapper for \code{\link{getOption}}.
+Makes it easier to set \pkg{cobalt} options. \code{set.cobalt.options()} is essentially a wrapper for \fun{options} but performs several checks, and \code{get.cobalt.options()} is essentially a wrapper for \fun{getOption}.
 }
 \usage{
 set.cobalt.options(..., default = FALSE)
@@ -14,19 +14,19 @@ get.cobalt.options(...)
 }
 \arguments{
   \item{...}{
-For \code{set.cobalt.options}, \code{bal.tab} parameters and the values they should take. These should be the name of the parameter in \code{bal.tab} without \code{"cobalt_"} preceding them. See examples. If any values are \code{NULL}, the corresponding options will be set back to their defaults.
+For \code{set.cobalt.options()}, \code{bal.tab()} parameters and the values they should take. These should be the name of the parameter in \code{bal.tab()} without \code{"cobalt_"} preceding them. See examples. If any values are \code{NULL}, the corresponding options will be set back to their defaults.
 
-For \code{get.cobalt.options}, one or more strings containing the name of a parameter option to be retrieved. See examples. If empty, all available options and their values will be returned.
+For \code{get.cobalt.options()}, one or more strings containing the name of a parameter option to be retrieved. See examples. If empty, all available options and their values will be returned.
 }
   \item{default}{
 if \code{TRUE}, sets all \pkg{cobalt} options not named in \code{...} to their default values.
 }
 }
 \details{
-When an option is set to \code{NULL}, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed \link[=options-display]{here}. Some others (e.g., \code{continous} and \code{binary}) are described on the \code{\link{bal.tab}} help page.
+When an option is set to \code{NULL}, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed \link[=options-display]{here}. Some others (e.g., \code{continous} and \code{binary}) are described on the \fun{bal.tab} help page.
 }
 \seealso{
-\code{\link{options}}
+\fun{options}
 
 \code{\link{display_options}} for some arguments that can be set via options.
 }

@@ -4,7 +4,7 @@
 \title{Using \code{bal.tab()} with Clustered Data}
 
 \description{
-When using \code{bal.tab()} with clustered data, the output will be different from the case with single-level data, and there are some options that are common across all \code{bal.tab} methods. This page outlines the outputs and options in this case.
+When using \fun{bal.tab} with clustered data, the output will be different from the case with single-level data, and there are some options that are common across all \code{bal.tab()} methods. This page outlines the outputs and options in this case.
 
 There are two main components of the output of \code{bal.tab()} with clustered data: the within-cluster balance summaries and the across-cluster balance summary. The within-cluster balance summaries display balance for units within each cluster separately.
 
@@ -28,6 +28,6 @@ The output is a \code{bal.tab.cluster} object, which inherits from \code{bal.tab
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.
 }
 \seealso{
-\code{\link{bal.tab}}, \code{\link{bal.tab.data.frame}}, \code{\link{print.bal.tab}}
+\fun{bal.tab}, \fun{bal.tab.data.frame}, \fun{print.bal.tab}
 }
 \keyword{tables}

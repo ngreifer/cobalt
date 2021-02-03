@@ -17,10 +17,10 @@ unsplitfactor(data, var.name, dropped.level = NULL,
 }
 \arguments{
 \item{data}{
-A data.frame containing the variables to be split or unsplit. In \code{splitfactor()}, can be a factor variable to be split.
+A \code{data.frame} containing the variables to be split or unsplit. In \code{splitfactor()}, can be a factor variable to be split.
 }
 \item{var.name}{
-For \code{splitfactor()}, the names of the factor variables to split. If not specified, will split all factor variables in \code{data}. If \code{data} is a factor, the stem for each of the new variables to be created. For \code{unsplitfactor()}, the name of the previously split factor. If not specified and \code{data} is the output of a call to \code{splitfactor}, all previously split variables will be unsplit.
+For \code{splitfactor()}, the names of the factor variables to split. If not specified, will split all factor variables in \code{data}. If \code{data} is a factor, the stem for each of the new variables to be created. For \code{unsplitfactor()}, the name of the previously split factor. If not specified and \code{data} is the output of a call to \code{splitfactor()}, all previously split variables will be unsplit.
 }
 \item{drop.level}{
 The name of a level of \code{var.name} for which to drop the dummy variable. Only works if there is only one variable to be split.
@@ -44,7 +44,7 @@ Whether to replace the original variable(s) with the new variable(s) (\code{TRUE
 A list of vectors or factors with lengths equal to the number of columns of \code{data} that are to be split in the same way \code{data} is. See Details.
 }
 \item{check}{
-Whether to make sure the variables specified in \code{var.name} are actually factor (or character) variables. If splitting non-factor (or non-character) variables into dummies, set \code{check = FALSE}. If \code{check = FALSE} and \code{data} is a data frame, an argument to \code{var.name} must be specified.
+Whether to make sure the variables specified in \code{var.name} are actually factor (or character) variables. If splitting non-factor (or non-character) variables into dummies, set \code{check = FALSE}. If \code{check = FALSE} and \code{data} is a \code{data.frame}, an argument to \code{var.name} must be specified.
 }
 \item{dropped.level}{
 The value of each original factor variable whose dummy was dropped when the variable was split. If left empty and a dummy was dropped, the resulting factor will have the value \code{NA} instead of the dropped value. There should be one entry per variable to unsplit. If no dummy was dropped for a variable, an entry is still required, but it will be ignored.
@@ -56,14 +56,16 @@ If \code{TRUE}, will assume that \code{NA}s in the variables to be unsplit corre
 \details{
 If there are \code{NA}s in the variable to be split, the new variables created by \code{splitfactor()} will have \code{NA} where the original variable is \code{NA}.
 
-When using \code{unsplitfactor} on a data.frame that was generated with \code{splitfactor}, the arguments \code{dropped.na}, and \code{sep} are unnecessary.
+When using \code{unsplitfactor()} on a \code{data.frame} that was generated with \code{splitfactor()}, the arguments \code{dropped.na}, and \code{sep} are unnecessary.
 
 If \code{split.with} is supplied, the elements will be split in the same way \code{data} is. For example, if \code{data} contained a 4-level factor that was to be split, the entries of \code{split.with} at the same index as the factor and would be duplicated so that resulting entries will have the same length as the number of columns of \code{data} after being split. The resulting values are stored in the \code{"split.with"} attribute of the output object. See Examples.
 }
 \value{
-For \code{splitfactor()}, a data frame containing the original data set with the newly created dummies. For \code{unsplitfactor()}. a data frame containing the original data set with the newly created factor variables.
+For \code{splitfactor()}, a \code{data.frame} containing the original data set with the newly created dummies. For \code{unsplitfactor()}. a \code{data.frame} containing the original data set with the newly created factor variables.
 }
-
+\seealso{
+\fun{match.matrix}
+}
 
 \examples{
 data("lalonde", package = "cobalt")

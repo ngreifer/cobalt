@@ -36,7 +36,7 @@ love.plot(x,
 
 \arguments{
   \item{x}{
-  the valid input to a call to \code{\link{bal.tab}()} (e.g., the output of a preprocessing function). Other arguments that would be supplied to \code{bal.tab()} can be entered with \code{...}. Can also be a \code{bal.tab} object, i.e., the output of a call to \code{bal.tab()}. See Examples. If \code{x} is not a \code{bal.tab} object, \code{love.plot()} calls \code{bal.tab()} with the arguments supplied.
+the valid input to a call to \fun{bal.tab} (e.g., the output of a preprocessing function). Other arguments that would be supplied to \code{bal.tab()} can be entered with \code{...}. Can also be a \code{bal.tab} object, i.e., the output of a call to \code{bal.tab()}. See Examples. If \code{x} is not a \code{bal.tab} object, \code{love.plot()} calls \code{bal.tab()} with the arguments supplied.
 }
   \item{stats}{
 \code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
@@ -45,7 +45,7 @@ love.plot(x,
 \code{logical}; whether to present the statistic in absolute value or not. For variance ratios, this will force all ratios to be greater than or equal to 1. If \code{x} is a \code{bal.tab} object, \code{love.plot()} might ignore \code{abs} depending on the original \code{bal.tab()} call. If unspecified, uses whatever was used in the call to \code{bal.tab()}.
 }
   \item{agg.fun}{
-if balance is to be displayed across clusters or imputations rather than within a single cluster or imputation, which summarizing function ("mean", "max", or "range") of the balance statistics should be used. If "range" is entered, \code{love.plot} will display a line from the min to the max with a point at the mean for each covariate. Abbreviations allowed; "range" is default. Remember to set \code{which.<ARG> = .none} (where \code{<ARG>} is the grouping argument, such as \code{cluster} or \code{imp}) to use \code{agg.fun}. See Details.
+if balance is to be displayed across clusters or imputations rather than within a single cluster or imputation, which summarizing function ("mean", "max", or "range") of the balance statistics should be used. If "range" is entered, \code{love.plot()} will display a line from the min to the max with a point at the mean for each covariate. Abbreviations allowed; "range" is default. Remember to set \code{which.<ARG> = .none} (where \code{<ARG>} is the grouping argument, such as \code{cluster} or \code{imp}) to use \code{agg.fun}. See Details.
 }
   \item{var.order}{
 a \code{character} or \code{love.plot} object; how to order the variables in the plot. See Details. 
@@ -87,7 +87,7 @@ the shapes of the points on the plot. Must be one or two numbers between 1 and 2
 \code{numeric}; the number of characters at which to wrap axis labels to the next line. Defaults to 30. Decrease this if the axis labels are excessively long.
 }
   \item{var.names}{
-an optional object providing alternate names for the variables in the plot, which will otherwise be the variable names as they are stored. This may be useful when variables have ugly names. See Details on how to specify \code{var.names}. \code{link{var.names}} can be a useful tool for extracting and editing the names from the \code{bal.tab} object.
+an optional object providing alternate names for the variables in the plot, which will otherwise be the variable names as they are stored. This may be useful when variables have ugly names. See Details on how to specify \code{var.names}. \fun{var.names} can be a useful tool for extracting and editing the names from the \code{bal.tab} object.
 }
   \item{title}{
 \code{character}; the title of the plot.
@@ -116,13 +116,13 @@ Additionally, any of the \code{which.} arguments used with clustered or multiply
 }
 \details{
 
-\code{love.plot} can be used with clusters, imputations, or both in addition to the standard case. The cluster or imputation arguments must be specified in the call to \code{bal.tab}. Several types of plots can be requested: a plot aggregating over all imputations across all clusters, a plot displaying individual clusters aggregating over imputations (if any), a plot displaying individual imputations across clusters, or a plot displaying individual clusters within one imputation (if any) or individual imputations for one cluster. The choice of these displays is controlled by the arguments to \code{which.cluster} and \code{which.imp}. If either of them are \code{.none}, the plot will aggregate over that collection. If either are individual values, the plot will display the values for those specific clusters or imputations. If either of them are \code{.all}, the plot will display the values for all clusters or imputations. If both clusters and imputations are specified, at least one of \code{which.cluster} or \code{which.imp} must be a single value, or \code{.none}. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for examples.
+\code{love.plot} can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding \code{which.} argument ot \code{.none} will aggregate across that dimension. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for examples.
 
 With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If \code{disp.subclass} is \code{TRUE}, each subclass will be displayed additionally as a number on the plot. 
 
 \bold{Variable order using \code{var.order}}
 
-The order that the variables are presented in depends on the argument to \code{var.order}. If \code{NULL}, the default, they will be displayed in the same order as in the call to \code{bal.tab}, which is the order of the underlying data set. If "alphabetical", they will be displayed in alphabetical order. If "unadjusted", they will be ordered by the balance statistic of the unadjusted sample. To order by the values of the adjusted sample, "adjusted" can be supplied if only one set of weights (or subclasses) are specified; otherwise, the name of the set of weights should be specified.
+The order that the variables are presented in depends on the argument to \code{var.order}. If \code{NULL}, the default, they will be displayed in the same order as in the call to \code{bal.tab()}, which is the order of the underlying data set. If "alphabetical", they will be displayed in alphabetical order. If "unadjusted", they will be ordered by the balance statistic of the unadjusted sample. To order by the values of the adjusted sample, "adjusted" can be supplied if only one set of weights (or subclasses) are specified; otherwise, the name of the set of weights should be specified.
 
 If multiple \code{stats} are requested, the order will be determined by the first entry to \code{stats} (e.g., if both "mean.diffs" and "ks.statistics" are requested, and \code{var.order = "unadjusted"}, the variables will be displayed in order of the unadjusted mean differences for both plots). If multiple plots are produced simultaneously (i.e., for individual clusters or imputations), \code{var.order} can only be \code{NULL} or "alphabetical".
 
@@ -132,9 +132,9 @@ If a \code{love.plot} object is supplied, the plot being drawn will use the vari
 
 The default in \code{love.plot} is to present variables as they are named in the output of the call to \code{bal.tab}, so it is important to know this output before specifying alternate variable names when using \code{var.names}, as the displayed variable names may differ from those in the original data.
 
-There are several ways to specify alternate names for presentation in the displayed plot using the \code{var.names} argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the \code{names} of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from \code{bal.tab} is not provided in the list of old variable names, \code{love.plot} will use the original old variable name.
+There are several ways to specify alternate names for presentation in the displayed plot using the \code{var.names} argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the \code{names} of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from \code{bal.tab()} is not provided in the list of old variable names, \code{love.plot()} will use the original old variable name.
 
-\code{love.plot} can replace old variables names with new ones based on exact matching for the name strings or matching using the variable name components. For example, if a factor variable \code{"X"} with levels \code{"a"}, \code{"b"}, and \code{"c"} is displayed with \code{love.plot}, the variables \code{"X_a"}, \code{"X_b"}, and \code{"X_c"} will be displayed. You can enter replacement names for all three variables individually with \code{var.names}, or you can simply specify a replacement name for \code{"X"}, and \code{"X"} will be replaced by the given name in all instances it appears, including not just factor expansions, but also polynomials and interactions in \code{int = TRUE} in the original \code{bal.tab} call. In an interaction with another variable, say \code{"Y"}, there are several ways to replace the name of the interaction term \code{"X_a * Y"}. If the entire string (\code{"X_a * Y"}) is included in \code{var.names}, the entire string will be replaced. If \code{"X_a"} is included in \code{var.name}, only it will be replaced (and it will be replaced everywhere else it appears). If \code{"X"} is included in \code{var.name}, only it will be replaced (and it will be replaced everywhere else it appears). See example at \code{\link{var.names}}.
+\code{love.plot()} can replace old variables names with new ones based on exact matching for the name strings or matching using the variable name components. For example, if a factor variable \code{"X"} with levels \code{"a"}, \code{"b"}, and \code{"c"} is displayed with \code{love.plot()}, the variables \code{"X_a"}, \code{"X_b"}, and \code{"X_c"} will be displayed. You can enter replacement names for all three variables individually with \code{var.names}, or you can simply specify a replacement name for \code{"X"}, and \code{"X"} will be replaced by the given name in all instances it appears, including not just factor expansions, but also polynomials and interactions in \code{int = TRUE} in the original \code{bal.tab()} call. In an interaction with another variable, say \code{"Y"}, there are several ways to replace the name of the interaction term \code{"X_a * Y"}. If the entire string (\code{"X_a * Y"}) is included in \code{var.names}, the entire string will be replaced. If \code{"X_a"} is included in \code{var.names}, only it will be replaced (and it will be replaced everywhere else it appears). If \code{"X"} is included in \code{var.names}, only it will be replaced (and it will be replaced everywhere else it appears). See example at \fun{var.names}.
 
 \bold{Stars and the x-axis label with mean differences}
 
@@ -144,12 +144,12 @@ The default is to display standardized mean differences for continuous variables
 
 }
 \value{
-When only one type of balance statistic is requested, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot} provides automatically. 
+When only one type of balance statistic is requested, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot()} provides automatically. 
 
 When more than one type of balance statistic is requested, the plot is constructed using \pkgfun{gridExtra}{arrangeGrob} in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
 }
 \note{
-\code{love.plot} can also be called by using \code{plot} or \code{autoplot} on a \code{bal.tab} object. If used in this way, some messages may appear twice. It is recommended that you just use \code{love.plot} instead.
+\code{love.plot} can also be called by using \code{plot()} or \code{autoplot()} on a \code{bal.tab} object. If used in this way, some messages may appear twice. It is recommended that you just use \code{love.plot()} instead.
 }
 
 \author{
@@ -157,7 +157,7 @@ Noah Greifer
 }
 
 \seealso{
-\code{\link{bal.tab}}
+\fun{bal.tab}
 }
 \examples{\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) \{}
 library(WeightIt); data("lalonde", package = "cobalt")

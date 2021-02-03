@@ -31,7 +31,7 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
 }
 \arguments{
   \item{x}{
-a \code{bal.tab} object; the output of a call to \code{\link{bal.tab}}.
+a \code{bal.tab} object; the output of a call to \fun{bal.tab}.
 }
   \item{imbalanced.only}{
 \code{logical}; whether to display only the covariates that failed to meet at least one of balance thresholds. Depends only on whether threshold were initial set in the call to \code{bal.tab()} and not on any arguments to \code{print()} (except \code{disp.bal.tab}).
@@ -43,13 +43,13 @@ a \code{bal.tab} object; the output of a call to \code{\link{bal.tab}}.
 \code{logical}; whether to display the table of balance statistics. If \code{FALSE}, only other values (e.g., the call, sample sizes, balance tallies, and maximum imbalances) will be presented.
 }
   \item{stats}{
-\code{character}; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print} unless \code{quick = FALSE} in the original call.
+\code{character}; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab()} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print()} unless \code{quick = FALSE} in the original call.
 }
   \item{disp.thresholds}{
-\code{logical}; whether to display thresholds for each statistic for which thresholds were originally requested in the call to \code{bal.tab}. Should be a named logical vector with names corresponding to the thresholds. For example, if thresholds for mean differences were requested in \code{bal.tab}, set \code{disp.thresholds = c(m = FALSE)} to prevent them from being printed. If a statistic was prevented from being displayed by another argument to \code{print}, the thresholds will not be displayed.
+\code{logical}; whether to display thresholds for each statistic for which thresholds were originally requested in the call to \code{bal.tab()}. Should be a named logical vector with names corresponding to the thresholds. For example, if thresholds for mean differences were requested in \code{bal.tab()}, set \code{disp.thresholds = c(m = FALSE)} to prevent them from being printed. If a statistic was prevented from being displayed by another argument to \code{print()}, the thresholds will not be displayed.
 }
   \item{disp}{
-\code{character}; which distribution summary statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print} unless \code{quick = FALSE} in the original call.
+\code{character}; which distribution summary statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print()} unless \code{quick = FALSE} in the original call.
 }
   \item{which.subclass}{
 when used with subclassification, which subclass(es) to display. If \code{NULL}, all subclasses will be displayed. If \code{NA}, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.
@@ -109,7 +109,7 @@ Noah Greifer
 }
 
 \seealso{
-\code{\link[base]{print}}, \code{\link{bal.tab}}
+\fun{print}, \fun{bal.tab}
 
 \link[=options-display]{display options} for further information on some of these options.
 }

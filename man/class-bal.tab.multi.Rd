@@ -4,7 +4,7 @@
 \title{Using \code{bal.tab()} with Multi-Category Treatments}
 
 \description{
-When using \code{bal.tab()} with multi-category treatments, the output will be different from the case with binary or continuous treatments, and there are some options that are common across all \code{bal.tab} methods. This page outlines the outputs and options in this case.
+When using \fun{bal.tab} with multi-category treatments, the output will be different from the case with binary or continuous treatments, and there are some options that are common across all \code{bal.tab()} methods. This page outlines the outputs and options in this case.
 
 There are two main components of the output of \code{bal.tab()} with multi-category treatments: the two-group treatment comparisons and the balance summary. The two-group treatment comparisons are standard binary treatment comparison either for pairs of groups (e.g., for treatments A, B, and C, "A vs. B", "A vs. C", and "B vs. C") or each group against all the groups (i.e., the entire sample).
 
@@ -32,6 +32,6 @@ Noah Greifer
 }
 
 \seealso{
-\code{\link{bal.tab}}, \code{\link{bal.tab.data.frame}}, \code{\link{print.bal.tab}}
+\fun{bal.tab}, \fun{bal.tab.data.frame}, \fun{print.bal.tab}
 }
 \keyword{tables}
