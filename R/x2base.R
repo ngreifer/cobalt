@@ -161,6 +161,7 @@ x2base.matchit <- function(m, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -180,14 +181,15 @@ x2base.matchit <- function(m, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -370,6 +372,7 @@ x2base.ps <- function(ps, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -388,14 +391,15 @@ x2base.ps <- function(ps, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -563,6 +567,7 @@ x2base.mnps <- function(mnps, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -581,14 +586,15 @@ x2base.mnps <- function(mnps, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -757,6 +763,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -775,14 +782,15 @@ x2base.ps.cont <- function(ps.cont, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -929,6 +937,7 @@ x2base.Match <- function(Match, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -949,14 +958,15 @@ x2base.Match <- function(Match, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -1270,6 +1280,7 @@ x2base.data.frame <- function(covs, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -1288,14 +1299,15 @@ x2base.data.frame <- function(covs, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -1454,6 +1466,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -1472,14 +1485,15 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -1632,6 +1646,7 @@ x2base.ebalance <- function(ebalance, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -1650,14 +1665,15 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -1805,6 +1821,7 @@ x2base.optmatch <- function(optmatch, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -1823,14 +1840,15 @@ x2base.optmatch <- function(optmatch, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -1983,6 +2001,7 @@ x2base.cem.match <- function(cem.match, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -2001,14 +2020,15 @@ x2base.cem.match <- function(cem.match, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -2156,6 +2176,8 @@ x2base.weightit <- function(weightit, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -2175,14 +2197,15 @@ x2base.weightit <- function(weightit, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -2207,7 +2230,7 @@ x2base.weightit <- function(weightit, ...) {
         }
         
         stats <- process_stats(stats, treat = treat)
-
+        
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom(A$s.d.denom, estimand = estimand, weights = weights, treat = treat, focal = focal)
@@ -2333,6 +2356,7 @@ x2base.designmatch <- function(dm, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -2351,14 +2375,15 @@ x2base.designmatch <- function(dm, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -2514,6 +2539,7 @@ x2base.mimids <- function(mimids, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -2533,14 +2559,15 @@ x2base.mimids <- function(mimids, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -2693,6 +2720,7 @@ x2base.wimids <- function(wimids, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -2712,14 +2740,15 @@ x2base.wimids <- function(wimids, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -2874,6 +2903,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -2892,14 +2922,15 @@ x2base.sbwcau <- function(sbwcau, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -3098,6 +3129,7 @@ x2base.iptw <- function(iptw, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -3117,14 +3149,15 @@ x2base.iptw <- function(iptw, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat.list)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -3330,6 +3363,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -3348,14 +3382,15 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat.list)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -3527,6 +3562,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -3546,14 +3582,15 @@ x2base.CBMSM <- function(cbmsm, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat.list)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -3711,6 +3748,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
+        cluster.check(cluster, treat)
     }
     
     #Process subset
@@ -3730,14 +3768,15 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     #Process stats and thresholds
     if (!check_if_call_from_fun(bal.plot)) {
         stats <- process_stats(A[["stats"]], treat = treat.list)
+        type <- attr(stats, "type")
         
         if (is_not_null(thresholds <- A[["thresholds"]])) {
-            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+            thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
             if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
         }
         else thresholds <- list()
         
-        for (s in all_STATS()) {
+        for (s in all_STATS(type)) {
             #If disp.stat is TRUE, add stat to stats
             if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                 stats <- unique(c(stats, s))
@@ -4181,6 +4220,7 @@ x2base.default <- function(obj, ...) {
                                       which = "cluster membership",
                                       missing.okay = FALSE)
             cluster <- factor(cluster)
+            cluster.check(cluster, treat)
         }
         
         #Process subset
@@ -4215,14 +4255,15 @@ x2base.default <- function(obj, ...) {
         #Process stats and thresholds
         if (!check_if_call_from_fun(bal.plot)) {
             stats <- process_stats(A[["stats"]], treat = treat)
+            type <- attr(stats, "type")
             
             if (is_not_null(thresholds <- A[["thresholds"]])) {
-                thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+                thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
                 if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
             }
             else thresholds <- list()
             
-            for (s in all_STATS()) {
+            for (s in all_STATS(type)) {
                 #If disp.stat is TRUE, add stat to stats
                 if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                     stats <- unique(c(stats, s))
@@ -4440,6 +4481,7 @@ x2base.default <- function(obj, ...) {
                                       which = "cluster membership",
                                       missing.okay = FALSE)
             cluster <- factor(cluster)
+            cluster.check(cluster, treat)
         }
         
         #Process subset
@@ -4458,14 +4500,15 @@ x2base.default <- function(obj, ...) {
         #Process stats and thresholds
         if (!check_if_call_from_fun(bal.plot)) {
             stats <- process_stats(A[["stats"]], treat = treat.list)
+            type <- attr(stats, "type")
             
             if (is_not_null(thresholds <- A[["thresholds"]])) {
-                thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(), stats)))
+                thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
                 if (any(names(thresholds) %nin% stats)) stats <- unique(c(stats, names(thresholds)))
             }
             else thresholds <- list()
             
-            for (s in all_STATS()) {
+            for (s in all_STATS(type)) {
                 #If disp.stat is TRUE, add stat to stats
                 if (isTRUE(A[[STATS[[s]]$disp_stat]])) {
                     stats <- unique(c(stats, s))
