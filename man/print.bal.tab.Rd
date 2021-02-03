@@ -8,24 +8,24 @@ Print Results of a Call to \code{bal.tab()}
 Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
 \usage{
 \method{print}{bal.tab}(x, 
-      imbalanced.only = "as.is", 
-      un = "as.is",
-      disp.bal.tab = "as.is", 
-      stats = "as.is",
-      disp.thresholds = "as.is", 
-      disp = "as.is", 
+      imbalanced.only, 
+      un,
+      disp.bal.tab, 
+      stats,
+      disp.thresholds, 
+      disp, 
       which.subclass, 
-      subclass.summary = "as.is", 
+      subclass.summary, 
       which.imp, 
-      imp.summary = "as.is", 
-      imp.fun = "as.is", 
+      imp.summary, 
+      imp.fun, 
       which.treat, 
-      multi.summary = "as.is", 
+      multi.summary, 
       which.time, 
-      msm.summary = "as.is",
+      msm.summary,
       which.cluster, 
-      cluster.summary = "as.is", 
-      cluster.fun = "as.is", 
+      cluster.summary, 
+      cluster.fun, 
       digits = max(3, getOption("digits") - 3), 
       ...)
 }
@@ -52,13 +52,13 @@ a \code{bal.tab} object; the output of a call to \code{\link{bal.tab}}.
 \code{character}; which distribution summary statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print} unless \code{quick = FALSE} in the original call.
 }
   \item{which.subclass}{
-when used with subclassification, which subclass(es) to display. If \code{NULL}, all subclasses will be displayed. If \code{NA}, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to \code{bal.tab()}, omit this argument, or enter \code{"as.is"}.  See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.
+when used with subclassification, which subclass(es) to display. If \code{NULL}, all subclasses will be displayed. If \code{NA}, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.
 }
   \item{subclass.summary}{
 \code{logical}; when used with subclassification, whether to display the subclass balance summary table. If \code{which.subclass} is \code{NA}, \code{subclass.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.
 }
   \item{which.imp}{
-when used with multiply imputed data, which imputation(s) to display. If \code{NULL}, all imputations will be displayed. If \code{NA}, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to \code{bal.tab()}, omit this argument, or enter \code{"as.is"}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.
+when used with multiply imputed data, which imputation(s) to display. If \code{NULL}, all imputations will be displayed. If \code{NA}, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.
 }
   \item{imp.summary}{
 \code{logical}; when used with multiply imputed data, whether to display the imputation summary table. If \code{which.imp} is \code{NA}, \code{imp.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.
@@ -79,7 +79,7 @@ when used with longitudinal treatments, which time periods to display if longitu
 \code{logical}; when used with longitudinal treatments, whether to display the balance summary table across time periods. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for details.
 }
   \item{which.cluster}{
-when used with clustered data, which cluster(s) to display. If \code{NULL}, all clusters will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to \code{bal.tab()}, omit this argument, as specifying \code{"as.is"} will request a cluster called "as.is.". See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
+when used with clustered data, which cluster(s) to display. If \code{NULL}, all clusters will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
 }
   \item{cluster.summary}{
 \code{logical}; when used with clustered data, whether to display the cluster summary table. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
@@ -96,8 +96,6 @@ further arguments passed to or from other methods.
 }
 \details{
 Simply calling \code{bal.tab()} will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The \code{print()} function automatically dispatches the correct method for the \code{bal.tab} object given.
-
-For all parameters except \code{which.cluster}, \code{which.imp}, \code{which.treat}, and \code{which.time}, either omitting the argument or setting it to \code{"as.is"} will use the corresponding print option stored in the \code{bal.tab} object, which results from the original call to \code{bal.tab()}. For these other arguments, to retain the display option of the original call to \code{bal.tab()}, the argument must omitted, as using \code{"as.is"} would cause \code{print()} to attempt to display balance for, e.g., a cluster called \code{"as.is"}. If such a cluster existed and it was desired, it would otherwise be impossible to display it.
 
 Any parameter used in \code{bal.tab()} for calculations, such as \code{int}, \code{addl}, or \code{distance}, cannot be used with \code{print()}; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to \code{bal.tab()} must be performed.
 
