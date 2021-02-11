@@ -185,23 +185,27 @@ weight.check <- function(w) {
   if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found. This may yield nonsensical results and errors as the square root of negative weights is encountered."), call. = FALSE)
 }
 cluster.check <- function(cluster, treat) {
-  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-  treat.type <- get.treat.type(treat)
+  if (!is.list(treat)) treat <- list(treat)
   
-  if (treat.type == "continuous") {
-    tabu <- tabulate(cluster, nbins = nlevels(cluster))
-    if (any(tabu == 1)) warning("Some clusters have only one unit in them, which may yield unxpected results.", immediate. = TRUE, call. = FALSE)
+  stop_warn <- c(cw = FALSE, bw = FALSE, bs = FALSE)
+  for (t in treat) {
+    if (!has.treat.type(t)) t <- assign.treat.type(t)
+    treat.type <- get.treat.type(t)
     
-  }
-  else {
-    tab <- table(cluster, treat)
-    if (any(tab == 0)) {
-      stop("Not all treatment levels are present in all clusters.", call. = FALSE)
+    if (treat.type == "continuous" && !stop_warn["cw"]) {
+      tabu <- tabulate(cluster, nbins = nlevels(cluster))
+      if (any(tabu == 1)) stop_warn["cw"] <- TRUE
     }
-    if (any(tab == 1)) {
-      warning("Some clusters have only one member of a treatment group in them, which may yield unxpected results.", immediate. = TRUE, call. = FALSE)
+    else if (treat.type != "continuous" && !all(stop_warn[c("bw", "bs")])) {
+      tab <- table(cluster, t)
+      if (any(tab == 0)) stop_warn["bs"] <- TRUE
+      else if (any(tab == 1)) stop_warn["bw"] <- TRUE
     }
   }
+  if (stop_warn["cw"]) warning("Some clusters have only one unit in them, which may yield unxpected results.", call. = FALSE)
+  if (stop_warn["bw"]) warning("Some clusters have only one member of a treatment group in them, which may yield unxpected results.", call. = FALSE)
+  if (stop_warn["bs"]) stop("Not all treatment levels are present in all clusters.", call. = FALSE)
+  
 }
 strata2weights <- function(strata, treat, estimand = NULL) {
   #Process strata into weights (similar to weight.subclass from MatchIt)
@@ -2620,7 +2624,7 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
                                    else if (type == "cont") c("M"["means" %in% compute], "SD"["sds" %in% compute]), 
                                    unlist(lapply(compute[compute %in% all_STATS(type)], function(s) {
                                      c(STATS[[s]]$bal.tab_column_prefix,
-                                       STATS[[s]]$Threshold)
+                                       if (is_not_null(thresholds[[s]])) STATS[[s]]$Threshold)
                                    }))
               ),
               c("Adj"), collapse = "."))
