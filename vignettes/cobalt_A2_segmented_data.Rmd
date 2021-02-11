@@ -174,7 +174,7 @@ As with clustered data, all `bal.tab()` options work as with non-imputed data. I
 bal.plot(wt.out, which.imp = 1, var.name = "age", which = "both")
 ```
 
-When many imputations are generated, it is recommended not to plot all at the same time by specifying an argument to `which.imp`, as done above.
+When many imputations are generated, it is recommended not to plot all at the same time by specifying an argument to `which.imp`, as done above. When `which.imp` is set to `.none`, data are combined across imputation to produce a single plot, which can act as a summary heuristic but which may obscure imbalances occurring in only a few imputations and not others.
 
 ### `love.plot()`
 

@@ -43,19 +43,19 @@ other arguments to define the variable, treatment, and weights. Some inputs are 
 whether to display distributional balance for the adjusted (\code{"adjusted"}) or unadjusted sample (\code{"unadjusted"}) or both at the same time (\code{"both"}). When multiple weights are present, the names of the weights can be supplied, too. The default is to display balance for the adjusted sample only unless no weights, subclasses, or matching strata are specified. Multiple values and abbreviations allowed.
  }
   \item{which.sub}{
-\code{numeric}; if subclassification is used, a vector corresponding to the subclass(es) for which the distributions are to be displayed. If \code{NULL} (the default), distributions from all subclasses are displayed in a grid.
+\code{numeric}; if subclassification is used, a vector corresponding to the subclass(es) for which the distributions are to be displayed. If \code{.all} (the default), distributions from all subclasses are displayed in a grid.
 }
   \item{cluster}{
 optional; a vector of cluster membership, or the name of a variable in an available data set passed to \code{bal.plot()} that contains cluster membership.
 }
   \item{which.cluster}{
-if clusters are used, which cluster(s) to display. Can be cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. If \code{NULL} (the default) or \code{NA}, all clusters are displayed.
+if clusters are used, which cluster(s) to display. Can be cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. If \code{.all} (the default), all clusters are displayed. If \code{.none}, cluster information is ignored and the marginal distribution of the covariates is displayed.
 }
   \item{imp}{
 optional; a vector of imputation indices, or the name of a variable in an available data set passed to \code{bal.plot()} that contains imputation indices.
 }
   \item{which.imp}{
-if imputations are used, which imputations(s) to display. Must be numerical indices for which to display balance. If \code{NULL} (the default) or \code{NA}, all imputations are displayed.
+if imputations are used, which imputations(s) to display. Must be numerical indices for which to display balance. If \code{.all} (the default), all imputations are displayed. If \code{.none}, data from all imputations are combined into one distribution.
 }
   \item{which.treat}{
 which treatment groups to display. If \code{NULL} (the default) or \code{NA}, all treatment groups are displayed.

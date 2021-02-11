@@ -210,10 +210,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         #NULL: all; NA: none
         in.imp <- rep.int(TRUE, length(X$var))
         if (is_not_null(X$imp)) {
-            if (is_null(which.imp) || all(is.na(which.imp))) {
+            if (is_null(which.imp)) {
                 in.imp <- !is.na(X$imp)
+                facet <- c("imp", facet)
             }
-            else {
+            else if (!all(is.na(which.imp))) {
                 if (is.numeric(which.imp)) {
                     if (all(which.imp %in% seq_len(nlevels(X$imp)))) {
                         in.imp <- !is.na(X$imp) & X$imp %in% levels(X$imp)[which.imp]
@@ -221,21 +222,23 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                     else {
                         stop(paste0("The following inputs to 'which.imp' do not correspond to given imputations:\n\t", word_list(which.imp[!which.imp %in% seq_len(nlevels(X$imp))])), call. = FALSE)
                     }
+                    facet <- c("imp", facet)
                 }
                 else stop("The argument to 'which.imp' must be the indices corresponding to the imputations for which distributions are to be displayed.", call. = FALSE)
             }
-            facet <- c("imp", facet)
+            
         }
-        else if (is_not_null(which.imp)) {
+        else if (is_not_null(which.imp) && !all(is.na(which.imp))) {
             warning("'which.imp' was specified but no 'imp' values were supplied. Ignoring 'which.imp'.", call. = FALSE)
         }
         
         in.cluster <- rep.int(TRUE, length(X$var))
         if (is_not_null(X$cluster)) {
-            if (is_null(which.cluster)|| all(is.na(which.cluster))) {
+            if (is_null(which.cluster)) {
                 in.cluster <- !is.na(X$cluster)
+                facet <- c("cluster", facet)
             }
-            else {
+            else if (!all(is.na(which.cluster))) {
                 if (is.numeric(which.cluster)) {
                     if (all(which.cluster %in% seq_len(nlevels(X$cluster)))) {
                         in.cluster <- !is.na(X$cluster) & X$cluster %in% levels(X$cluster)[which.cluster]
@@ -253,8 +256,8 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                     }
                 }
                 else stop("The argument to 'which.cluster' must be the names or indices corresponding to the clusters for which distributions are to be displayed.", call. = FALSE)
+                facet <- c("cluster", facet)
             }
-            facet <- c("cluster", facet)
         }
         else if (is_not_null(which.cluster)) {
             warning("'which.cluster' was specified but no 'cluster' values were supplied. Ignoring 'which.cluster'.", call. = FALSE)

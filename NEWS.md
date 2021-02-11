@@ -13,6 +13,8 @@
 
 * With subclassification methods, the arguments `which.subclass` and `subclass.summary` have been added to display balance on individual subclasses and control output of the balance across subclasses summary. These arguments replace the `disp.subclass` argument, which can still be used.
 
+* When using `bal.plot()` with clustered or multiply imputed data, the `which.cluster` and `which.imp` arguments can be set to `.none` to display balance ignoring cluster membership and combining across imputations.
+
 * Changed processing of the `print()` method. Now there is only one `print()` method (`print.bal.tab()`) for all `bal.tab` objects. Processing is a little smoother and some printing bugs have been fixed. `"as.is"` can no longer be supplied to keep the print setting as-is; simply omit the corresponding argument to use the options as specified in the call to `bal.tab()`.
 
 * The balance table component of `bal.tab` objects is smaller because some extraneous columns are no longer produced. In particular, if no threshold is requested, no threshold columns will be produced. This does not affect display, but makes it easier to extract balance statistics from `bal.tab` objects (e.g., for exporting as a table). This does mean that previously saved `bal.tab` objects produced by earlier versions of `cobalt` will not be able to be printed correctly.
