@@ -529,7 +529,7 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
                                      })), switch(p.ops$type, bin = 2, cont = 1)),
                                      unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
                                          c(s %in% p.ops$disp,
-                                           if (is_not_null(p.ops$thresholds[[s]])) TRUE)
+                                           if (is_not_null(p.ops$thresholds[[s]])) s %in% thresholds)
                                      }))),
                                    names(s.balance[[1]]))
             
@@ -563,17 +563,18 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
                                                   })), switch(p.ops$type, bin = 2, cont = 1)),
                                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()[!get_from_STATS("adj_only")]], function(s) {
                                                       c(p.ops$un && s %in% p.ops$disp,
-                                                        p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                                        if (p.ops$un && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]])) s %in% thresholds)
                                                   })),
                                                   rep(c(rep(unlist(lapply(p.ops$compute[p.ops$compute %nin% all_STATS()], function(s) {
                                                       p.ops$disp.adj && s %in% p.ops$disp
                                                   })), 2),
                                                   unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
                                                       c(p.ops$disp.adj && s %in% p.ops$disp,
-                                                        p.ops$disp.adj && !p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]]))
+                                                        if (p.ops$disp.adj && is_not_null(p.ops$thresholds[[s]])) s %in% thresholds)
                                                   }))
                                                   ), 
-                                                  p.ops$disp.adj))),
+                                                  p.ops$disp.adj)
+                                                  )),
                                      names(b.a.subclass))
             
             cat(underline("Balance measures across subclasses") %+% "\n")
@@ -1174,7 +1175,7 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
                 imbalanced.only = p.ops$imbalanced.only,
                 digits = digits,
                 disp.adj = p.ops$disp.adj,
-                threshold = p.ops$thresholds,
+                thresholds = p.ops$thresholds,
                 type = p.ops$type,
                 subclass.summary = p.ops$subclass.summary,
                 which.subclass = which.subclass)
