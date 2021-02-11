@@ -3129,7 +3129,7 @@ x2base.iptw <- function(iptw, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        cluster.check(cluster, treat.list)
     }
     
     #Process subset
@@ -3363,7 +3363,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        cluster.check(cluster, treat.list)
     }
     
     #Process subset
@@ -3562,7 +3562,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        cluster.check(cluster, treat.list)
     }
     
     #Process subset
@@ -3748,7 +3748,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        cluster.check(cluster, treat.list)
     }
     
     #Process subset
@@ -4481,7 +4481,7 @@ x2base.default <- function(obj, ...) {
                                       which = "cluster membership",
                                       missing.okay = FALSE)
             cluster <- factor(cluster)
-            cluster.check(cluster, treat)
+            cluster.check(cluster, treat.list)
         }
         
         #Process subset
