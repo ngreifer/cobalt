@@ -64,7 +64,7 @@ If \code{split.with} is supplied, the elements will be split in the same way \co
 For \code{splitfactor()}, a \code{data.frame} containing the original data set with the newly created dummies. For \code{unsplitfactor()}. a \code{data.frame} containing the original data set with the newly created factor variables.
 }
 \seealso{
-\fun{match.matrix}
+\fun{model.matrix}
 }
 
 \examples{

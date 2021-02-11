@@ -28,7 +28,7 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab()} (which
 }
 \bold{When subclassification is used}
 \item{which.subclass}{Which subclasses (if any) should be displayed. If \code{.all}, all subclasses will be displayed. If \code{.none} (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.}
-\item{subclass.summary}{\code{logical}; whether to display the balance summary across subclasses. If \code{TRUE}, the balance summary across subclasses will be displayed. The default is \code{TRUE}, and if \code{which.subclass} is \code{.none}, it will automatically be set to \code{TRUE}.}
+\item{subclass.summary}{\code{logical}; whether to display the balance summary across subclasses. If \code{TRUE}, the balance summary across subclasses will be displayed. The default is \code{TRUE}, and if \code{which.subclass} is \code{.none}, it will automatically be set to \code{TRUE}.
 }
 \bold{When the treatment is multi-category}
 \item{which.treat}{For which treatments or treatment combinations balance tables should be displayed. If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, setting  \code{which.treat = "A"} will display "A vs. B" and "A vs. C", while setting \code{which.treat = c("A", "B")} will only display "A vs. B". \code{.none} indicates no treatment comparisons will be displayed, and \code{.all} indicates all treatment comparisons will be displayed. Default is \code{.none}. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}}.
