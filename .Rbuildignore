@@ -6,7 +6,7 @@
 ^CRANlogs$
 ^do_not_include$
 ^vignettes/cobalt_old\.Rmd$
-^_config.yml
+^_config\.yml
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
