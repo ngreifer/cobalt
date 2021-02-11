@@ -210,7 +210,7 @@ love.plot(w.out1, abs = FALSE,
 
 ```
 
-When using `love.plot`, you might see a warning that says `Standardized mean differences and raw mean differences are present in the same plot. Use the 'stars' argument to distinguish between them and appropriately label the x-axis.`. We avoided this here by setting `binary` to `"std"` so that only standardized mean differences are produced when requesting `stats = "mean.diffs"`. The `stars` argument adds an asterisk (or a character of your choice) to the names of variables that either have standardized mean difference or raw mean differences, whichever you choose. The idea is that the asterisk will be explain in a caption below the plot, indicating that the axis title doesn't fully represent how that variable's mean difference is displayed. For example, you might make the following plot:
+When using `love.plot`, you might see a warning that says `Standardized mean differences and raw mean differences are present in the same plot. Use the 'stars' argument to distinguish between them and appropriately label the x-axis.`. We avoided this here by setting `binary` to `"std"` so that only standardized mean differences are produced when requesting `stats = "mean.diffs"`. The `stars` argument adds an asterisk (or a character of your choice) to the names of variables that either have standardized mean difference or raw mean differences, whichever you choose. The idea is that the asterisk will be explained in a caption below the plot, indicating that the axis title doesn't fully represent how that variable's mean difference is displayed. For example, you might make the following plot:
 
 ```{r}
 love.plot(w.out1, binary = "raw",
