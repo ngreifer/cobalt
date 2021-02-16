@@ -162,7 +162,7 @@ The balance summary is, for each variable, like a weighted average of the balanc
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>subclass</th>
-      <td><p>For the data.frame and formula methods of <code>bal.tab</code>, a vector of subclass membership or the name of the variable in <code>data</code> containing subclass membership. When using subclassification with a function compatible with <span class="pkg">cobalt</span>, such as <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code> in <span class="pkg">MatchIt</span>, this argument can be omitted because the subclass are in the output object.</p></td>
+      <td><p>For the <code>data.frame</code> and formula methods of <code><a href='bal.tab.html'>bal.tab()</a></code>, a vector of subclass membership or the name of the variable in <code>data</code> containing subclass membership. When using subclassification with a function compatible with <span class="pkg">cobalt</span>, such as <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code> in <span class="pkg">MatchIt</span>, this argument can be omitted because the subclass are in the output object.</p></td>
     </tr>
     <tr>
       <th>which.subclass</th>
@@ -179,14 +179,14 @@ The balance summary is, for each variable, like a weighted average of the balanc
     <p>The output is a <code>bal.tab.subclass</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
 <dt>Subclass.Balance</dt><dd><p>A list of data frames containing balance information for each covariate in each subclass.</p></dd>
 
-<dt>Balance.Across.Subclass</dt><dd><p>A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted). See <code><a href='bal.tab.html'>bal.tab</a></code> for details on what this includes.</p></dd>
+<dt>Balance.Across.Subclass</dt><dd><p>A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted). See <code><a href='bal.tab.html'>bal.tab()</a></code> for details on what this includes.</p></dd>
 
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code>, <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab</a></code></p></div>
+    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code>, <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame()</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

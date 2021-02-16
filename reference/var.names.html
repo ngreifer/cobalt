@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Extract Variable Names from bal.tab Objects — var.names" />
-<meta property="og:description" content="This function extracts variable names from a bal.tab object for use in specifying alternate variable names in love.plot. Optionally, a file can be written for easy editing of names." />
+<meta property="og:description" content="This function extracts variable names from a bal.tab object for use in specifying alternate variable names in love.plot(). Optionally, a file can be written for easy editing of names." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -149,7 +149,7 @@
     </div>
 
     <div class="ref-description">
-    <p>This function extracts variable names from a <code>bal.tab</code> object for use in specifying alternate variable names in <code>love.plot</code>. Optionally, a file can be written for easy editing of names.</p>
+    <p>This function extracts variable names from a <code>bal.tab</code> object for use in specifying alternate variable names in <code><a href='love.plot.html'>love.plot()</a></code>. Optionally, a file can be written for easy editing of names.</p>
     </div>
 
     <pre class="usage"><span class='fu'>var.names</span><span class='op'>(</span><span class='va'>b</span>, 
@@ -162,7 +162,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>b</th>
-      <td><p>a <code>bal.tab</code> object; the output of a call to <code><a href='bal.tab.html'>bal.tab</a></code>.</p></td>
+      <td><p>a <code>bal.tab</code> object; the output of a call to <code><a href='bal.tab.html'>bal.tab()</a></code>.</p></td>
     </tr>
     <tr>
       <th>type</th>
@@ -170,22 +170,23 @@
     </tr>
     <tr>
       <th>file</th>
-      <td><p>optional; a file name to save the output if <code>type = "df"</code>. See <code><a href='https://rdrr.io/r/utils/write.table.html'>write.csv</a></code>, which <code>var.name</code> calls. Must end in <code>.csv</code>.</p></td>
+      <td><p>optional; a file name to save the output if <code>type = "df"</code>. See <code><a href='https://rdrr.io/r/utils/write.table.html'>write.csv()</a></code>, which <code>var.name</code> calls. Must end in <code>.csv</code>.</p></td>
     </tr>
     <tr>
       <th>minimal</th>
-      <td><p>whether the output should contain all variables names (i.e., all rows that appear the output of <code>bal.tab</code>) or just the unique base variables. See "Details".</p></td>
+      <td><p>whether the output should contain all variable names (i.e., all rows that appear the output of <code><a href='bal.tab.html'>bal.tab()</a></code>) or just the unique base variables. See "Details".</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>If <code>type = "vec"</code>, a character vector the the variable names both as the names and the entries.
-If <code>type = "df"</code>, a <code>data.frame</code> with two columns called <code>"old"</code> and <code>"new"</code>, each with the variables as the entries. If <code>file</code> is not <code>NULL</code>, the output will be returned invisibly.</p>
+    <p>If <code>type = "vec"</code>, a character vector the the variable names both as the names and the entries.</p>
+<p>If <code>type = "df"</code>, a <code>data.frame</code> with two columns called <code>"old"</code> and <code>"new"</code>, each with the variables as the entries.</p>
+<p>If <code>file</code> is not <code>NULL</code>, the output will be returned invisibly.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The goal of the function is to make supplying new variable names to the <code>var.names</code> argument in <code><a href='love.plot.html'>love.plot</a></code> easier. Rather than manually creating a vector or <code>data.frame</code> with all the variable names that one desires to change, one can use <code>var.names</code> to extract variable names from a <code>bak.tab</code> object and edit the output. Importantly, the output can be saved to a CSV file, which can be easily edited and read back into <span style="R">R</span> for use in <code>love.plot</code>, as demonstrated in the Example.</p>
-<p>When <code>minimal = TRUE</code>, only a minimal set of variables will be output. For example, if the variables analyzed in <code>bal.tab</code> are age, race, and married, and <code>int = TRUE</code> in <code>bal.tab</code>, many variables will appear in the output, including expansions of the factor variables, the polynomial terms, and the interactions. Rather than renaming all of these variables individually, one can rename just the three base variables, and all variables that arise from them will be accordingly renamed. Setting <code>minimal = TRUE</code> requests only these base variables.</p>
+    <p>The goal of the function is to make supplying new variable names to the <code>var.names</code> argument in <code><a href='love.plot.html'>love.plot()</a></code> easier. Rather than manually creating a vector or <code>data.frame</code> with all the variable names that one desires to change, one can use <code>var.names()</code> to extract variable names from a <code>bak.tab</code> object and edit the output. Importantly, the output can be saved to a CSV file, which can be easily edited and read back into <span style="R">R</span> for use in <code><a href='love.plot.html'>love.plot()</a></code>, as demonstrated in the Example.</p>
+<p>When <code>minimal = TRUE</code>, only a minimal set of variables will be output. For example, if the variables analyzed in <code><a href='bal.tab.html'>bal.tab()</a></code> are age, race, and married, and <code>int = TRUE</code> in <code><a href='bal.tab.html'>bal.tab()</a></code>, many variables will appear in the output, including expansions of the factor variables, the polynomial terms, and the interactions. Rather than renaming all of these variables individually, one can rename just the three base variables, and all variables that arise from them will be accordingly renamed. Setting <code>minimal = TRUE</code> requests only these base variables.</p>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p>Not all programs can properly read the Unicode characters for the polynomial terms when requested. These may appear strange in, e.g., Excel, but <span style="R">R</span> will process the characters correctly.</p>

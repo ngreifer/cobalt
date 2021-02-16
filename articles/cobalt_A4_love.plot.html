@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Appendix 4: Using love.plot To Generate Love Plots</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2021-01-25</h4>
+            <h4 class="date">2021-02-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A4_love.plot.Rmd"><code>vignettes/cobalt_A4_love.plot.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A4_love.plot.Rmd</code></div>
@@ -271,7 +271,7 @@
                                   legend.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, 
                                   legend.key.size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html">unit</a></span><span class="op">(</span><span class="fl">.02</span>, <span class="st">"npc"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-13-1.png" width="576"></p>
-<p>When using <code>love.plot</code>, you might see a warning that says <code>Standardized mean differences and raw mean differences are present in the same plot. Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</code>. We avoided this here by setting <code>binary</code> to <code>"std"</code> so that only standardized mean differences are produced when requesting <code>stats = "mean.diffs"</code>. The <code>stars</code> argument adds an asterisk (or a character of your choice) to the names of variables that either have standardized mean difference or raw mean differences, whichever you choose. The idea is that the asterisk will be explain in a caption below the plot, indicating that the axis title doesn’t fully represent how that variable’s mean difference is displayed. For example, you might make the following plot:</p>
+<p>When using <code>love.plot</code>, you might see a warning that says <code>Standardized mean differences and raw mean differences are present in the same plot. Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</code>. We avoided this here by setting <code>binary</code> to <code>"std"</code> so that only standardized mean differences are produced when requesting <code>stats = "mean.diffs"</code>. The <code>stars</code> argument adds an asterisk (or a character of your choice) to the names of variables that either have standardized mean difference or raw mean differences, whichever you choose. The idea is that the asterisk will be explained in a caption below the plot, indicating that the axis title doesn’t fully represent how that variable’s mean difference is displayed. For example, you might make the following plot:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, binary <span class="op">=</span> <span class="st">"raw"</span>,
           stars <span class="op">=</span> <span class="st">"raw"</span>,

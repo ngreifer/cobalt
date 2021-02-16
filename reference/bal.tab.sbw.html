@@ -178,7 +178,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>an <code>sbwcau</code> object; the output of a call to <code>sbw()</code> from the <span class="pkg">sbw</span> package.</p></td>
+      <td><p>an <code>sbwcau</code> object; the output of a call to <code><a href='https://rdrr.io/pkg/sbw/man/sbw.html'>sbw::sbw()</a></code>.</p></td>
     </tr>
     <tr>
       <th>stats</th>
@@ -202,19 +202,19 @@
     </tr>
     <tr>
       <th>data</th>
-      <td><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code>mice</code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></td>
+      <td><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code><a href='https://amices.org/mice/reference/mice.html'>mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></td>
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd()</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd()</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the <code>par</code> component of the <code>sbwcau</code> object: if "att", "treated"; if "atc", "control"; otherwise "pooled". Abbreviations allowed.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd()</a></code> for allowable options. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the <code>par</code> component of the <code>sbwcau</code> object: if "att", "treated"; if "atc", "control"; otherwise "pooled". Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -222,7 +222,7 @@
     </tr>
     <tr>
       <th>weights</th>
-      <td><p>a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in <code>data</code> that contains weights, or an object with a <code><a href='get.w.html'>get.w</a></code> method.</p></td>
+      <td><p>a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in <code>data</code> that contains weights, or an object with a <code><a href='get.w.html'>get.w()</a></code> method.</p></td>
     </tr>
     <tr>
       <th>cluster</th>
@@ -256,20 +256,20 @@
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>bal.tab.sbwcau()</code> generates a list of balance summaries for the <code>sbwcau</code> object given, and functions similarly to <code><a href='https://rdrr.io/pkg/sbw/man/summarize.html'>summarize()</a></code> in <span class="pkg">sbw</span>.</p>
+    <p><code>bal.tab.sbwcau()</code> generates a list of balance summaries for the <code>sbwcau</code> object given, and functions similarly to <code><a href='https://rdrr.io/pkg/sbw/man/summarize.html'>sbw::summarize()</a></code>.</p>
 <p>The <code>thresholds</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     
 
-<p>If clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>sbwcau</code> object. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
+<p>If clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>sbwcau</code> object. See <code><a href='bal.tab.html'>bal.tab()</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.</p></div>
+    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"sbw"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>

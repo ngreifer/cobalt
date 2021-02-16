@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Balance Statistics for Matching, optmatch, ebal, and designmatch Objects — bal.tab.Match" />
-<meta property="og:description" content="Generates balance statistics for output objects from Matching, optmatch, ebal, and designmatch. Note that several arguments that used to be documented here are now documented in display options. They are still available." />
+<meta property="og:description" content="Generates balance statistics for output objects from Matching, optmatch, ebal, and designmatch." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -149,7 +149,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Generates balance statistics for output objects from <span class="pkg">Matching</span>, <span class="pkg">optmatch</span>, <span class="pkg">ebal</span>, and <span class="pkg">designmatch</span>. Note that several arguments that used to be documented here are now documented in <a href='Display Options.html'>display options</a>. They are still available.</p>
+    <p>Generates balance statistics for output objects from <span class="pkg">Matching</span>, <span class="pkg">optmatch</span>, <span class="pkg">ebal</span>, and <span class="pkg">designmatch</span>.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for Match</span>
@@ -190,7 +190,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>either a <code>Match</code> object (the output of a call to <code>Match()</code> or <code>Matchby()</code> from the <span class="pkg">Matching</span> package), an <code>optmatch</code> object (the output of a call to <code>pairmatch()</code> or <code>fullmatch()</code> from the <span class="pkg">optmatch</span> package), an <code>ebalance</code> object (the output of a call to <code>ebalance()</code> or <code>ebalance.trim()</code> from the <span class="pkg">ebal</span> package), or the output of a call to <code>bmatch()</code> or related wrapper functions from the <span class="pkg">designmatch</span> package.</p></td>
+      <td><p>either a <code>Match</code> object (the output of a call to <code><a href='https://rdrr.io/pkg/Matching/man/Match.html'>Matching::Match()</a></code> or <code><a href='https://rdrr.io/pkg/Matching/man/Matchby.html'>Matching::Matchby()</a></code>), an <code>optmatch</code> object (the output of a call to <code><a href='https://rdrr.io/pkg/optmatch/man/pairmatch.html'>optmatch::pairmatch()</a></code> or <code><a href='https://rdrr.io/pkg/optmatch/man/fullmatch.html'>optmatch::fullmatch()</a></code>), an <code>ebalance</code> object (the output of a call to <code><a href='https://rdrr.io/pkg/ebal/man/ebalance.html'>ebal::ebalance()</a></code> or <code><a href='https://rdrr.io/pkg/ebal/man/ebalance.trim.html'>ebal::ebalance.trim()</a></code>), or the output of a call to <code><a href='https://rdrr.io/pkg/designmatch/man/bmatch.html'>designmatch::bmatch()</a></code> or related wrapper functions from the <span class="pkg">designmatch</span> package.</p></td>
     </tr>
     <tr>
       <th>formula</th>
@@ -214,7 +214,7 @@
     </tr>
     <tr>
       <th>int</th>
-      <td><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well. In older versions of <span class="pkg">cobalt</span>, setting <code>int = TRUE</code> displayed squares of covariates; to replicate this behavior, set <code>int = 2</code>.</p></td>
+      <td><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well.</p></td>
     </tr>
     <tr>
       <th>poly</th>
@@ -230,15 +230,15 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If not specified, for <code>Match</code> objects, <code><a href='bal.tab.html'>bal.tab()</a></code> will use "treated" if the estimand of the call to <code>Match()</code> is the ATT, "pooled" if the estimand is the ATE, and "control" if the estimand is the ATC; for <code>optmatch</code>, <code>ebal</code>, and <code>designmatch</code> objects, <code><a href='bal.tab.html'>bal.tab()</a></code> will determine which value makes the most sense based on the input. Abbreviations allowed.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd()</a></code> for allowable options. If not specified, for <code>Match</code> objects, <code><a href='bal.tab.html'>bal.tab()</a></code> will use "treated" if the estimand of the call to <code>Match()</code> is the ATT, "pooled" if the estimand is the ATE, and "control" if the estimand is the ATC; for <code>optmatch</code>, <code>ebal</code>, and <code>designmatch</code> objects, <code><a href='bal.tab.html'>bal.tab()</a></code> will determine which value makes the most sense based on the input. Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -246,7 +246,7 @@
     </tr>
     <tr>
       <th>weights</th>
-      <td><p>a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in <code>data</code> that contains weights, or an object with a <code><a href='get.w.html'>get.w</a></code> method.</p></td>
+      <td><p>a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in <code>data</code> that contains weights, or an object with a <code><a href='get.w.html'>get.w()</a></code> method.</p></td>
     </tr>
     <tr>
       <th>cluster</th>
@@ -280,20 +280,20 @@
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code><a href='bal.tab.html'>bal.tab()</a></code> generates a list of balance summaries for the object given, and function similarly to <code><a href='https://rdrr.io/pkg/Matching/man/MatchBalance.html'>MatchBalance()</a></code> in <span class="pkg">Matching</span> and <code><a href='https://rdrr.io/pkg/designmatch/man/meantab.html'>meantab()</a></code> in <span class="pkg">designmatch</span>. Note that output objects from <span class="pkg">designmatch</span> do not have their own class; <code><a href='bal.tab.html'>bal.tab()</a></code> first checks whether the object meets the criteria to be treated as a <code>designmatch</code> object before dispatching the correct method. In particular, renaming or removing items from the output object can create unintended consequences.</p>
+    <p><code><a href='bal.tab.html'>bal.tab()</a></code> generates a list of balance summaries for the object given, and function similarly to <code><a href='https://rdrr.io/pkg/Matching/man/MatchBalance.html'>Matching::MatchBalance()</a></code> and <code><a href='https://rdrr.io/pkg/designmatch/man/meantab.html'>designmatch::meantab()</a></code>. Note that output objects from <span class="pkg">designmatch</span> do not have their own class; <code><a href='bal.tab.html'>bal.tab()</a></code> first checks whether the object meets the criteria to be treated as a <code>designmatch</code> object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.</p>
 <p>The input to <code>bal.tab.Match()</code>, <code>bal.tab.optmatch()</code>, <code>bal.tab.ebalance()</code>, and <code>bal.tab.designmatch()</code> must include either both <code>formula</code> and <code>data</code> or both <code>covs</code> and <code>treat</code>. Using the <code>formula</code> + <code>data</code> inputs mirrors how <code><a href='https://rdrr.io/pkg/Matching/man/MatchBalance.html'>MatchBalance()</a></code> is used in <span class="pkg">Matching</span>, and using the <code>covs</code> + <code>treat</code> input mirrors how <code><a href='https://rdrr.io/pkg/designmatch/man/meantab.html'>meantab()</a></code> is used in <span class="pkg">designmatch</span>. (Note that to see identical results to <code><a href='https://rdrr.io/pkg/designmatch/man/meantab.html'>meantab()</a></code>, <code>s.d.denom</code> must be set to <code>"pooled"</code>, though this is not recommended.) For <code>optmatch</code> output objects, specifying a treatment is not required.</p>
 <p>All balance statistics are calculated whether they are displayed by print or not, unless <code>quick = TRUE</code>. The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.</p>
 <p>The inputs (if any) to <code>covs</code> must be a data frame; if more than one variable is included, this is straightforward (i.e., because <code>data[,c("v1", "v2")]</code> is already a data frame), but if only one variable is used (e.g., <code>data[,"v1"]</code>), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to <code>covs</code> in <code><a href='https://rdrr.io/r/base/data.frame.html'>data.frame()</a></code> or use <code><a href='https://rdrr.io/r/base/subset.html'>subset()</a></code> if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the given object. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
+    <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the given object. See <code><a href='bal.tab.html'>bal.tab()</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.</p></div>
+    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"Matching"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>

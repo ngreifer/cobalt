@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Balance Statistics for MatchIt Objects — bal.tab.matchit" />
-<meta property="og:description" content="Generates balance statistics for matchit objects from MatchIt. Note that several arguments that used to be documented here are now documented in display options. They are still available." />
+<meta property="og:description" content="Generates balance statistics for matchit objects from MatchIt." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -149,7 +149,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Generates balance statistics for <code>matchit</code> objects from <span class="pkg">MatchIt</span>. Note that several arguments that used to be documented here are now documented in <a href='Display Options.html'>display options</a>. They are still available.</p>
+    <p>Generates balance statistics for <code>matchit</code> objects from <span class="pkg">MatchIt</span>.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for matchit</span>
@@ -180,7 +180,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>a <code>matchit</code> object; the output of a call to <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code> from the <span class="pkg">MatchIt</span> package.</p></td>
+      <td><p>a <code>matchit</code> object; the output of a call to <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>MatchIt::matchit()</a></code>.</p></td>
     </tr>
     <tr>
       <th>method</th>
@@ -192,7 +192,7 @@
     </tr>
     <tr>
       <th>int</th>
-      <td><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well. In older versions of <span class="pkg">cobalt</span>, setting <code>int = TRUE</code> displayed squares of covariates; to replicate this behavior, set <code>int = 2</code>.</p></td>
+      <td><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well.</p></td>
     </tr>
     <tr>
       <th>poly</th>
@@ -208,19 +208,19 @@
     </tr>
     <tr>
       <th>data</th>
-      <td><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code>mice</code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></td>
+      <td><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code>mice()</code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></td>
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd()</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>. This argument is used to set <code>std</code> in <code><a href='Balance Summary.html'>col_w_smd()</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the estimand of the <code>matchit</code> object: if ATT, <code>"treated"</code>; if ATC, <code>"control"</code>, otherwise <code>"pooled"</code>. Abbreviations allowed.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd()</a></code> for allowable options. If not specified, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the estimand of the <code>matchit</code> object: if ATT, <code>"treated"</code>; if ATC, <code>"control"</code>, otherwise <code>"pooled"</code>. Abbreviations allowed.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -228,7 +228,7 @@
     </tr>
     <tr>
       <th>weights</th>
-      <td><p>a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in <code>data</code> that contains weights, or an object with a <code><a href='get.w.html'>get.w</a></code> method.</p></td>
+      <td><p>a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in <code>data</code> that contains weights, or an object with a <code><a href='get.w.html'>get.w()</a></code> method.</p></td>
     </tr>
     <tr>
       <th>cluster</th>
@@ -266,22 +266,19 @@
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>bal.tab.matchit()</code> generates a list of balance summaries for the <code>matchit</code> object given, and functions similarly to <code><a href='https://kosukeimai.github.io/MatchIt/reference/summary.matchit.html'>summary.matchit()</a></code> in <span class="pkg">MatchIt</span>. <code><a href='bal.tab.html'>bal.tab()</a></code> behaves differently depending on whether subclasses are used in conditioning or not. If they are used, <code><a href='bal.tab.html'>bal.tab()</a></code> creates balance statistics for each subclass and for the sample in aggregate; see <code><a href='class-bal.tab.subclass.html'>bal.tab.subclass</a></code> for more information.</p>
+    <p><code>bal.tab.matchit()</code> generates a list of balance summaries for the <code>matchit</code> object given, and functions similarly to <code><a href='https://kosukeimai.github.io/MatchIt/reference/summary.matchit.html'>MatchIt::summary.matchit()</a></code>. <code><a href='bal.tab.html'>bal.tab()</a></code> behaves differently depending on whether subclasses are used in conditioning or not. If they are used, <code><a href='bal.tab.html'>bal.tab()</a></code> creates balance statistics for each subclass and for the sample in aggregate; see <code><a href='class-bal.tab.subclass.html'>bal.tab.subclass</a></code> for more information.</p>
 <p>The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>If subclassification is used and <code>method</code> is not <code>"weighting"</code>, an object of class <code>"bal.tab.subclass"</code> containing balance summaries within and across subclasses. See <code><a href='class-bal.tab.subclass.html'>bal.tab.subclass</a></code> for details.</p>
-<p>If matching is used and clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>matchit</code> object. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
+    <p>If subclassification is used and <code>method</code> is set to <code>"subclassification"</code>, an object of class <code>"bal.tab.subclass"</code> containing balance summaries within and across subclasses. See <code><a href='class-bal.tab.subclass.html'>bal.tab.subclass</a></code> for details.</p>
+<p>If matching is used and clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>matchit</code> object. See <code><a href='bal.tab.html'>bal.tab()</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
-    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
-
-    <p>When a user-supplied distance measure or Mahalanobis distance matching (<code>method = "mahalanobis"</code>) are used with <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code>, full covariate information is not stored in the <code>matchit</code> output object. In particular, categorical variables are not retained as such, and so the dummies are treated as their own variables. The consequence of this is that for all but the first factor variable supplied to <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code>, the first category will be absent. In addition, full compatibility with functions that rely on variable names (like <code><a href='love.plot.html'>love.plot</a></code>) will be hampered. To get around this issue, users can supply the original data frame to <code><a href='bal.tab.html'>bal.tab()</a></code> through the <code>data</code> argument, and the variables will be processed correctly.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for details of calculations.</p></div>
+    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"MatchIt"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>

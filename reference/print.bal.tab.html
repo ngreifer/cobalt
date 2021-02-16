@@ -154,25 +154,26 @@
 
     <pre class="usage"><span class='co'># S3 method for bal.tab</span>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>x</span>, 
-      imbalanced.only <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      un <span class='op'>=</span> <span class='st'>"as.is"</span>,
-      disp.bal.tab <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      stats <span class='op'>=</span> <span class='st'>"as.is"</span>,
-      disp.thresholds <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      disp <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      <span class='va'>which.subclass</span>, 
-      subclass.summary <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      <span class='va'>which.imp</span>, 
-      imp.summary <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      imp.fun <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      <span class='va'>which.treat</span>, 
-      multi.summary <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      <span class='va'>which.time</span>, 
-      msm.summary <span class='op'>=</span> <span class='st'>"as.is"</span>,
-      <span class='va'>which.cluster</span>, 
-      cluster.summary <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      cluster.fun <span class='op'>=</span> <span class='st'>"as.is"</span>, 
-      digits <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"digits"</span><span class='op'>)</span> <span class='op'>-</span> <span class='fl'>3</span><span class='op'>)</span>, 
+      <span class='va'>imbalanced.only</span>, 
+      <span class='va'>un</span>,
+      <span class='va'>disp.bal.tab</span>,
+      <span class='va'>disp.call</span>,
+      <span class='va'>stats</span>,
+      <span class='va'>disp.thresholds</span>,
+      <span class='va'>disp</span>,
+      <span class='va'>which.subclass</span>,
+      <span class='va'>subclass.summary</span>,
+      <span class='va'>which.imp</span>,
+      <span class='va'>imp.summary</span>,
+      <span class='va'>imp.fun</span>,
+      <span class='va'>which.treat</span>,
+      <span class='va'>multi.summary</span>,
+      <span class='va'>which.time</span>,
+      <span class='va'>msm.summary</span>,
+      <span class='va'>which.cluster</span>,
+      <span class='va'>cluster.summary</span>,
+      <span class='va'>cluster.fun</span>,
+      digits <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Extremes.html'>max</a></span><span class='op'>(</span><span class='fl'>3</span>, <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"digits"</span><span class='op'>)</span> <span class='op'>-</span> <span class='fl'>3</span><span class='op'>)</span>,
       <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -180,7 +181,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>a <code>bal.tab</code> object; the output of a call to <code><a href='bal.tab.html'>bal.tab</a></code>.</p></td>
+      <td><p>a <code>bal.tab</code> object; the output of a call to <code><a href='bal.tab.html'>bal.tab()</a></code>.</p></td>
     </tr>
     <tr>
       <th>imbalanced.only</th>
@@ -195,20 +196,24 @@
       <td><p><code>logical</code>; whether to display the table of balance statistics. If <code>FALSE</code>, only other values (e.g., the call, sample sizes, balance tallies, and maximum imbalances) will be presented.</p></td>
     </tr>
     <tr>
+      <th>disp.call</th>
+      <td><p><code>logical</code>; whether to display the function call for the input object, if any.</p></td>
+    </tr>
+    <tr>
       <th>stats</th>
-      <td><p><code>character</code>; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected <code>bal.tab</code> options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. Statistics that weren't requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code> cannot be requested with <code>print</code> unless <code>quick = FALSE</code> in the original call.</p></td>
+      <td><p><code>character</code>; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected <code><a href='bal.tab.html'>bal.tab()</a></code> options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. Statistics that weren't requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code> cannot be requested with <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> unless <code>quick = FALSE</code> in the original call.</p></td>
     </tr>
     <tr>
       <th>disp.thresholds</th>
-      <td><p><code>logical</code>; whether to display thresholds for each statistic for which thresholds were originally requested in the call to <code>bal.tab</code>. Should be a named logical vector with names corresponding to the thresholds. For example, if thresholds for mean differences were requested in <code>bal.tab</code>, set <code>disp.thresholds = c(m = FALSE)</code> to prevent them from being printed. If a statistic was prevented from being displayed by another argument to <code>print</code>, the thresholds will not be displayed.</p></td>
+      <td><p><code>logical</code>; whether to display thresholds for each statistic for which thresholds were originally requested in the call to <code><a href='bal.tab.html'>bal.tab()</a></code>. Should be a named logical vector with names corresponding to the thresholds. For example, if thresholds for mean differences were requested in <code><a href='bal.tab.html'>bal.tab()</a></code>, set <code>disp.thresholds = c(m = FALSE)</code> to prevent them from being printed. If a statistic was prevented from being displayed by another argument to <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code>, the thresholds will not be displayed.</p></td>
     </tr>
     <tr>
       <th>disp</th>
-      <td><p><code>character</code>; which distribution summary statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code> cannot be requested with <code>print</code> unless <code>quick = FALSE</code> in the original call.</p></td>
+      <td><p><code>character</code>; which distribution summary statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code> cannot be requested with <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> unless <code>quick = FALSE</code> in the original call.</p></td>
     </tr>
     <tr>
       <th>which.subclass</th>
-      <td><p>when used with subclassification, which subclass(es) to display. If <code>NULL</code>, all subclasses will be displayed. If <code>NA</code>, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, omit this argument, or enter <code>"as.is"</code>.  See <code><a href='class-bal.tab.subclass.html'>bal.tab.subclass</a></code> for details.</p></td>
+      <td><p>when used with subclassification, which subclass(es) to display. If <code>NULL</code>, all subclasses will be displayed. If <code>NA</code>, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, omit this argument. See <code><a href='class-bal.tab.subclass.html'>bal.tab.subclass</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>subclass.summary</th>
@@ -216,7 +221,7 @@
     </tr>
     <tr>
       <th>which.imp</th>
-      <td><p>when used with multiply imputed data, which imputation(s) to display. If <code>NULL</code>, all imputations will be displayed. If <code>NA</code>, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, omit this argument, or enter <code>"as.is"</code>. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p></td>
+      <td><p>when used with multiply imputed data, which imputation(s) to display. If <code>NULL</code>, all imputations will be displayed. If <code>NA</code>, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, omit this argument. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>imp.summary</th>
@@ -244,7 +249,7 @@
     </tr>
     <tr>
       <th>which.cluster</th>
-      <td><p>when used with clustered data, which cluster(s) to display. If <code>NULL</code>, all clusters will be displayed. If <code>NA</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, omit this argument, as specifying <code>"as.is"</code> will request a cluster called "as.is.". See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p></td>
+      <td><p>when used with clustered data, which cluster(s) to display. If <code>NULL</code>, all clusters will be displayed. If <code>NA</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, omit this argument. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p></td>
     </tr>
     <tr>
       <th>cluster.summary</th>
@@ -267,7 +272,6 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Simply calling <code><a href='bal.tab.html'>bal.tab()</a></code> will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> function automatically dispatches the correct method for the <code>bal.tab</code> object given.</p>
-<p>For all parameters except <code>which.cluster</code>, <code>which.imp</code>, <code>which.treat</code>, and <code>which.time</code>, either omitting the argument or setting it to <code>"as.is"</code> will use the corresponding print option stored in the <code>bal.tab</code> object, which results from the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>. For these other arguments, to retain the display option of the original call to <code><a href='bal.tab.html'>bal.tab()</a></code>, the argument must omitted, as using <code>"as.is"</code> would cause <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> to attempt to display balance for, e.g., a cluster called <code>"as.is"</code>. If such a cluster existed and it was desired, it would otherwise be impossible to display it.</p>
 <p>Any parameter used in <code><a href='bal.tab.html'>bal.tab()</a></code> for calculations, such as <code>int</code>, <code>addl</code>, or <code>distance</code>, cannot be used with <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code>; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to <code><a href='bal.tab.html'>bal.tab()</a></code> must be performed.</p>
 <p>Prior versions of <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> had seperate methods for each <code>bal.tab</code> class. Now they are dispatched internally.</p>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
@@ -278,7 +282,7 @@
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='https://rdrr.io/r/base/print.html'>print</a></code>, <code><a href='bal.tab.html'>bal.tab</a></code></p>
+    <div class='dont-index'><p><code><a href='https://rdrr.io/r/base/print.html'>print()</a></code>, <code><a href='bal.tab.html'>bal.tab()</a></code></p>
 <p><a href='Display Options.html'>display options</a> for further information on some of these options.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

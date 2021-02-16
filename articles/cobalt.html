@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Covariate Balance Tables and Plots: A Guide to the cobalt Package</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2021-01-25</h4>
+            <h4 class="date">2021-02-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt.Rmd"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt.Rmd</code></div>
@@ -381,14 +381,23 @@
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="st">"att.weights"</span>,
         thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span>, v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance Measures
-##                Type Diff.Adj V.Ratio.Adj
-## age         Contin.   0.1112      0.5086
-## educ        Contin.  -0.0641      0.6018
-## race_black   Binary  -0.0044           .
-## race_hispan  Binary   0.0016           .
-## race_white   Binary   0.0028           .
-## re74        Contin.  -0.0039      1.4821
-## re75        Contin.  -0.0428      1.1712
+##                Type Diff.Adj        M.Threshold V.Ratio.Adj  V.Threshold
+## age         Contin.   0.1112 Not Balanced, &gt;0.1      0.5086 Balanced, &lt;2
+## educ        Contin.  -0.0641     Balanced, &lt;0.1      0.6018 Balanced, &lt;2
+## race_black   Binary  -0.0044     Balanced, &lt;0.1           .             
+## race_hispan  Binary   0.0016     Balanced, &lt;0.1           .             
+## race_white   Binary   0.0028     Balanced, &lt;0.1           .             
+## re74        Contin.  -0.0039     Balanced, &lt;0.1      1.4821 Balanced, &lt;2
+## re75        Contin.  -0.0428     Balanced, &lt;0.1      1.1712 Balanced, &lt;2
+## 
+## Balance tally for mean differences
+##                    count
+## Balanced, &lt;0.1         6
+## Not Balanced, &gt;0.1     1
+## 
+## Variable with the greatest mean difference
+##  Variable Diff.Adj        M.Threshold
+##       age   0.1112 Not Balanced, &gt;0.1
 ## 
 ## Balance tally for variance ratios
 ##                  count
@@ -686,23 +695,23 @@
 ##     re74 + I(re74^2), data = lalonde, method = "ps")
 ## 
 ## Balance Measures
-##                Type Corr.Un Corr.Adj Diff.Adj
-## age         Contin.  0.1400   0.0165  -0.1552
-## educ        Contin.  0.0183   0.0573  -0.0392
-## race_black   Binary -0.1405   0.0499   0.1139
-## race_hispan  Binary  0.0616   0.0637  -0.1379
-## race_white   Binary  0.0978  -0.0899  -0.0227
-## married      Binary  0.3541   0.0249  -0.2152
-## nodegree     Binary -0.0705  -0.0409  -0.0159
-## re74        Contin.  0.5520  -0.0904  -0.3843
-## age²        Contin.  0.0998  -0.0160  -0.1426
-## educ²       Contin.  0.0312   0.0849  -0.0328
-## re74²       Contin.  0.4607  -0.1631  -0.3904
-## I(re74^2)²  Contin.  0.3142  -0.1591  -0.2725
-## age³        Contin.  0.0627  -0.0436  -0.1293
-## educ³       Contin.  0.0361   0.0911  -0.0257
-## re74³       Contin.  0.3790  -0.1755  -0.3418
-## I(re74^2)³  Contin.  0.2230  -0.0989  -0.1385
+##                Type Corr.Un Corr.Adj        R.Threshold Diff.Adj
+## age         Contin.  0.1400   0.0165     Balanced, &lt;0.1  -0.1552
+## educ        Contin.  0.0183   0.0573     Balanced, &lt;0.1  -0.0392
+## race_black   Binary -0.1405   0.0499     Balanced, &lt;0.1   0.1139
+## race_hispan  Binary  0.0616   0.0637     Balanced, &lt;0.1  -0.1379
+## race_white   Binary  0.0978  -0.0899     Balanced, &lt;0.1  -0.0227
+## married      Binary  0.3541   0.0249     Balanced, &lt;0.1  -0.2152
+## nodegree     Binary -0.0705  -0.0409     Balanced, &lt;0.1  -0.0159
+## re74        Contin.  0.5520  -0.0904     Balanced, &lt;0.1  -0.3843
+## age²        Contin.  0.0998  -0.0160     Balanced, &lt;0.1  -0.1426
+## educ²       Contin.  0.0312   0.0849     Balanced, &lt;0.1  -0.0328
+## re74²       Contin.  0.4607  -0.1631 Not Balanced, &gt;0.1  -0.3904
+## I(re74^2)²  Contin.  0.3142  -0.1591 Not Balanced, &gt;0.1  -0.2725
+## age³        Contin.  0.0627  -0.0436     Balanced, &lt;0.1  -0.1293
+## educ³       Contin.  0.0361   0.0911     Balanced, &lt;0.1  -0.0257
+## re74³       Contin.  0.3790  -0.1755 Not Balanced, &gt;0.1  -0.3418
+## I(re74^2)³  Contin.  0.2230  -0.0989     Balanced, &lt;0.1  -0.1385
 ## 
 ## Balance tally for treatment correlations
 ##                    count

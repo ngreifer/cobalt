@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Using bal.tab() with Multi-Category Treatments — class-bal.tab.multi" />
-<meta property="og:description" content="When using bal.tab() with multi-category treatments, the output will be different from the case with binary or continuous treatments, and there are some options that are common across all bal.tab methods. This page outlines the outputs and options in this case.
+<meta property="og:description" content="When using bal.tab() with multi-category treatments, the output will be different from the case with binary or continuous treatments, and there are some options that are common across all bal.tab() methods. This page outlines the outputs and options in this case.
 There are two main components of the output of bal.tab() with multi-category treatments: the two-group treatment comparisons and the balance summary. The two-group treatment comparisons are standard binary treatment comparison either for pairs of groups (e.g., for treatments A, B, and C, &quot;A vs. B&quot;, &quot;A vs. C&quot;, and &quot;B vs. C&quot;) or each group against all the groups (i.e., the entire sample).
 The balance summary is, for each variable, the greatest imbalance across all two-group comparisons. So, for variable X1, if &quot;A vs. B&quot; had a standardized mean difference of 0.52, &quot;A vs. C&quot; had a standardized mean difference of .17,  and &quot;B vs. C&quot; had a standardized mean difference of .35, the balance summary would have 0.52 for the value of the standardized mean difference for X1. The same goes for other variables and other measures of balance. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. (Note that when s.d.denom = &quot;pooled&quot;, i.e., when the estimand is the ATE, the pooled standard deviation in the denominator will be the average of the standard deviations across all treatment groups, not just those used in the pairwise comparison.) The balance summary will not be computed if multiply imputed data are used." />
 <meta property="og:image" content="/logo.png" />
@@ -151,7 +151,7 @@ The balance summary is, for each variable, the greatest imbalance across all two
     </div>
 
     <div class="ref-description">
-    <p>When using <code><a href='bal.tab.html'>bal.tab()</a></code> with multi-category treatments, the output will be different from the case with binary or continuous treatments, and there are some options that are common across all <code>bal.tab</code> methods. This page outlines the outputs and options in this case.</p>
+    <p>When using <code><a href='bal.tab.html'>bal.tab()</a></code> with multi-category treatments, the output will be different from the case with binary or continuous treatments, and there are some options that are common across all <code><a href='bal.tab.html'>bal.tab()</a></code> methods. This page outlines the outputs and options in this case.</p>
 <p>There are two main components of the output of <code><a href='bal.tab.html'>bal.tab()</a></code> with multi-category treatments: the two-group treatment comparisons and the balance summary. The two-group treatment comparisons are standard binary treatment comparison either for pairs of groups (e.g., for treatments A, B, and C, "A vs. B", "A vs. C", and "B vs. C") or each group against all the groups (i.e., the entire sample).</p>
 <p>The balance summary is, for each variable, the greatest imbalance across all two-group comparisons. So, for variable X1, if "A vs. B" had a standardized mean difference of 0.52, "A vs. C" had a standardized mean difference of .17,  and "B vs. C" had a standardized mean difference of .35, the balance summary would have 0.52 for the value of the standardized mean difference for X1. The same goes for other variables and other measures of balance. If the greatest observed imbalance is tolerable, then all other imbalances for that variable will be tolerable too, so focusing on reducing the greatest imbalance is sufficient for reducing imbalance overall. (Note that when <code>s.d.denom = "pooled"</code>, i.e., when the estimand is the ATE, the pooled standard deviation in the denominator will be the average of the standard deviations across all treatment groups, not just those used in the pairwise comparison.) The balance summary will not be computed if multiply imputed data are used.</p>
     </div>
@@ -192,7 +192,7 @@ As with other methods, multiple weights can be specified, and values for all wei
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code>, <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab</a></code></p></div>
+    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code>, <code><a href='bal.tab.df.formula.html'>bal.tab.data.frame()</a></code>, <code><a href='print.bal.tab.html'>print.bal.tab()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

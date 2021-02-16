@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Convenient Formula Generation — f.build" />
-<meta property="og:description" content="f.build() returns a formula of the form y ~ x1 + x2 + ... from a data frame input. It can be much quicker to use f.build() than to hand-write the precise formula, which may contain errors. It can be used in place of a formula in, for example, glm(), matchit(), or bal.tab()." />
+<meta property="og:description" content="f.build() returns a formula of the form y ~ x1 + x2 + ... from a data frame input. It can be much quicker to use f.build() than to hand-write the precise formula, which may contain errors. It can be used in place of a formula in, for example, glm(), matchit(), or bal.tab(). It provides similar functionality to reformulate()." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -149,7 +149,7 @@
     </div>
 
     <div class="ref-description">
-    <p><code>f.build()</code> returns a formula of the form <code>y ~ x1 + x2 + ...</code> from a data frame input. It can be much quicker to use <code>f.build()</code> than to hand-write the precise formula, which may contain errors. It can be used in place of a formula in, for example, <code><a href='https://rdrr.io/r/stats/glm.html'>glm</a>()</code>, <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code>, or <code><a href='bal.tab.html'>bal.tab</a>()</code>.</p>
+    <p><code>f.build()</code> returns a <code><a href='https://rdrr.io/r/stats/formula.html'>formula</a></code> of the form <code>y ~ x1 + x2 + ...</code> from a data frame input. It can be much quicker to use <code>f.build()</code> than to hand-write the precise formula, which may contain errors. It can be used in place of a formula in, for example, <code><a href='https://rdrr.io/r/stats/glm.html'>glm()</a></code>, <code><a href='https://kosukeimai.github.io/MatchIt/reference/matchit.html'>matchit()</a></code>, or <code><a href='bal.tab.html'>bal.tab()</a></code>. It provides similar functionality to <code><a href='https://rdrr.io/r/stats/delete.response.html'>reformulate()</a></code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>f.build</span><span class='op'>(</span><span class='va'>y</span>, <span class='va'>rhs</span><span class='op'>)</span></pre>
@@ -159,7 +159,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>y</th>
-      <td><p>the quoted name of the response (left hand side) variable in the formula. Only one variable is supported. If missing, <code>NULL</code>, or the empty string (<code>""</code>), the formula will have no response variable.</p></td>
+      <td><p>the quoted name of the response (left hand side) variable in the formula. Only one variable is supported. If missing, <code>NULL</code>, or the empty string (<code>""</code>), the formula will have no response variable. If <code>rhs</code> is not supplied, <code>y</code> will replace <code>rhs</code> and <code>y</code> will be set to <code>""</code>.</p></td>
     </tr>
     <tr>
       <th>rhs</th>
@@ -169,10 +169,10 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>an object of class <code>"formula"</code>.</p>
+    <p>a <code>formula</code> object.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='https://rdrr.io/r/stats/delete.response.html'>reformulate</a></code></p></div>
+    <div class='dont-index'><p><code><a href='https://rdrr.io/r/stats/delete.response.html'>reformulate()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>)</span>

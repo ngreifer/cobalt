@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Balance Statistics for Longitudinal Datasets — bal.tab.df.formula.list" />
-<meta property="og:description" content="Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. bal.tab automatically classifies this list as either a data.frame.list or formula.list, respectively." />
+<meta property="og:description" content="Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. bal.tab() automatically classifies this list as either a data.frame.list or formula.list, respectively." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -149,7 +149,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or data.frames contain the covariates at each time point. <code>bal.tab</code> automatically classifies this list as either a <code>data.frame.list</code> or <code>formula.list</code>, respectively.</p>
+    <p>Generates balance statistics for data coming from a longitudinal treatment scenario. The primary input is in the form of a list of formulas or <code>data.frame</code>s contain the covariates at each time point. <code><a href='bal.tab.html'>bal.tab()</a></code> automatically classifies this list as either a <code>data.frame.list</code> or <code>formula.list</code>, respectively.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for data.frame.list</span>
@@ -195,7 +195,7 @@
     </tr>
     <tr>
       <th>data</th>
-      <td><p>for <code>bal.tab.data.frame.list</code>: optional; a data frame containing variables with the names used in <code>treat.list</code>, <code>weights</code>, <code>distance.list</code>, and/or <code>addl.list</code>, if any. For <code>bal.tab.formula.list</code>: required; a data frame containing all covariates named in the formulas and variables with the names used in the arguments mentioned above. If all objects in the <code>x</code> formulas are present in the environment, can be omitted. <code>data</code> must be in the "wide" format, with one row per unit. Can also be <code>mids</code> object, the output of a call to <code>mice</code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></td>
+      <td><p>for <code>bal.tab.data.frame.list()</code>: optional; a data frame containing variables with the names used in <code>treat.list</code>, <code>weights</code>, <code>distance.list</code>, and/or <code>addl.list</code>, if any. For <code>bal.tab.formula.list()</code>: required; a data frame containing all covariates named in the formulas and variables with the names used in the arguments mentioned above. If all objects in the <code>x</code> formulas are present in the environment, can be omitted. <code>data</code> must be in the "wide" format, with one row per unit. Can also be <code>mids</code> object, the output of a call to <code>mice()</code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></td>
     </tr>
     <tr>
       <th>weights</th>
@@ -207,7 +207,7 @@
     </tr>
     <tr>
       <th>int</th>
-      <td><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well. In older versions of <span class="pkg">cobalt</span>, setting <code>int = TRUE</code> displayed squares of covariates; to replicate this behavior, set <code>int = 2</code>.</p></td>
+      <td><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well.</p></td>
     </tr>
     <tr>
       <th>poly</th>
@@ -227,15 +227,15 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. If left blank and weights are supplied, <code><a href='bal.tab.html'>bal.tab()</a></code> will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply <code>s.d.denom</code> accordingly. Abbreviations allowed. If left blank, <code><a href='bal.tab.html'>bal.tab()</a></code> will try to use the <code>estimand</code> argument. It is recommended not to set this argument for longitudinal treatments.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd()</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. If left blank and weights are supplied, <code><a href='bal.tab.html'>bal.tab()</a></code> will try to determine whether the ATT, ATC, or ATE is being estimated based on the pattern of weights and supply <code>s.d.denom</code> accordingly. Abbreviations allowed. If left blank, <code><a href='bal.tab.html'>bal.tab()</a></code> will try to use the <code>estimand</code> argument. It is recommended not to set this argument for longitudinal treatments.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -275,27 +275,29 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>For <code>bal.tab.formula.list</code>, other arguments to be passed to <code>bal.tab.data.frame.list</code>. Otherwise, further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
+      <td><p>For <code>bal.tab.formula.list()</code>, other arguments to be passed to <code>bal.tab.data.frame.list()</code>. Otherwise, further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>bal.tab.formula.list()</code> and <code>bal.tab.data.frame.list()</code> generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the <code>weightitMSM</code> documentation for an example of how to transform long data into wide data using <code><a href='https://rdrr.io/r/stats/reshape.html'>reshape</a></code>.</p>
+    <p><code>bal.tab.formula.list()</code> and <code>bal.tab.data.frame.list()</code> generate a list of balance summaries for each time point based on the treatments and covariates provided. All data must be in the "wide" format, with exactly one row per unit and columns representing variables at different time points. See the <code><a href='https://ngreifer.github.io/WeightIt/reference/weightitMSM.html'>weightitMSM()</a></code> documentation for an example of how to transform long data into wide data using <code><a href='https://rdrr.io/r/stats/reshape.html'>reshape()</a></code>.</p>
 <p>All balance statistics are calculated whether they are displayed by print or not, unless <code>quick = TRUE</code>. The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.</p>
 <p>Multiple sets of weights can be supplied simultaneously by including entering a data frame or a character vector containing the names of weight variables found in <code>data</code> or a list thereof. The arguments to <code>method</code>, <code>s.d.denom</code>, and <code>estimand</code>, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to <code>s.d.denom</code> or <code>estimand</code>. When only one set of weights is supplied, the output for the adjusted group will simply be called <code>"Adj"</code>, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other output of <code><a href='bal.tab.html'>bal.tab()</a></code>.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An object of class <code>bal.tab.msm</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more details.</p>
-<p>Currently, clusters and multiply imputed data are not compatible with longitudinal treatments.</p>
-<p>See <code><a href='bal.tab.df.formula.html'>bal.tab base methods</a></code> for more detailed information on the value of the <code>bal.tab</code> objects produced for each time point.</p>
+<p>See <code><a href='bal.tab.df.formula.html'>bal.tab() base methods</a></code> for more detailed information on the value of the <code>bal.tab</code> objects produced for each time point.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bal.tab.df.formula.html'>bal.tab base methods</a></code> for details of calculations.</p>
-<p><code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for output and related options.</p></div>
+    <div class='dont-index'><p><code><a href='bal.tab.df.formula.html'>bal.tab() base methods</a></code> for details of calculations.</p>
+<p><code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for output and related options.
+<code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for more information on clustered data.
+<code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for more information on multiply imputed data.
+<code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for more information on multi-category treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"twang"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>

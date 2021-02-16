@@ -166,11 +166,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>data</th>
-      <td><p>A data.frame containing the variables to be split or unsplit. In <code>splitfactor()</code>, can be a factor variable to be split.</p></td>
+      <td><p>A <code>data.frame</code> containing the variables to be split or unsplit. In <code>splitfactor()</code>, can be a factor variable to be split.</p></td>
     </tr>
     <tr>
       <th>var.name</th>
-      <td><p>For <code>splitfactor()</code>, the names of the factor variables to split. If not specified, will split all factor variables in <code>data</code>. If <code>data</code> is a factor, the stem for each of the new variables to be created. For <code>unsplitfactor()</code>, the name of the previously split factor. If not specified and <code>data</code> is the output of a call to <code>splitfactor</code>, all previously split variables will be unsplit.</p></td>
+      <td><p>For <code>splitfactor()</code>, the names of the factor variables to split. If not specified, will split all factor variables in <code>data</code>. If <code>data</code> is a factor, the stem for each of the new variables to be created. For <code>unsplitfactor()</code>, the name of the previously split factor. If not specified and <code>data</code> is the output of a call to <code>splitfactor()</code>, all previously split variables will be unsplit.</p></td>
     </tr>
     <tr>
       <th>drop.level</th>
@@ -202,7 +202,7 @@
     </tr>
     <tr>
       <th>check</th>
-      <td><p>Whether to make sure the variables specified in <code>var.name</code> are actually factor (or character) variables. If splitting non-factor (or non-character) variables into dummies, set <code>check = FALSE</code>. If <code>check = FALSE</code> and <code>data</code> is a data frame, an argument to <code>var.name</code> must be specified.</p></td>
+      <td><p>Whether to make sure the variables specified in <code>var.name</code> are actually factor (or character) variables. If splitting non-factor (or non-character) variables into dummies, set <code>check = FALSE</code>. If <code>check = FALSE</code> and <code>data</code> is a <code>data.frame</code>, an argument to <code>var.name</code> must be specified.</p></td>
     </tr>
     <tr>
       <th>dropped.level</th>
@@ -217,11 +217,14 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>If there are <code>NA</code>s in the variable to be split, the new variables created by <code>splitfactor()</code> will have <code>NA</code> where the original variable is <code>NA</code>.</p>
-<p>When using <code>unsplitfactor</code> on a data.frame that was generated with <code>splitfactor</code>, the arguments <code>dropped.na</code>, and <code>sep</code> are unnecessary.</p>
+<p>When using <code>unsplitfactor()</code> on a <code>data.frame</code> that was generated with <code>splitfactor()</code>, the arguments <code>dropped.na</code>, and <code>sep</code> are unnecessary.</p>
 <p>If <code>split.with</code> is supplied, the elements will be split in the same way <code>data</code> is. For example, if <code>data</code> contained a 4-level factor that was to be split, the entries of <code>split.with</code> at the same index as the factor and would be duplicated so that resulting entries will have the same length as the number of columns of <code>data</code> after being split. The resulting values are stored in the <code>"split.with"</code> attribute of the output object. See Examples.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>For <code>splitfactor()</code>, a data frame containing the original data set with the newly created dummies. For <code>unsplitfactor()</code>. a data frame containing the original data set with the newly created factor variables.</p>
+    <p>For <code>splitfactor()</code>, a <code>data.frame</code> containing the original data set with the newly created dummies. For <code>unsplitfactor()</code>. a <code>data.frame</code> containing the original data set with the newly created factor variables.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='https://rdrr.io/r/stats/model.matrix.html'>model.matrix()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>

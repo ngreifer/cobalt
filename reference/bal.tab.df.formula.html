@@ -47,7 +47,7 @@
 
 
 <meta property="og:title" content="Balance Statistics for Data Sets — bal.tab.df.formula" />
-<meta property="og:description" content="Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a data.frame or formula interface. Note that several arguments that used to be documented here are now documented in display options. They are still available." />
+<meta property="og:description" content="Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a data.frame or formula interface." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -149,7 +149,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a <code>data.frame</code> or formula interface. Note that several arguments that used to be documented here are now documented in <a href='Display Options.html'>display options</a>. They are still available.</p>
+    <p>Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a <code>data.frame</code> or formula interface.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for data.frame</span>
@@ -222,7 +222,7 @@
     </tr>
     <tr>
       <th>int</th>
-      <td><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well. In older versions of <span class="pkg">cobalt</span>, setting <code>int = TRUE</code> displayed squares of covariates; to replicate this behavior, set <code>int = 2</code>.</p></td>
+      <td><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well.</p></td>
     </tr>
     <tr>
       <th>poly</th>
@@ -238,15 +238,15 @@
     </tr>
     <tr>
       <th>continuous</th>
-      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>.</p></td>
     </tr>
     <tr>
       <th>binary</th>
-      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options</a></code>.</p></td>
+      <td><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href='set.cobalt.options.html'>set.cobalt.options()</a></code>.</p></td>
     </tr>
     <tr>
       <th>s.d.denom</th>
-      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the <code>estimand</code>, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.</p></td>
+      <td><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href='Balance Summary.html'>col_w_smd()</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, <code><a href='bal.tab.html'>bal.tab()</a></code> will figure out which one is best based on the <code>estimand</code>, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.</p></td>
     </tr>
     <tr>
       <th>thresholds</th>
@@ -290,7 +290,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>For <code>bal.tab.formula</code>, other arguments to be passed to <code>bal.tab.data.frame</code>. Otherwise, further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
+      <td><p>For <code>bal.tab.formula()</code>, other arguments to be passed to <code>bal.tab.data.frame()</code>. Otherwise, further arguments to control display of output. See <a href='Display Options.html'>display options</a> for details.</p></td>
     </tr>
     </table>
 
@@ -301,21 +301,18 @@
 <p>All balance statistics are calculated whether they are displayed by <code>print</code> or not, unless <code>quick = TRUE</code>. The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.</p>
 <p>The inputs (if any) to <code>covs</code> and <code>data</code> must be a <code>data.frame</code>; if more than one variable is included, this is straightforward (i.e., because <code>data[,c("v1", "v2")]</code> is already a <code>data.frame</code>), but if only one variable is used with the matrix subsetting syntax (e.g., <code>data[,"v1"]</code>), <span style="R">R</span> will coerce it to a vector, thus making it unfit for input. To avoid this, make sure to use the list subsetting syntax (e.g., <code>data["v1"]</code>) if only one variable is to be added (this can also be used for multiple variables and is good practice in general). Again, when more than one variable is included, the input is generally already a <code>data.frame</code> and nothing needs to be done.</p>
 <p>Multiple sets of weights can be supplied simultaneously by entering a <code>data.frame</code> or a character vector containing the names of weight variables found in <code>data</code> or a list of weights vectors or names. The arguments to <code>method</code>, <code>s.d.denom</code>, and <code>estimand</code>, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to <code>s.d.denom</code> or <code>estimand</code>. When only one set of weights is supplied, the output for the adjusted group will simply be called <code>"Adj"</code>, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other output of <code><a href='bal.tab.html'>bal.tab()</a></code>.</p>
-<p>Clusters and imputations can be used at the same time, but the resulting output may be quite large. Setting <code>which.cluster</code> or <code>which.imp</code> to <code>.none</code> can help keep the output clean.</p>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the specified treatment and covariates. See <code><a href='bal.tab.html'>bal.tab</a></code> for details.</p>
+    <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the specified treatment and covariates. See <code><a href='bal.tab.html'>bal.tab()</a></code> for details.</p>
+<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p>
+<p>If multiple categorical treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for details.</p>
-<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for details.</p>
-<p>If both clusters and imputations are specified, an object of class <code>"bal.tab.imp.cluster"</code> containing summaries between and across all clusters and imputations.</p>
-<p>If treatment is continuous, then means, mean differences, and variance ratios are replaced by (weighted) Pearson correlations between each covariate and treatment. The <code>r.threshold</code> argument works the same as <code>m.threshold</code>, <code>v.threshold</code>, or <code>ks.threshold</code>, adding an extra column to the balance table output and creating additional summaries for balance tallies and maximum imbalances. All arguments related to the calculation or display of mean differences or variance ratios are ignored. The <code>int</code>, <code>distance</code>, <code>addl</code>, <code>un</code>, cluster and imputation arguments are still used as described above.</p>
-<p>If multiple categorical treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for details.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Noah Greifer</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab</a></code> for output and details of calculations.
+    <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code> for output and details of calculations.
 <code><a href='class-bal.tab.cluster.html'>bal.tab.cluster</a></code> for more information on clustered data.
 <code><a href='class-bal.tab.imp.html'>bal.tab.imp</a></code> for more information on multiply imputed data.
 <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for more information on multiple categorical treatments.</p></div>
