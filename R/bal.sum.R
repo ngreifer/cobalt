@@ -22,6 +22,7 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
                                     "drop.level", "split.with")]
         mat <- do.call("splitfactor", c(list(mat, drop.first ="if2"),
                                       A))
+        mat <- as.matrix(mat)
     }
     
     possibly.supplied <- c("mat", "weights", "s.weights", "subset")
@@ -39,6 +40,10 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
     else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
     weights <- weights * s.weights
+    
+    if (sum(weights > 0) < 1) {
+        stop("At least 1 unit must have a nonzero weight to compute weighted means.", call. = FALSE)
+    }
     
     return(col.w.m(mat[subset, , drop = FALSE], w = weights[subset], na.rm = na.rm))
 }
@@ -69,6 +74,7 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
                                            split.with = bin.vars),
                                       A))
         bin.vars <- attr(mat, "split.with")[[1]]
+        mat <- as.matrix(mat)
     }
     
     possibly.supplied <- c("mat", "weights", "s.weights", "subset")
@@ -86,6 +92,10 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
     else if (anyNA(as.logical(subset))) stop("'subset' must be a logical vector.")
     
     weights <- weights * s.weights
+    
+    if (sum(weights > 0) < 2) {
+        stop("At least 2 units must have nonzero weights to compute weighted standard deviations.", call. = FALSE)
+    }
     
     return(sqrt(col.w.v(mat[subset, , drop = FALSE], w = weights[subset], 
                         bin.vars = bin.vars, na.rm = na.rm)))
@@ -120,6 +130,7 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
                                            split.with = bin.vars),
                                       A))
         bin.vars <- attr(mat, "split.with")[[1]]
+        mat <- as.matrix(mat)
     }
     
     if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
@@ -152,6 +163,11 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     if (length(std) == 1L) std <- rep(std, NCOL(mat))
     
     tval1_0 <- treat[1]
+    
+    if (sum(weights[treat==tval1_0] > 0) < 1 || 
+        sum(weights[treat!=tval1_0] > 0) < 1) {
+        stop("At least 1 unit in each level of 'treat' must have a nonzero weight to compute weighted SMDs.", call. = FALSE)
+    }
     
     m1 <- col.w.m(mat[treat==tval1_0 & subset, , drop = FALSE], weights[treat==tval1_0 & subset], na.rm = na.rm)
     m0 <- col.w.m(mat[treat!=tval1_0 & subset, , drop = FALSE], weights[treat!=tval1_0 & subset], na.rm = na.rm)
@@ -203,6 +219,7 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
                                            split.with = bin.vars),
                                       A))
         bin.vars <- attr(mat, "split.with")[[1]]
+        mat <- as.matrix(mat)
     }
     
     if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
@@ -235,6 +252,11 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
     
     if (abs) tval1 <- treat[1]
     else tval1 <- treat[binarize(treat)==1][1]
+    
+    if (sum(weights[treat==tval1] > 0) < 2 || 
+        sum(weights[treat!=tval1] > 0) < 2) {
+        stop("At least 2 units in each level of 'treat' must have nonzero weights to compute weighted variance ratios.", call. = FALSE)
+    }
     
     v1 <- col.w.v(mat[treat==tval1, , drop = FALSE], weights[treat==tval1], bin.vars = bin.vars, na.rm = na.rm)
     v0 <- col.w.v(mat[treat!=tval1, , drop = FALSE], weights[treat!=tval1], bin.vars = bin.vars, na.rm = na.rm)
@@ -273,6 +295,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
                                            split.with = bin.vars),
                                       A))
         bin.vars <- attr(mat, "split.with")[[1]]
+        mat <- as.matrix(mat)
     }
     
     if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
@@ -301,6 +324,11 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
     
     tval1 <- treat[1]
     ks <- rep(NA_real_, NCOL(mat))
+    
+    if (sum(weights[treat==tval1] > 0) < 1 || 
+        sum(weights[treat!=tval1] > 0) < 1) {
+        stop("At least 1 unit in each level of 'treat' must have a nonzero weight to compute weighted KS statistics.", call. = FALSE)
+    }
     
     if (any(!bin.vars)) {
         weights_ <- weights
@@ -350,6 +378,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
                                            split.with = bin.vars),
                                       B))
         bin.vars <- attr(mat, "split.with")[[1]]
+        mat <- as.matrix(mat)
     }
     
     if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
@@ -377,6 +406,11 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
     mat <- mat[subset, , drop = FALSE]
     
     tval1 <- treat[1]
+    
+    if (sum(weights[treat==tval1] > 0) < 1 || 
+        sum(weights[treat!=tval1] > 0) < 1) {
+        stop("At least 1 unit in each level of 'treat' must have a nonzero weight to compute weighted OVL statistics.", call. = FALSE)
+    }
     
     t.sizes <- setNames(vapply(unique(treat, nmax = 2), function(x) sum(treat == x), numeric(1L)),
                         unique(treat, nmax = 2))
@@ -471,6 +505,7 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
                                            split.with = bin.vars),
                                       A))
         bin.vars <- attr(mat, "split.with")[[1]]
+        mat <- as.matrix(mat)
     }
     
     if (missing(treat) || !is.atomic(treat) || !is.numeric(treat)) stop("'treat' must be a numeric variable.")
@@ -509,6 +544,10 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     }
     
     weights <- weights * s.weights
+    
+    if (sum(weights > 0) <= 1) {
+        stop("At least 2 units must have nonzero weights to compute weighted covariances.", call. = FALSE)
+    }
     
     covars <- col.w.cov(mat[subset, , drop = FALSE], y = treat[subset], w = weights[subset], na.rm = na.rm)
     
