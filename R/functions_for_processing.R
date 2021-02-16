@@ -180,9 +180,12 @@ weight.check <- function(w) {
   wname <- deparse1(substitute(w))
   if (!is.list(w)) w <- list(w)
   if (anyNA(w, recursive = TRUE)) stop(paste0("NAs are not allowed in the ", wname, "."), call. = FALSE)
-  if (any(vapply(w, function(x) !all(is.numeric(x)), logical(1L)))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)
-  if (any(vapply(w, function(x) !all(is.finite(x)), logical(1L)))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)
-  if (any(vapply(w, function(x) any(x < 0), logical(1L)))) warning(paste0("Negative ", wname, " found. This may yield nonsensical results and errors as the square root of negative weights is encountered."), call. = FALSE)
+  for (x in w) {if (!all(is.numeric(x))) stop(paste0("All ", wname, " must be numeric."), call. = FALSE)}
+  for (x in w) {if (!all(is.finite(x))) stop(paste0("Infinite ", wname, " are not allowed."), call. = FALSE)}
+  for (x in w) {if (any(x < 0)) {
+    warning(paste0("Negative ", wname, " found. This may yield nonsensical results and errors as the square root of negative weights is encountered."), call. = FALSE)
+    break
+  }}
 }
 cluster.check <- function(cluster, treat) {
   if (!is.list(treat)) treat <- list(treat)
