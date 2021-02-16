@@ -237,8 +237,7 @@ get.w.Match <- function(x, ...) {
 }
 get.w.CBPS <- function(x, estimand, ...) {
     A <- list(...)
-    if (is_null(A$use.weights)) use.weights <- TRUE
-    else use.weights <- A$use.weights
+    use.weights <- if_null_then(A$use.weights, TRUE)
     
     if (!missing(estimand)) estimand <- tolower(estimand)
     else estimand <- NULL
@@ -259,13 +258,13 @@ get.w.CBPS <- function(x, estimand, ...) {
             
             estimand <- match_arg(tolower(estimand), c("att", "atc", "ate"))
             if (estimand == "att") {
-                return(ifelse(t == 1, 1, ps/(1-ps)))
+                return(t + (1-t)*ps/(1-ps))
             }
             if (estimand == "atc") {
-                return(ifelse(t == 1, (1-ps)/ps, 1))
+                return(t*(1-ps)/ps + (1-t))
             }
             else if (estimand == "ate") {
-                return(ifelse(t == 1, 1/ps, 1/(1-ps)))
+                return(t/ps + (1-t)/(1-ps))
             }
         }
         else {
