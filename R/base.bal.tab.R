@@ -1,9 +1,9 @@
 base.bal.tab <- function(X, ...) {
     UseMethod("base.bal.tab")
 }
-base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), disp.call = getOption("cobalt_disp.call", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
-    
+
     A <- clear_null(list(...))
     A$subset <- NULL
     X$treat <- process_treat(X$treat) 
@@ -71,7 +71,8 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                        compute = compute, 
                                        disp = disp,
                                        disp.adj=!no.adj,
-                                       disp.bal.tab = disp.bal.tab, 
+                                       disp.bal.tab = disp.bal.tab,
+                                       disp.call = disp.call, 
                                        abs = abs,
                                        continuous = continuous,
                                        binary = binary,
@@ -244,6 +245,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
             X_t <- subset_X(X_t, c(seq_len(n), which(X$treat == treat_vals(X$treat)[t[1]])))
             X_t$treat <- factor(rep(0:1, times = c(n, sum(X$treat == treat_vals(X$treat)[t[1]]))),
                                 levels = c(0, 1), labels = c("All", t[1]))
+            # if (is_not_null(X_t$weights)) X_t$weights[X_t$treat == "All",] <- 1 #Uncomment to compare each group to unweighted dist.
             X_t <- assign.X.class(X_t)
             do.call("base.bal.tab", c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
         })
@@ -440,7 +442,7 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
 }
 
 #NEEDS UPDATING with STATS
-base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, which.subclass = NA, subclass.summary = getOption("cobalt_subclass.summary"), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, which.subclass = NA, subclass.summary = getOption("cobalt_subclass.summary"), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), disp.call = getOption("cobalt_disp.call", TRUE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
     
     A <- clear_null(list(...))
@@ -581,6 +583,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                        which.subclass = which.subclass,
                                        subclass.summary = subclass.summary,
                                        disp.bal.tab = disp.bal.tab, 
+                                       disp.call = disp.call,
                                        abs = abs,
                                        continuous = continuous,
                                        binary = binary,

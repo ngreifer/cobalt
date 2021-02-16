@@ -10,23 +10,24 @@ Prints \code{bal.tab()} output in a clean way. Provides options for printing.}
 \method{print}{bal.tab}(x, 
       imbalanced.only, 
       un,
-      disp.bal.tab, 
+      disp.bal.tab,
+      disp.call,
       stats,
-      disp.thresholds, 
-      disp, 
-      which.subclass, 
-      subclass.summary, 
-      which.imp, 
-      imp.summary, 
-      imp.fun, 
-      which.treat, 
-      multi.summary, 
-      which.time, 
+      disp.thresholds,
+      disp,
+      which.subclass,
+      subclass.summary,
+      which.imp,
+      imp.summary,
+      imp.fun,
+      which.treat,
+      multi.summary,
+      which.time,
       msm.summary,
-      which.cluster, 
-      cluster.summary, 
-      cluster.fun, 
-      digits = max(3, getOption("digits") - 3), 
+      which.cluster,
+      cluster.summary,
+      cluster.fun,
+      digits = max(3, getOption("digits") - 3),
       ...)
 }
 \arguments{
@@ -41,6 +42,9 @@ a \code{bal.tab} object; the output of a call to \fun{bal.tab}.
 }
   \item{disp.bal.tab}{
 \code{logical}; whether to display the table of balance statistics. If \code{FALSE}, only other values (e.g., the call, sample sizes, balance tallies, and maximum imbalances) will be presented.
+}
+  \item{disp.call}{
+\code{logical}; whether to display the function call for the input object, if any.
 }
   \item{stats}{
 \code{character}; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected \code{bal.tab()} options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print()} unless \code{quick = FALSE} in the original call.

@@ -2985,10 +2985,12 @@ acceptable.options <- function() {
               multi.summary = TF,
               msm.summary = TF,
               target.summary = TF,
+              subclass.summary = TF,
               int_sep = " * ",
               factor_sep = "_",
               center = TF,
-              remove_perfect_col = TF))
+              remove_perfect_col = TF,
+              disp.call = TF))
 }
 
 #Misc

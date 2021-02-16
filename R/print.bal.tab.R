@@ -1,4 +1,5 @@
-print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, stats, disp.thresholds, disp, 
+print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
+                          stats, disp.thresholds, disp, 
                           which.subclass, subclass.summary,
                           which.imp, imp.summary, imp.fun, 
                           which.treat, multi.summary, 
@@ -44,7 +45,7 @@ bal.tab_print <- function(x, p.ops) {
 }
 bal.tab_print.bal.tab <- function(x, p.ops) {
     
-    call <- x$call
+    call <- if (p.ops$disp.call) x$call else NULL
     
     balance <- x$Balance
     
@@ -127,7 +128,7 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
 }
 bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
     
-    call <- x$call
+    call <- if (p.ops$disp.call) x$call else NULL
     c.balance <- x$Cluster.Balance
     c.balance.summary <- x$Balance.Across.Clusters
     
@@ -214,7 +215,7 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
 }
 bal.tab_print.bal.tab.imp <- function(x, p.ops) {
     
-    call <- x$call
+    call <- if (p.ops$disp.call) x$call else NULL
     i.balance <- x[["Imputation.Balance"]]
     i.balance.summary <- x[["Balance.Across.Imputations"]]
     
@@ -302,7 +303,7 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
 }
 bal.tab_print.bal.tab.multi <- function(x, p.ops) {
 
-    call <- x$call
+    call <- if (p.ops$disp.call) x$call else NULL
     m.balance <- x[["Pair.Balance"]]
     m.balance.summary <- x[["Balance.Across.Pairs"]]
     
@@ -404,7 +405,7 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
 }
 bal.tab_print.bal.tab.msm <- function(x, p.ops){
  
-    call <- x$call
+    call <- if (p.ops$disp.call) x$call else NULL
     msm.balance <- x[["Time.Balance"]]
     msm.balance.summary <- x[["Balance.Across.Times"]]
     
@@ -507,7 +508,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops){
 
 bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
     
-    call <- x$call
+    call <- if (p.ops$disp.call) x$call else NULL
     s.balance <- x$Subclass.Balance
     b.a.subclass <- x$Balance.Across.Subclass
     s.nn <- x$Observations
@@ -872,7 +873,7 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
     
     out
 }
-print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, stats, disp.thresholds, disp, digits = max(3, getOption("digits") - 3), ...) {
+print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats, disp.thresholds, disp, digits = max(3, getOption("digits") - 3), ...) {
     
     A <- list(...)
     p.ops <- attr(x, "print.options")
@@ -970,9 +971,9 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, stats, d
             disp.thresholds <- disp.thresholds[names(disp.thresholds) %pin% names(p.ops[["thresholds"]])]
         }
         names(disp.thresholds) <- match_arg(names(disp.thresholds), names(p.ops[["thresholds"]]), several.ok = TRUE)
-        for (x in names(disp.thresholds)) {
-            if (!disp.thresholds[x]) {
-                drop.thresholds <- c(drop.thresholds, x)
+        for (i in names(disp.thresholds)) {
+            if (!disp.thresholds[i]) {
+                drop.thresholds <- c(drop.thresholds, i)
             }
         }
     }
@@ -995,6 +996,14 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, stats, d
     }
     else p.ops$imbalanced.only <- FALSE
     
+    if (!missing(disp.call)) {
+        if (!rlang::is_bool(disp.call)) stop("'disp.call' must be TRUE or FALSE.", call. = FALSE)
+        if (disp.call && is_null(x$call)) {
+            warning("'disp.call' cannot be set to TRUE if the input object does not have a call component.", call. = FALSE)
+        }
+        else p.ops$disp.call <- disp.call
+    }
+    
     out <- list(un = p.ops$un,
                 disp = p.ops$disp,
                 compute = p.ops$compute,
@@ -1005,12 +1014,13 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, stats, d
                 disp.adj = p.ops$disp.adj,
                 thresholds = p.ops$thresholds,
                 type = p.ops$type,
-                nweights = p.ops$nweights)
+                nweights = p.ops$nweights,
+                disp.call = p.ops$disp.call)
     
     out
     
 }
-print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab, stats, disp.thresholds, disp, digits = max(3, getOption("digits") - 3), which.subclass, subclass.summary, ...) {
+print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats, disp.thresholds, disp, digits = max(3, getOption("digits") - 3), which.subclass, subclass.summary, ...) {
     A <- list(...)
     
     s.balance <- x$Subclass.Balance
@@ -1134,6 +1144,14 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
     }
     else p.ops$imbalanced.only <- FALSE
     
+    if (!missing(disp.call)) {
+        if (!rlang::is_bool(disp.call)) stop("'disp.call' must be TRUE or FALSE.", call. = FALSE)
+        if (disp.call && is_null(x$call)) {
+            warning("'disp.call' cannot be set to TRUE if the input object does not have a call component.", call. = FALSE)
+        }
+        else p.ops$disp.call <- disp.call
+    }
+    
     if (!missing(subclass.summary)) {
         if (!rlang::is_bool(subclass.summary)) stop("'subclass.summary' must be TRUE or FALSE.")
         if (p.ops$quick && p.ops$subclass.summary == FALSE && subclass.summary == TRUE) {
@@ -1178,7 +1196,8 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
                 thresholds = p.ops$thresholds,
                 type = p.ops$type,
                 subclass.summary = p.ops$subclass.summary,
-                which.subclass = which.subclass)
+                which.subclass = which.subclass,
+                disp.call = p.ops$disp.call)
     
     out
 }
