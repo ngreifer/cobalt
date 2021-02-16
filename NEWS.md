@@ -17,6 +17,8 @@
 
 * Changed processing of the `print()` method. Now there is only one `print()` method (`print.bal.tab()`) for all `bal.tab` objects. Processing is a little smoother and some printing bugs have been fixed. `"as.is"` can no longer be supplied to keep the print setting as-is; simply omit the corresponding argument to use the options as specified in the call to `bal.tab()`.
 
+* An additional argument, `disp.call`, can be supplied to `bal.tab()` and `print.bal.tab()` to control printing of the `call` component of the input object, which contains the original function call. Set to `FALSE` to hide the call. This option is documented in `?display_options` and can also be set using `set.cobalt.options()`.
+
 * The balance table component of `bal.tab` objects is smaller because some extraneous columns are no longer produced. In particular, if no threshold is requested, no threshold columns will be produced. This does not affect display, but makes it easier to extract balance statistics from `bal.tab` objects (e.g., for exporting as a table). This does mean that previously saved `bal.tab` objects produced by earlier versions of `cobalt` will not be able to be printed correctly.
 
 * Fixed a bug where `bal.plot()` would incorrectly process 2-level factor variables (#48).
@@ -32,6 +34,8 @@
 * Added an error message when not all clusters contain all treatment levels. Thanks to Rachel Visontay.
 
 * Fixed a bug when supplying the `weights` argument as a list of supported objects (e..g, `weightit` objects) if they were unnamed. Samples are more conveniently named.
+
+* Fixed a bug in `col_w_mean()`, `col_w_smd()`, and friends that occurred when few nonzero weights were present. Now an informative error is thrown.
 
 * Updates to documentation.
 
