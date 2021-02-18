@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.0</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Covariate Balance Tables and Plots: A Guide to the cobalt Package</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2021-02-16</h4>
+            <h4 class="date">2021-02-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt.Rmd"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt.Rmd</code></div>
@@ -136,10 +136,10 @@
 <a href="#citing-cobalt" class="anchor"></a>Citing <code>cobalt</code>
 </h4>
 <p>When using <code>cobalt</code>, please cite your use of it along with the conditioning package used. The full APA reference for <code>cobalt</code> is the following:</p>
-<p>Greifer, N. (2021). cobalt: Covariate Balance Tables and Plots. R package version 4.2.4.9000.</p>
+<p>Greifer, N. (2021). cobalt: Covariate Balance Tables and Plots. R package version 4.3.0.</p>
 <p>For example, if you use <code>Matching</code> for propensity score estimation and matching and <code>cobalt</code> for balance assessment and/or reporting, a possible citation might go as follows:</p>
 <blockquote>
-<p>Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2021), both in R (R Core Team, 2020).</p>
+<p>Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2021), both in R (R Core Team, 2021).</p>
 </blockquote>
 </div>
 </div>
@@ -608,7 +608,7 @@
 <p><img src="cobalt_files/figure-html/unnamed-chunk-14-1.png" width="312"><img src="cobalt_files/figure-html/unnamed-chunk-14-2.png" width="312"></p>
 <p>The first argument (or set of arguments) is the sufficient set of arguments for a simple call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, defining the data object (e.g., the output of a conditioning function), the treatment indicators, and the weights or subclasses. See above for examples. The next argument is the name of the covariate for which distributional balance is to be assessed. If subclassification is used (i.e., if subclasses are present in the input data object or arguments), an additional argument <code>which.sub</code> can be specified, with a number corresponding to the subclass number for which balance is to be assessed on the specified covariate; if it is not specified, plots for all subclasses will be displayed.</p>
 <p>The user can also specify whether distributional balance is to be shown before or after adjusting or both by using the argument to <code>which</code>. If <code>which = "unadjusted"</code>, balance will be displayed for the unadjusted sample only. If <code>which = "both"</code>, balance will be displayed for both the unadjusted sample and the adjusted sample. The default is to display balance for the adjusted sample.</p>
-<p>The output of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> is a density plot, histogram, or empricial CDF plot for the two groups on the given covariate, depending on the argument to <code>type</code>. For categorical or binary variables, a bar graph is displayed instead. When multi-category categorical variables are given, bars will be created for each level, unlike in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, which splits the variable into several binary variables. The degree to which the densities for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.</p>
+<p>The output of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> is a density plot, histogram, or empirical CDF plot for the two groups on the given covariate, depending on the argument to <code>type</code>. For categorical or binary variables, a bar graph is displayed instead. When multi-category categorical variables are given, bars will be created for each level, unlike in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, which splits the variable into several binary variables. The degree to which the densities for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.</p>
 <p>Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like <code>MatchIt</code>’s <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot(..., type = "hist")</a></code> or <code>twang</code>’s <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot(..., plots = "boxplot")</a></code>. To examine the distributions of the distance measure, the input to <code>var.name</code> must be the name of the distance variable. If the data input object doesn’t already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to <code><a href="../reference/bal.plot.html">bal.plot()</a></code> through <code>distance</code>, in addition to being called through <code>var.name</code>.</p>
 <p>Below is an example using <code><a href="../reference/bal.plot.html">bal.plot()</a></code> to display the distributions of propensity scores before and after weighting adjustment:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
@@ -738,7 +738,7 @@
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Summarizing balance in a Love plot</span>
 <span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"ks"</span><span class="op">)</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, 
-          abs <span class="op">=</span> <span class="cn">TRUE</span>, 
+          abs <span class="op">=</span> <span class="cn">TRUE</span>, wrap <span class="op">=</span> <span class="fl">20</span>,
           var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-21-1.png" width="480"></p>
 </div>

@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.0</span>
       </span>
     </div>
 
@@ -273,7 +273,7 @@
 
     <p>Simply calling <code><a href='bal.tab.html'>bal.tab()</a></code> will print its results, but it can be useful to store the results into an object and print them again later, possibly with different print options specified. The <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> function automatically dispatches the correct method for the <code>bal.tab</code> object given.</p>
 <p>Any parameter used in <code><a href='bal.tab.html'>bal.tab()</a></code> for calculations, such as <code>int</code>, <code>addl</code>, or <code>distance</code>, cannot be used with <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code>; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to <code><a href='bal.tab.html'>bal.tab()</a></code> must be performed.</p>
-<p>Prior versions of <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> had seperate methods for each <code>bal.tab</code> class. Now they are dispatched internally.</p>
+<p>Prior versions of <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> had separate methods for each <code>bal.tab</code> class. Now they are dispatched internally.</p>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p>Unless <code>quick = FALSE</code> in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code> (which is not the default), some values may not be calculated, in which case using <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> will not display these values even when requested. For example, if <code>stats = "m"</code> and <code>quick = TRUE</code> in the original call to <code><a href='bal.tab.html'>bal.tab()</a></code> (the default for both), setting <code>stats = "ks"</code> in <code><a href='https://rdrr.io/r/base/print.html'>print()</a></code> will not print the KS statistics because they were not calculated.</p>

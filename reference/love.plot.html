@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.2.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.0</span>
       </span>
     </div>
 
@@ -287,7 +287,7 @@
 
     
 
-<p><code>love.plot</code> can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding <code>which.</code> argument ot <code>.none</code> will aggregate across that dimension. When aggregating, an argument should be specified to <code>agg.fun</code> referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for examples.</p>
+<p><code>love.plot</code> can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding <code>which.</code> argument to <code>.none</code> will aggregate across that dimension. When aggregating, an argument should be specified to <code>agg.fun</code> referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for examples.</p>
 <p>With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If <code>disp.subclass</code> is <code>TRUE</code>, each subclass will be displayed additionally as a number on the plot.</p>
 <p><b>Variable order using <code>var.order</code></b></p>
 <p>The order that the variables are presented in depends on the argument to <code>var.order</code>. If <code>NULL</code>, the default, they will be displayed in the same order as in the call to <code><a href='bal.tab.html'>bal.tab()</a></code>, which is the order of the underlying data set. If "alphabetical", they will be displayed in alphabetical order. If "unadjusted", they will be ordered by the balance statistic of the unadjusted sample. To order by the values of the adjusted sample, "adjusted" can be supplied if only one set of weights (or subclasses) are specified; otherwise, the name of the set of weights should be specified.</p>
