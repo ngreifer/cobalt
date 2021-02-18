@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.3.0
 
 * Returned `cem` to Suggests.
 
