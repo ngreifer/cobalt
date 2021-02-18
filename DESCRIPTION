@@ -29,7 +29,7 @@ Suggests:
     optweight,
     mice (>= 3.8.0),
     MatchThem (>= 0.9.3),
-    sbw,
+    sbw (>= 1.1.1),
     cem (>= 1.1.27),
     mlogit,
     knitr,

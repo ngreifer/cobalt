@@ -116,7 +116,7 @@ Additionally, any of the \code{which.} arguments used with clustered or multiply
 }
 \details{
 
-\code{love.plot} can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding \code{which.} argument ot \code{.none} will aggregate across that dimension. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for examples.
+\code{love.plot} can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding \code{which.} argument to \code{.none} will aggregate across that dimension. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See the vignette "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data" for examples.
 
 With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If \code{disp.subclass} is \code{TRUE}, each subclass will be displayed additionally as a number on the plot. 
 

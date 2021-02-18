@@ -267,7 +267,7 @@ The first argument (or set of arguments) is the sufficient set of arguments for 
 
 The user can also specify whether distributional balance is to be shown before or after adjusting or both by using the argument to `which`. If `which = "unadjusted"`, balance will be displayed for the unadjusted sample only. If `which = "both"`, balance will be displayed for both the unadjusted sample and the adjusted sample. The default is to display balance for the adjusted sample.
 
-The output of `bal.plot()` is a density plot, histogram, or empricial CDF plot for the two groups on the given covariate, depending on the argument to `type`. For categorical or binary variables, a bar graph is displayed instead. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, which splits the variable into several binary variables. The degree to which the densities for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.
+The output of `bal.plot()` is a density plot, histogram, or empirical CDF plot for the two groups on the given covariate, depending on the argument to `type`. For categorical or binary variables, a bar graph is displayed instead. When multi-category categorical variables are given, bars will be created for each level, unlike in `bal.tab()`, which splits the variable into several binary variables. The degree to which the densities for the two groups overlap is a good measure of group balance on the given covariate; significant differences in shape can be indicative of poor balance, even when the mean differences and variance ratios are well within thresholds. Strong distributional similarity is especially important for variables strongly related to the outcome of interest.
 
 Distributional balance can also be assessed on the distance measure, and this can form an alternative to other common support checks, like `MatchIt`'s `plot(..., type = "hist")` or `twang`'s `plot(..., plots = "boxplot")`. To examine the distributions of the distance measure, the input to `var.name` must be the name of the distance variable. If the data input object doesn't already contain the distance measure (e.g., if not using one of the conditioning packages), the distance measure must be manually added as an input to `bal.plot()` through `distance`, in addition to being called through `var.name`. 
 
@@ -387,7 +387,7 @@ When balance has been achieved to a satisfactory level, users can present balanc
 ```{r, fig.width = 5}
 #Summarizing balance in a Love plot
 love.plot(W.out.c, stats = c("c", "ks"), thresholds = c(cor = .1), 
-          abs = TRUE, 
+          abs = TRUE, wrap = 20,
           var.order = "unadjusted", line = TRUE)
 ```
 

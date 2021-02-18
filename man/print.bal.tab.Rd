@@ -103,7 +103,7 @@ Simply calling \code{bal.tab()} will print its results, but it can be useful to 
 
 Any parameter used in \code{bal.tab()} for calculations, such as \code{int}, \code{addl}, or \code{distance}, cannot be used with \code{print()}; only those parameters listed above, those that solely determine printing options, can be used. To change computation options, a new call to \code{bal.tab()} must be performed.
 
-Prior versions of \code{print()} had seperate methods for each \code{bal.tab} class. Now they are dispatched internally.
+Prior versions of \code{print()} had separate methods for each \code{bal.tab} class. Now they are dispatched internally.
 }
 \note{
 Unless \code{quick = FALSE} in the original call to \code{bal.tab()} (which is not the default), some values may not be calculated, in which case using \code{print()} will not display these values even when requested. For example, if \code{stats = "m"} and \code{quick = TRUE} in the original call to \code{bal.tab()} (the default for both), setting \code{stats = "ks"} in \code{print()} will not print the KS statistics because they were not calculated.
