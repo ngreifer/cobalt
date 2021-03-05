@@ -284,7 +284,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
   }
   else {
     if (is_not_null(covs)) {
-      if (is_(covs, c("data.frame", "matrix"))) covs <- get_covs_from_formula(~covs)
+      if (is_(covs, c("data.frame", "matrix"))) covs <- get_covs_from_formula(data = covs)
       else if (is.character(covs)) {
         if (is_not_null(data) && is_(data, c("data.frame", "matrix"))) {
           if (any(covs %nin% colnames(data))) {
@@ -1240,7 +1240,7 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
   
   if (is_not_null(obj.distance) && !all(is.na(obj.distance))) {
     obj.distance <- setNames(data.frame(obj.distance), obj.distance.name)
-    obj.distance <- get_covs_from_formula(~obj.distance)
+    obj.distance <- get_covs_from_formula(data = obj.distance)
     distance <- co.bind(if_null_then(distance, NULL), obj.distance)
   }
   
@@ -1382,27 +1382,28 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }
   }
   
-  if (!rlang::is_formula(f)) stop("'f' must be a formula.")
   
-  env <- rlang::f_env(f)
-  
-  rlang::f_lhs(f) <- NULL
   
   #Check if data exists
+  data.specified <- FALSE
   if (is_not_null(data)) {
     if (is.matrix(data)) data <- as.data.frame.matrix(data)
+    
     if (is.data.frame(data)) {
       data.specified <- TRUE
     }
     else {
       warning("The argument supplied to 'data' is not a data.frame object. Ignoring 'data'.", call. = FALSE)
-      data <- env
-      data.specified <- FALSE
     }
-  } else {
-    data <- env
-    data.specified <- FALSE
   }
+  
+  if (missing(f) && data.specified) f <- f.build(data)
+  else if (!rlang::is_formula(f)) stop("'f' must be a formula.")
+  
+  env <- rlang::f_env(f)
+  if (!data.specified) data <- env
+  
+  rlang::f_lhs(f) <- NULL
   
   tryCatch(tt <- terms(f, data = data),
            error = function(e) {
