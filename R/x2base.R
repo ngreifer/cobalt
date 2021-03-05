@@ -36,7 +36,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process covs
     if (is.data.frame(m$X)) {
-        covs <- get_covs_from_formula(~m$X)
+        covs <- get_covs_from_formula(data = m$X)
     }
     else if (is_not_null(m$model$model)) {
         if (nrow(m$model$model) == length(treat)) {
@@ -82,7 +82,7 @@ x2base.matchit <- function(m, ...) {
         covs <- get_covs_from_formula(m$formula, data = data)
     }
     else {
-        covs <- get_covs_from_formula(~m$X)
+        covs <- get_covs_from_formula(data = m$X)
     }
     
     #Get estimand
@@ -1081,7 +1081,7 @@ x2base.data.frame <- function(covs, ...) {
         stop("'covs' data.frame must be specified.", call. = FALSE)
     }
     # is_(covs, "data.frame", stop = TRUE)
-    if (is_null(attr(covs, "co.names"))) covs <- get_covs_from_formula(~covs)
+    if (is_null(attr(covs, "co.names"))) covs <- get_covs_from_formula(data = covs)
     
     #Get estimand
     estimand <- A$estimand
@@ -2119,7 +2119,7 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process covs
     if (is_null(covs <- weightit$covs)) stop("No covariates were specified in the weightit object.", call. = FALSE)
-    covs <- get_covs_from_formula(~covs)
+    covs <- get_covs_from_formula(data = covs)
     
     #Get estimand
     estimand <- weightit$estimand
@@ -2442,11 +2442,17 @@ x2base.mimids <- function(mimids, ...) {
     A <- list(...)
     
     #Process mimids
-    
+    old_version <- !all(c("object", "models", "approach") %in% names(mimids))
+    models <- if (old_version) mimids[["models"]][-1] else mimids[["models"]]
     
     #Process data and get imp
-    if (is_(mimids[["original.datasets"]], "mids")) m.data <- imp.complete(mimids[["original.datasets"]])
-    else m.data <- imp.complete(mimids$others$source)
+    if (old_version) {
+        if (is_(mimids[["original.datasets"]], "mids")) m.data <- imp.complete(mimids[["original.datasets"]])
+        else m.data <- imp.complete(mimids$others$source)
+    }
+    else {
+        m.data <- imp.complete(mimids[["object"]])
+    }
     
     imp <- m.data[[".imp"]]
     
@@ -2474,13 +2480,13 @@ x2base.mimids <- function(mimids, ...) {
     }
     
     #Process treat
-    treat <- process_treat(unlist(lapply(mimids[["models"]][-1], function(m) m[["treat"]])))
+    treat <- process_treat(unlist(lapply(models, function(m) m[["treat"]])))
     
     #Process covs
-    covs <- get_covs_from_formula(mimids[["models"]][[2]]$formula, data = m.data)
+    covs <- do.call("rbind", lapply(models, function(m) get_covs_from_formula(data = m$X)))
     
     #Get estimand
-    estimand <- mimids[["models"]][[2]]$estimand
+    estimand <- models[[1]]$estimand
     
     #Get method
     method <- "matching"
@@ -2489,7 +2495,8 @@ x2base.mimids <- function(mimids, ...) {
     addl <- process_addl(A[["addl"]], datalist = list(data, m.data))
     
     #Process distance
-    m.distance <- unlist(lapply(mimids[["models"]][-1], function(m) m[["distance"]]))
+    m.distance <- unlist(lapply(models, function(m) m[["distance"]]))
+    
     if (all(is.na(m.distance))) m.distance <- NULL
     
     distance <- process_distance(A[["distance"]], datalist = list(data, m.data),
@@ -2548,7 +2555,7 @@ x2base.mimids <- function(mimids, ...) {
     }
     
     #Process discarded
-    discarded <- unlist(lapply(mimids[["models"]][-1], function(m) m[["discarded"]]))
+    discarded <- unlist(lapply(models, function(m) m[["discarded"]]))
     
     #Process imp and length
     length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
@@ -2626,10 +2633,17 @@ x2base.wimids <- function(wimids, ...) {
     A <- list(...)
     
     #Process wimids
+    old_version <- !all(c("object", "models", "approach") %in% names(wimids))
+    models <- if (old_version) wimids[["models"]][-1] else wimids[["models"]]
     
     #Process data and get imp
-    if (is_(wimids[["original.datasets"]], "mids")) w.data <- imp.complete(wimids[["original.datasets"]])
-    else w.data <- imp.complete(wimids$others$source)
+    if (old_version) {
+        if (is_(wimids[["original.datasets"]], "mids")) w.data <- imp.complete(wimids[["original.datasets"]])
+        else w.data <- imp.complete(wimids$others$source)
+    }
+    else {
+        m.data <- imp.complete(wimids[["object"]])
+    }
     
     imp <- w.data[[".imp"]]
     
@@ -2656,15 +2670,15 @@ x2base.wimids <- function(wimids, ...) {
     }
     
     #Process treat
-    treat <- process_treat(unlist(lapply(wimids[["models"]][-1], function(w) w[["treat"]])))
+    treat <- process_treat(unlist(lapply(models, function(w) w[["treat"]])))
     
     #Process covs
-    covs <- do.call("rbind", lapply(wimids[["models"]][-1], function(w) w[["covs"]]))
-    covs <- get_covs_from_formula(~covs)
+    covs <- do.call("rbind", lapply(models, function(w) w[["covs"]]))
+    covs <- get_covs_from_formula(data = covs)
     
     #Get estimand
-    estimand <- unique(unlist(lapply(wimids[["models"]][-1], function(w) w[["estimand"]])))
-    
+    estimand <- unique(unlist(lapply(models, function(w) w[["estimand"]])))
+ 
     #Get method
     method <- "weighting"
     
@@ -2672,7 +2686,7 @@ x2base.wimids <- function(wimids, ...) {
     addl <- process_addl(A[["addl"]], datalist = list(data, w.data))
     
     #Process distance
-    w.distance <- unlist(lapply(wimids[["models"]][-1], function(m) m[["ps"]]))
+    w.distance <- unlist(lapply(models, function(m) m[["ps"]]))
     if (all(is.na(w.distance))) w.distance <- NULL
     
     distance <- process_distance(A[["distance"]], datalist = list(data, w.data),
@@ -2680,7 +2694,7 @@ x2base.wimids <- function(wimids, ...) {
                                  obj.distance.name = "prop.score")
     
     #Process focal
-    focal <- unique(unlist(lapply(wimids[["models"]][-1], function(w) w[["focal"]])))
+    focal <- unique(unlist(lapply(models, function(w) w[["focal"]])))
     
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
@@ -2703,7 +2717,7 @@ x2base.wimids <- function(wimids, ...) {
     method <- attr(weights, "method")
     
     #Process s.weights
-    if (is_not_null(s.weights <- if_null_then(A$s.weights, unlist(lapply(wimids[["models"]][-1], function(w) w[["s.weights"]]))))) {
+    if (is_not_null(s.weights <- if_null_then(A$s.weights, unlist(lapply(models, function(w) w[["s.weights"]]))))) {
         s.weights <- vector.process(s.weights, 
                                     datalist = list(data, w.data),
                                     name = "s.weights", 
@@ -2729,7 +2743,7 @@ x2base.wimids <- function(wimids, ...) {
     }
     
     #Process discarded
-    discarded <- unlist(lapply(wimids[["models"]][-1], function(w) w[["discarded"]]))
+    discarded <- unlist(lapply(models, function(w) w[["discarded"]]))
     
     #Process imp and length
     length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
@@ -3249,7 +3263,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         stop("Each item in 'covs.list' must be a data frame.", call. = FALSE)
     }
     if (any(vapply(covs.list, function(x) is_null(attr(x, "co.names")), logical(1L)))) {
-        covs.list <- lapply(covs.list, function(x) get_covs_from_formula(~x))
+        covs.list <- lapply(covs.list, function(x) get_covs_from_formula(data = x))
     }
     
     if (length(treat.list) != length(covs.list)) {
@@ -3680,7 +3694,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     treat.list <- process_treat.list(weightitMSM$treat.list,
                                      datalist = list(data, weightitMSM.data, weightitMSM.data2))    
     #Process covs.list
-    covs.list <- lapply(weightitMSM$covs.list, function(x) get_covs_from_formula(~x))
+    covs.list <- lapply(weightitMSM$covs.list, function(x) get_covs_from_formula(data = x))
     
     #Get estimand
     estimand <- weightitMSM$estimand

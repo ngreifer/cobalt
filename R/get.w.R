@@ -329,12 +329,26 @@ get.w.designmatch <- function(x, treat, estimand, ...) {
     return(strata2weights(q$group, treat, estimand))
 }
 get.w.mimids <- function(x, ...) {
-    weights <- unlist(lapply(x[["models"]][-1], function(m) get.w.matchit(m)))
+    old_version <- !all(c("object", "models", "approach") %in% names(x))
+    
+    if (old_version) {
+        weights <- unlist(lapply(x[["models"]][-1], get.w.matchit))
+    }
+    else {
+        weights <- unlist(lapply(x[["models"]], get.w.matchit))
+    }
     weights[is.na(weights)] <- 0
     return(weights)
 }
 get.w.wimids <- function(x, ...) {
-    weights <- unlist(lapply(x[["models"]][-1], function(m) get.w.weightit(m)))
+    old_version <- !all(c("object", "models", "approach") %in% names(x))
+    
+    if (old_version) {
+        weights <- unlist(lapply(x[["models"]][-1], get.w.weightit))
+    }
+    else {
+        weights <- unlist(lapply(x[["models"]], get.w.weightit))
+    }
     weights[is.na(weights)] <- 0
     return(weights)
 }
