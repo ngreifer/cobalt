@@ -2483,7 +2483,8 @@ x2base.mimids <- function(mimids, ...) {
     treat <- process_treat(unlist(lapply(models, function(m) m[["treat"]])))
     
     #Process covs
-    covs <- do.call("rbind", lapply(models, function(m) get_covs_from_formula(data = m$X)))
+    covs <- do.call("rbind", lapply(models, function(m) m[["X"]]))
+    covs <- get_covs_from_formula(data = covs)
     
     #Get estimand
     estimand <- models[[1]]$estimand
@@ -2642,7 +2643,7 @@ x2base.wimids <- function(wimids, ...) {
         else w.data <- imp.complete(wimids$others$source)
     }
     else {
-        m.data <- imp.complete(wimids[["object"]])
+        w.data <- imp.complete(wimids[["object"]])
     }
     
     imp <- w.data[[".imp"]]
@@ -3525,7 +3526,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
             covs.list[[i]] <- cov_i
         }
         else {
-            covs.list[[i]] <- co.bind(covs.list[[i-1]], cov_i)
+            covs.list[[i]] <- co.cbind(covs.list[[i-1]], cov_i)
         }
     }
     

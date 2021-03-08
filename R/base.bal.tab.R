@@ -126,7 +126,7 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     out <- make_list(out.names)
     
     #Get list of bal.tabs for each imputation
-    
+
     out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) {
         X_i <- assign.X.class(subset_X(X, imp == i)) 
         X_i$call <- NULL

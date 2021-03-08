@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (Development Version)
+
+* Added support for objects from the new version of `MatchThem`.
+
 # cobalt 4.3.0
 
 * Returned `cem` to Suggests.
