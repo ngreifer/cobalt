@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.0.9000</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2021-02-18</h4>
+            <h4 class="date">2021-03-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A2_segmented_data.Rmd"><code>vignettes/cobalt_A2_segmented_data.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A2_segmented_data.Rmd</code></div>
@@ -357,18 +357,18 @@
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance summary across all imputations
 ##                Type Min.Corr.Adj Mean.Corr.Adj Max.Corr.Adj
-## age         Contin.       0.0174        0.0366       0.0576
-## race_black   Binary      -0.0562       -0.0406      -0.0229
-## race_hispan  Binary       0.0050        0.0100       0.0197
-## race_white   Binary       0.0097        0.0333       0.0503
-## married      Binary       0.0173        0.0392       0.0564
-## re74        Contin.      -0.1156       -0.0193       0.0080
-## re75        Contin.      -0.0717       -0.0148       0.0126
+## age         Contin.       0.0361        0.0413       0.0461
+## race_black   Binary      -0.0503       -0.0428      -0.0362
+## race_hispan  Binary       0.0053        0.0093       0.0135
+## race_white   Binary       0.0296        0.0359       0.0427
+## married      Binary       0.0395        0.0425       0.0505
+## re74        Contin.      -0.0150       -0.0033       0.0051
+## re75        Contin.      -0.0215       -0.0047       0.0096
 ## 
 ## Average effective sample sizes across imputations
 ##             Total
 ## Unadjusted 614.  
-## Adjusted   536.86</code></pre>
+## Adjusted   542.31</code></pre>
 <p>First, we see a balance summary across all the imputations. This table presents the minimum, mean, and maximum balance statistics for each variable across imputations. Setting <code>un = TRUE</code> will also display the same values for the adjusted data set. Setting <code>abs = TRUE</code> will make <code>bal.tab</code> report summaries of the absolute values of the balance statistics. This table functions in the same way as the table for balance across clusters. Below is the average sample size across imputations; in some matching and weighting schemes, the sample size (or effective sample size) may differ across imputations.</p>
 <p>To view balance on individual imputations, you can specify an imputation number to <code>which.imp</code>. (The summary across imputations is automatically hidden but can be forced to be displayed using <code>imp.summary</code>.)</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
@@ -378,18 +378,18 @@
 ##  - - - Imputation 1 - - - 
 ## Balance Measures
 ##                Type Corr.Adj
-## age         Contin.   0.0391
-## race_black   Binary  -0.0456
-## race_hispan  Binary   0.0109
-## race_white   Binary   0.0376
-## married      Binary   0.0368
-## re74        Contin.   0.0011
-## re75        Contin.  -0.0013
+## age         Contin.   0.0362
+## race_black   Binary  -0.0450
+## race_hispan  Binary   0.0135
+## race_white   Binary   0.0354
+## married      Binary   0.0415
+## re74        Contin.  -0.0049
+## re75        Contin.  -0.0047
 ## 
 ## Effective sample sizes
 ##             Total
 ## Unadjusted 614.  
-## Adjusted   542.03
+## Adjusted   544.04
 ##  - - - - - - - - - - - - - -</code></pre>
 <p>As with clustered data, all <code><a href="../reference/bal.tab.html">bal.tab()</a></code> options work as with non-imputed data. Indeed, the functions for clustered and imputed data are nearly identical except that for imputed data, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes the average sample size across imputations, whereas for other forms of segmented data, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes the total sample size across groups.</p>
 </div>
@@ -438,47 +438,47 @@
 ##  - - - black (0) vs. hispan (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.      -0.0063        0.0126       0.0333
-## educ     Contin.      -0.1481       -0.1054      -0.0856
-## married   Binary      -0.0408       -0.0300      -0.0208
-## nodegree  Binary       0.0402        0.0493       0.0693
-## re74     Contin.      -0.1933       -0.0988      -0.0521
-## re75     Contin.      -0.1277       -0.0868      -0.0510
+## age      Contin.      -0.0173        0.0184       0.0545
+## educ     Contin.      -0.1385       -0.1122      -0.1000
+## married   Binary      -0.0367       -0.0314      -0.0258
+## nodegree  Binary       0.0441        0.0532       0.0690
+## re74     Contin.      -0.1847       -0.1019      -0.0400
+## re75     Contin.      -0.1609       -0.0952      -0.0611
 ## 
 ## Average effective sample sizes across imputations
 ##             black hispan
 ## Unadjusted 243.    72.  
-## Adjusted   152.06  55.64
+## Adjusted   150.53  55.77
 ## 
 ##  - - - black (0) vs. white (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.       0.0133        0.0380       0.0491
-## educ     Contin.      -0.0940       -0.0618      -0.0448
-## married   Binary      -0.0036        0.0046       0.0121
-## nodegree  Binary       0.0126        0.0205       0.0357
-## re74     Contin.      -0.2095       -0.1216      -0.0611
-## re75     Contin.      -0.1495       -0.1115      -0.0817
+## age      Contin.       0.0190        0.0396       0.0625
+## educ     Contin.      -0.0790       -0.0648      -0.0527
+## married   Binary      -0.0003        0.0052       0.0093
+## nodegree  Binary       0.0158        0.0221       0.0287
+## re74     Contin.      -0.2007       -0.1245      -0.0765
+## re75     Contin.      -0.1592       -0.1120      -0.0929
 ## 
 ## Average effective sample sizes across imputations
-##             black  white
-## Unadjusted 243.   299.  
-## Adjusted   152.06 260.76
+##             black white
+## Unadjusted 243.     299
+## Adjusted   150.53   261
 ## 
 ##  - - - hispan (0) vs. white (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.       0.0068        0.0254       0.0393
-## educ     Contin.       0.0374        0.0437       0.0541
-## married   Binary       0.0275        0.0346       0.0400
-## nodegree  Binary      -0.0336       -0.0288      -0.0253
-## re74     Contin.      -0.0519       -0.0228      -0.0047
-## re75     Contin.      -0.0393       -0.0247      -0.0141
+## age      Contin.      -0.0017        0.0212       0.0363
+## educ     Contin.       0.0373        0.0474       0.0595
+## married   Binary       0.0301        0.0367       0.0428
+## nodegree  Binary      -0.0403       -0.0311      -0.0227
+## re74     Contin.      -0.0438       -0.0226       0.0111
+## re75     Contin.      -0.0318       -0.0168       0.0017
 ## 
 ## Average effective sample sizes across imputations
-##            hispan  white
-## Unadjusted  72.   299.  
-## Adjusted    55.64 260.76
+##            hispan white
+## Unadjusted  72.     299
+## Adjusted    55.77   261
 ##  - - - - - - - - - - - - - - - - - - - -</code></pre>
 <p>Other options can be supplied to choose how balance is computed with multi-category treatments; these are described at <code>?bal.tab.multi</code> and in the main vignette. Importantly, though, a balance summary across treatment pairs is not available.</p>
 </div>
