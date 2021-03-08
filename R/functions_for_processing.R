@@ -1241,7 +1241,7 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
   if (is_not_null(obj.distance) && !all(is.na(obj.distance))) {
     obj.distance <- setNames(data.frame(obj.distance), obj.distance.name)
     obj.distance <- get_covs_from_formula(data = obj.distance)
-    distance <- co.bind(if_null_then(distance, NULL), obj.distance)
+    distance <- co.cbind(if_null_then(distance, NULL), obj.distance)
   }
   
   return(distance)
@@ -1960,7 +1960,7 @@ int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, s
   
   return(out)
 }
-co.bind <- function(..., deparse.level = 1) {
+co.cbind <- function(..., deparse.level = 1) {
   args <- clear_null(list(...))
   if (length(args) <= 1) return(args[[1]])
   
@@ -1972,6 +1972,19 @@ co.bind <- function(..., deparse.level = 1) {
   
   attr(out, "co.names") <- do.call("c", co.names.list)
   attr(attr(out, "co.names"), "seps") <- seps
+  colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
+  
+  out
+}
+co.rbind <- function(..., deparse.level = 1) {
+  args <- clear_null(list(...))
+  if (length(args) <= 1) return(args[[1]])
+  
+  co.names <- attr(args[[1]], "co.names")
+  
+  out <- do.call("rbind", args)
+  
+  attr(out, "co.names") <- co.names
   colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
   
   out
