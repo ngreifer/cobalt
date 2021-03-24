@@ -272,24 +272,7 @@
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"sbw"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>sbw</span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-
-<span class='co'>## Stable balancing weights for the ATT</span>
-<span class='va'>sbw.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/sbw/man/sbw.html'>sbw</a></span><span class='op'>(</span><span class='fu'><a href='splitfactor.html'>splitfactor</a></span><span class='op'>(</span><span class='va'>lalonde</span>, drop.first <span class='op'>=</span> <span class='st'>"if2"</span><span class='op'>)</span>,
-               ind <span class='op'>=</span> <span class='st'>"treat"</span>,
-               bal <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>bal_cov <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>, 
-                                      <span class='st'>"race_hispan"</span>, <span class='st'>"race_white"</span>, 
-                                      <span class='st'>"married"</span>, <span class='st'>"nodegree"</span>, 
-                                      <span class='st'>"re74"</span>, <span class='st'>"re75"</span><span class='op'>)</span>,
-                          bal_alg <span class='op'>=</span> <span class='cn'>FALSE</span>, 
-                          bal_tol <span class='op'>=</span> <span class='fl'>.001</span><span class='op'>)</span>,
-               par <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>par_est <span class='op'>=</span> <span class='st'>"att"</span><span class='op'>)</span><span class='op'>)</span>
-               
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>sbw.out</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span>, poly <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>
-<span class='op'>}</span></div><div class='output co'>#&gt; <span class='message'>Registered S3 method overwritten by 'spatstat.geom':</span>
-#&gt; <span class='message'>  method     from</span>
-#&gt; <span class='message'>  print.boxx cli </span></div></pre>
+    <pre class="examples"></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

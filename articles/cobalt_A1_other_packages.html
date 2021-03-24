@@ -128,7 +128,7 @@
 <span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span></code></pre></div>
 <pre><code>## treat ~ age + educ + race + married + nodegree + re74 + re75
-## &lt;environment: 0x7ff8d3d12608&gt;</code></pre>
+## &lt;environment: 0x7fae5dbc8828&gt;</code></pre>
 <p>The function creates a <code>formula</code> object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of <code><a href="../reference/f.build.html">f.build()</a></code> is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Generating propensity scores using logistic regression</span>
@@ -471,20 +471,20 @@
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance summary across all imputations
 ##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## prop.score  Distance       0.1459        0.1589       0.1656
-## age          Contin.      -0.1933       -0.1892      -0.1836
-## educ         Contin.       0.0759        0.0815       0.0864
-## married       Binary      -0.1130       -0.1034      -0.0913
-## race_black    Binary       0.0531        0.0574       0.0594
-## race_hispan   Binary       0.0083        0.0110       0.0128
-## race_white    Binary      -0.0714       -0.0683      -0.0643
-## re74         Contin.      -0.2980       -0.2878      -0.2661
-## re75         Contin.      -0.1700       -0.1577      -0.1396
+## prop.score  Distance       0.1476        0.1596       0.1673
+## age          Contin.      -0.1915       -0.1890      -0.1870
+## educ         Contin.       0.0770        0.0841       0.0897
+## married       Binary      -0.1130       -0.1040      -0.0932
+## race_black    Binary       0.0542        0.0582       0.0609
+## race_hispan   Binary       0.0071        0.0103       0.0126
+## race_white    Binary      -0.0726       -0.0685      -0.0621
+## re74         Contin.      -0.2972       -0.2844      -0.2654
+## re75         Contin.      -0.1689       -0.1540      -0.1398
 ## 
 ## Average effective sample sizes across imputations
 ##            Control Treated
 ## Unadjusted  429.    185.  
-## Adjusted    331.28   66.72</code></pre>
+## Adjusted    331.38   67.17</code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div id="using-bal-tab-with-cem" class="section level3">
