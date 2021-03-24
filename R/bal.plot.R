@@ -430,6 +430,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     treat.type <- get.treat.type(assign.treat.type(D$treat))
     
     D <- na.omit(D[order(D$var),])
+    D <- D[D$weights > 0,]
     
     if (treat.type == "continuous") { #Continuous treatments
         
