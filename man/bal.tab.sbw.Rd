@@ -107,7 +107,7 @@ Noah Greifer
 \seealso{
 \fun{bal.tab} for details of calculations.
 }
-\examples{\dontshow{if (requireNamespace("sbw", quietly = TRUE)) \{}
+\examples{\dontrun{\dontshow{if (requireNamespace("sbw", quietly = TRUE)) \{}
 library(sbw); data("lalonde", package = "cobalt")
 
 ## Stable balancing weights for the ATT
@@ -122,5 +122,5 @@ sbw.out <- sbw(splitfactor(lalonde, drop.first = "if2"),
                par = list(par_est = "att"))
                
 bal.tab(sbw.out, un = TRUE, poly = 2)
-\dontshow{\}}}
+\dontshow{\}}}}
 \keyword{tables}

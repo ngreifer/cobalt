@@ -242,7 +242,8 @@ knitr::opts_chunk$set(eval = TRUE)
 
 ### Using `bal.tab()` with `sbw`
 ```{r, include=FALSE}
-if (!requireNamespace("sbw", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
+# if (!requireNamespace("sbw", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(eval = FALSE)
 ```
 The `sbw` package implements optimization-based weighting to estimate weights that satisfy certain balance constraints and have minimal variance. `bal.tab()` functions similarly to `sbw`'s `summarize()` function but provides additional flexibility and convenience. Below is a simple example of using `bal.tab()` with `sbw`:
 ```{r}
