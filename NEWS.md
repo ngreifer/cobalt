@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (Development Version)
+# cobalt 4.3.1
 
 * Added support for objects from the new version of `MatchThem`.
 
