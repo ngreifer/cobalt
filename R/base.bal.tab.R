@@ -506,7 +506,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
             out[["Balance.Across.Subclass"]] <- do.call("balance.table", 
                                                         c(list(C, 
                                                                type = type, 
-                                                               weights = data.frame(Adj = strata2weights(X$subclass, X$treat, X$estimand)), 
+                                                               weights = data.frame(Adj = strata2weights(X$subclass, X$treat, X$estimand, X$focal)), 
                                                                treat = X$treat, 
                                                                s.d.denom = X$s.d.denom[1], 
                                                                s.weights = X$s.weights, 

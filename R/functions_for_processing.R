@@ -210,65 +210,73 @@ cluster.check <- function(cluster, treat) {
   if (stop_warn["bs"]) stop("Not all treatment levels are present in all clusters.", call. = FALSE)
   
 }
-strata2weights <- function(strata, treat, estimand = NULL) {
+strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   #Process strata into weights (similar to weight.subclass from MatchIt)
   
   #Checks
-  if (!is_(strata, "atomic")) {
+  if (!is_(strata, "atomic") || is_not_null(dim(strata))) {
     stop("'strata' must be an atomic vector or factor.", call. = FALSE)
   }
   #Process treat
   treat <- process_treat(treat)
   
-  matched <- !is.na(strata)
-  strata <- factor(strata)
-  strata.matched <- factor(strata[matched])
-  
-  weights <- rep(0, length(treat))
-  
   if (get.treat.type(treat) == "continuous") {
     stop("'strata' cannot be turned into weights for continuous treatments.", call. = FALSE)
   }
-  else {
-    sub.tab <- table(treat[matched], strata.matched)[treat_vals(treat), levels(strata.matched)]
-    totals <- colSums(sub.tab)
-    
-    # estimand <- get.estimand(subclass = strata, treat = treat)
-    s.d.denom <- as.character(get.s.d.denom(NULL, estimand = estimand, subclass = strata, treat = treat, quietly = TRUE))
-    
-    if (s.d.denom %in% treat_vals(treat)) {
-      sub.weights <- setNames(sub.tab[treat_vals(treat) == s.d.denom, levels(strata.matched)] / sub.tab[treat_vals(treat) != s.d.denom, levels(strata.matched)],
-                              levels(strata.matched))
-      weights[matched & treat == s.d.denom] <- 1
-      weights[matched & treat != s.d.denom] <- sub.weights[strata[matched & treat != s.d.denom]]
-    }
-    
-    else {
-      for (tn in treat_vals(treat)) {
-        sub.weights <- setNames(totals[levels(strata.matched)]/sub.tab[tn, levels(strata.matched)], 
-                                levels(strata.matched))
-        weights[matched & treat == tn] <- sub.weights[strata[matched & treat == tn]]
-        
-      }
-    }
-    
-    if (any(na.w <- !is.finite(weights))) {
-      weights[na.w] <- 0
-      warning("Some units were given weights of zero due to zeros in stratum membership.", call. = FALSE)
-    }
-    
-    if (all(check_if_zero(weights))) 
-      stop("No units were stratified", call. = FALSE)
-    else {
-      for (tnn in names(treat_names(treat))) {
-        if (all(check_if_zero(weights[treat == treat_vals(treat)[treat_names(treat)[tnn]]])))
-          stop(paste("No", tnn, "units were stratified."), call. = FALSE)
-      }
+  
+  s.d.denom <- get.s.d.denom(NULL, estimand = estimand, subclass = strata, treat = treat, focal = focal, quietly = TRUE)
+  if (s.d.denom %in% treat_vals(treat)) focal <- process_focal(s.d.denom, treat)
+  else focal <- NULL
+  
+  NAsub <- is.na(strata)
+  imat <- do.call("cbind", lapply(treat_vals(treat), function(t) treat == t & !NAsub))
+  colnames(imat) <- treat_vals(treat)
+  
+  weights <- rep(0, length(treat))
+  
+  if (!is.factor(strata)) {
+    strata <- factor(strata, nmax = min(colSums(imat)))
+    levels(strata) <- seq_len(nlevels(strata))
+  }
+  
+  t_by_sub <- do.call("rbind", lapply(treat_vals(treat), function(t) tabulate(strata[imat[,t]], nlevels(strata))))
+  dimnames(t_by_sub) <- list(treat_vals(treat), levels(strata))
+  
+  total_by_sub <- colSums(t_by_sub)
+  
+  strata.c <- as.character(strata)
+  
+  if (is_not_null(focal)) {
+    focal <- process_focal(focal, treat)
+    for (t in treat_vals(treat)) {
+      if (t == focal) weights[imat[,t]] <- 1
+      else weights[imat[,t]] <- (t_by_sub[focal,]/t_by_sub[t,])[strata.c[imat[,t]]]
     }
   }
+  else {
+    for (t in treat_vals(treat)) {
+      weights[imat[,t]] <- (total_by_sub/t_by_sub[t,])[strata.c[imat[,t]]]
+    }
+  }
+  
+  if (any(na.w <- !is.finite(weights))) {
+    weights[na.w] <- 0
+    warning("Some units were given weights of zero due to zeros in stratum membership.", call. = FALSE)
+  }
+  
+  if (all(check_if_zero(weights))) 
+    stop("No units were stratified", call. = FALSE)
+  else {
+    for (tnn in names(treat_names(treat))) {
+      if (all(check_if_zero(weights[treat == treat_vals(treat)[treat_names(treat)[tnn]]])))
+        stop(paste("No", tnn, "units were stratified."), call. = FALSE)
+    }
+  }
+  
   attr(weights, "match.strata") <- strata
   return(weights)
 }
+
 use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, needs.treat = TRUE, needs.covs = TRUE) {
   if (is_(formula, "formula")) {
     D <- NULL
@@ -478,7 +486,7 @@ vector.process <- function(vec, name = deparse1(substitute(vec)), which = name, 
   
   return(vec)
 } 
-get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
+get.s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
   check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
   s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
   estimand.specified <- is_not_null(estimand)
@@ -516,7 +524,7 @@ get.s.d.denom <- function(s.d.denom, estimand = NULL, weights = NULL, subclass =
       if (!treat.is.processed) treat <- process_treat(treat)
       try.estimand <- tryCatch(match_arg(toupper(estimand), c("ATT", "ATC", "ATE", "ATO", "ATM"), several.ok = TRUE),
                                error = function(cond) NA_character_)
-      if (anyNA(try.estimand) || any(try.estimand %in% c("ATC", "ATT"))) {
+      if (anyNA(try.estimand) || any(try.estimand %in% c("ATC", "ATT")) && get.treat.type(treat) != "binary") {
         check.focal <- TRUE
       }
       else {

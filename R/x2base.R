@@ -1251,7 +1251,8 @@ x2base.data.frame <- function(covs, ...) {
                                        missing.okay = TRUE)
         weights <- data.frame(weights = strata2weights(match.strata,
                                                        treat = treat,
-                                                       estimand = estimand))
+                                                       estimand = estimand,
+                                                       focal = focal))
     }
     #Process weights
     else if (is_not_null(A[["weights"]])) {
@@ -4205,7 +4206,8 @@ x2base.default <- function(obj, ...) {
                                            missing.okay = TRUE)
             weights <- data.frame(weights = strata2weights(match.strata,
                                                            treat = treat,
-                                                           estimand = estimand))
+                                                           estimand = estimand,
+                                                           focal = focal))
         }
         
         #Process weights
