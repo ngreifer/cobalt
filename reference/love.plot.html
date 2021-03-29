@@ -238,11 +238,11 @@
     </tr>
     <tr>
       <th>alpha</th>
-      <td><p><code>numeric</code>; the transparency of the points. See <code>scale_alpha()</code>.</p></td>
+      <td><p><code>numeric</code>; the transparency of the points. See <code><a href='https://ggplot2.tidyverse.org/reference/scale_alpha.html'>scale_alpha()</a></code>.</p></td>
     </tr>
     <tr>
       <th>size</th>
-      <td><p><code>numeric</code>; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now <code>size</code> corresponds directly to the <code>size</code> aesthetic in <code>geom_point()</code>.</p></td>
+      <td><p><code>numeric</code>; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now <code>size</code> corresponds directly to the <code>size</code> aesthetic in <code><a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point()</a></code>.</p></td>
     </tr>
     <tr>
       <th>wrap</th>
@@ -266,16 +266,16 @@
     </tr>
     <tr>
       <th>position</th>
-      <td><p>the position of the legend. When <code>stats</code> has length 1, this can be any value that would be appropriate as an argument to <code>legend.position</code> in <code>theme()</code>. When <code>stat</code> has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".</p></td>
+      <td><p>the position of the legend. When <code>stats</code> has length 1, this can be any value that would be appropriate as an argument to <code>legend.position</code> in <code><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme()</a></code>. When <code>stat</code> has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".</p></td>
     </tr>
     <tr>
       <th>themes</th>
-      <td><p>an optional list of <code>theme</code> objects to append to each individual plot. Each entry should be the output of a call to <code>theme()</code> in <span class="pkg">ggplot2</span>. This is a way to customize the individual plots when multiple <code>stats</code> are requested since the final output is not a manipulable <code>ggplot</code> object. It can be used with length-1 <code>stats</code>, but it probably makes more sense to just add the <code>theme()</code> call after <code>love.plot()</code>.</p></td>
+      <td><p>an optional list of <code>theme</code> objects to append to each individual plot. Each entry should be the output of a call to <code><a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme()</a></code> in <span class="pkg">ggplot2</span>. This is a way to customize the individual plots when multiple <code>stats</code> are requested since the final output is not a manipulable <code>ggplot</code> object. It can be used with length-1 <code>stats</code>, but it probably makes more sense to just add the <code>theme()</code> call after <code>love.plot()</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
       <td><p>additional arguments passed to <code><a href='bal.tab.html'>bal.tab()</a></code> or options for display of the plot. The following related arguments are currently accepted:</p><dl>
-  <dt><code>use.grid</code></dt><dd><p>whether to use <code>arrangeGrob()</code> in <code>gridExtra</code> to make the plot when <code>stats</code> has length 1. See section Value.</p></dd>
+  <dt><code>use.grid</code></dt><dd><p>whether to use <code><a href='https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html'>arrangeGrob()</a></code> in <code>gridExtra</code> to make the plot when <code>stats</code> has length 1. See section Value.</p></dd>
   <dt><code>disp.subclass</code></dt><dd><p>whether to display individual subclasses if subclassification is used. Overrides the <code>disp.subclass</code> option in the original <code><a href='bal.tab.html'>bal.tab()</a></code> call if <code>x</code> is a <code>bal.tab</code> object.</p></dd>
   <dt><code>star_char</code></dt><dd><p><code>character</code>; when <code>stars</code> are used, the character that should be the "star" next to the starred variables. The default is <code>"*"</code>. <code>"†"</code> or <code>"\u2020"</code> (i.e., dagger) might be appealing as well.</p></dd>
   
@@ -303,7 +303,7 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>When only one type of balance statistic is requested, the returned object is a standard <code>ggplot</code> object that can be manipulated using <span class="pkg">ggplot2</span> syntax. This facilitates changing fonts, background colors, and features of the legend outside of what <code>love.plot()</code> provides automatically.</p>
-<p>When more than one type of balance statistic is requested, the plot is constructed using <code>arrangeGrob()</code> in <code>gridExtra</code>, which arranges multiple plots and their shared legend into one plot. Because the output of <code>arrangeGrob</code> is a <code>gtable</code> object, its features cannot be manipulated in the standard way. Use the <code>themes</code> argument to change theme elements of the component plots. The original plots are stored in the <code>"plots"</code> attribute of the output object.</p>
+<p>When more than one type of balance statistic is requested, the plot is constructed using <code><a href='https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html'>arrangeGrob()</a></code> in <code>gridExtra</code>, which arranges multiple plots and their shared legend into one plot. Because the output of <code>arrangeGrob</code> is a <code>gtable</code> object, its features cannot be manipulated in the standard way. Use the <code>themes</code> argument to change theme elements of the component plots. The original plots are stored in the <code>"plots"</code> attribute of the output object.</p>
     <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
 
     <p><code>love.plot</code> can also be called by using <code><a href='https://rdrr.io/r/graphics/plot.default.html'>plot()</a></code> or <code>autoplot()</code> on a <code>bal.tab</code> object. If used in this way, some messages may appear twice. It is recommended that you just use <code>love.plot()</code> instead.</p>
