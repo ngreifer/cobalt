@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2021-03-29</h4>
+            <h4 class="date">2021-04-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A2_segmented_data.Rmd"><code>vignettes/cobalt_A2_segmented_data.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A2_segmented_data.Rmd</code></div>
@@ -337,7 +337,6 @@
 <span class="va">wt.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchThem/man/weightthem.html">weightthem</a></span><span class="op">(</span><span class="va">educ</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> 
                       <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, datasets <span class="op">=</span> <span class="va">imp.out</span>, 
                      approach <span class="op">=</span> <span class="st">"within"</span>, method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Estimating weights     | dataset: #1 #2 #3 #4 #5 #6 #7 #8 #9 #10</code></pre>
 <div id="bal-tab-1" class="section level3">
 <h3 class="hasAnchor">
 <a href="#bal-tab-1" class="anchor"></a><code>bal.tab()</code>
@@ -352,44 +351,44 @@
 <p><code>imp.summary</code> and <code>imp.fun</code> can also be set as global options by using <code><a href="../reference/set.cobalt.options.html">set.cobalt.options()</a></code> like the corresponding cluster options.</p>
 <p>In many cases, not all variables are imputed, and often the treatment variable is not imputed. If each imputation has the same number of units, you can specify other arguments (e.g., treatment, distance) by specifying an object of the length of one imputation, and this vector will be applied to all imputations. This will come in handy when supplying additional covariates that weren’t involved in the imputation or propensity score estimation through <code>addl</code>. To do this, the imputed data set must be sorted by imputation and unit ID.</p>
 <p>Because we’re using a <code>wimids</code> object, we can just call <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with it as the first argument.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Checking balance on the output object</span>
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance summary across all imputations
 ##                Type Min.Corr.Adj Mean.Corr.Adj Max.Corr.Adj
-## age         Contin.       0.0228        0.0419       0.0486
-## race_black   Binary      -0.0495       -0.0434      -0.0392
-## race_hispan  Binary       0.0032        0.0082       0.0121
-## race_white   Binary       0.0327        0.0372       0.0432
-## married      Binary       0.0341        0.0453       0.0556
-## re74        Contin.      -0.0037        0.0024       0.0103
-## re75        Contin.      -0.0090        0.0010       0.0099
+## age         Contin.       0.0143        0.0392       0.0491
+## race_black   Binary      -0.0496       -0.0430      -0.0301
+## race_hispan  Binary       0.0025        0.0081       0.0166
+## race_white   Binary       0.0187        0.0368       0.0436
+## married      Binary       0.0127        0.0380       0.0444
+## re74        Contin.      -0.1021       -0.0112       0.0041
+## re75        Contin.      -0.0644       -0.0090       0.0040
 ## 
 ## Average effective sample sizes across imputations
 ##             Total
 ## Unadjusted 614.  
-## Adjusted   542.25</code></pre>
+## Adjusted   538.88</code></pre>
 <p>First, we see a balance summary across all the imputations. This table presents the minimum, mean, and maximum balance statistics for each variable across imputations. Setting <code>un = TRUE</code> will also display the same values for the adjusted data set. Setting <code>abs = TRUE</code> will make <code>bal.tab</code> report summaries of the absolute values of the balance statistics. This table functions in the same way as the table for balance across clusters. Below is the average sample size across imputations; in some matching and weighting schemes, the sample size (or effective sample size) may differ across imputations.</p>
 <p>To view balance on individual imputations, you can specify an imputation number to <code>which.imp</code>. (The summary across imputations is automatically hidden but can be forced to be displayed using <code>imp.summary</code>.)</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span>, which.imp <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance by imputation
 ## 
 ##  - - - Imputation 1 - - - 
 ## Balance Measures
 ##                Type Corr.Adj
-## age         Contin.   0.0228
-## race_black   Binary  -0.0408
-## race_hispan  Binary   0.0112
-## race_white   Binary   0.0327
-## married      Binary   0.0556
-## re74        Contin.  -0.0037
-## re75        Contin.   0.0099
+## age         Contin.   0.0444
+## race_black   Binary  -0.0477
+## race_hispan  Binary   0.0093
+## race_white   Binary   0.0406
+## married      Binary   0.0426
+## re74        Contin.   0.0025
+## re75        Contin.  -0.0023
 ## 
 ## Effective sample sizes
 ##             Total
 ## Unadjusted 614.  
-## Adjusted   539.87
+## Adjusted   537.41
 ##  - - - - - - - - - - - - - -</code></pre>
 <p>As with clustered data, all <code><a href="../reference/bal.tab.html">bal.tab()</a></code> options work as with non-imputed data. Indeed, the functions for clustered and imputed data are nearly identical except that for imputed data, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes the average sample size across imputations, whereas for other forms of segmented data, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes the total sample size across groups.</p>
 </div>
@@ -398,7 +397,7 @@
 <a href="#bal-plot-1" class="anchor"></a><code>bal.plot()</code>
 </h3>
 <p><code><a href="../reference/bal.plot.html">bal.plot()</a></code> works with imputed data as it does with non-imputed data, except that multiple plots can be produced displaying balance for multiple imputations at a time. The arguments to <code><a href="../reference/bal.plot.html">bal.plot()</a></code> are the same as those for <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, except that <code>imp.summary</code> is absent. Below is an example of the use of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> with imputed and matched data from <code>MatchThem</code>, examining balance in the first imputation:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">wt.out</span>, which.imp <span class="op">=</span> <span class="fl">1</span>, var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-13-1.png" width="480"></p>
 <p>When many imputations are generated, it is recommended not to plot all at the same time by specifying an argument to <code>which.imp</code>, as done above. When <code>which.imp</code> is set to <code>.none</code>, data are combined across imputation to produce a single plot, which can act as a summary heuristic but which may obscure imbalances occurring in only a few imputations and not others.</p>
@@ -408,7 +407,7 @@
 <a href="#love-plot-1" class="anchor"></a><code>love.plot()</code>
 </h3>
 <p><code><a href="../reference/love.plot.html">love.plot()</a></code> functions with imputed data as it does with clustered data. It is not recommended to display balance for multiple imputations at a time, and rather to display balance summarized across imputations:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">wt.out</span>, threshold <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-14-1.png" width="480"></p>
 <p>Often these ranges will be small if the imputed data sets are very similar to each other, but the more imputations are generated, the wider the ranges tend to be.</p>
@@ -419,66 +418,65 @@
 <a href="#multi-category-treatments-with-multiply-imputed-data" class="anchor"></a>Multi-Category Treatments with Multiply Imputed Data</h2>
 <p>So far we’ve seen how <code>cobalt</code> functions work with one layer of data segmentation, but now let’s see what it’s like to work with two or more layers of segmentation. As an example, we’ll first look at multiply imputed data with a multi-category treatment. With multi-category treatments, balance is typically assessed by examining balance statistics computed for pairs of treatments. With multi-category and multiply imputed data, the data is segmented both by imputation and by treatment pair.</p>
 <p>We’ll use the three-category <code>race</code> variable as our multi-category treatment and use the same imputed data as above. Again, the <code>MatchThem</code> package can be used to estimate weights in multiply imputed data. We’ll use propensity score weighting to estimate the ATE of <code>race</code>. As before, this analysis makes no sense substantively and is just for illustration.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Estimate weights within each imputation using propensity scores</span>
 <span class="va">wt3.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchThem/man/weightthem.html">weightthem</a></span><span class="op">(</span><span class="va">race</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> 
                         <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, 
                       datasets <span class="op">=</span> <span class="va">imp.out</span>, approach <span class="op">=</span> <span class="st">"within"</span>, 
                       method <span class="op">=</span> <span class="st">"ps"</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span><span class="op">)</span></code></pre></div>
-<pre><code>## Estimating weights     | dataset: #1 #2 #3 #4 #5 #6 #7 #8 #9 #10</code></pre>
 <div id="bal-tab-2" class="section level3">
 <h3 class="hasAnchor">
 <a href="#bal-tab-2" class="anchor"></a><code>bal.tab()</code>
 </h3>
 <p>Using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> on the resulting object does the following: for each pair of treatments, balance is assessed for each imputation and aggregated across imputations. That is, for each pair of treatments, everything described in the previous section will occur.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt3.out</span><span class="op">)</span></code></pre></div>
 <pre><code>## Balance by treatment pair
 ## 
 ##  - - - black (0) vs. hispan (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.      -0.0070        0.0099       0.0301
-## educ     Contin.      -0.1179       -0.1001      -0.0807
-## married   Binary      -0.0416       -0.0323      -0.0247
-## nodegree  Binary       0.0349        0.0477       0.0588
-## re74     Contin.      -0.1435       -0.1018      -0.0242
-## re75     Contin.      -0.1008       -0.0848      -0.0591
+## age      Contin.      -0.0092        0.0116       0.0322
+## educ     Contin.      -0.1333       -0.1066      -0.0822
+## married   Binary      -0.0419       -0.0317      -0.0193
+## nodegree  Binary       0.0361        0.0488       0.0619
+## re74     Contin.      -0.1348       -0.0884      -0.0001
+## re75     Contin.      -0.0997       -0.0793      -0.0483
 ## 
 ## Average effective sample sizes across imputations
-##             black hispan
-## Unadjusted 243.     72. 
-## Adjusted   153.76   55.7
+##            black hispan
+## Unadjusted 243.   72.  
+## Adjusted   157.4  55.52
 ## 
 ##  - - - black (0) vs. white (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.       0.0165        0.0371       0.0560
-## educ     Contin.      -0.0699       -0.0564      -0.0374
-## married   Binary       0.0002        0.0060       0.0110
-## nodegree  Binary       0.0081        0.0187       0.0259
-## re74     Contin.      -0.1474       -0.1192      -0.0696
-## re75     Contin.      -0.1290       -0.1106      -0.0895
+## age      Contin.       0.0167        0.0355       0.0519
+## educ     Contin.      -0.0837       -0.0626      -0.0400
+## married   Binary       0.0004        0.0064       0.0098
+## nodegree  Binary       0.0102        0.0200       0.0289
+## re74     Contin.      -0.1522       -0.1068      -0.0689
+## re75     Contin.      -0.1340       -0.1039      -0.0772
 ## 
 ## Average effective sample sizes across imputations
-##             black  white
-## Unadjusted 243.   299.  
-## Adjusted   153.76 260.89
+##            black  white
+## Unadjusted 243.  299.  
+## Adjusted   157.4 261.83
 ## 
 ##  - - - hispan (0) vs. white (1) - - - 
 ## Balance summary across all imputations
 ##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj
-## age      Contin.      -0.0025        0.0272       0.0444
-## educ     Contin.       0.0402        0.0438       0.0480
-## married   Binary       0.0350        0.0384       0.0435
-## nodegree  Binary      -0.0357       -0.0290      -0.0227
-## re74     Contin.      -0.0454       -0.0174       0.0051
-## re75     Contin.      -0.0456       -0.0258      -0.0109
+## age      Contin.       0.0058        0.0239       0.0422
+## educ     Contin.       0.0317        0.0440       0.0530
+## married   Binary       0.0275        0.0381       0.0460
+## nodegree  Binary      -0.0366       -0.0288      -0.0158
+## re74     Contin.      -0.0688       -0.0184       0.0188
+## re75     Contin.      -0.0415       -0.0246      -0.0134
 ## 
 ## Average effective sample sizes across imputations
 ##            hispan  white
-## Unadjusted   72.  299.  
-## Adjusted     55.7 260.89
+## Unadjusted  72.   299.  
+## Adjusted    55.52 261.83
 ##  - - - - - - - - - - - - - - - - - - - -</code></pre>
 <p>Other options can be supplied to choose how balance is computed with multi-category treatments; these are described at <code>?bal.tab.multi</code> and in the main vignette. Importantly, though, a balance summary across treatment pairs is not available.</p>
 </div>
@@ -487,7 +485,7 @@
 <a href="#bal-plot-2" class="anchor"></a><code>bal.plot()</code>
 </h3>
 <p><code><a href="../reference/bal.plot.html">bal.plot()</a></code> works with multi-category treatments the same way it does with binary treatments. All treatment levels are displayed on the same plot. As before, with multiply imputed data, balance can be examined on one or more imputations at a time.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">wt3.out</span>, var.name <span class="op">=</span> <span class="st">"married"</span>, which.imp <span class="op">=</span> <span class="fl">1</span>,
          which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-17-1.png" width="480"></p>
@@ -497,7 +495,7 @@
 <a href="#love-plot-2" class="anchor"></a><code>love.plot()</code>
 </h3>
 <p>With multiple layers of segmentation, <code><a href="../reference/love.plot.html">love.plot()</a></code> has a few options. Before, we saw that we could facet the plot by the segments or aggregate across segments; with multiple layers, we can do both. <code><a href="../reference/love.plot.html">love.plot()</a></code> can aggregate across as many layers as there are and can facet with segments of one layer. With more than two layers of segmentation, at least one of the <code>which.</code> arguments must be <code>.none</code> (to aggregate) or of length 1 (to facet at one segment of the layer). Here we’ll demonstrate aggregating across imputations while faceting on treatment pairs.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">wt3.out</span>, threshold <span class="op">=</span> <span class="fl">.1</span>, agg.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-18-1.png" width="480"></p>
 <p>The arguments to <code>which.treat</code>, <code>which.imp</code>, <code>abs</code>, and <code>agg.fun</code> can be used to control how the plots are faceted and aggregated as they can with single-layer data.</p>
