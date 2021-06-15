@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.1.9000</span>
       </span>
     </div>
 
@@ -331,7 +331,7 @@
 <span class='co'># data frame interface:</span>
 <span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covariates</span>, treat <span class='op'>=</span> <span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
         weights <span class='op'>=</span> <span class='st'>"iptw.weights"</span>, s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span><span>
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.  -0.1242
 #&gt; educ        Contin.   0.0727
@@ -339,14 +339,14 @@
 #&gt; race_hispan  Binary  -0.0025
 #&gt; race_white   Binary  -0.0029
 #&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Effective sample sizes</span><span>
+#&gt; <span style='text-decoration: underline;'>Effective sample sizes</span>
 #&gt;            Control Treated
 #&gt; Unadjusted  429.    185.  
 #&gt; Adjusted    344.33   65.47</div><div class='input'>
 <span class='co'># Formula interface:</span>
 <span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
         weights <span class='op'>=</span> <span class='st'>"iptw.weights"</span>, s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance Measures</span><span>
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.  -0.1242
 #&gt; educ        Contin.   0.0727
@@ -354,7 +354,7 @@
 #&gt; race_hispan  Binary  -0.0025
 #&gt; race_white   Binary  -0.0029
 #&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Effective sample sizes</span><span>
+#&gt; <span style='text-decoration: underline;'>Effective sample sizes</span>
 #&gt;            Control Treated
 #&gt; Unadjusted  429.    185.  
 #&gt; Adjusted    344.33   65.47</div><div class='input'>      
@@ -367,8 +367,8 @@
 <span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covariates</span>, treat <span class='op'>=</span> <span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
         subclass <span class='op'>=</span> <span class='st'>"subclass"</span>, disp.subclass <span class='op'>=</span> <span class='cn'>TRUE</span>, 
         s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance by subclass</span><span>
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 1</span><span> - - - 
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance by subclass</span>
+#&gt;  - - - <span style='font-style: italic;'>Subclass 1</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.  -1.2029
 #&gt; educ        Contin.  -0.2551
@@ -376,7 +376,7 @@
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 2</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 2</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.   0.4108
 #&gt; educ        Contin.   0.3005
@@ -384,7 +384,7 @@
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 3</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 3</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.  -0.1400
 #&gt; educ        Contin.   0.0295
@@ -392,7 +392,7 @@
 #&gt; race_hispan  Binary  -0.0833
 #&gt; race_white   Binary   0.0833
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 4</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 4</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.   0.2294
 #&gt; educ        Contin.  -0.4409
@@ -400,7 +400,7 @@
 #&gt; race_hispan  Binary  -0.3467
 #&gt; race_white   Binary   0.0000
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 5</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 5</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.   0.4675
 #&gt; educ        Contin.   0.3427
@@ -408,7 +408,7 @@
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 6</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 6</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.   0.1293
 #&gt; educ        Contin.  -0.0838
@@ -420,8 +420,8 @@
 <span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
       subclass <span class='op'>=</span> <span class='st'>"subclass"</span>, disp.subclass <span class='op'>=</span> <span class='cn'>TRUE</span>, 
       s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance by subclass</span><span>
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 1</span><span> - - - 
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance by subclass</span>
+#&gt;  - - - <span style='font-style: italic;'>Subclass 1</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.  -1.2029
 #&gt; educ        Contin.  -0.2551
@@ -429,7 +429,7 @@
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 2</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 2</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.   0.4108
 #&gt; educ        Contin.   0.3005
@@ -437,7 +437,7 @@
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 3</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 3</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.  -0.1400
 #&gt; educ        Contin.   0.0295
@@ -445,7 +445,7 @@
 #&gt; race_hispan  Binary  -0.0833
 #&gt; race_white   Binary   0.0833
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 4</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 4</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.   0.2294
 #&gt; educ        Contin.  -0.4409
@@ -453,7 +453,7 @@
 #&gt; race_hispan  Binary  -0.3467
 #&gt; race_white   Binary   0.0000
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 5</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 5</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.   0.4675
 #&gt; educ        Contin.   0.3427
@@ -461,14 +461,14 @@
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
 #&gt; 
-#&gt;  - - - </span><span style='font-style: italic;'>Subclass 6</span><span> - - - 
+#&gt;  - - - <span style='font-style: italic;'>Subclass 6</span> - - - 
 #&gt;                Type Diff.Adj
 #&gt; age         Contin.   0.1293
 #&gt; educ        Contin.  -0.0838
 #&gt; race_black   Binary   0.0000
 #&gt; race_hispan  Binary   0.0000
 #&gt; race_white   Binary   0.0000
-#&gt; </div></span></pre>
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

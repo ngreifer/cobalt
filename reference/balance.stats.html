@@ -109,7 +109,7 @@ If a statistic is requested in thresholds, it will automatically be placed in st
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.1.9000</span>
       </span>
     </div>
 
@@ -219,14 +219,14 @@ If a statistic is requested in thresholds, it will automatically be placed in st
 <span class='co'>#Binary treatments</span>
 <span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>re74</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>,
         stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"m"</span>, <span class='st'>"v"</span>, <span class='st'>"ks"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Note: 's.d.denom' not specified; assuming pooled.</span></div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span><span>
+</div><div class='output co'>#&gt; <span class='message'>Note: 's.d.denom' not specified; assuming pooled.</span></div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
 #&gt;            Type Diff.Un V.Ratio.Un  KS.Un
 #&gt; age     Contin. -0.2419     0.4400 0.1577
 #&gt; educ    Contin.  0.0448     0.4959 0.1114
 #&gt; married  Binary -0.3236          . 0.3236
 #&gt; re74    Contin. -0.5958     0.5181 0.4470
 #&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Sample sizes</span><span>
+#&gt; <span style='text-decoration: underline;'>Sample sizes</span>
 #&gt;     Control Treated
 #&gt; All     429     185</div><div class='input'><span class='fu'><a href='love.plot.html'>love.plot</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>re74</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>,
           stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"m"</span>, <span class='st'>"v"</span>, <span class='st'>"ks"</span><span class='op'>)</span>, binary <span class='op'>=</span> <span class='st'>"std"</span>,
@@ -235,18 +235,18 @@ If a statistic is requested in thresholds, it will automatically be placed in st
 <span class='co'>#Continuous treatments</span>
 <span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>re75</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>re74</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>,
         stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"cor"</span>, <span class='st'>"sp"</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; </span><span style='text-decoration: underline;'>Balance Measures</span><span>
+</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
 #&gt;            Type Corr.Un S.Corr.Un
 #&gt; age     Contin.  0.1400    0.1304
 #&gt; educ    Contin.  0.0183    0.0371
 #&gt; married  Binary  0.3541    0.3113
 #&gt; re74    Contin.  0.5520    0.6263
 #&gt; 
-#&gt; </span><span style='text-decoration: underline;'>Sample sizes</span><span>
+#&gt; <span style='text-decoration: underline;'>Sample sizes</span>
 #&gt;     Total
 #&gt; All   614</div><div class='input'><span class='fu'><a href='love.plot.html'>love.plot</a></span><span class='op'>(</span><span class='va'>re75</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>re74</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>,
           thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>cor <span class='op'>=</span> <span class='fl'>.1</span>, sp <span class='op'>=</span> <span class='fl'>.1</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='img'><img src='balance.stats-2.png' alt='' width='700' height='433' /></div></span></pre>
+</div><div class='img'><img src='balance.stats-2.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
