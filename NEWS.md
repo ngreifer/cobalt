@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Fixed several bugs when using `love.plot()` with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.
+
 # cobalt 4.3.1
 
 * Added support for objects from the new version of `MatchThem`.

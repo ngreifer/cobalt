@@ -23,6 +23,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         replace.args <- function(m) {
             #m is bal.tab call or list (for do.call)
             m[["un"]] <- TRUE
+            m[["subclass.summary"]] <- TRUE
+            
             if (is_not_null(stats)) m[["stats"]] <- stats
             
             if (any(names(m) == "agg.fun")) m[["agg.fun"]] <- NULL
@@ -94,15 +96,25 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     #Get B and config
     if ("bal.tab.subclass" %in% class(x)) {
-        subclass.names <- names(x[["Subclass.Balance"]])
-        sub.B <- do.call("cbind", lapply(subclass.names, function(s) {
-            sub <- x[["Subclass.Balance"]][[s]]
-            sub.B0 <- setNames(sub[endsWith(names(sub), ".Adj")],
-                               gsub(".Adj", paste0(".Subclass ", s), names(sub)[endsWith(names(sub), ".Adj")]))
-            return(sub.B0) }))
-        B <- cbind(x[["Balance.Across.Subclass"]], sub.B, variable.names = row.names(x[["Balance.Across.Subclass"]]))
-        if (attr(x, "print.options")$disp.subclass) attr(x, "print.options")$weight.names <- c("Adj", paste("Subclass", subclass.names))
-        else attr(x, "print.options")$weight.names <- "Adj"
+        if (is_null(x[["Balance.Across.Subclass"]])) {
+            stop("'subclass.summary' must be set to TRUE in the original call to bal.tab().", call. = FALSE)
+        }
+        B <- cbind(x[["Balance.Across.Subclass"]], variable.names = row.names(x[["Balance.Across.Subclass"]]))
+        
+        disp.subclass <- isTRUE(attr(x, "print.options")$disp.subclass)
+        if (disp.subclass) {
+            subclass.names <- names(x[["Subclass.Balance"]])
+            sub.B <- do.call("cbind", c(
+                lapply(subclass.names, function(s) {
+                    sub <- x[["Subclass.Balance"]][[s]]
+                    sub.B0 <- setNames(sub[endsWith(names(sub), ".Adj")],
+                                       gsub(".Adj", paste0(".", s), names(sub)[endsWith(names(sub), ".Adj")]))
+                    return(sub.B0) }),
+                list(variable.names = row.names(x[["Balance.Across.Subclass"]]))))
+        }
+        else subclass.names <- sub.B <- NULL
+
+        attr(x, "print.options")$weight.names <- "Adj"
         subtitle <- "Across Subclasses"
         config <- "agg.none"
         facet <- NULL
@@ -275,7 +287,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             subtitle <- NULL
         }
-        subclass.names <- NULL
+        sub.B <- NULL
+        disp.subclass <- NULL
     }
     
     if (is_not_null(facet) && length(stats) > 1) {
@@ -364,12 +377,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     #Process variable order
     if (is_not_null(var.order) && "love.plot" %nin% class(var.order)) {
-        if (is_null(attr(x, "print.options")$nweights) ||
-            attr(x, "print.options")$nweights == 0) {
+        if ("bal.tab.subclass" %nin% class(x) && 
+            (is_null(attr(x, "print.options")$nweights) ||
+             attr(x, "print.options")$nweights == 0)) {
             ua <- c("Unadjusted", "Alphabetical")
             names(ua) <- c("unadjusted", "alphabetical")
         }
-        else if (attr(x, "print.options")$nweights == 1) {
+        else if ("bal.tab.subclass" %in% class(x) ||
+                 attr(x, "print.options")$nweights == 1) {
             ua <- c("Adjusted", "Unadjusted", "Alphabetical")
             names(ua) <- c("adjusted", "unadjusted", "alphabetical")
         }
@@ -383,10 +398,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     #Process sample names
     
-    if (is_null(subclass.names)) {
-        ntypes <- length(attr(x, "print.options")$weight.names) + 1
-    }
-    else ntypes <- 2
+    ntypes <- length(attr(x, "print.options")$weight.names) + 1
 
     original.sample.names <- c("Unadjusted", attr(x, "print.options")$weight.names)
     if (length(original.sample.names) == 2) original.sample.names[2] <- "Adjusted"
@@ -645,7 +657,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             SS[["stat"]] <- SS[["mean.stat"]]
         }
         else {
-
+            
             SS <- do.call("rbind", 
                           lapply(col.sample.names,
                                  function(w) data.frame(var = variable.names,
@@ -658,6 +670,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                         row.names = NULL,
                                                         stringsAsFactors = TRUE)
                           ))
+            
+            
             
             sample.vals <- sample.names[levels(SS[["Sample"]])]
             SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
@@ -684,6 +698,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             if (is_not_null(plot.list[[1]])) var.order <- plot.list[[1]]
             
+            #Apply var.order
             if (is_not_null(var.order)) {
                 if ("love.plot" %in% class(var.order)) {
                     old.vars <- levels(var.order$data$var)
@@ -693,7 +708,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         var.order <- NULL
                     }
                     else {
-                        SS[["var"]] <- factor(SS[["var"]], levels = old.vars[old.vars %in% SS[["var"]]])
+                        SS.var.levels <- old.vars[old.vars %in% SS[["var"]]]
                     }
                 }
                 else if (tolower(var.order) == "alphabetical") {
@@ -710,8 +725,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         covnames <- unlist(covnames0)
                     }
                     else covnames <- sort(levels(SS[["var"]]))
-                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
-                    
+                    SS.var.levels <- c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE))
+
                 }
                 else if (var.order %in% ua) {
                     if (var.order %in% gone) {
@@ -720,25 +735,43 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     }
                     else {
                         v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]]==sample.names[var.order]], decreasing = dec, na.last = FALSE)])
-                        
-                        SS[["var"]] <- factor(SS[["var"]], 
-                                              levels=c(v[v %nin% distance.names], 
-                                                       sort(distance.names, decreasing = TRUE)))
+                        SS.var.levels <- c(v[v %nin% distance.names], sort(distance.names, decreasing = TRUE))
                     }
                 }
                 
             }
             if (is_null(var.order)) {
                 covnames <- as.character(unique(SS[["var"]])) #Don't use levels here to preserve original order
-                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
+                SS.var.levels <- c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE))
             }
-            SS[["Sample"]] <- droplevels(SS[["Sample"]])
+            SS[["var"]] <- factor(SS[["var"]], levels = SS.var.levels)
+            
+            SS[["Sample"]] <- SS[["Sample"]][, drop = TRUE]
+            
             if (s == "mean.diffs" && any(base::abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
             if (length(stats) == 1 && drop.missing) SS <- SS[!is.na(SS[["stat"]]),]
+            
+            if (is_not_null(sub.B)) {
+                #Add subclass statistics when disp.subclass = TRUE
+                SS.sub <- do.call("rbind", 
+                                  lapply(subclass.names,
+                                         function(w) data.frame(var = variable.names,
+                                                                type = B[["Type"]],
+                                                                stat = sub.B[[paste.(STATS[[s]]$bal.tab_column_prefix, w)]],
+                                                                Sample = w,
+                                                                row.names = NULL,
+                                                                stringsAsFactors = TRUE)
+                                  ))
+                SS.sub[["Sample"]] <- factor(SS.sub[["Sample"]], levels = subclass.names, labels = subclass.names)
+                if (abs) {
+                    SS.sub[["stat"]] <- abs_(SS.sub[["stat"]], ratio = s == "variance.ratios")
+                }
+                SS <- rbind(SS, SS.sub)
+            }
         }
         
         SS <- SS[order(SS[["var"]], na.last = FALSE),]
-        SS[["var"]] <- droplevels(SS[["var"]])
+        SS[["var"]] <- SS[["var"]][, drop = TRUE]
         
         #Make the plot
         #library(ggplot2)
@@ -859,50 +892,35 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
         }
         else {
-            if (is_null(subclass.names) || !attr(x, "print.options")$disp.subclass) {
-                if (isTRUE(line)) { #Add line except to distance
-                    f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
-                    lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
-                                              position = "identity", stat = "identity",
-                                              mapping = aes(color = .data$Sample),
-                                              params = list(size = size0[1]*.8/3,
-                                                            na.rm = TRUE,
-                                                            alpha = alpha))
-                }
-                lp <- lp + ggplot2::geom_point(data = SS, aes(shape = .data$Sample,
-                                                              size = .data$Sample,
-                                                              stroke = .data$Sample,
-                                                              color = .data$Sample),
-                                               fill = "white", 
-                                               na.rm = TRUE,
-                                               alpha = alpha)
+            if (is_not_null(sub.B)) {
+                SS.sub <- SS[SS[["Sample"]] %in% subclass.names,]
+                SS.sub[["Sample"]] <- SS.sub[["Sample"]][, drop = TRUE]
                 
+                SS <- SS[SS[["Sample"]] %nin% subclass.names,]
+                SS[["Sample"]] <- SS[["Sample"]][, drop = TRUE]
             }
-            else {
-                SS.u.a <- SS[SS[["Sample"]] %in% c("Unadjusted", "Adjusted"),]
-                SS.u.a[["Sample"]] <- factor(SS.u.a[["Sample"]])
-                if (line == TRUE) { #Add line except to distance
-                    f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
-                    lp <- lp + ggplot2::layer(geom = "path", data = f(SS.u.a),
-                                              position = "identity", stat = "identity",
-                                              mapping = aes(color = .data$Sample),
-                                              params = list(size = size*.8,
-                                                            na.rm = TRUE,
-                                                            alpha = alpha))
-                }
-                lp <- lp + ggplot2::geom_point(data = SS.u.a,
-                                               aes(shape = .data$Sample,
-                                                   size = .data$Sample,
-                                                   stroke = .data$Sample,
-                                                   color = .data$Sample),
-                                               fill = "white",
-                                               na.rm = TRUE)
-                lp <- lp + ggplot2::geom_text(data = SS[SS[["Sample"]] %nin% c("Unadjusted", "Adjusted"),],
-                                              mapping = aes(label = gsub("Subclass ", "", .data$Sample)),
+            if (isTRUE(line)) { #Add line except to distance
+                f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
+                lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
+                                          position = "identity", stat = "identity",
+                                          mapping = aes(color = .data$Sample),
+                                          params = list(size = size0[1]*.8/3,
+                                                        na.rm = TRUE,
+                                                        alpha = alpha))
+            }
+            lp <- lp + ggplot2::geom_point(data = SS, aes(shape = .data$Sample,
+                                                          size = .data$Sample,
+                                                          stroke = .data$Sample,
+                                                          color = .data$Sample),
+                                           fill = "white", 
+                                           na.rm = TRUE,
+                                           alpha = alpha)
+            if (is_not_null(sub.B)) {
+                #Add subclass label text
+                lp <- lp + ggplot2::geom_text(data = SS.sub,
+                                              mapping = aes(label = .data$Sample),
                                               size = 2.5*size0[1]/3, na.rm = TRUE)
             }
-            
-            
         }
         
         if (!drop.distance && is_not_null(distance.names)) {

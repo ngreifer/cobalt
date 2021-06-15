@@ -465,6 +465,9 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
         if (isTRUE(A[["disp.subclass"]])) which.subclass <- seq_len(nlevels(subclass))
         else which.subclass <- NA
     }
+    if (is_null(A[["disp.subclass"]])) {
+        A[["disp.subclass"]] <- !anyNA(which.subclass)
+    }
     
     if (is_null(subclass.summary)) {
         subclass.summary <- is_not_null(which.subclass) && 
@@ -581,6 +584,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                        compute = compute, 
                                        disp.adj = !no.adj, 
                                        which.subclass = which.subclass,
+                                       disp.subclass = A[["disp.subclass"]],
                                        subclass.summary = subclass.summary,
                                        disp.bal.tab = disp.bal.tab, 
                                        disp.call = disp.call,
