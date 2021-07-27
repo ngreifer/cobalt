@@ -37,10 +37,10 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                 else {
                     if (k < length(co.names)) k <- k + 1
                     else 
-                        stop("Please specified an argument to 'var.name'.", call. = FALSE)
+                        stop("Please specify an argument to 'var.name'.", call. = FALSE)
                 }
             }
-            message(paste0("No 'var.name' was provided. Dispalying balance for ", var.name, "."))
+            message(paste0("No 'var.name' was provided. Displaying balance for ", var.name, "."))
         }
         var.name_in_name <- vapply(co.names, function(x) var.name %in% x[["component"]][x[["type"]] == "base"] &&
                                        "isep" %nin% x[["type"]], logical(1L))
@@ -86,7 +86,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                     else stop("Please specified an argument to 'var.name'.", call. = FALSE)
                 }
             }
-            message(paste0("No 'var.name' was provided. Dispalying balance for ", var.name, "."))
+            message(paste0("No 'var.name' was provided. Displaying balance for ", var.name, "."))
         }
         
         var.list <- make_list(length(X$covs.list))
