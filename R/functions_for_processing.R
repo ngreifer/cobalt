@@ -1401,7 +1401,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       data.specified <- TRUE
     }
     else {
-      warning("The argument supplied to 'data' is not a data.frame object. Ignoring 'data'.", call. = FALSE)
+      stop("The argument supplied to 'data' must be a data.frame object.", call. = FALSE)
     }
   }
   
@@ -1438,7 +1438,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   
   rhs.df <- setNames(rhs.df.type != "not.a.df", ttvars)
   
-  while (any(rhs.df)) {
+  if (any(rhs.df)) {
     term_is_interaction <- apply(ttfactors, 2, function(x) sum(x != 0) > 1)
     if (any(vapply(seq_along(ttvars)[rhs.df], function(x) any(ttfactors[x,] != 0 & term_is_interaction), logical(1L)))) {
       stop("Interactions with data.frames are not allowed in the input formula.", call. = FALSE)
@@ -1446,10 +1446,32 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     addl.dfs <- setNames(lapply(ttvars[rhs.df], function(v) {
       if (rhs.df.type[v] == "lit") df <- eval(str2expression(paste0("`", v, "`")), data, env)
       else df <- eval(str2expression(v), data, env)
+      
       if (is_(df, "rms")) {
         df <- setNames(as.data.frame.matrix(as.matrix(df)), colnames(df))
         return(df)
       }
+      if (is.data.frame(df)) {
+        #Deal with the fact that data.frames may contain matrices and data.frames, which
+        #may contain data/frames, and so on
+        non.vec.col <- which(vapply(df, function(x) !is.vector(x) || !is.atomic(x), logical(1L)))
+        while (is_not_null(non.vec.col)) {
+          for (i in non.vec.col) {
+            if (ncol(df[[i]]) == 1 && is_null(colnames(df[[i]]))) colnames(df[[i]]) <- names(df)[i]
+            else if (can_str2num(colnames(df[[i]]))) colnames(df[[i]]) <- paste(names(df)[i], colnames(df[[i]]), sep = "_")
+          }
+          names(df)[non.vec.col] <- ""
+          
+          df <- as.data.frame(do.call("cbind", df))
+          non.vec.col <- which(vapply(df, function(x) !is.vector(x) || !is.atomic(x), logical(1L)))
+        }
+        
+        if (ncol(df) == 1 && is_null(colnames(df))) colnames(df) <- v
+        else if (can_str2num(colnames(df))) colnames(df) <- paste(v, colnames(df), sep = "_")
+        return(df)
+      }
+      
+      if (ncol(df) == 1 && is_null(colnames(df))) colnames(df) <- v
       else if (can_str2num(colnames(df))) colnames(df) <- paste(v, colnames(df), sep = "_")
       return(as.data.frame(df))
     }),
@@ -1479,16 +1501,6 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- setNames(vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1], rownames(ttfactors))
-    
-    rhs.df.type <- setNames(vapply(ttvars, function(v) {
-      if (is_(try(eval(str2expression(paste0("`", v, "`")), data, env), silent = TRUE),
-              c("data.frame", "matrix", "rms"))) "lit"
-      else if (is_(try(eval(str2expression(v), data, env), silent = TRUE),
-                   c("data.frame", "matrix", "rms"))) "exp"
-      else "not.a.df"
-    }, character(1L)), ttvars)
-    
-    rhs.df <- setNames(rhs.df.type != "not.a.df", ttvars)
   }
   
   #Check to make sure variables are valid
