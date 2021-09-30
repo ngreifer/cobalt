@@ -667,9 +667,9 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                 kernel <- if_null_then(args$kernel, "gaussian")
                 n <- if_null_then(args$n, 512)
                 
-                t.sizes <- tapply(rep(1, NROW(D)), D$treat, sum)
-                smallest.t <- names(t.sizes)[which.min(t.sizes)]
                 if (is.character(bw)) {
+                    t.sizes <- tapply(rep(1, NROW(D)), D$treat, sum)
+                    smallest.t <- names(t.sizes)[which.min(t.sizes)]
                     if (is.function(get0(paste0("bw.", bw)))) {
                         bw <- get0(paste0("bw.", bw))(D$var[D$treat == smallest.t])
                     }
