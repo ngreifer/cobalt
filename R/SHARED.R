@@ -780,7 +780,9 @@ all_the_same <- function(x, na.rm = TRUE) {
 }
 is_binary <- function(x, na.rm = TRUE) {
     if (na.rm && anyNA(x)) x <- na.rem(x)
-    !all_the_same(x) && all_the_same(x[x != x[1]])
+    #Only return TRUE if not a continuous number that happens to take 2 values
+    (!is.numeric(x) || all(check_if_zero(round(x) - x))) && 
+            !all_the_same(x) && all_the_same(x[x != x[1]])
 }
 is_binary_col <- function(dat, na.rm = TRUE) {
     if (length(dim(dat)) != 2) stop("is_binary_col cannot be used with objects that don't have 2 dimensions.")
