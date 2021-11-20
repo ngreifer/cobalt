@@ -12,6 +12,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -47,6 +48,8 @@ love.plot(w.out1)
 ```
 
 We could also have supplied other arguments that would normally go in `bal.tab()`[^1]:
+
+[^1]: Older versions of `cobalt` required the first argument to be a call to `bal.tab()`; this is no longer required and in fact is not recommended because `love.plot` is more flexible when handling its own inputs. That said, `love.plot` calls `bal.tab` internally, so problems that arise may be due to problems with `bal.tab` rather than with `love.plot`. Sometimes the `bal.tab` object can take some time to be produced, in which case it might be useful to just run `bal.tab` once and supply its output to different calls of `love.plot` as you fiddle with its options, as `b <- bal.tab(w.out); love.plot(b)`. Note that doing so removes some of `love.plot` flexibility. The most important aspect is that `love.plot` when called with the first syntax can modify the implicit call to `bal.tab` to get everything it needs. For example, normally variance ratios are not present in `bal.tab` output, but if they are requested with `stats = "variance.ratios"` in `love.plot`, they will be produced and displayed correctly without additional input. When using the latter syntax, an error will occur saying that variance ratios were not present in the original `bal.tab` call. This can be mitigated by setting `quick = FALSE` or including `"variance.ratios"` in the `stats` argument in the call to `bal.tab` before entering its output into `love.plot`.
 
 ```{r, eval = FALSE}
 #This produces the same output as the prior block but with 
@@ -117,9 +120,9 @@ love.plot(w.out1,
         legend.box.margin = margin(1, 1, 1, 1))
 ```
 
-This is starting to look like a publication-ready plot. There are still other options you can change, such as the title, subtitle, and axis names, some of which can be done using `love.plot` arguments and others which require `ggplot2` code. Sizing the plot and making sure everything still looks good will be its own challenge, but that's true of all plots in R. 
+This is starting to look like a publication-ready plot. There are still other options you can change, such as the title, subtitle, and axis names, some of which can be done using `love.plot` arguments and others which require `ggplot2` code. Sizing the plot and making sure everything still looks good will be its own challenge, but that's true of all plots in R.
 
-Perhaps we want to display balance for a second set of weights, maybe using a different method to estimate them, like the covariate balancing propensity score (CBPS, Imai & Ratkovic, 2014) that is popular in political science. These can be easily added (but we'll have to use the formula interface to set multiple weights).
+Perhaps we want to display balance for a second set of weights, maybe using a different method to estimate them, like the covariate balancing propensity score [CBPS; @imaiCovariateBalancingPropensity2014] that is popular in political science. These can be easily added (but we'll have to use the formula interface to set multiple weights).
 
 ```{r}
 w.out2 <- weightit(treat ~ age + educ + married + nodegree + race + re74 + re75,
@@ -189,7 +192,7 @@ love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           position = "top") 
 ```
 
-Below we recreate the plot in West et al. (2014), which uses a simple theme and avoids color, which can be important for publication. In addition, the plot has labels and puts the legend in a different position. We can include those features by including an argument to `labels` and by supplying a `theme` object to `themes`:
+Below we recreate the plot in @westPropensityScoresBasis2014, which uses a simple theme and avoids color, which can be important for publication. In addition, the plot has labels and puts the legend in a different position. We can include those features by including an argument to `labels` and by supplying a `theme` object to `themes`:
 
 ```{r}
 love.plot(w.out1, abs = FALSE,
@@ -219,17 +222,10 @@ love.plot(w.out1, binary = "raw",
           var.names = new.names)
 ```
 
-By setting `stars = "raw"`, asterisks appear next to the variables for which the raw difference in means (i.e., proportions) is displayed, contradicting the axis title. In the figure's caption, you might write 
+By setting `stars = "raw"`, asterisks appear next to the variables for which the raw difference in means (i.e., proportions) is displayed, contradicting the axis title. In the figure's caption, you might write
 
 > \* indicates variables for which the displayed value is the raw (unstandardized) difference in means.
 
 This ensures readers can fully and accurately interpret the plot. My suggestion is to display standardized mean differences for all variables as well as KS statistics. The KS statistic for a binary variable is the raw difference in proportion, so that information is not lost.
 
 ## References
-
-Imai, K., & Ratkovic, M. (2014). Covariate balancing propensity score. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 76(1), 243–263. https://doi.org/10.1111/rssb.12027
-
-West, S. G., Cham, H., Thoemmes, F., Renneberg, B., Schulze, J., & Weiler, M. (2014). Propensity scores as a basis for equating groups: Basic principles and application in clinical treatment outcome research. Journal of Consulting and Clinical Psychology, 82(5), 906–919. https://doi.org/10.1037/a0036387
-
-
-[^1]: Older versions of `cobalt` required the first argument to be a call to `bal.tab()`; this is no longer required and in fact is not recommended because `love.plot` is more flexible when handling its own inputs. That said, `love.plot` calls `bal.tab` internally, so problems that arise may be due to problems with `bal.tab` rather than with `love.plot`. Sometimes the `bal.tab` object can take some time to be produced, in which case it might be useful to just run `bal.tab` once and supply its output to different calls of `love.plot` as you fiddle with its options, as `b <- bal.tab(w.out); love.plot(b)`. Note that doing so removes some of `love.plot` flexibility. The most important aspect is that `love.plot` when called with the first syntax can modify the implicit call to `bal.tab` to get everything it needs. For example, normally variance ratios are not present in `bal.tab` output, but if they are requested with `stats = "variance.ratios"` in `love.plot`, they will be produced and displayed correctly without additional input. When using the latter syntax, an error will occur saying that variance ratios were not present in the original `bal.tab` call. This can be mitigated by setting `quick = FALSE` or including `"variance.ratios"` in the `stats` argument in the call to `bal.tab` before entering its output into `love.plot`.

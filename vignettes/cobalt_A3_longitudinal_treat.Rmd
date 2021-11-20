@@ -11,6 +11,7 @@ vignette: >
   %\VignetteIndexEntry{Appendix 3: Using cobalt with Longitudinal Treatments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -18,7 +19,7 @@ knitr::opts_chunk$set(message = FALSE, fig.width=5)
 if (any(!sapply(c("WeightIt", "twang"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
 ```
 
-This is an introduction to the use of `cobalt` with longitudinal treatments. These occur when there are multiple treatment periods spaced over time, with the potential for time-dependent confounding to occur. A common way to estimate treatment effects in these scenarios is to use marginal structural models (MSM), weighted by balancing weights. The goal of applying weights is to simulate a sequential randomization design, where the probability of being assigned to treatment at each time point is independent of each unit's prior covariate and treatment history. For introduction to MSMs in general, see Thoemmes & Ong (2016), VanderWeele, Jackson, & Li (2016), Cole & Hernán (2008), or Robins, Hernán, & Brumback (2000). The key issue addressed by this guide and `cobalt` in general is assessing balance before each treatment period to ensure the removal of confounding.
+This is an introduction to the use of `cobalt` with longitudinal treatments. These occur when there are multiple treatment periods spaced over time, with the potential for time-dependent confounding to occur. A common way to estimate treatment effects in these scenarios is to use marginal structural models (MSM), weighted by balancing weights. The goal of applying weights is to simulate a sequential randomization design, where the probability of being assigned to treatment at each time point is independent of each unit's prior covariate and treatment history. For introduction to MSMs in general, see @thoemmesPrimerInverseProbability2016, @vanderweeleCausalInferenceLongitudinal2016, @coleConstructingInverseProbability2008, or @robinsMarginalStructuralModels2000. The key issue addressed by this guide and `cobalt` in general is assessing balance before each treatment period to ensure the removal of confounding.
 
 In preprocessing for MSMs, three types of variables are relevant: baseline covariates, treatments, and intermediate outcomes/time-varying covariates. The goal of balance assessment is to assess whether after preprocessing, the resulting sample is one in which each treatment is independent of baseline covariates, treatment history, and time-varying covariates. The tools in `cobalt` have been developed to satisfy these goals.
 
@@ -38,9 +39,9 @@ We have the variables `outcome`, which is the outcome, `gender`, `age`, and `use
 
 The goal of balance assessment in this scenario is to ensure the following:
 
-1) `tx1` is independent from `gender`, `age`, and `use0`
-2) `tx2` is independent from `gender`, `age`, `use0`, `tx1`, and `use1`
-3) `tx3` is independent from `gender`, `age`, `use0`, `tx1`, `use1`, `tx2`, and `use2`
+1)  `tx1` is independent from `gender`, `age`, and `use0`
+2)  `tx2` is independent from `gender`, `age`, `use0`, `tx1`, and `use1`
+3)  `tx3` is independent from `gender`, `age`, `use0`, `tx1`, `use1`, `tx2`, and `use2`
 
 To estimate the weights, we'll use `WeightIt` to fit a series of logistic regressions that generate the weights. See the `WeightIt` documentation for more information on how to use `WeightIt` with longitudinal treatments.
 
@@ -115,6 +116,7 @@ Finally, we'll examine using `love.plot()` with longitudinal treatments to displ
 ```{r}
 love.plot(Wmsm, abs = TRUE)
 ```
+
 ```{r, fig.width=4}
 love.plot(Wmsm, which.time = .none)
 ```
@@ -126,10 +128,3 @@ Here we used `WeightIt` to generate our MSM weights, but `cobalt` is compatible 
 Note that `CBPS` estimates and assesses balance on MSM weights differently from `twang` and `cobalt`. Its focus is on ensuring balance across all treatment history permutations, whereas `cobalt` focuses on evaluating the similarity to sequential randomization. For this reason, it may appear that `CBMSM` objects have different balance qualities as measured by the two packages.
 
 ## References
-Cole, S. R., & Hernán, M. Á. (2008). Constructing Inverse Probability Weights for Marginal Structural Models. American Journal of Epidemiology, 168(6), 656–664. https://doi.org/10.1093/aje/kwn164
-
-Robins, J. M., Hernán, M. Á., & Brumback, B. (2000). Marginal Structural Models and Causal Inference in Epidemiology. Epidemiology, 11(5), 550–560.
-
-Thoemmes, F., & Ong, A. D. (2016). A Primer on Inverse Probability of Treatment Weighting and Marginal Structural Models. Emerging Adulthood, 4(1), 40–59. https://doi.org/10.1177/2167696815621645
-
-VanderWeele, T. J., Jackson, J. W., & Li, S. (2016). Causal inference and longitudinal data: a case study of religion and mental health. Social Psychiatry and Psychiatric Epidemiology, 51(11), 1457–1466. https://doi.org/10.1007/s00127-016-1281-9
