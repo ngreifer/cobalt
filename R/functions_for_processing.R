@@ -3033,16 +3033,3 @@ acceptable.options <- function() {
   else ggplot2::`%+%`(...)
 }
 
-#On attach
-.onAttach <- function(libname, pkgname) {
-    pkgLib <- dirname(system.file(package = pkgname))
-    version <- packageDescription(pkgname, lib.loc = pkgLib)$Version
-    BuildDate <- packageDescription(pkgname, lib.loc = pkgLib)$Date
-    
-    foo <- paste0(" ", pkgname, " (Version ", version, ", Build Date: ", format(BuildDate, "%F"), ")")
-    packageStartupMessage(foo)
-}
-
-.onLoad <- function(libname, pkgname) {
-  backports::import(pkgname)
-}
