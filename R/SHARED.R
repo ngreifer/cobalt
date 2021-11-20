@@ -300,7 +300,7 @@ binarize <- function(variable, zero = NULL, one = NULL) {
     }
 }
 ESS <- function(w) {
-    sum(w)^2/sum(w^2)
+    sum(abs(w))^2/sum(w^2)
 }
 center <- function(x, at = NULL, na.rm = TRUE) {
     if (is.data.frame(x)) {
@@ -370,9 +370,9 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
         s <- colSums(w, na.rm = na.rm)
         w <- mat_div(w, s)
         if (non.bin.vars.present) {
-            x <- sqrt(w[, !bin.vars, drop = FALSE]) * center(mat[, !bin.vars, drop = FALSE],
-                                                             at = colSums(w[, !bin.vars, drop = FALSE] * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
-            var[!bin.vars] <- colSums(x*x, na.rm = na.rm)/(1 - colSums(w[, !bin.vars, drop = FALSE]^2, na.rm = na.rm))
+            x <- center(mat[, !bin.vars, drop = FALSE],
+                        at = colSums(w[, !bin.vars, drop = FALSE] * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
+            var[!bin.vars] <- colSums(w[, !bin.vars, drop = FALSE]*x*x, na.rm = na.rm)/(1 - colSums(w[, !bin.vars, drop = FALSE]^2, na.rm = na.rm))
         }
         if (bin.var.present) {
             means <- colSums(w[, bin.vars, drop = FALSE] * mat[, bin.vars, drop = FALSE], na.rm = na.rm)
@@ -383,9 +383,9 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
         if (is_null(w)) w <- rep(1, nrow(mat))
         w <- w/sum(w)
         if (non.bin.vars.present) {
-            x <- sqrt(w) * center(mat[, !bin.vars, drop = FALSE],
+            x <- center(mat[, !bin.vars, drop = FALSE],
                                   at = colSums(w * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
-            var[!bin.vars] <- colSums(x*x, na.rm = na.rm)/(1 - sum(w^2))
+            var[!bin.vars] <- colSums(w*x*x, na.rm = na.rm)/(1 - sum(w^2))
         }
         if (bin.var.present) {
             means <- colSums(w * mat[, bin.vars, drop = FALSE], na.rm = na.rm)

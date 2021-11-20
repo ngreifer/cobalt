@@ -5,6 +5,8 @@
 
 * Fixed several bugs when using `love.plot()` with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.
 
+* Added better support for negative weights. The effective sample size now uses the absolute value of the weights
+
 # cobalt 4.3.1
 
 * Added support for objects from the new version of `MatchThem`.
