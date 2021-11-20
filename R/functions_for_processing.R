@@ -3034,13 +3034,13 @@ acceptable.options <- function() {
 }
 
 #On attach
-.onAttach <- function(...) {
-  cobaltLib <- dirname(system.file(package = "cobalt"))
-  version <- packageDescription("cobalt", lib.loc = cobaltLib)$Version
-  BuildDate <- packageDescription("cobalt", lib.loc = cobaltLib)$Date
-  
-  foo <- paste0(" cobalt (Version ", version, ", Build Date: ", BuildDate, ")")
-  packageStartupMessage(foo)
+.onAttach <- function(libname, pkgname) {
+    pkgLib <- dirname(system.file(package = pkgname))
+    version <- packageDescription(pkgname, lib.loc = pkgLib)$Version
+    BuildDate <- packageDescription(pkgname, lib.loc = pkgLib)$Date
+    
+    foo <- paste0(" ", pkgname, " (Version ", version, ", Build Date: ", format(BuildDate, "%F"), ")")
+    packageStartupMessage(foo)
 }
 
 .onLoad <- function(libname, pkgname) {
