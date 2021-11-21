@@ -5,7 +5,13 @@
 
 * Fixed several bugs when using `love.plot()` with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.
 
-* Added better support for negative weights. The effective sample size now uses the absolute value of the weights
+* Fixed a bug that would occur when using `cobalt` functions without attaching the package (e.g., `cobalt::bal.tab()`).
+
+* Fixed a bug that would occur with ordinal treatments.
+
+* Added better support for negative weights. The effective sample size now uses the absolute value of the weights.
+
+* Fixed typos (#54, many identified and fixed by @jessecambon).
 
 # cobalt 4.3.1
 
