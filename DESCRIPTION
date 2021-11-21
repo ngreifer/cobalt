@@ -16,7 +16,7 @@ Imports:
     gridExtra (>= 2.3),
     rlang (>= 0.4.0),
     crayon,
-    backports (>= 1.1.8)
+    backports (>= 1.1.9)
 Suggests:
     MatchIt,
     WeightIt (>= 0.5.0),
