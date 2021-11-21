@@ -226,7 +226,7 @@
     </tr>
     <tr>
       <th>limits</th>
-      <td><p><code>numeric</code>; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of <code>stats</code> that is to have limits; e.g., <code><a href='https://rdrr.io/r/base/list.html'>list(m = c(-.2, .2))</a></code>. If values exceed the limits, they will be plotted at the edge.</p></td>
+      <td><p><code>numeric</code>; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of <code>stats</code> that is to have limits; e.g., <code>list(m = c(-.2, .2))</code>. If values exceed the limits, they will be plotted at the edge.</p></td>
     </tr>
     <tr>
       <th>colors</th>
@@ -258,7 +258,7 @@
     </tr>
     <tr>
       <th>sample.names</th>
-      <td><p><code>character</code>; new names to be given to the samples (i.e., in place of "Unadjusted" and "Adjusted"). For example, when matching it used, it may be useful to enter <code><a href='https://rdrr.io/r/base/c.html'>c("Unmatched", "Matched")</a></code>.</p></td>
+      <td><p><code>character</code>; new names to be given to the samples (i.e., in place of "Unadjusted" and "Adjusted"). For example, when matching it used, it may be useful to enter <code>c("Unmatched", "Matched")</code>.</p></td>
     </tr>
     <tr>
       <th>labels</th>
@@ -315,44 +315,49 @@
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"WeightIt"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ngreifer.github.io/WeightIt/'>WeightIt</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-
-<span class='co'>## Propensity score weighting</span>
-<span class='va'>w.out1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> 
-                  <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, 
-                  data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span>
-
-<span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span><span class='op'>)</span>, var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span><span class='op'>)</span>
-
-<span class='co'>## Using alternate variable names</span>
-<span class='va'>v</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>old <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>, <span class='st'>"race_hispan"</span>, 
-                        <span class='st'>"race_white"</span>, <span class='st'>"married"</span>, <span class='st'>"nodegree"</span>, <span class='st'>"re74"</span>, 
-                        <span class='st'>"re75"</span>, <span class='st'>"distance"</span><span class='op'>)</span>,
-                new <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Age"</span>, <span class='st'>"Years of Education"</span>, <span class='st'>"Black"</span>, 
-                        <span class='st'>"Hispanic"</span>, <span class='st'>"White"</span>, <span class='st'>"Married"</span>, <span class='st'>"No Degree"</span>, 
-                        <span class='st'>"Earnings 1974"</span>, <span class='st'>"Earnings 1975"</span>, 
-                        <span class='st'>"Propensity Score"</span><span class='op'>)</span><span class='op'>)</span>
-                
-<span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, stats <span class='op'>=</span> <span class='st'>"m"</span>, threshold <span class='op'>=</span> <span class='fl'>.1</span>, 
-          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span><span class='op'>)</span>
-          
-<span class='co'>#Using multiple stats</span>
-<span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"m"</span>, <span class='st'>"ks"</span><span class='op'>)</span>, 
-          thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span>, ks <span class='op'>=</span> <span class='fl'>.05</span><span class='op'>)</span>, 
-          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span>, stars <span class='op'>=</span> <span class='st'>"raw"</span>,
-          position <span class='op'>=</span> <span class='st'>"bottom"</span>, wrap <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
-          
-<span class='co'>#Changing visual elements</span>
-<span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span><span class='op'>)</span>, 
-          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span>, abs <span class='op'>=</span> <span class='cn'>TRUE</span>,
-          shapes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"triangle filled"</span>, <span class='st'>"circle"</span><span class='op'>)</span>, 
-          colors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"red"</span>, <span class='st'>"blue"</span><span class='op'>)</span>, line <span class='op'>=</span> <span class='cn'>TRUE</span>,
-          grid <span class='op'>=</span> <span class='cn'>FALSE</span>, sample.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Original"</span>, <span class='st'>"Weighted"</span><span class='op'>)</span>,
-          stars <span class='op'>=</span> <span class='st'>"raw"</span>, position <span class='op'>=</span> <span class='st'>"top"</span><span class='op'>)</span>
-<span class='op'>}</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
-#&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Standardized mean differences and raw mean differences are present in the same plot. </span>
-#&gt; <span class='warning'>Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></div><div class='img'><img src='love.plot-1.png' alt='' width='700' height='433' /></div><div class='img'><img src='love.plot-2.png' alt='' width='700' height='433' /></div></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"WeightIt"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://ngreifer.github.io/WeightIt/'>WeightIt</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>## Propensity score weighting</span></span>
+<span class='r-in'><span class='va'>w.out1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://ngreifer.github.io/WeightIt/reference/weightit.html'>weightit</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> </span>
+<span class='r-in'>                  <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, </span>
+<span class='r-in'>                  data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span><span class='op'>)</span>, var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>## Using alternate variable names</span></span>
+<span class='r-in'><span class='va'>v</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>old <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"race_black"</span>, <span class='st'>"race_hispan"</span>, </span>
+<span class='r-in'>                        <span class='st'>"race_white"</span>, <span class='st'>"married"</span>, <span class='st'>"nodegree"</span>, <span class='st'>"re74"</span>, </span>
+<span class='r-in'>                        <span class='st'>"re75"</span>, <span class='st'>"distance"</span><span class='op'>)</span>,</span>
+<span class='r-in'>                new <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Age"</span>, <span class='st'>"Years of Education"</span>, <span class='st'>"Black"</span>, </span>
+<span class='r-in'>                        <span class='st'>"Hispanic"</span>, <span class='st'>"White"</span>, <span class='st'>"Married"</span>, <span class='st'>"No Degree"</span>, </span>
+<span class='r-in'>                        <span class='st'>"Earnings 1974"</span>, <span class='st'>"Earnings 1975"</span>, </span>
+<span class='r-in'>                        <span class='st'>"Propensity Score"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'>                </span>
+<span class='r-in'><span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, stats <span class='op'>=</span> <span class='st'>"m"</span>, threshold <span class='op'>=</span> <span class='fl'>.1</span>, </span>
+<span class='r-in'>          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span><span class='op'>)</span></span>
+<span class='r-in'>          </span>
+<span class='r-in'><span class='co'>#Using multiple stats</span></span>
+<span class='r-in'><span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, stats <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"m"</span>, <span class='st'>"ks"</span><span class='op'>)</span>, </span>
+<span class='r-in'>          thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span>, ks <span class='op'>=</span> <span class='fl'>.05</span><span class='op'>)</span>, </span>
+<span class='r-in'>          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span>, stars <span class='op'>=</span> <span class='st'>"raw"</span>,</span>
+<span class='r-in'>          position <span class='op'>=</span> <span class='st'>"bottom"</span>, wrap <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span></span>
+<span class='r-in'>          </span>
+<span class='r-in'><span class='co'>#Changing visual elements</span></span>
+<span class='r-in'><span class='fu'>love.plot</span><span class='op'>(</span><span class='va'>w.out1</span>, thresholds <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>m <span class='op'>=</span> <span class='fl'>.1</span><span class='op'>)</span>, </span>
+<span class='r-in'>          var.order <span class='op'>=</span> <span class='st'>"unadjusted"</span>, var.names <span class='op'>=</span> <span class='va'>v</span>, abs <span class='op'>=</span> <span class='cn'>TRUE</span>,</span>
+<span class='r-in'>          shapes <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"triangle filled"</span>, <span class='st'>"circle"</span><span class='op'>)</span>, </span>
+<span class='r-in'>          colors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"red"</span>, <span class='st'>"blue"</span><span class='op'>)</span>, line <span class='op'>=</span> <span class='cn'>TRUE</span>,</span>
+<span class='r-in'>          grid <span class='op'>=</span> <span class='cn'>FALSE</span>, sample.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Original"</span>, <span class='st'>"Weighted"</span><span class='op'>)</span>,</span>
+<span class='r-in'>          stars <span class='op'>=</span> <span class='st'>"raw"</span>, position <span class='op'>=</span> <span class='st'>"top"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>Standardized mean differences and raw mean differences are present in the same plot. </span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>Standardized mean differences and raw mean differences are present in the same plot. </span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span>
+<span class='r-plt img'><img src='love.plot-1.png' alt='' width='700' height='433' /></span>
+<span class='r-plt img'><img src='love.plot-2.png' alt='' width='700' height='433' /></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

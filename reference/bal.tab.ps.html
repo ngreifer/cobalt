@@ -343,53 +343,55 @@
 <p><code><a href='class-bal.tab.msm.html'>bal.tab.msm</a></code> for more information on longitudinal treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># \donttest{</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>twang</span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>To reproduce results from prior versions of the twang package, please see the version="legacy" option described in the documentation.</span></div><div class='input'>
-<span class='co'>## Using ps() for generalized boosted modeling</span>
-<span class='va'>ps.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/twang/man/ps.html'>ps</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span>
-             <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
-             stop.method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ks.mean"</span>, <span class='st'>"es.mean"</span><span class='op'>)</span>, 
-             estimand <span class='op'>=</span> <span class='st'>"ATT"</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-             
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>ps.out</span>, stop.method <span class='op'>=</span> <span class='st'>"ks.mean"</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span>, 
-        m.threshold <span class='op'>=</span> <span class='fl'>.1</span>, disp.ks <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span>
-#&gt;  ps.fast(formula = formula, data = data, params = params, n.trees = nrounds, 
-#&gt;     interaction.depth = max_depth, shrinkage = eta, bag.fraction = subsample, 
-#&gt;     n.minobsinnode = min_child_weight, perm.test.iters = perm.test.iters, 
-#&gt;     print.level = print.level, verbose = verbose, estimand = estimand, 
-#&gt;     stop.method = stop.method, sampw = sampw, multinom = multinom, 
-#&gt;     ks.exact = ks.exact, version = version, tree_method = tree_method, 
-#&gt;     n.keep = n.keep, n.grid = n.grid, keep.data = keep.data)
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
-#&gt;                 Type Diff.Un  KS.Un Diff.Adj        M.Threshold KS.Adj
-#&gt; prop.score  Distance  2.8072 0.8294   0.5712                    0.2164
-#&gt; age          Contin. -0.3094 0.1577   0.0538     Balanced, &lt;0.1 0.0980
-#&gt; educ         Contin.  0.0550 0.1114  -0.0810     Balanced, &lt;0.1 0.0678
-#&gt; married       Binary -0.3236 0.3236   0.0029     Balanced, &lt;0.1 0.0029
-#&gt; race_black    Binary  0.6404 0.6404   0.0176     Balanced, &lt;0.1 0.0176
-#&gt; race_hispan   Binary -0.0827 0.0827   0.0014     Balanced, &lt;0.1 0.0014
-#&gt; race_white    Binary -0.5577 0.5577  -0.0191     Balanced, &lt;0.1 0.0191
-#&gt; nodegree      Binary  0.1114 0.1114   0.0637     Balanced, &lt;0.1 0.0637
-#&gt; re74         Contin. -0.7211 0.4470   0.1060 Not Balanced, &gt;0.1 0.0591
-#&gt; re75         Contin. -0.2903 0.2876   0.1217 Not Balanced, &gt;0.1 0.0941
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Balance tally for mean differences</span>
-#&gt;                    count
-#&gt; Balanced, &lt;0.1         7
-#&gt; Not Balanced, &gt;0.1     2
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Variable with the greatest mean difference</span>
-#&gt;  Variable Diff.Adj        M.Threshold
-#&gt;      re75   0.1217 Not Balanced, &gt;0.1
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Effective sample sizes</span>
-#&gt;            Control Treated
-#&gt; Unadjusted   429.      185
-#&gt; Adjusted      25.5     185</div><div class='input'><span class='co'># }</span>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='co'># \donttest{</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>twang</span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> To reproduce results from prior versions of the twang package, please see the version="legacy" option described in the documentation.</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>## Using ps() for generalized boosted modeling</span></span>
+<span class='r-in'><span class='va'>ps.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/twang/man/ps.html'>ps</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>married</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span></span>
+<span class='r-in'>             <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, </span>
+<span class='r-in'>             stop.method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ks.mean"</span>, <span class='st'>"es.mean"</span><span class='op'>)</span>, </span>
+<span class='r-in'>             estimand <span class='op'>=</span> <span class='st'>"ATT"</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
+<span class='r-in'>             </span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>ps.out</span>, stop.method <span class='op'>=</span> <span class='st'>"ks.mean"</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span>, </span>
+<span class='r-in'>        m.threshold <span class='op'>=</span> <span class='fl'>.1</span>, disp.ks <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Call</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  ps.fast(formula = formula, data = data, params = params, n.trees = nrounds, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     interaction.depth = max_depth, shrinkage = eta, bag.fraction = subsample, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     n.minobsinnode = min_child_weight, perm.test.iters = perm.test.iters, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     print.level = print.level, verbose = verbose, estimand = estimand, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     stop.method = stop.method, sampw = sampw, multinom = multinom, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     ks.exact = ks.exact, version = version, tree_method = tree_method, </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>     n.keep = n.keep, n.grid = n.grid, keep.data = keep.data)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance Measures</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                 Type Diff.Un  KS.Un Diff.Adj        M.Threshold KS.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> prop.score  Distance  2.8072 0.8294   0.5712                    0.2164</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age          Contin. -0.3094 0.1577   0.0538     Balanced, &lt;0.1 0.0980</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ         Contin.  0.0550 0.1114  -0.0810     Balanced, &lt;0.1 0.0678</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> married       Binary -0.3236 0.3236   0.0029     Balanced, &lt;0.1 0.0029</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black    Binary  0.6404 0.6404   0.0176     Balanced, &lt;0.1 0.0176</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan   Binary -0.0827 0.0827   0.0014     Balanced, &lt;0.1 0.0014</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white    Binary -0.5577 0.5577  -0.0191     Balanced, &lt;0.1 0.0191</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nodegree      Binary  0.1114 0.1114   0.0637     Balanced, &lt;0.1 0.0637</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re74         Contin. -0.7211 0.4470   0.1060 Not Balanced, &gt;0.1 0.0591</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re75         Contin. -0.2903 0.2876   0.1217 Not Balanced, &gt;0.1 0.0941</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance tally for mean differences</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                    count</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Balanced, &lt;0.1         7</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Not Balanced, &gt;0.1     2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Variable with the greatest mean difference</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  Variable Diff.Adj        M.Threshold</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      re75   0.1217 Not Balanced, &gt;0.1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Effective sample sizes</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            Control Treated</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Unadjusted   429.      185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Adjusted      25.5     185</span>
+<span class='r-in'><span class='co'># }</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

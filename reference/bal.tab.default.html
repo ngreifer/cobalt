@@ -211,51 +211,52 @@
 <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for more information on multi-category treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-<span class='va'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>,  select <span class='op'>=</span> <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>re78</span><span class='op'>)</span><span class='op'>)</span>
-
-<span class='co'>##Writing a function the produces output for direct</span>
-<span class='co'>##use in bal.tab.default</span>
-
-<span class='va'>ate.weights</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>covs</span><span class='op'>)</span> <span class='op'>{</span>
-    <span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>covs</span><span class='op'>)</span>
-    <span class='va'>formula</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/formula.html'>formula</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span>
-    <span class='va'>ps</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>formula</span>, data <span class='op'>=</span> <span class='va'>data</span>, 
-              family <span class='op'>=</span> <span class='st'>"binomial"</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span>
-    <span class='va'>weights</span> <span class='op'>&lt;-</span> <span class='va'>treat</span><span class='op'>/</span><span class='va'>ps</span> <span class='op'>+</span> <span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='va'>treat</span><span class='op'>)</span><span class='op'>/</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='va'>ps</span><span class='op'>)</span>
-    <span class='va'>call</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/match.call.html'>match.call</a></span><span class='op'>(</span><span class='op'>)</span>
-    <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>treat <span class='op'>=</span> <span class='va'>treat</span>,
-                covs <span class='op'>=</span> <span class='va'>covs</span>,
-                distance <span class='op'>=</span> <span class='va'>ps</span>,
-                weights <span class='op'>=</span> <span class='va'>weights</span>,
-                estimand <span class='op'>=</span> <span class='st'>"ATE"</span>,
-                call <span class='op'>=</span> <span class='va'>call</span><span class='op'>)</span>
-    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>out</span><span class='op'>)</span>
-<span class='op'>}</span>
-
-<span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>ate.weights</span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>, <span class='va'>covs</span><span class='op'>)</span>
-
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>out</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span>
-#&gt;  ate.weights(treat = lalonde$treat, covs = covs)
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
-#&gt;                 Type Diff.Un Diff.Adj
-#&gt; distance    Distance  1.7569   0.1360
-#&gt; age          Contin. -0.2419  -0.1676
-#&gt; educ         Contin.  0.0448   0.1296
-#&gt; race_black    Binary  0.6404   0.0499
-#&gt; race_hispan   Binary -0.0827   0.0047
-#&gt; race_white    Binary -0.5577  -0.0546
-#&gt; married       Binary -0.3236  -0.0944
-#&gt; nodegree      Binary  0.1114  -0.0547
-#&gt; re74         Contin. -0.5958  -0.2740
-#&gt; re75         Contin. -0.2870  -0.1579
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Effective sample sizes</span>
-#&gt;            Control Treated
-#&gt; Unadjusted  429.    185.  
-#&gt; Adjusted    329.01   58.33</div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>,  select <span class='op'>=</span> <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>re78</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>##Writing a function the produces output for direct</span></span>
+<span class='r-in'><span class='co'>##use in bal.tab.default</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>ate.weights</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>covs</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>    <span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>covs</span><span class='op'>)</span></span>
+<span class='r-in'>    <span class='va'>formula</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/formula.html'>formula</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span></span>
+<span class='r-in'>    <span class='va'>ps</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>formula</span>, data <span class='op'>=</span> <span class='va'>data</span>, </span>
+<span class='r-in'>              family <span class='op'>=</span> <span class='st'>"binomial"</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span></span>
+<span class='r-in'>    <span class='va'>weights</span> <span class='op'>&lt;-</span> <span class='va'>treat</span><span class='op'>/</span><span class='va'>ps</span> <span class='op'>+</span> <span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='va'>treat</span><span class='op'>)</span><span class='op'>/</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='va'>ps</span><span class='op'>)</span></span>
+<span class='r-in'>    <span class='va'>call</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/match.call.html'>match.call</a></span><span class='op'>(</span><span class='op'>)</span></span>
+<span class='r-in'>    <span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>treat <span class='op'>=</span> <span class='va'>treat</span>,</span>
+<span class='r-in'>                covs <span class='op'>=</span> <span class='va'>covs</span>,</span>
+<span class='r-in'>                distance <span class='op'>=</span> <span class='va'>ps</span>,</span>
+<span class='r-in'>                weights <span class='op'>=</span> <span class='va'>weights</span>,</span>
+<span class='r-in'>                estimand <span class='op'>=</span> <span class='st'>"ATE"</span>,</span>
+<span class='r-in'>                call <span class='op'>=</span> <span class='va'>call</span><span class='op'>)</span></span>
+<span class='r-in'>    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>out</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>ate.weights</span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>, <span class='va'>covs</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>out</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Call</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  ate.weights(treat = lalonde$treat, covs = covs)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance Measures</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                 Type Diff.Un Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> distance    Distance  1.7569   0.1360</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age          Contin. -0.2419  -0.1676</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ         Contin.  0.0448   0.1296</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black    Binary  0.6404   0.0499</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan   Binary -0.0827   0.0047</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white    Binary -0.5577  -0.0546</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> married       Binary -0.3236  -0.0944</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nodegree      Binary  0.1114  -0.0547</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re74         Contin. -0.5958  -0.2740</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re75         Contin. -0.2870  -0.1579</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Effective sample sizes</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            Control Treated</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Unadjusted  429.    185.  </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Adjusted    329.01   58.33</span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

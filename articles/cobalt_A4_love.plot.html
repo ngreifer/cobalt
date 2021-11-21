@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Appendix 4: Using love.plot To Generate Love Plots</h1>
                         <h4 class="author">Noah Greifer</h4>
             
-            <h4 class="date">2021-06-15</h4>
+            <h4 class="date">2021-11-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt_A4_love.plot.Rmd"><code>vignettes/cobalt_A4_love.plot.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A4_love.plot.Rmd</code></div>
@@ -190,7 +190,7 @@
         legend.box.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-9-1.png" width="576"></p>
 <p>This is starting to look like a publication-ready plot. There are still other options you can change, such as the title, subtitle, and axis names, some of which can be done using <code>love.plot</code> arguments and others which require <code>ggplot2</code> code. Sizing the plot and making sure everything still looks good will be its own challenge, but that’s true of all plots in R.</p>
-<p>Perhaps we want to display balance for a second set of weights, maybe using a different method to estimate them, like the covariate balancing propensity score (CBPS, Imai &amp; Ratkovic, 2014) that is popular in political science. These can be easily added (but we’ll have to use the formula interface to set multiple weights).</p>
+<p>Perhaps we want to display balance for a second set of weights, maybe using a different method to estimate them, like the covariate balancing propensity score <span class="citation">(CBPS; Imai and Ratkovic 2014)</span> that is popular in political science. These can be easily added (but we’ll have to use the formula interface to set multiple weights).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">w.out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,
                    data <span class="op">=</span> <span class="va">lalonde</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>, method <span class="op">=</span> <span class="st">"cbps"</span><span class="op">)</span>
@@ -253,7 +253,7 @@
           wrap <span class="op">=</span> <span class="fl">20</span>,
           position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> </code></pre></div>
 <p><img src="cobalt_A4_love.plot_files/figure-html/unnamed-chunk-12-1.png" width="576"></p>
-<p>Below we recreate the plot in West et al. (2014), which uses a simple theme and avoids color, which can be important for publication. In addition, the plot has labels and puts the legend in a different position. We can include those features by including an argument to <code>labels</code> and by supplying a <code>theme</code> object to <code>themes</code>:</p>
+<p>Below we recreate the plot in <span class="citation">West et al. (2014)</span>, which uses a simple theme and avoids color, which can be important for publication. In addition, the plot has labels and puts the legend in a different position. We can include those features by including an argument to <code>labels</code> and by supplying a <code>theme</code> object to <code>themes</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, abs <span class="op">=</span> <span class="cn">FALSE</span>,
           stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>,
@@ -283,11 +283,17 @@
 <p>* indicates variables for which the displayed value is the raw (unstandardized) difference in means.</p>
 </blockquote>
 <p>This ensures readers can fully and accurately interpret the plot. My suggestion is to display standardized mean differences for all variables as well as KS statistics. The KS statistic for a binary variable is the raw difference in proportion, so that information is not lost.</p>
-<div id="references" class="section level2">
+<div id="references" class="section level2 unnumbered">
 <h2 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h2>
-<p>Imai, K., &amp; Ratkovic, M. (2014). Covariate balancing propensity score. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 76(1), 243–263. <a href="https://doi.org/10.1111/rssb.12027" class="uri">https://doi.org/10.1111/rssb.12027</a></p>
-<p>West, S. G., Cham, H., Thoemmes, F., Renneberg, B., Schulze, J., &amp; Weiler, M. (2014). Propensity scores as a basis for equating groups: Basic principles and application in clinical treatment outcome research. Journal of Consulting and Clinical Psychology, 82(5), 906–919. <a href="https://doi.org/10.1037/a0036387" class="uri">https://doi.org/10.1037/a0036387</a></p>
+<div id="refs" class="references">
+<div id="ref-imaiCovariateBalancingPropensity2014">
+<p>Imai, Kosuke, and Marc Ratkovic. 2014. “Covariate Balancing Propensity Score.” <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em> 76 (1): 243–63. <a href="https://doi.org/10.1111/rssb.12027">https://doi.org/10.1111/rssb.12027</a>.</p>
+</div>
+<div id="ref-westPropensityScoresBasis2014">
+<p>West, Stephen G., Heining Cham, Felix J. Thoemmes, Babette Renneberg, Julian Schulze, and Matthias Weiler. 2014. “Propensity Scores as a Basis for Equating Groups: Basic Principles and Application in Clinical Treatment Outcome Research.” <em>Journal of Consulting and Clinical Psychology</em> 82 (5): 906–19. <a href="https://doi.org/10.1037/a0036387">https://doi.org/10.1037/a0036387</a>.</p>
+</div>
+</div>
 </div>
 <div class="footnotes">
 <hr>

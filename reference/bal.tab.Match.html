@@ -296,133 +296,149 @@
     <div class='dont-index'><p><code><a href='bal.tab.html'>bal.tab()</a></code> for details of calculations.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"Matching"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='co'>########## Matching ##########</span>
-
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://sekhon.berkeley.edu/matching/'>Matching</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-
-<span class='va'>p.score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> 
-            <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, 
-            data <span class='op'>=</span> <span class='va'>lalonde</span>, family <span class='op'>=</span> <span class='st'>"binomial"</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span>
-<span class='va'>Match.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/Matching/man/Match.html'>Match</a></span><span class='op'>(</span>Tr <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>, X <span class='op'>=</span> <span class='va'>p.score</span><span class='op'>)</span>
-
-<span class='co'>## Using formula and data</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>Match.out</span>, <span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> 
-        <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span>
-<span class='op'>}</span>; <span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"optmatch"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='co'>########## optmatch ##########</span>
-
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='st'><a href='https://github.com/markmfredrickson/optmatch'>"optmatch"</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-
-<span class='va'>lalonde</span><span class='op'>$</span><span class='va'>prop.score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> 
-            <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, 
-            data <span class='op'>=</span> <span class='va'>lalonde</span>, family <span class='op'>=</span> <span class='va'>binomial</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span>
-<span class='va'>pm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/optmatch/man/pairmatch.html'>pairmatch</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>prop.score</span>, data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span>
-
-<span class='co'>## Using formula and data</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>pm</span>, <span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> 
-        <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>,
-        distance <span class='op'>=</span> <span class='st'>"prop.score"</span><span class='op'>)</span>
-<span class='op'>}</span>; <span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"ebal"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='co'>########## ebal ##########</span>
-
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='st'><a href='http://www.stanford.edu/~jhain/'>"ebal"</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-
-<span class='va'>covariates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>, select <span class='op'>=</span> <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>re78</span>, <span class='va'>treat</span>, <span class='va'>race</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>e.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/ebal/man/ebalance.html'>ebalance</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>, <span class='va'>covariates</span><span class='op'>)</span>
-
-<span class='co'>## Using treat and covs</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>e.out</span>, treat <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>, covs <span class='op'>=</span> <span class='va'>covariates</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div><div class='output co'>#&gt; <span class='message'>## </span>
-#&gt; <span class='message'>##  Matching (Version 4.9-9, Build Date: 2021-03-15)</span>
-#&gt; <span class='message'>##  See http://sekhon.berkeley.edu/matching for additional documentation.</span>
-#&gt; <span class='message'>##  Please cite software as:</span>
-#&gt; <span class='message'>##   Jasjeet S. Sekhon. 2011. ``Multivariate and Propensity Score Matching</span>
-#&gt; <span class='message'>##   Software with Automated Balance Optimization: The Matching package for R.''</span>
-#&gt; <span class='message'>##   Journal of Statistical Software, 42(7): 1-52. </span>
-#&gt; <span class='message'>##</span></div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.2106
-#&gt; educ        Contin.   0.0201
-#&gt; race_black   Binary   0.0054
-#&gt; race_hispan  Binary  -0.0051
-#&gt; race_white   Binary  -0.0003
-#&gt; married      Binary   0.0661
-#&gt; nodegree     Binary  -0.0079
-#&gt; re74        Contin.  -0.0772
-#&gt; re75        Contin.  -0.0127
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Sample sizes</span>
-#&gt;                      Control Treated
-#&gt; All                   429.       185
-#&gt; Matched (ESS)          49.17     185
-#&gt; Matched (Unweighted)  136.       185
-#&gt; Unmatched             293.         0</div><div class='output co'>#&gt; <span class='message'>Loading required package: survival</span></div><div class='output co'>#&gt; <span class='message'>The optmatch package has an academic license. Enter relaxinfo() for more information.</span></div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Call</span>
-#&gt;  pairmatch(x = treat ~ prop.score, data = lalonde)
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
-#&gt;                 Type Diff.Adj
-#&gt; prop.score  Distance   0.9740
-#&gt; age          Contin.   0.0733
-#&gt; educ         Contin.  -0.1290
-#&gt; race_black    Binary   0.3730
-#&gt; race_hispan   Binary  -0.1568
-#&gt; race_white    Binary  -0.2162
-#&gt; married       Binary  -0.0216
-#&gt; nodegree      Binary   0.0703
-#&gt; re74         Contin.  -0.0496
-#&gt; re75         Contin.  -0.0247
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Sample sizes</span>
-#&gt;           Control Treated
-#&gt; All           429     185
-#&gt; Matched       185     185
-#&gt; Unmatched     244       0</div><div class='output co'>#&gt; <span class='message'>##</span>
-#&gt; <span class='message'>## ebal Package: Implements Entropy Balancing.</span></div><div class='output co'>#&gt; <span class='message'>## See http://www.stanford.edu/~jhain/ for additional information.</span>
-#&gt; <span class='message'></span></div><div class='output co'>#&gt; Converged within tolerance </div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
-#&gt;               Type Diff.Adj
-#&gt; age        Contin.       -0
-#&gt; educ       Contin.       -0
-#&gt; married     Binary       -0
-#&gt; nodegree    Binary        0
-#&gt; re74       Contin.       -0
-#&gt; re75       Contin.       -0
-#&gt; prop.score Contin.        0
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Effective sample sizes</span>
-#&gt;            Control Treated
-#&gt; Unadjusted  429.       185
-#&gt; Adjusted     95.28     185</div><div class='input'><span class='co'>########## designmatch ##########</span>
-<span class='co'># \donttest{</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='st'>"designmatch"</span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>Loading required package: lattice</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: slam</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: Rglpk</span></div><div class='output co'>#&gt; <span class='message'>Using the GLPK callable library version 4.65</span></div><div class='input'>
-<span class='va'>covariates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"re74"</span>, <span class='st'>"re75"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span>
-<span class='va'>treat</span> <span class='op'>&lt;-</span> <span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>
-<span class='va'>dmout</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/designmatch/man/bmatch.html'>bmatch</a></span><span class='op'>(</span><span class='va'>treat</span>,
-                total_groups <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>==</span> <span class='fl'>1</span><span class='op'>)</span>,
-                mom <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>covs <span class='op'>=</span> <span class='va'>covariates</span>,
-                           tols <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/designmatch/man/absstddif.html'>absstddif</a></span><span class='op'>(</span><span class='va'>covariates</span>, 
-                                            <span class='va'>treat</span>, <span class='fl'>.05</span><span class='op'>)</span><span class='op'>)</span>
-                <span class='op'>)</span>
-</div><div class='output co'>#&gt;   Building the matching problem... 
-#&gt;   GLPK optimizer is open... 
-#&gt;   Finding the optimal matches... 
-#&gt;   Optimal matches found </div><div class='input'>
-<span class='co'>## Using treat and covs</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>dmout</span>, treat <span class='op'>=</span> <span class='va'>treat</span>, covs <span class='op'>=</span> <span class='va'>covariates</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
-#&gt;         Type Diff.Adj
-#&gt; age  Contin.   0.0567
-#&gt; educ Contin.  -0.0538
-#&gt; re74 Contin.  -0.0613
-#&gt; re75 Contin.  -0.0501
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Sample sizes</span>
-#&gt;           Control Treated
-#&gt; All           429     185
-#&gt; Matched       185     185
-#&gt; Unmatched     244       0</div><div class='input'><span class='co'># }</span></div></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"Matching"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='co'>########## Matching ##########</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://sekhon.berkeley.edu/matching/'>Matching</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>p.score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> </span>
+<span class='r-in'>            <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, </span>
+<span class='r-in'>            data <span class='op'>=</span> <span class='va'>lalonde</span>, family <span class='op'>=</span> <span class='st'>"binomial"</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span></span>
+<span class='r-in'><span class='va'>Match.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/Matching/man/Match.html'>Match</a></span><span class='op'>(</span>Tr <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>, X <span class='op'>=</span> <span class='va'>p.score</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>## Using formula and data</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>Match.out</span>, <span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> </span>
+<span class='r-in'>        <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span>; <span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"optmatch"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='co'>########## optmatch ##########</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='st'><a href='https://github.com/markmfredrickson/optmatch'>"optmatch"</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>prop.score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> </span>
+<span class='r-in'>            <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, </span>
+<span class='r-in'>            data <span class='op'>=</span> <span class='va'>lalonde</span>, family <span class='op'>=</span> <span class='va'>binomial</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span></span>
+<span class='r-in'><span class='va'>pm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/optmatch/man/pairmatch.html'>pairmatch</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>prop.score</span>, data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>## Using formula and data</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>pm</span>, <span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span> <span class='op'>+</span> </span>
+<span class='r-in'>        <span class='va'>married</span> <span class='op'>+</span> <span class='va'>nodegree</span> <span class='op'>+</span> <span class='va'>re74</span> <span class='op'>+</span> <span class='va'>re75</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>,</span>
+<span class='r-in'>        distance <span class='op'>=</span> <span class='st'>"prop.score"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span>; <span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ns-load.html'>requireNamespace</a></span><span class='op'>(</span><span class='st'>"ebal"</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='co'>########## ebal ##########</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='st'><a href='http://www.stanford.edu/~jhain/'>"ebal"</a></span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>covariates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>, select <span class='op'>=</span> <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>re78</span>, <span class='va'>treat</span>, <span class='va'>race</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>e.out</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/ebal/man/ebalance.html'>ebalance</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>, <span class='va'>covariates</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>## Using treat and covs</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>e.out</span>, treat <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span>, covs <span class='op'>=</span> <span class='va'>covariates</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ## </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ##  Matching (Version 4.9-11, Build Date: 2021-10-18)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ##  See http://sekhon.berkeley.edu/matching for additional documentation.</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ##  Please cite software as:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ##   Jasjeet S. Sekhon. 2011. ``Multivariate and Propensity Score Matching</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ##   Software with Automated Balance Optimization: The Matching package for R.''</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ##   Journal of Statistical Software, 42(7): 1-52. </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ##</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance Measures</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.2106</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.0201</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0054</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary  -0.0051</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary  -0.0003</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> married      Binary   0.0661</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nodegree     Binary  -0.0079</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re74        Contin.  -0.0772</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re75        Contin.  -0.0127</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Sample sizes</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                      Control Treated</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> All                   429.       185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Matched (ESS)          49.17     185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Matched (Unweighted)  136.       185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Unmatched             293.         0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: survival</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> The optmatch package has an academic license. Enter relaxinfo() for more information.</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Call</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  pairmatch(x = treat ~ prop.score, data = lalonde)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance Measures</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                 Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> prop.score  Distance   0.9740</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age          Contin.   0.0733</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ         Contin.  -0.1290</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black    Binary   0.3730</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan   Binary  -0.1568</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white    Binary  -0.2162</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> married       Binary  -0.0216</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nodegree      Binary   0.0703</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re74         Contin.  -0.0496</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re75         Contin.  -0.0247</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Sample sizes</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>           Control Treated</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> All           429     185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Matched       185     185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Unmatched     244       0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ##</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ## ebal Package: Implements Entropy Balancing.</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> ## See http://www.stanford.edu/~jhain/ for additional information.</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Converged within tolerance </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance Measures</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>               Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age        Contin.       -0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ       Contin.       -0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> married     Binary       -0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> nodegree    Binary        0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re74       Contin.       -0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re75       Contin.       -0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> prop.score Contin.        0</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Effective sample sizes</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            Control Treated</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Unadjusted  429.       185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Adjusted     95.28     185</span>
+<span class='r-in'><span class='co'>########## designmatch ##########</span></span>
+<span class='r-in'><span class='co'># \donttest{</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='st'>"designmatch"</span><span class='op'>)</span>; <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: lattice</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: slam</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Loading required package: Rglpk</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> Using the GLPK callable library version 4.65</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='va'>covariates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"age"</span>, <span class='st'>"educ"</span>, <span class='st'>"re74"</span>, <span class='st'>"re75"</span><span class='op'>)</span><span class='op'>]</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>treat</span> <span class='op'>&lt;-</span> <span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span></span>
+<span class='r-in'><span class='va'>dmout</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/designmatch/man/bmatch.html'>bmatch</a></span><span class='op'>(</span><span class='va'>treat</span>,</span>
+<span class='r-in'>                total_groups <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>==</span> <span class='fl'>1</span><span class='op'>)</span>,</span>
+<span class='r-in'>                mom <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>covs <span class='op'>=</span> <span class='va'>covariates</span>,</span>
+<span class='r-in'>                           tols <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/pkg/designmatch/man/absstddif.html'>absstddif</a></span><span class='op'>(</span><span class='va'>covariates</span>, </span>
+<span class='r-in'>                                            <span class='va'>treat</span>, <span class='fl'>.05</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'>                <span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   Building the matching problem... </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   GLPK optimizer is open... </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   Finding the optimal matches... </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   Optimal matches found </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'>## Using treat and covs</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>dmout</span>, treat <span class='op'>=</span> <span class='va'>treat</span>, covs <span class='op'>=</span> <span class='va'>covariates</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance Measures</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>         Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age  Contin.   0.0567</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ Contin.  -0.0538</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re74 Contin.  -0.0613</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> re75 Contin.  -0.0501</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Sample sizes</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>           Control Treated</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> All           429     185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Matched       185     185</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Unmatched     244       0</span>
+<span class='r-in'><span class='co'># }</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

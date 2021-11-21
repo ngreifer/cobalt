@@ -318,157 +318,161 @@
 <code><a href='class-bal.tab.multi.html'>bal.tab.multi</a></code> for more information on multiple categorical treatments.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span>
-<span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
-                       family <span class='op'>=</span> <span class='st'>"binomial"</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span>
-<span class='va'>covariates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>, select <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>age</span>, <span class='va'>educ</span>, <span class='va'>race</span><span class='op'>)</span><span class='op'>)</span>
-                     
-<span class='co'>## Propensity score weighting using IPTW</span>
-<span class='va'>lalonde</span><span class='op'>$</span><span class='va'>iptw.weights</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span><span class='op'>==</span><span class='fl'>1</span>, 
-                               <span class='fl'>1</span><span class='op'>/</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, 
-                               <span class='fl'>1</span><span class='op'>/</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span><span class='op'>)</span><span class='op'>)</span>
-
-<span class='co'># data frame interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covariates</span>, treat <span class='op'>=</span> <span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
-        weights <span class='op'>=</span> <span class='st'>"iptw.weights"</span>, s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.  -0.1242
-#&gt; educ        Contin.   0.0727
-#&gt; race_black   Binary   0.0053
-#&gt; race_hispan  Binary  -0.0025
-#&gt; race_white   Binary  -0.0029
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Effective sample sizes</span>
-#&gt;            Control Treated
-#&gt; Unadjusted  429.    185.  
-#&gt; Adjusted    344.33   65.47</div><div class='input'>
-<span class='co'># Formula interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
-        weights <span class='op'>=</span> <span class='st'>"iptw.weights"</span>, s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance Measures</span>
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.  -0.1242
-#&gt; educ        Contin.   0.0727
-#&gt; race_black   Binary   0.0053
-#&gt; race_hispan  Binary  -0.0025
-#&gt; race_white   Binary  -0.0029
-#&gt; 
-#&gt; <span style='text-decoration: underline;'>Effective sample sizes</span>
-#&gt;            Control Treated
-#&gt; Unadjusted  429.    185.  
-#&gt; Adjusted    344.33   65.47</div><div class='input'>      
-<span class='co'>## Propensity score subclassification</span>
-<span class='va'>lalonde</span><span class='op'>$</span><span class='va'>subclass</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/findInterval.html'>findInterval</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, 
-                        <span class='fu'><a href='https://rdrr.io/r/stats/quantile.html'>quantile</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, 
-                        <span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>6</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>6</span><span class='op'>)</span>, all.inside <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-
-<span class='co'># data frame interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covariates</span>, treat <span class='op'>=</span> <span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
-        subclass <span class='op'>=</span> <span class='st'>"subclass"</span>, disp.subclass <span class='op'>=</span> <span class='cn'>TRUE</span>, 
-        s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance by subclass</span>
-#&gt;  - - - <span style='font-style: italic;'>Subclass 1</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.  -1.2029
-#&gt; educ        Contin.  -0.2551
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary   0.0000
-#&gt; race_white   Binary   0.0000
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 2</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.4108
-#&gt; educ        Contin.   0.3005
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary   0.0000
-#&gt; race_white   Binary   0.0000
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 3</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.  -0.1400
-#&gt; educ        Contin.   0.0295
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary  -0.0833
-#&gt; race_white   Binary   0.0833
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 4</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.2294
-#&gt; educ        Contin.  -0.4409
-#&gt; race_black   Binary   0.3467
-#&gt; race_hispan  Binary  -0.3467
-#&gt; race_white   Binary   0.0000
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 5</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.4675
-#&gt; educ        Contin.   0.3427
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary   0.0000
-#&gt; race_white   Binary   0.0000
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 6</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.1293
-#&gt; educ        Contin.  -0.0838
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary   0.0000
-#&gt; race_white   Binary   0.0000
-#&gt; </div><div class='input'>
-<span class='co'># Formula interface:</span>
-<span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, 
-      subclass <span class='op'>=</span> <span class='st'>"subclass"</span>, disp.subclass <span class='op'>=</span> <span class='cn'>TRUE</span>, 
-      s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='text-decoration: underline;'>Balance by subclass</span>
-#&gt;  - - - <span style='font-style: italic;'>Subclass 1</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.  -1.2029
-#&gt; educ        Contin.  -0.2551
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary   0.0000
-#&gt; race_white   Binary   0.0000
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 2</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.4108
-#&gt; educ        Contin.   0.3005
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary   0.0000
-#&gt; race_white   Binary   0.0000
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 3</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.  -0.1400
-#&gt; educ        Contin.   0.0295
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary  -0.0833
-#&gt; race_white   Binary   0.0833
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 4</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.2294
-#&gt; educ        Contin.  -0.4409
-#&gt; race_black   Binary   0.3467
-#&gt; race_hispan  Binary  -0.3467
-#&gt; race_white   Binary   0.0000
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 5</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.4675
-#&gt; educ        Contin.   0.3427
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary   0.0000
-#&gt; race_white   Binary   0.0000
-#&gt; 
-#&gt;  - - - <span style='font-style: italic;'>Subclass 6</span> - - - 
-#&gt;                Type Diff.Adj
-#&gt; age         Contin.   0.1293
-#&gt; educ        Contin.  -0.0838
-#&gt; race_black   Binary   0.0000
-#&gt; race_hispan  Binary   0.0000
-#&gt; race_white   Binary   0.0000
-#&gt; </div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"lalonde"</span>, package <span class='op'>=</span> <span class='st'>"cobalt"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/glm.html'>glm</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, </span>
+<span class='r-in'>                       family <span class='op'>=</span> <span class='st'>"binomial"</span><span class='op'>)</span><span class='op'>$</span><span class='va'>fitted.values</span></span>
+<span class='r-in'><span class='va'>covariates</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>, select <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>age</span>, <span class='va'>educ</span>, <span class='va'>race</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'>                     </span>
+<span class='r-in'><span class='co'>## Propensity score weighting using IPTW</span></span>
+<span class='r-in'><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>iptw.weights</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>treat</span><span class='op'>==</span><span class='fl'>1</span>, </span>
+<span class='r-in'>                               <span class='fl'>1</span><span class='op'>/</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, </span>
+<span class='r-in'>                               <span class='fl'>1</span><span class='op'>/</span><span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># data frame interface:</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covariates</span>, treat <span class='op'>=</span> <span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, </span>
+<span class='r-in'>        weights <span class='op'>=</span> <span class='st'>"iptw.weights"</span>, s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance Measures</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.  -0.1242</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.0727</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0053</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary  -0.0025</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary  -0.0029</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Effective sample sizes</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            Control Treated</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Unadjusted  429.    185.  </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Adjusted    344.33   65.47</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Formula interface:</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, </span>
+<span class='r-in'>        weights <span class='op'>=</span> <span class='st'>"iptw.weights"</span>, s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance Measures</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.  -0.1242</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.0727</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0053</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary  -0.0025</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary  -0.0029</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Effective sample sizes</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>            Control Treated</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Unadjusted  429.    185.  </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Adjusted    344.33   65.47</span>
+<span class='r-in'>      </span>
+<span class='r-in'><span class='co'>## Propensity score subclassification</span></span>
+<span class='r-in'><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>subclass</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/findInterval.html'>findInterval</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, </span>
+<span class='r-in'>                        <span class='fu'><a href='https://rdrr.io/r/stats/quantile.html'>quantile</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>$</span><span class='va'>p.score</span>, </span>
+<span class='r-in'>                        <span class='op'>(</span><span class='fl'>0</span><span class='op'>:</span><span class='fl'>6</span><span class='op'>)</span><span class='op'>/</span><span class='fl'>6</span><span class='op'>)</span>, all.inside <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># data frame interface:</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>covariates</span>, treat <span class='op'>=</span> <span class='st'>"treat"</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, </span>
+<span class='r-in'>        subclass <span class='op'>=</span> <span class='st'>"subclass"</span>, disp.subclass <span class='op'>=</span> <span class='cn'>TRUE</span>, </span>
+<span class='r-in'>        s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance by subclass</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 1</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.  -1.2029</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.  -0.2551</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 2</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.4108</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.3005</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 3</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.  -0.1400</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.0295</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary  -0.0833</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0833</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 4</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.2294</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.  -0.4409</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.3467</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary  -0.3467</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 5</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.4675</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.3427</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 6</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.1293</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.  -0.0838</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Formula interface:</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>treat</span> <span class='op'>~</span> <span class='va'>age</span> <span class='op'>+</span> <span class='va'>educ</span> <span class='op'>+</span> <span class='va'>race</span>, data <span class='op'>=</span> <span class='va'>lalonde</span>, </span>
+<span class='r-in'>      subclass <span class='op'>=</span> <span class='st'>"subclass"</span>, disp.subclass <span class='op'>=</span> <span class='cn'>TRUE</span>, </span>
+<span class='r-in'>      s.d.denom <span class='op'>=</span> <span class='st'>"pooled"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance by subclass</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 1</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.  -1.2029</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.  -0.2551</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 2</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.4108</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.3005</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 3</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.  -0.1400</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.0295</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary  -0.0833</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0833</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 4</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.2294</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.  -0.4409</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.3467</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary  -0.3467</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 5</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.4675</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.   0.3427</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  - - - <span style='font-style: italic;'>Subclass 6</span> - - - </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>                Type Diff.Adj</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> age         Contin.   0.1293</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> educ        Contin.  -0.0838</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_black   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_hispan  Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> race_white   Binary   0.0000</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

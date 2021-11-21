@@ -175,19 +175,20 @@
     <div class='dont-index'><p><code><a href='https://rdrr.io/r/stats/delete.response.html'>reformulate()</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>)</span>
-<span class='va'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>, select <span class='op'>=</span> <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>re78</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='fu'>f.build</span><span class='op'>(</span><span class='st'>"treat"</span>, <span class='va'>covs</span><span class='op'>)</span>, data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; 
-#&gt; Call:
-#&gt; lm(formula = f.build("treat", covs), data = lalonde)
-#&gt; 
-#&gt; Coefficients:
-#&gt; (Intercept)          age         educ        black       hispan      married  
-#&gt;  -1.900e-01    2.191e-03    2.028e-02    5.289e-01    8.625e-02   -9.300e-02  
-#&gt;    nodegree         re74         re75  
-#&gt;   9.833e-02   -6.138e-06    3.749e-06  
-#&gt; </div></pre>
+    <pre class="examples"><span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>lalonde</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>covs</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>lalonde</span>, select <span class='op'>=</span> <span class='op'>-</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>treat</span>, <span class='va'>re78</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='fu'>f.build</span><span class='op'>(</span><span class='st'>"treat"</span>, <span class='va'>covs</span><span class='op'>)</span>, data <span class='op'>=</span> <span class='va'>lalonde</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Call:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> lm(formula = f.build("treat", covs), data = lalonde)</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Coefficients:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> (Intercept)          age         educ        black       hispan      married  </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  -1.900e-01    2.191e-03    2.028e-02    5.289e-01    8.625e-02   -9.300e-02  </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    nodegree         re74         re75  </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>   9.833e-02   -6.138e-06    3.749e-06  </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
