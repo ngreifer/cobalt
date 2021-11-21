@@ -77,7 +77,7 @@ process_treat <- function(treat, datalist = list()) {
       treat_vals(treat) <- setNames(original_values, treat_names(treat))
     }
     else if (treat.type == "multinomial") {
-      treat <- factor(treat)
+      treat <- factor(treat, ordered = FALSE)
       treat_names(treat) <- setNames(levels(treat), levels(treat))
       treat_vals(treat) <- setNames(levels(treat), treat_names(treat))
     }
@@ -339,7 +339,7 @@ process.val <- function(val, i, treat = NULL, covs = NULL, addl.data = list(), .
         for (v in val) {
           found <- FALSE
           k <- 1
-          while (found == FALSE && k <= length(addl.data)) {
+          while (!found && k <= length(addl.data)) {
             if (v %in% names(addl.data[[k]])) {
               val.df[[v]] <- addl.data[[k]][[v]]
               found <- TRUE
@@ -1322,7 +1322,6 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
     data.specified <- FALSE
   }
   
-  
   tryCatch(tt <- terms(f, data = data),
            error = function(e) {
              stop(conditionMessage(e), call. = FALSE)
@@ -2068,18 +2067,18 @@ find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
 check_if_zero_weights <- function(weights.df, treat = NULL) {
   #Checks if all weights are zero in each treat group for each set of weights
   if (is_not_null(treat)) {
-    w.t.mat <- expand.grid(colnames(weights.df), treat_vals(treat), stringsAsFactors = TRUE)
-    names(w.t.mat) <- c("weight_names", "treat_vals")
-    
+    w.t.mat <- expand.grid(weight_names = colnames(weights.df), 
+                           treat_vals = treat_vals(treat), 
+                           stringsAsFactors = FALSE)
     if (NROW(w.t.mat) > 0) {
       problems <- vapply(seq_len(NROW(w.t.mat)), function(x) all(check_if_zero(weights.df[treat == w.t.mat[x, "treat_vals"], w.t.mat[x, "weight_names"]])), logical(1L))
       if (any(problems)) {
-        prob.w.t.mat <- droplevels(w.t.mat[problems,])
+        prob.w.t.mat <- w.t.mat[problems,]
         if (NCOL(weights.df) == 1) {
           error <- paste0("All weights are zero when treat is ", word_list(prob.w.t.mat[, "treat_vals"], "or"), ".")
         }
         else {
-          errors <- vapply(levels(prob.w.t.mat[,"weight_names"]), function(i) {
+          errors <- vapply(unique(prob.w.t.mat[,"weight_names"]), function(i) {
             paste0("\"", i, "\" weights are zero when treat is ", word_list(prob.w.t.mat[prob.w.t.mat[,"weight_names"] == i, "treat_vals"], "or"))
           }, character(1L))
           errors <- paste(c("All", rep("all", length(errors)-1)), errors)
