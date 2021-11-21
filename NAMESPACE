@@ -1,5 +1,6 @@
 import(stats)
-importFrom("utils", "combn", "data", "write.csv", "methods", "packageDescription")
+importFrom("utils", "combn", "data", "write.csv", "methods", "packageDescription",
+           "getS3method")
 importFrom("crayon", "italic", "underline")
 importFrom("ggplot2",
            "aes", "element_rect", "element_text",

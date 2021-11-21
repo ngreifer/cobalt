@@ -1007,10 +1007,10 @@ has_method <- function(class, fun) {
     if (!is.character(fun) || length(fun) != 1) stop("'fun' must be a string of length 1.")
     if (!is.character(class)) stop("'class' must be a character vector.")
     
-    vapply(class, function(cl) fun %in% attr(methods(class = cl), "info")$generic, logical(1L))
+    vapply(class, function(cl) is_not_null(getS3method(fun, cl, optional = TRUE, envir = asNamespace(packageName()))), logical(1L))
 }
 
-#Not used cobalt; replaced with rlang
+#Not used in cobalt; replaced with rlang
 is.formula <- function(f, sides = NULL) {
     #Replaced by rlang::is_formula
     res <- inherits(f, "formula") && is.name(f[[1]]) && deparse1(f[[1]]) %in% c( '~', '!') &&
@@ -1020,4 +1020,3 @@ is.formula <- function(f, sides = NULL) {
     }
     return(res)
 }
-if (getRversion() < 3.6) str2expression <- function(text) parse(text=text, keep.source=FALSE)
