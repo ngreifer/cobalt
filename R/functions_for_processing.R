@@ -1453,16 +1453,16 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       if (is.data.frame(df)) {
         #Deal with the fact that data.frames may contain matrices and data.frames, which
         #may contain data/frames, and so on
-        non.vec.col <- which(vapply(df, function(x) !is.vector(x) || !is.atomic(x), logical(1L)))
+        non.vec.col <- which(vapply(df, function(x) is_not_null(dim(x)), logical(1L)))
         while (is_not_null(non.vec.col)) {
           for (i in non.vec.col) {
-            if (ncol(df[[i]]) == 1 && is_null(colnames(df[[i]]))) colnames(df[[i]]) <- names(df)[i]
+            if (NCOL(df[[i]]) == 1 && is_null(colnames(df[[i]]))) colnames(df[[i]]) <- names(df)[i]
             else if (can_str2num(colnames(df[[i]]))) colnames(df[[i]]) <- paste(names(df)[i], colnames(df[[i]]), sep = "_")
           }
           names(df)[non.vec.col] <- ""
           
           df <- as.data.frame(do.call("cbind", df))
-          non.vec.col <- which(vapply(df, function(x) !is.vector(x) || !is.atomic(x), logical(1L)))
+          non.vec.col <- which(vapply(df, function(x) is_not_null(dim(x)), logical(1L)))
         }
         
         if (ncol(df) == 1 && is_null(colnames(df))) colnames(df) <- v
