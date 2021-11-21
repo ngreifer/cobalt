@@ -862,7 +862,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         
         if (agg.range) {
             position.dodge <- ggplot2::position_dodge(.5*(size0[1]/3))
-            if (line == TRUE) { #Add line except to distance
+            if (line) { #Add line except to distance
                 f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
                 lp <- lp + ggplot2::layer(geom = "path", data = f, 
                                           position = position.dodge, 

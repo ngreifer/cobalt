@@ -619,7 +619,7 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
     
     if (!missing(cluster.summary)) {
         if (!rlang::is_bool(cluster.summary)) stop("'cluster.summary' must be TRUE or FALSE.")
-        if (p.ops$quick && p.ops$cluster.summary == FALSE && cluster.summary == TRUE) {
+        if (p.ops$quick && !p.ops$cluster.summary && cluster.summary) {
             warning("'cluster.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$cluster.summary <- cluster.summary
@@ -681,7 +681,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
 
     if (!missing(imp.summary)) {
         if (!rlang::is_bool(imp.summary)) stop("'imp.summary' must be TRUE or FALSE.")
-        if (p.ops$quick && p.ops$imp.summary == FALSE && imp.summary == TRUE) {
+        if (p.ops$quick && !p.ops$imp.summary && imp.summary) {
             warning("'imp.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$imp.summary <- imp.summary
@@ -739,7 +739,7 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
     
     if (!missing(multi.summary)) {
         if (!rlang::is_bool(multi.summary)) stop("'multi.summary' must be TRUE or FALSE.")
-        if (p.ops$quick && p.ops$multi.summary == FALSE && multi.summary == TRUE) {
+        if (p.ops$quick && !p.ops$multi.summary && multi.summary) {
             warning("'multi.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$multi.summary <- multi.summary
@@ -831,7 +831,7 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
     
     if (!missing(msm.summary)) {
         if (!rlang::is_bool(msm.summary)) stop("'msm.summary' must be TRUE or FALSE.")
-        if (p.ops$quick && p.ops$msm.summary == FALSE && msm.summary == TRUE) {
+        if (p.ops$quick && !p.ops$msm.summary && msm.summary) {
             warning("'msm.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$msm.summary <- msm.summary
@@ -883,7 +883,7 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
     #Adjustments to print options
     if (!missing(un) && p.ops$disp.adj) {
         if (!rlang::is_bool(un)) stop("'un' must be TRUE or FALSE.", call. = FALSE)
-        if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
+        if (p.ops$quick && !p.ops$un && un) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$un <- un
@@ -902,14 +902,14 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
     }
     if (is_not_null(A[["disp.means"]])) {
         if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE or FALSE.")
-        if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
+        if ("means" %nin% p.ops$compute && A[["disp.means"]]) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
     }
     if (is_not_null(A[["disp.sds"]])) {
         if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE or FALSE.", call. = FALSE)
-        if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
+        if ("sds" %nin% p.ops$compute && A[["disp.sds"]]) {
             warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "sds"[A[["disp.sds"]]]))
@@ -1031,7 +1031,7 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
     #Adjustments to print options
     if (!missing(un) && p.ops$disp.adj) {
         if (!rlang::is_bool(un)) stop("'un' must be TRUE or FALSE.", call. = FALSE)
-        if (p.ops$quick && p.ops$un == FALSE && un == TRUE) {
+        if (p.ops$quick && !p.ops$un && un) {
             warning("'un' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$un <- un
@@ -1050,14 +1050,14 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
     }
     if (is_not_null(A[["disp.means"]])) {
         if (!rlang::is_bool(A[["disp.means"]])) stop("'disp.means' must be TRUE or FALSE.")
-        if ("means" %nin% p.ops$compute && A[["disp.means"]] == TRUE) {
+        if ("means" %nin% p.ops$compute && A[["disp.means"]]) {
             warning("'disp.means' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "means"[A[["disp.means"]]]))
     }
     if (is_not_null(A[["disp.sds"]])) {
         if (!rlang::is_bool(A[["disp.sds"]])) stop("'disp.sds' must be TRUE or FALSE.", call. = FALSE)
-        if ("sds" %nin% p.ops$compute && A[["disp.sds"]] == TRUE) {
+        if ("sds" %nin% p.ops$compute && A[["disp.sds"]]) {
             warning("'disp.sds' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$disp <- unique(c(p.ops$disp, "sds"[A[["disp.sds"]]]))
@@ -1154,7 +1154,7 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
     
     if (!missing(subclass.summary)) {
         if (!rlang::is_bool(subclass.summary)) stop("'subclass.summary' must be TRUE or FALSE.")
-        if (p.ops$quick && p.ops$subclass.summary == FALSE && subclass.summary == TRUE) {
+        if (p.ops$quick && !p.ops$subclass.summary && subclass.summary) {
             warning("'subclass.summary' cannot be set to TRUE if quick = TRUE in the original call to bal.tab().", call. = FALSE)
         }
         else p.ops$subclass.summary <- subclass.summary
