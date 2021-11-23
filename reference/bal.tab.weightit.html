@@ -311,6 +311,7 @@
 <span class='r-in'>                   data <span class='op'>=</span> <span class='va'>lalonde</span>, method <span class='op'>=</span> <span class='st'>"ps"</span>,</span>
 <span class='r-in'>                   estimand <span class='op'>=</span> <span class='st'>"ATE"</span>, use.mlogit <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>w.out2</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>w.out2</span>, un <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>pairwise</span> <span class='op'>-</span> <span class='cn'>FALSE</span><span class='op'>)</span></span>
 <span class='r-in'></span>
 <span class='r-in'><span class='co'>## IPW for longitudinal treatments</span></span>
 <span class='r-in'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='st'>"iptwExWide"</span>, package <span class='op'>=</span> <span class='st'>"twang"</span><span class='op'>)</span></span>
@@ -321,34 +322,7 @@
 <span class='r-in'>                        stabilize <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></span>
 <span class='r-in'><span class='fu'><a href='bal.tab.html'>bal.tab</a></span><span class='op'>(</span><span class='va'>wmsm.out</span><span class='op'>)</span></span>
 <span class='r-in'><span class='op'>}</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Call</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  weightitMSM(formula.list = list(tx1 ~ use0 + gender, tx2 ~ use0 + </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>     gender + use1 + tx1, tx3 ~ use0 + gender + use1 + tx1 + use2 + </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>     tx2), data = iptwExWide, stabilize = TRUE)</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Balance summary across all time points</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>              Times     Type Max.Diff.Adj</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> prop.score 1, 2, 3 Distance       0.3978</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> use0       1, 2, 3  Contin.       0.0672</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> gender     1, 2, 3   Binary       0.0102</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> use1          2, 3  Contin.       0.0286</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> tx1           2, 3   Binary       0.1602</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> use2             3  Contin.       0.0709</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> tx2              3   Binary       0.2345</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> <span style='text-decoration: underline;'>Effective sample sizes</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  - <span style='font-style: italic;'>Time 1</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>            Control Treated</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> Unadjusted  294.    706.  </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> Adjusted    223.43  644.59</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  - <span style='font-style: italic;'>Time 2</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>            Control Treated</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> Unadjusted  492.    508.  </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> Adjusted    417.01  446.82</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>  - <span style='font-style: italic;'>Time 3</span></span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span>            Control Treated</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> Unadjusted  415.    585.  </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> Adjusted    350.64  513.25</span>
+<span class='r-err co'><span class='r-pr'>#&gt;</span> <span class='error'>Error:</span> object 'pairwise' not found</span>
 </pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

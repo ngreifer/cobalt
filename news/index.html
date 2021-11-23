@@ -151,6 +151,7 @@
 <a href="#cobalt-development-version" class="anchor"></a>cobalt (development version)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>When <code>pairwise = FALSE</code> with binary or multi-category treatments, the balance statistics now refer to the difference between each group and the original full sample, unadjusted except possibly by <code>s.weights</code>. Previously, they referred to the difference between each group and the combined adjusted sample.</p></li>
 <li><p>Fixed several bugs when using <code><a href="../reference/love.plot.html">love.plot()</a></code> with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.</p></li>
 <li><p>Fixed a bug in how <code><a href="../reference/get.w.html">get.w()</a></code> computed weights for <code>Match</code> objects resulting from <code><a href="https://rdrr.io/pkg/Matching/man/Match.html">Matching::Match()</a></code> with <code>estimand = "ATE"</code>. Results now agree with <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html">Matching::MatchBalance()</a></code>.</p></li>
 <li><p>Fixed a bug that would occur when using <code>cobalt</code> functions without attaching the package (e.g., <code><a href="../reference/bal.tab.html">cobalt::bal.tab()</a></code>).</p></li>
