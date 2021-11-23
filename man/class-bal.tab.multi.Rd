@@ -12,10 +12,18 @@ The balance summary is, for each variable, the greatest imbalance across all two
 }
 \arguments{
 There are four arguments for each \code{bal.tab()} method that can handle multi-category treatments: \code{pairwise}, \code{focal}, \code{which.treat}, and \code{multi.summary}.
-\item{pairwise}{Whether to compute the two-group comparisons pairwise or not. If \code{TRUE}, \code{bal.tab()} will compute comparisons for each pair of treatments. This can be valuable if treatments are to be compared with one another (which is often the case). If \code{FALSE}, \code{bal.tab()} will compute balance for each treatment group against all groups combined (i.e., the entire sample). This only makes sense if the ATE is desired. When \code{focal} is specified, \code{pairwise} is automatically set to \code{TRUE}.}
-\item{focal}{When one group is to be compared to multiple control groups in an ATT analysis, the group considered "treated" is the focal group. Only comparisons between other groups and the focal group are of interest. By specifying the name or index of the treatment condition considered focal, \code{bal.tab()} will only compute and display pairwise balance for treatment comparisons that include the focal group. For example, if "A" was to be compared with "B" and "C", "A" would be considered focal, and the comparison between groups "B" and "C" would not be computed. In general it is only a good idea to specify \code{focal} if and only if the ATT is sought.}
-\item{which.treat}{This is a display option that does not affect computation. When displaying the \code{bal.tab} output, which treatments should be displayed? If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, inputting \code{"A"} will display "A vs. B" and "A vs. C", while entering \code{c("A", "B")} will only display "A vs. B". \code{.none} indicates no treatment comparisons will be displayed, and \code{.all} indicates all treatment comparisons will be displayed. \code{.none} is the default.}
-\item{multi.summary}{If \code{TRUE}, the balance summary across all comparisons will be computed and displayed. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested in addition to mean differences, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. The default is \code{TRUE}, and if \code{which.treat} is \code{.none}, it will automatically be set to \code{TRUE}.}
+\item{pairwise}{
+Whether to compute the two-group comparisons pairwise or not. If \code{TRUE}, \code{bal.tab()} will compute comparisons for each pair of treatments. This can be valuable if treatments are to be compared with one another (which is often the case). If \code{FALSE}, \code{bal.tab()} will compute balance for each treatment group against the full unadjusted sample. This only makes sense if the ATE is desired. When \code{focal} is specified, \code{pairwise} is automatically set to \code{TRUE}.
+}
+\item{focal}{
+When one group is to be compared to multiple control groups in an ATT analysis, the group considered "treated" is the focal group. Only comparisons between other groups and the focal group are of interest. By specifying the name or index of the treatment condition considered focal, \code{bal.tab()} will only compute and display pairwise balance for treatment comparisons that include the focal group. For example, if "A" was to be compared with "B" and "C", "A" would be considered focal, and the comparison between groups "B" and "C" would not be computed. In general it is only a good idea to specify \code{focal} if and only if the ATT is sought.
+}
+\item{which.treat}{
+This is a display option that does not affect computation. When displaying the \code{bal.tab} output, which treatments should be displayed? If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, inputting \code{"A"} will display "A vs. B" and "A vs. C", while entering \code{c("A", "B")} will only display "A vs. B". \code{.none} indicates no treatment comparisons will be displayed, and \code{.all} indicates all treatment comparisons will be displayed. \code{.none} is the default.
+}
+\item{multi.summary}{
+If \code{TRUE}, the balance summary across all comparisons will be computed and displayed. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested in addition to mean differences, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. The default is \code{TRUE}, and if \code{which.treat} is \code{.none}, it will automatically be set to \code{TRUE}.
+}
 }
 \value{
 The output is a \code{bal.tab.multi} object, which inherits from \code{bal.tab}. It has the following elements:
@@ -25,6 +33,9 @@ The output is a \code{bal.tab.multi} object, which inherits from \code{bal.tab}.
 \item{Observations}{A table of sample sizes or effective sample sizes for each treatment group before and after adjustment.}
 
 As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.
+}
+\note{
+In versions 4.3.1 and earlier, setting \code{pairwise = FALSE} would comapre each group to the full adjusted sample. Now, each group is compared to the full \emph{un}adjusted sample (unadjusted except for \code{s.weights}, if supplied).
 }
 
 \author{

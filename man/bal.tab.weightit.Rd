@@ -150,6 +150,7 @@ w.out2 <- weightit(race ~ age + educ + married +
                    data = lalonde, method = "ps",
                    estimand = "ATE", use.mlogit = FALSE)
 bal.tab(w.out2, un = TRUE)
+bal.tab(w.out2, un = TRUE, pairwise - FALSE)
 
 ## IPW for longitudinal treatments
 data("iptwExWide", package = "twang")

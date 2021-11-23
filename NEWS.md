@@ -3,6 +3,8 @@
 
 # cobalt (development version)
 
+* When `pairwise = FALSE` with binary or multi-category treatments, the balance statistics now refer to the difference between each group and the original full sample, unadjusted except possibly by `s.weights`. Previously, they referred to the difference between each group and the combined adjusted sample.
+
 * Fixed several bugs when using `love.plot()` with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.
 
 * Fixed a bug in how `get.w()` computed weights for `Match` objects resulting from `Matching::Match()` with `estimand = "ATE"`. Results now agree with `Matching::MatchBalance()`.
