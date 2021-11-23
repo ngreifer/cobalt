@@ -214,26 +214,9 @@ get.w.iptw <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
     return(w)
 }
 get.w.Match <- function(x, ...) {
-    nobs <- x$orig.nobs
-    ci <- x$index.control
-    ti <- x$index.treated
-    di <- x$index.dropped
-    
-    tr <- rep(0, nobs)
-    
-    tr[ti] <- 1
-    tr[di] <- 1
-    
-    w <- rep(1, nobs)
-    cu <- which(tr != 1)
-    weight.by.c <- setNames(x$weights, ci)
-    
-    w[di] <- 0
-    w[cu] <- vapply(cu, function(x) {
-        sum(weight.by.c[names(weight.by.c) == as.character(x)])
+    vapply(seq_len(x$orig.nobs), function(i) {
+        sum(x$weights[x$index.treated == i | x$index.control == i])
     }, numeric(1L))
-    
-    return(w)
 }
 get.w.CBPS <- function(x, estimand, ...) {
     A <- list(...)

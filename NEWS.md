@@ -5,6 +5,8 @@
 
 * Fixed several bugs when using `love.plot()` with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.
 
+* Fixed a bug in how `get.w()` computed weights for `Match` objects resulting from `Matching::Match()` with `estimand = "ATE"`. Results now agree with `Matching::MatchBalance()`.
+
 * Fixed a bug that would occur when using `cobalt` functions without attaching the package (e.g., `cobalt::bal.tab()`).
 
 * Fixed a bug that would occur with ordinal treatments.
