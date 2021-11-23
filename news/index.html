@@ -152,6 +152,7 @@
 </h1>
 <ul>
 <li><p>Fixed several bugs when using <code><a href="../reference/love.plot.html">love.plot()</a></code> with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.</p></li>
+<li><p>Fixed a bug in how <code><a href="../reference/get.w.html">get.w()</a></code> computed weights for <code>Match</code> objects resulting from <code><a href="https://rdrr.io/pkg/Matching/man/Match.html">Matching::Match()</a></code> with <code>estimand = "ATE"</code>. Results now agree with <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html">Matching::MatchBalance()</a></code>.</p></li>
 <li><p>Fixed a bug that would occur when using <code>cobalt</code> functions without attaching the package (e.g., <code><a href="../reference/bal.tab.html">cobalt::bal.tab()</a></code>).</p></li>
 <li><p>Fixed a bug that would occur with ordinal treatments.</p></li>
 <li><p>Added better support for negative weights. The effective sample size now uses the absolute value of the weights.</p></li>
