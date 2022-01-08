@@ -21,7 +21,7 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
         mat <- do.call("splitfactor", c(list(mat, drop.first ="if2"),
-                                      A))
+                                        A))
         mat <- as.matrix(mat)
     }
     
@@ -71,8 +71,8 @@ col_w_sd <- function(mat, weights = NULL, s.weights = NULL, bin.vars, subset = N
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
         mat <- do.call("splitfactor", c(list(mat, drop.first ="if2",
-                                           split.with = bin.vars),
-                                      A))
+                                             split.with = bin.vars),
+                                        A))
         bin.vars <- attr(mat, "split.with")[[1]]
         mat <- as.matrix(mat)
     }
@@ -105,6 +105,9 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     # allowable.s.d.denoms <- c("pooled", "all", "weighted")
     # if (length(treat_names(treat)) == 2) allowable.s.d.denoms <- c(allowable.s.d.denoms, "treated", "control")
     
+    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
+    if (anyNA(treat)) stop("Missing values are not allowed in 'treat'.")
+    
     needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
@@ -126,14 +129,13 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
         A <- A[names(A) %in% names(formals(splitfactor)) & 
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
-        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
-                                           split.with = bin.vars),
-                                      A))
+        mat <- do.call("splitfactor", c(list(mat, drop.first ="if2",
+                                             split.with = bin.vars),
+                                        A))
         bin.vars <- attr(mat, "split.with")[[1]]
         mat <- as.matrix(mat)
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
         stop("'std' must be a logical vector with length equal to 1 or the number of columns of mat.")
@@ -174,7 +176,7 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     diffs <- m1 - m0
     zeros <- check_if_zero(diffs)
     
-    if (any(to.sd <- std & !zeros)) {
+    if (any(to.sd <- std & !is.na(zeros) & !zeros)) {
         denoms <- compute_s.d.denom(mat, treat = treat, 
                                     s.d.denom = s.d.denom, s.weights = s.weights, 
                                     bin.vars = bin.vars, subset = subset, to.sd = to.sd,
@@ -182,17 +184,20 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
         
         diffs[to.sd] <- diffs[to.sd]/denoms[to.sd]
     }
-
+    
     if (abs) diffs <- abs(diffs)
     else {
         tval1 <- treat[subset][binarize(treat[subset])==1][1]
         if (tval1 != tval1_0) diffs <- -1*diffs
     }
-
+    
     return(setNames(diffs, colnames(mat)))
     
 }
 col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, bin.vars, subset = NULL, na.rm = TRUE, ...) {
+    
+    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
+    if (anyNA(treat)) stop("Missing values are not allowed in 'treat'.")
     
     needs.splitting <- FALSE
     if (!is.matrix(mat)) {
@@ -215,14 +220,12 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
         A <- A[names(A) %in% names(formals(splitfactor)) & 
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
-        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
-                                           split.with = bin.vars),
-                                      A))
+        mat <- do.call("splitfactor", c(list(mat, drop.first ="if2",
+                                             split.with = bin.vars),
+                                        A))
         bin.vars <- attr(mat, "split.with")[[1]]
         mat <- as.matrix(mat)
     }
-    
-    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
     
     if (!rlang::is_bool(abs)) {
         stop("'abs' must be a logical of length 1.")
@@ -270,6 +273,9 @@ col_w_vr <- function(mat, treat, weights = NULL, abs = FALSE, s.weights = NULL, 
 }
 col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, subset = NULL, na.rm = TRUE, ...) {
     
+    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
+    if (anyNA(treat)) stop("Missing values are not allowed in 'treat'.")
+    
     needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
@@ -291,15 +297,13 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
         A <- A[names(A) %in% names(formals(splitfactor)) & 
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
-        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
-                                           split.with = bin.vars),
-                                      A))
+        mat <- do.call("splitfactor", c(list(mat, drop.first ="if2",
+                                             split.with = bin.vars),
+                                        A))
         bin.vars <- attr(mat, "split.with")[[1]]
         mat <- as.matrix(mat)
     }
     
-    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
-
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
                         possibly.supplied)
@@ -354,6 +358,10 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
 col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, integrate = FALSE, subset = NULL, na.rm = TRUE, ...) {
     
     A <- list(...)
+    
+    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
+    if (anyNA(treat)) stop("Missing values are not allowed in 'treat'.")
+    
     needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
@@ -374,14 +382,12 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
         B <- A[names(A) %in% names(formals(splitfactor)) & 
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
-        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
-                                           split.with = bin.vars),
-                                      B))
+        mat <- do.call("splitfactor", c(list(mat, drop.first ="if2",
+                                             split.with = bin.vars),
+                                        B))
         bin.vars <- attr(mat, "split.with")[[1]]
         mat <- as.matrix(mat)
     }
-    
-    if (missing(treat) || !is.atomic(treat)) stop("'treat' must be an atomic vector.")
     
     possibly.supplied <- c("mat", "treat", "weights", "s.weights", "subset")
     lengths <- setNames(vapply(mget(possibly.supplied), len, integer(1L)),
@@ -433,14 +439,14 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
                 }
                 
                 f1_ <- approxfun(do.call(density.default, c(list(cov[treat==tval1], 
-                                                                weights = weights[treat==tval1]/sum(weights[treat==tval1])), A)))
+                                                                 weights = weights[treat==tval1]/sum(weights[treat==tval1])), A)))
                 f1 <- function(x) {
                     y <- f1_(x)
                     y[is.na(y)] <- 0
                     return(y)
                 }
                 f0_ <- approxfun(do.call(density.default, c(list(cov[treat!=tval1], 
-                                                                weights = weights[treat!=tval1]/sum(weights[treat!=tval1])), A)))
+                                                                 weights = weights[treat!=tval1]/sum(weights[treat!=tval1])), A)))
                 f0 <- function(x) {
                     y <- f0_(x)
                     y[is.na(y)] <- 0
@@ -480,6 +486,9 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
 }
 col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE, s.d.denom = "all", abs = FALSE, s.weights = NULL, bin.vars, subset = NULL, weighted.weights = weights, na.rm = TRUE, ...) {
     
+    if (missing(treat) || !is.atomic(treat) || !is.numeric(treat)) stop("'treat' must be a numeric variable.")
+    if (anyNA(treat)) stop("Missing values are not allowed in 'treat'.")
+    
     needs.splitting <- FALSE
     if (!is.matrix(mat)) {
         if (is.data.frame(mat)) {
@@ -501,14 +510,12 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
         A <- A[names(A) %in% names(formals(splitfactor)) & 
                    names(A) %nin% c("data", "var.name", "drop.first",
                                     "drop.level", "split.with")]
-        mat <- do.call(splitfactor, c(list(mat, drop.first ="if2",
-                                           split.with = bin.vars),
-                                      A))
+        mat <- do.call("splitfactor", c(list(mat, drop.first ="if2",
+                                             split.with = bin.vars),
+                                        A))
         bin.vars <- attr(mat, "split.with")[[1]]
         mat <- as.matrix(mat)
     }
-    
-    if (missing(treat) || !is.atomic(treat) || !is.numeric(treat)) stop("'treat' must be a numeric variable.")
     
     if (!is.atomic(std) || anyNA(as.logical(std)) ||
         length(std) %nin% c(1L, NCOL(mat))) {
@@ -553,13 +560,13 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     
     zeros <- check_if_zero(covars)
     
-    if (any(to.sd <- std & !zeros)) {
-
+    if (any(to.sd <- std & !is.na(zeros) & !zeros)) {
+        
         denoms <- compute_s.d.denom(mat, treat = treat, 
                                     s.d.denom = s.d.denom, s.weights = s.weights, 
                                     bin.vars = bin.vars, subset = subset, to.sd = to.sd,
                                     weighted.weights = weighted.weights, na.rm = na.rm)
-
+        
         covars <- covars / denoms
     }
     
