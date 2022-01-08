@@ -122,7 +122,7 @@ x2base.matchit <- function(m, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -336,7 +336,7 @@ x2base.ps <- function(ps, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -907,7 +907,7 @@ x2base.Match <- function(Match, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -1228,7 +1228,7 @@ x2base.data.frame <- function(covs, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -1430,7 +1430,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -1612,7 +1612,7 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -1797,7 +1797,7 @@ x2base.optmatch <- function(optmatch, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process match.strata
@@ -1977,7 +1977,7 @@ x2base.cem.match <- function(cem.match, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process match.strata
@@ -2142,7 +2142,7 @@ x2base.weightit <- function(weightit, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -2327,7 +2327,7 @@ x2base.designmatch <- function(dm, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -2518,7 +2518,7 @@ x2base.mimids <- function(mimids, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -2701,7 +2701,7 @@ x2base.wimids <- function(wimids, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -2884,7 +2884,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
         if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-        if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+        if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
     }
     
     #Process subclass
@@ -4266,7 +4266,7 @@ x2base.default <- function(obj, ...) {
         #Process pairwise
         if (get.treat.type(treat) == "binary" && is_null(focal)) {
             if (is_null(A[["pairwise"]])) A[["pairwise"]] <- TRUE
-            if (!A[["pairwise"]]) attr(treat, "treat.type") <- "multinomial"
+            if (isFALSE(A[["pairwise"]])) attr(treat, "treat.type") <- "multinomial"
         }
         
         #Process stats and thresholds
