@@ -323,7 +323,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   return(t.c)
 }
 use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, needs.treat = TRUE, needs.covs = TRUE) {
-
+  
   treat_f <- treat_c <- covs_f <- covs_c <- NULL
   
   if (is_(formula, "formula")) {
@@ -363,59 +363,56 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
   }
   
   covs_to_use <- treat_to_use <- ""
-  if (needs.covs) {
-    if (is_error(covs_c)) {
-      if (null_or_error(covs_f)) {
-        stop(attr(covs_c, "condition")$message, call. = FALSE)
-      }
-      else {
-        covs_to_use <- "f"
-      }
-    }
-    else if (is_null(covs_c)) {
-      if (is_error(covs_f)) {
-        stop(attr(covs_f, "condition")$message, call. = FALSE)
-      }
-      else if (is_null(covs_f)) {
-        stop("No covariates were specified.", call. = FALSE)
-      }
-      else {
-        covs_to_use <- "f"
-      }
+  if (is_error(covs_c)) {
+    if (null_or_error(covs_f) && needs.covs) {
+      stop(attr(covs_c, "condition")$message, call. = FALSE)
     }
     else {
-      covs_to_use <- "c"
+      covs_to_use <- "f"
     }
   }
-  if (needs.treat) {
-    if (is_error(treat_c)) {
-      if (null_or_error(treat_f)) {
-        stop(attr(treat_c, "condition")$message, call. = FALSE)
-      }
-      else {
-        treat_to_use <- "f"
-      }
+  else if (is_null(covs_c)) {
+    if (is_error(covs_f) && needs.covs) {
+      stop(attr(covs_f, "condition")$message, call. = FALSE)
     }
-    else if (is_null(treat_c)) {
-      if (is_error(treat_f)) {
-        stop(attr(treat_f, "condition")$message, call. = FALSE)
-      }
-      else if (is_null(treat_f)) {
-        stop("No treatment variable was specified.", call. = FALSE)
-      }
-      else {
-        treat_to_use <- "f"
-      }
+    else if (is_null(covs_f) && needs.covs) {
+      stop("No covariates were specified.", call. = FALSE)
     }
     else {
-      treat_to_use <- "c"
+      covs_to_use <- "f"
     }
   }
-
+  else {
+    covs_to_use <- "c"
+  }
+  
+  if (is_error(treat_c)) {
+    if (null_or_error(treat_f) && needs.treat) {
+      stop(attr(treat_c, "condition")$message, call. = FALSE)
+    }
+    else {
+      treat_to_use <- "f"
+    }
+  }
+  else if (is_null(treat_c)) {
+    if (is_error(treat_f) && needs.treat) {
+      stop(attr(treat_f, "condition")$message, call. = FALSE)
+    }
+    else if (is_null(treat_f) && needs.treat) {
+      stop("No treatment variable was specified.", call. = FALSE)
+    }
+    else {
+      treat_to_use <- "f"
+    }
+  }
+  else {
+    treat_to_use <- "c"
+  }
+  
   t.c <- list(treat = switch(treat_to_use, "f" = treat_f, "c" = treat_c), 
               covs = switch(covs_to_use, "f" = covs_f, "c" = covs_c))
   t.c$treat.name <- attr(t.c$treat, "treat.name")
-
+  
   return(t.c)
 }
 process.val <- function(val, i, treat = NULL, covs = NULL, addl.data = list(), ...) {

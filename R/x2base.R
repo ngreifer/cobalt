@@ -1760,8 +1760,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process treat
     t.c <- use.tc.fd(A[["formula"]], data = data, covs = A[["covs"]],
-                     treat = if_null_then(A[["treat"]], as.numeric(attr(optmatch, "contrast.group"))),
-                     needs.covs = FALSE)
+                     treat = if_null_then(A[["treat"]], as.numeric(attr(optmatch, "contrast.group"))))
     treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
     #Process covs
