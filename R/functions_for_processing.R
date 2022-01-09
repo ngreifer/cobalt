@@ -281,7 +281,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   if (is_(formula, "formula")) {
     D <- NULL
     if (is_not_null(data)) D <- data
-    if (is_not_null(covs) && is_(covs, c("data.frame", "matrix"))) {
+    if (is_mat_like(covs)) {
       if (is_not_null(D)) D <- cbind(D, as.data.frame(covs)) 
       else D <- as.data.frame(covs)
     }
@@ -292,9 +292,9 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   }
   else {
     if (is_not_null(covs)) {
-      if (is_(covs, c("data.frame", "matrix"))) covs <- get_covs_from_formula(data = covs)
+      if (is_mat_like(covs)) covs <- get_covs_from_formula(data = covs)
       else if (is.character(covs)) {
-        if (is_not_null(data) && is_(data, c("data.frame", "matrix"))) {
+        if (is_mat_like(data)) {
           if (any(covs %nin% colnames(data))) {
             stop("All entries in 'covs' must be names of variables in 'data'.", call. = FALSE)
           }
@@ -329,7 +329,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
   if (is_(formula, "formula")) {
     D <- NULL
     if (is_not_null(data)) D <- data
-    if (is_not_null(covs) && is_(covs, c("data.frame", "matrix"))) {
+    if (is_mat_like(covs)) {
       if (is_not_null(D)) D <- cbind(D, as.data.frame(covs)) 
       else D <- as.data.frame(covs)
     }
@@ -338,9 +338,9 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
   }
   if (is_not_null(covs)) {
     covs_c <- try({
-      if (is_(covs, c("data.frame", "matrix"))) get_covs_from_formula(data = covs)
+      if (is_mat_like(covs)) get_covs_from_formula(data = covs)
       else if (is.character(covs)) {
-        if (is_not_null(data) && is_(data, c("data.frame", "matrix"))) {
+        if (is_mat_like(data)) {
           if (any(covs %nin% colnames(data))) {
             stop("All entries in 'covs' must be names of variables in 'data'.", call. = FALSE)
           }
@@ -1107,7 +1107,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
                 if (unsorted.imp) {for (i_ in levels(imp)) newj[imp == i_] <- j}
                 return(newj)
               }
-              else if (is_(j, c("data.frame", "matrix"))) {
+              else if (is_mat_like(j)) {
                 newj <- j[rep(seq_len(nrow(j)), length(imp.lengths)), , drop = FALSE]
                 if (unsorted.imp) {for (i_ in levels(imp)) newj[imp == i_,] <- j}
                 return(newj)
@@ -1233,8 +1233,8 @@ process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, met
     weights <- get.w(obj, treat = treat, ...)
     
     if (is_not_null(weights)) {
-      if (is_(weights, c("data.frame", "matrix"))) {
-        weights <- data.frame(weights)
+      if (is_mat_like(weights)) {
+        weights <- as.data.frame(weights)
       }
       else {
         weights <- setNames(data.frame(weights), class(obj)[has_method(class(obj), "get.w")][1])
@@ -1524,10 +1524,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   ttvars <- setNames(vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1], rownames(ttfactors))
   
   rhs.df.type <- setNames(vapply(ttvars, function(v) {
-    if (is_(try(eval(str2expression(paste0("`", v, "`")), data, env), silent = TRUE),
-            c("data.frame", "matrix", "rms"))) "lit"
-    else if (is_(try(eval(str2expression(v), data, env), silent = TRUE),
-                 c("data.frame", "matrix", "rms"))) "exp"
+    if (length(dim(try(eval(str2expression(paste0("`", v, "`")), data, env), silent = TRUE))) == 2) "lit"
+    else if (length(dim(try(eval(str2expression(v), data, env), silent = TRUE))) == 2) "exp"
     else "not.a.df"
   }, character(1L)), ttvars)
   

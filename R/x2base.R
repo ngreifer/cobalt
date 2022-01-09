@@ -15,7 +15,7 @@ x2base.matchit <- function(m, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame")) {
+        else if (!is.data.frame(data)) {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
         }
@@ -285,7 +285,7 @@ x2base.ps <- function(ps, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -495,7 +495,7 @@ x2base.mnps <- function(mnps, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -690,7 +690,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -858,7 +858,7 @@ x2base.Match <- function(Match, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -1056,7 +1056,7 @@ x2base.data.frame <- function(covs, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -1378,7 +1378,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -1563,7 +1563,7 @@ x2base.ebalance <- function(ebalance, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -1741,7 +1741,7 @@ x2base.optmatch <- function(optmatch, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -1923,7 +1923,7 @@ x2base.cem.match <- function(cem.match, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -2099,7 +2099,7 @@ x2base.weightit <- function(weightit, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             data <- NULL
         }
@@ -2277,7 +2277,7 @@ x2base.designmatch <- function(dm, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -2462,7 +2462,7 @@ x2base.mimids <- function(mimids, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -2654,7 +2654,7 @@ x2base.wimids <- function(wimids, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -2835,7 +2835,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -3043,7 +3043,7 @@ x2base.iptw <- function(iptw, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -3238,7 +3238,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -3261,7 +3261,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     if (!is_(covs.list, "list")) {
         stop("'covs.list' must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
     }
-    if (any(!vapply(covs.list, is_, logical(1L), c("data.frame", "matrix")))) {
+    if (any(!vapply(covs.list, is_mat_like, logical(1L)))) {
         stop("Each item in 'covs.list' must be a data frame.", call. = FALSE)
     }
     if (any(vapply(covs.list, function(x) is_null(attr(x, "co.names")), logical(1L)))) {
@@ -3495,7 +3495,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -3679,7 +3679,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is_(data, "data.frame"))
+        else if (!is.data.frame(data))
         {
             # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
             data <- NULL
@@ -4028,7 +4028,7 @@ x2base.default <- function(obj, ...) {
                 data <- imp.complete(data)
                 if (is_null(imp)) imp <- data[[".imp"]]
             }
-            else if (!is_(data, "data.frame"))
+            else if (!is.data.frame(data))
             {
                 # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
                 data <- NULL
@@ -4350,7 +4350,7 @@ x2base.default <- function(obj, ...) {
                 data <- imp.complete(data)
                 if (is_null(imp)) imp <- data[[".imp"]]
             }
-            else if (!is_(data, "data.frame"))
+            else if (!is.data.frame(data))
             {
                 # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
                 data <- NULL

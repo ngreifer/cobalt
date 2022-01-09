@@ -781,8 +781,9 @@ all_the_same <- function(x, na.rm = TRUE) {
 is_binary <- function(x, na.rm = TRUE) {
     if (na.rm && anyNA(x)) x <- na.rem(x)
     #Only return TRUE if not a continuous number that happens to take 2 values
-    (!is.numeric(x) || all(check_if_zero(round(x) - x))) && 
-            !all_the_same(x) && all_the_same(x[x != x[1]])
+    is_not_null(x) && 
+        (!is.numeric(x) || all(check_if_zero(round(x) - x))) && 
+        !all_the_same(x) && all_the_same(x[x != x[1]])
 }
 is_binary_col <- function(dat, na.rm = TRUE) {
     if (length(dim(dat)) != 2) stop("is_binary_col cannot be used with objects that don't have 2 dimensions.")
@@ -880,6 +881,9 @@ is_ <- function(x, types, stop = FALSE, arg.to = FALSE) {
     }
     return(it.is)
 }
+is_mat_like <- function(x) {
+    length(dim(x)) == 2
+}
 is_null <- function(x) length(x) == 0L
 is_not_null <- function(x) !is_null(x)
 if_null_then <- function(x1 = NULL, x2 = NULL, ...) {
@@ -921,7 +925,8 @@ probably.a.bug <- function() {
     #Partial in w/ charmatch. TRUE if x at all in table.
     !is.na(charmatch(x, table))
 }
-null_or_error <- function(x) {is_null(x) || any(class(x) == "try-error")}
+is_error <- function(x) {inherits(x, "try-error")}
+null_or_error <- function(x) {is_null(x) || is_error(x)}
 match_arg <- function(arg, choices, several.ok = FALSE) {
     #Replaces match.arg() but gives cleaner error message and processing
     #of arg.
