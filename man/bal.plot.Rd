@@ -31,10 +31,10 @@ bal.plot(x,
 }
 \arguments{
   \item{x}{
-the object for which balance is to be assessed; can be any object for which there is support in \code{bal.tab}.
+the object for which balance is to be assessed; can be any object for which there is support in \fun{bal.tab}.
 }
   \item{var.name}{
-\code{character}; the name of the variable whose values are to be plotted. To view distributions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate \code{data.frame} from \code{obj}, followed by \code{addl}, and then \code{distance}, if any. If not specified, will use the first covariate available with a warning.
+\code{character}; the name of the variable whose values are to be plotted. To view distributions of the distance measure (e.g., propensity score), if any, use \code{"distance"} as the argument unless the distance variable has been named. If there are duplicate variable names across inputs, \code{bal.plot()} will first look in the covariate \code{data.frame} from \code{x}, followed by \code{addl}, and then \code{distance}, if any. If not specified, will use the first covariate available with a warning.
 }
   \item{\dots}{
 other arguments to define the variable, treatment, and weights. Some inputs are required depending on the method. See Additional Arguments. Can also be used to supply the \code{bw}, \code{adjust}, \code{kernel}, and \code{n} arguments for \pkgfun{ggplot2}{geom_density} and the \code{bins} argument for \pkgfun{ggplot2}{geom_histogram}.
@@ -82,7 +82,7 @@ a vector of colors for the plotted densities/histograms. See 'Color Specificatio
 the position of the legend. This can be any value that would be appropriate as an argument to \code{legend.position} in \pkgfun{ggplot2}{theme}.
 }
   \item{facet.formula}{
-a \code{formula} designating which facets should be on the rows and columns. This should be of the "historical" formula interface to \pkgfun{ggplot2}{facet_grid}. If of the form \code{a ~ b}, \code{a} will be faceted on the rows and \code{b} on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form \code{a ~ .} (i.e., with only \code{.} on the right-hand side). The allowable facets depend on which arguments have been supplied to \code{bal.plot}; possible values include \code{which}, \code{cluster}, \code{imp}, and (for longitudinal treatments) \code{time}. If \code{NULL}, \code{bal.plot()} will decide what looks best; this argument exists in case you disagree with its choice.
+a \code{formula} designating which facets should be on the rows and columns. This should be of the "historical" formula interface to \pkgfun{ggplot2}{facet_grid}. If of the form \code{a ~ b}, \code{a} will be faceted on the rows and \code{b} on the columns. To only facet on the rows, provide a one-sided formula with an empty left-hand side. To only facet on the columns, the formula should be of the form \code{a ~ .} (i.e., with only \code{.} on the right-hand side). The allowable facets depend on which arguments have been supplied to \code{bal.plot()}; possible values include \code{which}, \code{cluster}, \code{imp}, and (for longitudinal treatments) \code{time}. If \code{NULL}, \code{bal.plot()} will decide what looks best; this argument exists in case you disagree with its choice.
 }
   \item{disp.means}{
 \code{logical}; for a categorical treatment with a continuous covariate, whether a line should be drawn for each treatment level denoting the (weighted) mean of the covariate. Ignored if \code{type} is not "density" or "histogram". Default is \code{FALSE}.
