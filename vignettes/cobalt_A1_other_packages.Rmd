@@ -109,7 +109,7 @@ knitr::opts_chunk$set(eval = TRUE)
 ```{r, include=FALSE}
 if (!requireNamespace("Matching", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
 ```
-The `Matching` package is used for propensity score matching, and was also the first package to implement genetic matching. `MatchIt` calls `Matching` to use genetic matching and can accomplish many of the matching methods `Matching` can, but `Matching` is still a widely used package with its own strengths. `bal.tab()` functions similarly to `Matching`'s `MatchBalance()` command, which yields a thorough presentation of balance, and makes `Matching` the only package of those integrated with `cobalt` to display variance ratios by default. Below is a simple example of the use of `bal.tab()` with `Matching`:
+The `Matching` package is used for propensity score matching, and was also the first package to implement genetic matching. `MatchIt` calls `Matching` to use genetic matching and can accomplish many of the matching methods `Matching` can, but `Matching` is still a widely used package with its own strengths. `bal.tab()` functions similarly to `Matching`'s `MatchBalance()` command, which yields a thorough presentation of balance. Below is a simple example of the use of `bal.tab()` with `Matching`:
 
 
 ```{r}
@@ -125,7 +125,7 @@ bal.tab(match.out, formula = f.build("treat", covs0), data = lalonde,
         distance = ~ p.score)
 ```
 
-The output looks quite different from `Matching`'s `MatchBalance()` output. Rather than being stacked vertically, balance statistics are arranged horizontally in a table format, allowing for quick balance checking. Below the balance table is a summary of the sample size before and after matching, similar to what `Matching`'s `summary()` command would display. The sample size can include a "weighted" and "unweighted" count; the "weighted" count is the sum of the matching weights, while the  "unweighted" is the count of units with nonzero matching weights. 
+The output looks quite different from `Matching`'s `MatchBalance()` output. Rather than being stacked vertically, balance statistics are arranged horizontally in a table format, allowing for quick balance checking. Below the balance table is a summary of the sample size before and after matching, similar to what `Matching`'s `summary()` command would display. The sample size can include an "ESS" and "unweighted" value; the "ESS" value is the effective sample size resulting from the matching weights, while the "unweighted" is the count of units with nonzero matching weights. 
 
 The input to `bal.tab()` is similar to that given to `MatchBalance()`: the `Match` object resulting from the call to `Match()`, a formula relating treatment to the covariates for which balance is to be assessed, and the original data set. This is not the only way to call `bal.tab()`: instead of a formula and a data set, one can also input a data frame of covariates and a vector of treatment status indicators, just as when using `bal.tab()` without a conditioning package. For example, the code below will yield the same results as the call to `bal.tab()` above:
 
@@ -180,8 +180,6 @@ bal.tab(cbps.out)
 First is the original call to `CBPS()`. Next is the balance table containing mean differences for the covariates included in the input to `CBPS()`. Last is a table displaying sample size information. The "effective" sample size is displayed when weighting (rather than matching or subclassification) is used; it is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" in the main vignette for details on this calculation.
 
 The other arguments to `bal.tab()` when using it with `CBPS` have the same form and function as those given when using it without a conditioning package, except for `s.d.denom`. If the estimand of the original call to `CBPS()` is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable.
-
-When using `CBPS` and `bal.tab()` with continuous treatments, the same guidelines apply as when using `bal.tab()` with continuous treatments without a conditioning package. See the section "Using cobalt with continuous treatments" in the main vignette for more details.
 
 `CBPSContinuous` objects resulting from fitting models in `CBPS` with continuous treatments are also compatible with `cobalt`. See the section "Using `cobalt` with continuous treatments" in the main vignette. `CBPS` objects resulting from fitting models in `CBPS` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `CBMSM` objects resulting from fitting models in `CBPS` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette.
 ```{r, include=FALSE, eval=TRUE}

@@ -5,15 +5,17 @@
 
 * When `pairwise = FALSE` with binary or multi-category treatments, the balance statistics now refer to the difference between each group and the original full sample, unadjusted except possibly by `s.weights`. Previously, they referred to the difference between each group and the combined adjusted sample.
 
+* When subclassification is used and some units are discarded, `bal.tab()` now reports the number of discarded units along with with the number of units in each subclass in the sample sizes table.(#59)
+
 * Fixed several bugs when using `love.plot()` with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.
 
 * Fixed a bug in how `get.w()` computed weights for `Match` objects resulting from `Matching::Match()` with `estimand = "ATE"`. Results now agree with `Matching::MatchBalance()`.
 
-* Fixed a bug that would occur when using `cobalt` functions without attaching the package (e.g., `cobalt::bal.tab()`).
+* Fixed a bug that would occur when using `cobalt` functions without attaching the package (e.g., `cobalt::bal.tab()`). (#53)
 
 * Fixed a bug that would occur with ordinal treatments.
 
-* Added better support for negative weights. The effective sample size now uses the absolute value of the weights.
+* Added better support for negative weights.
 
 * Fixed typos (#54, many identified and fixed by @jessecambon).
 
