@@ -300,7 +300,7 @@ binarize <- function(variable, zero = NULL, one = NULL) {
     }
 }
 ESS <- function(w) {
-    sum(abs(w))^2/sum(w^2)
+    sum(w)^2/sum(w^2)
 }
 center <- function(x, at = NULL, na.rm = TRUE) {
     if (is.data.frame(x)) {
