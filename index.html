@@ -26,6 +26,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -38,18 +40,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">4.3.1.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="articles/cobalt.html">Get started</a>
 </li>
@@ -83,7 +79,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/ngreifer/cobalt/">
+  <a href="https://github.com/ngreifer/cobalt/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -100,41 +96,41 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="cobalt-covariate-balance-tables-and-plots-" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#cobalt-covariate-balance-tables-and-plots-" class="anchor"></a>cobalt: Covariate Balance Tables and Plots <img src="reference/figures/logo.png" align="right" width="150">
+<div class="section level1">
+<div class="page-header"><h1 id="cobalt-covariate-balance-tables-and-plots-">cobalt: Covariate Balance Tables and Plots <img src="reference/figures/logo.png" align="right" width="150"><a class="anchor" aria-label="anchor" href="#cobalt-covariate-balance-tables-and-plots-"></a>
 </h1></div>
-<div id="cran_status_badge-cran_downloads_badge" class="section level2">
-<h2 class="hasAnchor">
-<a href="#cran_status_badge-cran_downloads_badge" class="anchor"></a><a href="https://cran.r-project.org/package=cobalt"><img src="https://img.shields.io/cran/v/cobalt?color=%230047ab" alt="CRAN_Status_Badge"></a> <a href="https://cran.r-project.org/package=cobalt"><img src="https://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab" alt="CRAN_Downloads_Badge"></a>
+<div class="section level2">
+<h2 id="cran_status_badge-cran_downloads_badge">
+<a href="https://cran.r-project.org/package=cobalt" class="external-link"><img src="https://img.shields.io/cran/v/cobalt?color=%230047ab" alt="CRAN_Status_Badge"></a> <a href="https://cran.r-project.org/package=cobalt" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab" alt="CRAN_Downloads_Badge"></a>
+<a class="anchor" aria-label="anchor" href="#cran_status_badge-cran_downloads_badge"></a>
 </h2>
-<div id="overview" class="section level3">
-<h3 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h3>
+<div class="section level3">
+<h3 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h3>
 <p>Welcome to <code>cobalt</code>, which stands for <strong>Co</strong>variate <strong>Bal</strong>ance <strong>T</strong>ables (and Plots). <code>cobalt</code> allows users to assess balance on covariate distributions in preprocessed groups generated through weighting, matching, or subclassification, such as by using the propensity score. <code>cobalt</code>’s primary function is <code><a href="reference/bal.tab.html">bal.tab()</a></code>, which stands for “balance table”, and is meant to replace (or supplement) the balance assessment tools found in other R packages. To examine how <code><a href="reference/bal.tab.html">bal.tab()</a></code> integrates with these packages and others, see the help file for <code><a href="reference/bal.tab.html">bal.tab()</a></code> with <code><a href="reference/bal.tab.html">?bal.tab</a></code>, which links to the methods used for each package. Each page has examples of how <code><a href="reference/bal.tab.html">bal.tab()</a></code> is used with the package. There are also five vignettes detailing the use of <code>cobalt</code>, which can be accessed at <code><a href="articles/cobalt.html">vignette("cobalt")</a></code>: one for basic uses of <code>cobalt</code>, one for the use of <code>cobalt</code> with additional packages, one for the use of <code>cobalt</code> with multiply imputed and/or clustered data, one for the use of <code>cobalt</code> with longitudinal treatments, and one for the use of <code>cobalt</code> to generate publication-ready plots. Currently, <code>cobalt</code> is compatible with output from <code>MatchIt</code>, <code>twang</code>, <code>Matching</code>, <code>optmatch</code>, <code>CBPS</code>, <code>ebal</code>, <code>WeightIt</code>, <code>designmatch</code>, <code>sbw</code>, <code>MatchThem</code>, and <code>cem</code> as well as data not processed through these packages.</p>
 </div>
-<div id="why-cobalt" class="section level3">
-<h3 class="hasAnchor">
-<a href="#why-cobalt" class="anchor"></a>Why cobalt?</h3>
+<div class="section level3">
+<h3 id="why-cobalt">Why cobalt?<a class="anchor" aria-label="anchor" href="#why-cobalt"></a>
+</h3>
 <p>Most of the major conditioning packages contain functions to assess balance; so why use <code>cobalt</code> at all? <code>cobalt</code> arose out of several desiderata when using these packages: to have standardized measures that were consistent across all conditioning packages, to allow for flexibility in the calculation and display of balance measures, and to incorporate recent methodological recommendations in the assessment of balance. In addition, <code>cobalt</code> has unique plotting capabilities that make use of <code>ggplot2</code> in R for balance assessment and reporting.</p>
 <p>Because conditioning methods are spread across several packages which each have their idiosyncrasies in how they report balance (if at all), comparing the resulting balance from various conditioning methods can be a challenge. <code>cobalt</code> unites these packages by providing a single, flexible tool that intelligently processes output from any of the conditioning packages and provides the user with both useful defaults and customizable options for display and calculation. <code>cobalt</code> also allows for balance assessment on data not generated through any of the conditioning packages. In addition, <code>cobalt</code> has tools for assessing and reporting balance for clustered data sets, data sets generated through multiple imputation, and data sets with a continuous treatment variable, all features that exist in very limited capacities or not at all in other packages.</p>
 <p>A large focus in developing <code>cobalt</code> was to streamline output so that only the most useful, non-redundant, and complete information is displayed, all at the user’s choice. Balance statistics are intuitive, methodologically informed, and simple to interpret. Visual displays of balance reflect the goals of balance assessment rather than being steps removed. While other packages have focused their efforts on processing data, <code>cobalt</code> only assesses balance, and does so particularly well.</p>
 <p>New features are being added all the time, following the cutting edge of methodological work on balance assessment. As new packages and methods are developed, <code>cobalt</code> will be ready to integrate them to further our goal of simple, unified balance assessment.</p>
 </div>
-<div id="examples" class="section level3">
-<h3 class="hasAnchor">
-<a href="#examples" class="anchor"></a>Examples</h3>
+<div class="section level3">
+<h3 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h3>
 <p>Below are examples of <code>cobalt</code>’s primary functions:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://kosukeimai.github.io/MatchIt/">"MatchIt"</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/" class="external-link">"cobalt"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://kosukeimai.github.io/MatchIt/" class="external-link">"MatchIt"</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
 
 <span class="co"># Nearest neighbor matching with MatchIt</span>
-<span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span>
+<span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span>
 
 <span class="co"># Checking balance before and after matching:</span>
-<span class="fu"><a href="reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">#&gt; Call</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt;  matchit(formula = treat ~ age + educ + race + married + nodegree + </span></span>
 <span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt;     re74 + re75, data = lalonde)</span></span>
@@ -173,11 +169,11 @@
 <p><img src="reference/figures/README-unnamed-chunk-3-1.png" data-display="inline"><img src="reference/figures/README-unnamed-chunk-3-2.png" data-display="inline"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Generating a Love plot to report balance:</span>
-<span class="fu"><a href="reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">0.1</span>, 
+<span class="fu"><a href="reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">0.1</span>, 
     v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, abs <span class="op">=</span> <span class="cn">TRUE</span>, binary <span class="op">=</span> <span class="st">"std"</span>, var.order <span class="op">=</span> <span class="st">"unadjusted"</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;"></p>
 <p>Please remember to cite this package when using it to analyze data. For example, in a manuscript, you could write: “Matching was performed using the <em>Matching</em> package (Sekhon, 2011), and covariate balance was assessed using <em>cobalt</em> (Greifer, 2021), both in R (R Core Team, 2020).” Use <code>citation("cobalt")</code> to generate a bibliographic reference for the <code>cobalt</code> package.</p>
-<p>Bugs appear in <code>cobalt</code> occasionally, often found by users. Please report any bugs at <a href="https://github.com/ngreifer/cobalt/issues" class="uri">https://github.com/ngreifer/cobalt/issues</a>. To install the latest development version of <code>cobalt</code>, which may have removed a bug you’re experiencing, use the following code:</p>
+<p>Bugs appear in <code>cobalt</code> occasionally, often found by users. Please report any bugs at <a href="https://github.com/ngreifer/cobalt/issues" class="external-link uri">https://github.com/ngreifer/cobalt/issues</a>. To install the latest development version of <code>cobalt</code>, which may have removed a bug you’re experiencing, use the following code:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"ngreifer/cobalt"</span><span class="op">)</span></code></pre></div>
 </div>
@@ -187,39 +183,50 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=cobalt">https://​cloud.r-project.org/​package=cobalt</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/ngreifer/cobalt/">https://​github.com/​ngreifer/​cobalt/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/ngreifer/cobalt/issues">https://​github.com/​ngreifer/​cobalt/​issues</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=cobalt" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/ngreifer/cobalt/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/ngreifer/cobalt/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>GPL (&gt;=2)</li>
 </ul>
 </div>
-<div class="developers">
-<h2>Developers</h2>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li>Noah Greifer <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3067-7154" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li><a href="authors.html#citation">Citing cobalt</a></li>
 </ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Noah Greifer <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3067-7154" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+</ul>
+</div>
+
+
 
   </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Noah Greifer.</p>
+  <p></p>
+<p>Developed by Noah Greifer.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -227,6 +234,8 @@
 
   
 
+
+  
 
   </body>
 </html>
