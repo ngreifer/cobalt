@@ -3,6 +3,10 @@
 
 # cobalt (development version)
 
+* Added support in `bal.plot()` for negative weights with `type = "density"`.
+
+# cobalt 4.3.2
+
 * When `pairwise = FALSE` with binary or multi-category treatments, the balance statistics now refer to the difference between each group and the original full sample, unadjusted except possibly by `s.weights`. Previously, they referred to the difference between each group and the combined adjusted sample.
 
 * When subclassification is used and some units are discarded, `bal.tab()` now reports the number of discarded units along with with the number of units in each subclass in the sample sizes table.(#59)

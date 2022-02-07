@@ -3083,6 +3083,132 @@ unpack_bal.tab <- function(b) {
 }
 
 #bal.plot
+stat_density2 <- function(mapping = NULL, data = NULL,
+                         geom = "area", position = "stack",
+                         ...,
+                         bw = "nrd0",
+                         adjust = 1,
+                         kernel = "gaussian",
+                         n = 512,
+                         trim = FALSE,
+                         na.rm = FALSE,
+                         orientation = NA,
+                         show.legend = NA,
+                         inherit.aes = TRUE) {
+    
+    ggplot2::layer(
+        data = data,
+        mapping = mapping,
+        stat = StatDensity2,
+        geom = geom,
+        position = position,
+        show.legend = show.legend,
+        inherit.aes = inherit.aes,
+        params = list(
+            bw = bw,
+            adjust = adjust,
+            kernel = kernel,
+            n = n,
+            trim = trim,
+            na.rm = na.rm,
+            orientation = orientation,
+            ...
+        )
+    )
+}
+StatDensity2 <- ggplot2::ggproto("StatDensity2", Stat,
+                       required_aes = "x|y",
+                       
+                       default_aes = aes(x = after_stat(density), y = after_stat(density), fill = NA, weight = NULL),
+                       
+                       setup_params = function(data, params) {
+                           params$flipped_aes <- ggplot2::has_flipped_aes(data, params, main_is_orthogonal = FALSE, main_is_continuous = TRUE)
+                           
+                           has_x <- !(is.null(data$x) && is.null(params$x))
+                           has_y <- !(is.null(data$y) && is.null(params$y))
+                           if (!has_x && !has_y) {
+                               rlang::abort("stat_density() requires an x or y aesthetic.")
+                           }
+                           
+                           params
+                       },
+                       
+                       extra_params = c("na.rm", "orientation"),
+                       
+                       compute_group = function(data, scales, bw = "nrd0", adjust = 1, kernel = "gaussian",
+                                                n = 512, trim = FALSE, na.rm = FALSE, flipped_aes = FALSE) {
+                           data <- ggplot2::flip_data(data, flipped_aes)
+                           if (trim) {
+                               range <- range(data$x, na.rm = TRUE)
+                           } else {
+                               range <- scales[[flipped_names(flipped_aes)$x]]$dimension()
+                           }
+                           
+                           density <- compute_density2(data$x, w = data$weight, from = range[1],
+                                                      to = range[2], bw = bw, adjust = adjust, kernel = kernel, n = n)
+                           density$flipped_aes <- flipped_aes
+                           ggplot2::flip_data(density, flipped_aes)
+                       }
+                       
+)
+
+compute_density2 <- function(x, w, from, to, bw = "nrd0", adjust = 1,
+                            kernel = "gaussian", n = 512) {
+    nx <- length(x)
+    if (is.null(w)) {
+        w <- rep(1 / nx, nx)
+    } else {
+        w <- w / sum(w)
+    }
+    
+    # if less than 2 points return data frame of NAs and a warning
+    if (nx < 2) {
+        rlang::warn("Groups with fewer than two data points have been dropped.")
+        return(data.frame(
+            x = NA_real_,
+            density = NA_real_,
+            scaled = NA_real_,
+            ndensity = NA_real_,
+            count = NA_real_,
+            n = NA_integer_
+        ))
+    }
+    
+    dens <- density_neg_w_safe(x, weights = w, bw = bw, adjust = adjust,
+                           kernel = kernel, n = n, from = from, to = to)
+    
+    data.frame(
+        x = dens$x,
+        density = dens$y,
+        scaled =  dens$y / max(dens$y, na.rm = TRUE),
+        ndensity = dens$y / max(dens$y, na.rm = TRUE),
+        count =   dens$y * nx,
+        n = nx
+    )
+}
+density_neg_w_safe <- function(x, weights, bw = "nrd0", adjust = 1,
+                                       kernel = "gaussian", n = 512, from, to, ...) {
+    
+    if (any(weights < 0)) wpos <- pmax(0, weights)
+    else wpos <- weights
+
+    outpos <- density(x = x, bw = bw, adjust = adjust, kernel = kernel,
+                      n = n, from = from,
+                      to = to, weights = wpos/sum(wpos), ...)
+    
+    out <- data.frame(x = outpos$x, y = sum(wpos)*outpos$y)
+    
+    if (any(weights < 0)) {
+        wneg <- -pmin(0, weights)
+
+        outneg <- density(x = x, bw = bw, adjust = adjust, kernel = kernel,
+                          n = n, from = from,
+                          to = to, weights = wneg/sum(wneg), ...)
+        out$y <- out$y - sum(wneg)*outneg$y
+    }
+    
+   out
+}
 
 #print.bal.tab
 print.data.frame_ <- function(x, ...) {
