@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
       </span>
     </div>
 
@@ -128,13 +128,13 @@
 <dt>limits</dt>
 <dd><p><code>numeric</code>; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of <code>stats</code> that is to have limits; e.g., <code>list(m = c(-.2, .2))</code>. If values exceed the limits, they will be plotted at the edge.</p></dd>
 <dt>colors</dt>
-<dd><p>the colors of the points on the plot. See 'Color Specification' at <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par()</a></code> or the <code>ggplot2</code> <a href="https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill" class="external-link">aesthetic specifications</a> page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default <span class="pkg">ggplot2</span> colors.</p></dd>
+<dd><p>the colors of the points on the plot. See 'Color Specification' at <code><a href="https://rdrr.io/r/graphics/par.html" class="external-link">graphics::par()</a></code> or the <code>ggplot2</code> <a href="https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill" class="external-link">aesthetic specifications</a> page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default <span class="pkg">ggplot2</span> colors.</p></dd>
 <dt>shapes</dt>
 <dd><p>the shapes of the points on the plot. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the <code>ggplot2</code> <a href="https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point" class="external-link">aesthetic specifications</a> page for valid options. Values 15 to 25 are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 19 (<code>"circle filled"</code>).</p></dd>
 <dt>alpha</dt>
-<dd><p><code>numeric</code>; the transparency of the points. See <code><a href="https://ggplot2.tidyverse.org/reference/scale_alpha.html" class="external-link">scale_alpha()</a></code>.</p></dd>
+<dd><p><code>numeric</code>; the transparency of the points. See <code><a href="https://ggplot2.tidyverse.org/reference/scale_alpha.html" class="external-link">ggplot2::scale_alpha()</a></code>.</p></dd>
 <dt>size</dt>
-<dd><p><code>numeric</code>; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now <code>size</code> corresponds directly to the <code>size</code> aesthetic in <code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point()</a></code>.</p></dd>
+<dd><p><code>numeric</code>; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now <code>size</code> corresponds directly to the <code>size</code> aesthetic in <code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">ggplot2::geom_point()</a></code>.</p></dd>
 <dt>wrap</dt>
 <dd><p><code>numeric</code>; the number of characters at which to wrap axis labels to the next line. Defaults to 30. Decrease this if the axis labels are excessively long.</p></dd>
 <dt>var.names</dt>
@@ -146,12 +146,12 @@
 <dt>labels</dt>
 <dd><p><code>logical</code> or <code>character</code>; labels to give the plots when multiple <code>stats</code> are requested. If <code>TRUE</code>, the labels will be capital letters. Otherwise, must be a string with the same length as <code>stats</code>. This can be useful when the plots are to be used in an article.</p></dd>
 <dt>position</dt>
-<dd><p>the position of the legend. When <code>stats</code> has length 1, this can be any value that would be appropriate as an argument to <code>legend.position</code> in <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code>. When <code>stat</code> has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".</p></dd>
+<dd><p>the position of the legend. When <code>stats</code> has length 1, this can be any value that would be appropriate as an argument to <code>legend.position</code> in <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code>. When <code>stat</code> has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".</p></dd>
 <dt>themes</dt>
-<dd><p>an optional list of <code>theme</code> objects to append to each individual plot. Each entry should be the output of a call to <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme()</a></code> in <span class="pkg">ggplot2</span>. This is a way to customize the individual plots when multiple <code>stats</code> are requested since the final output is not a manipulable <code>ggplot</code> object. It can be used with length-1 <code>stats</code>, but it probably makes more sense to just add the <code>theme()</code> call after <code>love.plot()</code>.</p></dd>
+<dd><p>an optional list of <code>theme</code> objects to append to each individual plot. Each entry should be the output of a call to <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code> in <span class="pkg">ggplot2</span>. This is a way to customize the individual plots when multiple <code>stats</code> are requested since the final output is not a manipulable <code>ggplot</code> object. It can be used with length-1 <code>stats</code>, but it probably makes more sense to just add the <code>theme()</code> call after <code>love.plot()</code>.</p></dd>
 <dt>...</dt>
 <dd><p>additional arguments passed to <code><a href="bal.tab.html">bal.tab()</a></code> or options for display of the plot. The following related arguments are currently accepted:</p><dl><dt><code>use.grid</code></dt>
-<dd><p>whether to use <code><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">arrangeGrob()</a></code> in <code>gridExtra</code> to make the plot when <code>stats</code> has length 1. See section Value.</p></dd>
+<dd><p>whether to use <code><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">gridExtra::arrangeGrob()</a></code> in <code>gridExtra</code> to make the plot when <code>stats</code> has length 1. See section Value.</p></dd>
 
   <dt><code>disp.subclass</code></dt>
 <dd><p>whether to display individual subclasses if subclassification is used. Overrides the <code>disp.subclass</code> option in the original <code><a href="bal.tab.html">bal.tab()</a></code> call if <code>x</code> is a <code>bal.tab</code> object.</p></dd>
@@ -183,7 +183,7 @@
     <div id="value">
     <h2>Value</h2>
     <p>When only one type of balance statistic is requested, the returned object is a standard <code>ggplot</code> object that can be manipulated using <span class="pkg">ggplot2</span> syntax. This facilitates changing fonts, background colors, and features of the legend outside of what <code>love.plot()</code> provides automatically. 
-When more than one type of balance statistic is requested, the plot is constructed using <code><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">arrangeGrob()</a></code> in <code>gridExtra</code>, which arranges multiple plots and their shared legend into one plot. Because the output of <code>arrangeGrob</code> is a <code>gtable</code> object, its features cannot be manipulated in the standard way. Use the <code>themes</code> argument to change theme elements of the component plots. The original plots are stored in the <code>"plots"</code> attribute of the output object.</p>
+When more than one type of balance statistic is requested, the plot is constructed using <code><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">gridExtra::arrangeGrob()</a></code> in <code>gridExtra</code>, which arranges multiple plots and their shared legend into one plot. Because the output of <code>arrangeGrob</code> is a <code>gtable</code> object, its features cannot be manipulated in the standard way. Use the <code>themes</code> argument to change theme elements of the component plots. The original plots are stored in the <code>"plots"</code> attribute of the output object.</p>
     </div>
     <div id="note">
     <h2>Note</h2>
@@ -200,8 +200,7 @@ When more than one type of balance statistic is requested, the plot is construct
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"WeightIt"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">WeightIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">WeightIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">## Propensity score weighting</span></span>
 <span class="r-in"><span class="va">w.out1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
@@ -209,6 +208,9 @@ When more than one type of balance statistic is requested, the plot is construct
 <span class="r-in">                  data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu">love.plot</span><span class="op">(</span><span class="va">w.out1</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, var.order <span class="op">=</span> <span class="st">"unadjusted"</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Standardized mean differences and raw mean differences are present in the same plot. </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span>
+<span class="r-plt img"><img src="love.plot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">## Using alternate variable names</span></span>
 <span class="r-in"><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>old <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"educ"</span>, <span class="st">"race_black"</span>, <span class="st">"race_hispan"</span>, </span>
@@ -221,12 +223,16 @@ When more than one type of balance statistic is requested, the plot is construct
 <span class="r-in">                </span>
 <span class="r-in"><span class="fu">love.plot</span><span class="op">(</span><span class="va">w.out1</span>, stats <span class="op">=</span> <span class="st">"m"</span>, threshold <span class="op">=</span> <span class="fl">.1</span>, </span>
 <span class="r-in">          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, var.names <span class="op">=</span> <span class="va">v</span><span class="op">)</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Standardized mean differences and raw mean differences are present in the same plot. </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span>
+<span class="r-plt img"><img src="love.plot-2.png" alt="" width="700" height="433"></span>
 <span class="r-in">          </span>
 <span class="r-in"><span class="co">#Using multiple stats</span></span>
 <span class="r-in"><span class="fu">love.plot</span><span class="op">(</span><span class="va">w.out1</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"ks"</span><span class="op">)</span>, </span>
 <span class="r-in">          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span>, ks <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span>, </span>
 <span class="r-in">          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, var.names <span class="op">=</span> <span class="va">v</span>, stars <span class="op">=</span> <span class="st">"raw"</span>,</span>
 <span class="r-in">          position <span class="op">=</span> <span class="st">"bottom"</span>, wrap <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span class="r-plt img"><img src="love.plot-3.png" alt="" width="700" height="433"></span>
 <span class="r-in">          </span>
 <span class="r-in"><span class="co">#Changing visual elements</span></span>
 <span class="r-in"><span class="fu">love.plot</span><span class="op">(</span><span class="va">w.out1</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, </span>
@@ -235,13 +241,7 @@ When more than one type of balance statistic is requested, the plot is construct
 <span class="r-in">          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span>, line <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span class="r-in">          grid <span class="op">=</span> <span class="cn">FALSE</span>, sample.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Original"</span>, <span class="st">"Weighted"</span><span class="op">)</span>,</span>
 <span class="r-in">          stars <span class="op">=</span> <span class="st">"raw"</span>, position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Standardized mean differences and raw mean differences are present in the same plot. </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Standardized mean differences and raw mean differences are present in the same plot. </span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span>
-<span class="r-plt img"><img src="love.plot-1.png" alt="" width="700" height="433"></span>
-<span class="r-plt img"><img src="love.plot-2.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="love.plot-4.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </div>

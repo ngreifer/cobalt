@@ -66,7 +66,7 @@ If a statistic is requested in thresholds, it will automatically be placed in st
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
       </span>
     </div>
 
@@ -175,39 +175,19 @@ If a statistic is requested in thresholds, it will automatically be placed in st
 <span class="r-in"><span class="co">#Binary treatments</span></span>
 <span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">re74</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span class="r-in">        stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"v"</span>, <span class="st">"ks"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: 's.d.denom' not specified; assuming pooled.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            Type Diff.Un V.Ratio.Un  KS.Un</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age     Contin. -0.2419     0.4400 0.1577</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ    Contin.  0.0448     0.4959 0.1114</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married  Binary -0.3236          . 0.3236</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74    Contin. -0.5958     0.5181 0.4470</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Control Treated</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> All     429     185</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> The given response variable, "treat", is not a variable in 'data' or the global environment.</span>
 <span class="r-in"><span class="fu"><a href="love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">re74</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span class="r-in">          stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"v"</span>, <span class="st">"ks"</span><span class="op">)</span>, binary <span class="op">=</span> <span class="st">"std"</span>,</span>
 <span class="r-in">          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span>, v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: 's.d.denom' not specified; assuming pooled.</span>
-<span class="r-plt img"><img src="balance.stats-1.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> The given response variable, "treat", is not a variable in 'data' or the global environment.</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">#Continuous treatments</span></span>
 <span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">re75</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">re74</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span class="r-in">        stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cor"</span>, <span class="st">"sp"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            Type Corr.Un S.Corr.Un</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age     Contin.  0.1400    0.1304</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ    Contin.  0.0183    0.0371</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married  Binary  0.3541    0.3113</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74    Contin.  0.5520    0.6263</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Total</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> All   614</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'educ' not found</span>
 <span class="r-in"><span class="fu"><a href="love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">re75</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">re74</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span class="r-in">          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span>, sp <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-plt img"><img src="balance.stats-2.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'educ' not found</span>
 </code></pre></div>
     </div>
   </div>

@@ -26,7 +26,7 @@ col_w_cov and col_w_corr compute the (weighted) (absolute) treatment-covariate c
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@ col_w_cov and col_w_corr compute the (weighted) (absolute) treatment-covariate c
     </div>
 
     <div class="ref-description">
-    <p>These functions quickly compute balance statistics for the given covariates. These functions are used in <code><a href="bal.tab.html">bal.tab()</a></code>, but they are available for use in programming without having to call <code><a href="bal.tab.html">bal.tab()</a></code> to get them.</p><ul><li><p><code>col_w_mean</code> computes the (weighted) means for a set of covariates and weights and is essentially a weighted version of <code><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></code>.</p></li>
+    <p>These functions quickly compute balance statistics for the given covariates. These functions are used in <code><a href="bal.tab.html">bal.tab()</a></code>, but they are available for use in programming without having to call <code><a href="bal.tab.html">bal.tab()</a></code> to get them.</p><ul><li><p><code>col_w_mean</code> computes the (weighted) means for a set of covariates and weights and is essentially a weighted version of <code><a href="https://rdrr.io/pkg/Matrix/man/colSums.html" class="external-link">colMeans</a></code>.</p></li>
 <li><p><code>col_w_sd</code> computes the (weighted) standard deviations for a set of covariates and weights.</p></li>
 <li><p><code>col_w_smd</code> computes the (weighted) (absolute) (standardized) difference in means for a set of covariates, a binary treatment, and weights.</p></li>
 <li><p><code>col_w_vr</code> computes the (weighted) variance ratio for a set of covariates, a binary treatment, and weights.</p></li>
@@ -195,8 +195,7 @@ col_w_cov and col_w_corr compute the (weighted) (absolute) treatment-covariate c
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"WeightIt"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">WeightIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">WeightIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">treat</span> <span class="op">&lt;-</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span></span>
 <span class="r-in"><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -222,12 +221,21 @@ col_w_cov and col_w_corr compute the (weighted) (absolute) treatment-covariate c
 <span class="r-in">                  bin.vars <span class="op">=</span> <span class="va">bin.vars</span><span class="op">)</span>,</span>
 <span class="r-in">    row.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">covs</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    m0       sd0        m1       sd1     smd     vr     ks</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age           27.1000   10.8071   25.5663    6.5640 -0.1676 0.3689 0.1912</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ          10.2863    2.7430   10.6064    2.0631  0.1296 0.5657 0.0768</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_black     0.3979    0.4895    0.4478    0.4973  0.1302 1.0322 0.0499</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan    0.1170    0.3215    0.1217    0.3269  0.0156 1.0344 0.0047</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_white     0.4851    0.4998    0.4305    0.4951 -0.1378 0.9815 0.0546</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married        0.4089    0.4916    0.3146    0.4643 -0.2102 0.8920 0.0944</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree       0.6250    0.4841    0.5702    0.4950 -0.1157 1.0456 0.0547</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74        4552.7364 6339.3397 2932.1844 5743.4196 -0.2740 0.8208 0.3121</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75        2172.0386 3161.2645 1658.0651 3091.1829 -0.1579 0.9562 0.1526</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Compare to bal.tab():</span></span>
 <span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">covs</span>, <span class="va">treat</span>, weights <span class="op">=</span> <span class="va">weights</span>, disp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"sd"</span><span class="op">)</span>, </span>
 <span class="r-in">        stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"v"</span>, <span class="st">"ks"</span><span class="op">)</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>, </span>
 <span class="r-in">        method <span class="op">=</span> <span class="st">"weighting"</span>, binary <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Type   M.0.Adj  SD.0.Adj   M.1.Adj  SD.1.Adj Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age         Contin.   27.1000   10.8071   25.5663    6.5640  -0.1676</span>

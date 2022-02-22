@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
       </span>
     </div>
 
@@ -116,7 +116,7 @@
 <dt>addl</dt>
 <dd><p>an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will look first in the argument to <code>data</code>, if specified, and next in the <code>matchit</code> object.</p></dd>
 <dt>data</dt>
-<dd><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></dd>
+<dd><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice::mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></dd>
 <dt>continuous</dt>
 <dd><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>. This argument is used to set <code>std</code> in <code><a href="balance.summary.html">col_w_smd()</a></code>.</p></dd>
 <dt>binary</dt>
@@ -166,8 +166,7 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"MatchIt"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kosukeimai.github.io/MatchIt/" class="external-link">MatchIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kosukeimai.github.io/MatchIt/" class="external-link">MatchIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">## Nearest Neighbor matching</span></span>
 <span class="r-in"><span class="va">m.out1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
@@ -176,6 +175,57 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-in">                  </span>
 <span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out1</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, m.threshold <span class="op">=</span> <span class="fl">.1</span>, </span>
 <span class="r-in">        v.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  matchit(formula = treat ~ age + educ + race + married + nodegree + </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     re74 + re75, data = lalonde, method = "nearest")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 Type Diff.Un V.Ratio.Un Diff.Adj        M.Threshold V.Ratio.Adj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> distance    Distance  1.7941     0.9211   0.9739                         0.7566</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin. -0.3094     0.4400   0.0718     Balanced, &lt;0.1      0.4568</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.  0.0550     0.4959  -0.1290 Not Balanced, &gt;0.1      0.5721</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_black    Binary  0.6404          .   0.3730 Not Balanced, &gt;0.1           .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary -0.0827          .  -0.1568 Not Balanced, &gt;0.1           .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary -0.5577          .  -0.2162 Not Balanced, &gt;0.1           .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary -0.3236          .  -0.0216     Balanced, &lt;0.1           .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary  0.1114          .   0.0703     Balanced, &lt;0.1           .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin. -0.7211     0.5181  -0.0505     Balanced, &lt;0.1      1.3289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin. -0.2903     0.9563  -0.0257     Balanced, &lt;0.1      1.4956</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  V.Threshold</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> distance        Balanced, &lt;2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age         Not Balanced, &gt;2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ            Balanced, &lt;2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_black                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_white                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74            Balanced, &lt;2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75            Balanced, &lt;2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance tally for mean differences</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Balanced, &lt;0.1         5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Not Balanced, &gt;0.1     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Variable with the greatest mean difference</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Variable Diff.Adj        M.Threshold</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  race_black    0.373 Not Balanced, &gt;0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance tally for variance ratios</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Balanced, &lt;2         4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Not Balanced, &gt;2     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Variable with the greatest variance ratio</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Variable V.Ratio.Adj      V.Threshold</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       age      0.4568 Not Balanced, &gt;2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Sample sizes</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Control Treated</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> All           429     185</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Matched       185     185</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Unmatched     244       0</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">## Subclassification</span></span>
 <span class="r-in"><span class="va">m.out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
@@ -183,7 +233,6 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-in">                  data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"subclass"</span><span class="op">)</span></span>
 <span class="r-in">                  </span>
 <span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out2</span>, disp.subclass <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  matchit(formula = treat ~ age + educ + race + married + nodegree + </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     re74 + re75, data = lalonde, method = "subclass")</span>

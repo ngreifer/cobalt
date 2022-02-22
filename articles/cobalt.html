@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Covariate Balance Tables and Plots: A Guide to the cobalt Package</h1>
                         <h4 data-toc-skip class="author">Noah Greifer</h4>
             
-            <h4 data-toc-skip class="date">2022-01-19</h4>
+            <h4 data-toc-skip class="date">2022-02-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt.Rmd</code></div>
@@ -131,7 +131,7 @@
 <h4 id="citing-cobalt">Citing <code>cobalt</code><a class="anchor" aria-label="anchor" href="#citing-cobalt"></a>
 </h4>
 <p>When using <code>cobalt</code>, please cite your use of it along with the conditioning package used. The full APA reference for <code>cobalt</code> is the following:</p>
-<p>Greifer, N. (2022). cobalt: Covariate Balance Tables and Plots. R package version 4.3.2.</p>
+<p>Greifer, N. (2022). cobalt: Covariate Balance Tables and Plots. R package version 4.3.2.9000.</p>
 <p>For example, if you use <code>Matching</code> for propensity score estimation and matching and <code>cobalt</code> for balance assessment and/or reporting, a possible citation might go as follows:</p>
 <blockquote>
 <p>Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2022), both in R (R Core Team, 2021).</p>
@@ -190,7 +190,7 @@
 <h3 id="bal-tab">
 <code>bal.tab()</code><a class="anchor" aria-label="anchor" href="#bal-tab"></a>
 </h3>
-<p><code><a href="../reference/bal.tab.html">bal.tab()</a></code> is the primary function of <code>cobalt</code>. It produces balance tables for the objects given as inputs. The balance tables can be customized with a variety of inputs, which affect both calculation and presentation of values. It performs similar functions to <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <code>MatchIt</code>; <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">bal.table()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/pkg/twang/man/dx.wts.html" class="external-link">dx.wts()</a></code> in <code>twang</code>; <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">MatchBalance()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <code>Matching</code>; <code><a href="https://rdrr.io/pkg/CBPS/man/balance.html" class="external-link">balance()</a></code> in <code>CBPS</code>; and <code>summarize()</code> in <code>sbw</code>. It can be seen as a replacement or a supplement to these functions.</p>
+<p><code><a href="../reference/bal.tab.html">bal.tab()</a></code> is the primary function of <code>cobalt</code>. It produces balance tables for the objects given as inputs. The balance tables can be customized with a variety of inputs, which affect both calculation and presentation of values. It performs similar functions to <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <code>MatchIt</code>; <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">bal.table()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and <code><a href="https://rdrr.io/pkg/twang/man/dx.wts.html" class="external-link">dx.wts()</a></code> in <code>twang</code>; <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">MatchBalance()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <code>Matching</code>; <code><a href="https://rdrr.io/pkg/CBPS/man/balance.html" class="external-link">balance()</a></code> in <code>CBPS</code>; and <code><a href="https://rdrr.io/pkg/sbw/man/summarize.html" class="external-link">summarize()</a></code> in <code>sbw</code>. It can be seen as a replacement or a supplement to these functions.</p>
 <p>For more help using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, see <code><a href="../reference/bal.tab.html">?bal.tab</a></code> in R, which contains information on how certain values are calculated and links to the help files for the <code><a href="../reference/bal.tab.html">bal.tab()</a></code> methods that integrate with the above packages.</p>
 <p>For simplicity, the description of the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> will be most complete in its use without any other package. The demonstration will display <code><a href="../reference/bal.tab.html">bal.tab()</a></code>’s many options, several of which differ based on with which package, if any, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> is used. The other demonstrations will be minimal, highlighting how to use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> effectively with <code>MatchIt</code> and <code>WeightIt</code>, but not detailing all its possible options with these packages, to avoid redundancy. The use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with other packages is described in the accompanying Appendix 1, “Using cobalt with Other Preprocessing Packages”.</p>
 <div class="section level4">
@@ -750,79 +750,81 @@
 <span class="co">#Using WeightIt to generate weights with multinomial</span>
 <span class="co">#logistic regression</span>
 <span class="va">W.out.mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">race</span> <span class="op">~</span> <span class="va">cov.mn</span>, data <span class="op">=</span> <span class="va">lalonde</span>,
-                     method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></code></pre></div>
+                     method <span class="op">=</span> <span class="st">"ps"</span>, use.mlogit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p>First, we can examine balance numerically using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. There are three possible pairwise comparisons, all of which can be requested with <code>which.treat = .all</code>. See <code>?bal.tab.multi</code> for more details.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Balance summary across treatment pairs</span>
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## <span style="text-decoration: underline;">Call</span></span>
-<span class="co">##  weightit(formula = race ~ cov.mn, data = lalonde, method = "ps")</span>
+<span class="co">##  weightit(formula = race ~ cov.mn, data = lalonde, method = "ps", </span>
+<span class="co">##     use.mlogit = FALSE)</span>
 <span class="co">## </span>
 <span class="co">## <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span>
 <span class="co">##             Type Max.Diff.Un Max.Diff.Adj</span>
-<span class="co">## age      Contin.      0.3065       0.0557</span>
-<span class="co">## educ     Contin.      0.5861       0.1140</span>
-<span class="co">## married   Binary      0.3430       0.0297</span>
-<span class="co">## nodegree  Binary      0.2187       0.0546</span>
-<span class="co">## re74     Contin.      0.6196       0.1527</span>
-<span class="co">## re75     Contin.      0.3442       0.1491</span>
+<span class="co">## age      Contin.      0.3065       0.0504</span>
+<span class="co">## educ     Contin.      0.5861       0.1046</span>
+<span class="co">## married   Binary      0.3430       0.0355</span>
+<span class="co">## nodegree  Binary      0.2187       0.0438</span>
+<span class="co">## re74     Contin.      0.6196       0.1445</span>
+<span class="co">## re75     Contin.      0.3442       0.1462</span>
 <span class="co">## </span>
 <span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="co">##             black hispan  white</span>
-<span class="co">## Unadjusted 243.    72.   299.  </span>
-<span class="co">## Adjusted   138.38  54.99 259.59</span></code></pre>
+<span class="co">##            black hispan  white</span>
+<span class="co">## Unadjusted 243.   72.   299.  </span>
+<span class="co">## Adjusted   140.5  54.32 259.28</span></code></pre>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Assessing balance for each pair of treatments</span>
 <span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, disp.means <span class="op">=</span> <span class="cn">TRUE</span>, which.treat <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## <span style="text-decoration: underline;">Call</span></span>
-<span class="co">##  weightit(formula = race ~ cov.mn, data = lalonde, method = "ps")</span>
+<span class="co">##  weightit(formula = race ~ cov.mn, data = lalonde, method = "ps", </span>
+<span class="co">##     use.mlogit = FALSE)</span>
 <span class="co">## </span>
 <span class="co">## <span style="text-decoration: underline;">Balance by treatment pair</span></span>
 <span class="co">## </span>
 <span class="co">##  - - - <span style="font-style: italic;">black (0) vs. hispan (1)</span> - - - </span>
 <span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="co">##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj</span>
-<span class="co">## age      Contin.   26.0123   25.9167 -0.0101   26.6155   27.0006   0.0408</span>
-<span class="co">## educ     Contin.   10.2346    9.0139 -0.4515   10.5033   10.1950  -0.1140</span>
-<span class="co">## married   Binary    0.2222    0.4444  0.2222    0.4109    0.3840  -0.0269</span>
-<span class="co">## nodegree  Binary    0.6955    0.7639  0.0684    0.6005    0.6552   0.0546</span>
-<span class="co">## re74     Contin. 2499.4492 4431.6260  0.3183 5486.7976 4740.5304  -0.1229</span>
-<span class="co">## re75     Contin. 1613.7752 2741.3920  0.3442 2665.9702 2229.2821  -0.1333</span>
+<span class="co">## age      Contin.   26.0123   25.9167 -0.0101   26.6302   27.0937   0.0491</span>
+<span class="co">## educ     Contin.   10.2346    9.0139 -0.4515   10.4977   10.2149  -0.1046</span>
+<span class="co">## married   Binary    0.2222    0.4444  0.2222    0.4124    0.3781  -0.0343</span>
+<span class="co">## nodegree  Binary    0.6955    0.7639  0.0684    0.5998    0.6436   0.0438</span>
+<span class="co">## re74     Contin. 2499.4492 4431.6260  0.3183 5447.2370 4836.5681  -0.1006</span>
+<span class="co">## re75     Contin. 1613.7752 2741.3920  0.3442 2654.8185 2196.7393  -0.1398</span>
 <span class="co">## </span>
 <span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="co">##             black hispan</span>
-<span class="co">## Unadjusted 243.    72.  </span>
-<span class="co">## Adjusted   138.38  54.99</span>
+<span class="co">##            black hispan</span>
+<span class="co">## Unadjusted 243.   72.  </span>
+<span class="co">## Adjusted   140.5  54.32</span>
 <span class="co">## </span>
 <span class="co">##  - - - <span style="font-style: italic;">black (0) vs. white (1)</span> - - - </span>
 <span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="co">##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj</span>
-<span class="co">## age      Contin.   26.0123   28.8094  0.2963   26.6155   27.1412   0.0557</span>
-<span class="co">## educ     Contin.   10.2346   10.5987  0.1347   10.5033   10.3204  -0.0676</span>
-<span class="co">## married   Binary    0.2222    0.5652  0.3430    0.4109    0.4137   0.0028</span>
-<span class="co">## nodegree  Binary    0.6955    0.5452 -0.1503    0.6005    0.6246   0.0240</span>
-<span class="co">## re74     Contin. 2499.4492 6260.5029  0.6196 5486.7976 4560.0207  -0.1527</span>
-<span class="co">## re75     Contin. 1613.7752 2515.1320  0.2752 2665.9702 2177.6625  -0.1491</span>
+<span class="co">## age      Contin.   26.0123   28.8094  0.2963   26.6302   27.1058   0.0504</span>
+<span class="co">## educ     Contin.   10.2346   10.5987  0.1347   10.4977   10.2982  -0.0738</span>
+<span class="co">## married   Binary    0.2222    0.5652  0.3430    0.4124    0.4136   0.0011</span>
+<span class="co">## nodegree  Binary    0.6955    0.5452 -0.1503    0.5998    0.6265   0.0267</span>
+<span class="co">## re74     Contin. 2499.4492 6260.5029  0.6196 5447.2370 4570.1106  -0.1445</span>
+<span class="co">## re75     Contin. 1613.7752 2515.1320  0.2752 2654.8185 2175.8306  -0.1462</span>
 <span class="co">## </span>
 <span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="co">##             black  white</span>
-<span class="co">## Unadjusted 243.   299.  </span>
-<span class="co">## Adjusted   138.38 259.59</span>
+<span class="co">##            black  white</span>
+<span class="co">## Unadjusted 243.  299.  </span>
+<span class="co">## Adjusted   140.5 259.28</span>
 <span class="co">## </span>
 <span class="co">##  - - - <span style="font-style: italic;">hispan (0) vs. white (1)</span> - - - </span>
 <span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="co">##             Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj</span>
-<span class="co">## age      Contin.   25.9167   28.8094  0.3065   27.0006   27.1412   0.0149</span>
-<span class="co">## educ     Contin.    9.0139   10.5987  0.5861   10.1950   10.3204   0.0464</span>
-<span class="co">## married   Binary    0.4444    0.5652  0.1208    0.3840    0.4137   0.0297</span>
-<span class="co">## nodegree  Binary    0.7639    0.5452 -0.2187    0.6552    0.6246  -0.0306</span>
-<span class="co">## re74     Contin. 4431.6260 6260.5029  0.3013 4740.5304 4560.0207  -0.0297</span>
-<span class="co">## re75     Contin. 2741.3920 2515.1320 -0.0691 2229.2821 2177.6625  -0.0158</span>
+<span class="co">## age      Contin.   25.9167   28.8094  0.3065   27.0937   27.1058   0.0013</span>
+<span class="co">## educ     Contin.    9.0139   10.5987  0.5861   10.2149   10.2982   0.0308</span>
+<span class="co">## married   Binary    0.4444    0.5652  0.1208    0.3781    0.4136   0.0355</span>
+<span class="co">## nodegree  Binary    0.7639    0.5452 -0.2187    0.6436    0.6265  -0.0171</span>
+<span class="co">## re74     Contin. 4431.6260 6260.5029  0.3013 4836.5681 4570.1106  -0.0439</span>
+<span class="co">## re75     Contin. 2741.3920 2515.1320 -0.0691 2196.7393 2175.8306  -0.0064</span>
 <span class="co">## </span>
 <span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span>
 <span class="co">##            hispan  white</span>
 <span class="co">## Unadjusted  72.   299.  </span>
-<span class="co">## Adjusted    54.99 259.59</span>
+<span class="co">## Adjusted    54.32 259.28</span>
 <span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - -</span></code></pre>
 <p>We can also assess balance graphically. The same guidelines apply for multi-category treatments as do for binary treatments. Ideally, covariate distributions will look similar across all treatment groups.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">

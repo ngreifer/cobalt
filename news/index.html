@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
       </span>
     </div>
 
@@ -71,6 +71,14 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="cobalt-development-version">cobalt (development version)<a class="anchor" aria-label="anchor" href="#cobalt-development-version"></a></h2>
+<ul><li><p>Added support in <code><a href="../reference/bal.plot.html">bal.plot()</a></code> for negative weights with <code>type = "density"</code>.</p></li>
+<li><p>Added support for <code><a href="https://ngreifer.github.io/WeightIt/reference/ps.cont.html" class="external-link">ps.cont()</a></code> objects from the <code>twangContinuous</code> package. <code>ps.cont</code> objects from <code>WeightIt</code> are no longer supported.</p></li>
+<li><p>Improved appearance of conditional examples in <code>pkgdown</code> site.</p></li>
+<li><p>Removed <code>mlogit</code> from Suggests.</p></li>
+<li><p>Returned <code>sbw</code> to Suggests.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="4.3.2" id="cobalt-432">cobalt 4.3.2<small>2022-01-19</small><a class="anchor" aria-label="anchor" href="#cobalt-432"></a></h2>
 <ul><li><p>When <code>pairwise = FALSE</code> with binary or multi-category treatments, the balance statistics now refer to the difference between each group and the original full sample, unadjusted except possibly by <code>s.weights</code>. Previously, they referred to the difference between each group and the combined adjusted sample.</p></li>
 <li><p>When subclassification is used and some units are discarded, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> now reports the number of discarded units along with with the number of units in each subclass in the sample sizes table.(<a href="https://github.com/ngreifer/cobalt/issues/59" class="external-link">#59</a>)</p></li>
 <li><p>Fixed several bugs when using <code><a href="../reference/love.plot.html">love.plot()</a></code> with subclassification that were caused by the last update. Thanks to Mario Lawes for pointing them out.</p></li>

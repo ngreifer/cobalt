@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
       </span>
     </div>
 
@@ -112,11 +112,11 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
-<dd><p>either a <code>Match</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Matching::Match()</a></code> or <code><a href="https://rdrr.io/pkg/Matching/man/Matchby.html" class="external-link">Matching::Matchby()</a></code>), an <code>optmatch</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/optmatch/man/pairmatch.html" class="external-link">optmatch::pairmatch()</a></code> or <code><a href="https://rdrr.io/pkg/optmatch/man/fullmatch.html" class="external-link">optmatch::fullmatch()</a></code>), an <code>ebalance</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/ebal/man/ebalance.html" class="external-link">ebal::ebalance()</a></code> or <code><a href="https://rdrr.io/pkg/ebal/man/ebalance.trim.html" class="external-link">ebal::ebalance.trim()</a></code>), or the output of a call to <code><a href="https://rdrr.io/pkg/designmatch/man/bmatch.html" class="external-link">designmatch::bmatch()</a></code> or related wrapper functions from the <span class="pkg">designmatch</span> package.</p></dd>
+<dd><p>either a <code>Match</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Matching::Match()</a></code> or <code><a href="https://rdrr.io/pkg/Matching/man/Matchby.html" class="external-link">Matching::Matchby()</a></code>), an <code>optmatch</code> object (the output of a call to <code>optmatch::pairmatch()</code> or <code>optmatch::fullmatch()</code>), an <code>ebalance</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/ebal/man/ebalance.html" class="external-link">ebal::ebalance()</a></code> or <code><a href="https://rdrr.io/pkg/ebal/man/ebalance.trim.html" class="external-link">ebal::ebalance.trim()</a></code>), or the output of a call to <code><a href="https://rdrr.io/pkg/designmatch/man/bmatch.html" class="external-link">designmatch::bmatch()</a></code> or related wrapper functions from the <span class="pkg">designmatch</span> package.</p></dd>
 <dt>formula</dt>
 <dd><p>a <code>formula</code> with the treatment variable as the response and the covariates for which balance is to be assessed as the predictors. All named variables must be in <code>data</code>. See Details.</p></dd>
 <dt>data</dt>
-<dd><p>Optional; a <code>data.frame</code> containing variables with the names used in <code>formula</code>, <code>treat</code>, <code>weights</code>, <code>distance</code>, <code>addl</code>, <code>cluster</code>, and/or <code>imp</code> if any. Can also be a <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object. See Details.</p></dd>
+<dd><p>Optional; a <code>data.frame</code> containing variables with the names used in <code>formula</code>, <code>treat</code>, <code>weights</code>, <code>distance</code>, <code>addl</code>, <code>cluster</code>, and/or <code>imp</code> if any. Can also be a <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice::mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object. See Details.</p></dd>
 <dt>treat</dt>
 <dd><p>a vector of treatment statuses. See Details.</p></dd>
 <dt>covs</dt>
@@ -159,8 +159,8 @@
     <div id="details">
     <h2>Details</h2>
     <p><code><a href="bal.tab.html">bal.tab()</a></code> generates a list of balance summaries for the object given, and function similarly to <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">Matching::MatchBalance()</a></code> and <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">designmatch::meantab()</a></code>. Note that output objects from <span class="pkg">designmatch</span> do not have their own class; <code><a href="bal.tab.html">bal.tab()</a></code> first checks whether the object meets the criteria to be treated as a <code>designmatch</code> object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.</p>
-<p>The input to <code>bal.tab.Match()</code>, <code>bal.tab.optmatch()</code>, <code>bal.tab.ebalance()</code>, and <code>bal.tab.designmatch()</code> must include either both <code>formula</code> and <code>data</code> or both <code>covs</code> and <code>treat</code>. Using the <code>formula</code> + <code>data</code> inputs mirrors how <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">MatchBalance()</a></code> is used in <span class="pkg">Matching</span>, and using the <code>covs</code> + <code>treat</code> input mirrors how <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">meantab()</a></code> is used in <span class="pkg">designmatch</span>. (Note that to see identical results to <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">meantab()</a></code>, <code>s.d.denom</code> must be set to <code>"pooled"</code>, though this is not recommended.) For <code>optmatch</code> output objects, specifying a treatment is not required.</p>
-<p>All balance statistics are calculated whether they are displayed by print or not, unless <code>quick = TRUE</code>. The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.</p>
+<p>The input to <code>bal.tab.Match()</code>, <code>bal.tab.optmatch()</code>, <code>bal.tab.ebalance()</code>, and <code>bal.tab.designmatch()</code> must include either both <code>formula</code> and <code>data</code> or both <code>covs</code> and <code>treat</code>. Using the <code>formula</code> + <code>data</code> inputs mirrors how <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">Matching::MatchBalance()</a></code> is used, and using the <code>covs</code> + <code>treat</code> input mirrors how <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">designmatch::meantab()</a></code> is used. (Note that to see identical results to <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">meantab()</a></code>, <code>s.d.denom</code> must be set to <code>"pooled"</code>, though this is not recommended.) For <code>optmatch</code> output objects, specifying a treatment is not required.</p>
+<p>All balance statistics are calculated whether they are displayed by <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> or not, unless <code>quick = TRUE</code>. The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.</p>
 <p>The inputs (if any) to <code>covs</code> must be a data frame; if more than one variable is included, this is straightforward (i.e., because <code>data[,c("v1", "v2")]</code> is already a data frame), but if only one variable is used (e.g., <code>data[,"v1"]</code>), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to <code>covs</code> in <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame()</a></code> or use <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code> if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.</p>
     </div>
     <div id="value">
@@ -179,10 +179,17 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"Matching"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co">########## Matching ##########</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">########## Matching ##########</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://sekhon.berkeley.edu/matching/" class="external-link">Matching</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ## </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ##  Matching (Version 4.9-11, Build Date: 2021-10-18)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ##  See http://sekhon.berkeley.edu/matching for additional documentation.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ##  Please cite software as:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ##   Jasjeet S. Sekhon. 2011. ``Multivariate and Propensity Score Matching</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ##   Software with Automated Balance Optimization: The Matching package for R.''</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ##   Journal of Statistical Software, 42(7): 1-52. </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ##</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
 <span class="r-in">            <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
@@ -192,39 +199,6 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-in"><span class="co">## Using formula and data</span></span>
 <span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">Match.out</span>, <span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
 <span class="r-in">        <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span>; <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"optmatch"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co">########## optmatch ##########</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/markmfredrickson/optmatch" class="external-link">"optmatch"</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">lalonde</span><span class="op">$</span><span class="va">prop.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
-<span class="r-in">            <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
-<span class="r-in">            data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
-<span class="r-in"><span class="va">pm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/optmatch/man/pairmatch.html" class="external-link">pairmatch</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">prop.score</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## Using formula and data</span></span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">pm</span>, <span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
-<span class="r-in">        <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
-<span class="r-in">        distance <span class="op">=</span> <span class="st">"prop.score"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span>; <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ebal"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co">########## ebal ##########</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="http://www.stanford.edu/~jhain/" class="external-link">"ebal"</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">re78</span>, <span class="va">treat</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">e.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebal/man/ebalance.html" class="external-link">ebalance</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, <span class="va">covariates</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## Using treat and covs</span></span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">e.out</span>, treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, covs <span class="op">=</span> <span class="va">covariates</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ## </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ##  Matching (Version 4.9-11, Build Date: 2021-10-18)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ##  See http://sekhon.berkeley.edu/matching for additional documentation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ##  Please cite software as:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ##   Jasjeet S. Sekhon. 2011. ``Multivariate and Propensity Score Matching</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ##   Software with Automated Balance Optimization: The Matching package for R.''</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ##   Journal of Statistical Software, 42(7): 1-52. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ##</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Type Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age         Contin.   0.2106</span>
@@ -243,48 +217,47 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matched (ESS)          49.17     185</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matched (Unweighted)  136.       185</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unmatched             293.         0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: survival</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The optmatch package has an academic license. Enter relaxinfo() for more information.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  pairmatch(x = treat ~ prop.score, data = lalonde)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 Type Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> prop.score  Distance   0.9740</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin.   0.0733</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.  -0.1290</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_black    Binary   0.3730</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary  -0.1568</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary  -0.2162</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary  -0.0216</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary   0.0703</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin.  -0.0496</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin.  -0.0247</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Control Treated</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> All           429     185</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Matched       185     185</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unmatched     244       0</span>
+<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># requireNamespace("optmatch", quietly = TRUE)</span></span>
+<span class="r-in"><span class="co">########## optmatch ##########</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/markmfredrickson/optmatch" class="external-link">"optmatch"</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">lalonde</span><span class="op">$</span><span class="va">prop.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
+<span class="r-in">            <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
+<span class="r-in">            data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
+<span class="r-in"><span class="va">pm</span> <span class="op">&lt;-</span> <span class="fu">pairmatch</span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">prop.score</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co">## Using formula and data</span></span>
+<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">pm</span>, <span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
+<span class="r-in">        <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span class="r-in">        distance <span class="op">=</span> <span class="st">"prop.score"</span><span class="op">)</span></span>
+<span class="r-in"><span class="op">}</span> <span class="co">########## ebal ##########</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="http://www.stanford.edu/~jhain/" class="external-link">"ebal"</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ## ebal Package: Implements Entropy Balancing.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ## See http://www.stanford.edu/~jhain/ for additional information.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">re78</span>, <span class="va">treat</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">e.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ebal/man/ebalance.html" class="external-link">ebalance</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, <span class="va">covariates</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Converged within tolerance </span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co">## Using treat and covs</span></span>
+<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">e.out</span>, treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, covs <span class="op">=</span> <span class="va">covariates</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Type Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age        Contin.       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ       Contin.       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married     Binary       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree    Binary        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74       Contin.       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75       Contin.       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> prop.score Contin.        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Type Diff.Adj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ     Contin.       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married   Binary       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree  Binary        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74     Contin.       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75     Contin.       -0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted  429.       185</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted     95.28     185</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    247.64     185</span>
 <span class="r-in"><span class="co">########## designmatch ##########</span></span>
 <span class="r-in"><span class="co"># \donttest{</span></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"designmatch"</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>

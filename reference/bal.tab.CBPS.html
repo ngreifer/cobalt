@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
       </span>
     </div>
 
@@ -134,7 +134,7 @@
 <dt>addl, addl.list</dt>
 <dd><p>an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will look first in the argument to <code>data</code>, if specified, and next in the input object. For <code>CBMSM</code> objects, can be a list of additional covariate values as described above, with one list entry per time period. Each data set must have one row per individual, unlike the data frame in the original call to <code><a href="https://rdrr.io/pkg/CBPS/man/CBMSM.html" class="external-link">CBMSM()</a></code>.</p></dd>
 <dt>data</dt>
-<dd><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></dd>
+<dd><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice::mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></dd>
 <dt>continuous</dt>
 <dd><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>.</p></dd>
 <dt>binary</dt>
@@ -189,17 +189,7 @@ If <code><a href="https://rdrr.io/pkg/CBPS/man/CBMSM.html" class="external-link"
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"CBPS"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">CBPS</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## Using CBPS() for generating covariate balancing </span></span>
-<span class="r-in"><span class="co">## propensity score weights</span></span>
-<span class="r-in"><span class="va">cbps.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CBPS/man/CBPS.html" class="external-link">CBPS</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
-<span class="r-in">             <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
-<span class="r-in">             </span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cbps.out</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">CBPS</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: MASS</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: nnet</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: numDeriv</span>
@@ -215,7 +205,15 @@ If <code><a href="https://rdrr.io/pkg/CBPS/man/CBMSM.html" class="external-link"
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Xiaolin Yang [ctb],</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Sida Peng [ctb],</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   Inbeom Lee [ctb]</span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co">## Using CBPS() for generating covariate balancing </span></span>
+<span class="r-in"><span class="co">## propensity score weights</span></span>
+<span class="r-in"><span class="va">cbps.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CBPS/man/CBPS.html" class="external-link">CBPS</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
+<span class="r-in">             <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"</span>
+<span class="r-in">             </span>
+<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cbps.out</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  CBPS(formula = treat ~ age + educ + married + race + nodegree + </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     re74 + re75, data = lalonde)</span>
