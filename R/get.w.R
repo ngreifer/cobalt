@@ -133,46 +133,10 @@ get.w.mnps <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
     
     return(w)
 }
-get.w.ps.cont <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
+get.w.ps.cont <- function(x, s.weights = FALSE, ...) {
     
-    if (is_not_null(stop.method)) {
-        if (any(is.character(stop.method))) {
-            rule1 <- names(x$w)[pmatch(tolower(names(x$w)), tolower(stop.method), 0L)]
-            if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(names(x$w), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
-                rule1 <- names(x$w)
-            }
-
-        }
-        else if (is.numeric(stop.method) && any(stop.method %in% seq_along(names(x$w)))) {
-            if (any(stop.method %nin% seq_along(names(x$w)))) {
-                message(paste0("Warning: There are ", length(names(x$w)), " stop methods available, but you requested ", 
-                               word_list(stop.method[stop.method %nin% seq_along(names(x$w))], and.or = "and"),"."))
-            }
-            rule1 <- names(x$w)[stop.method %in% seq_along(names(x$w))]
-        }
-        else {
-            warning("stop.method should be ", word_list(names(x$w), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
-            rule1 <- names(x$w)
-        }
-    }
-    else {
-        rule1 <- names(x$w)
-    }
-    
-    s <- names(x$w)[match(tolower(rule1), tolower(names(x$w)))]
-    
-    w <- setNames(as.data.frame(matrix(1, nrow = nrow(x$w), ncol = length(s))),
-                  s)
-    
-    for (p in s) {
-        w[[p]] <- x$w[[p]]
-        if (!s.weights && is_not_null(x$sampw)) w[[p]] <- w[[p]] / x$sampw
-    }
-    
-    if (ncol(w) == 1) w <- w[[1]]
-    
-    return(w)
+    if (isTRUE(s.weights)) return(x$w * x$sampw)
+    else return(x$w)
 }
 get.w.iptw <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
 

@@ -652,36 +652,6 @@ x2base.mnps <- function(mnps, ...) {
 x2base.ps.cont <- function(ps.cont, ...) {
     A <- list(...)
     
-    #Process ps
-    if (is_not_null(A) && names(A)[1]=="" && is_null(A[["stop.method"]])) A[["stop.method"]] <- A[[1]]
-    if (is_null(A[["stop.method"]]) && is_not_null(A[["full.stop.method"]])) A[["stop.method"]] <- A[["full.stop.method"]]
-    
-    if (is_not_null(A[["stop.method"]])) {
-        if (is.character(A[["stop.method"]])) {
-            rule1 <- names(ps.cont[["w"]])[sapply(t(sapply(tolower(A[["stop.method"]]), function(x) startsWith(tolower(names(ps.cont[["w"]])), x))), any)]
-            if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(names(ps.cont[["w"]]), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
-                rule1 <- names(ps.cont[["w"]])
-            }
-        }
-        else if (is.numeric(A[["stop.method"]]) && any(A[["stop.method"]] %in% seq_along(names(ps.cont[["w"]])))) {
-            if (any(!A[["stop.method"]] %in% seq_along(names(ps.cont[["w"]])))) {
-                message(paste0("Warning: There are ", length(names(ps.cont[["w"]])), " stop methods available, but you requested ", 
-                               word_list(A[["stop.method"]][!A[["stop.method"]] %in% seq_along(names(ps.cont[["w"]]))], and.or = "and"),"."))
-            }
-            rule1 <- names(ps.cont[["w"]])[A[["stop.method"]] %in% seq_along(names(ps.cont[["w"]]))]
-        }
-        else {
-            warning("stop.method should be ", word_list(names(ps.cont[["w"]]), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
-            rule1 <- names(ps.cont[["w"]])
-        }
-    }
-    else {
-        rule1 <- names(ps.cont[["w"]])
-    }
-    
-    s <- names(ps.cont[["w"]])[match(tolower(rule1), tolower(names(ps.cont[["w"]])))]
-    
     #Process data and get imp
     ps.data <- ps.cont[["data"]]
     imp <- A[["imp"]]
@@ -717,7 +687,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     #Get estimand
     
     #Get method
-    method <- rep("weighting", length(s))
+    method <- "weighting"
     
     #Process addl 
     addl <- process_addl(A[["addl"]], datalist = list(data, ps.data))
@@ -741,8 +711,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     }
     
     #Process weights
-    weights <- process_weights(ps.cont, A, treat, covs, method, addl.data = list(data, ps.data), 
-                               stop.method = s)
+    weights <- process_weights(ps.cont, A, treat, covs, method, addl.data = list(data, ps.data))
     method <- attr(weights, "method")
     
     #Process s.weights
