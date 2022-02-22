@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.3.2
+Version: 4.3.2.9000
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -18,9 +18,10 @@ Imports:
     crayon,
     backports (>= 1.1.9)
 Suggests:
-    MatchIt,
-    WeightIt (>= 0.5.0),
+    MatchIt (>= 4.0.0),
+    WeightIt (>= 0.12.0),
     twang (>= 1.6),
+    twangContinuous,
     Matching,
     optmatch,
     ebal,
@@ -30,7 +31,7 @@ Suggests:
     mice (>= 3.8.0),
     MatchThem (>= 0.9.3),
     cem (>= 1.1.27),
-    mlogit,
+    sbw (>= 1.1.5),
     knitr,
     rmarkdown
 License: GPL (>=2)

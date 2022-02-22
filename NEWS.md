@@ -5,6 +5,14 @@
 
 * Added support in `bal.plot()` for negative weights with `type = "density"`.
 
+* Added support for `ps.cont()` objects from the `twangContinuous` package. `ps.cont` objects from `WeightIt` are no longer supported.
+
+* Improved appearance of conditional examples in `pkgdown` site.
+
+* Removed `mlogit` from Suggests.
+
+* Returned `sbw` to Suggests.
+
 # cobalt 4.3.2
 
 * When `pairwise = FALSE` with binary or multi-category treatments, the balance statistics now refer to the difference between each group and the original full sample, unadjusted except possibly by `s.weights`. Previously, they referred to the difference between each group and the combined adjusted sample.
