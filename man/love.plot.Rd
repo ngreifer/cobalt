@@ -159,7 +159,7 @@ Noah Greifer
 \seealso{
 \fun{bal.tab}
 }
-\examples{\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) \{}
+\examples{\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) force(\{ # examplesIf}
 library(WeightIt); data("lalonde", package = "cobalt")
 
 ## Propensity score weighting
@@ -194,5 +194,5 @@ love.plot(w.out1, thresholds = c(m = .1),
           colors = c("red", "blue"), line = TRUE,
           grid = FALSE, sample.names = c("Original", "Weighted"),
           stars = "raw", position = "top")
-\dontshow{\}}}
+\dontshow{\}) # examplesIf}}
 \keyword{plots}

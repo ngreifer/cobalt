@@ -30,7 +30,7 @@ Generates balance statistics for \code{cem.match} objects from \pkg{cem}.
 
 \arguments{
   \item{x}{
-a \code{cem.match} or \code{cem.match.list} object; the output of a call to \code{cem::cem()}.
+a \code{cem.match} or \code{cem.match.list} object; the output of a call to \pkgfun{cem}{cem}.
 }
   \item{data}{
 a data frame containing the treatment, covariates, and variables that might be named in arguments to \code{distance}, \code{addl}, \code{cluster}, and \code{imp}. Can also be \code{mids} object, the output of a call to \pkgfun{mice}{mice} from the \pkg{mice} package, containing multiply imputed data sets. In this case, \code{imp} is automatically supplied using the imputation variable created from processing the \code{mids} object. An argument to \code{data} is required. It must be the same data used in the call to \code{cem()} or a \code{mids} object from which the data supplied to \code{datalist} in the {cem()} call originated.
@@ -88,7 +88,7 @@ further arguments to control display of output. See \link[=options-display]{disp
 }
 }
 \details{
-\code{bal.tab.cem.match()} generates a list of balance summaries for the \code{cem.match} object given, and functions similarly to \code{cem::imbalance()}.
+\code{bal.tab.cem.match()} generates a list of balance summaries for the \code{cem.match} object given, and functions similarly to \pkgfun{cem}{imbalance}.
 
 The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
@@ -110,7 +110,7 @@ Noah Greifer
 \seealso{
 \fun{bal.tab} for details of calculations.
 }
-\examples{\dontshow{if (requireNamespace("cem", quietly = TRUE)) \{}
+\examples{\dontshow{if (requireNamespace("cem", quietly = TRUE)) force(\{ # examplesIf}
 library(cem); data("lalonde", package = "cobalt")
 
 ## Coarsened exact matching
@@ -118,5 +118,5 @@ cem.out <- cem("treat", data = lalonde, drop = "re78")
 
 bal.tab(cem.out, data = lalonde, un = TRUE, 
         stats = c("m", "k"))
-\dontshow{\}}}
+\dontshow{\}) # examplesIf}}
 \keyword{tables}

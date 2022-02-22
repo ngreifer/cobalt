@@ -49,7 +49,7 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
 
 \arguments{
   \item{x}{
-a \code{mimids} or \code{wimids} object; the output of a call to \code{MatchThem::matchthem()} or \code{MatchThem::weightthem()}.
+a \code{mimids} or \code{wimids} object; the output of a call to \pkgfun{MatchThem}{matchthem} or \pkgfun{MatchThem}{weightthem}.
 }
   \item{stats}{
 \code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
@@ -124,7 +124,7 @@ Noah Greifer
 
 \fun{bal.tab.matchit} and \fun{bal.tab.weightit}
 }
-\examples{\dontshow{if (all(sapply(c("mice", "MatchThem"), requireNamespace, quietly = TRUE))) \{}
+\examples{\dontshow{if (all(sapply(c("mice", "MatchThem", "MatchIt", "WeightIt"), requireNamespace, quietly = TRUE))) force(\{ # examplesIf}
 library(mice)
 library(MatchThem)
 
@@ -153,5 +153,5 @@ wt.out <- weightthem(treat ~ age + educ + race +
                        estimand = "ATT")
                        
 bal.tab(wt.out)
-\dontshow{\}}}
+\dontshow{\}) # examplesIf}}
 \keyword{tables}

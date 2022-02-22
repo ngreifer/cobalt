@@ -32,7 +32,7 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 
 \arguments{
   \item{x}{
-a \code{matchit} object; the output of a call to \code{MatchIt::matchit()}.
+a \code{matchit} object; the output of a call to \pkgfun{MatchIt}{matchit}.
 }
   \item{method}{
 a character vector containing the method of adjustment. Ignored unless subclassification was used in the original call to \code{matchit()}. If \code{"weighting"}, the subclassification weights will be used and subclasses will be ignored. If \code{"subclassification"}, balance will be assessed using the subclasses (see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details). Abbreviations allowed.
@@ -96,7 +96,7 @@ further arguments to control display of output. See \link[=options-display]{disp
 }
 }
 \details{
-\code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \code{MatchIt::summary.matchit()}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate; see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more information. 
+\code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \pkgfun{MatchIt}{summary.matchit}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate; see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more information. 
 
 The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.
 
@@ -116,7 +116,7 @@ Noah Greifer
 \seealso{
 \fun{bal.tab} for details of calculations.
 }
-\examples{\dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) \{}
+\examples{\dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) force(\{ # examplesIf}
 library(MatchIt); data("lalonde", package = "cobalt")
 
 ## Nearest Neighbor matching
@@ -133,5 +133,5 @@ m.out2 <- matchit(treat ~ age + educ + race +
                   data = lalonde, method = "subclass")
                   
 bal.tab(m.out2, disp.subclass = TRUE)
-\dontshow{\}}}
+\dontshow{\}) # examplesIf}}
 \keyword{tables}

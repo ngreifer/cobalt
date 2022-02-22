@@ -150,7 +150,7 @@ What Works Clearinghouse. (2020). WWC Procedures Handbook (Version 4.1). Retriev
 \seealso{
 \fun{bal.tab}
 }
-\examples{\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) \{}
+\examples{\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) force(\{ # examplesIf}
 library(WeightIt); data("lalonde", package = "cobalt")
 
 treat <- lalonde$treat
@@ -182,5 +182,5 @@ round(data.frame(
 bal.tab(covs, treat, weights = weights, disp = c("m", "sd"), 
         stats = c("m", "v", "ks"), estimand = "ATE", 
         method = "weighting", binary = "std")
-\dontshow{\}}}
+\dontshow{\}) # examplesIf}}
 \keyword{support functions}

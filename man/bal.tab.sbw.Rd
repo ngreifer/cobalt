@@ -30,7 +30,7 @@ Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
 
 \arguments{
   \item{x}{
-an \code{sbwcau} object; the output of a call to \code{sbw::sbw()}.
+an \code{sbwcau} object; the output of a call to \pkgfun{sbw}{sbw}.
 }
   \item{stats}{
 \code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary treatments, "mean.diffs" (i.e., mean differences) is the default. Multiple options are allowed.
@@ -88,7 +88,7 @@ further arguments to control display of output. See \link[=options-display]{disp
 }
 }
 \details{
-\code{bal.tab.sbwcau()} generates a list of balance summaries for the \code{sbwcau} object given, and functions similarly to \code{sbw::summarize()}.
+\code{bal.tab.sbwcau()} generates a list of balance summaries for the \code{sbwcau} object given, and functions similarly to \pkgfun{sbw}{summarize}.
 
 The \code{thresholds} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
@@ -107,7 +107,7 @@ Noah Greifer
 \seealso{
 \fun{bal.tab} for details of calculations.
 }
-\examples{\dontrun{\dontshow{if (requireNamespace("sbw", quietly = TRUE)) \{}
+\examples{\dontshow{if (requireNamespace("sbw", quietly = TRUE)) force(\{ # examplesIf}
 library(sbw); data("lalonde", package = "cobalt")
 
 ## Stable balancing weights for the ATT
@@ -122,5 +122,5 @@ sbw.out <- sbw(splitfactor(lalonde, drop.first = "if2"),
                par = list(par_est = "att"))
                
 bal.tab(sbw.out, un = TRUE, poly = 2)
-\dontshow{\}}}}
+\dontshow{\}) # examplesIf}}
 \keyword{tables}

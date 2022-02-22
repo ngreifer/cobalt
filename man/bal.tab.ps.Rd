@@ -7,7 +7,7 @@
 Balance Statistics for \code{twang} Objects
 }
 \description{
-Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{WeightIt}.
+Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{twangContinuous}.
 }
 \usage{
 \method{bal.tab}{ps}(x, 
@@ -71,7 +71,6 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
     quick = TRUE, ...)
 
 \method{bal.tab}{ps.cont}(x, 
-    stop.method, 
     stats,
     int = FALSE, 
     poly = 1, 
@@ -92,10 +91,10 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
 
 \arguments{
   \item{x}{
-a \code{ps}, \code{mnps}, \code{iptw}, or \code{ps.cont} object; the output of a call to \code{twang::ps()}, \code{twang::mnps()}, \code{twang::iptw()} or \code{WeightIt::ps.cont()}.
+a \code{ps}, \code{mnps}, \code{iptw}, or \code{ps.cont} object; the output of a call to \pkgfun{twang}{ps}, \pkgfun{twang}{mnps}, \pkgfun{twang}{iptw} or \pkgfun{twangContinuous}{ps.cont}.
 }
   \item{stop.method}{
-a string containing the names of the stopping methods used in the original call to \code{ps()}, \code{mnps()}, \code{iptw()}, or \code{ps.cont()}. Examples include \code{"es.max"} or \code{"ks.mean"} for \code{ps} and \code{mnps} objects and \code{"p.mean"} or \code{"s.max"} for \code{ps.cont} objects. \code{bal.tab} will assess balance for the weights created by those stopping methods. The names can be abbreviated as long as the abbreviations are specific enough. If no stopping methods are provided, \code{bal.tab} will default to displaying balance for all available stopping methods.
+a string containing the names of the stopping methods used in the original call to \code{ps()}, \code{mnps()}, or \code{iptw()}. Examples include \code{"es.max"} or \code{"ks.mean"} for \code{ps} and \code{mnps} objects. \code{bal.tab} will assess balance for the weights created by those stopping methods. The names can be abbreviated as long as the abbreviations are specific enough. If no stopping methods are provided, \code{bal.tab} will default to displaying balance for all available stopping methods. Ignored for \code{ps.cont} objects.
   }
     \item{stats}{
 \code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
@@ -143,7 +142,7 @@ whether balance should be computed for pairs of treatments or for each treatment
 \code{logical}; whether displayed balance statistics should be in absolute value or not. 
 }
   \item{subset}{
-a \code{logical} or \code{numeric} vector denoting whether each observation should be included or which observations should be included. If \code{logical}, it should be the same length as the variables in the original call to \code{ps()}, \code{mnps()}, or \code{ps.cont()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
+a \code{logical} or \code{numeric} vector denoting whether each observation should be included or which observations should be included. If \code{logical}, it should be the same length as the variables in the original call to \code{ps()}, \code{mnps()}, \code{iptw()}, or \code{ps.cont()}. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
 }
   \item{quick}{
 \code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Set to \code{FALSE} if computed values not displayed will be used later.
@@ -153,7 +152,7 @@ further arguments to control display of output. See \link[=options-display]{disp
 }
 }
 \details{
-\code{bal.tab.ps()} generates a list of balance summaries for the \code{ps} object given, and functions similarly to \code{twang::bal.table()}.
+\code{bal.tab.ps()} generates a list of balance summaries for the \code{ps} object given, and functions similarly to \pkgfun{twang}{bal.table}.
 
 The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
@@ -167,7 +166,7 @@ If \code{mnps()} is used with multi-category treatments, an object of class \cod
 
 }
 \note{
-The function \code{bal.table} in \pkg{twang} performs a similar function. The variances used in the denominator of the standardized mean difference are weighted and computed using \code{survey::svyvar()} in \pkg{twang} and are unweighted here (except when \code{s.weights} are specified, in which case \code{\link{col_w_sd}} is used). \pkg{twang} also uses "all" as the default \code{s.d.denom} when the estimand is the ATE; the default here is "pooled". For this reason, results may differ slightly between the two packages. 
+The function \pkgfun{twang}{bal.table} in \pkg{twang} performs a similar function. The variances used in the denominator of the standardized mean difference are weighted and computed using \code{survey::svyvar()} in \pkg{twang} and are unweighted here (except when \code{s.weights} are specified, in which case \code{\link{col_w_sd}} is used). \pkg{twang} also uses "all" as the default \code{s.d.denom} when the estimand is the ATE; the default here is "pooled". For this reason, results may differ slightly between the two packages. 
 }
 
 \author{

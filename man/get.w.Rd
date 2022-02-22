@@ -4,6 +4,7 @@
 \alias{get.w.ps}
 \alias{get.w.mnps}
 \alias{get.w.iptw}
+\alias{get.w.ps.cont}
 \alias{get.w.Match}
 \alias{get.w.CBPS}
 \alias{get.w.ebalance}
@@ -31,6 +32,8 @@ get.w(x, \dots)
 \method{get.w}{mnps}(x, stop.method = NULL, s.weights = FALSE, ...)
 
 \method{get.w}{iptw}(x, stop.method = NULL, s.weights = FALSE, ...)
+
+\method{get.w}{ps.cont}(x, s.weights = FALSE, ...)
 
 \method{get.w}{Match}(x, ...)
 
@@ -96,7 +99,7 @@ Noah Greifer
 \seealso{
 \pkgfun{twang}{get.weights} in \pkg{twang}.
 }
-\examples{\dontshow{if (all(sapply(c("WeightIt", "MatchIt"), requireNamespace, quietly = TRUE))) \{}
+\examples{\dontshow{if (all(sapply(c("WeightIt", "MatchIt"), requireNamespace, quietly = TRUE))) force(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 library("MatchIt"); library("WeightIt")
 
@@ -110,5 +113,5 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
                              weighted = get.w(w.out)),
         method = c("matching", "weighting"), 
         estimand = "ATT")
-\dontshow{\}}}
+\dontshow{\}) # examplesIf}}
 \keyword{support functions}

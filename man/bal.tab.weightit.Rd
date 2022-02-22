@@ -51,7 +51,7 @@ Generates balance statistics for \code{weightit} and \code{weightitMSM} objects 
 
 \arguments{
   \item{x}{
-a \code{weightit} or \code{weightitMSM} object; the output of a call to \code{WeightIt::weightit()} or \code{WeightIt::weightitMSM()}.
+a \code{weightit} or \code{weightitMSM} object; the output of a call to \pkgfun{WeightIt}{weightit} or \pkgfun{WeightIt}{weightitMSM}.
 }
   \item{stats}{
 \code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
@@ -133,7 +133,7 @@ Noah Greifer
 \seealso{
 \fun{bal.tab} for details of calculations.
 }
-\examples{\dontshow{if (all(sapply(c("WeightIt", "twang"), requireNamespace, quietly = TRUE))) \{}
+\examples{\dontshow{if (all(sapply(c("WeightIt", "twang"), requireNamespace, quietly = TRUE))) force(\{ # examplesIf}
 library(WeightIt)
 data("lalonde", package = "cobalt")
 
@@ -160,5 +160,5 @@ wmsm.out <- weightitMSM(list(tx1 ~ use0 + gender,
                         data = iptwExWide,
                         stabilize = TRUE)
 bal.tab(wmsm.out)
-\dontshow{\}}}
+\dontshow{\}) # examplesIf}}
 \keyword{tables}

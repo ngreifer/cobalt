@@ -53,7 +53,7 @@ Generates balance statistics for \code{CBPS} and \code{CBMSM} objects from the \
 
 \arguments{
   \item{x}{
-a \code{CBPS} or \code{CBMSM} object; the output of a call to \code{CBPS::CBPS()} or \code{CBPS::CBMSM()}.
+a \code{CBPS} or \code{CBMSM} object; the output of a call to \pkgfun{CBPS}{CBPS} or \pkgfun{CBPS}{CBMSM}.
 }
   \item{stats}{
 \code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
@@ -114,7 +114,7 @@ Further arguments to control display of output. See \link[=options-display]{disp
 }
 }
 \details{
-\code{bal.tab.CBPS()} and \code{bal.tab.CBMSM()} generate a list of balance summaries for the \code{CBPS} or \code{CBMSM} object given and functions similarly to \code{CBPS::balance()}.
+\code{bal.tab.CBPS()} and \code{bal.tab.CBMSM()} generate a list of balance summaries for the \code{CBPS} or \code{CBMSM} object given and functions similarly to \pkgfun{CBPS}{balance}.
 
 The \code{thresholds} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
@@ -142,7 +142,7 @@ Noah Greifer
 \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multi-category treatments.
 \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more information on longitudinal treatments.
 }
-\examples{\dontshow{if (requireNamespace("CBPS", quietly = TRUE)) \{}
+\examples{\dontshow{if (requireNamespace("CBPS", quietly = TRUE)) force(\{ # examplesIf}
 library(CBPS)
 data("lalonde", package = "cobalt")
 
@@ -152,5 +152,5 @@ cbps.out <- CBPS(treat ~ age + educ + married + race +
              nodegree + re74 + re75, data = lalonde)
              
 bal.tab(cbps.out)
-\dontshow{\}}}
+\dontshow{\}) # examplesIf}}
 \keyword{tables}

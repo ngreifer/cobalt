@@ -43,7 +43,7 @@ Generates balance statistics for output objects from \pkg{Matching}, \pkg{optmat
 
 \arguments{
   \item{x}{
-either a \code{Match} object (the output of a call to \code{Matching::Match()} or \code{Matching::Matchby()}), an \code{optmatch} object (the output of a call to \code{optmatch::pairmatch()} or \code{optmatch::fullmatch()}), an \code{ebalance} object (the output of a call to \code{ebal::ebalance()} or \code{ebal::ebalance.trim()}), or the output of a call to \code{designmatch::bmatch()} or related wrapper functions from the \pkg{designmatch} package.
+either a \code{Match} object (the output of a call to \pkgfun{Matching}{Match} or \pkgfun{Matching}{Matchby}), an \code{optmatch} object (the output of a call to \pkgfun{optmatch}{pairmatch} or \pkgfun{optmatch}{fullmatch}), an \code{ebalance} object (the output of a call to \pkgfun{ebal}{ebalance} or \pkgfun{ebal}{ebalance.trim}), or the output of a call to \pkgfun{designmatch}{bmatch} or related wrapper functions from the \pkg{designmatch} package.
 }
   \item{formula}{
 a \code{formula} with the treatment variable as the response and the covariates for which balance is to be assessed as the predictors. All named variables must be in \code{data}. See Details.
@@ -110,11 +110,11 @@ for \code{bal.tab.optmatch()}, \code{bal.tab.ebalance()}, and \code{bal.tab.desi
 }
 }
 \details{
-\code{bal.tab()} generates a list of balance summaries for the object given, and function similarly to \code{Matching::MatchBalance()} and \code{designmatch::meantab()}. Note that output objects from \pkg{designmatch} do not have their own class; \code{bal.tab()} first checks whether the object meets the criteria to be treated as a \code{designmatch} object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.
+\code{bal.tab()} generates a list of balance summaries for the object given, and function similarly to \pkgfun{Matching}{MatchBalance} and \pkgfun{designmatch}{meantab}. Note that output objects from \pkg{designmatch} do not have their own class; \code{bal.tab()} first checks whether the object meets the criteria to be treated as a \code{designmatch} object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.
 
-The input to \code{bal.tab.Match()}, \code{bal.tab.optmatch()}, \code{bal.tab.ebalance()}, and \code{bal.tab.designmatch()} must include either both \code{formula} and \code{data} or both \code{covs} and \code{treat}. Using the \code{formula} + \code{data} inputs mirrors how \code{MatchBalance()} is used in \pkg{Matching}, and using the \code{covs} + \code{treat} input mirrors how \code{meantab()} is used in \pkg{designmatch}. (Note that to see identical results to \code{meantab()}, \code{s.d.denom} must be set to \code{"pooled"}, though this is not recommended.) For \code{optmatch} output objects, specifying a treatment is not required.
+The input to \code{bal.tab.Match()}, \code{bal.tab.optmatch()}, \code{bal.tab.ebalance()}, and \code{bal.tab.designmatch()} must include either both \code{formula} and \code{data} or both \code{covs} and \code{treat}. Using the \code{formula} + \code{data} inputs mirrors how \pkgfun{Matching}{MatchBalance} is used, and using the \code{covs} + \code{treat} input mirrors how \pkgfun{designmatch}{meantab} is used. (Note that to see identical results to \code{meantab()}, \code{s.d.denom} must be set to \code{"pooled"}, though this is not recommended.) For \code{optmatch} output objects, specifying a treatment is not required.
 
-All balance statistics are calculated whether they are displayed by print or not, unless \code{quick = TRUE}. The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
+All balance statistics are calculated whether they are displayed by \code{print()} or not, unless \code{quick = TRUE}. The \code{threshold} argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure.
 
 The inputs (if any) to \code{covs} must be a data frame; if more than one variable is included, this is straightforward (i.e., because \code{data[,c("v1", "v2")]} is already a data frame), but if only one variable is used (e.g., \code{data[,"v1"]}), R will coerce it to a vector, thus making it unfit for input. To avoid this, simply wrap the input to \code{covs} in \code{data.frame()} or use \code{subset()} if only one variable is to be added. Again, when more than one variable is included, the input is general already a data frame and nothing needs to be done.
 }
@@ -132,7 +132,7 @@ Noah Greifer
 \seealso{
 \fun{bal.tab} for details of calculations.
 }
-\examples{\dontshow{if (requireNamespace("Matching", quietly = TRUE)) \{}
+\examples{\dontshow{if (requireNamespace("Matching", quietly = TRUE)) force(\{ # examplesIf}
 ########## Matching ##########
 
 library(Matching); data("lalonde", package = "cobalt")
@@ -145,7 +145,7 @@ Match.out <- Match(Tr = lalonde$treat, X = p.score)
 ## Using formula and data
 bal.tab(Match.out, treat ~ age + educ + race + 
         married + nodegree + re74 + re75, data = lalonde)
-\dontshow{\}; if (requireNamespace("optmatch", quietly = TRUE)) \{}
+\dontshow{\}) # examplesIf} \dontshow{if (requireNamespace("optmatch", quietly = TRUE)) force(\{ # examplesIf}
 ########## optmatch ##########
 
 library("optmatch"); data("lalonde", package = "cobalt")
@@ -159,7 +159,7 @@ pm <- pairmatch(treat ~ prop.score, data = lalonde)
 bal.tab(pm, treat ~ age + educ + race + 
         married + nodegree + re74 + re75, data = lalonde,
         distance = "prop.score")
-\dontshow{\}; if (requireNamespace("ebal", quietly = TRUE)) \{}
+\dontshow{\}) # examplesIf} \dontshow{if (requireNamespace("ebal", quietly = TRUE)) force(\{ # examplesIf}
 ########## ebal ##########
 
 library("ebal"); data("lalonde", package = "cobalt")
@@ -169,7 +169,7 @@ e.out <- ebalance(lalonde$treat, covariates)
 
 ## Using treat and covs
 bal.tab(e.out, treat = lalonde$treat, covs = covariates)
-\dontshow{\}}
+\dontshow{\}) # examplesIf}
 ########## designmatch ##########
 \donttest{
 library("designmatch"); data("lalonde", package = "cobalt")
