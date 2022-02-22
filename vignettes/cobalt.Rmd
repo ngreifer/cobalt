@@ -419,7 +419,7 @@ cov.mn <- subset(lalonde, select = -c(treat, re78, race))
 #Using WeightIt to generate weights with multinomial
 #logistic regression
 W.out.mn <- weightit(race ~ cov.mn, data = lalonde,
-                     method = "ps")
+                     method = "ps", use.mlogit = FALSE)
 ```
 
 First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = .all`. See `?bal.tab.multi` for more details.
