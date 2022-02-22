@@ -486,7 +486,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
             
             bp <- ggplot2::ggplot(D, mapping = aes(x = .data$treat, fill = .data$var, weight = .data$weights)) + 
                 ggplot2::geom_density(alpha = .4, bw = bw, adjust = adjust, kernel = kernel, 
-                                      n = n, trim = TRUE, outline.type = "full", stat = "density2") + 
+                                      n = n, trim = TRUE, outline.type = "full", stat = StatDensity2) + 
                 ggplot2::labs(fill = var.name, y = "Density", x = "Treat", title = title, subtitle = subtitle) +
                 ggplot2::scale_fill_manual(values = colors) + 
                 ggplot2::geom_hline(yintercept = 0) +
@@ -689,7 +689,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                                                             weight = .data$weights, fill = names(colors)[t]),
                                               alpha = alpha, bw = bw, adjust = adjust,
                                               kernel = kernel, n = n, trim = TRUE,
-                                              outline.type = "full", stat = "density2"),
+                                              outline.type = "full", stat = StatDensity2),
                         NULL)
                     if (isTRUE(disp.means)) out[[2]] <-
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
