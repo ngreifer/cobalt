@@ -29,7 +29,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -112,7 +112,7 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
-<dd><p>either a <code>Match</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Matching::Match()</a></code> or <code><a href="https://rdrr.io/pkg/Matching/man/Matchby.html" class="external-link">Matching::Matchby()</a></code>), an <code>optmatch</code> object (the output of a call to <code>optmatch::pairmatch()</code> or <code>optmatch::fullmatch()</code>), an <code>ebalance</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/ebal/man/ebalance.html" class="external-link">ebal::ebalance()</a></code> or <code><a href="https://rdrr.io/pkg/ebal/man/ebalance.trim.html" class="external-link">ebal::ebalance.trim()</a></code>), or the output of a call to <code><a href="https://rdrr.io/pkg/designmatch/man/bmatch.html" class="external-link">designmatch::bmatch()</a></code> or related wrapper functions from the <span class="pkg">designmatch</span> package.</p></dd>
+<dd><p>either a <code>Match</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Matching::Match()</a></code> or <code><a href="https://rdrr.io/pkg/Matching/man/Matchby.html" class="external-link">Matching::Matchby()</a></code>), an <code>optmatch</code> object (the output of a call to <code><a href="https://markmfredrickson.github.io/optmatch/reference/pairmatch.html" class="external-link">optmatch::pairmatch()</a></code> or <code><a href="https://markmfredrickson.github.io/optmatch/reference/fullmatch.html" class="external-link">optmatch::fullmatch()</a></code>), an <code>ebalance</code> object (the output of a call to <code><a href="https://rdrr.io/pkg/ebal/man/ebalance.html" class="external-link">ebal::ebalance()</a></code> or <code><a href="https://rdrr.io/pkg/ebal/man/ebalance.trim.html" class="external-link">ebal::ebalance.trim()</a></code>), or the output of a call to <code><a href="https://rdrr.io/pkg/designmatch/man/bmatch.html" class="external-link">designmatch::bmatch()</a></code> or related wrapper functions from the <span class="pkg">designmatch</span> package.</p></dd>
 <dt>formula</dt>
 <dd><p>a <code>formula</code> with the treatment variable as the response and the covariates for which balance is to be assessed as the predictors. All named variables must be in <code>data</code>. See Details.</p></dd>
 <dt>data</dt>
@@ -181,9 +181,9 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">########## Matching ##########</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://sekhon.berkeley.edu/matching/" class="external-link">Matching</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/JasjeetSekhon/Matching" class="external-link">Matching</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ## </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ##  Matching (Version 4.9-11, Build Date: 2021-10-18)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ##  Matching (Version 4.10-2, Build Date: 2022-04-13)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##  See http://sekhon.berkeley.edu/matching for additional documentation.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##  Please cite software as:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##   Jasjeet S. Sekhon. 2011. ``Multivariate and Propensity Score Matching</span>
@@ -217,7 +217,6 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matched (ESS)          49.17     185</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matched (Unweighted)  136.       185</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unmatched             293.         0</span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># requireNamespace("optmatch", quietly = TRUE)</span></span>
 <span class="r-in"><span class="co">########## optmatch ##########</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/markmfredrickson/optmatch" class="external-link">"optmatch"</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
@@ -225,13 +224,34 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-in"><span class="va">lalonde</span><span class="op">$</span><span class="va">prop.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
 <span class="r-in">            <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
 <span class="r-in">            data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
-<span class="r-in"><span class="va">pm</span> <span class="op">&lt;-</span> <span class="fu">pairmatch</span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">prop.score</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">pm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://markmfredrickson.github.io/optmatch/reference/pairmatch.html" class="external-link">pairmatch</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">prop.score</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">## Using formula and data</span></span>
 <span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">pm</span>, <span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
 <span class="r-in">        <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span class="r-in">        distance <span class="op">=</span> <span class="st">"prop.score"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span> <span class="co">########## ebal ##########</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  pairmatch(x = treat ~ prop.score, data = lalonde)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 Type Diff.Adj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> prop.score  Distance   0.9740</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin.   0.0922</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.  -0.1264</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_black    Binary   0.3730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary  -0.1568</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary  -0.2162</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary  -0.0162</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary   0.0703</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin.  -0.0539</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin.  -0.0247</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Sample sizes</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Control Treated</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> All           429     185</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Matched       185     185</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Unmatched     244       0</span>
+<span class="r-in"><span class="co">########## ebal ##########</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="http://www.stanford.edu/~jhain/" class="external-link">"ebal"</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ##</span>
@@ -246,25 +266,26 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-in"><span class="co">## Using treat and covs</span></span>
 <span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">e.out</span>, treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, covs <span class="op">=</span> <span class="va">covariates</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Type Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ     Contin.       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married   Binary       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree  Binary        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74     Contin.       -0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75     Contin.       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Type Diff.Adj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age        Contin.       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ       Contin.       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married     Binary       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree    Binary        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74       Contin.       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75       Contin.       -0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> prop.score Contin.        0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted  429.       185</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    247.64     185</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted     95.28     185</span>
 <span class="r-in"><span class="co">########## designmatch ##########</span></span>
 <span class="r-in"><span class="co"># \donttest{</span></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"designmatch"</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: lattice</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: slam</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: Rglpk</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the GLPK callable library version 4.65</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the GLPK callable library version 5.0</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"educ"</span>, <span class="st">"re74"</span>, <span class="st">"re75"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">treat</span> <span class="op">&lt;-</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span></span>
@@ -308,7 +329,7 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>
