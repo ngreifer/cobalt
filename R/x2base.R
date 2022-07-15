@@ -437,7 +437,7 @@ x2base.ps <- function(ps, ...) {
     }
     
     #Get call
-    call <- ps[["parameters"]]
+    # call <- ps[["parameters"]]
     
     #Process output
     X <- initialize_X()
@@ -797,7 +797,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     }
     
     #Get call
-    call <- ps.cont[["parameters"]]
+    # call <- ps.cont[["parameters"]]
     
     #Process output
     X <- initialize_X()
