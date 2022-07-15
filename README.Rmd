@@ -40,12 +40,11 @@ Below are examples of `cobalt`'s primary functions:
 
 ```{r}
 library("cobalt")
-library("MatchIt")
 data("lalonde", package = "cobalt")
 
 #Nearest neighbor matching with MatchIt
-m.out <- matchit(treat ~ age + educ + race + married + nodegree +
-                     re74 + re75, data = lalonde)
+m.out <- MatchIt::matchit(treat ~ age + educ + race + married + nodegree +
+                              re74 + re75, data = lalonde)
 
 #Checking balance before and after matching:
 bal.tab(m.out, thresholds = c(m = .1), un = TRUE)

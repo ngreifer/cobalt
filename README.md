@@ -3,7 +3,7 @@
 
 # cobalt: Covariate Balance Tables and Plots <img src="man/figures/logo.png" align="right" width="150"/>
 
-## [![CRAN\_Status\_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt) [![CRAN\_Downloads\_Badge](https://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
+## [![CRAN_Status_Badge](https://img.shields.io/cran/v/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt) [![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/cobalt?color=%230047ab)](https://cran.r-project.org/package=cobalt)
 
 ### Overview
 
@@ -71,19 +71,19 @@ Below are examples of `cobalt`’s primary functions:
 
 ``` r
 library("cobalt")
-library("MatchIt")
 data("lalonde", package = "cobalt")
 
 # Nearest neighbor matching with MatchIt
-m.out <- matchit(treat ~ age + educ + race + married + nodegree + re74 + re75, data = lalonde)
+m.out <- MatchIt::matchit(treat ~ age + educ + race + married + nodegree + re74 +
+    re75, data = lalonde)
 
 # Checking balance before and after matching:
 bal.tab(m.out, thresholds = c(m = 0.1), un = TRUE)
 ```
 
     #> Call
-    #>  matchit(formula = treat ~ age + educ + race + married + nodegree + 
-    #>     re74 + re75, data = lalonde)
+    #>  MatchIt::matchit(formula = treat ~ age + educ + race + married + 
+    #>     nodegree + re74 + re75, data = lalonde)
     #> 
     #> Balance Measures
     #>                 Type Diff.Un Diff.Adj        M.Threshold
@@ -119,12 +119,14 @@ bal.plot(m.out, var.name = "educ")
 bal.plot(m.out, var.name = "distance", mirror = TRUE, type = "histogram")
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" data-display="inline" />
-<img src="man/figures/README-unnamed-chunk-3-2.png" data-display="inline" />
+<img src="man/figures/README-unnamed-chunk-3-1.png"
+data-display="inline" />
+<img src="man/figures/README-unnamed-chunk-3-2.png"
+data-display="inline" />
 
 ``` r
 # Generating a Love plot to report balance:
-love.plot(m.out, stats = c("mean.diffs", "variance.ratios"), thresholds = c(m = 0.1, 
+love.plot(m.out, stats = c("mean.diffs", "variance.ratios"), thresholds = c(m = 0.1,
     v = 2), abs = TRUE, binary = "std", var.order = "unadjusted")
 ```
 
@@ -133,7 +135,7 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"), thresholds = c(m = 
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, you could write: “Matching was performed using
 the *Matching* package (Sekhon, 2011), and covariate balance was
-assessed using *cobalt* (Greifer, 2021), both in R (R Core Team, 2020).”
+assessed using *cobalt* (Greifer, 2022), both in R (R Core Team, 2022).”
 Use `citation("cobalt")` to generate a bibliographic reference for the
 `cobalt` package.
 

@@ -7,6 +7,12 @@
 
 * Added support for `ps.cont()` objects from the `twangContinuous` package. `ps.cont` objects from `WeightIt` are no longer supported.
 
+* The function call is no longer included in the `bal.tab()` results for objects from `twang`.
+
+* Fixed a bug when some predictors were binary in some clusters and continuous in others. Variables now have a stable type across partitions.
+
+* When using `poly`, orthogonal polynomials can be requested by setting `orth = TRUE`.
+
 * Improved appearance of conditional examples in `pkgdown` site.
 
 * Removed `mlogit` from Suggests.
