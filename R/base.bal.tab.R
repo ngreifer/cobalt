@@ -49,6 +49,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                                         un = un, disp = disp, 
                                                         stats = X$stats, abs = abs, 
                                                         no.adj = no.adj, quick = quick, 
+                                                        var_types = attr(C, "var_types"),
                                                         s.d.denom.list = X$s.d.denom.list), A), quote = TRUE)
     
     #Reassign disp... and ...threshold based on balance table output
@@ -117,6 +118,8 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     all.agg.funs <- c("min", "mean", "max")
     agg.fun <- tolower(as.character(if_null_then(imp.fun, A[["agg.fun"]], all.agg.funs)))
     agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
+    
+    X$covs <- do.call("get.C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
     
     #Setup output object
     out.names <- c("Imputation.Balance", 
@@ -205,6 +208,8 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
         pairwise <- TRUE
     }
     
+    X$covs <- do.call("get.C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
+    
     #Setup output object
     # out.names <- c("Pair.Balance", 
     #                "Balance.Across.Pairs", 
@@ -214,13 +219,12 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     out <- list()
     
     if ("mean.diffs" %in% X$stats) {
-        C <- do.call("get.C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
-        bin.vars <- is_binary_col(C)
+        bin.vars <- is_binary_col(X$covs)
         if (is_null(X$weights)) {
-            X$s.d.denom.list <- list(compute_s.d.denom(C, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, bin.vars = bin.vars))
+            X$s.d.denom.list <- list(compute_s.d.denom(X$covs, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, bin.vars = bin.vars))
         }
         else {
-            X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom), function(i) compute_s.d.denom(C, X$treat,
+            X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom), function(i) compute_s.d.denom(X$covs, X$treat,
                                                                                                       s.d.denom = X$s.d.denom[i], s.weights = X$s.weights, 
                                                                                                       bin.vars = bin.vars, weighted.weights = X$weights[[i]])),
                                          names(X$s.d.denom))
@@ -380,7 +384,7 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
     if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
     if (is_null(A[["abs"]])) A[["abs"]] <- FALSE
     
-    cluster <- factor(X$cluster)
+    X$cluster <- factor(X$cluster)
     
     #Process cluster.summary
     if (missing(which.cluster)) {
@@ -395,6 +399,8 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
     agg.fun <- tolower(as.character(if_null_then(cluster.fun, A[["agg.fun"]], all.agg.funs)))
     agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
     
+    X$covs <- do.call("get.C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
+    
     #Setup output object
     # out.names <- c("Cluster.Balance", 
     #                "Balance.Across.Clusters", 
@@ -404,13 +410,13 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
     out <- list()
     
     #Get list of bal.tabs for each imputation
-    out[["Cluster.Balance"]] <- lapply(levels(cluster), function(cl) {
-        X_cl <- assign.X.class(subset_X(X, cluster == cl)) 
+    out[["Cluster.Balance"]] <- lapply(levels(X$cluster), function(cl) {
+        X_cl <- assign.X.class(subset_X(X, X$cluster == cl)) 
         X_cl$call <- NULL
         do.call("base.bal.tab", c(list(X_cl), A[names(A) %nin% names(X_cl)]), quote = TRUE)
     })
     
-    names(out[["Cluster.Balance"]]) <- levels(cluster)
+    names(out[["Cluster.Balance"]]) <- levels(X$cluster)
     
     #Create summary of lists
     
@@ -523,6 +529,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                                                stats = X$stats, 
                                                                abs = abs, 
                                                                no.adj = FALSE, quick = quick, 
+                                                               var_types = attr(C, "var_types"),
                                                                s.d.denom.list = X$s.d.denom.list), A), quote = TRUE)
         }
         else if (type == "cont") {
@@ -542,6 +549,7 @@ base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, bi
                                                                                                abs = abs, 
                                                                                                no.adj = TRUE, 
                                                                                                quick = quick, 
+                                                                                               var_types = attr(C, "var_types"),
                                                                                                s.d.denom.list = X$s.d.denom.list), A), quote = TRUE), 
                                                                balance.table.subclass.list = out[["Subclass.Balance"]], 
                                                                subclass.obs = out[["Observations"]], 

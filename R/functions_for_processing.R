@@ -1786,8 +1786,11 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
 }
 get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, treat = NULL, cluster = NULL, drop = TRUE, ...) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
+    if (inherits(covs, "processed_C")) return(covs)
+    
     A <- list(...)
     if (!rlang::is_bool(A[["center"]])) A[["center"]] <- getOption("cobalt_center", default = FALSE)
+    if (!rlang::is_bool(A[["orth"]])) A[["orth"]] <- getOption("cobalt_orth", default = FALSE)
     
     C <- covs; rm(covs)
     
@@ -1873,7 +1876,7 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
         exclude <- vapply(co_list[["C"]], function(x) any(c("na", "isep") %in% x[["type"]]), logical(1L))
         
         new <- int.poly.f2(C_list[["C"]], ex = exclude, int = int, poly = poly, center = A[["center"]], 
-                           sep = rep.int(seps["int"], nsep), co.names = co_list[["C"]])
+                           orth = A[["orth"]], sep = rep.int(seps["int"], nsep), co.names = co_list[["C"]])
         
         C_list[["int.poly"]] <- new
         co_list[["int.poly"]] <- attr(new, "co.names")
@@ -1984,10 +1987,13 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
     attr(C, "missing.ind") <- colnames(C)[vapply(co.names, function(x) "na" %in% x[["type"]], logical(1L))]
     if ("distance" %in% names(C_list)) attr(C, "distance.names") <- names(co_list[["distance"]])
     
+    attr(C, "var_types") <- get.types(C)
+    class(C) <- c(class(C), "processed_C")
+    
     return(C)
     
 }
-int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, sep = " * ", co.names = NULL) {
+int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, orth = FALSE, sep = " * ", co.names = NULL) {
     #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"
     #Only to be used in base.bal.tab; for general use see int.poly()
     #mat=matrix input
@@ -2014,7 +2020,7 @@ int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, s
         npol <- nd - sum(no.poly)
         if (npol > 0) {
             for (i in 2:poly) {
-                poly_terms[[i - 1]] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) x^i)
+                poly_terms[[i - 1]] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) if (orth) poly(x, degree = poly)[,i] else x^i)
                 if (cn) poly_co.names[[i - 1]] <- lapply(colnames(d)[!no.poly], function(x) list(component = c(co.names[[x]][["component"]], num_to_superscript(i)), 
                                                                                                  type = c(co.names[[x]][["type"]], "power")))
                 else poly_co.names[[i - 1]] <- paste0(colnames(d)[!no.poly], num_to_superscript(i))
