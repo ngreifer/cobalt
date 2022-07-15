@@ -182,9 +182,8 @@ Noah Greifer
 
 \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more information on longitudinal treatments.
 }
-\examples{
-\donttest{
-library(twang); data("lalonde", package = "cobalt")
+\examples{\dontshow{if (requireNamespace("twang", quietly = TRUE)) force(\{ # examplesIf}
+\donttest{library(twang); data("lalonde", package = "cobalt")
 
 ## Using ps() for generalized boosted modeling
 ps.out <- ps(treat ~ age + educ + married + race +
@@ -195,5 +194,5 @@ ps.out <- ps(treat ~ age + educ + married + race +
 bal.tab(ps.out, stop.method = "ks.mean", un = TRUE, 
         m.threshold = .1, disp.ks = TRUE)
 }
-}
+\dontshow{\}) # examplesIf}}
 \keyword{tables}

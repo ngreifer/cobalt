@@ -169,7 +169,7 @@ e.out <- ebalance(lalonde$treat, covariates)
 
 ## Using treat and covs
 bal.tab(e.out, treat = lalonde$treat, covs = covariates)
-\dontshow{\}) # examplesIf}
+\dontshow{\}) # examplesIf} \dontshow{if (requireNamespace("designmatch", quietly = TRUE)) force(\{ # examplesIf}
 ########## designmatch ##########
 \donttest{
 library("designmatch"); data("lalonde", package = "cobalt")
@@ -185,5 +185,6 @@ dmout <- bmatch(treat,
 
 ## Using treat and covs
 bal.tab(dmout, treat = treat, covs = covariates)
-}}
+}
+\dontshow{\}) # examplesIf}}
 \keyword{tables}
