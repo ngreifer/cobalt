@@ -32,12 +32,12 @@ In clustered data, the data set must contain a variable denoting the group each 
 First, let's estimate propensity scores and perform matching within each race group. We can do this by performing separate analyses within each cluster, but we can also use exact matching in `MatchIt` to ensure matches occur within clusters. It is important to note that this analysis does not necessarily represent a sound statistical analysis and is being used for illustrative purposes only.
 
 ```{r}
-library("MatchIt"); library("cobalt")
+library("cobalt")
 data("lalonde", package = "cobalt")
 
-m.out <- matchit(treat ~ race*(age + educ + married + nodegree + re74 + re75), 
-                 data = lalonde, method = "nearest", exact = "race", 
-                 replace = TRUE, ratio = 2)
+m.out <- MatchIt::matchit(treat ~ race*(age + educ + married + nodegree + re74 + re75), 
+                          data = lalonde, method = "nearest", exact = "race", 
+                          replace = TRUE, ratio = 2)
 ```
 
 ### `bal.tab()`
@@ -119,18 +119,17 @@ Multiply imputed data works in a very similar way to clustered data, except the 
 In the example below, we will use a version of the Lalonde data set with some values missing. We will use the `mice` package to implement multiple imputation with chained equations. We will perform the "within" approach using the `MatchThem` to perform propensity score weighting within each imputation with `educ` as the continuous treatment (substantively this analysis makes no sense and is just for illustration).
 
 ```{r}
-library("mice"); library("MatchThem"); library("cobalt")
 data("lalonde_mis", package = "cobalt")
 
 #Generate imputed data sets
 m <- 10 #number of imputed data sets
-imp.out <- mice(lalonde_mis, m = m, print = FALSE) 
+imp.out <- mice::mice(lalonde_mis, m = m, print = FALSE) 
 
 
 #Performing generalized propensity score weighting in each imputation
-wt.out <- weightthem(educ ~ age + race + married + 
-                      re74 + re75, datasets = imp.out, 
-                     approach = "within", method = "ps")
+wt.out <- MatchThem::weightthem(educ ~ age + race + married + 
+                                    re74 + re75, datasets = imp.out, 
+                                approach = "within", method = "ps")
 ```
 
 ### `bal.tab()`
@@ -194,11 +193,11 @@ We'll use the three-category `race` variable as our multi-category treatment and
 
 ```{r}
 #Estimate weights within each imputation using propensity scores
-wt3.out <- weightthem(race ~ age + educ + married + 
-                        nodegree + re74 + re75, 
-                      datasets = imp.out, approach = "within", 
-                      method = "ps", estimand = "ATE",
-                      use.mlogit = FALSE)
+wt3.out <- MatchThem::weightthem(race ~ age + educ + married + 
+                                     nodegree + re74 + re75, 
+                                 datasets = imp.out, approach = "within", 
+                                 method = "ps", estimand = "ATE",
+                                 use.mlogit = FALSE)
 ```
 
 ### `bal.tab()`

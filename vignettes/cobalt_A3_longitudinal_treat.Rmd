@@ -46,12 +46,12 @@ The goal of balance assessment in this scenario is to ensure the following:
 To estimate the weights, we'll use `WeightIt` to fit a series of logistic regressions that generate the weights. See the `WeightIt` documentation for more information on how to use `WeightIt` with longitudinal treatments.
 
 ```{r}
-library("WeightIt")
-Wmsm <- weightitMSM(list(tx1 ~ use0 + gender + age,
-                         tx2 ~ use0 + gender + age + use1 + tx1,
-                         tx3 ~ use0 + gender + age + use1 + tx1 + use2 + tx2),
-                    data = iptwExWide,
-                    method = "ps")
+Wmsm <- WeightIt::weightitMSM(
+    list(tx1 ~ use0 + gender + age,
+         tx2 ~ use0 + gender + age + use1 + tx1,
+         tx3 ~ use0 + gender + age + use1 + tx1 + use2 + tx2),
+    data = iptwExWide,
+    method = "ps")
 ```
 
 Next we'll use `bal.tab()` to examine balance before and after applying the weights.

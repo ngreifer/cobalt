@@ -30,9 +30,9 @@ First, let's load in the data set and estimate the weights.
 library(cobalt)
 data("lalonde", package = "cobalt")
 
-library(WeightIt)
-w.out1 <- weightit(treat ~ age + educ + married + nodegree + race + re74 + re75,
-                   data = lalonde, estimand = "ATE", method = "ps")
+w.out1 <- WeightIt::weightit(
+    treat ~ age + educ + married + nodegree + race + re74 + re75,
+    data = lalonde, estimand = "ATE", method = "ps")
 ```
 
 Next, because in this example we want to display standardized mean difference for all of the covariates, let's set the global `binary` option to `"std"` so we don't have to type it every time.
@@ -125,8 +125,9 @@ This is starting to look like a publication-ready plot. There are still other op
 Perhaps we want to display balance for a second set of weights, maybe using a different method to estimate them, like the covariate balancing propensity score [CBPS; @imaiCovariateBalancingPropensity2014] that is popular in political science. These can be easily added (but we'll have to use the formula interface to set multiple weights).
 
 ```{r}
-w.out2 <- weightit(treat ~ age + educ + married + nodegree + race + re74 + re75,
-                   data = lalonde, estimand = "ATE", method = "cbps")
+w.out2 <- WeightIt::weightit(
+    treat ~ age + educ + married + nodegree + race + re74 + re75,
+    data = lalonde, estimand = "ATE", method = "cbps")
 
 love.plot(treat ~ age + educ + married + nodegree + race + re74 + re75,
           data = lalonde, estimand = "ATE",

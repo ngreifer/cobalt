@@ -235,9 +235,9 @@ data("lalonde", package = "cobalt")
 covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 # Nearest neighbor 2:1 matching with replacement
-library("MatchIt") #if not yet loaded
-m.out <- matchit(f.build("treat", covs), data = lalonde, method = "nearest", 
-                 ratio = 1,  replace = TRUE)
+m.out <- MatchIt::matchit(f.build("treat", covs), 
+                          data = lalonde, method = "nearest", 
+                          ratio = 1,  replace = TRUE)
 
 bal.tab(m.out)
 ```
@@ -251,13 +251,12 @@ Setting `binary = "std"` in `bal.tab()` will produce identical calculations to t
 The `WeightIt` package is a convenient wrapper for the weighting functions of several packages, including `twang`, `CBPS`, `ebal`, `sbw`, and `ATE`, and allows for the estimation of weights for binary, multi-category, and categorical treatments and both point and longitudinal treatments. It was designed to work seamlessly with `cobalt`, so using it with `cobalt` is very straightforward. Below is a simple example of using `bal.tab()` with `WeightIt`:
 
 ```{r}
-library("WeightIt")
 data("lalonde", package = "cobalt") #If not yet loaded
 covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 #Generating propensity score weights for the ATT
-W.out <- weightit(treat ~ covs, data = lalonde,
-                  method = "ps", estimand = "ATT")
+W.out <- WeightIt::weightit(treat ~ covs, data = lalonde,
+                            method = "ps", estimand = "ATT")
 
 bal.tab(W.out)
 ```
@@ -306,9 +305,8 @@ data("lalonde", package = "cobalt")
 covs <- subset(lalonde, select = -c(treat, re78))
 
 # Nearest neighbor 1:1 matching with replacement
-library("MatchIt") #if not yet loaded
-m.out <- matchit(f.build("treat", covs), data = lalonde, 
-                 method = "nearest", replace = TRUE)
+m.out <- MatchIt::matchit(f.build("treat", covs), data = lalonde, 
+                          method = "nearest", replace = TRUE)
 
 love.plot(m.out, binary = "std", thresholds = c(m = .1))
 ```
@@ -358,7 +356,7 @@ Like the output of `bal.plot()`, the output of `love.plot()` is a `ggplot2` obje
 
 Although the most common use of propensity scores is in the context of binary treatments, it is also possible to use propensity scores with continuous treatment to estimate dose-response functions while controlling for background variables [@hiranoPropensityScoreContinuous2005]. As in the binary case, the goal of propensity score adjustment in the continuous case is to arrive at a scenario in which, conditional on the propensity score, treatment is independent of background covariates. When this is true (and there are no unmeasured confounders), treatment is also independent of potential outcomes, thereby meeting the strong ignorability requirement for causal inference.
 
-@biaStataPackageEstimation2008describe the use of the `gpscore` function in Stata, which appears to be effective for estimating and assessing dose-response functions for continuous treatments. In R, there are not many ways to estimate and condition on the propensity score in these contexts. It is possible, using the formulas described by @hiranoPropensityScoreContinuous2005, to generate the propensity scores manually and perform weighting, subclassification, or covariate adjustment on them. The `WeightIt` package supports continuous treatments with a variety of options, including the CBPS method implemented in the `CBPS` package and described by @fongCovariateBalancingPropensity2018, GBM as described by @zhuBoostingAlgorithmEstimating2015, and entropy balancing as described by @vegetabileNonparametricEstimationPopulation2020.
+@biaStataPackageEstimation2008 describe the use of the `gpscore` function in Stata, which appears to be effective for estimating and assessing dose-response functions for continuous treatments. In R, there are not many ways to estimate and condition on the propensity score in these contexts. It is possible, using the formulas described by @hiranoPropensityScoreContinuous2005, to generate the propensity scores manually and perform weighting, subclassification, or covariate adjustment on them. The `WeightIt` package supports continuous treatments with a variety of options, including the CBPS method implemented in the `CBPS` package and described by @fongCovariateBalancingPropensity2018, GBM as described by @zhuBoostingAlgorithmEstimating2015, and entropy balancing as described by @vegetabileNonparametricEstimationPopulation2020, among others.
 
 In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in @zhuBoostingAlgorithmEstimating2015 and @austinAssessingCovariateBalance2019, but not that described in @hiranoPropensityScoreContinuous2005 or implemented in `gpscore` [@biaStataPackageEstimation2008], which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator, so correlations above 1 may be observed in rare cases.
 
@@ -368,12 +366,11 @@ Below is an example of the workflow for using propensity scores for continuous t
 
 ```{r}
 data("lalonde", package = "cobalt")
-library("WeightIt")
 
 #Generating weights with re75 as the continuous treatment
-W.out.c <- weightit(re75 ~ age + educ + race + married + nodegree + 
-                        re74 + I(re74^2), 
-                    data = lalonde, method = "ps")
+W.out.c <- WeightIt::weightit(re75 ~ age + educ + race + married + nodegree + 
+                                  re74 + I(re74^2), 
+                              data = lalonde, method = "ps")
 ```
 
 First, we can assess balance numerically using `bal.tab()`. The main balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using `thresholds`; @zhuBoostingAlgorithmEstimating2015 recommend using .1 as indicating balance, but in general lower is better. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and polynomial terms through the use of arguments to `int` and `poly` is recommended (we just display the use of `poly` here for brevity). In addition to treatment-covariate correlations, we request standardized mean difference between the weighted and unweighted samples by include `"m"` (for `"mean.diffs.target"`) in the argument to `stats` along with `"c"` (for `"correlations"`).
@@ -413,13 +410,12 @@ Below is an example of using `cobalt` with multi-category treatments. For this e
 
 ```{r}
 data("lalonde", package = "cobalt")
-library("WeightIt")
 cov.mn <- subset(lalonde, select = -c(treat, re78, race))
 
 #Using WeightIt to generate weights with multinomial
 #logistic regression
-W.out.mn <- weightit(race ~ cov.mn, data = lalonde,
-                     method = "ps", use.mlogit = FALSE)
+W.out.mn <- WeightIt::weightit(race ~ cov.mn, data = lalonde,
+                               method = "ps", use.mlogit = FALSE)
 ```
 
 First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = .all`. See `?bal.tab.multi` for more details.
