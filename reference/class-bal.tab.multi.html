@@ -19,7 +19,7 @@ The balance summary is, for each variable, the greatest imbalance across all two
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -81,25 +81,37 @@ The balance summary is, for each variable, the greatest imbalance across all two
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle multi-category treatments: <code>pairwise</code>, <code>focal</code>, <code>which.treat</code>, and <code>multi.summary</code>.</p>
+    
+
+<p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle multi-category treatments: <code>pairwise</code>, <code>focal</code>, <code>which.treat</code>, and <code>multi.summary</code>.</p>
 <dl><dt>pairwise</dt>
 <dd><p>Whether to compute the two-group comparisons pairwise or not. If <code>TRUE</code>, <code><a href="bal.tab.html">bal.tab()</a></code> will compute comparisons for each pair of treatments. This can be valuable if treatments are to be compared with one another (which is often the case). If <code>FALSE</code>, <code><a href="bal.tab.html">bal.tab()</a></code> will compute balance for each treatment group against the full unadjusted sample. This only makes sense if the ATE is desired. When <code>focal</code> is specified, <code>pairwise</code> is automatically set to <code>TRUE</code>.</p></dd>
+
 <dt>focal</dt>
 <dd><p>When one group is to be compared to multiple control groups in an ATT analysis, the group considered "treated" is the focal group. Only comparisons between other groups and the focal group are of interest. By specifying the name or index of the treatment condition considered focal, <code><a href="bal.tab.html">bal.tab()</a></code> will only compute and display pairwise balance for treatment comparisons that include the focal group. For example, if "A" was to be compared with "B" and "C", "A" would be considered focal, and the comparison between groups "B" and "C" would not be computed. In general it is only a good idea to specify <code>focal</code> if and only if the ATT is sought.</p></dd>
+
 <dt>which.treat</dt>
 <dd><p>This is a display option that does not affect computation. When displaying the <code>bal.tab</code> output, which treatments should be displayed? If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, inputting <code>"A"</code> will display "A vs. B" and "A vs. C", while entering <code>c("A", "B")</code> will only display "A vs. B". <code>.none</code> indicates no treatment comparisons will be displayed, and <code>.all</code> indicates all treatment comparisons will be displayed. <code>.none</code> is the default.</p></dd>
+
 <dt>multi.summary</dt>
 <dd><p>If <code>TRUE</code>, the balance summary across all comparisons will be computed and displayed. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested in addition to mean differences, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. The default is <code>TRUE</code>, and if <code>which.treat</code> is <code>.none</code>, it will automatically be set to <code>TRUE</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The output is a <code>bal.tab.multi</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
+    
+
+<p>The output is a <code>bal.tab.multi</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
 <dl><dt>Pair.Balance</dt>
 <dd><p>For each pair of treatment groups, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified. If <code>focal</code> is specified, only the comparisons involving the focal group are computed. If <code>pairwise</code> is <code>FALSE</code>, the comparisons will be between each group and the groups combined (labeled "All").</p></dd>
+
 <dt>Balance.Across.Pairs</dt>
 <dd><p>The balance summary across two-group comparisons. This will include the greatest (i.e., maximum) absolute balance statistics(s) for each covariate across all comparisons computed. Thresholds can be requested for each balance measure as with binary treatments.</p></dd>
+
 <dt>Observations</dt>
 <dd><p>A table of sample sizes or effective sample sizes for each treatment group before and after adjustment.</p></dd>
+
+
 </dl><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
     </div>
     <div id="note">
@@ -127,7 +139,7 @@ The balance summary is, for each variable, the greatest imbalance across all two
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

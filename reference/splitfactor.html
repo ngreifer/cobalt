@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -75,42 +75,54 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">splitfactor</span><span class="op">(</span><span class="va">data</span>, <span class="va">var.name</span>, drop.level <span class="op">=</span> <span class="cn">NULL</span>, 
-            drop.first <span class="op">=</span> <span class="cn">TRUE</span>, drop.singleton <span class="op">=</span> <span class="cn">FALSE</span>, 
-            drop.na <span class="op">=</span> <span class="cn">TRUE</span>, sep <span class="op">=</span> <span class="st">"_"</span>, replace <span class="op">=</span> <span class="cn">TRUE</span>, 
-            split.with <span class="op">=</span> <span class="cn">NULL</span>, check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-<span class="fu">unsplitfactor</span><span class="op">(</span><span class="va">data</span>, <span class="va">var.name</span>, dropped.level <span class="op">=</span> <span class="cn">NULL</span>, 
-              dropped.na <span class="op">=</span> <span class="cn">TRUE</span>, sep <span class="op">=</span> <span class="st">"_"</span>, 
-              replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">splitfactor</span><span class="op">(</span><span class="va">data</span>, <span class="va">var.name</span>, drop.level <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>            drop.first <span class="op">=</span> <span class="cn">TRUE</span>, drop.singleton <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>            drop.na <span class="op">=</span> <span class="cn">TRUE</span>, sep <span class="op">=</span> <span class="st">"_"</span>, replace <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>            split.with <span class="op">=</span> <span class="cn">NULL</span>, check <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">unsplitfactor</span><span class="op">(</span><span class="va">data</span>, <span class="va">var.name</span>, dropped.level <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>              dropped.na <span class="op">=</span> <span class="cn">TRUE</span>, sep <span class="op">=</span> <span class="st">"_"</span>, </span>
+<span>              replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>data</dt>
 <dd><p>A <code>data.frame</code> containing the variables to be split or unsplit. In <code>splitfactor()</code>, can be a factor variable to be split.</p></dd>
+
 <dt>var.name</dt>
 <dd><p>For <code>splitfactor()</code>, the names of the factor variables to split. If not specified, will split all factor variables in <code>data</code>. If <code>data</code> is a factor, the stem for each of the new variables to be created. For <code>unsplitfactor()</code>, the name of the previously split factor. If not specified and <code>data</code> is the output of a call to <code>splitfactor()</code>, all previously split variables will be unsplit.</p></dd>
+
 <dt>drop.level</dt>
 <dd><p>The name of a level of <code>var.name</code> for which to drop the dummy variable. Only works if there is only one variable to be split.</p></dd>
+
 <dt>drop.first</dt>
 <dd><p>Whether to drop the first dummy created for each factor. If <code>"if2"</code>, will only drop the first category if the factor has exactly two levels. The default is to always drop the first dummy (<code>TRUE</code>).</p></dd>
+
 <dt>drop.singleton</dt>
 <dd><p>Whether to drop a factor variable if it only has one level.</p></dd>
+
 <dt>drop.na</dt>
 <dd><p>If <code>NA</code>s are present in the variable, how to handle them. If <code>TRUE</code>, no new dummy will be created for <code>NA</code> values, but all created dummies will have <code>NA</code> where the original variable was <code>NA</code>. If <code>FALSE</code>, <code>NA</code> will be treated like any other factor level, given its own column, and the other dummies will have a value of 0 where the original variable is <code>NA</code>.</p></dd>
+
 <dt>sep</dt>
 <dd><p>A character separating the the stem from the value of the variable for each dummy. For example, for <code>"race_black"</code>, <code>sep = "_"</code>.</p></dd>
+
 <dt>replace</dt>
 <dd><p>Whether to replace the original variable(s) with the new variable(s) (<code>TRUE</code>) or the append the newly created variable(s) to the end of the data set (<code>FALSE</code>).</p></dd>
+
 <dt>split.with</dt>
 <dd><p>A list of vectors or factors with lengths equal to the number of columns of <code>data</code> that are to be split in the same way <code>data</code> is. See Details.</p></dd>
+
 <dt>check</dt>
 <dd><p>Whether to make sure the variables specified in <code>var.name</code> are actually factor (or character) variables. If splitting non-factor (or non-character) variables into dummies, set <code>check = FALSE</code>. If <code>check = FALSE</code> and <code>data</code> is a <code>data.frame</code>, an argument to <code>var.name</code> must be specified.</p></dd>
+
 <dt>dropped.level</dt>
 <dd><p>The value of each original factor variable whose dummy was dropped when the variable was split. If left empty and a dummy was dropped, the resulting factor will have the value <code>NA</code> instead of the dropped value. There should be one entry per variable to unsplit. If no dummy was dropped for a variable, an entry is still required, but it will be ignored.</p></dd>
+
 <dt>dropped.na</dt>
 <dd><p>If <code>TRUE</code>, will assume that <code>NA</code>s in the variables to be unsplit correspond to <code>NA</code> in the unsplit factor (i.e., that <code>drop.na = TRUE</code> was specified in <code>split.factor()</code>). If <code>FALSE</code>, will assume there is a dummy called "var.name_stem_NA" (e.g., "x_NA") that contains 1s where the unsplit factor should be <code>NA</code> (i.e., that <code>drop.na = FALSE</code> was specified in <code>split.factor()</code>. If <code>NA</code>s are stored in a different column with the same stem, e.g., "x_miss", that name (e.g., "miss") can be entered instead.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -120,7 +132,9 @@
     </div>
     <div id="value">
     <h2>Value</h2>
-    <p>For <code>splitfactor()</code>, a <code>data.frame</code> containing the original data set with the newly created dummies. For <code>unsplitfactor()</code>. a <code>data.frame</code> containing the original data set with the newly created factor variables.</p>
+    
+
+<p>For <code>splitfactor()</code>, a <code>data.frame</code> containing the original data set with the newly created dummies. For <code>unsplitfactor()</code>. a <code>data.frame</code> containing the original data set with the newly created factor variables.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -129,28 +143,28 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">lalonde.split</span> <span class="op">&lt;-</span> <span class="fu">splitfactor</span><span class="op">(</span><span class="va">lalonde</span>, <span class="st">"race"</span>, </span>
-<span class="r-in">                           replace <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span class="r-in">                           drop.first <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="co"># A data set with "race_hispan" and "race_white" instead</span></span>
-<span class="r-in"><span class="co"># of "race".</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">lalonde.unsplit</span> <span class="op">&lt;-</span> <span class="fu">unsplitfactor</span><span class="op">(</span><span class="va">lalonde.split</span>, <span class="st">"race"</span>, </span>
-<span class="r-in">                        replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">                        dropped.level <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">lalonde.unsplit</span><span class="op">)</span> <span class="co">#TRUE</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lalonde.split</span> <span class="op">&lt;-</span> <span class="fu">splitfactor</span><span class="op">(</span><span class="va">lalonde</span>, <span class="st">"race"</span>, </span></span>
+<span class="r-in"><span>                           replace <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>                           drop.first <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># A data set with "race_hispan" and "race_white" instead</span></span></span>
+<span class="r-in"><span><span class="co"># of "race".</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">lalonde.unsplit</span> <span class="op">&lt;-</span> <span class="fu">unsplitfactor</span><span class="op">(</span><span class="va">lalonde.split</span>, <span class="st">"race"</span>, </span></span>
+<span class="r-in"><span>                        replace <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                        dropped.level <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">lalonde.unsplit</span><span class="op">)</span> <span class="co">#TRUE</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Demonstrating the use of split.with:</span></span>
-<span class="r-in"><span class="va">to.split</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">)</span><span class="op">]</span>,</span>
-<span class="r-in">                 <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in">                 </span>
-<span class="r-in"><span class="va">lalonde.split</span> <span class="op">&lt;-</span> <span class="fu">splitfactor</span><span class="op">(</span><span class="va">lalonde</span>, split.with <span class="op">=</span> <span class="va">to.split</span>,</span>
-<span class="r-in">                             drop.first <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">lalonde.split</span>, <span class="st">"split.with"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Demonstrating the use of split.with:</span></span></span>
+<span class="r-in"><span><span class="va">to.split</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">)</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                 <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                 </span></span>
+<span class="r-in"><span><span class="va">lalonde.split</span> <span class="op">&lt;-</span> <span class="fu">splitfactor</span><span class="op">(</span><span class="va">lalonde</span>, split.with <span class="op">=</span> <span class="va">to.split</span>,</span></span>
+<span class="r-in"><span>                             drop.first <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">lalonde.split</span>, <span class="st">"split.with"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       treat         age        educ  race_black race_hispan  race_white </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         "a"         "b"         "c"         "d"         "d"         "d" </span>
@@ -163,7 +177,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>     married    nodegree        re74        re75        re78 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           5           6           7           8           9 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -178,7 +192,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -75,109 +75,115 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S3 method for data.frame</span>
-<span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">x</span>, 
-    <span class="va">treat</span>, 
-    data <span class="op">=</span> <span class="cn">NULL</span>, 
-    weights <span class="op">=</span> <span class="cn">NULL</span>, 
-    subclass <span class="op">=</span> <span class="cn">NULL</span>, 
-    match.strata <span class="op">=</span> <span class="cn">NULL</span>, 
-    <span class="va">method</span>, 
-    <span class="va">stats</span>,
-    int <span class="op">=</span> <span class="cn">FALSE</span>, 
-    poly <span class="op">=</span> <span class="fl">1</span>, 
-    distance <span class="op">=</span> <span class="cn">NULL</span>,
-    addl <span class="op">=</span> <span class="cn">NULL</span>, 
-    <span class="va">continuous</span>,  
-    <span class="va">binary</span>, 
-    <span class="va">s.d.denom</span>, 
-    thresholds <span class="op">=</span> <span class="cn">NULL</span>,
-    cluster <span class="op">=</span> <span class="cn">NULL</span>, 
-    imp <span class="op">=</span> <span class="cn">NULL</span>, 
-    pairwise <span class="op">=</span> <span class="cn">TRUE</span>, 
-    focal <span class="op">=</span> <span class="cn">NULL</span>, 
-    s.weights <span class="op">=</span> <span class="cn">NULL</span>, 
-    estimand <span class="op">=</span> <span class="cn">NULL</span>, 
-    abs <span class="op">=</span> <span class="cn">FALSE</span>,
-    subset <span class="op">=</span> <span class="cn">NULL</span>,
-    quick <span class="op">=</span> <span class="cn">TRUE</span>, 
-    <span class="va">...</span><span class="op">)</span>
-
-<span class="co"># S3 method for formula</span>
-<span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">x</span>, 
-    data <span class="op">=</span> <span class="cn">NULL</span>, 
-    <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for data.frame</span></span>
+<span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">x</span>, </span>
+<span>        <span class="va">treat</span>,</span>
+<span>        <span class="va">stats</span>,</span>
+<span>        int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        poly <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        addl <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        <span class="va">continuous</span>,</span>
+<span>        <span class="va">binary</span>,</span>
+<span>        <span class="va">s.d.denom</span>,</span>
+<span>        thresholds <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        imp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        pairwise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        s.weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        abs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        quick <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        subclass <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        match.strata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        <span class="va">method</span>,</span>
+<span>        estimand <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        focal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for formula</span></span>
+<span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">x</span>, </span>
+<span>        data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        <span class="va">stats</span>,</span>
+<span>        int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        poly <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        addl <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        <span class="va">continuous</span>,</span>
+<span>        <span class="va">binary</span>,</span>
+<span>        <span class="va">s.d.denom</span>,</span>
+<span>        thresholds <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        imp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        pairwise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        s.weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        abs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        quick <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        subclass <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        match.strata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        <span class="va">method</span>,</span>
+<span>        estimand <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        focal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>either a <code>data.frame</code> containing covariate values for each unit or a <code>formula</code> with the treatment variable as the response and the covariates for which balance is to be assessed as the terms. If a formula is supplied, all terms must be present as variable names in <code>data</code> or the global environment.</p></dd>
-<dt>treat</dt>
-<dd><p>Either a vector containing treatment status values for each unit or a string containing the name of the treatment variable in <code>data</code>.</p></dd>
-<dt>data</dt>
-<dd><p>Optional; a <code>data.frame</code> containing variables with the names used in <code>formula</code>, <code>treat</code>, <code>weights</code>, <code>distance</code>, <code>addl</code>, <code>subclass</code>, <code>match.strata</code>, <code>cluster</code>, and/or <code>imp</code> if any. Can also be a <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice::mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></dd>
-<dt>weights</dt>
-<dd><p>Optional; a vector, list, or <code>data.frame</code> containing weights for each unit or a string containing the names of the weights variables in <code>data</code>.  These can be weights generated by, e.g., inverse probability weighting or matching weights resulting from a matching algorithm.  This must be specified in <code>method</code>.   If <code>weights=NULL</code>, <code>subclass=NULL</code> and <code>match.strata=NULL</code>, balance information will be presented only for the unadjusted sample.</p></dd>
-<dt>subclass</dt>
-<dd><p>Optional; either a vector containing subclass membership for each unit or a string containing the name of the subclass variable in <code>data</code>.  If <code>weights=NULL</code>, <code>subclass=NULL</code> and <code>match.strata=NULL</code>, balance information will be presented only for the unadjusted sample.</p></dd>
+
+  <dt>treat</dt>
+<dd><p>either a vector containing treatment status values for each unit or a string containing the name of the treatment variable in <code>data</code>. Required for the <code>data.frame</code> method.</p></dd>
+
+  <dt>stats, int, poly, distance, addl, data, continuous, binary, thresholds, weights, cluster, imp, pairwise, s.weights, abs, subset, quick, ...</dt>
+<dd><p>see <code><a href="bal.tab.html">bal.tab()</a></code> for details. See below for a special note on the <code>s.d.denom</code> argument.</p></dd>
+
+  <dt>subclass</dt>
+<dd><p>optional; either a vector containing subclass membership for each unit or a string containing the name of the subclass variable in <code>data</code>.</p></dd>
+
 <dt>match.strata</dt>
-<dd><p>Optional; either a vector containing matching stratum membership for each unit or a string containing the name of the matching stratum variable in <code>data</code>. If <code>weights=NULL</code>, <code>subclass=NULL</code> and <code>match.strata=NULL</code>, balance information will be presented only for the unadjusted sample.</p></dd>
-<dt>method</dt>
-<dd><p>A character vector containing the method of adjustment, if any.  If <code>weights</code> are specified, the user can specify either "matching" or "weighting"; "weighting" is the default. If multiple sets of weights are used, each must have a corresponding value for <code>method</code>, but if they are all of the same type, only one value is required. If <code>subclass</code> is specified, "subclassification" is the default. Abbreviations allowed. The only distinction between "matching" and "weighting" is how sample sizes are displayed.</p></dd>
-<dt>stats</dt>
-<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance.stats.html">stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
-<dt>int</dt>
-<dd><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well.</p></dd>
-<dt>poly</dt>
-<dd><p><code>numeric</code>; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If <code>int</code> is numeric, <code>poly</code> will take on the value of <code>int</code>.</p></dd>
-<dt>distance</dt>
-<dd><p>an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will look in the argument to <code>data</code>, if specified.</p></dd>
-<dt>addl</dt>
-<dd><p>an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will look in the arguments to <code>covs</code> and <code>data</code>, if specified.</p></dd>
-<dt>continuous</dt>
-<dd><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>.</p></dd>
-<dt>binary</dt>
-<dd><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>.</p></dd>
-<dt>s.d.denom</dt>
-<dd><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href="balance.summary.html">col_w_smd()</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, <code><a href="bal.tab.html">bal.tab()</a></code> will figure out which one is best based on the <code>estimand</code>, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.</p></dd>
-<dt>thresholds</dt>
-<dd><p>a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in <code>stats</code>) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set <code>thresholds = c(m = .05, v = 2)</code>. Requesting a threshold automatically requests the display of that statistic. See Details.</p></dd>
-<dt>cluster</dt>
-<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code>. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
-<dt>imp</dt>
-<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code>. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
-<dt>pairwise</dt>
-<dd><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></dd>
-<dt>focal</dt>
-<dd><p>The name of the focal treatment when multiple categorical treatments are used. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p></dd>
-<dt>s.weights</dt>
-<dd><p>Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in <code>data</code>. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.</p></dd>
-<dt>estimand</dt>
+<dd><p>optional; either a vector containing matching stratum membership for each unit or a string containing the name of the matching stratum variable in <code>data</code>. See Details.</p></dd>
+
+  <dt>method</dt>
+<dd><p><code>character</code>; the method of adjustment, if any. If <code>weights</code> are specified, the user can specify either "matching" or "weighting"; "weighting" is the default. If multiple sets of weights are used, each must have a corresponding value for <code>method</code>, but if they are all of the same type, only one value is required. If <code>subclass</code> is specified, "subclassification" is the default. Abbreviations allowed. The only distinction between "matching" and "weighting" is how sample sizes are displayed.</p></dd>
+
+  <dt>estimand</dt>
 <dd><p><code>character</code>; whether the desired estimand is the "ATT", "ATC", or "ATE" for each set of weights. This argument can be used in place of <code>s.d.denom</code> to specify how standardized differences are calculated.</p></dd>
-<dt>abs</dt>
-<dd><p><code>logical</code>; whether displayed balance statistics should be in absolute value or not.</p></dd>
-<dt>subset</dt>
-<dd><p>A <code>logical</code> or <code>numeric</code> vector denoting whether each observation should be included or which observations should be included. If <code>logical</code>, it should be the same length as the treatment and covariates. <code>NA</code>s will be treated as <code>FALSE</code>. This can be used as an alternative to <code>cluster</code> to examine balance on subsets of the data.</p></dd>
-<dt>quick</dt>
-<dd><p><code>logical</code>; if <code>TRUE</code>, will not compute any values that will not be displayed. Set to <code>FALSE</code> if computed values not displayed will be used later.</p></dd>
-<dt>...</dt>
-<dd><p>For <code>bal.tab.formula()</code>, other arguments to be passed to <code>bal.tab.data.frame()</code>. Otherwise, further arguments to control display of output. See <a href="display_options.html">display options</a> for details.</p></dd>
+
+  <dt>focal</dt>
+<dd><p>the name of the focal treatment when multi-category treatments are used. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p></dd>
+
+
+</dl><p>The following argument has a special note when used with <code>data.frame</code> or <code>formula</code> input objects:</p>
+<dl><dt>s.d.denom</dt>
+<dd><p>if weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>; a single entry will be recycled to all sets of weights. If left blank and one of <code>weights</code>, <code>subclass</code>, or <code>match.strata</code> are supplied, <code><a href="bal.tab.html">bal.tab()</a></code> will figure out which one is best based on <code>estimand</code>, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
     <p><code>bal.tab.data.frame()</code> generates a list of balance summaries for the covariates and treatment status values given. <code>bal.tab.formula()</code> does the same but uses a formula interface instead.  When the formula interface is used, the formula and data are reshaped into a treatment vector and <code>data.frame</code> of covariates and then simply passed through the <code>data.frame</code> method.</p>
+<p>If <code>weights</code>, <code>subclass</code> and <code>match.strata</code> are all <code>NULL</code>, balance information will be presented only for the unadjusted sample.</p>
 <p>The argument to <code>match.strata</code> corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the <span class="pkg">optmatch</span> package. If more than one of <code>weights</code>, <code>subclass</code>, or <code>match.strata</code> are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. <code><a href="bal.tab.html">bal.tab()</a></code> behaves differently depending on whether subclasses are used in conditioning or not. If they are used, <code><a href="bal.tab.html">bal.tab()</a></code> creates balance statistics for each subclass and for the sample in aggregate. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for more information.</p>
-<p>All balance statistics are calculated whether they are displayed by <code>print</code> or not, unless <code>quick = TRUE</code>. The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.</p>
-<p>The inputs (if any) to <code>covs</code> and <code>data</code> must be a <code>data.frame</code>; if more than one variable is included, this is straightforward (i.e., because <code>data[,c("v1", "v2")]</code> is already a <code>data.frame</code>), but if only one variable is used with the matrix subsetting syntax (e.g., <code>data[,"v1"]</code>), <span style="R">R</span> will coerce it to a vector, thus making it unfit for input. To avoid this, make sure to use the list subsetting syntax (e.g., <code>data["v1"]</code>) if only one variable is to be added (this can also be used for multiple variables and is good practice in general). Again, when more than one variable is included, the input is generally already a <code>data.frame</code> and nothing needs to be done.</p>
-<p>Multiple sets of weights can be supplied simultaneously by entering a <code>data.frame</code> or a character vector containing the names of weight variables found in <code>data</code> or a list of weights vectors or names. The arguments to <code>method</code>, <code>s.d.denom</code>, and <code>estimand</code>, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to <code>s.d.denom</code> or <code>estimand</code>. When only one set of weights is supplied, the output for the adjusted group will simply be called <code>"Adj"</code>, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other output of <code><a href="bal.tab.html">bal.tab()</a></code>.</p>
+<p>Multiple sets of weights can be supplied simultaneously by entering a <code>data.frame</code> or a character vector containing the names of weight variables found in <code>data</code> or a list of weights vectors or names. The arguments to <code>method</code>, <code>s.d.denom</code>, and <code>estimand</code>, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to <code>s.d.denom</code> or <code>estimand</code>. When only one set of weights is supplied, the output for the adjusted group will simply be called <code>"Adj"</code>, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other outputs of <code><a href="bal.tab.html">bal.tab()</a></code>.</p>
     </div>
     <div id="value">
     <h2>Value</h2>
-    <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the specified treatment and covariates. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.
-If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.
-If multiple categorical treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.
-If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p>
+    
+
+<p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the specified treatment and covariates. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
+
+
+<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p>
+
+
+<p>If multi-category treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p>
+
+
+<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -188,24 +194,24 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
     <div class="dont-index"><p><code><a href="bal.tab.html">bal.tab()</a></code> for output and details of calculations.
 <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for more information on clustered data.
 <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for more information on multiply imputed data.
-<code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for more information on multiple categorical treatments.</p></div>
+<code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for more information on multi-category treatments.</p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
-<span class="r-in">                       family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
-<span class="r-in"><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">educ</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in">                     </span>
-<span class="r-in"><span class="co">## Propensity score weighting using IPTW</span></span>
-<span class="r-in"><span class="va">lalonde</span><span class="op">$</span><span class="va">iptw.weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span><span class="op">==</span><span class="fl">1</span>, </span>
-<span class="r-in">                               <span class="fl">1</span><span class="op">/</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span>, </span>
-<span class="r-in">                               <span class="fl">1</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># data frame interface:</span></span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">covariates</span>, treat <span class="op">=</span> <span class="st">"treat"</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
-<span class="r-in">        weights <span class="op">=</span> <span class="st">"iptw.weights"</span>, s.d.denom <span class="op">=</span> <span class="st">"pooled"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span></span>
+<span class="r-in"><span>                       family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span></span>
+<span class="r-in"><span><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">age</span>, <span class="va">educ</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                     </span></span>
+<span class="r-in"><span><span class="co">## Propensity score weighting using IPTW</span></span></span>
+<span class="r-in"><span><span class="va">lalonde</span><span class="op">$</span><span class="va">iptw.weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span><span class="op">==</span><span class="fl">1</span>, </span></span>
+<span class="r-in"><span>                               <span class="fl">1</span><span class="op">/</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span>, </span></span>
+<span class="r-in"><span>                               <span class="fl">1</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># data frame interface:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">covariates</span>, treat <span class="op">=</span> <span class="st">"treat"</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span></span>
+<span class="r-in"><span>        weights <span class="op">=</span> <span class="st">"iptw.weights"</span>, s.d.denom <span class="op">=</span> <span class="st">"pooled"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Type Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age         Contin.  -0.1242</span>
@@ -218,10 +224,10 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted  429.    185.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    344.33   65.47</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Formula interface:</span></span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
-<span class="r-in">        weights <span class="op">=</span> <span class="st">"iptw.weights"</span>, s.d.denom <span class="op">=</span> <span class="st">"pooled"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Formula interface:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span></span>
+<span class="r-in"><span>        weights <span class="op">=</span> <span class="st">"iptw.weights"</span>, s.d.denom <span class="op">=</span> <span class="st">"pooled"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Type Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age         Contin.  -0.1242</span>
@@ -234,16 +240,16 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted  429.    185.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    344.33   65.47</span>
-<span class="r-in">      </span>
-<span class="r-in"><span class="co">## Propensity score subclassification</span></span>
-<span class="r-in"><span class="va">lalonde</span><span class="op">$</span><span class="va">subclass</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/findInterval.html" class="external-link">findInterval</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span>, </span>
-<span class="r-in">                        <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span>, </span>
-<span class="r-in">                        <span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span><span class="op">/</span><span class="fl">6</span><span class="op">)</span>, all.inside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># data frame interface:</span></span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">covariates</span>, treat <span class="op">=</span> <span class="st">"treat"</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
-<span class="r-in">        subclass <span class="op">=</span> <span class="st">"subclass"</span>, disp.subclass <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span class="r-in">        s.d.denom <span class="op">=</span> <span class="st">"pooled"</span><span class="op">)</span></span>
+<span class="r-in"><span>      </span></span>
+<span class="r-in"><span><span class="co">## Propensity score subclassification</span></span></span>
+<span class="r-in"><span><span class="va">lalonde</span><span class="op">$</span><span class="va">subclass</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/findInterval.html" class="external-link">findInterval</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span>, </span></span>
+<span class="r-in"><span>                        <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span>, </span></span>
+<span class="r-in"><span>                        <span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span><span class="op">/</span><span class="fl">6</span><span class="op">)</span>, all.inside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># data frame interface:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">covariates</span>, treat <span class="op">=</span> <span class="st">"treat"</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span></span>
+<span class="r-in"><span>        subclass <span class="op">=</span> <span class="st">"subclass"</span>, disp.subclass <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>        s.d.denom <span class="op">=</span> <span class="st">"pooled"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance by subclass</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - - - <span style="font-style: italic;">Subclass 1</span> - - - </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Type Diff.Adj</span>
@@ -293,11 +299,11 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan  Binary   0.0000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> race_white   Binary   0.0000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Formula interface:</span></span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
-<span class="r-in">      subclass <span class="op">=</span> <span class="st">"subclass"</span>, disp.subclass <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span class="r-in">      s.d.denom <span class="op">=</span> <span class="st">"pooled"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Formula interface:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span></span>
+<span class="r-in"><span>      subclass <span class="op">=</span> <span class="st">"subclass"</span>, disp.subclass <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>      s.d.denom <span class="op">=</span> <span class="st">"pooled"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance by subclass</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - - - <span style="font-style: italic;">Subclass 1</span> - - - </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Type Diff.Adj</span>
@@ -361,7 +367,7 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

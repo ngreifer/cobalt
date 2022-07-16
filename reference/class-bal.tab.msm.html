@@ -19,7 +19,7 @@ The across-time-points balance summary is, for each variable, the greatest imbal
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -81,21 +81,31 @@ The across-time-points balance summary is, for each variable, the greatest imbal
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <p>There are two additional arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle longitudinal treatments: <code>which.time</code> and <code>msm.summary</code>.</p>
+    
+
+<p>There are two additional arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle longitudinal treatments: <code>which.time</code> and <code>msm.summary</code>.</p>
 <dl><dt>which.time</dt>
 <dd><p>This is a display option that does not affect computation. If <code>.all</code> (the default), all time points will be displayed. If <code>.none</code>, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance.</p></dd>
+
 <dt>msm.summary</dt>
 <dd><p>This is a display option that does not affect computation. If <code>TRUE</code>, the balance summary across time points will be displayed. The default is <code>TRUE</code>, and if <code>which.time</code> is <code>.none</code>, it will automatically be set to <code>TRUE</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The output is a <code>bal.tab.msm</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
+    
+
+<p>The output is a <code>bal.tab.msm</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
 <dl><dt>Time.Balance</dt>
 <dd><p>For each time point, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.</p></dd>
+
 <dt>Balance.Across.Times</dt>
 <dd><p>The balance summary across time points. This will include the maximum balance statistic(s) for each covariate across all time points.</p></dd>
+
 <dt>Observations</dt>
 <dd><p>A table of sample sizes or effective sample sizes for each time point before and after adjustment.</p></dd>
+
+
 </dl><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
     </div>
     <div id="author">
@@ -119,7 +129,7 @@ The across-time-points balance summary is, for each variable, the greatest imbal
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

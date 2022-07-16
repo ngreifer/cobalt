@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -75,77 +75,99 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S3 method for bal.tab</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, 
-      <span class="va">imbalanced.only</span>, 
-      <span class="va">un</span>,
-      <span class="va">disp.bal.tab</span>,
-      <span class="va">disp.call</span>,
-      <span class="va">stats</span>,
-      <span class="va">disp.thresholds</span>,
-      <span class="va">disp</span>,
-      <span class="va">which.subclass</span>,
-      <span class="va">subclass.summary</span>,
-      <span class="va">which.imp</span>,
-      <span class="va">imp.summary</span>,
-      <span class="va">imp.fun</span>,
-      <span class="va">which.treat</span>,
-      <span class="va">multi.summary</span>,
-      <span class="va">which.time</span>,
-      <span class="va">msm.summary</span>,
-      <span class="va">which.cluster</span>,
-      <span class="va">cluster.summary</span>,
-      <span class="va">cluster.fun</span>,
-      digits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"digits"</span><span class="op">)</span> <span class="op">-</span> <span class="fl">3</span><span class="op">)</span>,
-      <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for bal.tab</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, </span>
+<span>      <span class="va">imbalanced.only</span>, </span>
+<span>      <span class="va">un</span>,</span>
+<span>      <span class="va">disp.bal.tab</span>,</span>
+<span>      <span class="va">disp.call</span>,</span>
+<span>      <span class="va">stats</span>,</span>
+<span>      <span class="va">disp.thresholds</span>,</span>
+<span>      <span class="va">disp</span>,</span>
+<span>      <span class="va">which.subclass</span>,</span>
+<span>      <span class="va">subclass.summary</span>,</span>
+<span>      <span class="va">which.imp</span>,</span>
+<span>      <span class="va">imp.summary</span>,</span>
+<span>      <span class="va">imp.fun</span>,</span>
+<span>      <span class="va">which.treat</span>,</span>
+<span>      <span class="va">multi.summary</span>,</span>
+<span>      <span class="va">which.time</span>,</span>
+<span>      <span class="va">msm.summary</span>,</span>
+<span>      <span class="va">which.cluster</span>,</span>
+<span>      <span class="va">cluster.summary</span>,</span>
+<span>      <span class="va">cluster.fun</span>,</span>
+<span>      digits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"digits"</span><span class="op">)</span> <span class="op">-</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>      <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>a <code>bal.tab</code> object; the output of a call to <code><a href="bal.tab.html">bal.tab()</a></code>.</p></dd>
-<dt>imbalanced.only</dt>
+
+  <dt>imbalanced.only</dt>
 <dd><p><code>logical</code>; whether to display only the covariates that failed to meet at least one of balance thresholds. Depends only on whether threshold were initial set in the call to <code><a href="bal.tab.html">bal.tab()</a></code> and not on any arguments to <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> (except <code>disp.bal.tab</code>).</p></dd>
-<dt>un</dt>
+
+    <dt>un</dt>
 <dd><p><code>logical</code>; whether to display balance values for the unadjusted sample. Ignored (and set to <code>TRUE</code>) if no conditioning was performed.</p></dd>
-<dt>disp.bal.tab</dt>
+
+  <dt>disp.bal.tab</dt>
 <dd><p><code>logical</code>; whether to display the table of balance statistics. If <code>FALSE</code>, only other values (e.g., the call, sample sizes, balance tallies, and maximum imbalances) will be presented.</p></dd>
-<dt>disp.call</dt>
+
+  <dt>disp.call</dt>
 <dd><p><code>logical</code>; whether to display the function call for the input object, if any.</p></dd>
-<dt>stats</dt>
+
+  <dt>stats</dt>
 <dd><p><code>character</code>; which statistic(s) should be reported. For binary or multi-category treatments, the options are "mean.diffs" for mean differences (standardized or not according the selected <code><a href="bal.tab.html">bal.tab()</a></code> options), "variance.ratios" for variance ratios, and "ks.statistics" for Kolmogorov-Smirnov statistics. "mean.diffs" is the default. For continuous treatments, the only option is "correlations" for treatment-covariate correlations. Multiple options are allowed. Abbreviations allowed. Statistics that weren't requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code> cannot be requested with <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> unless <code>quick = FALSE</code> in the original call.</p></dd>
-<dt>disp.thresholds</dt>
+
+  <dt>disp.thresholds</dt>
 <dd><p><code>logical</code>; whether to display thresholds for each statistic for which thresholds were originally requested in the call to <code><a href="bal.tab.html">bal.tab()</a></code>. Should be a named logical vector with names corresponding to the thresholds. For example, if thresholds for mean differences were requested in <code><a href="bal.tab.html">bal.tab()</a></code>, set <code>disp.thresholds = c(m = FALSE)</code> to prevent them from being printed. If a statistic was prevented from being displayed by another argument to <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, the thresholds will not be displayed.</p></dd>
-<dt>disp</dt>
+
+  <dt>disp</dt>
 <dd><p><code>character</code>; which distribution summary statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code> cannot be requested with <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> unless <code>quick = FALSE</code> in the original call.</p></dd>
-<dt>which.subclass</dt>
+
+  <dt>which.subclass</dt>
 <dd><p>when used with subclassification, which subclass(es) to display. If <code>NULL</code>, all subclasses will be displayed. If <code>NA</code>, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for details.</p></dd>
-<dt>subclass.summary</dt>
+
+  <dt>subclass.summary</dt>
 <dd><p><code>logical</code>; when used with subclassification, whether to display the subclass balance summary table. If <code>which.subclass</code> is <code>NA</code>, <code>subclass.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for details.</p></dd>
-<dt>which.imp</dt>
+
+  <dt>which.imp</dt>
 <dd><p>when used with multiply imputed data, which imputation(s) to display. If <code>NULL</code>, all imputations will be displayed. If <code>NA</code>, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p></dd>
-<dt>imp.summary</dt>
+
+  <dt>imp.summary</dt>
 <dd><p><code>logical</code>; when used with multiply imputed data, whether to display the imputation summary table. If <code>which.imp</code> is <code>NA</code>, <code>imp.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p></dd>
-<dt>imp.fun</dt>
+
+  <dt>imp.fun</dt>
 <dd><p><code>character</code>; when used with multiply imputed data, a character vector of functions of balance statistics to display when displaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p></dd>
-<dt>which.treat</dt>
+
+  <dt>which.treat</dt>
 <dd><p>when used with multi-category treatments, which treatments to display. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p></dd>
-<dt>multi.summary</dt>
+
+ <dt>multi.summary</dt>
 <dd><p><code>logical</code>; when used with multi-category treatments, whether to display the balance summary table across pairwise comparisons. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p></dd>
-<dt>which.time</dt>
+
+  <dt>which.time</dt>
 <dd><p>when used with longitudinal treatments, which time periods to display if longitudinal treatments are used. See <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code> for details.</p></dd>
-<dt>msm.summary</dt>
+
+  <dt>msm.summary</dt>
 <dd><p><code>logical</code>; when used with longitudinal treatments, whether to display the balance summary table across time periods. See <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code> for details.</p></dd>
-<dt>which.cluster</dt>
+
+  <dt>which.cluster</dt>
 <dd><p>when used with clustered data, which cluster(s) to display. If <code>NULL</code>, all clusters will be displayed. If <code>NA</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
-<dt>cluster.summary</dt>
+
+  <dt>cluster.summary</dt>
 <dd><p><code>logical</code>; when used with clustered data, whether to display the cluster summary table. If <code>which.cluster</code> is <code>NA</code>, <code>cluster.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
-<dt>cluster.fun</dt>
+
+  <dt>cluster.fun</dt>
 <dd><p><code>character</code>; when used with clustered data, a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
-<dt>digits</dt>
+
+  <dt>digits</dt>
 <dd><p>the number of digits to display.</p></dd>
-<dt>...</dt>
+
+  <dt>...</dt>
 <dd><p>further arguments passed to or from other methods.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -169,16 +191,16 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">WeightIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">w.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
-<span class="r-in">                  data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
-<span class="r-in">                  </span>
-<span class="r-in"><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"v"</span>, <span class="st">"ks"</span><span class="op">)</span>, </span>
-<span class="r-in">             un <span class="op">=</span> <span class="cn">TRUE</span>, v.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in">             </span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">b</span>, un <span class="op">=</span> <span class="cn">FALSE</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"v"</span><span class="op">)</span>,</span>
-<span class="r-in">      disp.thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>v <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">WeightIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">w.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span></span>
+<span class="r-in"><span>                  data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                  </span></span>
+<span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"v"</span>, <span class="st">"ks"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>             un <span class="op">=</span> <span class="cn">TRUE</span>, v.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>             </span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">b</span>, un <span class="op">=</span> <span class="cn">FALSE</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"v"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      disp.thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>v <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  weightit(formula = treat ~ age + educ + married + race + re74 + </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     re75, data = lalonde)</span>
@@ -213,7 +235,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

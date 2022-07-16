@@ -19,7 +19,7 @@ The across-imputation balance summary pools information across the within-imputa
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -81,25 +81,37 @@ The across-imputation balance summary pools information across the within-imputa
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle multiply imputed data: <code>imp</code>, <code>which.imp</code>, <code>imp.summary</code>, and <code>imp.fun</code>.</p>
+    
+
+<p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle multiply imputed data: <code>imp</code>, <code>which.imp</code>, <code>imp.summary</code>, and <code>imp.fun</code>.</p>
 <dl><dt>imp</dt>
 <dd><p>A vector of imputation membership. This can be factor, character, or numeric vector. This argument is required to let <code><a href="bal.tab.html">bal.tab()</a></code> know that the data is multiply imputed unless <span class="pkg">MatchThem</span> objects are used. If a <code>data</code> argument is specified, this can also be the name of a variable in <code>data</code> that contains imputation membership. If the <code>data</code> argument is a <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice()</a></code>, <code>imp</code> does not need to be specified and will automatically be extracted from the <code>mids</code> object.</p></dd>
+
 <dt>which.imp</dt>
 <dd><p>This is a display option that does not affect computation. If <code>.all</code>, all imputations in <code>imp</code> will be displayed. If <code>.none</code> (the default), no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance.</p></dd>
+
 <dt>imp.summary</dt>
 <dd><p>This is a display option that does not affect computation. If <code>TRUE</code>, the balance summary across imputations will be displayed. The default is <code>TRUE</code>, and if <code>which.imp</code> is <code>.none</code>, it will automatically be set to <code>TRUE</code>.</p></dd>
+
 <dt>imp.fun</dt>
 <dd><p>This is a display option that does not affect computation. Can be "min", "mean", or "max" and corresponds to which function is used in the across-imputation summary to combine results across imputations. For example, if <code>imp.fun = "mean"</code> the mean balance statistic across imputations will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The output is a <code>bal.tab.imp</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
+    
+
+<p>The output is a <code>bal.tab.imp</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
 <dl><dt>Imputation.Balance</dt>
 <dd><p>For each imputation, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.</p></dd>
+
 <dt>Balance.Across.Imputations</dt>
 <dd><p>The balance summary across imputations. This will include the combination of each balance statistic for each covariate across all imputations according to the value of <code>imp.fun</code>.</p></dd>
+
 <dt>Observations</dt>
 <dd><p>A table of sample sizes or effective sample sizes averaged across imputations before and after adjustment.</p></dd>
+
+
 </dl><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
     </div>
     <div id="author">
@@ -123,7 +135,7 @@ The across-imputation balance summary pools information across the within-imputa
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

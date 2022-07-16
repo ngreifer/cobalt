@@ -19,7 +19,7 @@ The across-cluster balance summary pools information across the within-cluster b
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -81,25 +81,37 @@ The across-cluster balance summary pools information across the within-cluster b
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle clustered data: <code>cluster</code>, <code>which.cluster</code>, <code>cluster.summary</code>, and <code>cluster.fun</code>.</p>
+    
+
+<p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle clustered data: <code>cluster</code>, <code>which.cluster</code>, <code>cluster.summary</code>, and <code>cluster.fun</code>.</p>
 <dl><dt>cluster</dt>
 <dd><p>A vector of cluster membership. This can be factor, character, or numeric vector. This argument is required to let <code><a href="bal.tab.html">bal.tab()</a></code> know that the data is clustered. If a <code>data</code> argument is specified, this can also be the name of a variable in <code>data</code> that contains cluster membership.</p></dd>
+
 <dt>which.cluster</dt>
 <dd><p>This is a display option that does not affect computation. If <code>.all</code> (the default), all clusters in <code>cluster</code> will be displayed. If <code>.none</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names (or the order of cluster levels if a factor).</p></dd>
+
 <dt>cluster.summary</dt>
 <dd><p>This is a display option that does not affect computation. If <code>TRUE</code>, the balance summary across clusters will be displayed. The default is <code>TRUE</code>, and if <code>which.cluster</code> is <code>.none</code>, it will automatically be set to <code>TRUE</code>.</p></dd>
+
 <dt>cluster.fun</dt>
 <dd><p>This is a display option that does not affect computation. Can be "min", "mean", or "max" and corresponds to which function is used in the across-cluster summary to combine results across clusters. For example, if <code>cluster.fun = "mean"</code> the mean balance statistic across clusters will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The output is a <code>bal.tab.cluster</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
+    
+
+<p>The output is a <code>bal.tab.cluster</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
 <dl><dt>Cluster.Balance</dt>
 <dd><p>For each cluster, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.</p></dd>
+
 <dt>Cluster.Summary</dt>
 <dd><p>The balance summary across clusters. This will include the combination of each balance statistic for each covariate across all clusters according to the value of <code>cluster.fun</code>.</p></dd>
+
 <dt>Observations</dt>
 <dd><p>A table of sample sizes or effective sample sizes for each cluster before and after adjustment.</p></dd>
+
+
 </dl><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
     </div>
     <div id="see-also">
@@ -119,7 +131,7 @@ The across-cluster balance summary pools information across the within-cluster b
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

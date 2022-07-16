@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</h1>
                         <h4 data-toc-skip class="author">Noah Greifer</h4>
             
-            <h4 data-toc-skip class="date">2022-05-23</h4>
+            <h4 data-toc-skip class="date">2022-07-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt_A2_segmented_data.Rmd" class="external-link"><code>vignettes/cobalt_A2_segmented_data.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A2_segmented_data.Rmd</code></div>
@@ -125,12 +125,12 @@
 <p>In clustered data, the data set must contain a variable denoting the group each individual belongs to. This may be a group considered a nuisance that must be accounted for to eliminate confounding (e.g., hospitals in a multi-site medical treatment study), or a group of concern for effect moderation (e.g., race or gender). In the examples below, we will imagine that we are interested in the ATT of <code>treat</code> on <code>re78</code> stratified by <code>race</code>. Thus, we will condition on the propensity score within each cluster.</p>
 <p>First, let’s estimate propensity scores and perform matching within each race group. We can do this by performing separate analyses within each cluster, but we can also use exact matching in <code>MatchIt</code> to ensure matches occur within clusters. It is important to note that this analysis does not necessarily represent a sound statistical analysis and is being used for illustrative purposes only.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://kosukeimai.github.io/MatchIt/" class="external-link">"MatchIt"</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/" class="external-link">"cobalt"</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
-
-<span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">race</span><span class="op">*</span><span class="op">(</span><span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>, 
-                 data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span>, exact <span class="op">=</span> <span class="st">"race"</span>, 
-                 replace <span class="op">=</span> <span class="cn">TRUE</span>, ratio <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/" class="external-link">"cobalt"</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu">MatchIt</span><span class="fu">::</span><span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">race</span><span class="op">*</span><span class="op">(</span><span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span><span class="op">)</span>, </span>
+<span>                          data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span>, exact <span class="op">=</span> <span class="st">"race"</span>, </span>
+<span>                          replace <span class="op">=</span> <span class="cn">TRUE</span>, ratio <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="bal-tab">
 <code>bal.tab()</code><a class="anchor" aria-label="anchor" href="#bal-tab"></a>
@@ -144,146 +144,164 @@
 </ul>
 <p>The arguments are in addition to the other arguments that are used with <code><a href="../reference/bal.tab.html">bal.tab()</a></code> to display balance. <code>imp.summary</code> and <code>imp.fun</code> can also be set as global options by using <code><a href="../reference/set.cobalt.options.html">set.cobalt.options()</a></code>. Let’s examine balance on our data within each race group.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="text-decoration: underline;">Call</span></span>
-<span class="co">##  matchit(formula = treat ~ race * (age + educ + married + nodegree + </span>
-<span class="co">##     re74 + re75), data = lalonde, method = "nearest", exact = "race", </span>
-<span class="co">##     replace = TRUE, ratio = 2)</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Balance by cluster</span></span>
-<span class="co">## </span>
-<span class="co">##  - - - <span style="font-style: italic;">Cluster: black</span> - - - </span>
-<span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="co">##              Type Diff.Adj</span>
-<span class="co">## distance Distance   0.0150</span>
-<span class="co">## age       Contin.  -0.1001</span>
-<span class="co">## educ      Contin.   0.0794</span>
-<span class="co">## married    Binary   0.0288</span>
-<span class="co">## nodegree   Binary  -0.0032</span>
-<span class="co">## re74      Contin.  -0.1501</span>
-<span class="co">## re75      Contin.  -0.1406</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="co">##                      Control Treated</span>
-<span class="co">## All                    87.       156</span>
-<span class="co">## Matched (ESS)          41.42     156</span>
-<span class="co">## Matched (Unweighted)   76.       156</span>
-<span class="co">## Unmatched              11.         0</span>
-<span class="co">## </span>
-<span class="co">##  - - - <span style="font-style: italic;">Cluster: hispan</span> - - - </span>
-<span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="co">##              Type Diff.Adj</span>
-<span class="co">## distance Distance   0.0947</span>
-<span class="co">## age       Contin.   0.1914</span>
-<span class="co">## educ      Contin.  -0.4159</span>
-<span class="co">## married    Binary   0.1364</span>
-<span class="co">## nodegree   Binary   0.2273</span>
-<span class="co">## re74      Contin.   0.1161</span>
-<span class="co">## re75      Contin.   0.0683</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="co">##                      Control Treated</span>
-<span class="co">## All                    61.        11</span>
-<span class="co">## Matched (ESS)          15.12      11</span>
-<span class="co">## Matched (Unweighted)   18.        11</span>
-<span class="co">## Unmatched              43.         0</span>
-<span class="co">## </span>
-<span class="co">##  - - - <span style="font-style: italic;">Cluster: white</span> - - - </span>
-<span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="co">##              Type Diff.Adj</span>
-<span class="co">## distance Distance   0.0216</span>
-<span class="co">## age       Contin.  -0.4201</span>
-<span class="co">## educ      Contin.  -0.1403</span>
-<span class="co">## married    Binary  -0.0556</span>
-<span class="co">## nodegree   Binary   0.1111</span>
-<span class="co">## re74      Contin.  -0.0417</span>
-<span class="co">## re75      Contin.   0.0298</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="co">##                      Control Treated</span>
-<span class="co">## All                   281.        18</span>
-<span class="co">## Matched (ESS)          25.92      18</span>
-<span class="co">## Matched (Unweighted)   31.        18</span>
-<span class="co">## Unmatched             250.         0</span>
-<span class="co">##  - - - - - - - - - - - - - -</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
+<span><span class="co">##  MatchIt::matchit(formula = treat ~ race * (age + educ + married + </span></span>
+<span><span class="co">##     nodegree + re74 + re75), data = lalonde, method = "nearest", </span></span>
+<span><span class="co">##     exact = "race", replace = TRUE, ratio = 2)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance by cluster</span></span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">Cluster: black</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                 Type Diff.Adj</span></span>
+<span><span class="co">## distance    Distance   0.0150</span></span>
+<span><span class="co">## race_black    Binary   0.0000</span></span>
+<span><span class="co">## race_hispan   Binary   0.0000</span></span>
+<span><span class="co">## race_white    Binary   0.0000</span></span>
+<span><span class="co">## age          Contin.  -0.1001</span></span>
+<span><span class="co">## educ         Contin.   0.0794</span></span>
+<span><span class="co">## married       Binary   0.0288</span></span>
+<span><span class="co">## nodegree      Binary  -0.0032</span></span>
+<span><span class="co">## re74         Contin.  -0.1501</span></span>
+<span><span class="co">## re75         Contin.  -0.1406</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##                      Control Treated</span></span>
+<span><span class="co">## All                    87.       156</span></span>
+<span><span class="co">## Matched (ESS)          41.42     156</span></span>
+<span><span class="co">## Matched (Unweighted)   76.       156</span></span>
+<span><span class="co">## Unmatched              11.         0</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">Cluster: hispan</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                 Type Diff.Adj</span></span>
+<span><span class="co">## distance    Distance   0.0947</span></span>
+<span><span class="co">## race_black    Binary   0.0000</span></span>
+<span><span class="co">## race_hispan   Binary   0.0000</span></span>
+<span><span class="co">## race_white    Binary   0.0000</span></span>
+<span><span class="co">## age          Contin.   0.1914</span></span>
+<span><span class="co">## educ         Contin.  -0.4159</span></span>
+<span><span class="co">## married       Binary   0.1364</span></span>
+<span><span class="co">## nodegree      Binary   0.2273</span></span>
+<span><span class="co">## re74         Contin.   0.1161</span></span>
+<span><span class="co">## re75         Contin.   0.0683</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##                      Control Treated</span></span>
+<span><span class="co">## All                    61.        11</span></span>
+<span><span class="co">## Matched (ESS)          15.12      11</span></span>
+<span><span class="co">## Matched (Unweighted)   18.        11</span></span>
+<span><span class="co">## Unmatched              43.         0</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">Cluster: white</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                 Type Diff.Adj</span></span>
+<span><span class="co">## distance    Distance   0.0216</span></span>
+<span><span class="co">## race_black    Binary   0.0000</span></span>
+<span><span class="co">## race_hispan   Binary   0.0000</span></span>
+<span><span class="co">## race_white    Binary   0.0000</span></span>
+<span><span class="co">## age          Contin.  -0.4201</span></span>
+<span><span class="co">## educ         Contin.  -0.1403</span></span>
+<span><span class="co">## married       Binary  -0.0556</span></span>
+<span><span class="co">## nodegree      Binary   0.1111</span></span>
+<span><span class="co">## re74         Contin.  -0.0417</span></span>
+<span><span class="co">## re75         Contin.   0.0298</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##                      Control Treated</span></span>
+<span><span class="co">## All                   281.        18</span></span>
+<span><span class="co">## Matched (ESS)          25.92      18</span></span>
+<span><span class="co">## Matched (Unweighted)   31.        18</span></span>
+<span><span class="co">## Unmatched             250.         0</span></span>
+<span><span class="co">##  - - - - - - - - - - - - - -</span></span></code></pre>
 <p>Here we see balance tables for each cluster. These are the same output we would see if we use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> for each cluster separately (e.g., using the <code>subset</code> argument). All the commands that work for <code><a href="../reference/bal.tab.html">bal.tab()</a></code> also work here with the same results, except that balance tallies and the variable with the greatest imbalance will not be displayed as they usually are when a threshold is specified. Next, we can request a balance summary across clusters and hide the individual clusters by setting <code>which.cluster = .none</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="text-decoration: underline;">Call</span></span>
-<span class="co">##  matchit(formula = treat ~ race * (age + educ + married + nodegree + </span>
-<span class="co">##     re74 + re75), data = lalonde, method = "nearest", exact = "race", </span>
-<span class="co">##     replace = TRUE, ratio = 2)</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Balance summary across all clusters</span></span>
-<span class="co">##              Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span>
-<span class="co">## distance Distance       0.0150        0.0438       0.0947</span>
-<span class="co">## age       Contin.      -0.4201       -0.1096       0.1914</span>
-<span class="co">## educ      Contin.      -0.4159       -0.1590       0.0794</span>
-<span class="co">## married    Binary      -0.0556        0.0366       0.1364</span>
-<span class="co">## nodegree   Binary      -0.0032        0.1117       0.2273</span>
-<span class="co">## re74      Contin.      -0.1501       -0.0252       0.1161</span>
-<span class="co">## re75      Contin.      -0.1406       -0.0142       0.0683</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Total sample sizes across clusters</span></span>
-<span class="co">##                      Control Treated</span>
-<span class="co">## All                   429.       185</span>
-<span class="co">## Matched (ESS)          82.47     185</span>
-<span class="co">## Matched (Unweighted)  125.       185</span>
-<span class="co">## Unmatched             304.         0</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
+<span><span class="co">##  MatchIt::matchit(formula = treat ~ race * (age + educ + married + </span></span>
+<span><span class="co">##     nodegree + re74 + re75), data = lalonde, method = "nearest", </span></span>
+<span><span class="co">##     exact = "race", replace = TRUE, ratio = 2)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance summary across all clusters</span></span></span>
+<span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
+<span><span class="co">## distance    Distance       0.0150        0.0438       0.0947</span></span>
+<span><span class="co">## race_black    Binary       0.0000        0.0000       0.0000</span></span>
+<span><span class="co">## race_hispan   Binary       0.0000        0.0000       0.0000</span></span>
+<span><span class="co">## race_white    Binary       0.0000        0.0000       0.0000</span></span>
+<span><span class="co">## age          Contin.      -0.4201       -0.1096       0.1914</span></span>
+<span><span class="co">## educ         Contin.      -0.4159       -0.1590       0.0794</span></span>
+<span><span class="co">## married       Binary      -0.0556        0.0366       0.1364</span></span>
+<span><span class="co">## nodegree      Binary      -0.0032        0.1117       0.2273</span></span>
+<span><span class="co">## re74         Contin.      -0.1501       -0.0252       0.1161</span></span>
+<span><span class="co">## re75         Contin.      -0.1406       -0.0142       0.0683</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Total sample sizes across clusters</span></span></span>
+<span><span class="co">##                      Control Treated</span></span>
+<span><span class="co">## All                   429.       185</span></span>
+<span><span class="co">## Matched (ESS)          82.47     185</span></span>
+<span><span class="co">## Matched (Unweighted)  125.       185</span></span>
+<span><span class="co">## Unmatched             304.         0</span></span></code></pre>
 <p>This table presents the minimum, mean, and maximum balance statistics for each variable across clusters. Setting <code>un = TRUE</code> will also display the same values for the adjusted data set. With binary treatments, setting <code>disp = c(v = TRUE)</code> or <code>thresholds = c(v = 2)</code> will display the same values for variance ratios. Setting <code>abs = TRUE</code> requests summaries of absolute balance statistics which displays the extremeness of balance statistics for each variable; thus, if, for example, in some groups there are large negative mean differences and in other groups there are large positive mean differences, this table will display large mean differences, even though the average mean difference is close to 0. While it’s important to know the average balance statistic overall, assessing the absolute balance statistics provides more information about balance within each cluster rather than in aggregate.</p>
 <p>To examine balance for just a few clusters at a time, users can enter values for <code>which.cluster</code>. This can be a vector of clusters indices (i.e., 1, 2, 3, etc.) or names (e.g., “black”, “hispan”, “white”). Users also specify <code>which.cluster = .none</code> as above to omit cluster balance for all clusters and just see the summary across clusters. Users can force display of the summary across clusters by specifying <code>TRUE</code> or <code>FALSE</code> for <code>cluster.summary</code>. When <code>which.cluster = .none</code>, <code>cluster.summary</code> will automatically be set to <code>TRUE</code> (or else there wouldn’t be any output!). When examining balance within a few groups, it can be more helpful to examine balance within each group and ignore the summary. Below are examples of the use of <code>which.cluster</code> and <code>cluster.summary</code> to change <code><a href="../reference/bal.tab.html">bal.tab()</a></code> output.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#Just for black</span>
-<span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="text-decoration: underline;">Call</span></span>
-<span class="co">##  matchit(formula = treat ~ race * (age + educ + married + nodegree + </span>
-<span class="co">##     re74 + re75), data = lalonde, method = "nearest", exact = "race", </span>
-<span class="co">##     replace = TRUE, ratio = 2)</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Balance by cluster</span></span>
-<span class="co">## </span>
-<span class="co">##  - - - <span style="font-style: italic;">Cluster: black</span> - - - </span>
-<span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="co">##              Type Diff.Adj</span>
-<span class="co">## distance Distance   0.0150</span>
-<span class="co">## age       Contin.  -0.1001</span>
-<span class="co">## educ      Contin.   0.0794</span>
-<span class="co">## married    Binary   0.0288</span>
-<span class="co">## nodegree   Binary  -0.0032</span>
-<span class="co">## re74      Contin.  -0.1501</span>
-<span class="co">## re75      Contin.  -0.1406</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="co">##                      Control Treated</span>
-<span class="co">## All                    87.       156</span>
-<span class="co">## Matched (ESS)          41.42     156</span>
-<span class="co">## Matched (Unweighted)   76.       156</span>
-<span class="co">## Unmatched              11.         0</span>
-<span class="co">##  - - - - - - - - - - - - - -</span></code></pre>
+<code class="sourceCode R"><span><span class="co">#Just for black</span></span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
+<span><span class="co">##  MatchIt::matchit(formula = treat ~ race * (age + educ + married + </span></span>
+<span><span class="co">##     nodegree + re74 + re75), data = lalonde, method = "nearest", </span></span>
+<span><span class="co">##     exact = "race", replace = TRUE, ratio = 2)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance by cluster</span></span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">Cluster: black</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                 Type Diff.Adj</span></span>
+<span><span class="co">## distance    Distance   0.0150</span></span>
+<span><span class="co">## race_black    Binary   0.0000</span></span>
+<span><span class="co">## race_hispan   Binary   0.0000</span></span>
+<span><span class="co">## race_white    Binary   0.0000</span></span>
+<span><span class="co">## age          Contin.  -0.1001</span></span>
+<span><span class="co">## educ         Contin.   0.0794</span></span>
+<span><span class="co">## married       Binary   0.0288</span></span>
+<span><span class="co">## nodegree      Binary  -0.0032</span></span>
+<span><span class="co">## re74         Contin.  -0.1501</span></span>
+<span><span class="co">## re75         Contin.  -0.1406</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
+<span><span class="co">##                      Control Treated</span></span>
+<span><span class="co">## All                    87.       156</span></span>
+<span><span class="co">## Matched (ESS)          41.42     156</span></span>
+<span><span class="co">## Matched (Unweighted)   76.       156</span></span>
+<span><span class="co">## Unmatched              11.         0</span></span>
+<span><span class="co">##  - - - - - - - - - - - - - -</span></span></code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#Just the balance summary across clusters with only the mean</span>
-<span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span>, cluster.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="text-decoration: underline;">Call</span></span>
-<span class="co">##  matchit(formula = treat ~ race * (age + educ + married + nodegree + </span>
-<span class="co">##     re74 + re75), data = lalonde, method = "nearest", exact = "race", </span>
-<span class="co">##     replace = TRUE, ratio = 2)</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Balance summary across all clusters</span></span>
-<span class="co">##              Type Mean.Diff.Adj</span>
-<span class="co">## distance Distance        0.0438</span>
-<span class="co">## age       Contin.       -0.1096</span>
-<span class="co">## educ      Contin.       -0.1590</span>
-<span class="co">## married    Binary        0.0366</span>
-<span class="co">## nodegree   Binary        0.1117</span>
-<span class="co">## re74      Contin.       -0.0252</span>
-<span class="co">## re75      Contin.       -0.0142</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Total sample sizes across clusters</span></span>
-<span class="co">##                      Control Treated</span>
-<span class="co">## All                   429.       185</span>
-<span class="co">## Matched (ESS)          82.47     185</span>
-<span class="co">## Matched (Unweighted)  125.       185</span>
-<span class="co">## Unmatched             304.         0</span></code></pre>
+<code class="sourceCode R"><span><span class="co">#Just the balance summary across clusters with only the mean</span></span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span>, cluster.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
+<span><span class="co">##  MatchIt::matchit(formula = treat ~ race * (age + educ + married + </span></span>
+<span><span class="co">##     nodegree + re74 + re75), data = lalonde, method = "nearest", </span></span>
+<span><span class="co">##     exact = "race", replace = TRUE, ratio = 2)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance summary across all clusters</span></span></span>
+<span><span class="co">##                 Type Mean.Diff.Adj</span></span>
+<span><span class="co">## distance    Distance        0.0438</span></span>
+<span><span class="co">## race_black    Binary        0.0000</span></span>
+<span><span class="co">## race_hispan   Binary        0.0000</span></span>
+<span><span class="co">## race_white    Binary        0.0000</span></span>
+<span><span class="co">## age          Contin.       -0.1096</span></span>
+<span><span class="co">## educ         Contin.       -0.1590</span></span>
+<span><span class="co">## married       Binary        0.0366</span></span>
+<span><span class="co">## nodegree      Binary        0.1117</span></span>
+<span><span class="co">## re74         Contin.       -0.0252</span></span>
+<span><span class="co">## re75         Contin.       -0.0142</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Total sample sizes across clusters</span></span></span>
+<span><span class="co">##                      Control Treated</span></span>
+<span><span class="co">## All                   429.       185</span></span>
+<span><span class="co">## Matched (ESS)          82.47     185</span></span>
+<span><span class="co">## Matched (Unweighted)  125.       185</span></span>
+<span><span class="co">## Unmatched             304.         0</span></span></code></pre>
 <p>These can also be set as global options by using, for example, <code>set.cobalt.options(cluster.fun = "mean")</code>, which allows users not to type a non-default option every time they call <code>bal.tab</code>.</p>
 </div>
 <div class="section level3">
@@ -292,7 +310,7 @@
 </h3>
 <p><code><a href="../reference/bal.plot.html">bal.plot()</a></code> functions as it does with non-clustered data, except that multiple plots can be produced at the same time displaying balance for each cluster. The arguments to <code><a href="../reference/bal.plot.html">bal.plot()</a></code> are the same as those for <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, except that <code>cluster.summary</code> is absent. Below is an example of the use of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> with clustered data:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"age"</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">m.out</span>, var.name <span class="op">=</span> <span class="st">"age"</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-6-1.png" width="480"></p>
 <p>Balance plots for each cluster are displayed next to each other. You can specify <code>which.cluster</code> as with <code><a href="../reference/bal.tab.html">bal.tab()</a></code> to restrict plotting to a subset of clusters.</p>
 </div>
@@ -302,16 +320,16 @@
 </h3>
 <p><code><a href="../reference/love.plot.html">love.plot()</a></code> shines with clustered data because there are several options that are unique to <code>cobalt</code> and help with the visual display of balance. One way to display cluster balance with <code><a href="../reference/love.plot.html">love.plot()</a></code> is to produce different plots for each cluster, as <code><a href="../reference/bal.plot.html">bal.plot()</a></code> does. This method should not be used with many clusters, or the plots will be unreadable. In our present example, this is not an issue. To do so, the <code>which.cluster</code> argument in <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or <code><a href="../reference/love.plot.html">love.plot()</a></code> must be set to the names or indices of the clusters for which balance is to be plotted. If <code>which.cluster</code> is set to <code>.all</code> (the default), all clusters will be plotted. Below is an example:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-7-1.png" width="480"></p>
 <p>These plots function like those from using <code><a href="../reference/love.plot.html">love.plot()</a></code> with non-clustered data, except that they cannot be sorted based on the values of the balance statistics (they can still be sorted alphabetically, though). This is to ensure that the covariates line up across the plots. The same axis limits will apply to all plots.</p>
 <p>Second, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean or maximum) of the balance statistic for each covariate across clusters. To do this, <code>which.cluster</code> in the <code>love.plot</code> command must be set to <code>.none</code>. To change which aggregate function is displayed, use the argument to <code>agg.fun</code>, which may be “mean” or “max”. Below is an example:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span>, agg.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span>, agg.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-8-1.png" width="480"></p>
 <p>A third option is to set <code>agg.fun = "range"</code> (the default), which produces a similar plot as above except that the minimum and maximum values of the balance statistics for each covariate are displayed as well. See below for an example:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span>, agg.fun <span class="op">=</span> <span class="st">"range"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span>, agg.fun <span class="op">=</span> <span class="st">"range"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-9-1.png" width="480"></p>
 <p>Each point represents the mean balance statistic, and the bars represent intervals bounded by the minimum and maximum of each balance statistic. This display can be especially helpful with many clusters given that the mean alone may not tell the whole story. In some cases, it might be useful to set limits on the x-axis by using the <code>limits</code> argument in <code><a href="../reference/love.plot.html">love.plot()</a></code>; doing so may cut off some of the ranges, but whatever is left will be displayed. All <code><a href="../reference/love.plot.html">love.plot()</a></code> arguments work with these methods as they do in the case of non-clustered data. When <code>var.order</code> is specified as <code>"unadjusted"</code> or <code>"adjusted"</code>, the ordering will occur on the mean balance statistic when using <code>agg.fun = "range"</code>. Only one argument to <code>stats</code> is allowed when segmented data produces more than one plot (i.e., as it would with <code>which.cluster = .all</code>).</p>
 </div>
@@ -322,18 +340,17 @@
 <p>Multiply imputed data works in a very similar way to clustered data, except the “grouping” variable refers to imputations rather than clusters. Thus, each row belongs to one imputation (i.e., the data set should be in “long” format). The data set used should only include the imputed data sets and not the original data set with missing values (unlike Stata’s <code>mi</code> commands, which do require the original data set as well). The imputed data sets can be of different sizes (i.e., because matching reduced the size of each differently), but it is preferred that they are the same size and weights are used to indicate which units belong to the sample and which do not.</p>
 <p>In the example below, we will use a version of the Lalonde data set with some values missing. We will use the <code>mice</code> package to implement multiple imputation with chained equations. We will perform the “within” approach using the <code>MatchThem</code> to perform propensity score weighting within each imputation with <code>educ</code> as the continuous treatment (substantively this analysis makes no sense and is just for illustration).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/amices/mice" class="external-link">"mice"</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/FarhadPishgar/MatchThem" class="external-link">"MatchThem"</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/" class="external-link">"cobalt"</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde_mis"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span>
-
-<span class="co">#Generate imputed data sets</span>
-<span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">10</span> <span class="co">#number of imputed data sets</span>
-<span class="va">imp.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></span><span class="op">(</span><span class="va">lalonde_mis</span>, m <span class="op">=</span> <span class="va">m</span>, print <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> 
-
-
-<span class="co">#Performing generalized propensity score weighting in each imputation</span>
-<span class="va">wt.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchThem/man/weightthem.html" class="external-link">weightthem</a></span><span class="op">(</span><span class="va">educ</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> 
-                      <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, datasets <span class="op">=</span> <span class="va">imp.out</span>, 
-                     approach <span class="op">=</span> <span class="st">"within"</span>, method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde_mis"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Generate imputed data sets</span></span>
+<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">10</span> <span class="co">#number of imputed data sets</span></span>
+<span><span class="va">imp.out</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice</a></span><span class="op">(</span><span class="va">lalonde_mis</span>, m <span class="op">=</span> <span class="va">m</span>, print <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span>
+<span></span>
+<span></span>
+<span><span class="co">#Performing generalized propensity score weighting in each imputation</span></span>
+<span><span class="va">wt.out</span> <span class="op">&lt;-</span> <span class="fu">MatchThem</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MatchThem/man/weightthem.html" class="external-link">weightthem</a></span><span class="op">(</span><span class="va">educ</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> </span>
+<span>                                    <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, datasets <span class="op">=</span> <span class="va">imp.out</span>, </span>
+<span>                                approach <span class="op">=</span> <span class="st">"within"</span>, method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="bal-tab-1">
 <code>bal.tab()</code><a class="anchor" aria-label="anchor" href="#bal-tab-1"></a>
@@ -349,44 +366,44 @@
 <p>In many cases, not all variables are imputed, and often the treatment variable is not imputed. If each imputation has the same number of units, you can specify other arguments (e.g., treatment, distance) by specifying an object of the length of one imputation, and this vector will be applied to all imputations. This will come in handy when supplying additional covariates that weren’t involved in the imputation or propensity score estimation through <code>addl</code>. To do this, the imputed data set must be sorted by imputation and unit ID.</p>
 <p>Because we’re using a <code>wimids</code> object, we can just call <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with it as the first argument.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#Checking balance on the output object</span>
-<span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span>
-<span class="co">##                Type Min.Corr.Adj Mean.Corr.Adj Max.Corr.Adj</span>
-<span class="co">## age         Contin.       0.0235        0.0419       0.0537</span>
-<span class="co">## race_black   Binary      -0.0595       -0.0457      -0.0334</span>
-<span class="co">## race_hispan  Binary       0.0043        0.0090       0.0118</span>
-<span class="co">## race_white   Binary       0.0274        0.0389       0.0513</span>
-<span class="co">## married      Binary       0.0398        0.0440       0.0533</span>
-<span class="co">## re74        Contin.      -0.0122       -0.0024       0.0028</span>
-<span class="co">## re75        Contin.      -0.0136       -0.0029       0.0057</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span>
-<span class="co">##             Total</span>
-<span class="co">## Unadjusted 614.  </span>
-<span class="co">## Adjusted   539.37</span></code></pre>
+<code class="sourceCode R"><span><span class="co">#Checking balance on the output object</span></span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
+<span><span class="co">##                Type Min.Corr.Adj Mean.Corr.Adj Max.Corr.Adj</span></span>
+<span><span class="co">## age         Contin.       0.0131        0.0436       0.0588</span></span>
+<span><span class="co">## race_black   Binary      -0.0497       -0.0428      -0.0241</span></span>
+<span><span class="co">## race_hispan  Binary       0.0055        0.0087       0.0166</span></span>
+<span><span class="co">## race_white   Binary       0.0129        0.0362       0.0438</span></span>
+<span><span class="co">## married      Binary       0.0178        0.0426       0.0525</span></span>
+<span><span class="co">## re74        Contin.      -0.1155       -0.0115       0.0128</span></span>
+<span><span class="co">## re75        Contin.      -0.0768       -0.0098       0.0129</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
+<span><span class="co">##            Total</span></span>
+<span><span class="co">## Unadjusted 614. </span></span>
+<span><span class="co">## Adjusted   536.5</span></span></code></pre>
 <p>First, we see a balance summary across all the imputations. This table presents the minimum, mean, and maximum balance statistics for each variable across imputations. Setting <code>un = TRUE</code> will also display the same values for the adjusted data set. Setting <code>abs = TRUE</code> will make <code>bal.tab</code> report summaries of the absolute values of the balance statistics. This table functions in the same way as the table for balance across clusters. Below is the average sample size across imputations; in some matching and weighting schemes, the sample size (or effective sample size) may differ across imputations.</p>
 <p>To view balance on individual imputations, you can specify an imputation number to <code>which.imp</code>. (The summary across imputations is automatically hidden but can be forced to be displayed using <code>imp.summary</code>.)</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span>, which.imp <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="text-decoration: underline;">Balance by imputation</span></span>
-<span class="co">## </span>
-<span class="co">##  - - - <span style="font-style: italic;">Imputation 1</span> - - - </span>
-<span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="co">##                Type Corr.Adj</span>
-<span class="co">## age         Contin.   0.0440</span>
-<span class="co">## race_black   Binary  -0.0498</span>
-<span class="co">## race_hispan  Binary   0.0118</span>
-<span class="co">## race_white   Binary   0.0411</span>
-<span class="co">## married      Binary   0.0410</span>
-<span class="co">## re74        Contin.  -0.0028</span>
-<span class="co">## re75        Contin.   0.0057</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="co">##             Total</span>
-<span class="co">## Unadjusted 614.  </span>
-<span class="co">## Adjusted   533.24</span>
-<span class="co">##  - - - - - - - - - - - - - -</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span>, which.imp <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by imputation</span></span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">Imputation 1</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<span><span class="co">##                Type Corr.Adj</span></span>
+<span><span class="co">## age         Contin.   0.0475</span></span>
+<span><span class="co">## race_black   Binary  -0.0432</span></span>
+<span><span class="co">## race_hispan  Binary   0.0079</span></span>
+<span><span class="co">## race_white   Binary   0.0372</span></span>
+<span><span class="co">## married      Binary   0.0459</span></span>
+<span><span class="co">## re74        Contin.   0.0006</span></span>
+<span><span class="co">## re75        Contin.  -0.0049</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
+<span><span class="co">##             Total</span></span>
+<span><span class="co">## Unadjusted 614.  </span></span>
+<span><span class="co">## Adjusted   544.31</span></span>
+<span><span class="co">##  - - - - - - - - - - - - - -</span></span></code></pre>
 <p>As with clustered data, all <code><a href="../reference/bal.tab.html">bal.tab()</a></code> options work as with non-imputed data. Indeed, the functions for clustered and imputed data are nearly identical except that for imputed data, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes the average sample size across imputations, whereas for other forms of segmented data, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> computes the total sample size across groups.</p>
 </div>
 <div class="section level3">
@@ -395,7 +412,7 @@
 </h3>
 <p><code><a href="../reference/bal.plot.html">bal.plot()</a></code> works with imputed data as it does with non-imputed data, except that multiple plots can be produced displaying balance for multiple imputations at a time. The arguments to <code><a href="../reference/bal.plot.html">bal.plot()</a></code> are the same as those for <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, except that <code>imp.summary</code> is absent. Below is an example of the use of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> with imputed and matched data from <code>MatchThem</code>, examining balance in the first imputation:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">wt.out</span>, which.imp <span class="op">=</span> <span class="fl">1</span>, var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">wt.out</span>, which.imp <span class="op">=</span> <span class="fl">1</span>, var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-13-1.png" width="480"></p>
 <p>When many imputations are generated, it is recommended not to plot all at the same time by specifying an argument to <code>which.imp</code>, as done above. When <code>which.imp</code> is set to <code>.none</code>, data are combined across imputation to produce a single plot, which can act as a summary heuristic but which may obscure imbalances occurring in only a few imputations and not others.</p>
 </div>
@@ -405,7 +422,7 @@
 </h3>
 <p><code><a href="../reference/love.plot.html">love.plot()</a></code> functions with imputed data as it does with clustered data. It is not recommended to display balance for multiple imputations at a time, and rather to display balance summarized across imputations:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">wt.out</span>, threshold <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">wt.out</span>, threshold <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-14-1.png" width="480"></p>
 <p>Often these ranges will be small if the imputed data sets are very similar to each other, but the more imputations are generated, the wider the ranges tend to be.</p>
 </div>
@@ -416,66 +433,66 @@
 <p>So far we’ve seen how <code>cobalt</code> functions work with one layer of data segmentation, but now let’s see what it’s like to work with two or more layers of segmentation. As an example, we’ll first look at multiply imputed data with a multi-category treatment. With multi-category treatments, balance is typically assessed by examining balance statistics computed for pairs of treatments. With multi-category and multiply imputed data, the data is segmented both by imputation and by treatment pair.</p>
 <p>We’ll use the three-category <code>race</code> variable as our multi-category treatment and use the same imputed data as above. Again, the <code>MatchThem</code> package can be used to estimate weights in multiply imputed data. We’ll use propensity score weighting to estimate the ATE of <code>race</code>. As before, this analysis makes no sense substantively and is just for illustration.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#Estimate weights within each imputation using propensity scores</span>
-<span class="va">wt3.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatchThem/man/weightthem.html" class="external-link">weightthem</a></span><span class="op">(</span><span class="va">race</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> 
-                        <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, 
-                      datasets <span class="op">=</span> <span class="va">imp.out</span>, approach <span class="op">=</span> <span class="st">"within"</span>, 
-                      method <span class="op">=</span> <span class="st">"ps"</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>,
-                      use.mlogit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">#Estimate weights within each imputation using propensity scores</span></span>
+<span><span class="va">wt3.out</span> <span class="op">&lt;-</span> <span class="fu">MatchThem</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MatchThem/man/weightthem.html" class="external-link">weightthem</a></span><span class="op">(</span><span class="va">race</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> </span>
+<span>                                     <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
+<span>                                 datasets <span class="op">=</span> <span class="va">imp.out</span>, approach <span class="op">=</span> <span class="st">"within"</span>, </span>
+<span>                                 method <span class="op">=</span> <span class="st">"ps"</span>, estimand <span class="op">=</span> <span class="st">"ATE"</span>,</span>
+<span>                                 use.mlogit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="bal-tab-2">
 <code>bal.tab()</code><a class="anchor" aria-label="anchor" href="#bal-tab-2"></a>
 </h3>
 <p>Using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> on the resulting object does the following: for each pair of treatments, balance is assessed for each imputation and aggregated across imputations. That is, for each pair of treatments, everything described in the previous section will occur.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt3.out</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## <span style="text-decoration: underline;">Balance by treatment pair</span></span>
-<span class="co">## </span>
-<span class="co">##  - - - <span style="font-style: italic;">black (0) vs. hispan (1)</span> - - - </span>
-<span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span>
-<span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span>
-<span class="co">## age      Contin.       0.0019        0.0197       0.0364</span>
-<span class="co">## educ     Contin.      -0.1132       -0.0980      -0.0799</span>
-<span class="co">## married   Binary      -0.0474       -0.0368      -0.0270</span>
-<span class="co">## nodegree  Binary       0.0316        0.0397       0.0457</span>
-<span class="co">## re74     Contin.      -0.0885       -0.0677      -0.0233</span>
-<span class="co">## re75     Contin.      -0.1072       -0.0918      -0.0689</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span>
-<span class="co">##             black hispan</span>
-<span class="co">## Unadjusted 243.    72.  </span>
-<span class="co">## Adjusted   155.69  55.53</span>
-<span class="co">## </span>
-<span class="co">##  - - - <span style="font-style: italic;">black (0) vs. white (1)</span> - - - </span>
-<span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span>
-<span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span>
-<span class="co">## age      Contin.       0.0274        0.0385       0.0479</span>
-<span class="co">## educ     Contin.      -0.0783       -0.0671      -0.0467</span>
-<span class="co">## married   Binary      -0.0009        0.0044       0.0123</span>
-<span class="co">## nodegree  Binary       0.0170        0.0228       0.0283</span>
-<span class="co">## re74     Contin.      -0.1353       -0.1067      -0.0481</span>
-<span class="co">## re75     Contin.      -0.1253       -0.1054      -0.0794</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span>
-<span class="co">##             black white</span>
-<span class="co">## Unadjusted 243.   299. </span>
-<span class="co">## Adjusted   155.69 260.2</span>
-<span class="co">## </span>
-<span class="co">##  - - - <span style="font-style: italic;">hispan (0) vs. white (1)</span> - - - </span>
-<span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span>
-<span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span>
-<span class="co">## age      Contin.       0.0074        0.0188       0.0336</span>
-<span class="co">## educ     Contin.       0.0191        0.0309       0.0378</span>
-<span class="co">## married   Binary       0.0359        0.0413       0.0486</span>
-<span class="co">## nodegree  Binary      -0.0199       -0.0169      -0.0146</span>
-<span class="co">## re74     Contin.      -0.0543       -0.0390      -0.0248</span>
-<span class="co">## re75     Contin.      -0.0275       -0.0137       0.0084</span>
-<span class="co">## </span>
-<span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span>
-<span class="co">##            hispan white</span>
-<span class="co">## Unadjusted  72.   299. </span>
-<span class="co">## Adjusted    55.53 260.2</span>
-<span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - -</span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt3.out</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by treatment pair</span></span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. hispan (1)</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
+<span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
+<span><span class="co">## age      Contin.       0.0154        0.0261       0.0403</span></span>
+<span><span class="co">## educ     Contin.      -0.1121       -0.1000      -0.0879</span></span>
+<span><span class="co">## married   Binary      -0.0436       -0.0354      -0.0255</span></span>
+<span><span class="co">## nodegree  Binary       0.0332        0.0397       0.0463</span></span>
+<span><span class="co">## re74     Contin.      -0.1515       -0.0797      -0.0014</span></span>
+<span><span class="co">## re75     Contin.      -0.1312       -0.0960      -0.0694</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
+<span><span class="co">##             black hispan</span></span>
+<span><span class="co">## Unadjusted 243.    72.  </span></span>
+<span><span class="co">## Adjusted   153.33  55.73</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. white (1)</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
+<span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
+<span><span class="co">## age      Contin.       0.0256        0.0431       0.0576</span></span>
+<span><span class="co">## educ     Contin.      -0.0830       -0.0680      -0.0525</span></span>
+<span><span class="co">## married   Binary       0.0002        0.0054       0.0124</span></span>
+<span><span class="co">## nodegree  Binary       0.0145        0.0224       0.0279</span></span>
+<span><span class="co">## re74     Contin.      -0.1513       -0.1102      -0.0393</span></span>
+<span><span class="co">## re75     Contin.      -0.1347       -0.1105      -0.0702</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
+<span><span class="co">##             black  white</span></span>
+<span><span class="co">## Unadjusted 243.   299.  </span></span>
+<span><span class="co">## Adjusted   153.33 260.02</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">##  - - - <span style="font-style: italic;">hispan (0) vs. white (1)</span> - - - </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
+<span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
+<span><span class="co">## age      Contin.       0.0059        0.0170       0.0249</span></span>
+<span><span class="co">## educ     Contin.       0.0223        0.0320       0.0400</span></span>
+<span><span class="co">## married   Binary       0.0350        0.0407       0.0455</span></span>
+<span><span class="co">## nodegree  Binary      -0.0227       -0.0173      -0.0134</span></span>
+<span><span class="co">## re74     Contin.      -0.0565       -0.0305       0.0002</span></span>
+<span><span class="co">## re75     Contin.      -0.0256       -0.0146      -0.0008</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
+<span><span class="co">##            hispan  white</span></span>
+<span><span class="co">## Unadjusted  72.   299.  </span></span>
+<span><span class="co">## Adjusted    55.73 260.02</span></span>
+<span><span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - -</span></span></code></pre>
 <p>Other options can be supplied to choose how balance is computed with multi-category treatments; these are described at <code>?bal.tab.multi</code> and in the main vignette. Importantly, though, a balance summary across treatment pairs is not available.</p>
 </div>
 <div class="section level3">
@@ -484,8 +501,8 @@
 </h3>
 <p><code><a href="../reference/bal.plot.html">bal.plot()</a></code> works with multi-category treatments the same way it does with binary treatments. All treatment levels are displayed on the same plot. As before, with multiply imputed data, balance can be examined on one or more imputations at a time.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">wt3.out</span>, var.name <span class="op">=</span> <span class="st">"married"</span>, which.imp <span class="op">=</span> <span class="fl">1</span>,
-         which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">wt3.out</span>, var.name <span class="op">=</span> <span class="st">"married"</span>, which.imp <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>         which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-17-1.png" width="480"></p>
 </div>
 <div class="section level3">
@@ -494,7 +511,7 @@
 </h3>
 <p>With multiple layers of segmentation, <code><a href="../reference/love.plot.html">love.plot()</a></code> has a few options. Before, we saw that we could facet the plot by the segments or aggregate across segments; with multiple layers, we can do both. <code><a href="../reference/love.plot.html">love.plot()</a></code> can aggregate across as many layers as there are and can facet with segments of one layer. With more than two layers of segmentation, at least one of the <code>which.</code> arguments must be <code>.none</code> (to aggregate) or of length 1 (to facet at one segment of the layer). Here we’ll demonstrate aggregating across imputations while faceting on treatment pairs.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">wt3.out</span>, threshold <span class="op">=</span> <span class="fl">.1</span>, agg.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">wt3.out</span>, threshold <span class="op">=</span> <span class="fl">.1</span>, agg.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_A2_segmented_data_files/figure-html/unnamed-chunk-18-1.png" width="480"></p>
 <p>The arguments to <code>which.treat</code>, <code>which.imp</code>, <code>abs</code>, and <code>agg.fun</code> can be used to control how the plots are faceted and aggregated as they can with single-layer data.</p>
 </div>
@@ -523,7 +540,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>

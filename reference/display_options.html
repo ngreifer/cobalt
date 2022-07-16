@@ -19,7 +19,7 @@ Note that when quick = TRUE is set in the call to bal.tab() (which is the defaul
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -83,62 +83,93 @@ Note that when quick = TRUE is set in the call to bal.tab() (which is the defaul
     <h2>Arguments</h2>
     <dl><dt>disp.bal.tab</dt>
 <dd><p><code>logical</code>; whether to display the table of balance statistics. Default is <code>TRUE</code>, so the balance table is displayed.</p></dd>
+
 <dt>imbalanced.only</dt>
 <dd><p><code>logical</code>; whether to display only the covariates that failed to meet at least one of balance thresholds. Default is <code>FALSE</code>, so all covariates are displayed.</p></dd>
+
 <dt>un</dt>
 <dd><p><code>logical</code>; whether to print statistics for the unadjusted sample as well as for the adjusted sample. Default is <code>FALSE</code>, so only the statistics for the adjusted sample are displayed.</p></dd>
+
 <dt>disp</dt>
 <dd><p><code>character</code>; which distribution summary statistic(s) should be reported. Allowable options include <code>"means"</code> and <code>"sds"</code>. Multiple options are allowed. Abbreviations allowed.</p></dd>
+
 <dt>stats</dt>
 <dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance.stats.html">stats</a></code> to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is <code>"mean.diffs"</code> (i.e., [standardized] mean differences), and for continuous treatments, the default is <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations).</p></dd>
+
 <dt>factor_sep</dt>
 <dd><p><code>character</code>; the string used to separate factor variables from their levels when variable names are printed. Default is <code>"_"</code>.</p></dd>
+
 <dt>int_sep</dt>
 <dd><p><code>character</code>; the string used to separate two variables involved in an interaction when variable names are printed. Default is <code>" * "</code>. Older versions of <span class="pkg">cobalt</span> used <code>"_"</code>.</p></dd>
+
 <dt>disp.call</dt>
 <dd><p><code>logical</code>; whether to display the function call from the original input object, if present. Default is <code>TRUE</code>, so the function call is displayed.</p></dd>
+
 </dl><p><b>When subclassification is used</b></p>
 <dl><dt>which.subclass</dt>
 <dd><p>Which subclasses (if any) should be displayed. If <code>.all</code>, all subclasses will be displayed. If <code>.none</code> (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.</p></dd>
+
 <dt>subclass.summary</dt>
 <dd><p><code>logical</code>; whether to display the balance summary across subclasses. If <code>TRUE</code>, the balance summary across subclasses will be displayed. The default is <code>TRUE</code>, and if <code>which.subclass</code> is <code>.none</code>, it will automatically be set to <code>TRUE</code>.</p></dd>
+
 </dl><p><b>When the treatment is multi-category</b></p>
 <dl><dt>which.treat</dt>
 <dd><p>For which treatments or treatment combinations balance tables should be displayed. If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, setting  <code>which.treat = "A"</code> will display "A vs. B" and "A vs. C", while setting <code>which.treat = c("A", "B")</code> will only display "A vs. B". <code>.none</code> indicates no treatment comparisons will be displayed, and <code>.all</code> indicates all treatment comparisons will be displayed. Default is <code>.none</code>. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code>.</p></dd>
+
 <dt>multi.summary</dt>
 <dd><p><code>logical</code>; whether to display the balance summary across all treatment pairs. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. Default is <code>TRUE</code> when <code>which.treat</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code>.</p></dd>
+
 </dl><p><b>When clusters are present</b></p>
 <dl><dt>which.cluster</dt>
 <dd><p>For which clusters balance tables should be displayed. If <code>.all</code>, all clusters in <code>cluster</code> will be displayed. If <code>.none</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names (or the order of cluster levels if a factor). Default is <code>.all</code>. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code>.</p></dd>
+
 <dt>cluster.summary</dt>
 <dd><p><code>logical</code>; whether to display the balance summary across clusters. Default is <code>TRUE</code> when <code>which.cluster</code> is <code>.none</code> and <code>FALSE</code> otherwise (note the default for <code>which.cluster</code> is <code>.all</code>). See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code>.</p></dd>
+
 <dt>cluster.fun</dt>
 <dd><p>Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if <code>cluster.fun = "mean"</code> the mean balance statistic across clusters will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code>.</p></dd>
+
 </dl><p><b>When multiple imputations are present</b></p>
 <dl><dt>which.imp</dt>
 <dd><p>For which imputations balance tables should be displayed. If <code>.all</code>, all imputations in <code>imp</code> will be displayed. If <code>.none</code>, no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance. Default is <code>.none</code>. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code>.</p></dd>
+
 <dt>imp.summary</dt>
 <dd><p><code>logical</code>; whether to display the balance summary across imputations. Default is <code>TRUE</code> when <code>which.imp</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code>.</p></dd>
+
 <dt>imp.fun</dt>
 <dd><p>Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if <code>imp.fun = "mean"</code> the mean balance statistic across imputations will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code>.</p></dd>
+
 </dl><p><b>When the treatment is longitudinal</b></p>
 <dl><dt>which.time</dt>
 <dd><p>For which time points balance tables should be displayed. If <code>.all</code>, all time points will be displayed. If <code>.none</code>, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance. Default is <code>.none</code>. See <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code>.</p></dd>
+
 <dt>msm.summary</dt>
 <dd><p><code>logical</code>; whether to display the balance summary across time points. Default is <code>TRUE</code> when <code>which.time</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code>.</p></dd>
-</dl><p><em>Deprecated arguments</em>The following arguments are deprecated but still work.</p>
+
+
+</dl><p><em>Deprecated arguments</em></p>
+
+
+
+<p>The following arguments are deprecated but still work.</p>
 <dl><dt>disp.means</dt>
 <dd><p><code>logical</code>; whether to print the group means in balance output. Default is <code>FALSE</code>, so means are not displayed. Deprecated; use <code>disp</code> instead.</p></dd>
+
 <dt>disp.sds</dt>
 <dd><p><code>logical</code>; whether to print the group standard deviations in balance output. Default is <code>FALSE</code>, so standard deviations are not displayed. Deprecated; use <code>disp</code> instead.</p></dd>
+
 <dt>disp.diff</dt>
 <dd><p><code>logical</code>; whether to display (standardized) mean differences in balance output for binary and multi-category treatments. Default is <code>TRUE</code>, so mean differences are displayed. Deprecated; use <code>stats</code> instead.</p></dd>
+
 <dt>disp.v.ratio</dt>
 <dd><p><code>logical</code>; whether to display variance ratios in balance output for binary and multi-category treatments. Default is <code>FALSE</code>, so variance ratios are not displayed. Deprecated; use <code>stats</code> instead.</p></dd>
+
 <dt>disp.ks</dt>
 <dd><p><code>logical</code>; whether to display Kolmogorov-Smirnov (KS) statistics in balance output for binary and multi-category treatments. Default is <code>FALSE</code>, so KS statistics are not displayed. Deprecated; use <code>stats</code> instead.</p></dd>
+
 <dt>disp.ovl</dt>
 <dd><p><code>logical</code>; whether to display overlapping (OVL) coefficients in balance output for binary and multi-category treatments. Default is <code>FALSE</code>, so OVL coefficients are not displayed. Deprecated; use <code>stats</code> instead.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -165,7 +196,7 @@ Note that when quick = TRUE is set in the call to bal.tab() (which is the defaul
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

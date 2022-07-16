@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.3.2.9001</span>
       </span>
     </div>
 
@@ -75,85 +75,70 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S3 method for matchit</span>
-<span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">x</span>, 
-    <span class="va">method</span>,
-    <span class="va">stats</span>,
-    int <span class="op">=</span> <span class="cn">FALSE</span>, 
-    poly <span class="op">=</span> <span class="fl">1</span>, 
-    distance <span class="op">=</span> <span class="cn">NULL</span>, 
-    addl <span class="op">=</span> <span class="cn">NULL</span>, 
-    data <span class="op">=</span> <span class="cn">NULL</span>, 
-    <span class="va">continuous</span>,  
-    <span class="va">binary</span>, 
-    <span class="va">s.d.denom</span>, 
-    thresholds <span class="op">=</span> <span class="cn">NULL</span>,
-    weights <span class="op">=</span> <span class="cn">NULL</span>,
-    cluster <span class="op">=</span> <span class="cn">NULL</span>, 
-    imp <span class="op">=</span> <span class="cn">NULL</span>,
-    pairwise <span class="op">=</span> <span class="cn">TRUE</span>,
-    s.weights <span class="op">=</span> <span class="cn">NULL</span>,
-    abs <span class="op">=</span> <span class="cn">FALSE</span>,
-    subset <span class="op">=</span> <span class="cn">NULL</span>,
-    quick <span class="op">=</span> <span class="cn">TRUE</span>, 
-    <span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for matchit</span></span>
+<span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">x</span>, </span>
+<span>        <span class="va">stats</span>,</span>
+<span>        int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        poly <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>        distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        addl <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        <span class="va">continuous</span>,</span>
+<span>        <span class="va">binary</span>,</span>
+<span>        <span class="va">s.d.denom</span>,</span>
+<span>        thresholds <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        imp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        pairwise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        s.weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        abs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>        quick <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        <span class="va">method</span>,</span>
+<span>        <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>a <code>matchit</code> object; the output of a call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">MatchIt::matchit()</a></code>.</p></dd>
-<dt>method</dt>
+
+  <dt>stats, int, poly, addl, data, continuous, binary, thresholds, weights, cluster, imp, pairwise, abs, subset, quick, ...</dt>
+<dd><p>see <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
+<p>See below for special notes on the <code>distance</code>, <code>s.d.denom</code>, and <code>s.weights</code> arguments.</p></dd>
+
+  <dt>method</dt>
 <dd><p>a character vector containing the method of adjustment. Ignored unless subclassification was used in the original call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>. If <code>"weighting"</code>, the subclassification weights will be used and subclasses will be ignored. If <code>"subclassification"</code>, balance will be assessed using the subclasses (see <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for details). Abbreviations allowed.</p></dd>
-<dt>stats</dt>
-<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance.stats.html">stats</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. Multiple options are allowed.</p></dd>
-<dt>int</dt>
-<dd><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well.</p></dd>
-<dt>poly</dt>
-<dd><p><code>numeric</code>; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If <code>int</code> is numeric, <code>poly</code> will take on the value of <code>int</code>.</p></dd>
-<dt>distance</dt>
-<dd><p>an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will look in the argument to <code>data</code>, if specified. Note that the distance measure (e.g., propensity score) generated by <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code> is automatically included and named "distance".</p></dd>
-<dt>addl</dt>
-<dd><p>an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will look first in the argument to <code>data</code>, if specified, and next in the <code>matchit</code> object.</p></dd>
-<dt>data</dt>
-<dd><p>an optional data frame containing variables that might be named in arguments to <code>distance</code>, <code>addl</code>, <code>cluster</code>, and <code>imp</code>. Can also be <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice::mice()</a></code> from the <span class="pkg">mice</span> package, containing multiply imputed data sets. In this case, <code>imp</code> is automatically supplied using the imputation variable created from processing the <code>mids</code> object.</p></dd>
-<dt>continuous</dt>
-<dd><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>. This argument is used to set <code>std</code> in <code><a href="balance.summary.html">col_w_smd()</a></code>.</p></dd>
-<dt>binary</dt>
-<dd><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>. This argument is used to set <code>std</code> in <code><a href="balance.summary.html">col_w_smd()</a></code>.</p></dd>
-<dt>s.d.denom</dt>
-<dd><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href="balance.summary.html">col_w_smd()</a></code> for allowable options. If not specified, <code><a href="bal.tab.html">bal.tab()</a></code> will figure out which one is best based on the estimand of the <code>matchit</code> object: if ATT, <code>"treated"</code>; if ATC, <code>"control"</code>, otherwise <code>"pooled"</code>. Abbreviations allowed.</p></dd>
-<dt>thresholds</dt>
-<dd><p>a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in <code>stats</code>) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set <code>thresholds = c(m = .05, v = 2)</code>. Requesting a threshold automatically requests the display of that statistic. See Details.</p></dd>
-<dt>weights</dt>
-<dd><p>a named list containing additional weights on which to assess balance. Each entry can be a vector of weights, the name of a variable in <code>data</code> that contains weights, or an object with a <code><a href="get.w.html">get.w()</a></code> method.</p></dd>
-<dt>cluster</dt>
-<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the <code>matchit</code> object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
-<dt>imp</dt>
-<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the original data set used in the call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
-<dt>pairwise</dt>
-<dd><p>whether balance should be computed between the treatment groups or for each treatment against all groups combined. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p></dd>
-<dt>s.weights</dt>
-<dd><p>optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in <code>data</code>. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used. If <code>s.weights</code> was supplied in the call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>, they will automatically be included and do not need be specified again (though there is no harm if they are).</p></dd>
-<dt>abs</dt>
-<dd><p><code>logical</code>; whether displayed balance statistics should be in absolute value or not.</p></dd>
-<dt>subset</dt>
-<dd><p>a <code>logical</code> or <code>numeric</code> vector denoting whether each observation should be included or which observations should be included. If <code>logical</code>, it should be the same length as the variables in the original call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>. <code>NA</code>s will be treated as <code>FALSE</code>. This can be used as an alternative to <code>cluster</code> to examine balance on subsets of the data.</p></dd>
-<dt>quick</dt>
-<dd><p><code>logical</code>; if <code>TRUE</code>, will not compute any values that will not be displayed. Set to <code>FALSE</code> if computed values not displayed will be used later.</p></dd>
-<dt>...</dt>
-<dd><p>further arguments to control display of output. See <a href="display_options.html">display options</a> for details.</p></dd>
+
+
+</dl><p>The following arguments have special notes when used with <code>matchit</code> objects:</p>
+<dl><dt>distance</dt>
+<dd><p>the distance measure (e.g., propensity score) generated by <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code> is automatically included and named "distance".</p></dd>
+
+  <dt>s.d.denom</dt>
+<dd><p>if not specified, <code><a href="bal.tab.html">bal.tab()</a></code> will figure out which one is best based on the estimand of the <code>matchit</code> object: if ATT, <code>"treated"</code>; if ATC, <code>"control"</code>, otherwise <code>"pooled"</code>.</p></dd>
+
+  <dt>s.weights</dt>
+<dd><p>if <code>s.weights</code> was supplied in the call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>, they will automatically be included and do not need be specified again (though there is no harm if they are).</p></dd>
+
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
     <p><code>bal.tab.matchit()</code> generates a list of balance summaries for the <code>matchit</code> object given, and functions similarly to <code><a href="https://kosukeimai.github.io/MatchIt/reference/summary.matchit.html" class="external-link">MatchIt::summary.matchit()</a></code>. <code><a href="bal.tab.html">bal.tab()</a></code> behaves differently depending on whether subclasses are used in conditioning or not. If they are used, <code><a href="bal.tab.html">bal.tab()</a></code> creates balance statistics for each subclass and for the sample in aggregate; see <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for more information.</p>
-<p>The <code>threshold</code> argument controls whether extra columns should be inserted into the Balance table describing whether the balance statistics in question exceeded or were within the threshold. Including these thresholds also creates summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure. When subclassification is used, the extra threshold columns are placed within the balance tables for each subclass as well as in the aggregate balance table, and the summary tables display balance for each subclass.</p>
     </div>
     <div id="value">
     <h2>Value</h2>
-    <p>If subclassification is used and <code>method</code> is set to <code>"subclassification"</code>, an object of class <code>"bal.tab.subclass"</code> containing balance summaries within and across subclasses. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for details.
-If matching is used and clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>matchit</code> object. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.
-If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p>
+    
+
+<p>If subclassification is used and <code>method</code> is set to <code>"subclassification"</code>, an object of class <code>"bal.tab.subclass"</code> containing balance summaries within and across subclasses. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for details.</p>
+
+
+<p>If matching is used and clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>matchit</code> object. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
+
+
+<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -166,15 +151,15 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kosukeimai.github.io/MatchIt/" class="external-link">MatchIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## Nearest Neighbor matching</span></span>
-<span class="r-in"><span class="va">m.out1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
-<span class="r-in">                  <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
-<span class="r-in">                  data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span><span class="op">)</span></span>
-<span class="r-in">                  </span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out1</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, m.threshold <span class="op">=</span> <span class="fl">.1</span>, </span>
-<span class="r-in">        v.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://kosukeimai.github.io/MatchIt/" class="external-link">MatchIt</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Nearest Neighbor matching</span></span></span>
+<span class="r-in"><span><span class="va">m.out1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span>                  <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span></span>
+<span class="r-in"><span>                  data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                  </span></span>
+<span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out1</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, m.threshold <span class="op">=</span> <span class="fl">.1</span>, </span></span>
+<span class="r-in"><span>        v.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  matchit(formula = treat ~ age + educ + race + married + nodegree + </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     re74 + re75, data = lalonde, method = "nearest")</span>
@@ -226,13 +211,13 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 <span class="r-out co"><span class="r-pr">#&gt;</span> All           429     185</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matched       185     185</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unmatched     244       0</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## Subclassification</span></span>
-<span class="r-in"><span class="va">m.out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
-<span class="r-in">                  <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
-<span class="r-in">                  data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"subclass"</span><span class="op">)</span></span>
-<span class="r-in">                  </span>
-<span class="r-in"><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out2</span>, disp.subclass <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Subclassification</span></span></span>
+<span class="r-in"><span><span class="va">m.out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span>                  <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span></span>
+<span class="r-in"><span>                  data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"subclass"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                  </span></span>
+<span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out2</span>, disp.subclass <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  matchit(formula = treat ~ age + educ + race + married + nodegree + </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     re74 + re75, data = lalonde, method = "subclass")</span>
@@ -330,7 +315,7 @@ If clusters are specified, an object of class <code>"bal.tab.cluster"</code> con
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
