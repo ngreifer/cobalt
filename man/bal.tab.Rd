@@ -5,50 +5,98 @@
 Display Balance Statistics in a Table
 }
 \description{
-Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument. This page links to each method page and documents the calculation and details of aspects all \code{bal.tab()} methods use. For information on the use of \code{bal.tab()} with specific types of objects, use the following links:
-\itemize{
-\item{\fun{bal.tab.matchit} for the method for objects returned by \pkg{MatchIt}.
-}
-\item{\fun{bal.tab.weightit} for the method for \code{weightit} and \code{weightitMSM} objects returned by \pkg{WeightIt}.
-}
-\item{\fun{bal.tab.ps} for the method for \code{ps}, \code{mnps}, and \code{iptw} objects returned by \pkg{twang} and for \code{ps.cont} objects returned by \pkg{WeightIt}.
-}
-\item{\fun{bal.tab.Match} for the method for objects returned by \pkg{Matching}.
-}
-\item{\fun{bal.tab.optmatch} for the method for objects returned by \pkg{optmatch}.
-}
-\item{\fun{bal.tab.cem.match} for the method for objects returned by \pkg{cem}.
-}
-\item{\fun{bal.tab.CBPS} for the method for objects returned by \pkg{CBPS}.
-}
-\item{\fun{bal.tab.ebalance} for the method for objects returned by \pkg{ebal}.
-}
-\item{\fun{bal.tab.designmatch} for the method for objects returned by \pkg{designmatch}.
-}
-\item{\fun{bal.tab.mimids} for the method for objects returned by \pkg{MatchThem}.
-}
-\item{\code{\link[=bal.tab.sbwcau]{bal.tab.sbw()}} for the method for objects returned by \pkg{sbw}.
-}
-\item{\fun{bal.tab.formula} and \fun{bal.tab.data.frame} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \fun{bal.tab.time.list}.
-}
-\item{\fun{bal.tab.default} for the method for objects that do not come from one of the explicitly supported conditioning packages.
-}
-}
+Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument.
 }
 \usage{
-bal.tab(x, \dots)
+bal.tab(x, ...)
+
+## # Arguments common across all input types:
+## bal.tab(x,
+##         stats,
+##         int = FALSE,
+##         poly = 1,
+##         distance = NULL,
+##         addl = NULL,
+##         data = NULL,
+##         continuous,
+##         binary,
+##         s.d.denom,
+##         thresholds = NULL,
+##         weights = NULL,
+##         cluster = NULL,
+##         imp = NULL,
+##         pairwise = TRUE,
+##         s.weights = NULL,
+##         abs = FALSE,
+##         subset = NULL,
+##         quick = TRUE,
+##         ...)
 }
 
 \arguments{
   \item{x}{
-an input object on which to assess balance. Can be the output of a call to a balancing function in another package or a formula or data frame. Input to this argument will determine which \code{bal.tab()} method is used.
-  }
+an input object on which to assess balance. Can be the output of a call to a balancing function in another package or a formula or data frame. Input to this argument will determine which \code{bal.tab()} method is used. Each input type has its own documentation page, which is linked in the See Also section below. Some input types require or allow additional arguments to be specified. For inputs with no dedicated method, the default method will be dispatched. See Details below.
+}
+  \item{stats}{
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
+}
+  \item{int}{
+\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.
+}
+  \item{poly}{
+\code{numeric}; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If \code{int} is numeric, \code{poly} will take on the value of \code{int}.
+}
+  \item{distance}{
+an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look in the argument to \code{data}, if specified. For longitudinal treatments, can be a list of allowable arguments, one for each time point.
+}
+  \item{addl}{
+an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, \code{bal.tab()} will look in the arguments to the input object, \code{covs}, and \code{data}, if specified. For longitudinal treatments, can be a list of allowable arguments, one for each time point.
+}
+  \item{data}{
+an optional data frame containing variables named in other arguments. For some input object types, this is required.
+}
+  \item{continuous}{
+whether mean differences for continuous variables should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"std"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}.
+}
+  \item{binary}{
+whether mean differences for binary variables (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}.
+}
+  \item{s.d.denom}{
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \fun{col_w_smd} for allowable options. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, \code{bal.tab()} will figure out which one is best based on the \code{estimand}, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.
+}
+  \item{thresholds}{
+a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. When specified, extra columns are inserted into the Balance table describing whether the requested balance statistics exceeded the threshold or not. Summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure are added to the output.
+}
+  \item{weights}{
+a vector, list, or \code{data.frame} containing weights for each unit, or a string containing the names of the weights variables in \code{data}, or an object with a \fun{get.w} method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.
+}
+  \item{cluster}{
+either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
+}
+  \item{imp}{
+either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.
+}
+  \item{pairwise}{
+whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.
+}
+  \item{s.weights}{
+Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.
+}
+  \item{abs}{
+\code{logical}; whether displayed balance statistics should be in absolute value or not. 
+}
+  \item{subset}{
+a \code{logical} or \code{numeric} vector denoting whether each observation should be included or which observations should be included. If \code{logical}, it should have length equal to the number of units. \code{NA}s will be treated as \code{FALSE}. This can be used as an alternative to \code{cluster} to examine balance on subsets of the data.
+}
+  \item{quick}{
+\code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Set to \code{FALSE} if computed values not displayed will be used later.
+}
   \item{\dots}{
-arguments passed to other methods. These arguments may be data-related, computation-related, or print-related. See the help pages (linked above) for the individual methods and pages linked below for other arguments that can be supplied.
+for some input types, other arguments that are required or allowed. See the individual methods pages in See Also for details. Otherwise, further arguments to control display of output. See \link[=options-display]{display options} for details.
 }
 }
 \details{
-\code{bal.tab()} performs various calculations on the the data objects given, and some of these calculations are not transparent on the help pages of the individual methods. This page details the calculations that are used across \code{bal.tab()} methods.
+\code{bal.tab()} performs various calculations on the the data objects given. This page details the arguments and calculations that are used across \code{bal.tab()} methods.
 
 \subsection{With Binary Point Treatments}{
 
@@ -80,6 +128,7 @@ For information on using \code{bal.tab()} with longitudinal treatments, see \cod
 
 For information on using \code{bal.tab()} with clustered data, see \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}}. For information on using \code{bal.tab()} with multiply imputed data, see \code{\link[=class-bal.tab.imp]{bal.tab.imp}}. 
 }
+
 \subsection{Quick}{
 
 Calculations can take some time, especially when there are many variables, interactions, or clusters. When certain values are not printed, by default they are not computed. In particular, variance ratios, KS statistics, and summary tables are not computed when their display has not been requested. This can speed up the overall production of the output when these values are not to be used later. However, when they are to be used later, such as when output is to be further examined with \code{print()} or is to be used in some other way after the original call to \code{bal.tab()}, it may be useful to compute them even if they are not to be printed initially. To do so, users can set \code{quick = FALSE}, which will cause \code{bal.tab()} to calculate all values and components it can. Note that \code{love.plot()} is fully functional even when \code{quick = TRUE} and values are requested that are otherwise not computed in \code{bal.tab()} with \code{quick = TRUE}.
@@ -88,6 +137,7 @@ Calculations can take some time, especially when there are many variables, inter
 
 If there is missing data in the covariates (i.e., \code{NA}s in the covariates provided to \code{bal.tab()}), a few additional things happen. A warning will appear mentioning that missing values were present in the data set. The computed balance summaries will be for the variables ignoring the missing values. New variables will be created representing missingness indicators for each variable, named \code{var:<NA>} (with \code{var} replaced by the actual name of the variable). If \code{int = TRUE}, balance for the pairwise interactions between the missingness indicators will also be computed. These variables are treated like regular variables once created.
 }
+
 }
 \value{
 An object of class \code{"bal.tab"}. The use of continuous treatments, subclasses, clusters, and/or imputations will also cause the object to inherit other classes. The class \code{"bal.tab"} has its own \code{print()} method (\fun{print.bal.tab}), which formats the output nicely and in accordance with print-related options given in the call to \code{bal.tab()}, and which can be called with its own options.
@@ -129,4 +179,36 @@ Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look
 \author{
 Noah Greifer 
 }
-\keyword{tables}
+\seealso{
+For information on the use of \code{bal.tab()} with specific types of objects, use the following links:
+\itemize{
+\item{\fun{bal.tab.matchit} for the method for objects returned by \pkg{MatchIt}.
+}
+\item{\fun{bal.tab.weightit} for the method for \code{weightit} and \code{weightitMSM} objects returned by \pkg{WeightIt}.
+}
+\item{\fun{bal.tab.ps} for the method for \code{ps}, \code{mnps}, and \code{iptw} objects returned by \pkg{twang} and for \code{ps.cont} objects returned by \pkg{twangContinuous}.
+}
+\item{\fun{bal.tab.Match} for the method for objects returned by \pkg{Matching}.
+}
+\item{\fun{bal.tab.optmatch} for the method for objects returned by \pkg{optmatch}.
+}
+\item{\fun{bal.tab.cem.match} for the method for objects returned by \pkg{cem}.
+}
+\item{\fun{bal.tab.CBPS} for the method for objects returned by \pkg{CBPS}.
+}
+\item{\fun{bal.tab.ebalance} for the method for objects returned by \pkg{ebal}.
+}
+\item{\fun{bal.tab.designmatch} for the method for objects returned by \pkg{designmatch}.
+}
+\item{\fun{bal.tab.mimids} for the method for objects returned by \pkg{MatchThem}.
+}
+\item{\fun{bal.tab.sbwcau} for the method for objects returned by \pkg{sbw}.
+}
+\item{\fun{bal.tab.formula} and \fun{bal.tab.data.frame} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \fun{bal.tab.time.list}.
+}
+}
+}
+\examples{
+## See individual pages above for examples with
+## different inputs, or see vignette("cobalt")
+}
