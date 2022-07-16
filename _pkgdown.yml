@@ -6,17 +6,7 @@ reference:
   - love.plot
 - title: bal.tab() Methods
 - contents:
-  - bal.tab.data.frame
-  - bal.tab.data.frame.list
-  - bal.tab.cem.match
-  - bal.tab.CBPS
-  - bal.tab.Match
-  - bal.tab.matchit
-  - bal.tab.mimids
-  - bal.tab.sbw
-  - bal.tab.ps
-  - bal.tab.weightit
-  - bal.tab.default
+  - starts_with("bal.tab.")
 - title: bal.tab() Classes
 - contents:
   - starts_with("class-bal.tab")

@@ -7,6 +7,8 @@
 
 * Added support for `ps.cont()` objects from the `twangContinuous` package. `ps.cont` objects from `WeightIt` are no longer supported.
 
+* Major documentation overhaul. More arguments are explain at `help("bal.tab")` and a new package help page can be found at `help("cobalt-package")`.
+
 * The function call is no longer included in the `bal.tab()` results for objects from `twang`.
 
 * Fixed a bug when some predictors were binary in some clusters and continuous in others. Variables now have a stable type across partitions.
