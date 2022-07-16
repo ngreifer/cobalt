@@ -1,35 +1,29 @@
-\docType{package}
 \name{cobalt-package}
 \alias{cobalt-package}
 \alias{cobalt}
+\docType{package}
 \title{
-cobalt: Covariate Balance Tables and Plots
+cobalt: \packageTitle{cobalt}
 }
 \description{
-A set of tools for assessing, displaying, and reporting covariate balance in observational studies before and after preprocessing through matching, weighting, or subclassification (e.g., using propensity scores). Compatible with many of the major preprocessing packages, including \pkg{MatchIt}, \pkg{twang}, \pkg{Matching}, \pkg{WeightIt}, and others, serving as a replacement or supplement to their balance assessment functions. The focus in \pkg{cobalt} is on flexible output, methodologically recommended practices, and smart defaults.
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-It's critical that you read some of the documentation to understand what values are being produced. See the links below for the main functions and what output they create:
+A set of tools for assessing covariate balance in observational studies numerically and graphically. The functions provide integration with the major R packages used for balancing covariates, including \pkg{MatchIt}, \pkg{WeightIt}, \pkg{twang}, \pkg{CBPS}, and many others, and support objects not made using these packages. They support binary, multi-category and continuous treatments, point and longitudinal treatments, and clustered and multiply imputed data.
 
+The main functions of \pkg{cobalt} are the following:
 \itemize{
-\item \fun{bal.tab} - Generate balance tables for binary, multi-category, and continuous treatments, longitudinal/sequential treatments, and clustered/subgrouped and multiply imputed data.
-\item \fun{bal.plot} - Generate plots to assess distributional balance for a single covariate.
-\item \fun{love.plot} - Generate Love plots to display covariate balance graphically for publication.
+\item{\fun{bal.tab} - generate tables of balance statstics before and after matching, weighting, or subclassification}
+\item{\fun{bal.plot} - generate plots to assess balance visually on one covariate at a time}
+\item{\fun{love.plot} - generate plots to summarize and report balance statistics}
 }
 
-In addition to the main functions, there are also some helper functions that users might find valuable:
-\itemize{
-\item \fun{f.build} - Create a formula (e.g., \code{Z ~ X1 + X2}) from strings or data frames to reduce programming burden.
-\item \fun{splitfactor} - Split factors in data frame into dummy variables with flexibility in how categories are dropped.
-\item \fun{get.w} - Extract weights from the output of a preprocessing function from another package (e.g., \pkg{MatchIt}, \pkg{twang}, or \pkg{Matching}).
-}
-}
-\section{Citing}{
-Please cite \pkg{cobalt} if you use it to produce balance tables or plots in your paper to ensure replicability by others performing the same analysis. Use \code{citation("cobalt")} to generate a current citation.
+Other functions include \fun{get.w} for extracting weights from objects produced by other packages, \fun{col_w_smd} (and friends documentated on the same page) for computing (weighted) balance statistics outside of \code{bal.tab()}, and \fun{splitfactor} for splitting factor variables in a dataset into dummy variables.
+
+\pkg{cobalt} has several vignettes, which can be accessed using \code{\link[=vignette]{vignette(package = "cobalt")}} or visiting the website at \url{https://ngreifer.github.io/cobalt}.
 }
 \author{
-Noah Greifer \email{noah.greifer@gmail.com}
+Noah Greifer (\href{https://orcid.org/0000-0003-3067-7154}{ORCID})
 
-If you have found \pkg{cobalt} helpful, please let me know!
+To contact me about \pkg{cobalt}, please use the GitHub \href{https://github.com/ngreifer/cobalt/issues}{issues page}.
 }
-
 \keyword{internal}
