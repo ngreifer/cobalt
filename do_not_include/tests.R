@@ -1,8 +1,9 @@
 #sourcing
-for (i in dir("R/")) source(paste0("R/", i))
-library(ggplot2)
-library(crayon)
-stop("Done sourcing.", call. = FALSE)
+# for (i in dir("R/")) source(paste0("R/", i))
+# library(ggplot2)
+# library(crayon)
+# stop("Done sourcing.", call. = FALSE)
+devtools::load_all(".") #Cmd + Shift + L
 
 #Tests things quickly
 #library("cobalt")
@@ -29,14 +30,15 @@ m1.2 <- matchit(treat ~ log(age)*married + poly(educ,2) + rcs(age,3) + race + fa
               data = lalonde, replace = T, ratio = 2)
 bal.tab(m1.2, addl = ~ rcs(educ,3) + poly(age,2))
 #MatchIt: matching w/Mahalanobis
-m2 <- matchit(f.build("treat", covs[,-3]), data = lalonde, distance = "mahalanobis")
+m2 <- matchit(f.build("treat", covs), data = lalonde, distance = "mahalanobis")
 bal.tab(m2, data = lalonde, int = T, v.threshold = 2, addl = "race")
 #MatchIt: subclassification
 m3 <- matchit(f.build("treat", covs), data = lalonde, method = "subclass")
 bal.tab(m3, int = F, v.threshold = 2, disp.subclass = T, ks.threshold = .1)
 #Matchit: full matching
-m4 <- matchit(f.build("treat", covs), data = lalonde, method = "full", distance = "probit")
-bal.tab(m4, int = T, quick = T, ks.threshold = .05)
+m4 <- matchit(f.build("treat", covs), data = lalonde, method = "full", distance = "probit", estimand = "ATE")
+bal.tab(m4, int = T, ks.threshold = .05)
+bal.tab(m4, pairwise = FALSE, un = T)
 #Matchit: genetic matching, using matching weights
 m5 <- matchit(f.build("treat", covs), data = lalonde, method = "genetic", replace = F,
               ratio = 1, pop.size = 50)
@@ -103,12 +105,12 @@ bal.tab(pm,  ~ age + educ + race +
 
 #WeightIt
 library(WeightIt)
-W <- weightit(treat ~ log(age)*married + poly(educ,2) + rcs(age,3) + race + factor(nodegree) + re74 + re75, data = lalonde,
+W <- weightit(treat ~ log(age)*married + poly(educ,2) + rms::rcs(age,3) + race + factor(nodegree) + re74 + re75, data = lalonde,
               method = "ps", estimand = "ATT")
 bal.tab(W)
 W.cont <- weightit(f.build("re75", covs[-7]), data = lalonde,
               method = "ebal")
-bal.tab(W.cont, stats = c("c", "sp"), disp = "means", un = T)
+bal.tab(W.cont, stats = c("c", "ks"), disp = "means", un = T)
 W.mult <- weightit(f.build("race", covs[-3]), data = lalonde,
                   method = "ps", estimand = "ATE",
                   focal = "black")
