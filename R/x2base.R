@@ -3038,7 +3038,8 @@ x2base.iptw <- function(iptw, ...) {
     method <- rep("weighting", length(s))
     
     #Process addl.list 
-    addl.list <- process_addl.list(A[["addl"]], datalist = list(data, ps.data),
+    addl.list <- process_addl.list(if_null_then(A[["addl.list"]], A[["addl"]]),
+                                   datalist = list(data, ps.data),
                                    covs.list = covs.list)
     
     #Process distance
@@ -3072,7 +3073,8 @@ x2base.iptw <- function(iptw, ...) {
     # }
     # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
     # 
-    distance.list <- process_distance.list(A[["distance"]], datalist = list(data, ps.data),
+    distance.list <- process_distance.list(if_null_then(A[["distance.list"]], A[["distance"]]),
+                                           datalist = list(data, ps.data),
                                            covs.list = covs.list, obj.distance = lapply(iptw[["psList"]], function(x) x[["ps"]][,s,drop = FALSE]),
                                            obj.distance.name = if (length(s) > 1) paste.("prop.score", substr(s, 1, nchar(s) - 4)) else "prop.score")
     
@@ -3302,11 +3304,13 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     #Process addl.list 
-    addl.list <- process_addl.list(A[["addl"]], datalist = list(data),
+    addl.list <- process_addl.list(if_null_then(A[["addl.list"]], A[["addl"]]),
+                                   datalist = list(data),
                                    covs.list = covs.list)
     
     #Process distance
-    distance.list <- process_distance.list(A[["distance"]], datalist = list(data),
+    distance.list <- process_distance.list(if_null_then(A[["distance.list"]], A[["distance"]]),
+                                           datalist = list(data),
                                            covs.list = covs.list)
     
     #Process focal
@@ -3507,11 +3511,13 @@ x2base.CBMSM <- function(cbmsm, ...) {
     method <- "weighting"
     
     #Process addl.list 
-    addl.list <- process_addl.list(A[["addl"]], datalist = list(data, cbmsm.data),
+    addl.list <- process_addl.list(if_null_then(A[["addl.list"]], A[["addl"]]),
+                                   datalist = list(data, cbmsm.data),
                                    covs.list = covs.list)
     
     #Process distance
-    distance.list <- process_distance.list(A[["distance"]], datalist = list(data, cbmsm.data),
+    distance.list <- process_distance.list(if_null_then(A[["distance.list"]], A[["distance"]]),
+                                           datalist = list(data, cbmsm.data),
                                            covs.list = covs.list, obj.distance = cbmsm[["fitted.values"]],
                                            obj.distance.name = "prop.score")
     
@@ -3674,7 +3680,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     method <- "weighting"
     
     #Process addl.list 
-    addl.list <- process_addl.list(A[["addl"]], 
+    addl.list <- process_addl.list(if_null_then(A[["addl.list"]], A[["addl"]]), 
                                    datalist = list(data, weightitMSM.data,
                                                    weightitMSM.data2),
                                    covs.list = covs.list)
@@ -3691,7 +3697,8 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     # else if (is_not_null(weightitMSM[["ps.list"]])) distance.list <- lapply(seq_along(weightitMSM[["ps.list"]]), function(x) data.frame(prop.score = weightitMSM[["ps.list"]][[x]]))
     # else distance.list <- NULL
     # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
-    distance.list <- process_distance.list(A[["distance"]], datalist = list(data, weightitMSM.data, weightitMSM.data2),
+    distance.list <- process_distance.list(if_null_then(A[["distance.list"]], A[["distance"]]),
+                                           datalist = list(data, weightitMSM.data, weightitMSM.data2),
                                            covs.list = covs.list, obj.distance = weightitMSM[["ps.list"]],
                                            obj.distance.name = "prop.score")
     
@@ -4420,7 +4427,7 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process addl.list 
-        addl.list <- process_addl.list(A[["addl"]], 
+        addl.list <- process_addl.list(if_null_then(A[["addl.list"]], A[["addl"]]), 
                                        datalist = list(data),
                                        covs.list = covs.list)
         
@@ -4432,7 +4439,8 @@ x2base.default <- function(obj, ...) {
         #                               covs.list,
         #                               list(data))
         # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
-        distance.list <- process_distance.list(A[["distance"]], datalist = list(data),
+        distance.list <- process_distance.list(if_null_then(A[["distance.list"]], A[["distance"]]),
+                                               datalist = list(data),
                                                covs.list = covs.list)
         #Process focal
         if (is_not_null(focal <- A[["focal"]])) {
