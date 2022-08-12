@@ -1481,9 +1481,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                          ttfactor[,-seq_len(after), drop = FALSE]))
         }
     }
-    
-    
-    
+
     #Check if data exists
     data.specified <- FALSE
     if (is_not_null(data)) {
@@ -1611,8 +1609,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                 rownames(ttfactors)[i] <- paste0("`", rownames(ttfactors)[i], "`")
             }
         }
-        
-        evaled.var <- tryCatch(eval(str2expression(rownames(ttfactors)[i]), data, env), error = function(e) stop(conditionMessage(e), call. = FALSE))
+
         if (is.function(evaled.var)) {
             stop(paste0("invalid type (function) for variable '", rownames(ttfactors)[i], "'"), call. = FALSE)
         }
