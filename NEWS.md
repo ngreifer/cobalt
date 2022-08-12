@@ -23,6 +23,8 @@
 
 * Returned `sbw` to Suggests.
 
+* Updated the logo, thanks to [Ben Stillerman](https://stillben.com).
+
 # cobalt 4.3.2
 
 * When `pairwise = FALSE` with binary or multi-category treatments, the balance statistics now refer to the difference between each group and the original full sample, unadjusted except possibly by `s.weights`. Previously, they referred to the difference between each group and the combined adjusted sample.
