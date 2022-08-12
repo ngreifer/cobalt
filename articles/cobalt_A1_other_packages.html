@@ -124,7 +124,7 @@
 <span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## treat ~ age + educ + race + married + nodegree + re74 + re75</span></span>
-<span><span class="co">## &lt;environment: 0x7fbbb7e8b4d0&gt;</span></span></code></pre>
+<span><span class="co">## &lt;environment: 0x7facbaae3cd0&gt;</span></span></code></pre>
 <p>The function creates a <code>formula</code> object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of <code><a href="../reference/f.build.html">f.build()</a></code> is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generating propensity scores using logistic regression</span></span>
@@ -474,20 +474,20 @@
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## prop.score  Distance       0.1442        0.1561       0.1628</span></span>
-<span><span class="co">## age          Contin.      -0.1900       -0.1867      -0.1838</span></span>
-<span><span class="co">## educ         Contin.       0.0699        0.0823       0.0938</span></span>
-<span><span class="co">## married       Binary      -0.1165       -0.1054      -0.0969</span></span>
-<span><span class="co">## race_black    Binary       0.0518        0.0566       0.0593</span></span>
-<span><span class="co">## race_hispan   Binary       0.0071        0.0098       0.0121</span></span>
-<span><span class="co">## race_white    Binary      -0.0712       -0.0664      -0.0589</span></span>
-<span><span class="co">## re74         Contin.      -0.3140       -0.2839      -0.2527</span></span>
-<span><span class="co">## re75         Contin.      -0.1811       -0.1571      -0.1457</span></span>
+<span><span class="co">## prop.score  Distance       0.1451        0.1541       0.1677</span></span>
+<span><span class="co">## age          Contin.      -0.1954       -0.1882      -0.1825</span></span>
+<span><span class="co">## educ         Contin.       0.0771        0.0844       0.0927</span></span>
+<span><span class="co">## married       Binary      -0.1069       -0.0982      -0.0886</span></span>
+<span><span class="co">## race_black    Binary       0.0525        0.0562       0.0636</span></span>
+<span><span class="co">## race_hispan   Binary       0.0051        0.0090       0.0140</span></span>
+<span><span class="co">## race_white    Binary      -0.0757       -0.0651      -0.0583</span></span>
+<span><span class="co">## re74         Contin.      -0.3033       -0.2882      -0.2627</span></span>
+<span><span class="co">## re75         Contin.      -0.1777       -0.1578      -0.1374</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
 <span><span class="co">## Unadjusted  429.    185.  </span></span>
-<span><span class="co">## Adjusted    331.96   67.33</span></span></code></pre>
+<span><span class="co">## Adjusted    331.75   66.84</span></span></code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div class="section level3">
@@ -560,22 +560,22 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cem.out.imp</span>, data <span class="op">=</span> <span class="va">imp.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age         Contin.       0.0438        0.0473       0.0512</span></span>
-<span><span class="co">## educ        Contin.      -0.0447       -0.0365      -0.0091</span></span>
+<span><span class="co">## age         Contin.       0.0471        0.0491       0.0515</span></span>
+<span><span class="co">## educ        Contin.      -0.0454       -0.0358      -0.0088</span></span>
 <span><span class="co">## race_black   Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## race_hispan  Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## race_white   Binary      -0.0000       -0.0000       0.0000</span></span>
-<span><span class="co">## married      Binary      -0.0000       -0.0000       0.0000</span></span>
+<span><span class="co">## married      Binary      -0.0000        0.0000       0.0000</span></span>
 <span><span class="co">## nodegree     Binary      -0.0000       -0.0000       0.0000</span></span>
-<span><span class="co">## re74        Contin.      -0.0421       -0.0352      -0.0321</span></span>
-<span><span class="co">## re75        Contin.      -0.0772       -0.0558      -0.0463</span></span>
+<span><span class="co">## re74        Contin.      -0.0412       -0.0365      -0.0336</span></span>
+<span><span class="co">## re75        Contin.      -0.0671       -0.0532      -0.0455</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average sample sizes across imputations</span></span></span>
 <span><span class="co">##                      Control Treated</span></span>
 <span><span class="co">## All                   429.     185. </span></span>
-<span><span class="co">## Matched (ESS)          35.92    66.1</span></span>
-<span><span class="co">## Matched (Unweighted)   77.8     66.1</span></span>
-<span><span class="co">## Unmatched             351.2    118.9</span></span></code></pre>
+<span><span class="co">## Matched (ESS)          35.92    66.3</span></span>
+<span><span class="co">## Matched (Unweighted)   78.      66.3</span></span>
+<span><span class="co">## Unmatched             351.     118.7</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="using-bal-tab-with-other-packages">Using <code>bal.tab()</code> with other packages<a class="anchor" aria-label="anchor" href="#using-bal-tab-with-other-packages"></a>
