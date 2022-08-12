@@ -992,25 +992,11 @@ x2base.Match <- function(Match, ...) {
 }
 x2base.formula <- function(formula, ...) {
     A <- list(...)
-    
-    if ("data" %in% names(A) && is_(A[["data"]], "mids")) {
-        A[["data"]] <- imp.complete(A[["data"]])
-        if (is_null(A[["imp"]])) A[["imp"]] <- A[["data"]][[".imp"]]
-    }
-    
-    # t.c <- get.covs.and.treat.from.formula(formula, A[["data"]], treat = A[["treat"]])
-    # covs <- t.c[["reported.covs"]]
-    # treat <- t.c[["treat"]]
-    
-    treat <- get_treat_from_formula(formula, A[["data"]], treat = A[["treat"]])
-    covs <- get_covs_from_formula(formula, A[["data"]])
-    
-    if (is_null(covs)) stop("The right hand side of the formula must contain covariates for which balance is to be assessed.", call. = FALSE)
-    
+
+    #Pass to x2base.data.frame, which processes covs as a formula
     A[["covs"]] <- NULL
-    A[["treat"]] <- NULL
-    
-    X <- do.call(x2base.data.frame, c(list(covs = covs, treat = treat), A))
+
+    X <- do.call(x2base.data.frame, c(list(covs = formula), A))
     return(X)
 }
 x2base.data.frame <- function(covs, ...) {
@@ -1043,15 +1029,24 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Process treat
+    if (is.formula(covs)) A[["treat"]] <- get_treat_from_formula(covs, data, treat = A[["treat"]])
     treat <- process_treat(A[["treat"]], datalist = list(data))
     
     #Process covs
     if (is_null(covs)) {
         stop("'covs' data.frame must be specified.", call. = FALSE)
     }
-    if (is.matrix(covs)) covs <- as.data.frame.matrix(covs)
+    if (is.formula(covs)) {
+        covs <- get_covs_from_formula(covs, data = data)
+        if (is_null(covs)) {
+            stop("The right hand side of the formula must contain covariates for which balance is to be assessed.", call. = FALSE)
+        }
+    }
+    if (is_null(attr(covs, "co.names"))) {
+        if (is.matrix(covs)) covs <- as.data.frame.matrix(covs)
+        covs <- get_covs_from_formula(data = covs)
+    }
     # is_(covs, "data.frame", stop = TRUE)
-    if (is_null(attr(covs, "co.names"))) covs <- get_covs_from_formula(data = covs)
     
     #Get estimand
     estimand <- A[["estimand"]]
