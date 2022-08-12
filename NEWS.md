@@ -13,6 +13,8 @@
 
 * Fixed a bug when some predictors were binary in some clusters and continuous in others. Variables now have a stable type across partitions.
 
+* Fixed a bug where binary variables were not being correctly processed when using the `formula` interface.
+
 * When using `poly`, orthogonal polynomials can be requested by setting `orth = TRUE`.
 
 * Improved appearance of conditional examples in `pkgdown` site.

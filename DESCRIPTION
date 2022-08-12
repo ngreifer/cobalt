@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.3.2.9001
+Version: 4.3.2.9002
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -36,7 +36,7 @@ Suggests:
     optweight,
     mice (>= 3.8.0),
     MatchThem (>= 0.9.3),
-    cem (>= 1.1.27),
+    cem (>= 1.1.30),
     sbw (>= 1.1.5),
     knitr,
     rmarkdown
