@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.4.0
 
 * Added support in `bal.plot()` for negative weights with `type = "density"`.
 
