@@ -306,7 +306,7 @@ x2base.ps <- function(ps, ...) {
     treat <- process_treat(ps[["treat"]], datalist = list(data, ps.data))
     
     #Process covs
-    f <- f.build(ps[["gbm.obj"]][["var.names"]])
+    f <- reformulate(ps[["gbm.obj"]][["var.names"]])
     covs <- get_covs_from_formula(f, data = ps.data)
     
     #Get estimand
@@ -516,7 +516,7 @@ x2base.mnps <- function(mnps, ...) {
     treat <- process_treat(mnps[["treatVar"]], datalist = list(data, mnps.data))
     
     #Process covs
-    f <- f.build(mnps[["psList"]][[1]][["gbm.obj"]][["var.names"]])
+    f <- reformulate(mnps[["psList"]][[1]][["gbm.obj"]][["var.names"]])
     covs <- get_covs_from_formula(f, mnps.data)
     
     #Get estimand
@@ -681,7 +681,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     treat <- process_treat(ps.cont[["treat"]], datalist = list(data, ps.data))
     
     #Process covs
-    f <- f.build(ps.cont[["gbm.obj"]][["var.names"]])
+    f <- reformulate(ps.cont[["gbm.obj"]][["var.names"]])
     covs <- get_covs_from_formula(f, ps.data)
     
     #Get estimand
@@ -2820,7 +2820,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     treat <- process_treat(sbwcau[["ind"]], datalist = list(data, sbw.data))
     
     #Process covs
-    f <- f.build(sbwcau[["bal"]][["bal_cov"]])
+    f <- reformulate(sbwcau[["bal"]][["bal_cov"]])
     covs <- get_covs_from_formula(f, data = sbw.data)
     
     #Get estimand
@@ -3024,7 +3024,7 @@ x2base.iptw <- function(iptw, ...) {
     treat.list <- process_treat.list(lapply(iptw[["psList"]], function(x) x[["treat"]]), datalist = list(data, ps.data))
     
     #Process covs.list
-    covs.list <- lapply(iptw[["psList"]], function(x) get_covs_from_formula(f.build(x[["gbm.obj"]][["var.names"]]), data = x[["data"]]))
+    covs.list <- lapply(iptw[["psList"]], function(x) get_covs_from_formula(reformulate(x[["gbm.obj"]][["var.names"]]), data = x[["data"]]))
     
     #Get estimand
     estimand <- substr(toupper(s), nchar(s)-2, nchar(s))

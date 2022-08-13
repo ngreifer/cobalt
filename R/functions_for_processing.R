@@ -298,7 +298,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                     if (any(covs %nin% colnames(data))) {
                         stop("All entries in 'covs' must be names of variables in 'data'.", call. = FALSE)
                     }
-                    covs <- get_covs_from_formula(f.build(covs), data = as.data.frame(data))
+                    covs <- get_covs_from_formula(reformulate(covs), data = as.data.frame(data))
                 }
                 else {
                     stop("If 'covs' is a character vector, 'data' must be specified as a data.frame.", call. = FALSE)
@@ -309,7 +309,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
         
         if (is_not_null(treat)) {
             if (!is_(treat, "atomic")) stop("'treat' must be an vector of treatment statuses.", call. = FALSE)
-            if (is.character(treat) && length(treat) == 1) treat <- get_treat_from_formula(f.build(treat, "."), data = data)
+            if (is.character(treat) && length(treat) == 1) treat <- get_treat_from_formula(reformulate(".", treat), data = data)
             else treat <- get_treat_from_formula(treat ~ ., treat = treat)
         }
         
@@ -344,7 +344,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
                     if (any(covs %nin% colnames(data))) {
                         stop("All entries in 'covs' must be names of variables in 'data'.", call. = FALSE)
                     }
-                    get_covs_from_formula(f.build(covs), data = as.data.frame(data))
+                    get_covs_from_formula(reformulate(covs), data = as.data.frame(data))
                 }
                 else {
                     stop("If 'covs' is a character vector, 'data' must be specified as a data.frame.", call. = FALSE)
@@ -357,7 +357,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
     if (is_not_null(treat)) {
         treat_c <- try({
             if (!is_(treat, "atomic")) stop("'treat' must be an vector of treatment statuses.", call. = FALSE)
-            if (is.character(treat) && length(treat) == 1) get_treat_from_formula(f.build(treat, "."), data = data)
+            if (is.character(treat) && length(treat) == 1) get_treat_from_formula(reformulate(".", treat), data = data)
             else get_treat_from_formula(treat ~ ., treat = treat)
         }, silent = TRUE)
     }
@@ -1302,7 +1302,7 @@ process_addl <- function(addl = NULL, datalist = list()) {
          length(addl) == nrow(data))) {
         addl <- data.frame(addl = addl)
     }
-    else if (is_(addl, "character")) addl <- f.build(addl)
+    else if (is_(addl, "character")) addl <- reformulate(addl)
     
     addl_t.c <- use.tc.fd(formula = addl, data = data, covs = addl, 
                           needs.treat = FALSE, needs.covs = FALSE)
@@ -1332,7 +1332,7 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
          length(distance) == nrow(data))) {
         distance <- data.frame(distance = distance)
     }
-    else if (is_(distance, "character")) distance <- f.build(distance)
+    else if (is_(distance, "character")) distance <- reformulate(distance)
     
     distance_t.c <- use.tc.fd(formula = distance, data = data, covs = distance, 
                               needs.treat = FALSE, needs.covs = FALSE)
@@ -1495,7 +1495,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         }
     }
     
-    if (missing(f) && data.specified) f <- f.build(data)
+    if (missing(f) && data.specified) f <- reformulate(names(data))
     else if (!rlang::is_formula(f)) stop("'f' must be a formula.")
     
     env <- rlang::f_env(f)

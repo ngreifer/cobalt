@@ -24,27 +24,6 @@ This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A
 
 In addition to its main balance assessment functions, `cobalt` contains several utility functions. These are meant to reduce the typing and programming burden that often accompany the use of R with a diverse set of packages. 
 
-### `f.build()`
-
-`f.build()` is a small tool that can be helpful in quickly specifying formula inputs to functions. An example is provided below:
-
-```{r}
-data("lalonde", package = "cobalt")
-covs <- subset(lalonde, select = -c(treat, re78))
-f.build("treat", covs)
-```
-
-The function creates a `formula` object from two inputs: the first argument is the quoted name of the variable to be the left hand side (response) variable in the formula; the second argument is a vector of right hand side (predictor) variable names or a data frame, the variable names of which are to be the predictor variables. The utility of `f.build()` is that the user does not have to manually type out the name of every covariate when entering a formula into a function. It can be used simply in place of a formula, as in the following examples, which make use of the objects defined above:
-
-```{r, eval = FALSE}
-# Generating propensity scores using logistic regression
-p.score <- glm(f.build("treat", covs), data = lalonde, family = "binomial")$fitted.values
-
-# Using matchit() from the MatchIt package
-m.out <- MatchIt::matchit(f.build("treat", covs), data = lalonde,
-                          method = "nearest")
-```
-
 ### `splitfactor()` and `unsplitfactor()`
 
 Some functions (outside of `cobalt`) are not friendly to factor or character variables, and require numeric variables to operate correctly. For example, some regression-style functions, such as `ebalance()` in `ebal`, can only take in non-singular numeric matrices. Other functions will process factor variables, but will return output in terms of dummy coded version of the factors. For example, `lm()` will create dummy variables out of a factor and drop the reference category to create regression coefficients.
@@ -86,8 +65,9 @@ Generalized boosted modeling (GBM), as implemented in `twang`, can be an effecti
 #GBM PS weighting for the ATT
 data("lalonde", package = "cobalt") ##If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
+f <- reformulate(names(covs0), "treat")
 
-ps.out <- twang::ps(f.build("treat", covs0), data = lalonde, 
+ps.out <- twang::ps(f, data = lalonde, 
                     stop.method = c("es.mean", "es.max"), 
                     estimand = "ATT", n.trees = 1000,
                     verbose = FALSE)
@@ -117,13 +97,14 @@ The `Matching` package is used for propensity score matching, and was also the f
 #1:1 NN PS matching w/ replacement
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
+f <- reformulate(names(covs0), "treat")
 
-fit <- glm(f.build("treat", covs0), data = lalonde, family = binomial)
+fit <- glm(f, data = lalonde, family = binomial)
 p.score <- fit$fitted.values
 match.out <- Matching::Match(Tr = lalonde$treat, X = p.score,
                              estimand = "ATT")
 
-bal.tab(match.out, formula = f.build("treat", covs0), data = lalonde,
+bal.tab(match.out, formula = f, data = lalonde,
         distance = ~ p.score)
 ```
 
@@ -150,8 +131,9 @@ The `optmatch` package is useful for performing optimal pairwise or full matchin
 #Optimal full matching on the propensity score
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
+f <- reformulate(names(covs0), "treat")
 
-fit <- glm(f.build("treat", covs0), data = lalonde, family = binomial)
+fit <- glm(f, data = lalonde, family = binomial)
 p.score <- fit$fitted.values #get the propensity score
 fm <- optmatch::fullmatch(treat ~ p.score, data = lalonde)
 
@@ -171,9 +153,10 @@ The `CBPS` (Covariate Balancing Propensity Score) package is a great tool for ge
 #CBPS weighting
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
+f <- reformulate(names(covs0), "treat")
 
 #Generating covariate balancing propensity score weights for ATT
-cbps.out <- CBPS::CBPS(f.build("treat", covs0), data = lalonde)
+cbps.out <- CBPS::CBPS(f, data = lalonde)
 
 bal.tab(cbps.out)
 ```
@@ -249,9 +232,7 @@ The `sbw` package implements optimization-based weighting to estimate weights th
 #Optimization-based weighting
 data("lalonde", package = "cobalt") #If not yet loaded
 lalonde_split <- splitfactor(lalonde, drop.first = "if2")
-cov.names <- c("age", "educ", "race_black", "race_hispan", 
-               "race_white", "married", "nodegree", 
-               "re74", "re75")
+cov.names <- setdiff(names(lalonde_split), c("treat", "re78"))
 
 #Estimating balancing weights for the ATT
 sbw.out <- sbw::sbw(lalonde_split,

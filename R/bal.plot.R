@@ -744,10 +744,10 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         }
         else if (length(facet) >= 2) {
             if ("which" %in% facet) {
-                facet.formula <- f.build(facet[facet %nin% "which"], "which")
+                facet.formula <- reformulate("which", facet[facet %nin% "which"])
             }
             else if ("imp" %in% facet) {
-                facet.formula <- f.build("imp", facet[facet %nin% "imp"])
+                facet.formula <- reformulate(facet[facet %nin% "imp"], "imp")
             }
             else {
                 facets <- data.frame(facet = facet, length = vapply(facet, function(x) nlevels(D[[x]]), numeric(1L)),
@@ -756,7 +756,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                 facet.formula <- formula(facets)
             }
         }
-        else facet.formula <- f.build(".", facet)
+        else facet.formula <- reformulate(facet, ".")
         bp <- bp + ggplot2::facet_grid(facet.formula, drop = FALSE, scales = ifelse("subclass" %in% facet, "free_x", "fixed"))
     }
     
