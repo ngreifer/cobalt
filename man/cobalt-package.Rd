@@ -19,7 +19,7 @@ The main functions of \pkg{cobalt} are the following:
 
 Other functions include \fun{get.w} for extracting weights from objects produced by other packages, \fun{col_w_smd} (and friends documentated on the same page) for computing (weighted) balance statistics outside of \code{bal.tab()}, and \fun{splitfactor} for splitting factor variables in a dataset into dummy variables.
 
-\pkg{cobalt} has several vignettes, which can be accessed using \code{\link[=vignette]{vignette(package = "cobalt")}} or visiting the website at \url{https://ngreifer.github.io/cobalt}.
+\pkg{cobalt} has several vignettes, which can be accessed using \code{\link[=vignette]{vignette(package = "cobalt")}} or visiting the website at \url{https://ngreifer.github.io/cobalt/}.
 }
 \author{
 Noah Greifer (\href{https://orcid.org/0000-0003-3067-7154}{ORCID})

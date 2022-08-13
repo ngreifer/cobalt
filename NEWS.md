@@ -7,7 +7,7 @@
 
 * Added support for `ps.cont()` objects from the `twangContinuous` package. `ps.cont` objects from `WeightIt` are no longer supported.
 
-* Major documentation overhaul. More arguments are explain at `help("bal.tab")` and a new package help page can be found at `help("cobalt-package")`.
+* Major documentation overhaul. More arguments are explained at `help("bal.tab")` and a new package help page can be found at `help("cobalt-package")`.
 
 * The function call is no longer included in the `bal.tab()` results for objects from `twang`.
 
