@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.4.0
 
 * Added support in `bal.plot()` for negative weights with `type = "density"`.
 
@@ -81,7 +81,7 @@
 
 * Added an error message when not all clusters contain all treatment levels. Thanks to Rachel Visontay.
 
-* Fixed a bug when supplying the `weights` argument as a list of supported objects (e..g, `weightit` objects) if they were unnamed. Samples are more conveniently named.
+* Fixed a bug when supplying the `weights` argument as a list of supported objects (e.g., `weightit` objects) if they were unnamed. Samples are more conveniently named.
 
 * Fixed a bug in `col_w_mean()`, `col_w_smd()`, and friends that occurred when few nonzero weights were present. Now an informative error is thrown.
 
