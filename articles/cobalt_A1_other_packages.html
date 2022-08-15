@@ -100,7 +100,7 @@
       <h1 data-toc-skip>Appendix 1: Using cobalt with Other Preprocessing Packages</h1>
                         <h4 data-toc-skip class="author">Noah Greifer</h4>
             
-            <h4 data-toc-skip class="date">2022-08-13</h4>
+            <h4 data-toc-skip class="date">2022-08-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt_A1_other_packages.Rmd" class="external-link"><code>vignettes/cobalt_A1_other_packages.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A1_other_packages.Rmd</code></div>
@@ -258,7 +258,7 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">f</span>, data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span></span>
 <span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">fitted.values</span> <span class="co">#get the propensity score</span></span>
-<span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu">optmatch</span><span class="fu">::</span><span class="fu"><a href="https://markmfredrickson.github.io/optmatch/reference/fullmatch.html" class="external-link">fullmatch</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">p.score</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
+<span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu">optmatch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/optmatch/man/fullmatch.html" class="external-link">fullmatch</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">p.score</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">fm</span>, covs <span class="op">=</span> <span class="va">covs0</span>, distance <span class="op">=</span> <span class="op">~</span> <span class="va">p.score</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
@@ -282,7 +282,7 @@
 <span><span class="co">## All                   429.       185</span></span>
 <span><span class="co">## Matched (ESS)          51.42     185</span></span>
 <span><span class="co">## Matched (Unweighted)  429.       185</span></span></code></pre>
-<p>Most details for the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>optmatch</code> are similar to those when using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>Matching</code>. Users can enter either a formula and a data set or a vector of treatment status and a set of covariates. Unlike with <code>Matching</code>, entering the treatment variable is optional as it is already stored in the <code>optmatch</code> object. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> is compatible with both <code><a href="https://markmfredrickson.github.io/optmatch/reference/pairmatch.html" class="external-link">pairmatch()</a></code> and <code><a href="https://markmfredrickson.github.io/optmatch/reference/fullmatch.html" class="external-link">fullmatch()</a></code> output.</p>
+<p>Most details for the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>optmatch</code> are similar to those when using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>Matching</code>. Users can enter either a formula and a data set or a vector of treatment status and a set of covariates. Unlike with <code>Matching</code>, entering the treatment variable is optional as it is already stored in the <code>optmatch</code> object. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> is compatible with both <code><a href="https://rdrr.io/pkg/optmatch/man/pairmatch.html" class="external-link">pairmatch()</a></code> and <code><a href="https://rdrr.io/pkg/optmatch/man/fullmatch.html" class="external-link">fullmatch()</a></code> output.</p>
 </div>
 <div class="section level3">
 <h3 id="using-bal-tab-with-cbps">Using <code>bal.tab()</code> with <code>CBPS</code><a class="anchor" aria-label="anchor" href="#using-bal-tab-with-cbps"></a>
@@ -456,20 +456,20 @@
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## prop.score  Distance       0.1504        0.1609       0.1707</span></span>
-<span><span class="co">## age          Contin.      -0.1963       -0.1904      -0.1833</span></span>
-<span><span class="co">## educ         Contin.       0.0791        0.0835       0.0905</span></span>
-<span><span class="co">## married       Binary      -0.1086       -0.1049      -0.0941</span></span>
-<span><span class="co">## race_black    Binary       0.0529        0.0585       0.0627</span></span>
-<span><span class="co">## race_hispan   Binary       0.0055        0.0104       0.0132</span></span>
-<span><span class="co">## race_white    Binary      -0.0738       -0.0690      -0.0633</span></span>
-<span><span class="co">## re74         Contin.      -0.3042       -0.2878      -0.2768</span></span>
-<span><span class="co">## re75         Contin.      -0.1733       -0.1558      -0.1306</span></span>
+<span><span class="co">## prop.score  Distance       0.1459        0.1571       0.1674</span></span>
+<span><span class="co">## age          Contin.      -0.1909       -0.1875      -0.1818</span></span>
+<span><span class="co">## educ         Contin.       0.0737        0.0822       0.0893</span></span>
+<span><span class="co">## married       Binary      -0.1106       -0.1025      -0.0913</span></span>
+<span><span class="co">## race_black    Binary       0.0527        0.0570       0.0620</span></span>
+<span><span class="co">## race_hispan   Binary       0.0057        0.0102       0.0122</span></span>
+<span><span class="co">## race_white    Binary      -0.0722       -0.0672      -0.0584</span></span>
+<span><span class="co">## re74         Contin.      -0.2961       -0.2860      -0.2703</span></span>
+<span><span class="co">## re75         Contin.      -0.1713       -0.1616      -0.1459</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
 <span><span class="co">## Unadjusted  429.    185.  </span></span>
-<span><span class="co">## Adjusted    331.39   67.43</span></span></code></pre>
+<span><span class="co">## Adjusted    331.55   66.65</span></span></code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
 <div class="section level3">
@@ -542,22 +542,22 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cem.out.imp</span>, data <span class="op">=</span> <span class="va">imp.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age         Contin.       0.0465        0.0481       0.0494</span></span>
-<span><span class="co">## educ        Contin.      -0.0441       -0.0345      -0.0165</span></span>
+<span><span class="co">## age         Contin.       0.0414        0.0475       0.0522</span></span>
+<span><span class="co">## educ        Contin.      -0.0392       -0.0368      -0.0235</span></span>
 <span><span class="co">## race_black   Binary      -0.0000       -0.0000       0.0000</span></span>
-<span><span class="co">## race_hispan  Binary       0.0000        0.0000       0.0000</span></span>
+<span><span class="co">## race_hispan  Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## race_white   Binary      -0.0000       -0.0000       0.0000</span></span>
-<span><span class="co">## married      Binary       0.0000        0.0000       0.0000</span></span>
-<span><span class="co">## nodegree     Binary       0.0000        0.0000       0.0000</span></span>
-<span><span class="co">## re74        Contin.      -0.0476       -0.0362      -0.0324</span></span>
-<span><span class="co">## re75        Contin.      -0.0605       -0.0547      -0.0463</span></span>
+<span><span class="co">## married      Binary      -0.0000       -0.0000       0.0000</span></span>
+<span><span class="co">## nodegree     Binary      -0.0000       -0.0000       0.0000</span></span>
+<span><span class="co">## re74        Contin.      -0.0413       -0.0355      -0.0318</span></span>
+<span><span class="co">## re75        Contin.      -0.0827       -0.0609      -0.0456</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average sample sizes across imputations</span></span></span>
 <span><span class="co">##                      Control Treated</span></span>
 <span><span class="co">## All                   429.     185. </span></span>
-<span><span class="co">## Matched (ESS)          35.35    66.2</span></span>
-<span><span class="co">## Matched (Unweighted)   77.3     66.2</span></span>
-<span><span class="co">## Unmatched             351.7    118.8</span></span></code></pre>
+<span><span class="co">## Matched (ESS)          35.63    66.3</span></span>
+<span><span class="co">## Matched (Unweighted)   77.9     66.3</span></span>
+<span><span class="co">## Unmatched             351.1    118.7</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="using-bal-tab-with-other-packages">Using <code>bal.tab()</code> with other packages<a class="anchor" aria-label="anchor" href="#using-bal-tab-with-other-packages"></a>
