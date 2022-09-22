@@ -298,7 +298,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                     if (any(covs %nin% colnames(data))) {
                         stop("All entries in 'covs' must be names of variables in 'data'.", call. = FALSE)
                     }
-                    covs <- get_covs_from_formula(reformulate(covs), data = as.data.frame(data))
+                    covs <- get_covs_from_formula(f.build(covs), data = as.data.frame(data))
                 }
                 else {
                     stop("If 'covs' is a character vector, 'data' must be specified as a data.frame.", call. = FALSE)
@@ -344,7 +344,7 @@ use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, ne
                     if (any(covs %nin% colnames(data))) {
                         stop("All entries in 'covs' must be names of variables in 'data'.", call. = FALSE)
                     }
-                    get_covs_from_formula(reformulate(covs), data = as.data.frame(data))
+                    get_covs_from_formula(f.build(covs), data = as.data.frame(data))
                 }
                 else {
                     stop("If 'covs' is a character vector, 'data' must be specified as a data.frame.", call. = FALSE)
@@ -1495,7 +1495,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         }
     }
     
-    if (missing(f) && data.specified) f <- reformulate(names(data))
+    if (missing(f) && data.specified) f <- f.build(names(data))
     else if (!rlang::is_formula(f)) stop("'f' must be a formula.")
     
     env <- rlang::f_env(f)
