@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.4.0
+Version: 4.4.0.9000
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -39,10 +39,12 @@ Suggests:
     cem (>= 1.1.30),
     sbw (>= 1.1.5),
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
 URL: https://ngreifer.github.io/cobalt/, https://github.com/ngreifer/cobalt
 BugReports: https://github.com/ngreifer/cobalt/issues
+Config/testthat/edition: 3
