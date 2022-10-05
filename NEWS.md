@@ -5,6 +5,8 @@
 
 * Fixed a bug when covariates with nonstandard names are extracted from model objects (#63). Thanks to @markdanese.
 
+* Fixed a bug when "0" and "1" are the names of two of the treatment levels in a multinomial treatment.
+
 # cobalt 4.4.0
 
 * Added support in `bal.plot()` for negative weights with `type = "density"`.
