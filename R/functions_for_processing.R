@@ -43,7 +43,7 @@ process_obj <- function(obj) {
 }
 
 #x2base
-process_treat <- function(treat, datalist = list()) {
+process_treat <- function(treat, datalist = list(), keep_values = FALSE) {
     
     if (missing(treat)) stop("'treat' must be specified.", call. = FALSE)
     
@@ -51,11 +51,12 @@ process_treat <- function(treat, datalist = list()) {
         attrs <- attributes(treat)
         renamed_original <- setNames(names(treat_vals(treat)), treat_vals(treat))
         treat <- factor(renamed_original[as.character(treat)], levels = renamed_original)
-        for (at in c("treat_names", "treat_vals", "treat.type", "names"))
+        for (at in c("treat_names", "treat_vals", "keep_values", "treat.type", "names"))
             attr(treat, at) <- attrs[[at]]
     }
     else {
-        keep_values <- has.treat.type(treat) && get.treat.type(treat) == "multinomial"
+        # keep_values <- isTRUE(attr(treat, "keep_values")) || 
+        #     (has.treat.type(treat) && get.treat.type(treat) == "multinomial")
         
         treat <- vector.process(treat, name = "treat", 
                                 which = "treatment statuses", 
@@ -66,12 +67,14 @@ process_treat <- function(treat, datalist = list()) {
         
         if (treat.type == "binary") {
             if (!is.factor(treat)) treat <- factor(treat, levels = sort(unique(treat, nmax = 2)))
-            original_values <- levels(treat)
-            if (!keep_values && can_str2num(as.character(treat)) && all(original_values %in% c("0", "1"))) {
-                treat_names(treat) <- setNames(c("Control", "Treated"), c("control", "treated"))
-            }
-            else {
-                treat_names(treat) <- setNames(original_values, c("control", "treated"))
+            original_values <- levels(treat)[levels(treat) %in% unique(treat, nmax = 2)]
+            treat_names(treat) <- {
+                if (!keep_values && can_str2num(as.character(treat)) && all(original_values %in% c("0", "1"))) {
+                    setNames(c("Control", "Treated"), c("control", "treated"))
+                }
+                else {
+                    setNames(original_values, c("control", "treated"))
+                }
             }
             
             treat_vals(treat) <- setNames(original_values, treat_names(treat))
@@ -82,6 +85,7 @@ process_treat <- function(treat, datalist = list()) {
             treat_vals(treat) <- setNames(levels(treat), treat_names(treat))
         }
         attr(treat, "treat.type") <- treat.type
+        # attr(treat, "keep_values") <- keep_values
     }
     class(treat) <- c("processed.treat", class(treat))
     return(treat)
@@ -90,7 +94,7 @@ unprocess_treat <- function(treat) {
     if (inherits(treat, "processed.treat")) {
         attrs <- attributes(treat)
         treat <- treat_vals(treat)[as.character(treat)]
-        attributes(treat) <- attrs
+        attributes(treat) <- attrs[setdiff(names(attrs), "class")]
         class(treat) <- c("unprocessed.treat", class(treat_vals(treat)))
     }
     return(treat)
@@ -125,15 +129,24 @@ treat_names <- function(treat) {
 treat_vals <- function(treat) {
     attr(treat, "treat_vals")
 }
-`[.processed.treat` <- function(x, ...) {
-    y <- NextMethod("[")
-    treat_names(y) <- treat_names(x)
-    treat_vals(y) <- treat_vals(x)
-    attr(y, "treat.type") <- attr(x, "treat.type")
+subset_processed.treat <- function(x, index) {
+    y <- x[index]
+    treat_names(y) <- treat_names(x)[treat_vals(x) %in% unique(y)]
+    treat_vals(y) <- treat_vals(x)[treat_vals(x) %in% unique(y)]
+    y <- assign.treat.type(y)
     class(y) <- class(x)
     y
 }
-`[.unprocessed.treat` <- `[.processed.treat`
+# `[.processed.treat` <- function(x, ...) {
+#     y <- NextMethod("[")
+#     # if (is.factor(y)) y <- droplevels(y)
+#     treat_names(y) <- treat_names(x)[treat_vals(x) %in% unique(y)]
+#     treat_vals(y) <- treat_vals(x)[treat_vals(x) %in% unique(y)]
+#     y <- assign.treat.type(y)
+#     class(y) <- class(x)
+#     y
+# }
+# `[.unprocessed.treat` <- `[.processed.treat`
 
 initialize_X <- function() {
     X.names <- c("covs",
@@ -583,12 +596,12 @@ get.s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL, sub
     check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
     s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
     estimand.specified <- is_not_null(estimand)
-    treat.is.processed <- is_(treat, "processed.treat")
+    # treat.is.processed <- is_(treat, "processed.treat")
     
     if (s.d.denom.specified) {
-        if (!treat.is.processed) {
+        # if (!treat.is.processed) {
             treat <- process_treat(treat)
-        }
+        # }
         unique.treats <- as.character(treat_vals(treat))
         allowable.s.d.denoms <- c("pooled", "all", "weighted", "hedges")
         if (length(treat_names(treat)) == 2 && all(c("treated", "control") %in% names(treat_names(treat))))
@@ -614,7 +627,7 @@ get.s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL, sub
     
     if (check.estimand) {
         if (estimand.specified) {
-            if (!treat.is.processed) treat <- process_treat(treat)
+            if (!is_(treat, "processed.treat")) treat <- process_treat(treat)
             try.estimand <- tryCatch(match_arg(toupper(estimand), c("ATT", "ATC", "ATE", "ATO", "ATM"), several.ok = TRUE),
                                      error = function(cond) NA_character_)
             if (anyNA(try.estimand) || any(try.estimand %in% c("ATC", "ATT")) && get.treat.type(treat) != "binary") {
@@ -643,7 +656,7 @@ get.s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL, sub
         else check.weights <- TRUE
     }
     if (check.weights) {
-        if (!treat.is.processed) treat <- process_treat(treat)
+        if (!is_(treat, "processed.treat")) treat <- process_treat(treat)
         if (is_null(weights) && is_null(subclass)) {
             s.d.denom <- "pooled"
         }
@@ -983,7 +996,7 @@ subset_X <- function(X, subset = NULL) {
                 }
                 
                 if (is_null(x)) out <- x
-                else if (is_(x, "processed.treat")) out <- x[subset]
+                else if (is_(x, "processed.treat")) out <- subset_processed.treat(x, subset)
                 else if ((is.matrix(x) || is.data.frame(x))) out <- x[subset, , drop = FALSE]
                 else if (is.factor(x)) out <- factor(x[subset], nmax = nlevels(x))
                 else if (is.atomic(x)) out <- x[subset]
@@ -991,9 +1004,8 @@ subset_X <- function(X, subset = NULL) {
                 else out <- x
                 
                 if (is_not_null(attrs)) {
-                    if (all(c("treat_names", "treat_vals", "treat.type") %in% 
-                            names(attrs))) {
-                        out <- process_treat(out)
+                    if (is_(x, "processed.treat")) {
+                        out <- process_treat(out, keep_values = TRUE)
                     }
                     else {
                         for (i in names(attrs)[names(attrs) %nin% names(attributes(out))]) {
@@ -2444,7 +2456,8 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
     return(B)
 }
 
-samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights = NULL, method=c("matching", "weighting", "subclassification"), discarded = NULL) {
+samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights = NULL,
+                       method = c("matching", "weighting", "subclassification"), discarded = NULL) {
     #Computes sample size info. for unadjusted and adjusted samples.
     # method is what method the weights are to be used for. 
     # method="subclassification" is for subclass sample sizes only.

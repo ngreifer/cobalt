@@ -6,7 +6,7 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
 
     A <- clear_null(list(...))
     A$subset <- NULL
-    X$treat <- process_treat(X$treat) 
+    # X$treat <- process_treat(X$treat) 
     
     if (type == "bin") {
         if (get.treat.type(X$treat) != "binary") {
@@ -62,8 +62,10 @@ base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary
                                     no.adj = no.adj,
                                     balance.table = out[["Balance"]],
                                     weight.names = names(X$weights)))
-    
-    out[["Observations"]] <- samplesize(treat = X$treat, type = type, weights = X$weights, s.weights = X$s.weights, method = X$method, discarded = X$discarded)
+
+    out[["Observations"]] <- samplesize(treat = X$treat, type = type, weights = X$weights,
+                                        s.weights = X$s.weights, method = X$method,
+                                        discarded = X$discarded)
     
     out[["call"]] <- X$call
     attr(out, "print.options") <- list(thresholds = thresholds,
@@ -195,7 +197,10 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
         else treat.combinations <- lapply(treat_names(X$treat), function(x) c(x, "All"))
     }
     else {
-        if (length(X$focal) > 1) stop("'focal' must be a vector of length 1 containing the name or index of the focal treatment group.", call. = FALSE)
+        if (length(X$focal) > 1) {
+            stop("'focal' must be a vector of length 1 containing the name or index of the focal treatment group.",
+                 call. = FALSE)
+        }
         
         if (is.numeric(X$focal)) {
             X$focal <- levels(X$treat)[X$focal]
@@ -221,12 +226,14 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     if ("mean.diffs" %in% X$stats) {
         bin.vars <- is_binary_col(X$covs)
         if (is_null(X$weights)) {
-            X$s.d.denom.list <- list(compute_s.d.denom(X$covs, X$treat, s.d.denom = X$s.d.denom, s.weights = X$s.weights, bin.vars = bin.vars))
+            X$s.d.denom.list <- list(compute_s.d.denom(X$covs, X$treat, s.d.denom = X$s.d.denom,
+                                                       s.weights = X$s.weights, bin.vars = bin.vars))
         }
         else {
-            X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom), function(i) compute_s.d.denom(X$covs, X$treat,
-                                                                                                      s.d.denom = X$s.d.denom[i], s.weights = X$s.weights, 
-                                                                                                      bin.vars = bin.vars, weighted.weights = X$weights[[i]])),
+            X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom),
+                                                function(i) compute_s.d.denom(X$covs, X$treat,
+                                                                              s.d.denom = X$s.d.denom[i], s.weights = X$s.weights, 
+                                                                              bin.vars = bin.vars, weighted.weights = X$weights[[i]])),
                                          names(X$s.d.denom))
         }
     }
@@ -234,14 +241,16 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
     if (pairwise || is_not_null(X$focal)) {
         balance.tables <- lapply(treat.combinations, function(t) {
             X_t <- subset_X(X, X$treat %in% treat_vals(X$treat)[t])
-            X_t$treat <- process_treat(X_t$treat)
+            # X_t$treat <- process_treat(X_t$treat)
             X_t <- assign.X.class(X_t)
             X_t$call <- NULL
             do.call("base.bal.tab", c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
         })
     }
     else {
-        if (any(treat_vals(X$treat) == "All")) stop ("\"All\" cannot be the name of a treatment level. Please rename your treatments.", call. = FALSE)
+        if (any(treat_vals(X$treat) == "All")) {
+            stop ("\"All\" cannot be the name of a treatment level. Please rename your treatments.", call. = FALSE)
+        }
         balance.tables <- lapply(treat.combinations, function(t) {
             n <- length(X$treat)
             X_t <- X
@@ -249,6 +258,7 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
             X_t <- subset_X(X_t, c(seq_len(n), which(X$treat == treat_vals(X$treat)[t[1]])))
             X_t$treat <- factor(rep(0:1, times = c(n, sum(X$treat == treat_vals(X$treat)[t[1]]))),
                                 levels = c(0, 1), labels = c("All", t[1]))
+            X_t$treat <- process_treat(X_t$treat)
             
             if (is_not_null(X_t$weights)) X_t$weights[X_t$treat == "All",] <- 1 #Uncomment to compare each group to unweighted dist.
             

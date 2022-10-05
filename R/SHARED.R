@@ -384,7 +384,7 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
         w <- w/sum(w)
         if (non.bin.vars.present) {
             x <- center(mat[, !bin.vars, drop = FALSE],
-                                  at = colSums(w * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
+                        at = colSums(w * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
             var[!bin.vars] <- colSums(w*x*x, na.rm = na.rm)/(1 - sum(w^2))
         }
         if (bin.var.present) {
@@ -753,12 +753,11 @@ process.s.weights <- function(s.weights, data = NULL) {
 #Uniqueness
 nunique <- function(x, nmax = NA, na.rm = TRUE) {
     if (is_null(x)) return(0)
-    else {
-        if (na.rm && anyNA(x)) x <- na.rem(x)
-        if (is.factor(x)) return(nlevels(x))
-        else return(length(unique(x, nmax = nmax)))
-    }
     
+    if (na.rm && anyNA(x)) x <- na.rem(x)
+    # if (is.factor(x)) return(nlevels(x))
+    # else 
+    return(length(unique(x, nmax = nmax)))
 }
 nunique.gt <- function(x, n, na.rm = TRUE) {
     if (missing(n)) stop("'n' must be supplied.")
