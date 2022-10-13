@@ -608,3 +608,202 @@
       Matched       185     185
       Unmatched     244       0
 
+# twang
+
+    Code
+      bal.tab(ps.out, thresholds = c(k = 0.05, m = 0.05), stats = "k")
+    Output
+      Balance Measures
+                            Type Diff.ks.max  M.Threshold.ks.max KS.ks.max
+      prop.score.ks.max Distance      0.3907                        0.1651
+      prop.score.es.max Distance      0.5736                        0.2087
+      age                Contin.     -0.0046     Balanced, <0.05    0.0873
+      educ               Contin.     -0.0830 Not Balanced, >0.05    0.0837
+      race_black          Binary      0.0088     Balanced, <0.05    0.0088
+      race_hispan         Binary      0.0057     Balanced, <0.05    0.0057
+      race_white          Binary     -0.0145     Balanced, <0.05    0.0145
+      married             Binary     -0.0127     Balanced, <0.05    0.0127
+      nodegree            Binary      0.0837 Not Balanced, >0.05    0.0837
+      re74               Contin.      0.0491     Balanced, <0.05    0.0436
+      re75               Contin.      0.0594 Not Balanced, >0.05    0.0731
+                        KS.Threshold.ks.max Diff.es.max  M.Threshold.es.max KS.es.max
+      prop.score.ks.max                          0.2371                        0.1243
+      prop.score.es.max                          0.3947                        0.1625
+      age               Not Balanced, >0.05      0.0098     Balanced, <0.05    0.1081
+      educ              Not Balanced, >0.05     -0.0377     Balanced, <0.05    0.0663
+      race_black            Balanced, <0.05     -0.0085     Balanced, <0.05    0.0085
+      race_hispan           Balanced, <0.05      0.0087     Balanced, <0.05    0.0087
+      race_white            Balanced, <0.05     -0.0002     Balanced, <0.05    0.0002
+      married               Balanced, <0.05      0.0136     Balanced, <0.05    0.0136
+      nodegree          Not Balanced, >0.05      0.0407     Balanced, <0.05    0.0407
+      re74                  Balanced, <0.05      0.0920 Not Balanced, >0.05    0.0642
+      re75              Not Balanced, >0.05      0.0904 Not Balanced, >0.05    0.0904
+                        KS.Threshold.es.max
+      prop.score.ks.max                    
+      prop.score.es.max                    
+      age               Not Balanced, >0.05
+      educ              Not Balanced, >0.05
+      race_black            Balanced, <0.05
+      race_hispan           Balanced, <0.05
+      race_white            Balanced, <0.05
+      married               Balanced, <0.05
+      nodegree              Balanced, <0.05
+      re74              Not Balanced, >0.05
+      re75              Not Balanced, >0.05
+      
+      Balance tally for mean differences
+                          ks.max es.max
+      Balanced, <0.05          6      7
+      Not Balanced, >0.05      3      2
+      
+      Variable with the greatest mean difference
+       Weights Variable   Diff         M.Threshold
+        ks.max nodegree 0.0837 Not Balanced, >0.05
+        es.max     re74 0.0920 Not Balanced, >0.05
+      
+      Balance tally for KS statistics
+                          ks.max es.max
+      Balanced, <0.05          5      5
+      Not Balanced, >0.05      4      4
+      
+      Variable with the greatest KS statistic
+       Weights Variable     KS        KS.Threshold
+        ks.max      age 0.0873 Not Balanced, >0.05
+        es.max      age 0.1081 Not Balanced, >0.05
+      
+      Effective sample sizes
+             Control Treated
+      All     429.       185
+      ks.max   27.79     185
+      es.max   18.36     185
+
+---
+
+    Code
+      bal.tab(ps.out.s, un = T)
+    Output
+      Balance Measures
+                      Type Diff.Un Diff.Adj
+      prop.score  Distance  2.5187   0.5047
+      age          Contin. -0.3282   0.0262
+      educ         Contin.  0.0566  -0.0810
+      race_black    Binary  0.6391   0.0265
+      race_hispan   Binary -0.0833  -0.0057
+      race_white    Binary -0.5557  -0.0208
+      married       Binary -0.3282  -0.0317
+      nodegree      Binary  0.0895   0.0938
+      re74         Contin. -0.7810   0.0439
+      re75         Contin. -0.3195   0.0707
+      
+      Effective sample sizes
+                 Control Treated
+      Unadjusted  404.33   174.2
+      Adjusted     30.79   174.2
+
+---
+
+    Code
+      bal.tab(covs, lalonde$treat, weights = get.w(ps.out.s), s.weights = sampw, un = T,
+      distance = ps.out.s$ps)
+    Output
+      Balance Measures
+                      Type Diff.Un Diff.Adj
+      ks.max.ATT  Distance  2.5187   0.5047
+      age          Contin. -0.3282   0.0262
+      educ         Contin.  0.0566  -0.0810
+      race_black    Binary  0.6391   0.0265
+      race_hispan   Binary -0.0833  -0.0057
+      race_white    Binary -0.5557  -0.0208
+      married       Binary -0.3282  -0.0317
+      nodegree      Binary  0.0895   0.0938
+      re74         Contin. -0.7810   0.0439
+      re75         Contin. -0.3195   0.0707
+      
+      Effective sample sizes
+                 Control Treated
+      Unadjusted  404.33   174.2
+      Adjusted     30.79   174.2
+
+# CBPS: binary
+
+    Code
+      bal.tab(cbps.out, disp.bal.tab = T)
+    Output
+      Call
+       CBPS::CBPS(formula = treat ~ log(age) * married + poly(educ, 
+          2) + rms::rcs(age, 3) + race + factor(nodegree) + re74 + 
+          re75, data = lalonde, ATT = F)
+      
+      Balance Measures
+                               Type Diff.Adj
+      prop.score           Distance   0.3034
+      log(age)              Contin.  -0.2423
+      married                Binary  -0.0445
+      poly(educ, 2)_1       Contin.   0.1541
+      poly(educ, 2)_2       Contin.  -0.1199
+      age                   Contin.  -0.2808
+      age'                  Contin.  -0.3300
+      race_black             Binary   0.1115
+      race_hispan            Binary   0.0495
+      race_white             Binary  -0.1610
+      factor(nodegree)       Binary  -0.0255
+      re74                  Contin.  -0.1476
+      re75                  Contin.  -0.0722
+      log(age) * married_0  Contin.   0.0925
+      log(age) * married_1  Contin.  -0.1353
+      
+      Effective sample sizes
+                 Control Treated
+      Unadjusted  429.    185.  
+      Adjusted    236.22   55.85
+
+---
+
+    Code
+      bal.tab(cbps.out, weights = list(exact = (cbps.out.e)), stats = c("m", "v", "k"))
+    Output
+      Call
+       CBPS::CBPS(formula = treat ~ log(age) * married + poly(educ, 
+          2) + rms::rcs(age, 3) + race + factor(nodegree) + re74 + 
+          re75, data = lalonde, ATT = F)
+      
+      Balance Measures
+                               Type Diff.CBPS V.Ratio.CBPS KS.CBPS Diff.exact
+      prop.score           Distance    0.3034       1.0078  0.2115     0.3919
+      log(age)              Contin.   -0.2423       0.6317  0.1624     0.1137
+      married                Binary   -0.0445            .  0.0445    -0.0000
+      poly(educ, 2)_1       Contin.    0.1541       0.6931  0.0859     0.0001
+      poly(educ, 2)_2       Contin.   -0.1199       0.3663  0.0489    -0.2099
+      age                   Contin.   -0.2808       0.5486  0.1624    -0.0001
+      age'                  Contin.   -0.3300       0.4263  0.1624    -0.2149
+      race_black             Binary    0.1115            .  0.1115     0.0000
+      race_hispan            Binary    0.0495            .  0.0495    -0.0000
+      race_white             Binary   -0.1610            .  0.1610    -0.0000
+      factor(nodegree)       Binary   -0.0255            .  0.0255    -0.0000
+      re74                  Contin.   -0.1476       1.3356  0.2519    -0.0001
+      re75                  Contin.   -0.0722       1.2089  0.1458    -0.0000
+      log(age) * married_0  Contin.    0.0925       0.9571  0.0908     0.0577
+      log(age) * married_1  Contin.   -0.1353       0.8808  0.1300    -0.0304
+                           V.Ratio.exact KS.exact
+      prop.score                  1.2278   0.2134
+      log(age)                    0.4792   0.2400
+      married                          .   0.0000
+      poly(educ, 2)_1             0.6962   0.0456
+      poly(educ, 2)_2             0.2881   0.0650
+      age                         0.4323   0.2400
+      age'                        0.3558   0.2400
+      race_black                       .   0.0000
+      race_hispan                      .   0.0000
+      race_white                       .   0.0000
+      factor(nodegree)                 .   0.0000
+      re74                        1.6091   0.2628
+      re75                        1.3902   0.0994
+      log(age) * married_0        1.0987   0.2341
+      log(age) * married_1        0.9407   0.1090
+      
+      Effective sample sizes
+            Control Treated
+      All    429.    185.  
+      CBPS   236.22   55.85
+      exact  280.01   44.21
+
