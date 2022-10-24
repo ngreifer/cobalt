@@ -32,7 +32,8 @@ bal.tab.matchit <-    function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
-
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
+    
     #Initializing variables
     X <- do.call("x2base.matchit", c(list(x), args), quote = TRUE)
     
@@ -53,6 +54,7 @@ bal.tab.ps <-         function(x, stop.method,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.ps", c(list(x), args), quote = TRUE)
@@ -74,6 +76,7 @@ bal.tab.mnps <-       function(x, stop.method,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.mnps", c(list(x), args), quote = TRUE)
@@ -96,6 +99,7 @@ bal.tab.ps.cont <-    function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.ps.cont", c(list(x), args), quote = TRUE)
@@ -117,6 +121,7 @@ bal.tab.Match <-      function(x, formula = NULL, data = NULL, treat = NULL, cov
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base", c(list(x), args), quote = TRUE) 
@@ -138,6 +143,7 @@ bal.tab.formula <-    function(x, data = NULL,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.formula", c(list(formula = x), args), quote = TRUE)
@@ -160,6 +166,7 @@ bal.tab.data.frame <- function(x, treat,
     #Adjustments to arguments
 
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.data.frame", c(covs = list(x), args), quote = TRUE)
@@ -183,6 +190,7 @@ bal.tab.CBPS <-       function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base", c(list(x), args), quote = TRUE)
@@ -204,6 +212,7 @@ bal.tab.weightit <-   function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base", c(list(x), args), quote = TRUE)
@@ -227,6 +236,7 @@ bal.tab.cem.match <-  function(x, data,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.cem.match", c(list(x), args), quote = TRUE)
@@ -270,6 +280,7 @@ bal.tab.wimids <-     function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.wimids", c(list(x), args), quote = TRUE)
@@ -291,6 +302,7 @@ bal.tab.sbwcau <-     function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.sbwcau", c(list(x), args), quote = TRUE)
@@ -314,6 +326,7 @@ bal.tab.formula.list <- function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     X <- do.call("x2base.formula.list", c(list(formula.list = x), args), quote = TRUE)
     
@@ -334,6 +347,7 @@ bal.tab.data.frame.list <- function(x, treat.list,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     X <- do.call("x2base.data.frame.list", c(list(covs.list = x), args), quote = TRUE)
     
@@ -354,6 +368,7 @@ bal.tab.iptw <- function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.iptw", c(list(x), args), quote = TRUE)
@@ -375,6 +390,7 @@ bal.tab.CBMSM <- function(x,
     #Adjustments to arguments
     
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.CBMSM", c(list(x), args), quote = TRUE)
@@ -393,8 +409,8 @@ bal.tab.weightitMSM <- function(x, stats, int = FALSE, poly = 1, distance = NULL
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.weightitMSM", c(list(x), args), quote = TRUE)
@@ -411,12 +427,11 @@ bal.tab.weightitMSM <- function(x, stats, int = FALSE, poly = 1, distance = NULL
 #default method
 bal.tab.default <- function(x, stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
                             ...) {
-    
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) stop(conditionMessage(e), call. = FALSE))
     
     #Adjustments to arguments
-    
     args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
     X <- do.call("x2base.default", c(list(obj = x), args),

@@ -7,6 +7,8 @@
 
 * Fixed a bug when "0" and "1" are the names of two of the treatment levels in a multinomial treatment.
 
+* Fixed a bug with the default method of `bal.tab()` which was ignoring components of the supplied object.
+
 # cobalt 4.4.0
 
 * Added support in `bal.plot()` for negative weights with `type = "density"`.

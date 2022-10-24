@@ -3834,7 +3834,7 @@ x2base.default <- function(obj, ...) {
                            type = c("numeric", "character", "factor", "logical")),
               treat.list = list(name = c("treat.list", "treat", "tr"),
                                 type = c("list", "data.frame")),
-              covs = list(name = c("covs", "covariates"), 
+              covs = list(name = c("covs", "covariates", "x"), 
                           type = c("data.frame")),
               covs.list = list(name = c("covs.list", "covs", "covariates"),
                                type = c("list")),
@@ -3853,7 +3853,7 @@ x2base.default <- function(obj, ...) {
               match.strata = list(name = c("match.strata"),
                                   type = c("factor", "character", "numeric")),
               estimand = list(name = c("estimand", "target", "att", "ate"),
-                              type = c("character", "numeric")),
+                              type = c("character", "numeric", "logical")),
               s.weights = list(name = c("s.weights", "sw", "sweights", "sampw"),
                                type = c("numeric")),
               focal = list(name = c("focal", "treatATT"), 
@@ -3863,7 +3863,7 @@ x2base.default <- function(obj, ...) {
     
     P <- make_list(names(Q))
     names(obj) <- tolower(names(obj))
-    
+
     for (i in names(Q)) {
         if (i %nin% names(A)) {
             for (j in Q[[i]][["name"]]) {
@@ -3883,7 +3883,7 @@ x2base.default <- function(obj, ...) {
             }
         }
     }
-    
+ 
     msm <- FALSE
     
     #treat OK
@@ -3965,11 +3965,11 @@ x2base.default <- function(obj, ...) {
     if (is_not_null(A[["estimand"]])) {
         estimand.name <- attr(A[["estimand"]], "name")
         if (is_not_null(estimand.name) && toupper(estimand.name) == "ATT") {
-            if (A[["estimand"]] == 0) A[["estimand"]] <- "ATE"
+            if (as.numeric(A[["estimand"]]) == 0) A[["estimand"]] <- "ATE"
             else A[["estimand"]] <- "ATT"
         }
         else if (is_not_null(estimand.name) && toupper(estimand.name) == "ATE") {
-            if (A[["estimand"]] == 0) A[["estimand"]] <- "ATT"
+            if (as.numeric(A[["estimand"]]) == 0) A[["estimand"]] <- "ATT"
             else A[["estimand"]] <- "ATE"
         }
         else {
