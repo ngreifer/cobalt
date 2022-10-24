@@ -19,7 +19,7 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Appendix 3: Using cobalt with Longitudinal Treatments">
 <meta property="og:description" content="cobalt">
-<meta property="og:image" content="/logo.png">
+<meta property="og:image" content="https://ngreifer.github.io/cobalt/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.4.0.9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.4.0.9002</span>
       </span>
     </div>
 
@@ -94,13 +94,13 @@
 
       
 
-      </header><script src="cobalt_A3_longitudinal_treat_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Appendix 3: Using cobalt with Longitudinal Treatments</h1>
                         <h4 data-toc-skip class="author">Noah Greifer</h4>
             
-            <h4 data-toc-skip class="date">2022-10-05</h4>
+            <h4 data-toc-skip class="date">2022-10-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt_A3_longitudinal_treat.Rmd" class="external-link"><code>vignettes/cobalt_A3_longitudinal_treat.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt_A3_longitudinal_treat.Rmd</code></div>
@@ -117,7 +117,7 @@
 </h2>
 <p>We’re going to use the <code>iptwExWide</code> data set in the <code>twang</code> package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/" class="external-link">"cobalt"</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"iptwExWide"</span>, package <span class="op">=</span> <span class="st">"twang"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">iptwExWide</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##      outcome gender age        use0         use1       use2 tx1 tx2 tx3</span></span>
@@ -352,20 +352,20 @@
 <p>Note that <code>CBPS</code> estimates and assesses balance on MSM weights differently from <code>twang</code> and <code>cobalt</code>. Its focus is on ensuring balance across all treatment history permutations, whereas <code>cobalt</code> focuses on evaluating the similarity to sequential randomization. For this reason, it may appear that <code>CBMSM</code> objects have different balance qualities as measured by the two packages.</p>
 </div>
 <div class="section level2 unnumbered">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-coleConstructingInverseProbability2008">
-<p>Cole, Stephen R., and Miguel A Hernán. 2008. “Constructing Inverse Probability Weights for Marginal Structural Models.” <em>American Journal of Epidemiology</em> 168 (6): 656–64. <a href="https://doi.org/10.1093/aje/kwn164" class="external-link">https://doi.org/10.1093/aje/kwn164</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-coleConstructingInverseProbability2008" class="csl-entry">
+Cole, Stephen R., and Miguel A Hernán. 2008. <span>“Constructing <span>Inverse Probability Weights</span> for <span>Marginal Structural Models</span>.”</span> <em>American Journal of Epidemiology</em> 168 (6): 656–64. <a href="https://doi.org/10.1093/aje/kwn164" class="external-link">https://doi.org/10.1093/aje/kwn164</a>.
 </div>
-<div id="ref-robinsMarginalStructuralModels2000">
-<p>Robins, James M., Miguel Ángel Hernán, and Babette Brumback. 2000. “Marginal Structural Models and Causal Inference in Epidemiology.” <em>Epidemiology</em> 11 (5): 550–60. <a href="https://doi.org/10.2307/3703997" class="external-link">https://doi.org/10.2307/3703997</a>.</p>
+<div id="ref-robinsMarginalStructuralModels2000" class="csl-entry">
+Robins, James M., Miguel Ángel Hernán, and Babette Brumback. 2000. <span>“Marginal Structural Models and Causal Inference in Epidemiology.”</span> <em>Epidemiology</em> 11 (5): 550–60. <a href="https://doi.org/10.2307/3703997" class="external-link">https://doi.org/10.2307/3703997</a>.
 </div>
-<div id="ref-thoemmesPrimerInverseProbability2016">
-<p>Thoemmes, Felix J., and Anthony D. Ong. 2016. “A Primer on Inverse Probability of Treatment Weighting and Marginal Structural Models.” <em>Emerging Adulthood</em> 4 (1): 40–59. <a href="https://doi.org/10.1177/2167696815621645" class="external-link">https://doi.org/10.1177/2167696815621645</a>.</p>
+<div id="ref-thoemmesPrimerInverseProbability2016" class="csl-entry">
+Thoemmes, Felix J., and Anthony D. Ong. 2016. <span>“A Primer on Inverse Probability of Treatment Weighting and Marginal Structural Models.”</span> <em>Emerging Adulthood</em> 4 (1): 40–59. <a href="https://doi.org/10.1177/2167696815621645" class="external-link">https://doi.org/10.1177/2167696815621645</a>.
 </div>
-<div id="ref-vanderweeleCausalInferenceLongitudinal2016">
-<p>VanderWeele, Tyler J., John W. Jackson, and Shanshan Li. 2016. “Causal Inference and Longitudinal Data: A Case Study of Religion and Mental Health.” <em>Social Psychiatry and Psychiatric Epidemiology</em> 51 (11): 1457–66. <a href="https://doi.org/10.1007/s00127-016-1281-9" class="external-link">https://doi.org/10.1007/s00127-016-1281-9</a>.</p>
+<div id="ref-vanderweeleCausalInferenceLongitudinal2016" class="csl-entry">
+VanderWeele, Tyler J., John W. Jackson, and Shanshan Li. 2016. <span>“Causal Inference and Longitudinal Data: A Case Study of Religion and Mental Health.”</span> <em>Social Psychiatry and Psychiatric Epidemiology</em> 51 (11): 1457–66. <a href="https://doi.org/10.1007/s00127-016-1281-9" class="external-link">https://doi.org/10.1007/s00127-016-1281-9</a>.
 </div>
 </div>
 </div>

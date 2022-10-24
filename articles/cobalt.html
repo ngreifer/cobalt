@@ -19,7 +19,7 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Covariate Balance Tables and Plots: A Guide to the cobalt Package">
 <meta property="og:description" content="cobalt">
-<meta property="og:image" content="/logo.png">
+<meta property="og:image" content="https://ngreifer.github.io/cobalt/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">cobalt</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.4.0.9001</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">4.4.0.9002</span>
       </span>
     </div>
 
@@ -94,13 +94,13 @@
 
       
 
-      </header><script src="cobalt_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Covariate Balance Tables and Plots: A Guide to the cobalt Package</h1>
                         <h4 data-toc-skip class="author">Noah Greifer</h4>
             
-            <h4 data-toc-skip class="date">2022-10-05</h4>
+            <h4 data-toc-skip class="date">2022-10-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="hidden name"><code>cobalt.Rmd</code></div>
@@ -131,7 +131,7 @@
 <h4 id="citing-cobalt">Citing <code>cobalt</code><a class="anchor" aria-label="anchor" href="#citing-cobalt"></a>
 </h4>
 <p>When using <code>cobalt</code>, please cite your use of it along with the conditioning package used. The full APA reference for <code>cobalt</code> is the following:</p>
-<p>Greifer, N. (2022). cobalt: Covariate Balance Tables and Plots. R package version 4.4.0.9001.</p>
+<p>Greifer, N. (2022). cobalt: Covariate Balance Tables and Plots. R package version 4.4.0.9002.</p>
 <p>For example, if you use <code>Matching</code> for propensity score estimation and matching and <code>cobalt</code> for balance assessment and/or reporting, a possible citation might go as follows:</p>
 <blockquote>
 <p>Matching was performed using the Matching package (Sekhon, 2011), and covariate balance was assessed using cobalt (Greifer, 2022), both in R (R Core Team, 2022).</p>
@@ -180,7 +180,7 @@
 <p>There are three main functions for use in <code>cobalt</code>: <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>. There are also several utility functions which can be used to ease the use of <code>cobalt</code> and other packages. The next sections describe how to use each, complete with example code and output. To start, install and load <code>cobalt</code> with the following code:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"cobalt"</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/" class="external-link">"cobalt"</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="utilities">Utilities<a class="anchor" aria-label="anchor" href="#utilities"></a>
 </h3>
@@ -617,7 +617,7 @@
 <h3 id="love-plot">
 <code>love.plot()</code><a class="anchor" aria-label="anchor" href="#love-plot"></a>
 </h3>
-<p>The Love plot is a summary plot of covariate balance before and after conditioning popularized by Dr. Thomas E. Love. In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning <span class="citation">(which is not always the case; cf. King and Nielsen 2019)</span>. <code><a href="../reference/love.plot.html">love.plot()</a></code> does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:</p>
+<p>The Love plot is a summary plot of covariate balance before and after conditioning popularized by Dr. Thomas E. Love. In a visually appealing and clear way, balance can be presented to demonstrate to readers that balance has been met within a threshold, and that balance has improved after conditioning <span class="citation">(which is not always the case; cf. King and Nielsen 2019)</span>. <code><a href="../reference/love.plot.html">love.plot()</a></code> does just this, providing the user with several options to customize their plot for presentation. Below is an example of its use:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -966,7 +966,7 @@
 <h3 id="test-statistics-and-p-values">Test Statistics and P-values<a class="anchor" aria-label="anchor" href="#test-statistics-and-p-values"></a>
 </h3>
 <p>Some of the early literature on propensity score matching included measures for balance assessment that relied on hypothesis tests for the independence of treatment assignment and covariates after adjustment <span class="citation">(e.g., Hansen 2004; Rosenbaum and Rubin 1985)</span>. In a review of propensity score applications in the social sciences, <span class="citation">Thoemmes and Kim (2011)</span> found that over 66% of studies used significance tests to assess balance. Likewise, <span class="citation">Austin (2008a)</span> found that over 70% of studies using propensity scores in the medical literature used significance tests to assess balance, a finding replicated by <span class="citation">Ali et al. (2015)</span>. These hypothesis tests can come in many forms: t-tests for the difference in means between groups, chi-square tests for the difference in proportion between groups, Kolmogorov-Smirnov tests for the difference in cumulative density between groups, or F-tests for the difference in means between groups across subclasses.</p>
-<p>The use of hypothesis tests appears natural here: if balance is achieved, we would not expect extreme values for the test statistics, and we can quantify the probability of observing imbalance as extreme as the one observed if no imbalance is present as a way to assess whether there is balance, as we can do with standard hypothesis testing. But this view is not shared by the methodological community: many contemporary propensity score methodologists recommend against using hypothesis tests for balance assessment <span class="citation">(e.g., Ho et al. 2007; Imai, King, and Stuart 2008; Austin 2011; Austin 2009; Stuart 2010; Thoemmes and Kim 2011; Ali et al. 2015)</span>. There are logical reasons for this preference against hypothesis tests, noted clearly in <span class="citation">Ali et al. (2015)</span> and <span class="citation">Linden (2014)</span>: they are influenced by sample size, which fluctuates during adjustment, and the theory behind them is inappropriate because balance is a quality solely of the sample in question, not in relation to a population. The relevant information in a hypothesis test for group differences is the standardized magnitude of the group difference, and so such a measure is preferred.</p>
+<p>The use of hypothesis tests appears natural here: if balance is achieved, we would not expect extreme values for the test statistics, and we can quantify the probability of observing imbalance as extreme as the one observed if no imbalance is present as a way to assess whether there is balance, as we can do with standard hypothesis testing. But this view is not shared by the methodological community: many contemporary propensity score methodologists recommend against using hypothesis tests for balance assessment <span class="citation">(e.g., Ho et al. 2007; Imai, King, and Stuart 2008; Austin 2011, 2009; Stuart 2010; Thoemmes and Kim 2011; Ali et al. 2015)</span>. There are logical reasons for this preference against hypothesis tests, noted clearly in <span class="citation">Ali et al. (2015)</span> and <span class="citation">Linden (2014)</span>: they are influenced by sample size, which fluctuates during adjustment, and the theory behind them is inappropriate because balance is a quality solely of the sample in question, not in relation to a population. The relevant information in a hypothesis test for group differences is the standardized magnitude of the group difference, and so such a measure is preferred.</p>
 <p>Because hypothesis tests can be misleading and their use is discouraged by leading methodologists, they have been completely excluded in <code>cobalt</code> in favor of summary statistics. This stands in contrast to <code>twang</code>, <code>Matching</code>, and <code>RItools</code>, all of which report hypothesis test p-values in their balance output.</p>
 </div>
 <div class="section level3">
@@ -1032,134 +1032,134 @@
 <p>I thank Kirsten Kainz and Elizabeth Stuart for their support and advice on <code>cobalt</code>’s creation. I thank Zachary Fisher and Brian Barkley for their advice on developing an R package.</p>
 </div>
 <div class="section level2 unnumbered">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-aliReportingCovariateSelection2015">
-<p>Ali, M. Sanni, Rolf H. H. Groenwold, Svetlana V. Belitser, Wiebe R. Pestman, Arno W. Hoes, Kit C. B. Roes, Anthonius de Boer, and Olaf H. Klungel. 2015. “Reporting of Covariate Selection and Balance Assessment in Propensity Score Analysis Is Suboptimal: A Systematic Review.” <em>Journal of Clinical Epidemiology</em> 68 (2): 122–31. <a href="https://doi.org/10.1016/j.jclinepi.2014.08.011" class="external-link">https://doi.org/10.1016/j.jclinepi.2014.08.011</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-aliReportingCovariateSelection2015" class="csl-entry">
+Ali, M. Sanni, Rolf H. H. Groenwold, Svetlana V. Belitser, Wiebe R. Pestman, Arno W. Hoes, Kit C. B. Roes, Anthonius de Boer, and Olaf H. Klungel. 2015. <span>“Reporting of Covariate Selection and Balance Assessment in Propensity Score Analysis Is Suboptimal: A Systematic Review.”</span> <em>Journal of Clinical Epidemiology</em> 68 (2): 122–31. <a href="https://doi.org/10.1016/j.jclinepi.2014.08.011" class="external-link">https://doi.org/10.1016/j.jclinepi.2014.08.011</a>.
 </div>
-<div id="ref-aliPropensityScoreBalance2014">
-<p>Ali, M. Sanni, Rolf H. H. Groenwold, Wiebe R. Pestman, Svetlana V. Belitser, Kit C. B. Roes, Arno W. Hoes, Anthonius de Boer, and Olaf H. Klungel. 2014. “Propensity Score Balance Measures in Pharmacoepidemiology: A Simulation Study.” <em>Pharmacoepidemiology and Drug Safety</em> 23 (8): 802–11. <a href="https://doi.org/10.1002/pds.3574" class="external-link">https://doi.org/10.1002/pds.3574</a>.</p>
+<div id="ref-aliPropensityScoreBalance2014" class="csl-entry">
+Ali, M. Sanni, Rolf H. H. Groenwold, Wiebe R. Pestman, Svetlana V. Belitser, Kit C. B. Roes, Arno W. Hoes, Anthonius de Boer, and Olaf H. Klungel. 2014. <span>“Propensity Score Balance Measures in Pharmacoepidemiology: A Simulation Study.”</span> <em>Pharmacoepidemiology and Drug Safety</em> 23 (8): 802–11. <a href="https://doi.org/10.1002/pds.3574" class="external-link">https://doi.org/10.1002/pds.3574</a>.
 </div>
-<div id="ref-austinCriticalAppraisalPropensityscore2008">
-<p>Austin, Peter C. 2008a. “A Critical Appraisal of Propensity-Score Matching in the Medical Literature Between 1996 and 2003.” <em>Statistics in Medicine</em> 27 (12): 2037–49. <a href="https://doi.org/10.1002/sim.3150" class="external-link">https://doi.org/10.1002/sim.3150</a>.</p>
+<div id="ref-austinCriticalAppraisalPropensityscore2008" class="csl-entry">
+Austin, Peter C. 2008a. <span>“A Critical Appraisal of Propensity-Score Matching in the Medical Literature Between 1996 and 2003.”</span> <em>Statistics in Medicine</em> 27 (12): 2037–49. <a href="https://doi.org/10.1002/sim.3150" class="external-link">https://doi.org/10.1002/sim.3150</a>.
 </div>
-<div id="ref-austinAssessingBalanceMeasured2008">
-<p>———. 2008b. “Assessing Balance in Measured Baseline Covariates When Using Many-to-One Matching on the Propensity-Score.” <em>Pharmacoepidemiology and Drug Safety</em> 17 (12): 1218–25. <a href="https://doi.org/10.1002/pds.1674" class="external-link">https://doi.org/10.1002/pds.1674</a>.</p>
+<div id="ref-austinAssessingBalanceMeasured2008" class="csl-entry">
+———. 2008b. <span>“Assessing Balance in Measured Baseline Covariates When Using Many-to-One Matching on the Propensity-Score.”</span> <em>Pharmacoepidemiology and Drug Safety</em> 17 (12): 1218–25. <a href="https://doi.org/10.1002/pds.1674" class="external-link">https://doi.org/10.1002/pds.1674</a>.
 </div>
-<div id="ref-austinIntroductionPropensityScore2011">
-<p>———. 2011. “An Introduction to Propensity Score Methods for Reducing the Effects of Confounding in Observational Studies.” <em>Multivariate Behavioral Research</em> 46 (3): 399–424. <a href="https://doi.org/10.1080/00273171.2011.568786" class="external-link">https://doi.org/10.1080/00273171.2011.568786</a>.</p>
+<div id="ref-austin2009" class="csl-entry">
+———. 2009. <span>“Balance Diagnostics for Comparing the Distribution of Baseline Covariates Between Treatment Groups in Propensity-Score Matched Samples.”</span> <em>Statistics in Medicine</em> 28 (25): 3083–3107. <a href="https://doi.org/10.1002/sim.3697" class="external-link">https://doi.org/10.1002/sim.3697</a>.
 </div>
-<div id="ref-austinAssessingCovariateBalance2019">
-<p>———. 2019. “Assessing Covariate Balance When Using the Generalized Propensity Score with Quantitative or Continuous Exposures.” <em>Statistical Methods in Medical Research</em> 28 (5): 1365–77. <a href="https://doi.org/10.1177/0962280218756159" class="external-link">https://doi.org/10.1177/0962280218756159</a>.</p>
+<div id="ref-austinIntroductionPropensityScore2011" class="csl-entry">
+———. 2011. <span>“An Introduction to Propensity Score Methods for Reducing the Effects of Confounding in Observational Studies.”</span> <em>Multivariate Behavioral Research</em> 46 (3): 399–424. <a href="https://doi.org/10.1080/00273171.2011.568786" class="external-link">https://doi.org/10.1080/00273171.2011.568786</a>.
 </div>
-<div id="ref-austin2009">
-<p>Austin, Peter C. 2009. “Balance Diagnostics for Comparing the Distribution of Baseline Covariates Between Treatment Groups in Propensity-Score Matched Samples.” <em>Statistics in Medicine</em> 28 (25): 3083–3107. <a href="https://doi.org/10.1002/sim.3697" class="external-link">https://doi.org/10.1002/sim.3697</a>.</p>
+<div id="ref-austinAssessingCovariateBalance2019" class="csl-entry">
+———. 2019. <span>“Assessing Covariate Balance When Using the Generalized Propensity Score with Quantitative or Continuous Exposures.”</span> <em>Statistical Methods in Medical Research</em> 28 (5): 1365–77. <a href="https://doi.org/10.1177/0962280218756159" class="external-link">https://doi.org/10.1177/0962280218756159</a>.
 </div>
-<div id="ref-austinMovingBestPractice2015">
-<p>Austin, Peter C., and Elizabeth A. Stuart. 2015. “Moving Towards Best Practice When Using Inverse Probability of Treatment Weighting (IPTW) Using the Propensity Score to Estimate Causal Treatment Effects in Observational Studies.” <em>Statistics in Medicine</em> 34 (28): 3661–79. <a href="https://doi.org/10.1002/sim.6607" class="external-link">https://doi.org/10.1002/sim.6607</a>.</p>
+<div id="ref-austinMovingBestPractice2015" class="csl-entry">
+Austin, Peter C., and Elizabeth A. Stuart. 2015. <span>“Moving Towards Best Practice When Using Inverse Probability of Treatment Weighting (<span>IPTW</span>) Using the Propensity Score to Estimate Causal Treatment Effects in Observational Studies.”</span> <em>Statistics in Medicine</em> 34 (28): 3661–79. <a href="https://doi.org/10.1002/sim.6607" class="external-link">https://doi.org/10.1002/sim.6607</a>.
 </div>
-<div id="ref-belitserMeasuringBalanceModel2011">
-<p>Belitser, Svetlana V., Edwin P. Martens, Wiebe R. Pestman, Rolf H. H. Groenwold, Anthonius de Boer, and Olaf H. Klungel. 2011. “Measuring Balance and Model Selection in Propensity Score Methods.” <em>Pharmacoepidemiology and Drug Safety</em> 20 (11): 1115–29. <a href="https://doi.org/10.1002/pds.2188" class="external-link">https://doi.org/10.1002/pds.2188</a>.</p>
+<div id="ref-belitserMeasuringBalanceModel2011" class="csl-entry">
+Belitser, Svetlana V., Edwin P. Martens, Wiebe R. Pestman, Rolf H. H. Groenwold, Anthonius de Boer, and Olaf H. Klungel. 2011. <span>“Measuring Balance and Model Selection in Propensity Score Methods.”</span> <em>Pharmacoepidemiology and Drug Safety</em> 20 (11): 1115–29. <a href="https://doi.org/10.1002/pds.2188" class="external-link">https://doi.org/10.1002/pds.2188</a>.
 </div>
-<div id="ref-biaStataPackageEstimation2008">
-<p>Bia, Michela, and Alessandra Mattei. 2008. “A Stata Package for the Estimation of the Dose-Response Function Through Adjustment for the Generalized Propensity Score.” <em>The Stata Journal: Promoting Communications on Statistics and Stata</em> 8 (3): 354–73. <a href="https://doi.org/10.1177/1536867X0800800303" class="external-link">https://doi.org/10.1177/1536867X0800800303</a>.</p>
+<div id="ref-biaStataPackageEstimation2008" class="csl-entry">
+Bia, Michela, and Alessandra Mattei. 2008. <span>“A <span>Stata Package</span> for the <span>Estimation</span> of the <span>Dose</span>-Response <span>Function</span> Through <span>Adjustment</span> for the <span>Generalized Propensity Score</span>.”</span> <em>The Stata Journal: Promoting Communications on Statistics and Stata</em> 8 (3): 354–73. <a href="https://doi.org/10.1177/1536867X0800800303" class="external-link">https://doi.org/10.1177/1536867X0800800303</a>.
 </div>
-<div id="ref-fongCovariateBalancingPropensity2018">
-<p>Fong, Christian, Chad Hazlett, and Kosuke Imai. 2018. “Covariate Balancing Propensity Score for a Continuous Treatment: Application to the Efficacy of Political Advertisements.” <em>The Annals of Applied Statistics</em> 12 (1): 156–77. <a href="https://doi.org/10.1214/17-AOAS1101" class="external-link">https://doi.org/10.1214/17-AOAS1101</a>.</p>
+<div id="ref-fongCovariateBalancingPropensity2018" class="csl-entry">
+Fong, Christian, Chad Hazlett, and Kosuke Imai. 2018. <span>“Covariate Balancing Propensity Score for a Continuous Treatment: Application to the Efficacy of Political Advertisements.”</span> <em>The Annals of Applied Statistics</em> 12 (1): 156–77. <a href="https://doi.org/10.1214/17-AOAS1101" class="external-link">https://doi.org/10.1214/17-AOAS1101</a>.
 </div>
-<div id="ref-fongCBPSCovariateBalancing2019">
-<p>Fong, Christian, Marc Ratkovic, Chad Hazlett, Xiaolin Yang, and Kosuke Imai. 2019. <em>CBPS: Covariate Balancing Propensity Score</em>.</p>
+<div id="ref-fongCBPSCovariateBalancing2019" class="csl-entry">
+Fong, Christian, Marc Ratkovic, Chad Hazlett, Xiaolin Yang, and Kosuke Imai. 2019. <em><span>CBPS</span>: Covariate <span>Balancing Propensity Score</span></em>.
 </div>
-<div id="ref-franklinMetricsCovariateBalance2014">
-<p>Franklin, Jessica M., Jeremy A. Rassen, Diana Ackermann, Dorothee B. Bartels, and Sebastian Schneeweiss. 2014. “Metrics for Covariate Balance in Cohort Studies of Causal Effects.” <em>Statistics in Medicine</em> 33 (10): 1685–99. <a href="https://doi.org/10.1002/sim.6058" class="external-link">https://doi.org/10.1002/sim.6058</a>.</p>
+<div id="ref-franklinMetricsCovariateBalance2014" class="csl-entry">
+Franklin, Jessica M., Jeremy A. Rassen, Diana Ackermann, Dorothee B. Bartels, and Sebastian Schneeweiss. 2014. <span>“Metrics for Covariate Balance in Cohort Studies of Causal Effects.”</span> <em>Statistics in Medicine</em> 33 (10): 1685–99. <a href="https://doi.org/10.1002/sim.6058" class="external-link">https://doi.org/10.1002/sim.6058</a>.
 </div>
-<div id="ref-greiferWeightItWeightingCovariate2021">
-<p>Greifer, Noah. 2021. “WeightIt: Weighting for Covariate Balance in Observational Studies.”</p>
+<div id="ref-greiferWeightItWeightingCovariate2021" class="csl-entry">
+Greifer, Noah. 2021. <span>“<span>WeightIt</span>: Weighting for Covariate Balance in Observational Studies.”</span>
 </div>
-<div id="ref-hainmuellerEbalEntropyReweighting2014">
-<p>Hainmueller, Jens. 2014. <em>Ebal: Entropy Reweighting to Create Balanced Samples</em>. <a href="https://CRAN.R-project.org/package=ebal" class="external-link">https://CRAN.R-project.org/package=ebal</a>.</p>
+<div id="ref-hainmuellerEbalEntropyReweighting2014" class="csl-entry">
+Hainmueller, Jens. 2014. <span>“Ebal: Entropy Reweighting to Create Balanced Samples.”</span>
 </div>
-<div id="ref-hansenFullMatchingObservational2004">
-<p>Hansen, Ben B. 2004. “Full Matching in an Observational Study of Coaching for the SAT.” <em>Journal of the American Statistical Association</em> 99 (467): 609–18. <a href="https://doi.org/10.1198/016214504000000647" class="external-link">https://doi.org/10.1198/016214504000000647</a>.</p>
+<div id="ref-hansenFullMatchingObservational2004" class="csl-entry">
+Hansen, Ben B. 2004. <span>“Full <span>Matching</span> in an <span>Observational Study</span> of <span>Coaching</span> for the <span>SAT</span>.”</span> <em>Journal of the American Statistical Association</em> 99 (467): 609–18. <a href="https://doi.org/10.1198/016214504000000647" class="external-link">https://doi.org/10.1198/016214504000000647</a>.
 </div>
-<div id="ref-hansenPrognosticAnaloguePropensity2008">
-<p>———. 2008. “The Prognostic Analogue of the Propensity Score.” <em>Biometrika</em> 95 (2): 481–88. <a href="https://doi.org/10.1093/biomet/asn004" class="external-link">https://doi.org/10.1093/biomet/asn004</a>.</p>
+<div id="ref-hansenPrognosticAnaloguePropensity2008" class="csl-entry">
+———. 2008. <span>“The Prognostic Analogue of the Propensity Score.”</span> <em>Biometrika</em> 95 (2): 481–88. <a href="https://doi.org/10.1093/biomet/asn004" class="external-link">https://doi.org/10.1093/biomet/asn004</a>.
 </div>
-<div id="ref-hansenOptimalFullMatching2006">
-<p>Hansen, Ben B, and Stephanie Olsen Klopfer. 2006. “Optimal Full Matching and Related Designs via Network Flows.” <em>Journal of Computational and Graphical Statistics</em> 15 (3): 609–27. <a href="https://doi.org/10.1198/106186006X137047" class="external-link">https://doi.org/10.1198/106186006X137047</a>.</p>
+<div id="ref-hansenOptimalFullMatching2006" class="csl-entry">
+Hansen, Ben B, and Stephanie Olsen Klopfer. 2006. <span>“Optimal <span>Full Matching</span> and <span>Related Designs</span> via <span>Network Flows</span>.”</span> <em>Journal of Computational and Graphical Statistics</em> 15 (3): 609–27. <a href="https://doi.org/10.1198/106186006X137047" class="external-link">https://doi.org/10.1198/106186006X137047</a>.
 </div>
-<div id="ref-hiranoPropensityScoreContinuous2005">
-<p>Hirano, Keisuke, and Guido W. Imbens. 2005. “The Propensity Score with Continuous Treatments.” In <em>Wiley Series in Probability and Statistics</em>, edited by Andrew Gelman and Xiao-Li Meng, 73–84. Chichester, UK: John Wiley &amp; Sons, Ltd. <a href="https://doi.org/10.1002/0470090456.ch7" class="external-link">https://doi.org/10.1002/0470090456.ch7</a>.</p>
+<div id="ref-hiranoPropensityScoreContinuous2005" class="csl-entry">
+Hirano, Keisuke, and Guido W. Imbens. 2005. <span>“The <span>Propensity Score</span> with <span>Continuous Treatments</span>.”</span> In <em>Wiley <span>Series</span> in <span>Probability</span> and <span>Statistics</span></em>, edited by Andrew Gelman and Xiao-Li Meng, 73–84. <span>Chichester, UK</span>: <span>John Wiley &amp; Sons, Ltd</span>. <a href="https://doi.org/10.1002/0470090456.ch7" class="external-link">https://doi.org/10.1002/0470090456.ch7</a>.
 </div>
-<div id="ref-JSSv042i08">
-<p>Ho, Daniel E., Kosuke Imai, Gary King, and Elizabeth A. Stuart. 2011. “MatchIt: Nonparametric Preprocessing for Parametric Causal Inference.” <em>Journal of Statistical Software, Articles</em> 42 (8): 1–28. <a href="https://doi.org/10.18637/jss.v042.i08" class="external-link">https://doi.org/10.18637/jss.v042.i08</a>.</p>
+<div id="ref-hoMatchingNonparametricPreprocessing2007" class="csl-entry">
+Ho, Daniel E., Kosuke Imai, Gary King, and Elizabeth A. Stuart. 2007. <span>“Matching as <span>Nonparametric Preprocessing</span> for <span>Reducing Model Dependence</span> in <span>Parametric Causal Inference</span>.”</span> <em>Political Analysis</em> 15 (3): 199–236. <a href="https://doi.org/10.1093/pan/mpl013" class="external-link">https://doi.org/10.1093/pan/mpl013</a>.
 </div>
-<div id="ref-hoMatchingNonparametricPreprocessing2007">
-<p>———. 2007. “Matching as Nonparametric Preprocessing for Reducing Model Dependence in Parametric Causal Inference.” <em>Political Analysis</em> 15 (3): 199–236. <a href="https://doi.org/10.1093/pan/mpl013" class="external-link">https://doi.org/10.1093/pan/mpl013</a>.</p>
+<div id="ref-JSSv042i08" class="csl-entry">
+———. 2011. <span>“<span>MatchIt</span>: Nonparametric Preprocessing for Parametric Causal Inference.”</span> <em>Journal of Statistical Software, Articles</em> 42 (8): 1–28. <a href="https://doi.org/10.18637/jss.v042.i08" class="external-link">https://doi.org/10.18637/jss.v042.i08</a>.
 </div>
-<div id="ref-iacusCemSoftwareCoarsened2009">
-<p>Iacus, Stefano, Gary King, and Giuseppe Porro. 2009. “Cem: Software for Coarsened Exact Matching.” <em>Journal of Statistical Software</em> 30 (1): 1–27. <a href="https://doi.org/10.18637/jss.v030.i09" class="external-link">https://doi.org/10.18637/jss.v030.i09</a>.</p>
+<div id="ref-iacusCemSoftwareCoarsened2009" class="csl-entry">
+Iacus, Stefano, Gary King, and Giuseppe Porro. 2009. <span>“Cem: Software for <span>Coarsened Exact Matching</span>.”</span> <em>Journal of Statistical Software</em> 30 (1): 1–27. <a href="https://doi.org/10.18637/jss.v030.i09" class="external-link">https://doi.org/10.18637/jss.v030.i09</a>.
 </div>
-<div id="ref-imaiMisunderstandingsExperimentalistsObservationalists2008">
-<p>Imai, Kosuke, Gary King, and Elizabeth A. Stuart. 2008. “Misunderstandings Between Experimentalists and Observationalists About Causal Inference.” <em>Journal of the Royal Statistical Society. Series A (Statistics in Society)</em> 171 (2): 481–502. <a href="https://doi.org/10.1111/j.1467-985X.2007.00527.x" class="external-link">https://doi.org/10.1111/j.1467-985X.2007.00527.x</a>.</p>
+<div id="ref-imaiMisunderstandingsExperimentalistsObservationalists2008" class="csl-entry">
+Imai, Kosuke, Gary King, and Elizabeth A. Stuart. 2008. <span>“Misunderstandings Between <span>Experimentalists</span> and <span>Observationalists</span> about <span>Causal Inference</span>.”</span> <em>Journal of the Royal Statistical Society. Series A (Statistics in Society)</em> 171 (2): 481–502. <a href="https://doi.org/10.1111/j.1467-985X.2007.00527.x" class="external-link">https://doi.org/10.1111/j.1467-985X.2007.00527.x</a>.
 </div>
-<div id="ref-kellerPropensityScoreAnalysis2016">
-<p>Keller, B., and E. Tipton. 2016. “Propensity Score Analysis in R: A Software Review.” <em>Journal of Educational and Behavioral Statistics</em> 41 (3): 326–48. <a href="https://doi.org/10.3102/1076998616631744" class="external-link">https://doi.org/10.3102/1076998616631744</a>.</p>
+<div id="ref-kellerPropensityScoreAnalysis2016" class="csl-entry">
+Keller, B., and E. Tipton. 2016. <span>“Propensity <span>Score Analysis</span> in <span>R</span>: A <span>Software Review</span>.”</span> <em>Journal of Educational and Behavioral Statistics</em> 41 (3): 326–48. <a href="https://doi.org/10.3102/1076998616631744" class="external-link">https://doi.org/10.3102/1076998616631744</a>.
 </div>
-<div id="ref-kingWhyPropensityScores2019">
-<p>King, Gary, and Richard Nielsen. 2019. “Why Propensity Scores Should Not Be Used for Matching.” <em>Political Analysis</em>, May, 1–20. <a href="https://doi.org/10.1017/pan.2019.11" class="external-link">https://doi.org/10.1017/pan.2019.11</a>.</p>
+<div id="ref-kingWhyPropensityScores2019" class="csl-entry">
+King, Gary, and Richard Nielsen. 2019. <span>“Why <span>Propensity Scores Should Not Be Used</span> for <span>Matching</span>.”</span> <em>Political Analysis</em>, May, 1–20. <a href="https://doi.org/10.1017/pan.2019.11" class="external-link">https://doi.org/10.1017/pan.2019.11</a>.
 </div>
-<div id="ref-linden2014">
-<p>Linden, Ariel. 2014. “Combining Propensity Score-Based Stratification and Weighting to Improve Causal Inference in the Evaluation of Health Care Interventions.” <em>Journal of Evaluation in Clinical Practice</em> 20 (6): 1065–71. <a href="https://doi.org/10.1111/jep.12254" class="external-link">https://doi.org/10.1111/jep.12254</a>.</p>
+<div id="ref-linden2014" class="csl-entry">
+Linden, Ariel. 2014. <span>“Combining Propensity Score-Based Stratification and Weighting to Improve Causal Inference in the Evaluation of Health Care Interventions.”</span> <em>Journal of Evaluation in Clinical Practice</em> 20 (6): 1065–71. <a href="https://doi.org/10.1111/jep.12254" class="external-link">https://doi.org/10.1111/jep.12254</a>.
 </div>
-<div id="ref-lopezEstimationCausalEffects2017">
-<p>Lopez, Michael J., and Roee Gutman. 2017. “Estimation of Causal Effects with Multiple Treatments: A Review and New Ideas.” <em>Statistical Science</em> 32 (3): 432–54. <a href="https://doi.org/10.1214/17-STS612" class="external-link">https://doi.org/10.1214/17-STS612</a>.</p>
+<div id="ref-lopezEstimationCausalEffects2017" class="csl-entry">
+Lopez, Michael J., and Roee Gutman. 2017. <span>“Estimation of <span>Causal Effects</span> with <span>Multiple Treatments</span>: A <span>Review</span> and <span>New Ideas</span>.”</span> <em>Statistical Science</em> 32 (3): 432–54. <a href="https://doi.org/10.1214/17-STS612" class="external-link">https://doi.org/10.1214/17-STS612</a>.
 </div>
-<div id="ref-pishgarMatchThemMatchingWeighting2021">
-<p>Pishgar, Farhad, Noah Greifer, Clémence Leyrat, and Elizabeth Stuart. 2021. “MatchThem:: Matching and Weighting After Multiple Imputation.” <em>The R Journal</em>.</p>
+<div id="ref-pishgarMatchThemMatchingWeighting2021" class="csl-entry">
+Pishgar, Farhad, Noah Greifer, Clémence Leyrat, and Elizabeth Stuart. 2021. <span>“<span>MatchThem</span>:: Matching and <span>Weighting</span> After <span>Multiple Imputation</span>.”</span> <em>The R Journal</em>.
 </div>
-<div id="ref-ridgewayAssessingEffectRace2006">
-<p>Ridgeway, Greg. 2006. “Assessing the Effect of Race Bias in Post-Traffic Stop Outcomes Using Propensity Scores.” <em>Journal of Quantitative Criminology</em> 22 (1): 1–29. <a href="https://doi.org/10.1007/s10940-005-9000-9" class="external-link">https://doi.org/10.1007/s10940-005-9000-9</a>.</p>
+<div id="ref-ridgewayAssessingEffectRace2006" class="csl-entry">
+Ridgeway, Greg. 2006. <span>“Assessing the Effect of Race Bias in Post-Traffic Stop Outcomes Using Propensity Scores.”</span> <em>Journal of Quantitative Criminology</em> 22 (1): 1–29. <a href="https://doi.org/10.1007/s10940-005-9000-9" class="external-link">https://doi.org/10.1007/s10940-005-9000-9</a>.
 </div>
-<div id="ref-ridgewayToolkitWeightingAnalysis2016">
-<p>Ridgeway, Greg, Daniel F. McCaffrey, Andrew Morral, Lane Burgette, and Beth Ann Griffin. 2016. “Toolkit for Weighting and Analysis of Nonequivalent Groups: A Tutorial for the Twang Package.” <em>R Vignette. RAND</em>.</p>
+<div id="ref-ridgewayToolkitWeightingAnalysis2016" class="csl-entry">
+Ridgeway, Greg, Daniel F. McCaffrey, Andrew Morral, Lane Burgette, and Beth Ann Griffin. 2016. <span>“Toolkit for <span>Weighting</span> and <span>Analysis</span> of <span>Nonequivalent Groups</span>: A Tutorial for the Twang Package.”</span> <em>R Vignette. RAND</em>.
 </div>
-<div id="ref-rosenbaumConstructingControlGroup1985">
-<p>Rosenbaum, Paul R., and Donald B. Rubin. 1985. “Constructing a Control Group Using Multivariate Matched Sampling Methods That Incorporate the Propensity Score.” <em>The American Statistician</em> 39 (1): 33–38. <a href="https://doi.org/10.2307/2683903" class="external-link">https://doi.org/10.2307/2683903</a>.</p>
+<div id="ref-rosenbaumConstructingControlGroup1985" class="csl-entry">
+Rosenbaum, Paul R., and Donald B. Rubin. 1985. <span>“Constructing a <span>Control Group Using Multivariate Matched Sampling Methods That Incorporate</span> the <span>Propensity Score</span>.”</span> <em>The American Statistician</em> 39 (1): 33–38. <a href="https://doi.org/10.2307/2683903" class="external-link">https://doi.org/10.2307/2683903</a>.
 </div>
-<div id="ref-rubinUsingPropensityScores2001">
-<p>Rubin, Donald B. 2001. “Using Propensity Scores to Help Design Observational Studies: Application to the Tobacco Litigation.” <em>Health Services and Outcomes Research Methodology</em> 2 (3-4): 169–88. <a href="https://doi.org/10.1023/A:1020363010465" class="external-link">https://doi.org/10.1023/A:1020363010465</a>.</p>
+<div id="ref-rubinUsingPropensityScores2001" class="csl-entry">
+Rubin, Donald B. 2001. <span>“Using <span>Propensity Scores</span> to <span>Help Design Observational Studies</span>: Application to the <span>Tobacco Litigation</span>.”</span> <em>Health Services and Outcomes Research Methodology</em> 2 (3-4): 169–88. <a href="https://doi.org/10.1023/A:1020363010465" class="external-link">https://doi.org/10.1023/A:1020363010465</a>.
 </div>
-<div id="ref-sekhonMultivariatePropensityScore2011">
-<p>Sekhon, Jasjeet S. 2011. “Multivariate and Propensity Score Matching Software with Automated Balance Optimization: The Matching Package for R.” <em>Journal of Statistical Software</em> 42 (1): 1–52. <a href="https://doi.org/10.18637/jss.v042.i07" class="external-link">https://doi.org/10.18637/jss.v042.i07</a>.</p>
+<div id="ref-sekhonMultivariatePropensityScore2011" class="csl-entry">
+Sekhon, Jasjeet S. 2011. <span>“Multivariate and <span>Propensity Score Matching Software</span> with <span>Automated Balance Optimization</span>: The <span>Matching</span> Package for <span>R</span>.”</span> <em>Journal of Statistical Software</em> 42 (1): 1–52. <a href="https://doi.org/10.18637/jss.v042.i07" class="external-link">https://doi.org/10.18637/jss.v042.i07</a>.
 </div>
-<div id="ref-shook-saPowerSampleSize2020b">
-<p>Shook-Sa, Bonnie E., and Michael G. Hudgens. 2020. “Power and Sample Size for Observational Studies of Point Exposure Effects.” <em>Biometrics</em>, December, biom.13405. <a href="https://doi.org/10.1111/biom.13405" class="external-link">https://doi.org/10.1111/biom.13405</a>.</p>
+<div id="ref-shook-saPowerSampleSize2020b" class="csl-entry">
+Shook-Sa, Bonnie E., and Michael G. Hudgens. 2020. <span>“Power and Sample Size for Observational Studies of Point Exposure Effects.”</span> <em>Biometrics</em>, December, biom.13405. <a href="https://doi.org/10.1111/biom.13405" class="external-link">https://doi.org/10.1111/biom.13405</a>.
 </div>
-<div id="ref-stuartDevelopingPracticalRecommendations2008">
-<p>Stuart, Elizabeth A. 2008. “Developing Practical Recommendations for the Use of Propensity Scores: Discussion of ‘A Critical Appraisal of Propensity Score Matching in the Medical Literature Between 1996 and 2003’ by Peter Austin, Statistics in Medicine.” <em>Statistics in Medicine</em> 27 (12): 2062–5. <a href="https://doi.org/10.1002/sim.3207" class="external-link">https://doi.org/10.1002/sim.3207</a>.</p>
+<div id="ref-stuartDevelopingPracticalRecommendations2008" class="csl-entry">
+Stuart, Elizabeth A. 2008. <span>“Developing Practical Recommendations for the Use of Propensity Scores: Discussion of <span>‘<span>A</span> Critical Appraisal of Propensity Score Matching in the Medical Literature Between 1996 and 2003’</span> by <span>Peter Austin</span>, <span>Statistics</span> in <span>Medicine</span>.”</span> <em>Statistics in Medicine</em> 27 (12): 2062–65. <a href="https://doi.org/10.1002/sim.3207" class="external-link">https://doi.org/10.1002/sim.3207</a>.
 </div>
-<div id="ref-stuartMatchingMethodsCausal2010">
-<p>———. 2010. “Matching Methods for Causal Inference: A Review and a Look Forward.” <em>Statistical Science</em> 25 (1): 1–21. <a href="https://doi.org/10.1214/09-STS313" class="external-link">https://doi.org/10.1214/09-STS313</a>.</p>
+<div id="ref-stuartMatchingMethodsCausal2010" class="csl-entry">
+———. 2010. <span>“Matching <span>Methods</span> for <span>Causal Inference</span>: A <span>Review</span> and a <span>Look Forward</span>.”</span> <em>Statistical Science</em> 25 (1): 1–21. <a href="https://doi.org/10.1214/09-STS313" class="external-link">https://doi.org/10.1214/09-STS313</a>.
 </div>
-<div id="ref-stuartPrognosticScorebasedBalance2013">
-<p>Stuart, Elizabeth A., Brian K. Lee, and Finbarr P. Leacy. 2013. “Prognostic Score-Based Balance Measures Can Be a Useful Diagnostic for Propensity Score Methods in Comparative Effectiveness Research.” <em>Journal of Clinical Epidemiology</em> 66 (8): S84. <a href="https://doi.org/10.1016/j.jclinepi.2013.01.013" class="external-link">https://doi.org/10.1016/j.jclinepi.2013.01.013</a>.</p>
+<div id="ref-stuartPrognosticScorebasedBalance2013" class="csl-entry">
+Stuart, Elizabeth A., Brian K. Lee, and Finbarr P. Leacy. 2013. <span>“Prognostic Score-Based Balance Measures Can Be a Useful Diagnostic for Propensity Score Methods in Comparative Effectiveness Research.”</span> <em>Journal of Clinical Epidemiology</em> 66 (8): S84. <a href="https://doi.org/10.1016/j.jclinepi.2013.01.013" class="external-link">https://doi.org/10.1016/j.jclinepi.2013.01.013</a>.
 </div>
-<div id="ref-thoemmesSystematicReviewPropensity2011">
-<p>Thoemmes, Felix J., and Eun Sook Kim. 2011. “A Systematic Review of Propensity Score Methods in the Social Sciences.” <em>Multivariate Behavioral Research</em> 46 (1): 90–118. <a href="https://doi.org/10.1080/00273171.2011.540475" class="external-link">https://doi.org/10.1080/00273171.2011.540475</a>.</p>
+<div id="ref-thoemmesSystematicReviewPropensity2011" class="csl-entry">
+Thoemmes, Felix J., and Eun Sook Kim. 2011. <span>“A Systematic Review of Propensity Score Methods in the Social Sciences.”</span> <em>Multivariate Behavioral Research</em> 46 (1): 90–118. <a href="https://doi.org/10.1080/00273171.2011.540475" class="external-link">https://doi.org/10.1080/00273171.2011.540475</a>.
 </div>
-<div id="ref-vegetabileNonparametricEstimationPopulation2020">
-<p>Vegetabile, Brian G., Beth Ann Griffin, Donna L. Coffman, Matthew Cefalu, Michael W. Robbins, and Daniel F. McCaffrey. 2021. “Nonparametric Estimation of Population Average Dose-Response Curves Using Entropy Balancing Weights for Continuous Exposures.” <em>Health Services and Outcomes Research Methodology</em> 21 (1): 69–110. <a href="https://doi.org/10.1007/s10742-020-00236-2" class="external-link">https://doi.org/10.1007/s10742-020-00236-2</a>.</p>
+<div id="ref-vegetabileNonparametricEstimationPopulation2020" class="csl-entry">
+Vegetabile, Brian G., Beth Ann Griffin, Donna L. Coffman, Matthew Cefalu, Michael W. Robbins, and Daniel F. McCaffrey. 2021. <span>“Nonparametric Estimation of Population Average Dose-Response Curves Using Entropy Balancing Weights for Continuous Exposures.”</span> <em>Health Services and Outcomes Research Methodology</em> 21 (1): 69–110. <a href="https://doi.org/10.1007/s10742-020-00236-2" class="external-link">https://doi.org/10.1007/s10742-020-00236-2</a>.
 </div>
-<div id="ref-zhuBoostingAlgorithmEstimating2015">
-<p>Zhu, Yeying, Donna L. Coffman, and Debashis Ghosh. 2015. “A Boosting Algorithm for Estimating Generalized Propensity Scores with Continuous Treatments.” <em>Journal of Causal Inference</em> 3 (1). <a href="https://doi.org/10.1515/jci-2014-0022" class="external-link">https://doi.org/10.1515/jci-2014-0022</a>.</p>
+<div id="ref-zhuBoostingAlgorithmEstimating2015" class="csl-entry">
+Zhu, Yeying, Donna L. Coffman, and Debashis Ghosh. 2015. <span>“A <span>Boosting Algorithm</span> for <span>Estimating Generalized Propensity Scores</span> with <span>Continuous Treatments</span>.”</span> <em>Journal of Causal Inference</em> 3 (1). <a href="https://doi.org/10.1515/jci-2014-0022" class="external-link">https://doi.org/10.1515/jci-2014-0022</a>.
 </div>
-<div id="ref-zubizarretaDesignmatchMatchedSamples2018">
-<p>Zubizarreta, Jose R., Cinar Kilcioglu, and Juan P. Vielma. 2018. “Designmatch: Matched Samples That Are Balanced and Representative by Design.”</p>
+<div id="ref-zubizarretaDesignmatchMatchedSamples2018" class="csl-entry">
+Zubizarreta, Jose R., Cinar Kilcioglu, and Juan P. Vielma. 2018. <span>“Designmatch: Matched Samples That Are Balanced and Representative by Design.”</span>
 </div>
-<div id="ref-zubizarretaSbwStableBalancing2021">
-<p>Zubizarreta, Jose R., Yige Li, and Kwangho Kim. 2021. <em>Sbw: Stable Balancing Weights for Causal Inference and Missing Data</em>. Manual.</p>
+<div id="ref-zubizarretaSbwStableBalancing2021" class="csl-entry">
+Zubizarreta, Jose R., Yige Li, and Kwangho Kim. 2021. <em>Sbw: Stable Balancing Weights for Causal Inference and Missing Data</em>. Manual.
 </div>
 </div>
 </div>

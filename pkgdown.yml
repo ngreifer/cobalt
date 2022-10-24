@@ -1,4 +1,4 @@
-pandoc: 2.7.3
+pandoc: 2.14.2
 pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
@@ -7,5 +7,8 @@ articles:
   cobalt_A2_segmented_data: cobalt_A2_segmented_data.html
   cobalt_A3_longitudinal_treat: cobalt_A3_longitudinal_treat.html
   cobalt_A4_love.plot: cobalt_A4_love.plot.html
-last_built: 2022-10-05T04:32Z
+last_built: 2022-10-24T21:09Z
+urls:
+  reference: https://ngreifer.github.io/cobalt/reference
+  article: https://ngreifer.github.io/cobalt/articles
 
