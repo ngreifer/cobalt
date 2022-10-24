@@ -1,22 +1,21 @@
+url: https://ngreifer.github.io/cobalt/
 reference:
 - title: Primary Balance Assessment Functions
-- contents: 
+- contents:
   - bal.tab
   - bal.plot
   - love.plot
 - title: bal.tab() Methods
-- contents:
-  - starts_with("bal.tab.")
+- contents: starts_with("bal.tab.")
 - title: bal.tab() Classes
-- contents:
-  - starts_with("class-bal.tab")
+- contents: starts_with("class-bal.tab")
 - title: Balance and Display Options
 - contents:
-  - "`Balance Statistics`"
-  - "`Display Options`"
+  - '`Balance Statistics`'
+  - '`Display Options`'
 - title: Helper Functions
 - contents:
-  - "`Balance Summary`"
+  - '`Balance Summary`'
   - f.build
   - get.w
   - print.bal.tab
@@ -24,5 +23,5 @@ reference:
   - splitfactor
   - var.names
 - title: Data
-- contents:
-  - lalonde
+- contents: lalonde
+

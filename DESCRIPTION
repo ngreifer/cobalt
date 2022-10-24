@@ -45,6 +45,7 @@ License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
-URL: https://ngreifer.github.io/cobalt/, https://github.com/ngreifer/cobalt
+URL: https://ngreifer.github.io/cobalt/,
+    https://github.com/ngreifer/cobalt
 BugReports: https://github.com/ngreifer/cobalt/issues
 Config/testthat/edition: 3
