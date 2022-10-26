@@ -152,11 +152,15 @@ text_box_plot <- function(range.list, width = 12) {
         #|
         spaces2 <- max(c(0, diff(rescaled.full.range) - (spaces1 + 1 + dashes + 1)))
         
-        d[i, 2] <- paste0(paste(rep(" ", spaces1), collapse = ""), "|", paste(rep("-", dashes), collapse = ""), "|", paste(rep(" ", spaces2), collapse = ""))
+        d[i, 2] <- paste0(paste(rep(" ", spaces1), collapse = ""),
+                          "|",
+                          paste(rep("-", dashes), collapse = ""),
+                          "|",
+                          paste(rep(" ", spaces2), collapse = ""))
     }
     return(d)
 }
-equivalent.factors <- function(f1, f2) {
+.equivalent.factors <- function(f1, f2) {
     if (is_(f1, c("character", "factor")) && is_(f1, c("character", "factor"))) {
         nu1 <- nunique(f1)
         nu2 <- nunique(f2)
@@ -171,9 +175,35 @@ equivalent.factors <- function(f1, f2) {
         return(FALSE)
     }
 }
-equivalent.factors2 <- function(f1, f2) {
+.equivalent.factors2 <- function(f1, f2) {
     return(qr(cbind(1, as.numeric(f1), as.numeric(f2)))$rank == 2)
 }
+equivalent.factors2 <- function(f1, f2) {
+    if (is_(f1, c("character", "factor")) && is_(f1, c("character", "factor"))) {
+        f1 <- as.factor(f1)
+        f2 <- as.factor(f2)
+        ll1 <- levels(f1)
+        ll2 <- levels(f2)
+        f1 <- as.integer(f1)
+        f2 <- as.integer(f2)
+        nl1 <- length(ll1)
+        nl2 <- length(ll2)
+        
+        dims <- c(nl1, nl2)
+        dn <- list(ll1, ll2)
+        
+        bin <- f1 + nl1 * (f2 - 1L)
+        pd <- nl1 * nl2
+        
+        tab_ <- array(tabulate(bin, pd), dims, dimnames = dn)
+        
+        return(all(colSums(tab_ != 0) %in% 0:1) && all(rowSums(tab_ != 0) %in% 0:1))
+    }
+    else {
+        return(FALSE)
+    }
+}
+
 paste. <- function(..., collapse = NULL) {
     #Like paste0 but with sep = ".'
     paste(..., sep = ".", collapse = collapse)
