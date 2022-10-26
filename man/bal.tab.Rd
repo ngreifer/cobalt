@@ -35,10 +35,10 @@ bal.tab(x, ...)
 
 \arguments{
   \item{x}{
-an input object on which to assess balance. Can be the output of a call to a balancing function in another package or a formula or data frame. Input to this argument will determine which \code{bal.tab()} method is used. Each input type has its own documentation page, which is linked in the See Also section below. Some input types require or allow additional arguments to be specified. For inputs with no dedicated method, the default method will be dispatched. See Details below.
+an input object on which to assess balance. Can be the output of a call to a balancing function in another package or a formula or data frame. Input to this argument will determine which \code{bal.tab()} method is used. Each input type has its own documentation page, which is linked in the See Also section below. Some input types require or allow additional arguments to be specified. For inputs with no dedicated method, the \link[=bal.tab.default]{default method} will be dispatched. See Details below.
 }
   \item{stats}{
-\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
+\code{character}; which statistic(s) should be reported. See \code{\link[=balance.stats]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
 }
   \item{int}{
 \code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.
@@ -62,7 +62,7 @@ whether mean differences for continuous variables should be standardized (\code{
 whether mean differences for binary variables (i.e., difference in proportion) should be standardized (\code{"std"}) or raw (\code{"raw"}). Default \code{"raw"}. Abbreviations allowed. This option can be set globally using \fun{set.cobalt.options}.
 }
   \item{s.d.denom}{
-\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \fun{col_w_smd} for allowable options. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, \code{bal.tab()} will figure out which one is best based on the \code{estimand}, if given (for ATT, "treated"; for ATC, "control"; otherwise "pooled") and other clues if not.
+\code{character}; how the denominator for standardized mean differences should be calculated, if requested. See \fun{col_w_smd} for allowable options. If weights are supplied, each set of weights should have a corresponding entry to \code{s.d.denom}. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, \code{bal.tab()} will figure out which one is best based on the \code{estimand}, if given (for ATT, \code{"treated"}; for ATC, \code{"control"}; otherwise \code{"pooled"}) and other clues if not.
 }
   \item{thresholds}{
 a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in \code{stats}) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set \code{thresholds = c(m = .05, v = 2)}. Requesting a threshold automatically requests the display of that statistic. When specified, extra columns are inserted into the Balance table describing whether the requested balance statistics exceeded the threshold or not. Summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure are added to the output.
