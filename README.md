@@ -27,6 +27,9 @@ compatible with output from `MatchIt`, `twang`, `Matching`, `optmatch`,
 `CBPS`, `ebal`, `WeightIt`, `designmatch`, `sbw`, `MatchThem`, and `cem`
 as well as data not processed through these packages.
 
+For more information, check out the `cobalt`
+[website](https://ngreifer.github.io/cobalt/)!
+
 ### Why cobalt?
 
 Most of the major conditioning packages contain functions to assess
