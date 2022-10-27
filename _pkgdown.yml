@@ -1,6 +1,5 @@
 template:
   bootstrap: 5
-  theme: starter-hugo-academic
 
 url: https://ngreifer.github.io/cobalt/
 reference:
