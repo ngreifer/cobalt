@@ -40,7 +40,8 @@ Suggests:
     sbw (>= 1.1.5),
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    badpackage
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
