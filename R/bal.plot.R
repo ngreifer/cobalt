@@ -128,7 +128,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }
     else weight.names <- "adjusted"
     
-    if (is_null(X$s.weights)) X$s.weights <- rep(1, length(X))
+    if (is_null(X$s.weights)) X$s.weights <- rep(1, length(X$treat))
     
     if (missing(which)) {
         if (is_not_null(args$un)) {
@@ -324,22 +324,22 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         
         nobs <- sum(in.imp & in.cluster & in.time)
         if (nobs == 0) stop("No observations to display.", call. = FALSE)
-        
-        Q <- make_list(which)
+      
+        D <- make_list(which)
         for (i in which) {
-            Q[[i]] <- make_df(c("treat", "var", "weights", "s.weights", "which"), nobs)
-            Q[[i]]$treat <- X$treat[in.imp & in.cluster & in.time]
-            Q[[i]]$var <- X$var[in.imp & in.cluster & in.time]
-            Q[[i]]$weights <-  X$weights[in.imp & in.cluster & in.time, i]
-            Q[[i]]$s.weights <- X$s.weights[in.imp & in.cluster & in.time]
-            Q[[i]]$which <- i
+            D[[i]] <- make_df(c("treat", "var", "weights", "s.weights", "which"), nobs)
+            D[[i]]$treat <- X$treat[in.imp & in.cluster & in.time]
+            D[[i]]$var <- X$var[in.imp & in.cluster & in.time]
+            D[[i]]$weights <-  X$weights[in.imp & in.cluster & in.time, i]
+            D[[i]]$s.weights <- X$s.weights[in.imp & in.cluster & in.time]
+            D[[i]]$which <- i
             
             #Add columns for additional facets
-            if ("imp" %in% facet) Q[[i]]$imp <- factor(paste("Imputation", X$imp[in.imp & in.cluster & in.time]))
-            if ("cluster" %in% facet) Q[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time])
-            if ("time" %in% facet) Q[[i]]$time <- factor(paste("Time", X$time[in.imp & in.cluster & in.time]))
+            if ("imp" %in% facet) D[[i]]$imp <- factor(paste("Imputation", X$imp[in.imp & in.cluster & in.time]))
+            if ("cluster" %in% facet) D[[i]]$cluster <- factor(X$cluster[in.imp & in.cluster & in.time])
+            if ("time" %in% facet) D[[i]]$time <- factor(paste("Time", X$time[in.imp & in.cluster & in.time]))
         }
-        D <- do.call(rbind, Q)
+        D <- do.call(rbind, D)
         
         D$which <- factor(D$which, levels = which)
         
