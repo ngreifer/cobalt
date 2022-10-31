@@ -26,7 +26,7 @@ Note that when \code{quick = TRUE} is set in the call to \code{bal.tab()} (which
 }
 \item{int_sep}{\code{character}; the string used to separate two variables involved in an interaction when variable names are printed. Default is \code{" * "}. Older versions of \pkg{cobalt} used \code{"_"}.
 }
-\item{disp.call}{\code{logical}; whether to display the function call from the original input object, if present. Default is \code{TRUE}, so the function call is displayed.
+\item{disp.call}{\code{logical}; whether to display the function call from the original input object, if present. Default is \code{FALSE}, so the function call is not displayed.
 }
 \bold{When subclassification is used}
 \item{which.subclass}{Which subclasses (if any) should be displayed. If \code{.all}, all subclasses will be displayed. If \code{.none} (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.}

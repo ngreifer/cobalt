@@ -1,7 +1,7 @@
 base.bal.tab <- function(X, ...) {
     UseMethod("base.bal.tab")
 }
-base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), disp.call = getOption("cobalt_disp.call", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.base <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), disp.call = getOption("cobalt_disp.call", FALSE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
 
     A <- clear_null(list(...))
@@ -460,7 +460,7 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
 }
 
 #NEEDS UPDATING with STATS
-base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, which.subclass = NA, subclass.summary = getOption("cobalt_subclass.summary"), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), disp.call = getOption("cobalt_disp.call", TRUE), abs = FALSE, quick = TRUE, ...) {
+base.bal.tab.subclass <- function(X, type, int = FALSE, poly = 1, continuous, binary, imbalanced.only = getOption("cobalt_imbalanced.only", FALSE), un = getOption("cobalt_un", FALSE), disp = NULL, which.subclass = NA, subclass.summary = getOption("cobalt_subclass.summary"), disp.bal.tab = getOption("cobalt_disp.bal.tab", TRUE), disp.call = getOption("cobalt_disp.call", FALSE), abs = FALSE, quick = TRUE, ...) {
     #Preparations
     
     A <- clear_null(list(...))

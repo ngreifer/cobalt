@@ -242,7 +242,7 @@ m.out <- MatchIt::matchit(f.build("treat", covs),
 bal.tab(m.out)
 ```
 
-The output looks very similar to `MatchIt`'s `summary()` function: at the top is the original `matchit()` call; next is the balance table, and finally is a summary of the sample size before and after adjustment.
+The output looks very similar to `MatchIt`'s `summary()` function: first is the balance table, and second is a summary of the sample size before and after adjustment.
 
 Setting `binary = "std"` in `bal.tab()` will produce identical calculations to those in `MatchIt`'s `summary(m.out, standardize = TRUE)`, which produces standardized differences for binary variables as well as continuous variables. The other arguments to `bal.tab()` when using it with `MatchIt` have the same form and function as those given when using it without a conditioning package. The output when using `MatchIt` for subclassification is the same as that displayed previously.
 

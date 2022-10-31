@@ -11,6 +11,8 @@
 
 * Fixed a bug where `bal.plot()` would ignore `s.weights`. They are now included correctly.
 
+* The call to the original balancing function is now hidden by default. To request it be displayed, set `disp.call = TRUE` in the call to `bal.tab()` or `print.bal.tab()` or use `set.cobalt.options(disp.call = TRUE)` to display it for the session.
+
 # cobalt 4.4.0
 
 * Added support in `bal.plot()` for negative weights with `type = "density"`.
