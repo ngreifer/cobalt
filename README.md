@@ -84,10 +84,6 @@ m.out <- MatchIt::matchit(treat ~ age + educ + race + married + nodegree + re74 
 bal.tab(m.out, thresholds = c(m = 0.1), un = TRUE)
 ```
 
-    #> Call
-    #>  MatchIt::matchit(formula = treat ~ age + educ + race + married + 
-    #>     nodegree + re74 + re75, data = lalonde)
-    #> 
     #> Balance Measures
     #>                 Type Diff.Un Diff.Adj        M.Threshold
     #> distance    Distance  1.7941   0.9739                   
