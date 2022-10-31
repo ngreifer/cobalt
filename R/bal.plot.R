@@ -128,6 +128,8 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     }
     else weight.names <- "adjusted"
     
+    if (is_null(X$s.weights)) X$s.weights <- rep(1, length(X))
+    
     if (missing(which)) {
         if (is_not_null(args$un)) {
             message("Note: \'un\' is deprecated; please use \'which\' for the same and added functionality.")
@@ -325,10 +327,11 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         
         Q <- make_list(which)
         for (i in which) {
-            Q[[i]] <- make_df(c("treat", "var", "weights", "which"), nobs)
+            Q[[i]] <- make_df(c("treat", "var", "weights", "s.weights", "which"), nobs)
             Q[[i]]$treat <- X$treat[in.imp & in.cluster & in.time]
             Q[[i]]$var <- X$var[in.imp & in.cluster & in.time]
             Q[[i]]$weights <-  X$weights[in.imp & in.cluster & in.time, i]
+            Q[[i]]$s.weights <- X$s.weights[in.imp & in.cluster & in.time]
             Q[[i]]$which <- i
             
             #Add columns for additional facets
@@ -402,16 +405,18 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         }
         
         in.sub <- !is.na(X$subclass) & X$subclass %in% which.sub
-        D <- make_df(c("weights", "treat", "var", "subclass"), sum(in.sub))
+        D <- make_df(c("weights", "s.weights", "treat", "var", "subclass"), sum(in.sub))
         D$weights <- 1
+        D$s.weights <- X$s.weights[in.sub]
         D$treat <- X$treat[in.sub]
         D$var <- X$var[in.sub]
         D$subclass <- paste("Subclass", X$subclass[in.sub])
 
         if (which == "both") {
             #Make unadjusted sample
-            D2 <- make_df(c("weights", "treat", "var", "subclass"), length(X$treat))
+            D2 <- make_df(c("weights", "s.weights", "treat", "var", "subclass"), length(X$treat))
             D2$weights <- 1
+            D$s.weights <- X$s.weights
             D2$treat <- X$treat
             D2$var <- X$var
             D2$subclass <- rep("Unadjusted Sample", length(X$treat))
@@ -480,7 +485,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                 
             }
             
-            D$weights <- ave(D[["weights"]], 
+            D$weights <- ave(D[["weights"]] * D[["s.weights"]], 
                              D[c("var", facet)], 
                              FUN = function(x) x/sum(x))
             
@@ -493,10 +498,12 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                 ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, .05)))
         }
         else { #Continuous vars
-            D$var.mean <- ave(D[["var"]], D[facet], FUN = mean)
-            D$treat.mean <- ave(D[["treat"]], D[facet], FUN = mean)
+            D$var.mean <- ave(D[c("var", "s.weights")], D[facet], 
+                              FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
+            D$treat.mean <- ave(D[c("treat", "s.weights")], D[facet], 
+                                FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
             
-            bp <- ggplot2::ggplot(D, mapping = aes(x = .data$var, y = .data$treat, weight = .data$weights))
+            bp <- ggplot2::ggplot(D, mapping = aes(x = .data$var, y = .data$treat, weight = .data$weights * .data$s.weights))
             
             if (identical(which, "Unadjusted Sample") || isFALSE(alpha.weight)) bp <- bp + ggplot2::geom_point(alpha = .9)
             else bp <- bp + ggplot2::geom_point(aes(alpha = .data$weights), show.legend = FALSE) + 
@@ -545,7 +552,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         
         for (i in names(D)[vapply(D, is.factor, logical(1L))]) D[[i]] <- factor(D[[i]])
         
-        D$weights <- ave(D[["weights"]], 
+        D$weights <- ave(D[["weights"]] * D[["s.weights"]], 
                          D[c("treat", facet)], 
                          FUN = function(x) x/sum(x))
         

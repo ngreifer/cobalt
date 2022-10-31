@@ -9,6 +9,8 @@
 
 * Fixed a bug with the default method of `bal.tab()` which was ignoring components of the supplied object.
 
+* Fixed a bug where `bal.plot()` would ignore `s.weights`. They are now included correctly.
+
 # cobalt 4.4.0
 
 * Added support in `bal.plot()` for negative weights with `type = "density"`.
