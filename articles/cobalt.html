@@ -901,11 +901,7 @@ use:</p>
 <span>                          ratio <span class="op">=</span> <span class="fl">1</span>,  replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  MatchIt::matchit(formula = f.build("treat", covs), data = lalonde, </span></span>
-<span><span class="co">##     method = "nearest", replace = TRUE, ratio = 1)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
 <span><span class="co">## distance    Distance  -0.0010</span></span>
 <span><span class="co">## age          Contin.   0.1964</span></span>
@@ -923,9 +919,8 @@ use:</p>
 <span><span class="co">## Matched (Unweighted)   77.       185</span></span>
 <span><span class="co">## Unmatched             352.         0</span></span></code></pre>
 <p>The output looks very similar to <code>MatchIt</code>’s
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function: at the top is the original
-<code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code> call; next is the balance table, and finally is a
-summary of the sample size before and after adjustment.</p>
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function: first is the balance table, and second
+is a summary of the sample size before and after adjustment.</p>
 <p>Setting <code>binary = "std"</code> in <code><a href="../reference/bal.tab.html">bal.tab()</a></code> will
 produce identical calculations to those in <code>MatchIt</code>’s
 <code>summary(m.out, standardize = TRUE)</code>, which produces
@@ -957,11 +952,7 @@ straightforward. Below is a simple example of using
 <span>                            method <span class="op">=</span> <span class="st">"ps"</span>, estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  WeightIt::weightit(formula = treat ~ covs, data = lalonde, method = "ps", </span></span>
-<span><span class="co">##     estimand = "ATT")</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
 <span><span class="co">## prop.score  Distance  -0.0397</span></span>
 <span><span class="co">## age          Contin.   0.1112</span></span>
@@ -1297,11 +1288,7 @@ along with <code>"c"</code> (for <code>"correlations"</code>).</p>
 <code class="sourceCode R"><span><span class="co">#Assessing balance numerically</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"m"</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>        thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, poly <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  WeightIt::weightit(formula = re75 ~ age + educ + race + married + </span></span>
-<span><span class="co">##     nodegree + re74 + I(re74^2), data = lalonde, method = "ps")</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Corr.Un Corr.Adj        R.Threshold Diff.Adj</span></span>
 <span><span class="co">## age         Contin.  0.1400   0.0165     Balanced, &lt;0.1  -0.1552</span></span>
 <span><span class="co">## educ        Contin.  0.0183   0.0573     Balanced, &lt;0.1  -0.0392</span></span>
@@ -1432,11 +1419,7 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Balance summary across treatment pairs</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  WeightIt::weightit(formula = race ~ cov.mn, data = lalonde, method = "ps", </span></span>
-<span><span class="co">##     use.mlogit = FALSE)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span></span>
 <span><span class="co">##             Type Max.Diff.Un Max.Diff.Adj</span></span>
 <span><span class="co">## age      Contin.      0.3065       0.0504</span></span>
 <span><span class="co">## educ     Contin.      0.5861       0.1046</span></span>
@@ -1452,11 +1435,7 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance for each pair of treatments</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, disp.means <span class="op">=</span> <span class="cn">TRUE</span>, which.treat <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  WeightIt::weightit(formula = race ~ cov.mn, data = lalonde, method = "ps", </span></span>
-<span><span class="co">##     use.mlogit = FALSE)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance by treatment pair</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by treatment pair</span></span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. hispan (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
@@ -1620,11 +1599,7 @@ Below is an example of how to do so after a call to
 <span><span class="va">lalonde</span><span class="op">$</span><span class="va">prog.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">ctrl.fit</span>, <span class="va">lalonde</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, distance <span class="op">=</span> <span class="va">lalonde</span><span class="op">[</span><span class="st">"prog.score"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  MatchIt::matchit(formula = f.build("treat", covs), data = lalonde, </span></span>
-<span><span class="co">##     method = "nearest", replace = TRUE)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
 <span><span class="co">## prog.score  Distance  -0.0485</span></span>
 <span><span class="co">## distance    Distance   0.0044</span></span>

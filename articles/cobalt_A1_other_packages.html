@@ -400,10 +400,7 @@ in each.</p>
 <span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu">optmatch</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/optmatch/man/fullmatch.html" class="external-link">fullmatch</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">p.score</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">fm</span>, covs <span class="op">=</span> <span class="va">covs0</span>, distance <span class="op">=</span> <span class="op">~</span> <span class="va">p.score</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  optmatch::fullmatch(x = treat ~ p.score, data = lalonde)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
 <span><span class="co">## p.score     Distance   0.0058</span></span>
 <span><span class="co">## age          Contin.   0.1522</span></span>
@@ -452,10 +449,7 @@ example of its use with a binary treatment:</p>
 <pre><code><span><span class="co">## [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"</span></span></code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cbps.out</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  CBPS::CBPS(formula = f, data = lalonde)</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
 <span><span class="co">## prop.score  Distance  -0.0057</span></span>
 <span><span class="co">## age          Contin.  -0.0052</span></span>
@@ -689,20 +683,20 @@ example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> 
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## prop.score  Distance       0.1417        0.1533       0.1632</span></span>
-<span><span class="co">## age          Contin.      -0.1941       -0.1880      -0.1847</span></span>
-<span><span class="co">## educ         Contin.       0.0761        0.0813       0.0875</span></span>
-<span><span class="co">## married       Binary      -0.1125       -0.0994      -0.0892</span></span>
-<span><span class="co">## race_black    Binary       0.0500        0.0553       0.0590</span></span>
-<span><span class="co">## race_hispan   Binary       0.0084        0.0102       0.0119</span></span>
-<span><span class="co">## race_white    Binary      -0.0704       -0.0655      -0.0585</span></span>
-<span><span class="co">## re74         Contin.      -0.3000       -0.2884      -0.2770</span></span>
-<span><span class="co">## re75         Contin.      -0.1668       -0.1580      -0.1514</span></span>
+<span><span class="co">## prop.score  Distance       0.1451        0.1594       0.1686</span></span>
+<span><span class="co">## age          Contin.      -0.1924       -0.1896      -0.1846</span></span>
+<span><span class="co">## educ         Contin.       0.0780        0.0841       0.0903</span></span>
+<span><span class="co">## married       Binary      -0.1208       -0.1039      -0.0910</span></span>
+<span><span class="co">## race_black    Binary       0.0541        0.0582       0.0629</span></span>
+<span><span class="co">## race_hispan   Binary       0.0064        0.0105       0.0133</span></span>
+<span><span class="co">## race_white    Binary      -0.0743       -0.0688      -0.0621</span></span>
+<span><span class="co">## re74         Contin.      -0.2972       -0.2835      -0.2721</span></span>
+<span><span class="co">## re75         Contin.      -0.1614       -0.1487      -0.1356</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
-<span><span class="co">##                 0      1</span></span>
-<span><span class="co">## Unadjusted 429.   185.  </span></span>
-<span><span class="co">## Adjusted   331.61  66.84</span></span></code></pre>
+<span><span class="co">##                 0     1</span></span>
+<span><span class="co">## Unadjusted 429.   185. </span></span>
+<span><span class="co">## Adjusted   331.89  67.9</span></span></code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
@@ -794,22 +788,22 @@ with multiply imputed data from <code>mice</code>:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cem.out.imp</span>, data <span class="op">=</span> <span class="va">imp.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age         Contin.       0.0411        0.0483       0.0566</span></span>
-<span><span class="co">## educ        Contin.      -0.0386       -0.0325      -0.0165</span></span>
-<span><span class="co">## race_black   Binary      -0.0000        0.0000       0.0000</span></span>
-<span><span class="co">## race_hispan  Binary      -0.0000        0.0000       0.0000</span></span>
+<span><span class="co">## age         Contin.       0.0443        0.0479       0.0556</span></span>
+<span><span class="co">## educ        Contin.      -0.0441       -0.0381      -0.0311</span></span>
+<span><span class="co">## race_black   Binary      -0.0000       -0.0000       0.0000</span></span>
+<span><span class="co">## race_hispan  Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## race_white   Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## married      Binary      -0.0000        0.0000       0.0000</span></span>
-<span><span class="co">## nodegree     Binary      -0.0000       -0.0000       0.0000</span></span>
-<span><span class="co">## re74        Contin.      -0.0473       -0.0369      -0.0315</span></span>
-<span><span class="co">## re75        Contin.      -0.0622       -0.0534      -0.0458</span></span>
+<span><span class="co">## nodegree     Binary       0.0000        0.0000       0.0000</span></span>
+<span><span class="co">## re74        Contin.      -0.0410       -0.0362      -0.0339</span></span>
+<span><span class="co">## re75        Contin.      -0.0689       -0.0558      -0.0471</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average sample sizes across imputations</span></span></span>
 <span><span class="co">##                           0     1</span></span>
 <span><span class="co">## All                  429.   185. </span></span>
-<span><span class="co">## Matched (ESS)         35.43  65.7</span></span>
-<span><span class="co">## Matched (Unweighted)  77.6   65.7</span></span>
-<span><span class="co">## Unmatched            351.4  119.3</span></span></code></pre>
+<span><span class="co">## Matched (ESS)         35.32  66.7</span></span>
+<span><span class="co">## Matched (Unweighted)  77.7   66.7</span></span>
+<span><span class="co">## Unmatched            351.3  118.3</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="using-bal-tab-with-other-packages">Using <code>bal.tab()</code> with other packages<a class="anchor" aria-label="anchor" href="#using-bal-tab-with-other-packages"></a>
@@ -857,11 +851,7 @@ output compatible with the <code>default</code> method of
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Use bal.tab() directly on the output</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">ow.out</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="text-decoration: underline;">Call</span></span></span>
-<span><span class="co">##  optweight::optweight(formula = treat ~ age + educ + married + </span></span>
-<span><span class="co">##     race + re74 + re75, data = lalonde, tols = 0.01, estimand = "ATE")</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
+<pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
 <span><span class="co">## age         Contin.  -0.0000</span></span>
 <span><span class="co">## educ        Contin.   0.0100</span></span>

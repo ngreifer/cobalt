@@ -149,10 +149,6 @@
 <span class="r-in"><span>                   data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out1</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, m.threshold <span class="op">=</span> <span class="fl">.1</span>, </span></span>
 <span class="r-in"><span>        v.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  weightit(formula = treat ~ age + educ + race + married + nodegree + </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     re74 + re75, data = lalonde, method = "ps")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 Type Diff.Un V.Ratio.Un Diff.Adj        M.Threshold V.Ratio.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> prop.score  Distance  1.7569     0.9211   0.1360                         0.9758</span>
@@ -206,10 +202,6 @@
 <span class="r-in"><span>                   data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"ps"</span>,</span></span>
 <span class="r-in"><span>                   estimand <span class="op">=</span> <span class="st">"ATE"</span>, use.mlogit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out2</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  weightit(formula = race ~ age + educ + married + nodegree + re74 + </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     re75, data = lalonde, method = "ps", estimand = "ATE", use.mlogit = FALSE)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Type Max.Diff.Un Max.Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.      0.3065       0.0504</span>
@@ -224,10 +216,6 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 243.   72.   299.  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   140.5  54.32 259.28</span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out2</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, pairwise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  weightit(formula = race ~ age + educ + married + nodegree + re74 + </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     re75, data = lalonde, method = "ps", estimand = "ATE", use.mlogit = FALSE)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Type Max.Diff.Un Max.Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.      0.1532       0.0777</span>
@@ -250,11 +238,6 @@
 <span class="r-in"><span>                        data <span class="op">=</span> <span class="va">iptwExWide</span>,</span></span>
 <span class="r-in"><span>                        stabilize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wmsm.out</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Call</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  weightitMSM(formula.list = list(tx1 ~ use0 + gender, tx2 ~ use0 + </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     gender + use1 + tx1, tx3 ~ use0 + gender + use1 + tx1 + use2 + </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     tx2), data = iptwExWide, stabilize = TRUE)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all time points</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              Times     Type Max.Diff.Adj</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> prop.score 1, 2, 3 Distance       0.3978</span>
