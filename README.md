@@ -76,12 +76,13 @@ Below are examples of `cobalt`’s primary functions:
 library("cobalt")
 data("lalonde", package = "cobalt")
 
-# Nearest neighbor matching with MatchIt
-m.out <- MatchIt::matchit(treat ~ age + educ + race + married + nodegree + re74 +
-    re75, data = lalonde)
+#Nearest neighbor matching with MatchIt
+m.out <- MatchIt::matchit(treat ~ age + educ + race + married +
+                              nodegree + re74 + re75,
+                          data = lalonde)
 
-# Checking balance before and after matching:
-bal.tab(m.out, thresholds = c(m = 0.1), un = TRUE)
+#Checking balance before and after matching:
+bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
 ```
 
     #> Balance Measures
@@ -113,9 +114,10 @@ bal.tab(m.out, thresholds = c(m = 0.1), un = TRUE)
     #> Unmatched     244       0
 
 ``` r
-# Examining distributional balance with plots:
+#Examining distributional balance with plots:
 bal.plot(m.out, var.name = "educ")
-bal.plot(m.out, var.name = "distance", mirror = TRUE, type = "histogram")
+bal.plot(m.out, var.name = "distance",
+         mirror = TRUE, type = "histogram")
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png"
@@ -124,9 +126,11 @@ data-display="inline" />
 data-display="inline" />
 
 ``` r
-# Generating a Love plot to report balance:
-love.plot(m.out, stats = c("mean.diffs", "variance.ratios"), thresholds = c(m = 0.1,
-    v = 2), abs = TRUE, binary = "std", var.order = "unadjusted")
+#Generating a Love plot to report balance:
+love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
+          thresholds = c(m = .1, v = 2), abs = TRUE, 
+          binary = "std",
+          var.order = "unadjusted")
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" style="display: block; margin: auto;" />

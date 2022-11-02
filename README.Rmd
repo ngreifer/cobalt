@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
   collapse = FALSE,
   warning = FALSE,
   message = FALSE,
-  tidy = TRUE,
+  tidy = FALSE,
   fig.align='center',
   comment = "#>",
   fig.path = "man/figures/README-"
@@ -45,8 +45,9 @@ library("cobalt")
 data("lalonde", package = "cobalt")
 
 #Nearest neighbor matching with MatchIt
-m.out <- MatchIt::matchit(treat ~ age + educ + race + married + nodegree +
-                              re74 + re75, data = lalonde)
+m.out <- MatchIt::matchit(treat ~ age + educ + race + married +
+                              nodegree + re74 + re75,
+                          data = lalonde)
 
 #Checking balance before and after matching:
 bal.tab(m.out, thresholds = c(m = .1), un = TRUE)
