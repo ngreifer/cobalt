@@ -122,7 +122,8 @@ data("lalonde", package = "cobalt") #If not yet loaded
 covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 # Generating ATT weights as specified in Austin (2011)
-lalonde$p.score <- glm(f.build("treat", covs), data = lalonde, 
+lalonde$p.score <- glm(treat ~ age + educ + race + re74 + re75,
+                       data = lalonde,
                        family = "binomial")$fitted.values
 lalonde$att.weights <- with(lalonde, treat + (1-treat)*p.score/(1-p.score))
 
@@ -137,7 +138,8 @@ There are several ways to specify input to `bal.tab()` when using data outside a
 Another way to specify input to `bal.tab()` is to use the formula interface. Below is an example of its use:
 
 ```{r}
-bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde,
+        weights = "att.weights",
         distance = "p.score")
 ```
 
@@ -146,7 +148,8 @@ To use the formula interface, the user must specify a formula relating treatment
 By default, `bal.tab()` outputs standardized mean differences for continuous variables and raw differences in proportion for binary variables. For more details on how these values are computed and determined, see `?bal.tab` or "Details on Calculations" below. To see raw or standardized mean differences for binary or continuous variables, you can manually set `binary` and/or `continuous` to `"raw"` or `"std"`. These can also be set as global options by using, for example, `set.cobalt.options(binary = "std")`, which allows the user not to type a non-default option every time they call `bal.tab`.
 
 ```{r}
-bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde,
+        weights = "att.weights",
         binary = "std", continuous = "std")
 ```
 
@@ -154,8 +157,10 @@ Users can specify additional variables for which to display balance using the ar
 
 ```{r}
 # Balance on all covariates in data set, including interactions and squares
-bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
-        addl = ~ nodegree + married, int = TRUE, poly = 2)
+bal.tab(treat ~ covs, data = lalonde,
+        weights = "att.weights",
+        addl = ~ nodegree + married,
+        int = TRUE, poly = 2)
 ```
 
 Standardized mean differences can be computed several ways, and the user can decide how `bal.tab()` does so using the argument to `s.d.denom`, which controls whether the measure of spread in the denominator is the standard deviation of the treated group (`"treated"`), most appropriate when computing the ATT; the standard deviation of the control group (`"control"`), most appropriate when computing the ATC; the pooled standard deviation (`"pooled"`), computed as in @austin2009, most appropriate when computing the ATE; or another value (see `?col_w_smd` for more options). `bal.tab()` can generally determine if the ATT or ATC are being estimated and will supply `s.d.denom` accordingly. Otherwise, the default is `"pooled"`.
@@ -171,7 +176,8 @@ Next is `un`, which controls whether the statistics to be displayed should be di
 ```{r}
 # Balance tables with mean differences, variance ratios, and 
 #  statistics for the unadjusted sample
-bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde,
+        weights = "att.weights",
         disp = c("means", "sds"), un = TRUE, 
         stats = c("mean.diffs", "variance.ratios"))
 ```
@@ -184,7 +190,8 @@ When thresholds are requested, a few components are added to the balance output:
 
 ```{r}
 # Balance tables with thresholds for mean differences and variance ratios
-bal.tab(treat ~ covs, data = lalonde, weights = "att.weights",
+bal.tab(treat ~ covs, data = lalonde,
+        weights = "att.weights",
         thresholds = c(m = .1, v = 2))
 ```
 
@@ -197,10 +204,12 @@ It is possible to view balance for more than one set of weights at a time. The i
 ```{r}
 # Generating ATT weights with different covariates
 lalonde$p.score2 <- glm(treat ~ age + I(age^2) + race + educ + re74, 
-                        data = lalonde, family = "binomial")$fitted.values
+                        data = lalonde,
+                        family = "binomial")$fitted.values
 lalonde$att.weights2 <- with(lalonde, treat + (1-treat)*p.score2/(1-p.score2))
 
-bal.tab(treat ~ covs, data = lalonde, weights = c("att.weights", "att.weights2"),
+bal.tab(treat ~ covs, data = lalonde,
+        weights = c("att.weights", "att.weights2"),
         estimand = "ATT")
 ```
 
@@ -210,16 +219,20 @@ To examine balance within each subclass, the user can specify `which.subclass = 
 
 ```{r}
 # Subclassification for ATT with 5 subclasses
-lalonde$p.score <- glm(f.build("treat", covs), data = lalonde, 
+lalonde$p.score <- glm(treat ~ age + educ + race + re74 + re75,
+                       data = lalonde, 
                        family = "binomial")$fitted.values
 nsub <- 5 #number of subclasses
-lalonde$subclass <- findInterval(lalonde$p.score, 
-                                 quantile(lalonde$p.score[lalonde$treat == 1], 
-                                          seq(0, 1, length.out = nsub + 1)), 
-                                 all.inside = TRUE)
-
-bal.tab(treat ~ covs, data = lalonde, subclass = "subclass", 
-        which.subclass = .all, subclass.summary = TRUE)
+lalonde$subclass <- with(lalonde,
+                         findInterval(p.score, 
+                                      quantile(p.score[treat == 1], 
+                                               seq(0, 1, length.out = nsub + 1)), 
+                                      all.inside = TRUE))
+                         
+bal.tab(treat ~ covs, data = lalonde,
+        subclass = "subclass", 
+        which.subclass = .all,
+        subclass.summary = TRUE)
 ```
 
 When using `bal.tab()` with continuous treatments, the default balance statistic presented is the (weighted) Pearson correlation between each covariate and treatment. @zhuBoostingAlgorithmEstimating2015 recommend that absolute correlations should be no greater than 0.1, but correlations should ideally be as close to zero as possible. Spearman correlations can also be requested. See the section "Using `cobalt` with continuous treatments" and `?balance.stats` for more details.
@@ -232,10 +245,9 @@ When using `bal.tab()` with `MatchIt`, fewer arguments need to be specified beca
 
 ```{r}
 data("lalonde", package = "cobalt")
-covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 # Nearest neighbor 2:1 matching with replacement
-m.out <- MatchIt::matchit(f.build("treat", covs), 
+m.out <- MatchIt::matchit(treat ~ age + educ + race + re74 + re75, 
                           data = lalonde, method = "nearest", 
                           ratio = 1,  replace = TRUE)
 
@@ -252,11 +264,12 @@ The `WeightIt` package is a convenient wrapper for the weighting functions of se
 
 ```{r}
 data("lalonde", package = "cobalt") #If not yet loaded
-covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 
 #Generating propensity score weights for the ATT
-W.out <- WeightIt::weightit(treat ~ covs, data = lalonde,
-                            method = "ps", estimand = "ATT")
+W.out <- WeightIt::weightit(treat ~ age + educ + race + re74 + re75,
+                            data = lalonde,
+                            method = "ps",
+                            estimand = "ATT")
 
 bal.tab(W.out)
 ```
@@ -267,7 +280,7 @@ The gold standard for covariate balance is multidimensional independence between
 
 `bal.plot()` allows users to do so by displaying density plots, histograms, empirical CDF plots, bar graphs, and scatterplots so that users can visually assess independence between treatment and covariates before and after conditioning. Below is an example of the use of `bal.plot()` after using propensity score weighting for the ATT using the output from `WeightIt` generated above.:
 
-```{r, fig.show = "hold", fig.width = 3.25}
+```{r, fig.show = "hold", fig.width = 3.5, fig.height=2.75}
 bal.plot(W.out, var.name = "age")
 bal.plot(W.out, var.name = "race")
 ```
@@ -284,8 +297,10 @@ Below is an example using `bal.plot()` to display the distributions of propensit
 
 ```{r, fig.width = 5}
 #Before and after weighting; which = "both"
-bal.plot(W.out, var.name = "prop.score", which = "both",
-         type = "histogram", mirror = TRUE)
+bal.plot(W.out, var.name = "prop.score",
+         which = "both",
+         type = "histogram",
+         mirror = TRUE)
 ```
 
 Setting `type = "histogram"` produces a histogram rather than a density plot, and setting `mirror = TRUE` creates a mirrored plot rather than overlapping histograms. Mirroring only works with binary treatments.
@@ -302,11 +317,13 @@ The Love plot is a summary plot of covariate balance before and after conditioni
 
 ```{r, fig.width = 5}
 data("lalonde", package = "cobalt")
-covs <- subset(lalonde, select = -c(treat, re78))
 
 # Nearest neighbor 1:1 matching with replacement
-m.out <- MatchIt::matchit(f.build("treat", covs), data = lalonde, 
-                          method = "nearest", replace = TRUE)
+m.out <- MatchIt::matchit(treat ~ age + educ + married + race +
+                              nodegree + re74 + re75,
+                          data = lalonde, 
+                          method = "nearest",
+                          replace = TRUE)
 
 love.plot(m.out, binary = "std", thresholds = c(m = .1))
 ```
@@ -334,11 +351,16 @@ v <- data.frame(old = c("age", "educ", "race_black", "race_hispan",
 
 love.plot(m.out, stats = c("mean.diffs", "ks.statistics"), 
           threshold = c(m = .1, ks = .05), 
-          binary = "std", abs = TRUE,
-          var.order = "unadjusted", var.names = v,
-          limits = c(0, 1), grid = FALSE, wrap = 20,
+          binary = "std",
+          abs = TRUE,
+          var.order = "unadjusted",
+          var.names = v,
+          limits = c(0, 1),
+          grid = FALSE,
+          wrap = 20,
           sample.names = c("Unmatched", "Matched"),
-          position = "top", shapes = c("circle", "triangle"),
+          position = "top",
+          shapes = c("circle", "triangle"),
           colors = c("red", "blue"))
 ```
 
@@ -368,9 +390,10 @@ Below is an example of the workflow for using propensity scores for continuous t
 data("lalonde", package = "cobalt")
 
 #Generating weights with re75 as the continuous treatment
-W.out.c <- WeightIt::weightit(re75 ~ age + educ + race + married + nodegree + 
-                                  re74 + I(re74^2), 
-                              data = lalonde, method = "ps")
+W.out.c <- WeightIt::weightit(re75 ~ age + educ + race + married +
+                                  nodegree + re74 + I(re74^2), 
+                              data = lalonde,
+                              method = "ps")
 ```
 
 First, we can assess balance numerically using `bal.tab()`. The main balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using `thresholds`; @zhuBoostingAlgorithmEstimating2015 recommend using .1 as indicating balance, but in general lower is better. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and polynomial terms through the use of arguments to `int` and `poly` is recommended (we just display the use of `poly` here for brevity). In addition to treatment-covariate correlations, we request standardized mean difference between the weighted and unweighted samples by include `"m"` (for `"mean.diffs.target"`) in the argument to `stats` along with `"c"` (for `"correlations"`).
@@ -393,7 +416,8 @@ When balance has been achieved to a satisfactory level, users can present balanc
 
 ```{r, fig.width = 5}
 #Summarizing balance in a Love plot
-love.plot(W.out.c, stats = c("c", "ks"), thresholds = c(cor = .1), 
+love.plot(W.out.c, stats = c("c", "ks"),
+          thresholds = c(cor = .1), 
           abs = TRUE, wrap = 20,
           var.order = "unadjusted", line = TRUE)
 ```
@@ -410,12 +434,14 @@ Below is an example of using `cobalt` with multi-category treatments. For this e
 
 ```{r}
 data("lalonde", package = "cobalt")
-cov.mn <- subset(lalonde, select = -c(treat, re78, race))
 
 #Using WeightIt to generate weights with multinomial
 #logistic regression
-W.out.mn <- WeightIt::weightit(race ~ cov.mn, data = lalonde,
-                               method = "ps", use.mlogit = FALSE)
+W.out.mn <- WeightIt::weightit(race ~ age + educ + married +
+                                   nodegree + re74 + re75,
+                               data = lalonde,
+                               method = "ps",
+                               use.mlogit = FALSE)
 ```
 
 First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = .all`. See `?bal.tab.multi` for more details.
@@ -425,12 +451,14 @@ First, we can examine balance numerically using `bal.tab()`. There are three pos
 bal.tab(W.out.mn, un = TRUE)
 
 #Assessing balance for each pair of treatments
-bal.tab(W.out.mn, un = TRUE, disp.means = TRUE, which.treat = .all)
+bal.tab(W.out.mn, un = TRUE,
+        disp.means = TRUE,
+        which.treat = .all)
 ```
 
 We can also assess balance graphically. The same guidelines apply for multi-category treatments as do for binary treatments. Ideally, covariate distributions will look similar across all treatment groups.
 
-```{r, fig.width = 5}
+```{r, fig.width = 5, fig.height=2.75}
 #Assessing balance graphically
 bal.plot(W.out.mn, "age", which = "both")
 
@@ -450,7 +478,8 @@ love.plot(W.out.mn, thresholds = c(m = .1), binary = "std",
 It is possible to display balance for multiple balancing methods at the same time in `bal.tab()`, `bal.plot()`, and `love.plot()`. To do so, weights generated from each balancing method need to be supplied together in each call. This can be done by supplying the weights or the output objects themselves. For example, we can compare matching and inverse probability weighting for the ATT using the following code and the output generated above.
 
 ```{r}
-bal.tab(treat ~ covs, data = lalonde, 
+bal.tab(treat ~ age + educ + married + race +
+            nodegree + re74 + re75, data = lalonde, 
         weights = list(Matched = m.out,
                        IPW = W.out),
         disp.v.ratio = TRUE)
@@ -459,7 +488,7 @@ bal.tab(treat ~ covs, data = lalonde,
 To use `bal.plot()`, the same syntax can be used:
 
 ```{r, fig.width=7}
-bal.plot(treat ~ covs, data = lalonde, 
+bal.plot(treat ~ age, data = lalonde, 
          weights = list(Matched = m.out,
                         IPW = W.out),
          var.name = "age", which = "both")
@@ -468,7 +497,9 @@ bal.plot(treat ~ covs, data = lalonde,
 With `love.plot()`, `var.order` can be `"unadjusted"`, `"alphabetical"`, or one of the names of the weights to order the variables. Also, `colors` and `shapes` should have the same length as the number of weights or have length 1.
 
 ```{r, fig.width=5}
-love.plot(treat ~ covs, data = lalonde, 
+love.plot(treat ~ age + educ + married + race +
+              nodegree + re74 + re75,
+          data = lalonde, 
           weights = list(Matched = m.out,
                          IPW = W.out),
           var.order = "unadjusted", binary = "std",
