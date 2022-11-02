@@ -683,20 +683,20 @@ example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> 
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## prop.score  Distance       0.1494        0.1584       0.1649</span></span>
-<span><span class="co">## age          Contin.      -0.1916       -0.1877      -0.1851</span></span>
-<span><span class="co">## educ         Contin.       0.0738        0.0820       0.0875</span></span>
-<span><span class="co">## married       Binary      -0.1112       -0.1033      -0.0917</span></span>
-<span><span class="co">## race_black    Binary       0.0541        0.0575       0.0611</span></span>
-<span><span class="co">## race_hispan   Binary       0.0072        0.0106       0.0127</span></span>
-<span><span class="co">## race_white    Binary      -0.0738       -0.0680      -0.0613</span></span>
-<span><span class="co">## re74         Contin.      -0.2985       -0.2844      -0.2660</span></span>
-<span><span class="co">## re75         Contin.      -0.1720       -0.1553      -0.1389</span></span>
+<span><span class="co">## prop.score  Distance       0.1371        0.1550       0.1725</span></span>
+<span><span class="co">## age          Contin.      -0.1990       -0.1894      -0.1827</span></span>
+<span><span class="co">## educ         Contin.       0.0747        0.0838       0.0913</span></span>
+<span><span class="co">## married       Binary      -0.1108       -0.0992      -0.0899</span></span>
+<span><span class="co">## race_black    Binary       0.0485        0.0564       0.0648</span></span>
+<span><span class="co">## race_hispan   Binary       0.0077        0.0101       0.0122</span></span>
+<span><span class="co">## race_white    Binary      -0.0756       -0.0665      -0.0562</span></span>
+<span><span class="co">## re74         Contin.      -0.2991       -0.2881      -0.2670</span></span>
+<span><span class="co">## re75         Contin.      -0.1665       -0.1554      -0.1427</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##                 0      1</span></span>
 <span><span class="co">## Unadjusted 429.   185.  </span></span>
-<span><span class="co">## Adjusted   331.81  67.04</span></span></code></pre>
+<span><span class="co">## Adjusted   331.86  67.26</span></span></code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
@@ -788,22 +788,22 @@ with multiply imputed data from <code>mice</code>:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cem.out.imp</span>, data <span class="op">=</span> <span class="va">imp.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age         Contin.       0.0405        0.0478       0.0527</span></span>
-<span><span class="co">## educ        Contin.      -0.0386       -0.0338      -0.0165</span></span>
+<span><span class="co">## age         Contin.       0.0461        0.0478       0.0505</span></span>
+<span><span class="co">## educ        Contin.      -0.0386       -0.0339      -0.0165</span></span>
 <span><span class="co">## race_black   Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## race_hispan  Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## race_white   Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## married      Binary      -0.0000       -0.0000       0.0000</span></span>
 <span><span class="co">## nodegree     Binary      -0.0000       -0.0000       0.0000</span></span>
-<span><span class="co">## re74        Contin.      -0.0407       -0.0355      -0.0326</span></span>
-<span><span class="co">## re75        Contin.      -0.0659       -0.0551      -0.0440</span></span>
+<span><span class="co">## re74        Contin.      -0.0399       -0.0357      -0.0327</span></span>
+<span><span class="co">## re75        Contin.      -0.0705       -0.0544      -0.0470</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average sample sizes across imputations</span></span></span>
 <span><span class="co">##                           0     1</span></span>
 <span><span class="co">## All                  429.   185. </span></span>
-<span><span class="co">## Matched (ESS)         35.74  66.1</span></span>
-<span><span class="co">## Matched (Unweighted)  78.1   66.1</span></span>
-<span><span class="co">## Unmatched            350.9  118.9</span></span></code></pre>
+<span><span class="co">## Matched (ESS)         35.31  66.1</span></span>
+<span><span class="co">## Matched (Unweighted)  77.8   66.1</span></span>
+<span><span class="co">## Unmatched            351.2  118.9</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="using-bal-tab-with-other-packages">Using <code>bal.tab()</code> with other packages<a class="anchor" aria-label="anchor" href="#using-bal-tab-with-other-packages"></a>

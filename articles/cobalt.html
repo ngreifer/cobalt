@@ -391,7 +391,8 @@ analysis:</p>
 <span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span>, <span class="va">nodegree</span>, <span class="va">married</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generating ATT weights as specified in Austin (2011)</span></span>
-<span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
+<span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
+<span>                       data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span>                       family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
 <span><span class="va">lalonde</span><span class="op">$</span><span class="va">att.weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">treat</span><span class="op">)</span><span class="op">*</span><span class="va">p.score</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">p.score</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -431,7 +432,8 @@ respective values.</p>
 <p>Another way to specify input to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> is to use the
 formula interface. Below is an example of its use:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>        weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
 <span>        distance <span class="op">=</span> <span class="st">"p.score"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
@@ -473,7 +475,8 @@ These can also be set as global options by using, for example,
 not to type a non-default option every time they call
 <code>bal.tab</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>        weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
 <span>        binary <span class="op">=</span> <span class="st">"std"</span>, continuous <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
@@ -507,8 +510,10 @@ variables stored in <code>covs</code>, the additional variables
 and squares.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Balance on all covariates in data set, including interactions and squares</span></span>
-<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
-<span>        addl <span class="op">=</span> <span class="op">~</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">married</span>, int <span class="op">=</span> <span class="cn">TRUE</span>, poly <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>        weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
+<span>        addl <span class="op">=</span> <span class="op">~</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">married</span>,</span>
+<span>        int <span class="op">=</span> <span class="cn">TRUE</span>, poly <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                             Type Diff.Adj</span></span>
 <span><span class="co">## age                      Contin.   0.1112</span></span>
@@ -637,7 +642,8 @@ after adjustment.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Balance tables with mean differences, variance ratios, and </span></span>
 <span><span class="co">#  statistics for the unadjusted sample</span></span>
-<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>        weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
 <span>        disp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"means"</span>, <span class="st">"sds"</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>        stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
@@ -688,7 +694,8 @@ mean differences (<code>m</code>) and variance ratios
 (<code>v</code>).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Balance tables with thresholds for mean differences and variance ratios</span></span>
-<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>        weights <span class="op">=</span> <span class="st">"att.weights"</span>,</span>
 <span>        thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span>, v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Adj        M.Threshold V.Ratio.Adj  V.Threshold</span></span>
@@ -750,10 +757,12 @@ example can be found in the section “Comparing Balancing Methods”.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Generating ATT weights with different covariates</span></span>
 <span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">age</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">re74</span>, </span>
-<span>                        data <span class="op">=</span> <span class="va">lalonde</span>, family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
+<span>                        data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>                        family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
 <span><span class="va">lalonde</span><span class="op">$</span><span class="va">att.weights2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">treat</span><span class="op">)</span><span class="op">*</span><span class="va">p.score2</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">p.score2</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"att.weights"</span>, <span class="st">"att.weights2"</span><span class="op">)</span>,</span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>        weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"att.weights"</span>, <span class="st">"att.weights2"</span><span class="op">)</span>,</span>
 <span>        estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.att.weights Diff.att.weights2</span></span>
@@ -790,16 +799,20 @@ creating the subclasses), as specified by the user. See
 <code>?bal.tab.subclass</code> for more details.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Subclassification for ATT with 5 subclasses</span></span>
-<span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
+<span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
+<span>                       data <span class="op">=</span> <span class="va">lalonde</span>, </span>
 <span>                       family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
 <span><span class="va">nsub</span> <span class="op">&lt;-</span> <span class="fl">5</span> <span class="co">#number of subclasses</span></span>
-<span><span class="va">lalonde</span><span class="op">$</span><span class="va">subclass</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/findInterval.html" class="external-link">findInterval</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span>, </span>
-<span>                                 <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span><span class="op">[</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span>, </span>
-<span>                                          <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="va">nsub</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, </span>
-<span>                                 all.inside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, subclass <span class="op">=</span> <span class="st">"subclass"</span>, </span>
-<span>        which.subclass <span class="op">=</span> <span class="va">.all</span>, subclass.summary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">lalonde</span><span class="op">$</span><span class="va">subclass</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">lalonde</span>,</span>
+<span>                         <span class="fu"><a href="https://rdrr.io/r/base/findInterval.html" class="external-link">findInterval</a></span><span class="op">(</span><span class="va">p.score</span>, </span>
+<span>                                      <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">p.score</span><span class="op">[</span><span class="va">treat</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span>, </span>
+<span>                                               <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="va">nsub</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>                                      all.inside <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>                         </span>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>        subclass <span class="op">=</span> <span class="st">"subclass"</span>, </span>
+<span>        which.subclass <span class="op">=</span> <span class="va">.all</span>,</span>
+<span>        subclass.summary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by subclass</span></span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">Subclass 1</span> - - - </span></span>
 <span><span class="co">##                Type Diff.Adj</span></span>
@@ -893,10 +906,9 @@ with the requested information. Below is a simple example of its
 use:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span>, <span class="va">nodegree</span>, <span class="va">married</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Nearest neighbor 2:1 matching with replacement</span></span>
-<span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu">MatchIt</span><span class="fu">::</span><span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span>, </span>
+<span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu">MatchIt</span><span class="fu">::</span><span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
 <span>                          data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"nearest"</span>, </span>
 <span>                          ratio <span class="op">=</span> <span class="fl">1</span>,  replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -945,11 +957,12 @@ straightforward. Below is a simple example of using
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>WeightIt</code>:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
-<span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span>, <span class="va">nodegree</span>, <span class="va">married</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Generating propensity score weights for the ATT</span></span>
-<span><span class="va">W.out</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
-<span>                            method <span class="op">=</span> <span class="st">"ps"</span>, estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span></span>
+<span><span class="va">W.out</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
+<span>                            data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>                            method <span class="op">=</span> <span class="st">"ps"</span>,</span>
+<span>                            estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
@@ -999,7 +1012,7 @@ above.:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cobalt_files/figure-html/unnamed-chunk-14-1.png" width="312"><img src="cobalt_files/figure-html/unnamed-chunk-14-2.png" width="312"></p>
+<p><img src="cobalt_files/figure-html/unnamed-chunk-14-1.png" width="336"><img src="cobalt_files/figure-html/unnamed-chunk-14-2.png" width="336"></p>
 <p>The first argument (or set of arguments) is the sufficient set of
 arguments for a simple call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, defining the data
 object (e.g., the output of a conditioning function), the treatment
@@ -1046,8 +1059,10 @@ distributions of propensity scores before and after weighting
 adjustment:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Before and after weighting; which = "both"</span></span>
-<span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"prop.score"</span>, which <span class="op">=</span> <span class="st">"both"</span>,</span>
-<span>         type <span class="op">=</span> <span class="st">"histogram"</span>, mirror <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"prop.score"</span>,</span>
+<span>         which <span class="op">=</span> <span class="st">"both"</span>,</span>
+<span>         type <span class="op">=</span> <span class="st">"histogram"</span>,</span>
+<span>         mirror <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-15-1.png" width="480"></p>
 <p>Setting <code>type = "histogram"</code> produces a histogram rather
 than a density plot, and setting <code>mirror = TRUE</code> creates a
@@ -1094,11 +1109,13 @@ options to customize their plot for presentation. Below is an example of
 its use:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Nearest neighbor 1:1 matching with replacement</span></span>
-<span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu">MatchIt</span><span class="fu">::</span><span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="fu"><a href="../reference/f.build.html">f.build</a></span><span class="op">(</span><span class="st">"treat"</span>, <span class="va">covs</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
-<span>                          method <span class="op">=</span> <span class="st">"nearest"</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu">MatchIt</span><span class="fu">::</span><span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
+<span>                              <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
+<span>                          data <span class="op">=</span> <span class="va">lalonde</span>, </span>
+<span>                          method <span class="op">=</span> <span class="st">"nearest"</span>,</span>
+<span>                          replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, binary <span class="op">=</span> <span class="st">"std"</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-16-1.png" width="480"></p>
@@ -1167,11 +1184,16 @@ customize output:</p>
 <span></span>
 <span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">m.out</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"ks.statistics"</span><span class="op">)</span>, </span>
 <span>          threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span>, ks <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span>, </span>
-<span>          binary <span class="op">=</span> <span class="st">"std"</span>, abs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, var.names <span class="op">=</span> <span class="va">v</span>,</span>
-<span>          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, grid <span class="op">=</span> <span class="cn">FALSE</span>, wrap <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>          binary <span class="op">=</span> <span class="st">"std"</span>,</span>
+<span>          abs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>,</span>
+<span>          var.names <span class="op">=</span> <span class="va">v</span>,</span>
+<span>          limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>          grid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>          wrap <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>          sample.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unmatched"</span>, <span class="st">"Matched"</span><span class="op">)</span>,</span>
-<span>          position <span class="op">=</span> <span class="st">"top"</span>, shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"triangle"</span><span class="op">)</span>,</span>
+<span>          position <span class="op">=</span> <span class="st">"top"</span>,</span>
+<span>          shapes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"triangle"</span><span class="op">)</span>,</span>
 <span>          colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"red"</span>, <span class="st">"blue"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-17-1.png" width="480"></p>
 <p>This plot shows that balance was improved on almost all variables
@@ -1265,9 +1287,10 @@ treatment, though substantively this analysis makes little sense.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Generating weights with re75 as the continuous treatment</span></span>
-<span><span class="va">W.out.c</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">re75</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> </span>
-<span>                                  <span class="va">re74</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">re74</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, </span>
-<span>                              data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">W.out.c</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">re75</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span></span>
+<span>                                  <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I</a></span><span class="op">(</span><span class="va">re74</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, </span>
+<span>                              data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>                              method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></span></code></pre></div>
 <p>First, we can assess balance numerically using
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. The main balance statistic used is the Pearson
 correlation between each covariate and the treatment variable. A
@@ -1350,7 +1373,8 @@ present balance improvements in a Love plot using the
 <code><a href="../reference/love.plot.html">love.plot()</a></code> command, just as with binary treatments.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Summarizing balance in a Love plot</span></span>
-<span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"ks"</span><span class="op">)</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, </span>
+<span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
+<span>          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, </span>
 <span>          abs <span class="op">=</span> <span class="cn">TRUE</span>, wrap <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-21-1.png" width="480"></p>
@@ -1406,12 +1430,14 @@ otherwise explain differences among groups. We will use
 propensity score weights with multinomial logistic regression.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
-<span><span class="va">cov.mn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Using WeightIt to generate weights with multinomial</span></span>
 <span><span class="co">#logistic regression</span></span>
-<span><span class="va">W.out.mn</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">race</span> <span class="op">~</span> <span class="va">cov.mn</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
-<span>                               method <span class="op">=</span> <span class="st">"ps"</span>, use.mlogit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">W.out.mn</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">race</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span></span>
+<span>                                   <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
+<span>                               data <span class="op">=</span> <span class="va">lalonde</span>,</span>
+<span>                               method <span class="op">=</span> <span class="st">"ps"</span>,</span>
+<span>                               use.mlogit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>First, we can examine balance numerically using
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. There are three possible pairwise comparisons,
 all of which can be requested with <code>which.treat = .all</code>. See
@@ -1434,7 +1460,9 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## Adjusted   140.5  54.32 259.28</span></span></code></pre>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance for each pair of treatments</span></span>
-<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, disp.means <span class="op">=</span> <span class="cn">TRUE</span>, which.treat <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        disp.means <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        which.treat <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by treatment pair</span></span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. hispan (1)</span> - - - </span></span>
@@ -1515,7 +1543,8 @@ done by supplying the weights or the output objects themselves. For
 example, we can compare matching and inverse probability weighting for
 the ATT using the following code and the output generated above.</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
+<span>            <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
 <span>        weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,</span>
 <span>                       IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,</span>
 <span>        disp.v.ratio <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -1523,10 +1552,10 @@ the ATT using the following code and the output generated above.</p>
 <span><span class="co">##                Type Diff.Matched V.Ratio.Matched Diff.IPW V.Ratio.IPW</span></span>
 <span><span class="co">## age         Contin.       0.2395          0.5557   0.1112      0.5086</span></span>
 <span><span class="co">## educ        Contin.      -0.0161          0.5765  -0.0641      0.6018</span></span>
+<span><span class="co">## married      Binary       0.0595               .  -0.0938           .</span></span>
 <span><span class="co">## race_black   Binary       0.0054               .  -0.0044           .</span></span>
 <span><span class="co">## race_hispan  Binary      -0.0054               .   0.0016           .</span></span>
 <span><span class="co">## race_white   Binary       0.0000               .   0.0028           .</span></span>
-<span><span class="co">## married      Binary       0.0595               .  -0.0938           .</span></span>
 <span><span class="co">## nodegree     Binary       0.0054               .   0.1151           .</span></span>
 <span><span class="co">## re74        Contin.      -0.0493          1.0349  -0.0039      1.4821</span></span>
 <span><span class="co">## re75        Contin.       0.0087          2.1264  -0.0428      1.1712</span></span>
@@ -1538,7 +1567,7 @@ the ATT using the following code and the output generated above.</p>
 <span><span class="co">## IPW      108.2      185</span></span></code></pre>
 <p>To use <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, the same syntax can be used:</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
 <span>         weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,</span>
 <span>                        IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,</span>
 <span>         var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
@@ -1549,7 +1578,9 @@ names of the weights to order the variables. Also, <code>colors</code>
 and <code>shapes</code> should have the same length as the number of
 weights or have length 1.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">covs</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
+<span>              <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
+<span>          data <span class="op">=</span> <span class="va">lalonde</span>, </span>
 <span>          weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,</span>
 <span>                         IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,</span>
 <span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, binary <span class="op">=</span> <span class="st">"std"</span>,</span>
@@ -1605,10 +1636,10 @@ Below is an example of how to do so after a call to
 <span><span class="co">## distance    Distance   0.0044</span></span>
 <span><span class="co">## age          Contin.   0.2395</span></span>
 <span><span class="co">## educ         Contin.  -0.0161</span></span>
+<span><span class="co">## married       Binary   0.0595</span></span>
 <span><span class="co">## race_black    Binary   0.0054</span></span>
 <span><span class="co">## race_hispan   Binary  -0.0054</span></span>
 <span><span class="co">## race_white    Binary   0.0000</span></span>
-<span><span class="co">## married       Binary   0.0595</span></span>
 <span><span class="co">## nodegree      Binary   0.0054</span></span>
 <span><span class="co">## re74         Contin.  -0.0493</span></span>
 <span><span class="co">## re75         Contin.   0.0087</span></span>

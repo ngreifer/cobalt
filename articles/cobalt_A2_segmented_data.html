@@ -546,18 +546,18 @@ the imputed data set must be sorted by imputation and unit ID.</p>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                Type Min.Corr.Adj Mean.Corr.Adj Max.Corr.Adj</span></span>
-<span><span class="co">## age         Contin.       0.0099        0.0379       0.0519</span></span>
-<span><span class="co">## race_black   Binary      -0.0487       -0.0423      -0.0295</span></span>
-<span><span class="co">## race_hispan  Binary       0.0019        0.0077       0.0114</span></span>
-<span><span class="co">## race_white   Binary       0.0247        0.0364       0.0412</span></span>
-<span><span class="co">## married      Binary       0.0219        0.0398       0.0530</span></span>
-<span><span class="co">## re74        Contin.      -0.0633       -0.0105       0.0060</span></span>
-<span><span class="co">## re75        Contin.      -0.0380       -0.0093       0.0066</span></span>
+<span><span class="co">## age         Contin.       0.0298        0.0447       0.0567</span></span>
+<span><span class="co">## race_black   Binary      -0.0542       -0.0440      -0.0327</span></span>
+<span><span class="co">## race_hispan  Binary       0.0015        0.0089       0.0128</span></span>
+<span><span class="co">## race_white   Binary       0.0252        0.0374       0.0467</span></span>
+<span><span class="co">## married      Binary       0.0287        0.0415       0.0498</span></span>
+<span><span class="co">## re74        Contin.      -0.0230       -0.0029       0.0107</span></span>
+<span><span class="co">## re75        Contin.      -0.0230       -0.0045       0.0052</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##             Total</span></span>
 <span><span class="co">## Unadjusted 614.  </span></span>
-<span><span class="co">## Adjusted   542.28</span></span></code></pre>
+<span><span class="co">## Adjusted   538.65</span></span></code></pre>
 <p>First, we see a balance summary across all the imputations. This
 table presents the minimum, mean, and maximum balance statistics for
 each variable across imputations. Setting <code>un = TRUE</code> will
@@ -579,18 +579,18 @@ using <code>imp.summary</code>.)</p>
 <span><span class="co">##  - - - <span style="font-style: italic;">Imputation 1</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Corr.Adj</span></span>
-<span><span class="co">## age         Contin.   0.0348</span></span>
-<span><span class="co">## race_black   Binary  -0.0487</span></span>
-<span><span class="co">## race_hispan  Binary   0.0114</span></span>
-<span><span class="co">## race_white   Binary   0.0403</span></span>
-<span><span class="co">## married      Binary   0.0530</span></span>
-<span><span class="co">## re74        Contin.  -0.0025</span></span>
-<span><span class="co">## re75        Contin.  -0.0096</span></span>
+<span><span class="co">## age         Contin.   0.0462</span></span>
+<span><span class="co">## race_black   Binary  -0.0516</span></span>
+<span><span class="co">## race_hispan  Binary   0.0128</span></span>
+<span><span class="co">## race_white   Binary   0.0422</span></span>
+<span><span class="co">## married      Binary   0.0486</span></span>
+<span><span class="co">## re74        Contin.   0.0002</span></span>
+<span><span class="co">## re75        Contin.  -0.0048</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##             Total</span></span>
 <span><span class="co">## Unadjusted 614.  </span></span>
-<span><span class="co">## Adjusted   538.28</span></span>
+<span><span class="co">## Adjusted   534.47</span></span>
 <span><span class="co">##  - - - - - - - - - - - - - -</span></span></code></pre>
 <p>As with clustered data, all <code><a href="../reference/bal.tab.html">bal.tab()</a></code> options work as
 with non-imputed data. Indeed, the functions for clustered and imputed
@@ -677,47 +677,47 @@ treatments, everything described in the previous section will occur.</p>
 <span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. hispan (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age      Contin.      -0.0006        0.0216       0.0618</span></span>
-<span><span class="co">## educ     Contin.      -0.1179       -0.0999      -0.0780</span></span>
-<span><span class="co">## married   Binary      -0.0434       -0.0356      -0.0250</span></span>
-<span><span class="co">## nodegree  Binary       0.0310        0.0402       0.0505</span></span>
-<span><span class="co">## re74     Contin.      -0.1098       -0.0627      -0.0299</span></span>
-<span><span class="co">## re75     Contin.      -0.1152       -0.0866      -0.0453</span></span>
+<span><span class="co">## age      Contin.      -0.0006        0.0185       0.0416</span></span>
+<span><span class="co">## educ     Contin.      -0.1147       -0.0967      -0.0814</span></span>
+<span><span class="co">## married   Binary      -0.0446       -0.0339      -0.0284</span></span>
+<span><span class="co">## nodegree  Binary       0.0308        0.0388       0.0460</span></span>
+<span><span class="co">## re74     Contin.      -0.1397       -0.0584      -0.0209</span></span>
+<span><span class="co">## re75     Contin.      -0.1342       -0.0848      -0.0602</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##             black hispan</span></span>
 <span><span class="co">## Unadjusted 243.    72.  </span></span>
-<span><span class="co">## Adjusted   157.56  55.14</span></span>
+<span><span class="co">## Adjusted   159.01  55.28</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. white (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age      Contin.       0.0258        0.0357       0.0530</span></span>
-<span><span class="co">## educ     Contin.      -0.0841       -0.0691      -0.0499</span></span>
-<span><span class="co">## married   Binary       0.0005        0.0048       0.0108</span></span>
-<span><span class="co">## nodegree  Binary       0.0134        0.0235       0.0322</span></span>
-<span><span class="co">## re74     Contin.      -0.1667       -0.1006      -0.0350</span></span>
-<span><span class="co">## re75     Contin.      -0.1377       -0.1028      -0.0680</span></span>
+<span><span class="co">## age      Contin.       0.0194        0.0351       0.0533</span></span>
+<span><span class="co">## educ     Contin.      -0.0795       -0.0658      -0.0504</span></span>
+<span><span class="co">## married   Binary       0.0008        0.0060       0.0101</span></span>
+<span><span class="co">## nodegree  Binary       0.0154        0.0221       0.0275</span></span>
+<span><span class="co">## re74     Contin.      -0.1648       -0.0963      -0.0589</span></span>
+<span><span class="co">## re75     Contin.      -0.1416       -0.1016      -0.0784</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##             black  white</span></span>
 <span><span class="co">## Unadjusted 243.   299.  </span></span>
-<span><span class="co">## Adjusted   157.56 260.34</span></span>
+<span><span class="co">## Adjusted   159.01 260.05</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">hispan (0) vs. white (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age      Contin.      -0.0088        0.0141       0.0381</span></span>
-<span><span class="co">## educ     Contin.       0.0212        0.0308       0.0395</span></span>
-<span><span class="co">## married   Binary       0.0321        0.0405       0.0497</span></span>
-<span><span class="co">## nodegree  Binary      -0.0249       -0.0167      -0.0102</span></span>
-<span><span class="co">## re74     Contin.      -0.0620       -0.0378       0.0002</span></span>
-<span><span class="co">## re75     Contin.      -0.0275       -0.0162       0.0015</span></span>
+<span><span class="co">## age      Contin.      -0.0031        0.0166       0.0334</span></span>
+<span><span class="co">## educ     Contin.       0.0274        0.0309       0.0352</span></span>
+<span><span class="co">## married   Binary       0.0323        0.0400       0.0471</span></span>
+<span><span class="co">## nodegree  Binary      -0.0197       -0.0167      -0.0132</span></span>
+<span><span class="co">## re74     Contin.      -0.0648       -0.0379      -0.0252</span></span>
+<span><span class="co">## re75     Contin.      -0.0257       -0.0168      -0.0074</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##            hispan  white</span></span>
 <span><span class="co">## Unadjusted  72.   299.  </span></span>
-<span><span class="co">## Adjusted    55.14 260.34</span></span>
+<span><span class="co">## Adjusted    55.28 260.05</span></span>
 <span><span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - -</span></span></code></pre>
 <p>Other options can be supplied to choose how balance is computed with
 multi-category treatments; these are described at
