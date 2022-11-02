@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.4.1
 
 * Fixed a bug when covariates with nonstandard names are extracted from model objects (#63). Thanks to @markdanese.
 
