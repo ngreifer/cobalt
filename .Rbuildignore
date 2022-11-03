@@ -12,3 +12,4 @@
 ^pkgdown$
 ^\.github$
 ^\.DS_Store$
+^CRAN-SUBMISSION$

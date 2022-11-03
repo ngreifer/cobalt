@@ -1,3 +1,4 @@
+skip_on_cran()
 test_that("bal.tab() works with data.frames", {
     data("lalonde")
     cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", 
