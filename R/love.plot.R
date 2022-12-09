@@ -55,7 +55,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     if ("bal.tab" %nin% class(x)) {
         #Use bal.tab on inputs first, then love.plot on that
         .call2 <- .call
-        .call2[[1]] <- quote(bal.tab)
+        .call2[[1]] <- quote(cobalt::bal.tab)
         .call2[["x"]] <- x
         
         .call2["thresholds"] <- list(NULL)
