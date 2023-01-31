@@ -135,7 +135,12 @@ base.bal.tab.imp <- function(X, which.imp = NA, imp.summary = getOption("cobalt_
     out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) {
         X_i <- assign.X.class(subset_X(X, imp == i)) 
         X_i$call <- NULL
-        do.call("base.bal.tab", c(list(X_i), A[names(A) %nin% names(X_i)]), quote = TRUE)
+        tryCatch({
+            do.call("base.bal.tab", c(list(X_i), A[names(A) %nin% names(X_i)]), quote = TRUE)
+        },
+        error = function(e) {
+            stop(paste0("In imputation ", i, ": ", conditionMessage(e)), call. = FALSE)
+        })
     })
     
     names(out[["Imputation.Balance"]]) <- levels(imp)
@@ -423,7 +428,13 @@ base.bal.tab.cluster <- function(X, which.cluster, cluster.summary = getOption("
     out[["Cluster.Balance"]] <- lapply(levels(X$cluster), function(cl) {
         X_cl <- assign.X.class(subset_X(X, X$cluster == cl)) 
         X_cl$call <- NULL
-        do.call("base.bal.tab", c(list(X_cl), A[names(A) %nin% names(X_cl)]), quote = TRUE)
+        
+        tryCatch({
+            do.call("base.bal.tab", c(list(X_cl), A[names(A) %nin% names(X_cl)]), quote = TRUE)
+        },
+        error = function(e) {
+            stop(paste0("In cluster \"", cl, "\": ", conditionMessage(e)), call. = FALSE)
+        })
     })
     
     names(out[["Cluster.Balance"]]) <- levels(X$cluster)
