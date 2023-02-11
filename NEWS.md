@@ -1,6 +1,12 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Added support for multi-category treatments for `matchit` objects.
+
+* When `focal` is specified with multi-category treatments (by the user or implicitly by the supplied object), `pairwise` can be set to `TRUE` to request balance between each pair of treatment groups and to `FALSE` to request balance only between each non-fcoal group and the focal group. Previously only the behavior of setting `pairwise` to `FALSE` was supported. Now the default is for `pairwise` to be `TRUE`. To recover balance results for version prior to this one, set `pairwise = FALSE` with non-`NULL` `focal`.
+
 # cobalt 4.4.1
 
 * Fixed a bug when covariates with nonstandard names are extracted from model objects (#63). Thanks to @markdanese.

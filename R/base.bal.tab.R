@@ -214,8 +214,8 @@ base.bal.tab.multi <- function(X, pairwise = TRUE, which.treat, multi.summary = 
             stop("'focal' must be the name or index of the focal treatment group.", call. = FALSE)
         }
         
-        treat.combinations <- lapply(levels(X$treat)[levels(X$treat) != X$focal], function(x) rev(c(X$focal, x)))
-        pairwise <- TRUE
+        if (pairwise) treat.combinations <- combn(treat_names(X$treat), 2, simplify = FALSE)
+        else treat.combinations <- lapply(setdiff(treat_names(X$treat), X$focal), function(x) c(x, X$focal))
     }
     
     X$covs <- do.call("get.C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)

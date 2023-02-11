@@ -13,10 +13,10 @@ The balance summary is, for each variable, the greatest imbalance across all two
 \arguments{
 There are four arguments for each \code{bal.tab()} method that can handle multi-category treatments: \code{pairwise}, \code{focal}, \code{which.treat}, and \code{multi.summary}.
 \item{pairwise}{
-Whether to compute the two-group comparisons pairwise or not. If \code{TRUE}, \code{bal.tab()} will compute comparisons for each pair of treatments. This can be valuable if treatments are to be compared with one another (which is often the case). If \code{FALSE}, \code{bal.tab()} will compute balance for each treatment group against the full unadjusted sample. This only makes sense if the ATE is desired. When \code{focal} is specified, \code{pairwise} is automatically set to \code{TRUE}.
+Whether to compute the two-group comparisons pairwise or not. If \code{TRUE}, \code{bal.tab()} will compute comparisons for each pair of treatments. This can be valuable if treatments are to be compared with one another (which is often the case). If \code{FALSE}, \code{bal.tab()} will compute balance for each treatment group against the full unadjusted sample when \code{focal} is \code{NULL} and for each non-focal group against the focal group otherwise.
 }
 \item{focal}{
-When one group is to be compared to multiple control groups in an ATT analysis, the group considered "treated" is the focal group. Only comparisons between other groups and the focal group are of interest. By specifying the name or index of the treatment condition considered focal, \code{bal.tab()} will only compute and display pairwise balance for treatment comparisons that include the focal group. For example, if "A" was to be compared with "B" and "C", "A" would be considered focal, and the comparison between groups "B" and "C" would not be computed. In general it is only a good idea to specify \code{focal} if and only if the ATT is sought.
+When one group is to be compared to multiple control groups in an ATT analysis, the group considered "treated" is the focal group. By specifying the name or index of the treatment condition considered focal, \code{bal.tab()} will only compute and display pairwise balance for treatment comparisons that include the focal group when \code{pairwise = FALSE}.
 }
 \item{which.treat}{
 This is a display option that does not affect computation. When displaying the \code{bal.tab} output, which treatments should be displayed? If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, inputting \code{"A"} will display "A vs. B" and "A vs. C", while entering \code{c("A", "B")} will only display "A vs. B". \code{.none} indicates no treatment comparisons will be displayed, and \code{.all} indicates all treatment comparisons will be displayed. \code{.none} is the default.
@@ -28,7 +28,7 @@ If \code{TRUE}, the balance summary across all comparisons will be computed and 
 \value{
 The output is a \code{bal.tab.multi} object, which inherits from \code{bal.tab}. It has the following elements:
 
-\item{Pair.Balance}{For each pair of treatment groups, a regular \code{bal.tab} object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified. If \code{focal} is specified, only the comparisons involving the focal group are computed. If \code{pairwise} is \code{FALSE}, the comparisons will be between each group and the groups combined (labeled "All").}
+\item{Pair.Balance}{For each pair of treatment groups, a regular \code{bal.tab} object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified. If \code{pairwise} is \code{FALSE}, the comparisons will be between each group and the groups combined (labeled "All") when \code{focal} is \code{NULL} and between each non-focal group and the focal group otherwise.}
 \item{Balance.Across.Pairs}{The balance summary across two-group comparisons. This will include the greatest (i.e., maximum) absolute balance statistics(s) for each covariate across all comparisons computed. Thresholds can be requested for each balance measure as with binary treatments.}
 \item{Observations}{A table of sample sizes or effective sample sizes for each treatment group before and after adjustment.}
 
@@ -36,6 +36,8 @@ As with other methods, multiple weights can be specified, and values for all wei
 }
 \note{
 In versions 4.3.1 and earlier, setting \code{pairwise = FALSE} would comapre each group to the full adjusted sample. Now, each group is compared to the full \emph{un}adjusted sample (unadjusted except for \code{s.weights}, if supplied).
+
+In versions 4.3.1 and earlier, \code{pairwise} was ignored with non-\code{NULL} \code{focal} and was automatically set to \code{FALSE}.\code{pairwise} can be specified and its default is now \code{TRUE}, so balance between all treatment groups will be computed b ydefault rather than only between each non-group and the focal group. To recover previous functionality, set \code{pairwise = FALSE} with non-\code{NULL} \code{focal}.
 }
 
 \author{

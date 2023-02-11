@@ -110,9 +110,8 @@ x2base.matchit <- function(m, ...) {
                                  obj.distance.name = "distance")
     
     #Process focal
-    if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with matchit objects.", call. = FALSE)
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    focal <- m[["focal"]]
+    if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -217,7 +216,8 @@ x2base.matchit <- function(m, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand,
+                                       weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -239,8 +239,6 @@ x2base.matchit <- function(m, ...) {
     
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
-    
-    class(X) <- "binary"
     
     return(X)
 }
