@@ -290,51 +290,6 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     return(weights)
 }
 
-.use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, needs.treat = TRUE, needs.covs = TRUE) {
-    if (is_(formula, "formula")) {
-        D <- NULL
-        if (is_not_null(data)) D <- data
-        if (is_mat_like(covs)) {
-            if (is_not_null(D)) D <- cbind(D, as.data.frame(covs)) 
-            else D <- as.data.frame(covs)
-        }
-        treat <- get_treat_from_formula(formula, D, treat = treat)
-        covs <- get_covs_from_formula(formula, D)
-        t.c <- list(treat = treat, covs = covs, treat.name = attr(treat, "treat.name"))
-        attr(t.c, "which") <- "fd"
-    }
-    else {
-        if (is_not_null(covs)) {
-            if (is_mat_like(covs)) covs <- get_covs_from_formula(data = covs)
-            else if (is.character(covs)) {
-                if (is_mat_like(data)) {
-                    if (any(covs %nin% colnames(data))) {
-                        stop("All entries in 'covs' must be names of variables in 'data'.", call. = FALSE)
-                    }
-                    covs <- get_covs_from_formula(f.build(covs), data = as.data.frame(data))
-                }
-                else {
-                    stop("If 'covs' is a character vector, 'data' must be specified as a data.frame.", call. = FALSE)
-                }
-            }
-            else stop("'covs' must be a data.frame of covariates.", call. = FALSE)
-        }
-        
-        if (is_not_null(treat)) {
-            if (!is_(treat, "atomic")) stop("'treat' must be an vector of treatment statuses.", call. = FALSE)
-            if (is.character(treat) && length(treat) == 1) treat <- get_treat_from_formula(reformulate(".", treat), data = data)
-            else treat <- get_treat_from_formula(treat ~ ., treat = treat)
-        }
-        
-        t.c <- list(treat = treat, covs = covs)
-        attr(t.c, "which") <- "tc"
-    }
-    
-    if (needs.covs && is_null(t.c[["covs"]])) stop("No covariates were specified.", call. = FALSE)
-    if (needs.treat && is_null(t.c[["treat"]])) stop("No treatment variable was specified.", call. = FALSE)
-    
-    return(t.c)
-}
 use.tc.fd <- function(formula = NULL, data = NULL, treat = NULL, covs = NULL, needs.treat = TRUE, needs.covs = TRUE) {
     
     treat_f <- treat_c <- covs_f <- covs_c <- NULL
@@ -592,7 +547,8 @@ vector.process <- function(vec, name = deparse1(substitute(vec)), which = name, 
     
     return(vec)
 } 
-get.s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL, subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
+get.s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL,
+                          subclass = NULL, treat = NULL, focal = NULL, quietly = FALSE) {
     check.estimand <- check.weights <- check.focal <- bad.s.d.denom <- bad.estimand <- FALSE
     s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
     estimand.specified <- is_not_null(estimand)
@@ -637,12 +593,12 @@ get.s.d.denom <- function(s.d.denom = NULL, estimand = NULL, weights = NULL, sub
                 if (length(try.estimand) > 1 && length(try.estimand) != NCOL(weights)) {
                     stop(paste0("'estimand' must have length 1 or equal to the number of valid sets of weights, which is ", NCOL(weights), "."), call. = FALSE)
                 }
-                else s.d.denom <- vapply(try.estimand, function(x) switch(x, 
-                                                                          ATT = treat_vals(treat)[treat_names(treat)["treated"]], 
-                                                                          ATC = treat_vals(treat)[treat_names(treat)["control"]], 
-                                                                          ATO = "weighted",
-                                                                          ATM = "weighted",
-                                                                          "pooled"), FUN.VALUE = character(1L))
+                else s.d.denom <- vapply(try.estimand, switch, character(1L),
+                                         ATT = treat_vals(treat)[treat_names(treat)["treated"]], 
+                                         ATC = treat_vals(treat)[treat_names(treat)["control"]], 
+                                         ATO = "weighted",
+                                         ATM = "weighted",
+                                         "pooled")
             }
         }
         else {
@@ -805,7 +761,9 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
     if (is_not_null(weights) && length(estimand) == 1) estimand <- rep.int(estimand, ncol(weights))
     
     if (!quietly && (check.focal || check.weights)) {
-        message("Note: 'estimand' not specified; assuming ", ifelse(all_the_same(toupper(estimand)), toupper(estimand[1]), word_list(paste("\"", toupper(estimand), "\" for ", names(weights)))), ".")
+        message("Note: 'estimand' not specified; assuming ",
+                ifelse(all_the_same(toupper(estimand)), toupper(estimand[1]),
+                       word_list(paste("\"", toupper(estimand), "\" for ", names(weights)))), ".")
     }
     
     if (is_not_null(weights) && length(estimand) != ncol(weights)) {
@@ -813,7 +771,9 @@ get.estimand <- function(estimand = NULL, weights = NULL, subclass = NULL, treat
     }
     return(estimand)
 }
-compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL, bin.vars = NULL, subset = NULL, weighted.weights = NULL, to.sd = rep(TRUE, ncol(mat)), na.rm = TRUE) {
+compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL,
+                              bin.vars = NULL, subset = NULL, weighted.weights = NULL,
+                              to.sd = rep(TRUE, ncol(mat)), na.rm = TRUE) {
     denoms <- setNames(rep(1, ncol(mat)), colnames(mat))
     if (is.character(s.d.denom) && length(s.d.denom) == 1L) {
         if (is_null(bin.vars)) {
@@ -905,24 +865,22 @@ compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL
             denoms[to.sd] <- denoms[to.sd]*treat.sd
         }
     }
-    else {
-        if (is.numeric(s.d.denom)) {
-            if (is_not_null(names(s.d.denom)) && any(colnames(mat) %in% names(s.d.denom))) {
-                denoms[colnames(mat)[colnames(mat) %in% names(s.d.denom)]] <- s.d.denom[names(s.d.denom)[names(s.d.denom) %in% colnames(mat)]]
-            }
-            else if (length(s.d.denom) == sum(to.sd)) {
-                denoms[to.sd] <- s.d.denom
-            }
-            else if (length(s.d.denom) == ncol(mat)) {
-                denoms[] <- s.d.denom
-            }
-            else {
-                stop("'s.d.denom' must be an allowable value or a numeric vector of with length equal to the number of columns of 'mat'. See ?col_w_smd for allowable values.")
-            }
+    else if (is.numeric(s.d.denom)) {
+        if (is_not_null(names(s.d.denom)) && any(colnames(mat) %in% names(s.d.denom))) {
+            denoms[colnames(mat)[colnames(mat) %in% names(s.d.denom)]] <- s.d.denom[names(s.d.denom)[names(s.d.denom) %in% colnames(mat)]]
+        }
+        else if (length(s.d.denom) == sum(to.sd)) {
+            denoms[to.sd] <- s.d.denom
+        }
+        else if (length(s.d.denom) == ncol(mat)) {
+            denoms[] <- s.d.denom
         }
         else {
             stop("'s.d.denom' must be an allowable value or a numeric vector of with length equal to the number of columns of 'mat'. See ?col_w_smd for allowable values.")
         }
+    }
+    else {
+        stop("'s.d.denom' must be an allowable value or a numeric vector of with length equal to the number of columns of 'mat'. See ?col_w_smd for allowable values.", call. = FALSE)
     }
     return(denoms)
 }
@@ -1051,7 +1009,9 @@ imp.complete <- function(data) {
     
     return(cmp)
 }
-length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL, imp = NULL, data = NULL, original.call.to = NULL, env = sys.frame(-1)) {
+length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
+                               imp = NULL, data = NULL, original.call.to = NULL,
+                               env = sys.frame(-1)) {
     #Processes imp and assigns it to imp in env
     #Processes vectors, data.frames, and lists for length
     #If object correspond to one imputation, assigns expanded object in env 
@@ -1228,8 +1188,8 @@ process_focal <- function(focal, treat) {
         if (can_str2num(treat) && focal %in% str2num(treat)) {focal <- as.character(focal)}
         else if (focal <= length(treat_vals(treat))) focal <- treat_vals(treat)[focal]
         else 
-            stop(paste0("'focal' was specified as ", focal, 
-                        ", but there are only ", length(treat_vals(treat)), " treatment groups."), call. = FALSE)
+            stop(sprintf("'focal' was specified as %s, but there are only %s treatment groups.",
+                         focal, length(treat_vals(treat))), call. = FALSE)
     }
     else {
         if (focal %nin% treat_vals(treat)) 
@@ -1237,7 +1197,8 @@ process_focal <- function(focal, treat) {
     }
     return(focal)
 }
-process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL, method = character(0), addl.data = list(), ...) {
+process_weights <- function(obj = NULL, A = NULL, treat = NULL, covs = NULL,
+                            method = character(0), addl.data = list(), ...) {
     if (is_not_null(obj)) {
         weights <- get.w(obj, treat = treat, ...)
         
@@ -1334,7 +1295,8 @@ process_addl.list <- function(addl.list = NULL, datalist = list(), covs.list = l
     }
     return(addl.list.out)
 }
-process_distance <- function(distance = NULL, datalist = list(), obj.distance = NULL, obj.distance.name = "distance") {
+process_distance <- function(distance = NULL, datalist = list(), obj.distance = NULL,
+                             obj.distance.name = "distance") {
     data <- do.call("data.frame", unname(clear_null(datalist)))
     if (is_not_null(distance) && !is_(distance, c("atomic", "formula", "matrix", "data.frame"))) {
         stop("'distance' must be a formula or variable containing the distance values.", call. = FALSE)
@@ -1359,7 +1321,8 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
     
     return(distance)
 }
-process_distance.list <- function(distance.list = NULL, datalist = list(), covs.list = list(), obj.distance = NULL, obj.distance.name = "distance") {
+process_distance.list <- function(distance.list = NULL, datalist = list(),
+                                  covs.list = list(), obj.distance = NULL, obj.distance.name = "distance") {
     datalist <- clear_null(c(datalist, covs.list))
     
     if (is_not_null(obj.distance)) {
@@ -1384,6 +1347,96 @@ process_distance.list <- function(distance.list = NULL, datalist = list(), covs.
     }
     
     return(distance.list.out)
+}
+process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
+    reported.estimand <- estimand
+    
+    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+    treat.type <- get.treat.type(treat)
+    
+    unique.treat <- unique(treat, nmax = switch(treat.type, "binary" = 2, "multinomial" = length(treat)/4))
+    
+    #Check focal
+    if (is_not_null(focal) && (length(focal) > 1L || focal %nin% unique.treat)) {
+        stop("The argument supplied to 'focal' must be the name of a level of treatment.", call. = FALSE)
+    }
+    
+    if (treat.type == "multinomial") {
+        
+        if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
+            warning(paste(estimand, "is not compatible with 'focal'. Setting 'estimand' to \"ATT\"."), call. = FALSE, immediate. = TRUE)
+            reported.estimand <- estimand <- "ATT"
+        }
+        
+        if (estimand == "ATT") {
+            if (is_null(focal)) {
+                if (is_null(treated) || treated %nin% unique.treat) {
+                    stop("When estimand = \"ATT\" for multinomial treatments, an argument must be supplied to 'focal'.", call. = FALSE)
+                }
+                focal <- treated
+            }
+        }
+        else if (estimand == "ATC") {
+            if (is_null(focal)) {
+                stop("When estimand = \"ATC\" for multinomial treatments, an argument must be supplied to 'focal'.", call. = FALSE)
+            }
+        }
+    }
+    else if (treat.type == "binary") {
+        unique.treat.bin <- unique(binarize(treat), nmax = 2)
+        if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
+            warning(paste(estimand, "is not compatible with 'focal'. Setting 'estimand' to \"ATT\"."), call. = FALSE, immediate. = TRUE)
+            reported.estimand <- estimand <- "ATT"
+        }
+        
+        if (is_null(treated) || treated %nin% unique.treat) {
+            if (is_null(focal)) {
+                if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
+                    treated <- unique.treat[unique.treat.bin == 1]
+                }
+                else {
+                    if (is.factor(treat)) treated <- levels(treat)[2]
+                    else treated <- unique.treat[unique.treat.bin == 1]
+                    
+                    if (estimand == "ATT") {
+                        message(paste0("Assuming ", word_list(treated, quotes = !is.numeric(treat), is.are = TRUE),
+                                       " the treated level. If not, supply an argument to 'focal'."))
+                        
+                    }
+                    else if (estimand == "ATC") {
+                        message(paste0("Assuming ", word_list(unique.treat[unique.treat %nin% treated], quotes = !is.numeric(treat), is.are = TRUE),
+                                       " the control level. If not, supply an argument to 'focal'."))
+                    }
+                    
+                }
+                if (estimand == "ATT")
+                    focal <- treated
+                else if (estimand == "ATC")
+                    focal <- unique.treat[unique.treat %nin% treated]
+            }
+            else {
+                if (estimand == "ATT")
+                    treated <- focal
+                else if (estimand == "ATC")
+                    treated <- unique.treat[unique.treat %nin% focal]
+            }
+            if (estimand == "ATC") estimand <- "ATT"
+        }
+        else {
+            if (is_null(focal)) {
+                if (estimand == "ATT")
+                    focal <- treated
+                else if (estimand == "ATC")
+                    focal <- unique.treat[unique.treat %nin% treated]
+            }
+            if (estimand == "ATC") estimand <- "ATT"
+        }
+    }
+    
+    return(list(focal = as.character(focal),
+                estimand = estimand,
+                reported.estimand = reported.estimand,
+                treated = if (is.factor(treated)) as.character(treated) else treated))
 }
 
 #get.C2
@@ -1793,7 +1846,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     colnames(covs) <- names(co.names)
     return(covs)
 }
-get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, treat = NULL, cluster = NULL, drop = TRUE, ...) {
+get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL,
+                   treat = NULL, cluster = NULL, drop = TRUE, ...) {
     #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
     if (inherits(covs, "processed_C")) return(covs)
     
@@ -2002,7 +2056,8 @@ get.C2 <- function(covs, int = FALSE, poly = 1, addl = NULL, distance = NULL, tr
     return(C)
     
 }
-int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, orth = FALSE, sep = " * ", co.names = NULL) {
+int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE,
+                        orth = FALSE, sep = " * ", co.names = NULL) {
     #Adds to data frame interactions and polynomial terms; interaction terms will be named "v1_v2" and polynomials will be named "v1_2"
     #Only to be used in base.bal.tab; for general use see int.poly()
     #mat=matrix input
@@ -2016,7 +2071,10 @@ int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, o
     d <- mat
     
     binary.vars <- is_binary_col(d)
-    interaction.vars <- if (cn) vapply(colnames(d), function(x) "isep" %in% co.names[[x]][["type"]], logical(1L)) else rep(FALSE, ncol(d))
+    interaction.vars <- {
+        if (cn) vapply(colnames(d), function(x) "isep" %in% co.names[[x]][["type"]], logical(1L))
+        else rep(FALSE, ncol(d))
+    }
     
     if (center) {
         d[,!binary.vars] <- center(d[, !binary.vars, drop = FALSE])
@@ -2029,10 +2087,20 @@ int.poly.f2 <- function(mat, ex = NULL, int = FALSE, poly = 1, center = FALSE, o
         npol <- nd - sum(no.poly)
         if (npol > 0) {
             for (i in 2:poly) {
-                poly_terms[[i - 1]] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) if (orth) poly(x, degree = poly)[,i] else x^i)
-                if (cn) poly_co.names[[i - 1]] <- lapply(colnames(d)[!no.poly], function(x) list(component = c(co.names[[x]][["component"]], num_to_superscript(i)), 
-                                                                                                 type = c(co.names[[x]][["type"]], "power")))
-                else poly_co.names[[i - 1]] <- paste0(colnames(d)[!no.poly], num_to_superscript(i))
+                poly_terms[[i - 1]] <- apply(d[, !no.poly, drop = FALSE], 2, function(x) {
+                    if (orth) poly(x, degree = poly)[,i] else x^i
+                })
+                poly_co.names[[i - 1]] <- {
+                    if (cn) {
+                        lapply(colnames(d)[!no.poly], function(x) {
+                            list(component = c(co.names[[x]][["component"]], num_to_superscript(i)), 
+                                 type = c(co.names[[x]][["type"]], "power"))
+                        })
+                    }
+                    else {
+                        paste0(colnames(d)[!no.poly], num_to_superscript(i))
+                    }
+                }
             }
         }
     }
