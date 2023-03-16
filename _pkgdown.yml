@@ -16,11 +16,12 @@ reference:
 - contents: starts_with("class-bal.tab")
 - title: Balance and Display Options
 - contents:
-  - '`Balance Statistics`'
-  - '`Display Options`'
+  - balance-statistics
+  - display-options
 - title: Helper Functions
 - contents:
-  - '`Balance Summary`'
+  - balance-summary
+  - bal.compute
   - f.build
   - get.w
   - print.bal.tab
