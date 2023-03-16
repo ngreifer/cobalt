@@ -1,0 +1,54 @@
+#' @title Balance Statistics for \code{optmatch} Objects
+#' @description Generates balance statistics for output objects from \pkg{optmatch}.
+#' 
+#' @inheritParams bal.tab.Match
+#' @param x an \code{optmatch} object (the output of a call to \pkgfun{optmatch}{pairmatch} or \pkgfun{optmatch}{fullmatch}).
+#' @param estimand \code{character}; whether the desired estimand is the "ATT", "ATC", or "ATE". Default is "ATT".
+#' @param s.d.denom \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If unspecified, \code{bal.tab()} will figure out which one is best based on the \code{estimand}, if given (for ATT, \code{"treated"}; for ATC, \code{"control"}; otherwise \code{"pooled"}) and other clues if not.
+#' 
+#' @inherit bal.tab.Match return
+#' 
+#' @details \code{bal.tab()} generates a list of balance summaries for the object given. The input to \code{bal.tab.optmatch()} must include either both \code{formula} and \code{data} or just \code{covs} (\code{treat} is not necessary).
+#' 
+#' @inherit bal.tab.Match seealso
+#' 
+#' @examplesIf requireNamespace("ebal", quietly = TRUE)
+#' data("lalonde", package = "cobalt")
+#' 
+#' lalonde$prop.score <- glm(treat ~ age + educ + race + 
+#'                               married + nodegree + re74 + re75, 
+#'                           data = lalonde, family = binomial)$fitted.values
+#' pm <- optmatch::pairmatch(treat ~ prop.score, data = lalonde)
+#' 
+#' ## Using formula and data; LHS of formula not required
+#' bal.tab(pm, formula = ~ age + educ + race +
+#'             married + nodegree + re74 + re75,
+#'         data = lalonde)
+#' 
+#' ## Using covs
+#' covs <- subset(lalonde, select = -c(re78, treat))
+#' bal.tab(pm, covs = covs)
+
+#' @exportS3Method bal.tab optmatch
+bal.tab.optmatch <- function(x, formula = NULL, data = NULL, treat = NULL, covs = NULL, estimand = NULL,
+                             stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
+                             ...) {
+    
+    tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) .err(conditionMessage(e)))
+    
+    #Adjustments to arguments
+    
+    args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+    args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
+    
+    #Initializing variables
+    X <- do.call("x2base", c(list(x), args), quote = TRUE) 
+    
+    args[names(args) %in% names(X)] <- NULL
+    
+    X <- assign.X.class(X)
+    
+    out <- do.call("base.bal.tab", c(list(X), args),
+                   quote = TRUE)
+    return(out)
+}
