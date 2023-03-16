@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.4.1.9002
+Version: 4.4.1.9003
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -12,14 +12,15 @@ Description: Generate balance tables and plots for covariates of groups preproce
              'cem', 'sbw', and 'designmatch' for assessing balance on the output of their preprocessing 
              functions. Users can also specify data for balance assessment not generated through 
              the above packages. Also included are methods for assessing balance in clustered or 
-             multiply imputed data sets or data sets with longitudinal treatments.
+             multiply imputed data sets or data sets with multi-category, continuous, or longitudinal treatments.
 Depends:
     R (>= 3.3.0)
 Imports:
-    ggplot2 (>= 3.3.0),
-    grid,
+    stats, utils, grid, grDevices,
+    ggplot2 (>= 3.4.1),
     gtable (>= 0.3.0),
     gridExtra (>= 2.3),
+    chk (>= 0.8.1),
     rlang (>= 0.4.0),
     crayon,
     backports (>= 1.1.9)
@@ -38,6 +39,8 @@ Suggests:
     MatchThem (>= 0.9.3),
     cem (>= 1.1.30),
     sbw (>= 1.1.5),
+    gbm (>= 2.1.7),
+    brglm2 (>= 0.9),
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
@@ -49,3 +52,5 @@ URL: https://ngreifer.github.io/cobalt/,
     https://github.com/ngreifer/cobalt
 BugReports: https://github.com/ngreifer/cobalt/issues
 Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3

@@ -3,9 +3,19 @@
 
 # cobalt (development version)
 
-* Added support for multi-category treatments for `matchit` objects.
+* Added new functions `bal.compute()` and `bal.init()`, which are used for compute scalar balance statistics efficiently for use in optimizing balance. A new vignette, `vignette("optimizing-balance")` is available as well.
 
-* When `focal` is specified with multi-category treatments (by the user or implicitly by the supplied object), `pairwise` can be set to `TRUE` to request balance between each pair of treatment groups and to `FALSE` to request balance only between each non-fcoal group and the focal group. Previously only the behavior of setting `pairwise` to `FALSE` was supported. Now the default is for `pairwise` to be `TRUE`. To recover balance results for version prior to this one, set `pairwise = FALSE` with non-`NULL` `focal`.
+* When `focal` is specified with multi-category treatments (by the user or implicitly by the supplied object), `pairwise` can be set to `TRUE` to request balance between each pair of treatment groups and to `FALSE` to request balance only between each non-focal group and the focal group. Previously only the behavior of setting `pairwise` to `FALSE` was supported. Now the default is for `pairwise` to be `TRUE`. To recover balance results for version prior to this one, set `pairwise = FALSE` with non-`NULL` `focal`.
+
+* With `optmatch` objects, the `estimand` argument can now be supplied to `bal.tab()`, etc., to control how the matching weights are computed from the subclass/pair membership. This is consistent with how `get.w()` uses the same argument.
+
+* Fixed a bug in which using `.` in formulas incorrectly included the treatment among the covariates.
+
+* Fixed a bug in which formulas supplied as character strings were not correctly interpreted as formulas. Thanks to @istallworthy.
+
+* Fixed a bug in which a spurious warning about dropping weights would occur when using `bal.plot()` with a density.
+
+* Documentation updates, including some new pages and the use of `roxygen2`.
 
 # cobalt 4.4.1
 
