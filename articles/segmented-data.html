@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="cobalt">
-<title>Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data • cobalt</title>
+<title>Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data • cobalt</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data">
 <meta property="og:description" content="cobalt">
 <meta property="og:image" content="https://ngreifer.github.io/cobalt/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -51,11 +51,11 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a>
     <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
-    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -85,7 +85,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</h1>
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
@@ -547,18 +547,18 @@ the imputed data set must be sorted by imputation and unit ID.</p>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                Type Min.Corr.Adj Mean.Corr.Adj Max.Corr.Adj</span></span>
-<span><span class="co">## age         Contin.       0.0110        0.0333       0.0524</span></span>
-<span><span class="co">## race_black   Binary      -0.0546       -0.0398      -0.0229</span></span>
-<span><span class="co">## race_hispan  Binary       0.0025        0.0109       0.0198</span></span>
-<span><span class="co">## race_white   Binary       0.0118        0.0319       0.0470</span></span>
-<span><span class="co">## married      Binary       0.0133        0.0375       0.0486</span></span>
-<span><span class="co">## re74        Contin.      -0.1216       -0.0281       0.0057</span></span>
-<span><span class="co">## re75        Contin.      -0.0818       -0.0181       0.0061</span></span>
+<span><span class="co">## age         Contin.       0.0143        0.0365       0.0519</span></span>
+<span><span class="co">## race_black   Binary      -0.0580       -0.0394      -0.0245</span></span>
+<span><span class="co">## race_hispan  Binary       0.0044        0.0107       0.0169</span></span>
+<span><span class="co">## race_white   Binary       0.0132        0.0317       0.0485</span></span>
+<span><span class="co">## married      Binary       0.0128        0.0335       0.0494</span></span>
+<span><span class="co">## re74        Contin.      -0.1177       -0.0344       0.0041</span></span>
+<span><span class="co">## re75        Contin.      -0.0703       -0.0223       0.0121</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##             Total</span></span>
 <span><span class="co">## Unadjusted 614.  </span></span>
-<span><span class="co">## Adjusted   534.48</span></span></code></pre>
+<span><span class="co">## Adjusted   531.75</span></span></code></pre>
 <p>First, we see a balance summary across all the imputations. This
 table presents the minimum, mean, and maximum balance statistics for
 each variable across imputations. Setting <code>un = TRUE</code> will
@@ -580,18 +580,18 @@ using <code>imp.summary</code>.)</p>
 <span><span class="co">##  - - - <span style="font-style: italic;">Imputation 1</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Corr.Adj</span></span>
-<span><span class="co">## age         Contin.   0.0399</span></span>
-<span><span class="co">## race_black   Binary  -0.0412</span></span>
-<span><span class="co">## race_hispan  Binary   0.0101</span></span>
-<span><span class="co">## race_white   Binary   0.0338</span></span>
-<span><span class="co">## married      Binary   0.0323</span></span>
-<span><span class="co">## re74        Contin.  -0.0065</span></span>
-<span><span class="co">## re75        Contin.  -0.0035</span></span>
+<span><span class="co">## age         Contin.   0.0378</span></span>
+<span><span class="co">## race_black   Binary  -0.0382</span></span>
+<span><span class="co">## race_hispan  Binary   0.0069</span></span>
+<span><span class="co">## race_white   Binary   0.0330</span></span>
+<span><span class="co">## married      Binary   0.0367</span></span>
+<span><span class="co">## re74        Contin.  -0.0048</span></span>
+<span><span class="co">## re75        Contin.  -0.0045</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##             Total</span></span>
 <span><span class="co">## Unadjusted 614.  </span></span>
-<span><span class="co">## Adjusted   546.94</span></span>
+<span><span class="co">## Adjusted   547.85</span></span>
 <span><span class="co">##  - - - - - - - - - - - - - -</span></span></code></pre>
 <p>As with clustered data, all <code><a href="../reference/bal.tab.html">bal.tab()</a></code> options work as
 with non-imputed data. Indeed, the functions for clustered and imputed
@@ -678,47 +678,47 @@ treatments, everything described in the previous section will occur.</p>
 <span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. hispan (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age      Contin.      -0.0015        0.0177       0.0360</span></span>
-<span><span class="co">## educ     Contin.      -0.1103       -0.0959      -0.0746</span></span>
-<span><span class="co">## married   Binary      -0.0432       -0.0351      -0.0290</span></span>
-<span><span class="co">## nodegree  Binary       0.0306        0.0379       0.0435</span></span>
-<span><span class="co">## re74     Contin.      -0.1352       -0.0726      -0.0136</span></span>
-<span><span class="co">## re75     Contin.      -0.1283       -0.0981      -0.0705</span></span>
+<span><span class="co">## age      Contin.      -0.0251        0.0122       0.0384</span></span>
+<span><span class="co">## educ     Contin.      -0.1078       -0.0952      -0.0728</span></span>
+<span><span class="co">## married   Binary      -0.0433       -0.0365      -0.0300</span></span>
+<span><span class="co">## nodegree  Binary       0.0315        0.0400       0.0463</span></span>
+<span><span class="co">## re74     Contin.      -0.1368       -0.0591      -0.0249</span></span>
+<span><span class="co">## re75     Contin.      -0.1140       -0.0897      -0.0767</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##             black hispan</span></span>
 <span><span class="co">## Unadjusted 243.    72.  </span></span>
-<span><span class="co">## Adjusted   154.64  55.43</span></span>
+<span><span class="co">## Adjusted   160.59  55.24</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. white (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age      Contin.       0.0240        0.0392       0.0580</span></span>
-<span><span class="co">## educ     Contin.      -0.0770       -0.0681      -0.0454</span></span>
-<span><span class="co">## married   Binary       0.0003        0.0044       0.0076</span></span>
-<span><span class="co">## nodegree  Binary       0.0172        0.0237       0.0291</span></span>
-<span><span class="co">## re74     Contin.      -0.1715       -0.1065      -0.0719</span></span>
-<span><span class="co">## re75     Contin.      -0.1435       -0.1106      -0.0831</span></span>
+<span><span class="co">## age      Contin.       0.0081        0.0247       0.0418</span></span>
+<span><span class="co">## educ     Contin.      -0.0806       -0.0630      -0.0439</span></span>
+<span><span class="co">## married   Binary      -0.0020        0.0033       0.0088</span></span>
+<span><span class="co">## nodegree  Binary       0.0132        0.0218       0.0298</span></span>
+<span><span class="co">## re74     Contin.      -0.1497       -0.1037      -0.0751</span></span>
+<span><span class="co">## re75     Contin.      -0.1128       -0.0976      -0.0852</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##             black  white</span></span>
 <span><span class="co">## Unadjusted 243.   299.  </span></span>
-<span><span class="co">## Adjusted   154.64 259.61</span></span>
+<span><span class="co">## Adjusted   160.59 260.63</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">hispan (0) vs. white (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##             Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age      Contin.       0.0041        0.0215       0.0381</span></span>
-<span><span class="co">## educ     Contin.       0.0218        0.0279       0.0352</span></span>
-<span><span class="co">## married   Binary       0.0357        0.0395       0.0456</span></span>
-<span><span class="co">## nodegree  Binary      -0.0213       -0.0142      -0.0092</span></span>
-<span><span class="co">## re74     Contin.      -0.0698       -0.0338      -0.0025</span></span>
-<span><span class="co">## re75     Contin.      -0.0229       -0.0125       0.0037</span></span>
+<span><span class="co">## age      Contin.       0.0034        0.0125       0.0332</span></span>
+<span><span class="co">## educ     Contin.       0.0271        0.0322       0.0399</span></span>
+<span><span class="co">## married   Binary       0.0330        0.0398       0.0470</span></span>
+<span><span class="co">## nodegree  Binary      -0.0222       -0.0182      -0.0106</span></span>
+<span><span class="co">## re74     Contin.      -0.0709       -0.0446      -0.0076</span></span>
+<span><span class="co">## re75     Contin.      -0.0228       -0.0079       0.0059</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##            hispan  white</span></span>
 <span><span class="co">## Unadjusted  72.   299.  </span></span>
-<span><span class="co">## Adjusted    55.43 259.61</span></span>
+<span><span class="co">## Adjusted    55.24 260.63</span></span>
 <span><span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - -</span></span></code></pre>
 <p>Other options can be supplied to choose how balance is computed with
 multi-category treatments; these are described at

@@ -27,11 +27,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Using `cobalt` with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a>
     <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
-    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -254,16 +254,16 @@
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">mt.out1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all imputations</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> distance    Distance       0.9654        0.9702       0.9785</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin.       0.0196        0.0671       0.1012</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.      -0.1344       -0.1118      -0.0726</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> distance    Distance       0.9684        0.9731       0.9786</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin.       0.0249        0.0544       0.0869</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.      -0.1559       -0.1140      -0.0860</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> race_black    Binary       0.3730        0.3730       0.3730</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary      -0.1784       -0.1686      -0.1568</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary      -0.2162       -0.2043      -0.1946</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary      -0.0162       -0.0097       0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary       0.0378        0.0605       0.0757</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin.      -0.0882       -0.0633      -0.0410</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin.      -0.0948       -0.0543      -0.0201</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary      -0.1784       -0.1654      -0.1568</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary      -0.2162       -0.2076      -0.1946</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary      -0.0216       -0.0065       0.0054</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary       0.0541        0.0638       0.0811</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin.      -0.0837       -0.0671      -0.0405</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin.      -0.0526       -0.0401      -0.0157</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Average sample sizes across imputations</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             0   1</span>
@@ -291,16 +291,16 @@
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">mt.out2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all imputations</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> distance    Distance       0.9742        0.9742       0.9742</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin.       0.0740        0.0740       0.0740</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.      -0.1156       -0.1156      -0.1156</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> distance    Distance       0.9768        0.9768       0.9768</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin.       0.0287        0.0287       0.0287</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.      -0.1075       -0.1075      -0.1075</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> race_black    Binary       0.3730        0.3730       0.3730</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary      -0.1730       -0.1730      -0.1730</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary      -0.2000       -0.2000      -0.2000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary      -0.0270       -0.0162      -0.0108</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary       0.0595        0.0595       0.0595</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin.      -0.0819       -0.0700      -0.0509</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin.      -0.0759       -0.0612      -0.0444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary      -0.1676       -0.1676      -0.1676</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary      -0.2054       -0.2054      -0.2054</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary      -0.0216       -0.0097       0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary       0.0649        0.0649       0.0649</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin.      -0.1072       -0.0757      -0.0523</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin.      -0.0723       -0.0510      -0.0292</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Average sample sizes across imputations</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             0   1</span>
@@ -323,21 +323,21 @@
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all imputations</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> prop.score  Distance      -0.0349       -0.0283      -0.0158</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin.       0.0803        0.0988       0.1142</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.      -0.0392       -0.0314      -0.0240</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_black    Binary      -0.0035       -0.0027      -0.0013</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary      -0.0001        0.0003       0.0006</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary       0.0014        0.0024       0.0029</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary       0.0132        0.0177       0.0205</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary       0.0156        0.0172       0.0187</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin.       0.0095        0.0150       0.0226</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin.      -0.0027        0.0040       0.0092</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> prop.score  Distance      -0.0376       -0.0252      -0.0173</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age          Contin.       0.0807        0.1041       0.1206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ         Contin.      -0.0430       -0.0335      -0.0255</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_black    Binary      -0.0036       -0.0024      -0.0017</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan   Binary      -0.0001        0.0001       0.0005</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_white    Binary       0.0016        0.0023       0.0030</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married       Binary       0.0160        0.0184       0.0219</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree      Binary       0.0165        0.0191       0.0209</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74         Contin.      -0.0029        0.0109       0.0209</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75         Contin.      -0.0050        0.0062       0.0168</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 0   1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 429.   185</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   100.85 185</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   100.43 185</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
