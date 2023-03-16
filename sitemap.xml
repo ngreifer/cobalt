@@ -7,19 +7,22 @@
     <loc>https://ngreifer.github.io/cobalt/articles/cobalt.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/cobalt_A1_other_packages.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/cobalt_A2_segmented_data.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/cobalt_A3_longitudinal_treat.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/cobalt_A4_love.plot.html</loc>
-  </url>
-  <url>
     <loc>https://ngreifer.github.io/cobalt/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/cobalt/articles/longitudinal-treat.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/cobalt/articles/love.plot.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/cobalt/articles/optimizing-balance.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/cobalt/articles/other-packages.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/cobalt/articles/segmented-data.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/cobalt/authors.html</loc>
@@ -29,6 +32,9 @@
   </url>
   <url>
     <loc>https://ngreifer.github.io/cobalt/news/index.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/cobalt/reference/bal.compute.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/cobalt/reference/bal.plot.html</loc>
@@ -46,10 +52,13 @@
     <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.default.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.df.formula.html</loc>
+    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.designmatch.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.df.formula.list.html</loc>
+    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.ebalance.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.formula.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.html</loc>
@@ -61,19 +70,25 @@
     <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.mimids.html</loc>
   </url>
   <url>
+    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.optmatch.html</loc>
+  </url>
+  <url>
     <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.ps.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.sbw.html</loc>
+    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.sbwcau.html</loc>
+  </url>
+  <url>
+    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.time.list.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.weightit.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/balance.stats.html</loc>
+    <loc>https://ngreifer.github.io/cobalt/reference/balance-statistics.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/balance.summary.html</loc>
+    <loc>https://ngreifer.github.io/cobalt/reference/balance-summary.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.cluster.html</loc>
@@ -94,7 +109,7 @@
     <loc>https://ngreifer.github.io/cobalt/reference/cobalt-package.html</loc>
   </url>
   <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/display_options.html</loc>
+    <loc>https://ngreifer.github.io/cobalt/reference/display-options.html</loc>
   </url>
   <url>
     <loc>https://ngreifer.github.io/cobalt/reference/f.build.html</loc>

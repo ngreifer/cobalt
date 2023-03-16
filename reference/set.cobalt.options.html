@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,10 +27,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cobalt_A1_other_packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/cobalt_A2_segmented_data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
-    <a class="dropdown-item" href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -53,7 +54,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Set and Get Options in <code>cobalt</code></h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/R/set.cobalt.options.R" class="external-link"><code>R/set.cobalt.options.R</code></a></small>
       <div class="d-none name"><code>set.cobalt.options.Rd</code></div>
     </div>
 
@@ -74,18 +75,21 @@
 <dd><p>For <code>set.cobalt.options()</code>, <code><a href="bal.tab.html">bal.tab()</a></code> parameters and the values they should take. These should be the name of the parameter in <code><a href="bal.tab.html">bal.tab()</a></code> without <code>"cobalt_"</code> preceding them. See examples. If any values are <code>NULL</code>, the corresponding options will be set back to their defaults.</p>
 <p>For <code>get.cobalt.options()</code>, one or more strings containing the name of a parameter option to be retrieved. See examples. If empty, all available options and their values will be returned.</p></dd>
 
-  <dt>default</dt>
+
+<dt>default</dt>
 <dd><p>if <code>TRUE</code>, sets all <span class="pkg">cobalt</span> options not named in <code>...</code> to their default values.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>When an option is set to <code>NULL</code>, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed <a href="display_options.html">here</a>. Some others (e.g., <code>continous</code> and <code>binary</code>) are described on the <code><a href="bal.tab.html">bal.tab()</a></code> help page.</p>
+    <p>When an option is set to <code>NULL</code>, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed <a href="display-options.html">here</a>. Some others (e.g., <code>continous</code> and <code>binary</code>) are described on the <code><a href="bal.tab.html">bal.tab()</a></code> help page.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code></p>
-<p><code><a href="display_options.html">display_options</a></code> for some arguments that can be set via options.</p></div>
+    <div class="dont-index">
+<ul><li><p><code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code></p></li>
+<li><p><code><a href="display-options.html">display-options</a></code> for some arguments that can be set via options.</p></li>
+</ul></div>
     </div>
 
     <div class="section level2">
@@ -194,6 +198,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> $disp.call</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

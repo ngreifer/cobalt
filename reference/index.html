@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,10 +27,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cobalt_A1_other_packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/cobalt_A2_segmented_data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
-    <a class="dropdown-item" href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -96,12 +97,12 @@
           
           <code><a href="bal.tab.CBPS.html">bal.tab(<i>&lt;CBPS&gt;</i>)</a></code> 
         </dt>
-        <dd>Balance statistics for <code>CBPS</code> Objects</dd>
+        <dd>Balance Statistics for <code>CBPS</code> Objects</dd>
       </dl><dl><dt>
           
           <code><a href="bal.tab.Match.html">bal.tab(<i>&lt;Match&gt;</i>)</a></code> 
         </dt>
-        <dd>Balance Statistics for <code>Matching</code>, <code>optmatch</code>, <code>ebal</code>, and <code>designmatch</code> Objects</dd>
+        <dd>Balance Statistics for <code>Matching</code> Objects</dd>
       </dl><dl><dt>
           
           <code><a href="bal.tab.cem.match.html">bal.tab(<i>&lt;cem.match&gt;</i>)</a></code> 
@@ -114,14 +115,19 @@
         <dd>Balance Statistics for Other Objects</dd>
       </dl><dl><dt>
           
-          <code><a href="bal.tab.df.formula.html">bal.tab(<i>&lt;data.frame&gt;</i>)</a></code> <code><a href="bal.tab.df.formula.html">bal.tab(<i>&lt;formula&gt;</i>)</a></code> 
+          <code><a href="bal.tab.designmatch.html">bal.tab(<i>&lt;designmatch&gt;</i>)</a></code> 
         </dt>
-        <dd>Balance Statistics for Data Sets</dd>
+        <dd>Balance Statistics for <code>designmatch</code> Objects</dd>
       </dl><dl><dt>
           
-          <code><a href="bal.tab.df.formula.list.html">bal.tab(<i>&lt;data.frame.list&gt;</i>)</a></code> <code><a href="bal.tab.df.formula.list.html">bal.tab(<i>&lt;formula.list&gt;</i>)</a></code> 
+          <code><a href="bal.tab.ebalance.html">bal.tab(<i>&lt;ebalance&gt;</i>)</a></code> 
         </dt>
-        <dd>Balance Statistics for Longitudinal Datasets</dd>
+        <dd>Balance Statistics for <code>ebalance</code> Objects</dd>
+      </dl><dl><dt>
+          
+          <code><a href="bal.tab.formula.html">bal.tab(<i>&lt;formula&gt;</i>)</a></code> <code><a href="bal.tab.formula.html">bal.tab(<i>&lt;data.frame&gt;</i>)</a></code> <code><a href="bal.tab.formula.html">bal.tab(<i>&lt;matrix&gt;</i>)</a></code> 
+        </dt>
+        <dd>Balance Statistics for Data Sets</dd>
       </dl><dl><dt>
           
           <code><a href="bal.tab.matchit.html">bal.tab(<i>&lt;matchit&gt;</i>)</a></code> 
@@ -134,14 +140,24 @@
         <dd>Balance Statistics for <code>MatchThem</code> Objects</dd>
       </dl><dl><dt>
           
+          <code><a href="bal.tab.optmatch.html">bal.tab(<i>&lt;optmatch&gt;</i>)</a></code> 
+        </dt>
+        <dd>Balance Statistics for <code>optmatch</code> Objects</dd>
+      </dl><dl><dt>
+          
           <code><a href="bal.tab.ps.html">bal.tab(<i>&lt;ps&gt;</i>)</a></code> 
         </dt>
         <dd>Balance Statistics for <code>twang</code> Objects</dd>
       </dl><dl><dt>
           
-          <code><a href="bal.tab.sbw.html">bal.tab(<i>&lt;sbwcau&gt;</i>)</a></code> 
+          <code><a href="bal.tab.sbwcau.html">bal.tab(<i>&lt;sbwcau&gt;</i>)</a></code> 
         </dt>
-        <dd>Balance Statistics for <code>sbw</code> Objects</dd>
+        <dd>#' @title Balance Statistics for <code>sbw</code> Objects</dd>
+      </dl><dl><dt>
+          
+          <code><a href="bal.tab.time.list.html">bal.tab(<i>&lt;formula.list&gt;</i>)</a></code> <code><a href="bal.tab.time.list.html">bal.tab(<i>&lt;data.frame.list&gt;</i>)</a></code> 
+        </dt>
+        <dd>Balance Statistics for Longitudinal Datasets</dd>
       </dl><dl><dt>
           
           <code><a href="bal.tab.weightit.html">bal.tab(<i>&lt;weightit&gt;</i>)</a></code> 
@@ -196,12 +212,12 @@
 
       <dl><dt>
           
-          <code><a href="balance.stats.html">balance.stats</a></code> 
+          <code><a href="balance-statistics.html">balance-statistics</a></code> 
         </dt>
         <dd>Balance Statistics in <code>bal.tab</code> and <code>love.plot</code></dd>
       </dl><dl><dt>
           
-          <code><a href="display_options.html">options-display</a></code> <code><a href="display_options.html">display_options</a></code> 
+          <code><a href="display-options.html">display-options</a></code> 
         </dt>
         <dd>Options for Displaying <code><a href="../reference/bal.tab.html">bal.tab()</a></code> Output</dd>
       </dl></div><div class="section level2">
@@ -217,9 +233,14 @@
 
       <dl><dt>
           
-          <code><a href="balance.summary.html">col_w_mean()</a></code> <code><a href="balance.summary.html">col_w_sd()</a></code> <code><a href="balance.summary.html">col_w_smd()</a></code> <code><a href="balance.summary.html">col_w_vr()</a></code> <code><a href="balance.summary.html">col_w_ks()</a></code> <code><a href="balance.summary.html">col_w_ovl()</a></code> <code><a href="balance.summary.html">col_w_cov()</a></code> <code><a href="balance.summary.html">col_w_corr()</a></code> 
+          <code><a href="balance-summary.html">col_w_mean()</a></code> <code><a href="balance-summary.html">col_w_sd()</a></code> <code><a href="balance-summary.html">col_w_smd()</a></code> <code><a href="balance-summary.html">col_w_vr()</a></code> <code><a href="balance-summary.html">col_w_ks()</a></code> <code><a href="balance-summary.html">col_w_ovl()</a></code> <code><a href="balance-summary.html">col_w_cov()</a></code> <code><a href="balance-summary.html">col_w_corr()</a></code> 
         </dt>
-        <dd>Compute Balance Statistics for Covariates</dd>
+        <dd>Compute Balance and Summary Statistics for Covariates</dd>
+      </dl><dl><dt>
+          
+          <code><a href="bal.compute.html">bal.init()</a></code> <code><a href="bal.compute.html">bal.compute()</a></code> 
+        </dt>
+        <dd>Initialize and efficiently compute scalar balance statistics</dd>
       </dl><dl><dt>
           
           <code><a href="f.build.html">f.build()</a></code> 
@@ -265,7 +286,8 @@
           
           <code><a href="lalonde.html">lalonde</a></code> <code><a href="lalonde.html">lalonde_mis</a></code> 
         </dt>
-        <dd>Lalonde's National Supported Work Demonstration Data</dd>
+        <dd>Data from National Supported Work Demonstration and PSID, as analyzed by
+Dehejia and Wahba (1999).</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

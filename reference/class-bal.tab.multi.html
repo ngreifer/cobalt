@@ -14,7 +14,7 @@ The balance summary is, for each variable, the greatest imbalance across all two
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,10 +31,11 @@ The balance summary is, for each variable, the greatest imbalance across all two
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cobalt_A1_other_packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/cobalt_A2_segmented_data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
-    <a class="dropdown-item" href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -57,7 +58,7 @@ The balance summary is, for each variable, the greatest imbalance across all two
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Using <code>bal.tab()</code> with Multi-Category Treatments</h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/R/class-bal.tab.multi.R" class="external-link"><code>R/class-bal.tab.multi.R</code></a></small>
       <div class="d-none name"><code>class-bal.tab.multi.Rd</code></div>
     </div>
 
@@ -69,52 +70,47 @@ The balance summary is, for each variable, the greatest imbalance across all two
 
 
     <div class="section level2">
-    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+    <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
+    <p>In versions 4.3.1 and earlier, setting <code>pairwise = FALSE</code> would compare each group to the full adjusted sample. Now, each group is compared to the full <em>un</em>adjusted sample (unadjusted except for <code>s.weights</code>, if supplied).</p>
+<p>In versions 4.3.1 and earlier, <code>pairwise</code> was ignored with non-<code>NULL</code> <code>focal</code> and was automatically set to <code>FALSE</code>. <code>pairwise</code> can be specified and its default is now <code>TRUE</code>, so balance between all treatment groups will be computed by default rather than only between each non-group and the focal group. To recover previous functionality, set <code>pairwise = FALSE</code> with non-<code>NULL</code> <code>focal</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="allowable-arguments">Allowable arguments<a class="anchor" aria-label="anchor" href="#allowable-arguments"></a></h2>
     
 
+
 <p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle multi-category treatments: <code>pairwise</code>, <code>focal</code>, <code>which.treat</code>, and <code>multi.summary</code>.</p>
-<dl><dt>pairwise</dt>
+<dl><dt><code>pairwise</code></dt>
 <dd><p>Whether to compute the two-group comparisons pairwise or not. If <code>TRUE</code>, <code><a href="bal.tab.html">bal.tab()</a></code> will compute comparisons for each pair of treatments. This can be valuable if treatments are to be compared with one another (which is often the case). If <code>FALSE</code>, <code><a href="bal.tab.html">bal.tab()</a></code> will compute balance for each treatment group against the full unadjusted sample when <code>focal</code> is <code>NULL</code> and for each non-focal group against the focal group otherwise.</p></dd>
 
-<dt>focal</dt>
+<dt><code>focal</code></dt>
 <dd><p>When one group is to be compared to multiple control groups in an ATT analysis, the group considered "treated" is the focal group. By specifying the name or index of the treatment condition considered focal, <code><a href="bal.tab.html">bal.tab()</a></code> will only compute and display pairwise balance for treatment comparisons that include the focal group when <code>pairwise = FALSE</code>.</p></dd>
 
-<dt>which.treat</dt>
+<dt><code>which.treat</code></dt>
 <dd><p>This is a display option that does not affect computation. When displaying the <code>bal.tab</code> output, which treatments should be displayed? If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, inputting <code>"A"</code> will display "A vs. B" and "A vs. C", while entering <code>c("A", "B")</code> will only display "A vs. B". <code>.none</code> indicates no treatment comparisons will be displayed, and <code>.all</code> indicates all treatment comparisons will be displayed. <code>.none</code> is the default.</p></dd>
 
-<dt>multi.summary</dt>
+<dt><code>multi.summary</code></dt>
 <dd><p>If <code>TRUE</code>, the balance summary across all comparisons will be computed and displayed. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested in addition to mean differences, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. The default is <code>TRUE</code>, and if <code>which.treat</code> is <code>.none</code>, it will automatically be set to <code>TRUE</code>.</p></dd>
+
 
 </dl></div>
     <div class="section level2">
-    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <h2 id="output">Output<a class="anchor" aria-label="anchor" href="#output"></a></h2>
     
 
-<p>The output is a <code>bal.tab.multi</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
-<dl><dt>Pair.Balance</dt>
-<dd><p>For each pair of treatment groups, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified. If <code>pairwise</code> is <code>FALSE</code>, the comparisons will be between each group and the groups combined (labeled "All") when <code>focal</code> is <code>NULL</code> and between each non-focal group and the focal group otherwise.</p></dd>
-
-<dt>Balance.Across.Pairs</dt>
-<dd><p>The balance summary across two-group comparisons. This will include the greatest (i.e., maximum) absolute balance statistics(s) for each covariate across all comparisons computed. Thresholds can be requested for each balance measure as with binary treatments.</p></dd>
-
-<dt>Observations</dt>
-<dd><p>A table of sample sizes or effective sample sizes for each treatment group before and after adjustment.</p></dd>
-
-
-</dl><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
-    <p>In versions 4.3.1 and earlier, setting <code>pairwise = FALSE</code> would comapre each group to the full adjusted sample. Now, each group is compared to the full <em>un</em>adjusted sample (unadjusted except for <code>s.weights</code>, if supplied).</p>
-<p>In versions 4.3.1 and earlier, <code>pairwise</code> was ignored with non-<code>NULL</code> <code>focal</code> and was automatically set to <code>FALSE</code>.<code>pairwise</code> can be specified and its default is now <code>TRUE</code>, so balance between all treatment groups will be computed b ydefault rather than only between each non-group and the focal group. To recover previous functionality, set <code>pairwise = FALSE</code> with non-<code>NULL</code> <code>focal</code>.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
-    <p>Noah Greifer</p>
+<p>The output is a <code>bal.tab.multi</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p><ul><li><p><code>Pair.Balance</code>:For each pair of treatment groups, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified. If <code>pairwise</code> is <code>FALSE</code>, the comparisons will be between each group and the groups combined (labeled "All") when <code>focal</code> is <code>NULL</code> and between each non-focal group and the focal group otherwise.</p></li>
+<li><p><code>Balance.Across.Pairs</code>: The balance summary across two-group comparisons. This will include the greatest (i.e., maximum) absolute balance statistics(s) for each covariate across all comparisons computed. Thresholds can be requested for each balance measure as with binary treatments.</p></li>
+<li><p><code>Observations</code>: A table of sample sizes or effective sample sizes for each treatment group before and after adjustment.</p></li>
+</ul><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="bal.tab.html">bal.tab()</a></code>, <code><a href="bal.tab.df.formula.html">bal.tab.data.frame()</a></code>, <code><a href="print.bal.tab.html">print.bal.tab()</a></code></p></div>
+    <div class="dont-index">
+<ul><li><p><code><a href="bal.tab.html">bal.tab()</a></code></p></li>
+<li><p><code><a href="bal.tab.formula.html">bal.tab.data.frame()</a></code></p></li>
+<li><p><code><a href="print.bal.tab.html">print.bal.tab()</a></code></p></li>
+<li><p><code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for examples</p></li>
+</ul></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

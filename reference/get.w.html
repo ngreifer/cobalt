@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,10 +27,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cobalt_A1_other_packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/cobalt_A2_segmented_data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
-    <a class="dropdown-item" href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -53,7 +54,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Extract Weights from Preprocessing Objects</h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/R/get.w.R" class="external-link"><code>R/get.w.R</code></a></small>
       <div class="d-none name"><code>get.w.Rd</code></div>
     </div>
 
@@ -74,17 +75,20 @@
 <span><span class="co"># S3 method for mnps</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, stop.method <span class="op">=</span> <span class="cn">NULL</span>, s.weights <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># S3 method for iptw</span></span>
-<span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, stop.method <span class="op">=</span> <span class="cn">NULL</span>, s.weights <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
 <span><span class="co"># S3 method for ps.cont</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, s.weights <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for iptw</span></span>
+<span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, stop.method <span class="op">=</span> <span class="cn">NULL</span>, s.weights <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for Match</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for CBPS</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">estimand</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for CBMSM</span></span>
+<span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for ebalance</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">treat</span>, <span class="va">...</span><span class="op">)</span></span>
@@ -98,14 +102,14 @@
 <span><span class="co"># S3 method for weightit</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, s.weights <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># S3 method for designmatch</span></span>
+<span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">treat</span>, <span class="va">estimand</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># S3 method for mimids</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for wimids</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for designmatch</span></span>
-<span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">treat</span>, <span class="va">estimand</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for sbwcau</span></span>
 <span><span class="fu">get.w</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
@@ -116,30 +120,28 @@
     <dl><dt>x</dt>
 <dd><p>output from the corresponding preprocessing packages.</p></dd>
 
-  <dt>stop.method</dt>
+
+<dt>...</dt>
+<dd><p>arguments passed to other methods.</p></dd>
+
+
+<dt>stop.method</dt>
 <dd><p>the name of the stop method used in the original call to <code><a href="https://rdrr.io/pkg/twang/man/ps.html" class="external-link">ps()</a></code> or <code><a href="https://rdrr.io/pkg/twang/man/mnps.html" class="external-link">mnps()</a></code> in <span class="pkg">twang</span>, e.g., <code>"es.mean"</code>. If empty, will return weights from all stop method available into a data.frame. Abbreviations allowed.</p></dd>
 
-  <dt>estimand</dt>
+
+<dt>estimand</dt>
 <dd><p>if weights are computed using the propensity score (i.e., for the <code>ps</code> and <code>CBPS</code> methods), which estimand to use to compute the weights. If <code>"ATE"</code>, weights will be computed as <code>1/ps</code> for the treated group and <code>1/(1-ps)</code> for the control group. If <code>"ATT"</code>, weights will be computed as <code>1</code> for the treated group and <code>ps/(1-ps)</code> for the control group. If not specified, <code>get.w()</code> will try to figure out which estimand is desired based on the object.</p>
 <p>If weights are computed using subclasses/matching strata (i.e., for the <code>cem</code> and <code>designmatch</code> methods), which estimand to use to compute the weights. First, a subclass propensity score is computed as the proportion of treated units in each subclass, and the one of the formulas above will be used based on the estimand requested. If not specified, <code>"ATT"</code> is assumed.</p></dd>
 
-  <dt>treat</dt>
-<dd><p>a vector of treatment status for each unit. This is required for methods that include <code>treat</code> as an argument. The treatment variable that was used in the original preprocessing function call should be used.</p></dd>
 
-  <dt>s.weights</dt>
+<dt>s.weights</dt>
 <dd><p>whether the sampling weights included in the original call to the fitting function should be included in the weights. If <code>TRUE</code>, the returned weights will be the product of the balancing weights estimated by the fitting function and the sampling weights. If <code>FALSE</code>, only the balancing weights will be returned.</p></dd>
 
-  <dt>...</dt>
-<dd><p>further arguments passed to or from other methods.</p></dd>
+
+<dt>treat</dt>
+<dd><p>a vector of treatment status for each unit. This is required for methods that include <code>treat</code> as an argument. The treatment variable that was used in the original preprocessing function call should be used.</p></dd>
 
 </dl></div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The output of <code>get.w()</code> can be used in calls to the formula and data frame methods of <code><a href="bal.tab.html">bal.tab()</a></code> (see example below). In this way, the output of multiple preprocessing packages can be viewed simultaneously and compared. The weights can also be used in <code>weights</code> statements in regression methods to compute weighted effects.</p>
-<p><span class="pkg">twang</span> has a function called <code><a href="https://rdrr.io/pkg/twang/man/get.weights.html" class="external-link">get.weights()</a></code> that performs the same function on <code>ps</code> objects but offers slightly finer control. Note that the weights generated by <code>get.w()</code> for <code>ps</code> objects do not include sampling weights by default.</p>
-<p>When sampling weights are used with <code><a href="https://rdrr.io/pkg/CBPS/man/CBPS.html" class="external-link">CBPS()</a></code> in <span class="pkg">CBPS</span>, the returned weights will already have the sampling weights incorporated. To retrieve the balancing weights on their own, divide the returned weights by the original sampling weights. For other packages, the balancing weights are returned separately unless <code>s.weights = TRUE</code>, which means they must be multiplied by the sampling weights for effect estimation.</p>
-<p>When <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Match()</a></code> in <span class="pkg">Matching</span> is used with <code>CommonSupport = TRUE</code>, the returned weights will be incorrect. This option is not recommended by the package authors.</p>
-    </div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
@@ -147,23 +149,24 @@
 <p>A vector or data frame of weights for each unit. These may be matching weights or balancing weights.</p>
     </div>
     <div class="section level2">
-    <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
-    <p>Noah Greifer</p>
-    </div>
-    <div class="section level2">
-    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/twang/man/get.weights.html" class="external-link">twang::get.weights()</a></code> in <span class="pkg">twang</span>.</p></div>
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The output of <code>get.w()</code> can be used in calls to the formula and data frame methods of <code><a href="bal.tab.html">bal.tab()</a></code> (see example below). In this way, the output of multiple preprocessing packages can be viewed simultaneously and compared. The weights can also be used in <code>weights</code> statements in regression methods to compute weighted effects.</p>
+<p><span class="pkg">twang</span> has a function called <code><a href="https://rdrr.io/pkg/twang/man/get.weights.html" class="external-link">get.weights()</a></code> that performs the same function on <code>ps</code> objects but offers slightly finer control. Note that the weights generated by <code>get.w()</code> for <code>ps</code> objects do not include sampling weights by default.</p>
+<p>When sampling weights are used with <code>CBPS()</code> in <span class="pkg">CBPS</span>, the returned weights will already have the sampling weights incorporated. To retrieve the balancing weights on their own, divide the returned weights by the original sampling weights. For other packages, the balancing weights are returned separately unless <code>s.weights = TRUE</code>, which means they must be multiplied by the sampling weights for effect estimation.</p>
+<p>When <code><a href="https://rdrr.io/pkg/Matching/man/Match.html" class="external-link">Match()</a></code> in <span class="pkg">Matching</span> is used with <code>CommonSupport = TRUE</code>, the returned weights will be incorrect. This option is not recommended by the package authors.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://kosukeimai.github.io/MatchIt/" class="external-link">"MatchIt"</a></span><span class="op">)</span>; <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/WeightIt/" class="external-link">"WeightIt"</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span> </span></span>
+<span class="r-in"><span><span class="va">m.out</span> <span class="op">&lt;-</span> <span class="fu">MatchIt</span><span class="fu">::</span><span class="fu"><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>,</span></span>
+<span class="r-in"><span>                          data <span class="op">=</span> <span class="va">lalonde</span>,</span></span>
+<span class="r-in"><span>                          estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span> </span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">w.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span></span>
-<span class="r-in"><span>                  estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">w.out</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>,</span></span>
+<span class="r-in"><span>                            data <span class="op">=</span> <span class="va">lalonde</span>,</span></span>
+<span class="r-in"><span>                            estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span></span>
 <span class="r-in"><span>        weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>matched <span class="op">=</span> <span class="fu">get.w</span><span class="op">(</span><span class="va">m.out</span><span class="op">)</span>,</span></span>
@@ -172,11 +175,11 @@
 <span class="r-in"><span>        estimand <span class="op">=</span> <span class="st">"ATT"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                Type Diff.matched Diff.weighted</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age         Contin.      -0.0280        0.1078</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ        Contin.       0.0161       -0.0633</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_black   Binary       0.3730       -0.0020</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age         Contin.      -0.0536        0.1078</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ        Contin.       0.0000       -0.0633</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_black   Binary       0.4324       -0.0020</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan  Binary      -0.2703        0.0009</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_white   Binary      -0.1027        0.0011</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> race_white   Binary      -0.1622        0.0011</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Control Treated</span>

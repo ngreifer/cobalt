@@ -14,7 +14,7 @@ The across-imputation balance summary pools information across the within-imputa
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,10 +31,11 @@ The across-imputation balance summary pools information across the within-imputa
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cobalt_A1_other_packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/cobalt_A2_segmented_data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
-    <a class="dropdown-item" href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -57,7 +58,7 @@ The across-imputation balance summary pools information across the within-imputa
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Using <code>bal.tab()</code> with Multiply Imputed Data</h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/R/class-bal.tab.imp.R" class="external-link"><code>R/class-bal.tab.imp.R</code></a></small>
       <div class="d-none name"><code>class-bal.tab.imp.Rd</code></div>
     </div>
 
@@ -69,47 +70,43 @@ The across-imputation balance summary pools information across the within-imputa
 
 
     <div class="section level2">
-    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+    <h2 id="allowable-arguments">Allowable arguments<a class="anchor" aria-label="anchor" href="#allowable-arguments"></a></h2>
     
 
+
 <p>There are four arguments for each <code><a href="bal.tab.html">bal.tab()</a></code> method that can handle multiply imputed data: <code>imp</code>, <code>which.imp</code>, <code>imp.summary</code>, and <code>imp.fun</code>.</p>
-<dl><dt>imp</dt>
+<dl><dt><code>imp</code></dt>
 <dd><p>A vector of imputation membership. This can be factor, character, or numeric vector. This argument is required to let <code><a href="bal.tab.html">bal.tab()</a></code> know that the data is multiply imputed unless <span class="pkg">MatchThem</span> objects are used. If a <code>data</code> argument is specified, this can also be the name of a variable in <code>data</code> that contains imputation membership. If the <code>data</code> argument is a <code>mids</code> object, the output of a call to <code><a href="https://amices.org/mice/reference/mice.html" class="external-link">mice()</a></code>, <code>imp</code> does not need to be specified and will automatically be extracted from the <code>mids</code> object.</p></dd>
 
-<dt>which.imp</dt>
+<dt><code>which.imp</code></dt>
 <dd><p>This is a display option that does not affect computation. If <code>.all</code>, all imputations in <code>imp</code> will be displayed. If <code>.none</code> (the default), no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance.</p></dd>
 
-<dt>imp.summary</dt>
+<dt><code>imp.summary</code></dt>
 <dd><p>This is a display option that does not affect computation. If <code>TRUE</code>, the balance summary across imputations will be displayed. The default is <code>TRUE</code>, and if <code>which.imp</code> is <code>.none</code>, it will automatically be set to <code>TRUE</code>.</p></dd>
 
-<dt>imp.fun</dt>
+<dt><code>imp.fun</code></dt>
 <dd><p>This is a display option that does not affect computation. Can be "min", "mean", or "max" and corresponds to which function is used in the across-imputation summary to combine results across imputations. For example, if <code>imp.fun = "mean"</code> the mean balance statistic across imputations will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic.</p></dd>
+
 
 </dl></div>
     <div class="section level2">
-    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <h2 id="output">Output<a class="anchor" aria-label="anchor" href="#output"></a></h2>
     
 
-<p>The output is a <code>bal.tab.imp</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p>
-<dl><dt>Imputation.Balance</dt>
-<dd><p>For each imputation, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.</p></dd>
 
-<dt>Balance.Across.Imputations</dt>
-<dd><p>The balance summary across imputations. This will include the combination of each balance statistic for each covariate across all imputations according to the value of <code>imp.fun</code>.</p></dd>
-
-<dt>Observations</dt>
-<dd><p>A table of sample sizes or effective sample sizes averaged across imputations before and after adjustment.</p></dd>
-
-
-</dl><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
-    </div>
-    <div class="section level2">
-    <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
-    <p>Noah Greifer</p>
+<p>The output is a <code>bal.tab.imp</code> object, which inherits from <code>bal.tab</code>. It has the following elements:</p><ul><li><p><code>Imputation.Balance</code>: For each imputation, a regular <code>bal.tab</code> object containing a balance table, a sample size summary, and other balance assessment tools, depending on which options are specified.</p></li>
+<li><p><code>Balance.Across.Imputations</code>: The balance summary across imputations. This will include the combination of each balance statistic for each covariate across all imputations according to the value of <code>imp.fun</code>.</p></li>
+<li><p><code>Observations</code>: A table of sample sizes or effective sample sizes averaged across imputations before and after adjustment.</p></li>
+</ul><p>As with other methods, multiple weights can be specified, and values for all weights will appear in all tables.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="bal.tab.html">bal.tab()</a></code>, <code><a href="bal.tab.df.formula.html">bal.tab.data.frame()</a></code>, <code><a href="print.bal.tab.html">print.bal.tab()</a></code></p></div>
+    <div class="dont-index">
+<ul><li><p><code><a href="bal.tab.html">bal.tab()</a></code></p></li>
+<li><p><code><a href="bal.tab.formula.html">bal.tab.data.frame()</a></code></p></li>
+<li><p><code><a href="print.bal.tab.html">print.bal.tab()</a></code></p></li>
+<li><p><code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for examples</p></li>
+</ul></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

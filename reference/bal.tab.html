@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,10 +27,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cobalt_A1_other_packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/cobalt_A2_segmented_data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
-    <a class="dropdown-item" href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -53,7 +54,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Display Balance Statistics in a Table</h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/R/bal.tab.R" class="external-link"><code>R/bal.tab.R</code></a></small>
       <div class="d-none name"><code>bal.tab.Rd</code></div>
     </div>
 
@@ -93,119 +94,83 @@
     <dl><dt>x</dt>
 <dd><p>an input object on which to assess balance. Can be the output of a call to a balancing function in another package or a formula or data frame. Input to this argument will determine which <code>bal.tab()</code> method is used. Each input type has its own documentation page, which is linked in the See Also section below. Some input types require or allow additional arguments to be specified. For inputs with no dedicated method, the <a href="bal.tab.default.html">default method</a> will be dispatched. See Details below.</p></dd>
 
-  <dt>stats</dt>
-<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance.stats.html">stats</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. For continuous treatments, <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
 
-  <dt>int</dt>
+<dt>...</dt>
+<dd><p>for some input types, other arguments that are required or allowed. Otherwise, further arguments to control display of output. See <a href="display-options.html">display options</a> for details.</p></dd>
+
+
+<dt>stats</dt>
+<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. For continuous treatments, <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
+
+
+<dt>int</dt>
 <dd><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well.</p></dd>
 
-  <dt>poly</dt>
+
+<dt>poly</dt>
 <dd><p><code>numeric</code>; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If <code>int</code> is numeric, <code>poly</code> will take on the value of <code>int</code>.</p></dd>
 
-  <dt>distance</dt>
+
+<dt>distance</dt>
 <dd><p>an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, <code>bal.tab()</code> will look in the argument to <code>data</code>, if specified. For longitudinal treatments, can be a list of allowable arguments, one for each time point.</p></dd>
 
-  <dt>addl</dt>
+
+<dt>addl</dt>
 <dd><p>an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, <code>bal.tab()</code> will look in the arguments to the input object, <code>covs</code>, and <code>data</code>, if specified. For longitudinal treatments, can be a list of allowable arguments, one for each time point.</p></dd>
 
-  <dt>data</dt>
+
+<dt>data</dt>
 <dd><p>an optional data frame containing variables named in other arguments. For some input object types, this is required.</p></dd>
 
-  <dt>continuous</dt>
+
+<dt>continuous</dt>
 <dd><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>.</p></dd>
 
-  <dt>binary</dt>
+
+<dt>binary</dt>
 <dd><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>.</p></dd>
 
-  <dt>s.d.denom</dt>
-<dd><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href="balance.summary.html">col_w_smd()</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, <code>bal.tab()</code> will figure out which one is best based on the <code>estimand</code>, if given (for ATT, <code>"treated"</code>; for ATC, <code>"control"</code>; otherwise <code>"pooled"</code>) and other clues if not.</p></dd>
 
-  <dt>thresholds</dt>
+<dt>s.d.denom</dt>
+<dd><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href="balance-summary.html">col_w_smd()</a></code> for allowable options. If weights are supplied, each set of weights should have a corresponding entry to <code>s.d.denom</code>. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, <code>bal.tab()</code> will figure out which one is best based on the <code>estimand</code>, if given (for ATT, <code>"treated"</code>; for ATC, <code>"control"</code>; otherwise <code>"pooled"</code>) and other clues if not.</p></dd>
+
+
+<dt>thresholds</dt>
 <dd><p>a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in <code>stats</code>) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set <code>thresholds = c(m = .05, v = 2)</code>. Requesting a threshold automatically requests the display of that statistic. When specified, extra columns are inserted into the Balance table describing whether the requested balance statistics exceeded the threshold or not. Summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure are added to the output.</p></dd>
 
-  <dt>weights</dt>
+
+<dt>weights</dt>
 <dd><p>a vector, list, or <code>data.frame</code> containing weights for each unit, or a string containing the names of the weights variables in <code>data</code>, or an object with a <code><a href="get.w.html">get.w()</a></code> method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.</p></dd>
 
-  <dt>cluster</dt>
+
+<dt>cluster</dt>
 <dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
 
-  <dt>imp</dt>
+
+<dt>imp</dt>
 <dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
 
-  <dt>pairwise</dt>
+
+<dt>pairwise</dt>
 <dd><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></dd>
 
-  <dt>s.weights</dt>
+
+<dt>s.weights</dt>
 <dd><p>Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in <code>data</code>. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.</p></dd>
 
-  <dt>abs</dt>
+
+<dt>abs</dt>
 <dd><p><code>logical</code>; whether displayed balance statistics should be in absolute value or not.</p></dd>
 
-  <dt>subset</dt>
+
+<dt>subset</dt>
 <dd><p>a <code>logical</code> or <code>numeric</code> vector denoting whether each observation should be included or which observations should be included. If <code>logical</code>, it should have length equal to the number of units. <code>NA</code>s will be treated as <code>FALSE</code>. This can be used as an alternative to <code>cluster</code> to examine balance on subsets of the data.</p></dd>
 
-  <dt>quick</dt>
+
+<dt>quick</dt>
 <dd><p><code>logical</code>; if <code>TRUE</code>, will not compute any values that will not be displayed. Set to <code>FALSE</code> if computed values not displayed will be used later.</p></dd>
 
-  <dt>...</dt>
-<dd><p>for some input types, other arguments that are required or allowed. See the individual methods pages in See Also for details. Otherwise, further arguments to control display of output. See <a href="display_options.html">display options</a> for details.</p></dd>
-
 </dl></div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>bal.tab()</code> performs various calculations on the the data objects given. This page details the arguments and calculations that are used across <code>bal.tab()</code> methods.</p>
-<div class="section">
-<h3 id="with-binary-point-treatments">With Binary Point Treatments<a class="anchor" aria-label="anchor" href="#with-binary-point-treatments"></a></h3>
-
-
-<p>Balance statistics can be requested with the <code><a href="balance.stats.html">stats</a></code> argument. The default balance statistic for mean differences for continuous variables is the standardized mean difference, which is the difference in the means divided by a measure of spread (i.e., a d-type effect size measure). This is the default because it puts the mean differences on the same scale for comparison with each other and with a given threshold. For binary variables, the default balance statistic is the raw difference in proportion. Although standardized differences in proportion can be computed, raw differences in proportion for binary variables are already on the same scale, and computing the standardized difference in proportion can obscure the true difference in proportion by dividing the difference in proportion by a number that is itself a function of the observed proportions.</p>
-<p>Standardized mean differences are calculated using <code><a href="balance.summary.html">col_w_smd()</a></code> as follows: the numerator is the mean of the treated group minus the mean of the control group, and the denominator is a measure of spread calculated in accordance with the argument to <code>s.d.denom</code> or the default of the specific method used. Common approaches in the literature include using the standard deviation of the treated group or using the "pooled" standard deviation (i.e., the square root of the mean of the group variances) in calculating standardized mean differences. The computed spread <code>bal.tab()</code> uses is always that of the full, unadjusted sample (i.e., before matching, weighting, or subclassification), as recommended by Stuart (2010).</p>
-<p>Prior to computation, all variables are checked for variable type, which allows users to differentiate balance statistic calculations based on type using the arguments to <code>continuous</code> and <code>binary</code>. First, if a given covariate is numeric and has only 2 levels, it is converted into a binary (0,1) variable. If 0 is a value in the original variable, it retains its value and the other value is converted to 1; otherwise, the lower value is converted to 0 and the other to 1. Next, if the covariate is not numeric or logical (i.e., is a character or factor variable), it will be split into new binary variables, named with the original variable and the value, separated by an underscore. Otherwise, the covariate will be used as is and treated as a continuous variable.</p>
-<p>Variance ratios are computed within-sample using <code><a href="balance.summary.html">col_w_vr()</a></code>, with the larger of the two variances in the numerator if <code>abs = TRUE</code>, yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion.</p>
-<p>When weighting or matching are used, an "effective sample size" is calculated for each group using the following formula: \((\sum w)^2 / \sum w^2\). The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being down-weighted. When matching is used, an additional "unweighted" sample size will be displayed indicating the total number of units contributing to the weighted sample.</p>
-<p>When subclassification is used, the balance tables for each subclass stored in <code>$Subclass.Balance</code> use values calculated as described above. For the aggregate balance table stored in <code>$Balance.Across.Subclass</code>, the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for more details.</p>
-</div>
-
-<div class="section">
-<h3 id="with-continuous-point-treatments">With Continuous Point Treatments<a class="anchor" aria-label="anchor" href="#with-continuous-point-treatments"></a></h3>
-
-
-<p>When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The correlation after adjustment is computed using <code><a href="balance.summary.html">col_w_cov()</a></code> as the weighted covariance between the covariate and treatment divided by the product of the standard deviations of the unweighted covariate and treatment, in an analogous way to how how the weighted standardized mean difference uses an unweighted measure of spread in its denominator, with the purpose of avoiding the analogous paradox (i.e., where the covariance decreases but is accompanied by a change in the standard deviations, thereby distorting the actual resulting balance computed using the weighted standard deviations).</p>
-</div>
-<div class="section">
-<h3 id="with-multi-category-point-treatments">With Multi-Category Point Treatments<a class="anchor" aria-label="anchor" href="#with-multi-category-point-treatments"></a></h3>
-
-
-<p>For information on using <code>bal.tab()</code> with multi-category treatments, see <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code>. Essentially, <code>bal.tab()</code> compares pairs of treatment groups in a standard way.</p>
-</div>
-<div class="section">
-<h3 id="with-longitudinal-treatments">With Longitudinal Treatments<a class="anchor" aria-label="anchor" href="#with-longitudinal-treatments"></a></h3>
-
-
-<p>For information on using <code>bal.tab()</code> with longitudinal treatments, see <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code>. Essentially, <code>bal.tab()</code> summarizes balance at each time point and summarizes across time points.</p>
-</div>
-<div class="section">
-<h3 id="with-clustered-or-multiply-imputed-data">With Clustered or Multiply Imputed Data<a class="anchor" aria-label="anchor" href="#with-clustered-or-multiply-imputed-data"></a></h3>
-
-
-<p>For information on using <code>bal.tab()</code> with clustered data, see <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code>. For information on using <code>bal.tab()</code> with multiply imputed data, see <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code>.</p>
-</div>
-
-<div class="section">
-<h3 id="quick">Quick<a class="anchor" aria-label="anchor" href="#quick"></a></h3>
-
-
-<p>Calculations can take some time, especially when there are many variables, interactions, or clusters. When certain values are not printed, by default they are not computed. In particular, variance ratios, KS statistics, and summary tables are not computed when their display has not been requested. This can speed up the overall production of the output when these values are not to be used later. However, when they are to be used later, such as when output is to be further examined with <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> or is to be used in some other way after the original call to <code>bal.tab()</code>, it may be useful to compute them even if they are not to be printed initially. To do so, users can set <code>quick = FALSE</code>, which will cause <code>bal.tab()</code> to calculate all values and components it can. Note that <code><a href="love.plot.html">love.plot()</a></code> is fully functional even when <code>quick = TRUE</code> and values are requested that are otherwise not computed in <code>bal.tab()</code> with <code>quick = TRUE</code>.</p>
-</div>
-<div class="section">
-<h3 id="missing-data">Missing Data<a class="anchor" aria-label="anchor" href="#missing-data"></a></h3>
-
-
-<p>If there is missing data in the covariates (i.e., <code>NA</code>s in the covariates provided to <code>bal.tab()</code>), a few additional things happen. A warning will appear mentioning that missing values were present in the data set. The computed balance summaries will be for the variables ignoring the missing values. New variables will be created representing missingness indicators for each variable, named <code>var:&lt;NA&gt;</code> (with <code>var</code> replaced by the actual name of the variable). If <code>int = TRUE</code>, balance for the pairwise interactions between the missingness indicators will also be computed. These variables are treated like regular variables once created.</p>
-</div>
-
-
-    </div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
@@ -214,22 +179,24 @@
 
 
 <p>For scenarios with binary point treatments and no subclasses, imputations, or clusters, the following are the elements of the <code>bal.tab</code> object:</p>
-<dl><dt>Balance</dt>
-<dd><p>A data frame containing balance information for each covariate. Balance contains the following columns, with additional columns present when other balance statistics are requested:</p><ul><li><p><code>Type</code>: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).</p></li>
-<li><p><code>M.0.Un</code>: The mean of the control group prior to adjusting.</p></li>
-<li><p><code>SD.0.Un</code>: The standard deviation of the control group prior to adjusting.</p></li>
-<li><p><code>M.1.Un</code>: The mean of the treated group prior to adjusting.</p></li>
-<li><p><code>SD.1.Un</code>: The standard deviation of the treated group prior to adjusting.</p></li>
-<li><p><code>Diff.Un</code>: The (standardized) difference in means between the two groups prior to adjusting. See the <code>binary</code> and <code>continuous</code> arguments on the <code>bal.tab</code> method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.</p></li>
-<li><p><code>M.0.Adj</code>: The mean of the control group after adjusting.</p></li>
-<li><p><code>SD.0.Adj</code>: The standard deviation of the control group after adjusting.</p></li>
-<li><p><code>M.1.Adj</code>: The mean of the treated group after adjusting.</p></li>
-<li><p><code>SD.1.Adj</code>: The standard deviation of the treated group after adjusting.</p></li>
-<li><p><code>Diff.Adj</code>: The (standardized) difference in means between the two groups after adjusting. See the <code>binary</code> and <code>continuous</code> arguments on the <code>bal.tab</code> method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.</p></li>
-<li><p><code>M.Threshold</code>: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by <code>thresholds</code>.  If a threshold for mean differences is not specified, this column will be <code>NA</code>.</p></li>
-</ul></dd>
 
-<dt>Balanced.Means</dt>
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>\item{Balance}{A data frame containing balance information <span class="cf">for</span> each covariate. Balance contains the following columns, with additional columns present when other balance statistics are requested<span class="sc">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        \itemize{</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            \item{\code{Type}<span class="sc">:</span> Whether the covariate is binary, continuous, or a measure of <span class="fu">distance</span> (e.g., the propensity score).}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            \item{\code{M.<span class="fl">0.</span>Un}<span class="sc">:</span> The mean of the control group prior to adjusting.}</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            \item{\code{SD.<span class="fl">0.</span>Un}<span class="sc">:</span> The standard deviation of the control group prior to adjusting.}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            \item{\code{M.<span class="fl">1.</span>Un}<span class="sc">:</span> The mean of the treated group prior to adjusting.}</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            \item{\code{SD.<span class="fl">1.</span>Un}<span class="sc">:</span> The standard deviation of the treated group prior to adjusting.}</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            \item{\code{Diff.Un}<span class="sc">:</span> <span class="fu">The</span> (standardized) difference <span class="cf">in</span> means between the two groups prior to adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed <span class="cf">for</span> continuous variables and the raw mean <span class="fu">difference</span> (difference <span class="cf">in</span> proportion) is displayed <span class="cf">for</span> binary variables.}</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            \item{\code{M.<span class="fl">0.</span>Adj}<span class="sc">:</span> The mean of the control group after adjusting.}</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            \item{\code{SD.<span class="fl">0.</span>Adj}<span class="sc">:</span> The standard deviation of the control group after adjusting.}</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            \item{\code{M.<span class="fl">1.</span>Adj}<span class="sc">:</span> The mean of the treated group after adjusting.}</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            \item{\code{SD.<span class="fl">1.</span>Adj}<span class="sc">:</span> The standard deviation of the treated group after adjusting.}</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            \item{\code{Diff.Adj}<span class="sc">:</span> <span class="fu">The</span> (standardized) difference <span class="cf">in</span> means between the two groups after adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed <span class="cf">for</span> continuous variables and the raw mean <span class="fu">difference</span> (difference <span class="cf">in</span> proportion) is displayed <span class="cf">for</span> binary variables.}</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            \item{\code{M.Threshold}<span class="sc">:</span> Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{thresholds}.  If a threshold <span class="cf">for</span> mean differences is not specified, this column will be \code{<span class="cn">NA</span>}.}</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        }}</span></code></pre><p></p></div>
+<dl><dt>Balanced.Means</dt>
 <dd><p>If a threshold on mean differences is specified, a table tallying the number of variables that exceed or are within the threshold.</p></dd>
 
 <dt>Max.Imbalance.Means</dt>
@@ -251,13 +218,71 @@
 <p>For <code>bal.tab</code> output with subclassification, see <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><code>bal.tab()</code> performs various calculations on the the data objects given. This page details the arguments and calculations that are used across <code>bal.tab()</code> methods.</p><div class="section">
+<h3 id="with-binary-point-treatments">With Binary Point Treatments<a class="anchor" aria-label="anchor" href="#with-binary-point-treatments"></a></h3>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Balance statistics can be requested with the \code{\link[<span class="ot">=</span>balance<span class="sc">-</span>statistics]{stats}} argument. The default balance statistic <span class="cf">for</span> mean differences <span class="cf">for</span> continuous variables is the standardized mean difference, which is the difference <span class="cf">in</span> the means divided by a measure of <span class="fu">spread</span> (i.e., a d<span class="sc">-</span>type effect size measure). This is the default because it puts the mean differences on the same scale <span class="cf">for</span> comparison with each other and with a given threshold. For binary variables, the default balance statistic is the raw difference <span class="cf">in</span> proportion. Although standardized differences <span class="cf">in</span> proportion can be computed, raw differences <span class="cf">in</span> proportion <span class="cf">for</span> binary variables are already on the same scale, and computing the standardized difference <span class="cf">in</span> proportion can obscure the true difference <span class="cf">in</span> proportion by dividing the difference <span class="cf">in</span> proportion by a number that is itself a <span class="cf">function</span> of the observed proportions.</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Standardized mean differences are calculated using [<span class="fu">col_w_smd</span>()] as follows<span class="sc">:</span> the numerator is the mean of the treated group minus the mean of the control group, and the denominator is a measure of spread calculated <span class="cf">in</span> accordance with the argument to \code{s.d.denom} or the default of the specific method used. Common approaches <span class="cf">in</span> the literature include using the standard deviation of the treated group or using the <span class="st">"pooled"</span> standard <span class="fu">deviation</span> (i.e., the square root of the mean of the group variances) <span class="cf">in</span> calculating standardized mean differences. The computed spread \code{<span class="fu">bal.tab</span>()} uses is always that of the full, unadjusted <span class="fu">sample</span> (i.e., before matching, weighting, or subclassification), as recommended by <span class="fu">Stuart</span> (<span class="dv">2010</span>).</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Prior to computation, all variables are checked <span class="cf">for</span> variable type, which allows users to differentiate balance statistic calculations based on type using the arguments to \code{continuous} and \code{binary}. First, <span class="cf">if</span> a given covariate is numeric and has only <span class="dv">2</span> levels, it is converted into a <span class="fu">binary</span> (<span class="dv">0</span>,<span class="dv">1</span>) variable. If <span class="dv">0</span> is a value <span class="cf">in</span> the original variable, it retains its value and the other value is converted to <span class="dv">1</span>; otherwise, the lower value is converted to <span class="dv">0</span> and the other to <span class="fl">1.</span> Next, <span class="cf">if</span> the covariate is not numeric or <span class="fu">logical</span> (i.e., is a character or factor variable), it will be split into new binary variables, named with the original variable and the value, separated by an underscore. Otherwise, the covariate will be used as is and treated as a continuous variable.</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Variance ratios are computed within<span class="sc">-</span>sample using [<span class="fu">col_w_vr</span>()], with the larger of the two variances <span class="cf">in</span> the numerator <span class="cf">if</span> \code{abs <span class="ot">=</span> <span class="cn">TRUE</span>}, yielding values greater than or equal to <span class="fl">1.</span> Variance ratios are not calculated <span class="cf">for</span> binary variables since they are only a <span class="cf">function</span> of the group proportions and thus provide the same information as differences <span class="cf">in</span> proportion.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>When weighting or matching are used, an <span class="st">"effective sample size"</span> is calculated <span class="cf">for</span> each group using the following formula<span class="sc">:</span> \eqn{(\sum w)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> \sum w<span class="sc">^</span><span class="dv">2</span>}. The effective sample size is <span class="st">"approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations"</span> (Ridgeway et al., <span class="dv">2016</span>). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being down<span class="sc">-</span>weighted. When matching is used, an additional <span class="st">"unweighted"</span> sample size will be displayed indicating the total number of units contributing to the weighted sample.</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>When subclassification is used, the balance tables <span class="cf">for</span> each subclass stored <span class="cf">in</span> \code{<span class="sc">$</span>Subclass.Balance} use values calculated as described above. For the aggregate balance table stored <span class="cf">in</span> \code{<span class="sc">$</span>Balance.Across.Subclass}, the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units <span class="cf">in</span> each subclass. See \code{\link[<span class="ot">=</span>class<span class="sc">-</span>bal.tab.subclass]{bal.tab.subclass}} <span class="cf">for</span> more details.</span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h3 id="with-continuous-point-treatments">With Continuous Point Treatments<a class="anchor" aria-label="anchor" href="#with-continuous-point-treatments"></a></h3>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>When continuous treatment variables are considered, the balance statistic calculated is the Pearson correlation between the covariate and treatment. The correlation after adjustment is computed using [<span class="fu">col_w_cov</span>()] as the weighted covariance between the covariate and treatment divided by the product of the standard deviations of the unweighted covariate and treatment, <span class="cf">in</span> an analogous way to how how the weighted standardized mean difference uses an unweighted measure of spread <span class="cf">in</span> its denominator, with the purpose of avoiding the analogous <span class="fu">paradox</span> (i.e., where the covariance decreases but is accompanied by a change <span class="cf">in</span> the standard deviations, thereby distorting the actual resulting balance computed using the weighted standard deviations).</span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h3 id="with-multi-category-point-treatments">With Multi-Category Point Treatments<a class="anchor" aria-label="anchor" href="#with-multi-category-point-treatments"></a></h3>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>For information on using \code{<span class="fu">bal.tab</span>()} with multi<span class="sc">-</span>category treatments, see \code{\link[<span class="ot">=</span>class<span class="sc">-</span>bal.tab.multi]{bal.tab.multi}}. Essentially, \code{<span class="fu">bal.tab</span>()} compares pairs of treatment groups <span class="cf">in</span> a standard way.</span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h3 id="with-longitudinal-treatments">With Longitudinal Treatments<a class="anchor" aria-label="anchor" href="#with-longitudinal-treatments"></a></h3>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>For information on using \code{<span class="fu">bal.tab</span>()} with longitudinal treatments, see \code{\link[<span class="ot">=</span>class<span class="sc">-</span>bal.tab.msm]{bal.tab.msm}}. Essentially, \code{<span class="fu">bal.tab</span>()} summarizes balance at each time point and summarizes across time points.</span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h3 id="with-clustered-or-multiply-imputed-data">With Clustered or Multiply Imputed Data<a class="anchor" aria-label="anchor" href="#with-clustered-or-multiply-imputed-data"></a></h3>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>For information on using \code{<span class="fu">bal.tab</span>()} with clustered data, see \code{\link[<span class="ot">=</span>class<span class="sc">-</span>bal.tab.cluster]{bal.tab.cluster}}. For information on using \code{<span class="fu">bal.tab</span>()} with multiply imputed data, see \code{\link[<span class="ot">=</span>class<span class="sc">-</span>bal.tab.imp]{bal.tab.imp}}. </span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h3 id="quick">Quick<a class="anchor" aria-label="anchor" href="#quick"></a></h3>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Calculations can take some time, especially when there are many variables, interactions, or clusters. When certain values are not printed, by default they are not computed. In particular, variance ratios, KS statistics, and summary tables are not computed when their display has not been requested. This can speed up the overall production of the output when these values are not to be used later. However, when they are to be used later, such as when output is to be further examined with \code{<span class="fu">print</span>()} or is to be used <span class="cf">in</span> some other way after the original call to \code{<span class="fu">bal.tab</span>()}, it may be useful to compute them even <span class="cf">if</span> they are not to be printed initially. To do so, users can set \code{quick <span class="ot">=</span> <span class="cn">FALSE</span>}, which will cause \code{<span class="fu">bal.tab</span>()} to calculate all values and components it can. Note that \code{<span class="fu">love.plot</span>()} is fully functional even when \code{quick <span class="ot">=</span> <span class="cn">TRUE</span>} and values are requested that are otherwise not computed <span class="cf">in</span> \code{<span class="fu">bal.tab</span>()} with \code{quick <span class="ot">=</span> <span class="cn">TRUE</span>}.</span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h3 id="missing-data">Missing Data<a class="anchor" aria-label="anchor" href="#missing-data"></a></h3>
+
+
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>If there is missing data <span class="cf">in</span> the <span class="fu">covariates</span> (i.e., \code{<span class="cn">NA</span>}s <span class="cf">in</span> the covariates provided to \code{<span class="fu">bal.tab</span>()}), a few additional things happen. A warning will appear mentioning that missing values were present <span class="cf">in</span> the data set. The computed balance summaries will be <span class="cf">for</span> the variables ignoring the missing values. New variables will be created representing missingness indicators <span class="cf">for</span> each variable, named \code{var<span class="sc">:</span><span class="er">&lt;</span><span class="cn">NA</span><span class="sc">&gt;</span>} (with \code{var} replaced by the actual name of the variable). If \code{int <span class="ot">=</span> <span class="cn">TRUE</span>}, balance <span class="cf">for</span> the pairwise interactions between the missingness indicators will also be computed. These variables are treated like regular variables once created.</span></code></pre><p></p></div>
+</div>
+
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., &amp; Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R vignette. RAND.</p>
 <p>Stuart, E. A. (2010). Matching Methods for Causal Inference: A Review and a Look Forward. Statistical Science, 25(1), 1-21. <a href="https://doi.org/10.1214/09-STS313" class="external-link">doi:10.1214/09-STS313</a></p>
-    </div>
-    <div class="section level2">
-    <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
-    <p>Noah Greifer</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -265,14 +290,14 @@
 <li><p><code><a href="bal.tab.weightit.html">bal.tab.weightit()</a></code> for the method for <code>weightit</code> and <code>weightitMSM</code> objects returned by <span class="pkg">WeightIt</span>.</p></li>
 <li><p><code><a href="bal.tab.ps.html">bal.tab.ps()</a></code> for the method for <code>ps</code>, <code>mnps</code>, and <code>iptw</code> objects returned by <span class="pkg">twang</span> and for <code>ps.cont</code> objects returned by <span class="pkg">twangContinuous</span>.</p></li>
 <li><p><code><a href="bal.tab.Match.html">bal.tab.Match()</a></code> for the method for objects returned by <span class="pkg">Matching</span>.</p></li>
-<li><p><code><a href="bal.tab.Match.html">bal.tab.optmatch()</a></code> for the method for objects returned by <span class="pkg">optmatch</span>.</p></li>
+<li><p><code><a href="bal.tab.optmatch.html">bal.tab.optmatch()</a></code> for the method for objects returned by <span class="pkg">optmatch</span>.</p></li>
 <li><p><code><a href="bal.tab.cem.match.html">bal.tab.cem.match()</a></code> for the method for objects returned by <span class="pkg">cem</span>.</p></li>
 <li><p><code><a href="bal.tab.CBPS.html">bal.tab.CBPS()</a></code> for the method for objects returned by <span class="pkg">CBPS</span>.</p></li>
-<li><p><code><a href="bal.tab.Match.html">bal.tab.ebalance()</a></code> for the method for objects returned by <span class="pkg">ebal</span>.</p></li>
-<li><p><code><a href="bal.tab.Match.html">bal.tab.designmatch()</a></code> for the method for objects returned by <span class="pkg">designmatch</span>.</p></li>
+<li><p><code><a href="bal.tab.ebalance.html">bal.tab.ebalance()</a></code> for the method for objects returned by <span class="pkg">ebal</span>.</p></li>
+<li><p><code><a href="bal.tab.designmatch.html">bal.tab.designmatch()</a></code> for the method for objects returned by <span class="pkg">designmatch</span>.</p></li>
 <li><p><code><a href="bal.tab.mimids.html">bal.tab.mimids()</a></code> for the method for objects returned by <span class="pkg">MatchThem</span>.</p></li>
-<li><p><code><a href="bal.tab.sbw.html">bal.tab.sbwcau()</a></code> for the method for objects returned by <span class="pkg">sbw</span>.</p></li>
-<li><p><code><a href="bal.tab.df.formula.html">bal.tab.formula()</a></code> and <code><a href="bal.tab.df.formula.html">bal.tab.data.frame()</a></code> for the methods for <code>formula</code> and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see <code><a href="bal.tab.df.formula.list.html">bal.tab.time.list()</a></code>.</p></li>
+<li><p><code><a href="bal.tab.sbwcau.html">bal.tab.sbwcau()</a></code> for the method for objects returned by <span class="pkg">sbw</span>.</p></li>
+<li><p><code><a href="bal.tab.formula.html">bal.tab.formula()</a></code> and <code><a href="bal.tab.formula.html">bal.tab.data.frame()</a></code> for the methods for <code>formula</code> and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see <code><a href="bal.tab.time.list.html">bal.tab.time.list()</a></code>.</p></li>
 </ul></div>
     </div>
 

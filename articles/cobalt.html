@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,10 +51,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cobalt_A1_other_packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/cobalt_A2_segmented_data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
-    <a class="dropdown-item" href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -88,7 +89,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2023-02-11</h4>
+            <h4 data-toc-skip class="date">2023-03-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="d-none name"><code>cobalt.Rmd</code></div>
@@ -182,14 +183,14 @@ treatments.</p>
 the conditioning package used. The full APA reference for
 <code>cobalt</code> is the following:</p>
 <p>Greifer, N. (2023). cobalt: Covariate Balance Tables and Plots. R
-package version 4.4.1.9002.</p>
+package version 4.4.1.9003.</p>
 <p>For example, if you use <code>Matching</code> for propensity score
 estimation and matching and <code>cobalt</code> for balance assessment
 and/or reporting, a possible citation might go as follows:</p>
 <blockquote>
 <p>Matching was performed using the Matching package (Sekhon, 2011), and
 covariate balance was assessed using cobalt (Greifer, 2023), both in R
-(R Core Team, 2022).</p>
+(R Core Team, 2023).</p>
 </blockquote>
 </div>
 </div>
@@ -351,7 +352,7 @@ similar functions to <code><a href="https://rdrr.io/r/base/summary.html" class="
 <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">bal.table()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, and
 <code><a href="https://rdrr.io/pkg/twang/man/dx.wts.html" class="external-link">dx.wts()</a></code> in <code>twang</code>; <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">MatchBalance()</a></code>
 and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> in <code>Matching</code>;
-<code><a href="https://rdrr.io/pkg/CBPS/man/balance.html" class="external-link">balance()</a></code> in <code>CBPS</code>; and
+<code>balance()</code> in <code>CBPS</code>; and
 <code><a href="https://rdrr.io/pkg/sbw/man/summarize.html" class="external-link">summarize()</a></code> in <code>sbw</code>. It can be seen as a
 replacement or a supplement to these functions.</p>
 <p>For more help using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, see <code><a href="../reference/bal.tab.html">?bal.tab</a></code>
@@ -593,7 +594,7 @@ standard deviation of the control group (<code>"control"</code>), most
 appropriate when computing the ATC; the pooled standard deviation
 (<code>"pooled"</code>), computed as in <span class="citation">Austin
 (2009)</span>, most appropriate when computing the ATE; or another value
-(see <code><a href="../reference/balance.summary.html">?col_w_smd</a></code> for more options). <code><a href="../reference/bal.tab.html">bal.tab()</a></code>
+(see <code><a href="../reference/balance-summary.html">?col_w_smd</a></code> for more options). <code><a href="../reference/bal.tab.html">bal.tab()</a></code>
 can generally determine if the ATT or ATC are being estimated and will
 supply <code>s.d.denom</code> accordingly. Otherwise, the default is
 <code>"pooled"</code>.</p>
@@ -610,7 +611,7 @@ are displayed. For binary and multi-category treatments, options include
 <code>"variance.ratios"</code> for variance ratios,
 <code>"ks.statistics"</code> for Kolmogorov-Smirnov (KS) statistics, and
 <code>"ovl.coefficient"</code> for the complement of the overlapping
-coefficient (abbreviations are allowed). See <code><a href="../reference/balance.stats.html">?balance.stats</a></code>
+coefficient (abbreviations are allowed). See <code>?balance.stats</code>
 for details. By default, standardized mean differences are displayed.
 Variance ratios are another important tool for assessing balance beyond
 mean differences because they pertain to the shape of the covariate
@@ -668,7 +669,7 @@ after adjustment.</p>
 <span><span class="co">##            Control Treated</span></span>
 <span><span class="co">## Unadjusted   429.      185</span></span>
 <span><span class="co">## Adjusted     108.2     185</span></span></code></pre>
-<p>See <code><a href="../reference/display_options.html">?display_options</a></code> for the full list of display
+<p>See <code>?display_options</code> for the full list of display
 options. They can also be set as global options by using
 <code><a href="../reference/set.cobalt.options.html">set.cobalt.options()</a></code>.</p>
 <p>Finally, the user can specify a threshold for balance statistics
@@ -885,7 +886,7 @@ correlation between each covariate and treatment. <span class="citation">Zhu, Co
 absolute correlations should be no greater than 0.1, but correlations
 should ideally be as close to zero as possible. Spearman correlations
 can also be requested. See the section “Using <code>cobalt</code> with
-continuous treatments” and <code><a href="../reference/balance.stats.html">?balance.stats</a></code> for more
+continuous treatments” and <code>?balance.stats</code> for more
 details.</p>
 <p>The next two sections describe the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 the <code>MatchIt</code> and <code>WeightIt</code>. As stated above, the
@@ -915,21 +916,21 @@ use:</p>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
-<span><span class="co">## distance    Distance  -0.0010</span></span>
-<span><span class="co">## age          Contin.   0.1964</span></span>
-<span><span class="co">## educ         Contin.  -0.0726</span></span>
+<span><span class="co">## distance    Distance   0.0145</span></span>
+<span><span class="co">## age          Contin.  -0.3173</span></span>
+<span><span class="co">## educ         Contin.   0.0108</span></span>
 <span><span class="co">## race_black    Binary   0.0108</span></span>
-<span><span class="co">## race_hispan   Binary  -0.0054</span></span>
-<span><span class="co">## race_white    Binary  -0.0054</span></span>
-<span><span class="co">## re74         Contin.   0.0667</span></span>
-<span><span class="co">## re75         Contin.   0.0936</span></span>
+<span><span class="co">## race_hispan   Binary  -0.0162</span></span>
+<span><span class="co">## race_white    Binary   0.0054</span></span>
+<span><span class="co">## re74         Contin.   0.0418</span></span>
+<span><span class="co">## re75         Contin.   0.1145</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##                      Control Treated</span></span>
-<span><span class="co">## All                   429.       185</span></span>
-<span><span class="co">## Matched (ESS)          36.45     185</span></span>
-<span><span class="co">## Matched (Unweighted)   77.       185</span></span>
-<span><span class="co">## Unmatched             352.         0</span></span></code></pre>
+<span><span class="co">## All                    429.      185</span></span>
+<span><span class="co">## Matched (ESS)           28.5     185</span></span>
+<span><span class="co">## Matched (Unweighted)    78.      185</span></span>
+<span><span class="co">## Unmatched              351.        0</span></span></code></pre>
 <p>The output looks very similar to <code>MatchIt</code>’s
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function: first is the balance table, and second
 is a summary of the sample size before and after adjustment.</p>
@@ -1010,19 +1011,8 @@ of <code><a href="../reference/bal.plot.html">bal.plot()</a></code> after using 
 the ATT using the output from <code>WeightIt</code> generated
 above.:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span>
-<span><span class="co">## The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span></code></pre>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"race"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-14-1.png" width="336"><img src="cobalt_files/figure-html/unnamed-chunk-14-2.png" width="336"></p>
 <p>The first argument (or set of arguments) is the sufficient set of
 arguments for a simple call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, defining the data
@@ -1068,7 +1058,7 @@ be manually added as an input to <code><a href="../reference/bal.plot.html">bal.
 <p>Below is an example using <code><a href="../reference/bal.plot.html">bal.plot()</a></code> to display the
 distributions of propensity scores before and after weighting
 adjustment:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Before and after weighting; which = "both"</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out</span>, var.name <span class="op">=</span> <span class="st">"prop.score"</span>,</span>
 <span>         which <span class="op">=</span> <span class="st">"both"</span>,</span>
@@ -1118,7 +1108,7 @@ after conditioning [which is not always the case; cf. <span class="citation">Kin
 <code><a href="../reference/love.plot.html">love.plot()</a></code> does just this, providing the user with several
 options to customize their plot for presentation. Below is an example of
 its use:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Nearest neighbor 1:1 matching with replacement</span></span>
@@ -1186,7 +1176,7 @@ replace. For options of how to do so, see the help file for
 <code><a href="../reference/love.plot.html">love.plot()</a></code> with <code><a href="../reference/love.plot.html">?love.plot</a></code>. Below is an
 example, creating a publication-ready plot with a few other arguments to
 customize output:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>old <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"educ"</span>, <span class="st">"race_black"</span>, <span class="st">"race_hispan"</span>, </span>
 <span>                        <span class="st">"race_white"</span>, <span class="st">"married"</span>, <span class="st">"nodegree"</span>, <span class="st">"re74"</span>, <span class="st">"re75"</span>, <span class="st">"distance"</span><span class="op">)</span>,</span>
 <span>                new <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Age"</span>, <span class="st">"Years of Education"</span>, <span class="st">"Black"</span>, </span>
@@ -1294,7 +1284,7 @@ continuous treatments in the <code>WeightIt</code> package. To
 demonstrate, we use the <code>lalonde</code> package included in
 <code>cobalt</code>, using an arbitrary continuous variable as the
 treatment, though substantively this analysis makes little sense.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Generating weights with re75 as the continuous treatment</span></span>
@@ -1318,7 +1308,7 @@ correlations, we request standardized mean difference between the
 weighted and unweighted samples by include <code>"m"</code> (for
 <code>"mean.diffs.target"</code>) in the argument to <code>stats</code>
 along with <code>"c"</code> (for <code>"correlations"</code>).</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance numerically</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"m"</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>        thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, poly <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
@@ -1372,39 +1362,22 @@ plot of the treatment variable in each category. If treatment and the
 covariate are independent, the densities for each category should
 overlap with each other. A distinct lack of overlap is indicative of
 remaining dependence between treatment and the covariate.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance graphically</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, <span class="st">"re74"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span>
-<span><span class="co">## The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span></code></pre>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-20-1.png" width="480"></p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, <span class="st">"married"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span></code></pre>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-20-2.png" width="480"></p>
 <p>When balance has been achieved to a satisfactory level, users can
 present balance improvements in a Love plot using the
 <code><a href="../reference/love.plot.html">love.plot()</a></code> command, just as with binary treatments.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Summarizing balance in a Love plot</span></span>
 <span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"ks"</span><span class="op">)</span>,</span>
 <span>          thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, </span>
 <span>          abs <span class="op">=</span> <span class="cn">TRUE</span>, wrap <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>          var.order <span class="op">=</span> <span class="st">"unadjusted"</span>, line <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please use `linewidth` instead.</span></span></code></pre>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-21-1.png" width="480"></p>
 </div>
 <div class="section level3">
@@ -1456,7 +1429,7 @@ examine disparities among groups accounting for covariates that might
 otherwise explain differences among groups. We will use
 <code>WeightIt</code> to generate balanced groups by estimating
 propensity score weights with multinomial logistic regression.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Using WeightIt to generate weights with multinomial</span></span>
@@ -1470,7 +1443,7 @@ propensity score weights with multinomial logistic regression.</p>
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code>. There are three possible pairwise comparisons,
 all of which can be requested with <code>which.treat = .all</code>. See
 <code>?bal.tab.multi</code> for more details.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Balance summary across treatment pairs</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span></span>
@@ -1486,7 +1459,7 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">##            black hispan  white</span></span>
 <span><span class="co">## Unadjusted 243.   72.   299.  </span></span>
 <span><span class="co">## Adjusted   140.5  54.32 259.28</span></span></code></pre>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance for each pair of treatments</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>        disp.means <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -1542,26 +1515,11 @@ all of which can be requested with <code>which.treat = .all</code>. See
 multi-category treatments as do for binary treatments. Ideally,
 covariate distributions will look similar across all treatment
 groups.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance graphically</span></span>
 <span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span>
-<span><span class="co">## The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span>
-<span><span class="co">## The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span></code></pre>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-24-1.png" width="480"></p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, <span class="st">"married"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-24-2.png" width="480"></p>
 <p>Finally, we can use <code><a href="../reference/love.plot.html">love.plot()</a></code> to display balance
@@ -1569,7 +1527,7 @@ across treatments. By default, <code><a href="../reference/love.plot.html">love.
 values in the summary across pairwise comparisons. To request individual
 treatment comparisons, use <code>which.treat = .all</code> in
 <code><a href="../reference/love.plot.html">love.plot()</a></code>.</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Summarizing balance in a Love plot</span></span>
 <span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">W.out.mn</span>, thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, binary <span class="op">=</span> <span class="st">"std"</span>,</span>
 <span>          which.treat <span class="op">=</span> <span class="va">.all</span>, abs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -1585,7 +1543,7 @@ balancing method need to be supplied together in each call. This can be
 done by supplying the weights or the output objects themselves. For
 example, we can compare matching and inverse probability weighting for
 the ATT using the following code and the output generated above.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
 <span>            <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
 <span>        weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,</span>
@@ -1593,49 +1551,34 @@ the ATT using the following code and the output generated above.</p>
 <span>        disp.v.ratio <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Matched V.Ratio.Matched Diff.IPW V.Ratio.IPW</span></span>
-<span><span class="co">## age         Contin.       0.2395          0.5557   0.1112      0.5086</span></span>
-<span><span class="co">## educ        Contin.      -0.0161          0.5765  -0.0641      0.6018</span></span>
-<span><span class="co">## married      Binary       0.0595               .  -0.0938           .</span></span>
+<span><span class="co">## age         Contin.       0.3452          0.5805   0.1112      0.5086</span></span>
+<span><span class="co">## educ        Contin.       0.0000          0.6702  -0.0641      0.6018</span></span>
+<span><span class="co">## married      Binary       0.0486               .  -0.0938           .</span></span>
 <span><span class="co">## race_black   Binary       0.0054               .  -0.0044           .</span></span>
-<span><span class="co">## race_hispan  Binary      -0.0054               .   0.0016           .</span></span>
-<span><span class="co">## race_white   Binary       0.0000               .   0.0028           .</span></span>
-<span><span class="co">## nodegree     Binary       0.0054               .   0.1151           .</span></span>
-<span><span class="co">## re74        Contin.      -0.0493          1.0349  -0.0039      1.4821</span></span>
-<span><span class="co">## re75        Contin.       0.0087          2.1264  -0.0428      1.1712</span></span>
+<span><span class="co">## race_hispan  Binary       0.0162               .   0.0016           .</span></span>
+<span><span class="co">## race_white   Binary      -0.0216               .   0.0028           .</span></span>
+<span><span class="co">## nodegree     Binary       0.0108               .   0.1151           .</span></span>
+<span><span class="co">## re74        Contin.      -0.0084          1.1239  -0.0039      1.4821</span></span>
+<span><span class="co">## re75        Contin.      -0.0738          1.7110  -0.0428      1.1712</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##         Control Treated</span></span>
 <span><span class="co">## All      429.       185</span></span>
-<span><span class="co">## Matched   43.49     185</span></span>
+<span><span class="co">## Matched   37.16     185</span></span>
 <span><span class="co">## IPW      108.2      185</span></span></code></pre>
 <p>To use <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, the same syntax can be used:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span>, data <span class="op">=</span> <span class="va">lalonde</span>, </span>
 <span>         weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Matched <span class="op">=</span> <span class="va">m.out</span>,</span>
 <span>                        IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span>,</span>
 <span>         var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span>
-<span><span class="co">## The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span>
-<span><span class="co">## The following aesthetics were dropped during statistical transformation: <span style="color: #00BB00;">weight</span></span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> This can happen when ggplot fails to infer the correct grouping structure in</span></span>
-<span><span class="co">##   the data.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Did you forget to specify a `group` aesthetic or to convert a numerical</span></span>
-<span><span class="co">##   variable into a factor?</span></span></code></pre>
 <p><img src="cobalt_files/figure-html/unnamed-chunk-27-1.png" width="672"></p>
 <p>With <code><a href="../reference/love.plot.html">love.plot()</a></code>, <code>var.order</code> can be
 <code>"unadjusted"</code>, <code>"alphabetical"</code>, or one of the
 names of the weights to order the variables. Also, <code>colors</code>
 and <code>shapes</code> should have the same length as the number of
 weights or have length 1.</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span></span>
 <span>              <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
 <span>          data <span class="op">=</span> <span class="va">lalonde</span>, </span>
@@ -1649,7 +1592,7 @@ weights or have length 1.</p>
 <p>Another way to compare weights from multiple objects is to call
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with one object as usual and supply the other(s)
 to the <code>weights</code> argument; see below for an example:</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, weights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>IPW <span class="op">=</span> <span class="va">W.out</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -1680,7 +1623,7 @@ differences</li>
 prognostic score as a variable in the argument to <code>distance</code>.
 Below is an example of how to do so after a call to
 <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>:</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ctrl.data</span> <span class="op">&lt;-</span> <span class="va">lalonde</span><span class="op">[</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span> <span class="op">==</span> <span class="fl">0</span>,<span class="op">]</span></span>
 <span><span class="va">ctrl.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">re78</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span>
 <span>                    <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
@@ -1690,24 +1633,24 @@ Below is an example of how to do so after a call to
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, distance <span class="op">=</span> <span class="va">lalonde</span><span class="op">[</span><span class="st">"prog.score"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
-<span><span class="co">## prog.score  Distance  -0.0485</span></span>
-<span><span class="co">## distance    Distance   0.0044</span></span>
-<span><span class="co">## age          Contin.   0.2395</span></span>
-<span><span class="co">## educ         Contin.  -0.0161</span></span>
-<span><span class="co">## married       Binary   0.0595</span></span>
+<span><span class="co">## prog.score  Distance  -0.0507</span></span>
+<span><span class="co">## distance    Distance   0.0260</span></span>
+<span><span class="co">## age          Contin.   0.3452</span></span>
+<span><span class="co">## educ         Contin.   0.0000</span></span>
+<span><span class="co">## married       Binary   0.0486</span></span>
 <span><span class="co">## race_black    Binary   0.0054</span></span>
-<span><span class="co">## race_hispan   Binary  -0.0054</span></span>
-<span><span class="co">## race_white    Binary   0.0000</span></span>
-<span><span class="co">## nodegree      Binary   0.0054</span></span>
-<span><span class="co">## re74         Contin.  -0.0493</span></span>
-<span><span class="co">## re75         Contin.   0.0087</span></span>
+<span><span class="co">## race_hispan   Binary   0.0162</span></span>
+<span><span class="co">## race_white    Binary  -0.0216</span></span>
+<span><span class="co">## nodegree      Binary   0.0108</span></span>
+<span><span class="co">## re74         Contin.  -0.0084</span></span>
+<span><span class="co">## re75         Contin.  -0.0738</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##                      Control Treated</span></span>
 <span><span class="co">## All                   429.       185</span></span>
-<span><span class="co">## Matched (ESS)          43.49     185</span></span>
-<span><span class="co">## Matched (Unweighted)   80.       185</span></span>
-<span><span class="co">## Unmatched             349.         0</span></span></code></pre>
+<span><span class="co">## Matched (ESS)          37.16     185</span></span>
+<span><span class="co">## Matched (Unweighted)   73.       185</span></span>
+<span><span class="co">## Unmatched             356.         0</span></span></code></pre>
 <p>Although the prognostic score is sensitive to the outcome estimation
 model used, a defensible prognostic score model can yield valid
 prognostic scores, which can then be used in balance assessment. In the

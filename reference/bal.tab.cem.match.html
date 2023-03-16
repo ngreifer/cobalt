@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,10 +27,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/cobalt_A1_other_packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
-    <a class="dropdown-item" href="../articles/cobalt_A2_segmented_data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
-    <a class="dropdown-item" href="../articles/cobalt_A3_longitudinal_treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
-    <a class="dropdown-item" href="../articles/cobalt_A4_love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/longitudinal-treat.html">Appendix 3: Using cobalt with Longitudinal Treatments</a>
+    <a class="dropdown-item" href="../articles/love.plot.html">Appendix 4: Using love.plot To Generate Love Plots</a>
+    <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/other-packages.html">Appendix 1: Using cobalt with Other Preprocessing Packages</a>
+    <a class="dropdown-item" href="../articles/segmented-data.html">Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data</a>
   </div>
 </li>
 <li class="nav-item">
@@ -53,7 +54,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Balance Statistics for <code>cem</code> Objects</h1>
-      
+      <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/R/bal.tab.cem.match.R" class="external-link"><code>R/bal.tab.cem.match.R</code></a></small>
       <div class="d-none name"><code>bal.tab.cem.match.Rd</code></div>
     </div>
 
@@ -64,26 +65,28 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for cem.match</span></span>
-<span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">x</span>, </span>
-<span>        <span class="va">data</span>,</span>
-<span>        <span class="va">stats</span>,</span>
-<span>        int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        poly <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>        distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        addl <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        <span class="va">continuous</span>,</span>
-<span>        <span class="va">binary</span>,</span>
-<span>        <span class="va">s.d.denom</span>,</span>
-<span>        thresholds <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        imp <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        pairwise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>        s.weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        abs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>        subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        quick <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>        <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">data</span>,</span>
+<span>  <span class="va">stats</span>,</span>
+<span>  int <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  poly <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  distance <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  addl <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">continuous</span>,</span>
+<span>  <span class="va">binary</span>,</span>
+<span>  <span class="va">s.d.denom</span>,</span>
+<span>  thresholds <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cluster <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  imp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pairwise <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  s.weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  abs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  quick <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -91,22 +94,83 @@
     <dl><dt>x</dt>
 <dd><p>a <code>cem.match</code> or <code>cem.match.list</code> object; the output of a call to <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem::cem()</a></code>.</p></dd>
 
-  <dt>data</dt>
-<dd><p>a data frame containing variables named in other arguments. An argument to <code>data</code> is <strong>required</strong>. It must be the same data used in the call to <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem()</a></code> or a <code>mids</code> object from which the data supplied to <code>datalist</code> in the cem() call originated.</p></dd>
 
-  <dt>stats, int, poly, distance, addl, continuous, binary, thresholds, weights, cluster, imp, pairwise, s.weights, abs, subset, quick, ...</dt>
-<dd><p>see <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
-<p>See below for a special note on the <code>s.d.denom</code> argument.</p></dd>
+<dt>data</dt>
+<dd><p>a data frame containing variables named in other arguments. An argument to <code>data</code> is <strong>required</strong>. It must be the same data used in the call to <code>cem()</code> or a <code>mids</code> object from which the data supplied to <code>datalist</code> in the <code>cem()</code> call originated.</p></dd>
 
-</dl><p>The following argument has a special note when used with <code>cem.match</code> or <code>cem.match.list</code> objects:</p>
-<dl><dt>s.d.denom</dt>
-<dd><p>the default is "treated", where the treated group corresponds to the <code>baseline.group</code> in the call to <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem()</a></code>.</p></dd>
+
+<dt>stats</dt>
+<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. For continuous treatments, <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
+
+
+<dt>int</dt>
+<dd><p><code>logical</code> or <code>numeric</code>; whether or not to include 2-way interactions of covariates included in <code>covs</code> and in <code>addl</code>. If <code>numeric</code>, will be passed to <code>poly</code> as well.</p></dd>
+
+
+<dt>poly</dt>
+<dd><p><code>numeric</code>; the highest polynomial of each continuous covariate to display. For example, if 2, squares of each continuous covariate will be displayed (in addition to the covariate itself); if 3, squares and cubes of each continuous covariate will be displayed, etc. If 1, the default, only the base covariate will be displayed. If <code>int</code> is numeric, <code>poly</code> will take on the value of <code>int</code>.</p></dd>
+
+
+<dt>distance</dt>
+<dd><p>an optional formula or data frame containing distance values (e.g., propensity scores) or a character vector containing their names. If a formula or variable names are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will look in the argument to <code>data</code>, if specified. For longitudinal treatments, can be a list of allowable arguments, one for each time point.</p></dd>
+
+
+<dt>addl</dt>
+<dd><p>an optional formula or data frame containing additional covariates for which to present balance or a character vector containing their names. If a formula or variable names are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will look in the arguments to the input object, <code>covs</code>, and <code>data</code>, if specified. For longitudinal treatments, can be a list of allowable arguments, one for each time point.</p></dd>
+
+
+<dt>continuous</dt>
+<dd><p>whether mean differences for continuous variables should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"std"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>.</p></dd>
+
+
+<dt>binary</dt>
+<dd><p>whether mean differences for binary variables (i.e., difference in proportion) should be standardized (<code>"std"</code>) or raw (<code>"raw"</code>). Default <code>"raw"</code>. Abbreviations allowed. This option can be set globally using <code><a href="set.cobalt.options.html">set.cobalt.options()</a></code>.</p></dd>
+
+
+<dt>s.d.denom</dt>
+<dd><p><code>character</code>; how the denominator for standardized mean differences should be calculated, if requested. See <code><a href="balance-summary.html">col_w_smd()</a></code> for allowable options. Abbreviations allowed. If not specified, will be set to <code>"treated"</code>, where the treated group corresponds to the <code>baseline.group</code> in the call to <code>cem()</code>.</p></dd>
+
+
+<dt>thresholds</dt>
+<dd><p>a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in <code>stats</code>) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set <code>thresholds = c(m = .05, v = 2)</code>. Requesting a threshold automatically requests the display of that statistic. When specified, extra columns are inserted into the Balance table describing whether the requested balance statistics exceeded the threshold or not. Summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure are added to the output.</p></dd>
+
+
+<dt>weights</dt>
+<dd><p>a vector, list, or <code>data.frame</code> containing weights for each unit, or a string containing the names of the weights variables in <code>data</code>, or an object with a <code><a href="get.w.html">get.w()</a></code> method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.</p></dd>
+
+
+<dt>cluster</dt>
+<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
+
+
+<dt>imp</dt>
+<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
+
+
+<dt>pairwise</dt>
+<dd><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></dd>
+
+
+<dt>s.weights</dt>
+<dd><p>Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in <code>data</code>. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.</p></dd>
+
+
+<dt>abs</dt>
+<dd><p><code>logical</code>; whether displayed balance statistics should be in absolute value or not.</p></dd>
+
+
+<dt>subset</dt>
+<dd><p>a <code>logical</code> or <code>numeric</code> vector denoting whether each observation should be included or which observations should be included. If <code>logical</code>, it should have length equal to the number of units. <code>NA</code>s will be treated as <code>FALSE</code>. This can be used as an alternative to <code>cluster</code> to examine balance on subsets of the data.</p></dd>
+
+
+<dt>quick</dt>
+<dd><p><code>logical</code>; if <code>TRUE</code>, will not compute any values that will not be displayed. Set to <code>FALSE</code> if computed values not displayed will be used later.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>for some input types, other arguments that are required or allowed. Otherwise, further arguments to control display of output. See <a href="display-options.html">display options</a> for details.</p></dd>
 
 </dl></div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>bal.tab.cem.match()</code> generates a list of balance summaries for the <code>cem.match</code> object given, and functions similarly to <code><a href="https://rdrr.io/pkg/cem/man/imbalance.html" class="external-link">cem::imbalance()</a></code>.</p>
-    </div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
@@ -117,14 +181,14 @@
 <p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p>
 
 
-<p>If <code><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p>
+<p>If <code>cem()</code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p>
 
 
 <p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p>
     </div>
     <div class="section level2">
-    <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
-    <p>Noah Greifer</p>
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><code>bal.tab.cem.match()</code> generates a list of balance summaries for the <code>cem.match</code> object given, and functions similarly to <code><a href="https://rdrr.io/pkg/cem/man/imbalance.html" class="external-link">cem::imbalance()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -133,18 +197,10 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gking.harvard.edu/cem" class="external-link">cem</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: tcltk</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> How to use CEM? Type vignette("cem")</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘cem’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:optmatch’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     pair</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Coarsened exact matching</span></span></span>
-<span class="r-in"><span><span class="va">cem.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem</a></span><span class="op">(</span><span class="st">"treat"</span>, data <span class="op">=</span> <span class="va">lalonde</span>, drop <span class="op">=</span> <span class="st">"re78"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cem.out</span> <span class="op">&lt;-</span> <span class="fu">cem</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem</a></span><span class="op">(</span><span class="st">"treat"</span>, data <span class="op">=</span> <span class="va">lalonde</span>, drop <span class="op">=</span> <span class="st">"re78"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Using 'treat'='1' as baseline group</span>
 <span class="r-in"><span></span></span>
