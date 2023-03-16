@@ -1,5 +1,5 @@
 ---
-title: "Appendix 1: Using cobalt with Other Preprocessing Packages"
+title: "Using `cobalt` with Other Preprocessing Packages"
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
 output: 
@@ -8,7 +8,7 @@ output:
         toc: true
 
 vignette: >
-  %\VignetteIndexEntry{Appendix 1: Using cobalt with Other Preprocessing Packages}
+  %\VignetteIndexEntry{Using `cobalt` with Other Preprocessing Packages}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

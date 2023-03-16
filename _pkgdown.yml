@@ -31,3 +31,12 @@ reference:
 - title: Data
 - contents: lalonde
 
+articles:
+- title: ~
+  navbar: ~
+  contents:
+  - other-packages
+  - segmented-data
+  - longitudinal-treat
+  - love.plot
+  - optimizing-balance

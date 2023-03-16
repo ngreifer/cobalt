@@ -1,11 +1,11 @@
 ---
-title: "Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data"
+title: "Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data"
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 
 vignette: >
-  %\VignetteIndexEntry{Appendix 2: Using cobalt with Clustered, Multiply Imputed, and Other Segmented Data}
+  %\VignetteIndexEntry{Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -1,5 +1,5 @@
 ---
-title: 'Appendix 3: Using cobalt with Longitudinal Treatments'
+title: 'Using `cobalt` with Longitudinal Treatments'
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
 output: 
@@ -8,7 +8,7 @@ output:
         toc: false
 
 vignette: >
-  %\VignetteIndexEntry{Appendix 3: Using cobalt with Longitudinal Treatments}
+  %\VignetteIndexEntry{Using `cobalt` with Longitudinal Treatments}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib

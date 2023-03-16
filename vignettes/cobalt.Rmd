@@ -1,5 +1,5 @@
 ---
-title: "Covariate Balance Tables and Plots: A Guide to the cobalt Package"
+title: "Covariate Balance Tables and Plots: A Guide to the `cobalt` Package"
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
 output: 
@@ -8,7 +8,7 @@ output:
         toc: true
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{Covariate Balance Tables and Plots: A Guide to the cobalt Package}
+  %\VignetteIndexEntry{Covariate Balance Tables and Plots: A Guide to the `cobalt` Package}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
