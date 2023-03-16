@@ -39,7 +39,8 @@ For `bal.init()`, we need to supply the name of the balance statistic we wish to
 Below, we provide an example using the `lalonde` dataset. Our balance statistic will be the largest absolute standardized mean difference among the included covariates, which is specified as `smd.max`. We will first supply the required inputs to `bal.init()` and pass its output to `bal.compute()` to compute the balance statistic for the sample prior to weighting.
 
 ```{r}
-data("lalonde")
+library(cobalt)
+data("lalonde", package = "cobalt")
 
 covs <- subset(lalonde, select = -c(treat, race, re78))
 
