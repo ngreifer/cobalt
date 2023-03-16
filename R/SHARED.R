@@ -6,44 +6,58 @@ word_list <- function(word.list = NULL, and.or = c("and", "or"), is.are = FALSE,
     #or "a, b, and c"
     #If is.are, adds "is" or "are" appropriately
     L <- length(word.list)
-    if (quotes) {
-        if (as.integer(quotes) == 2) word.list <- vapply(word.list, function(x) paste0("\"", x, "\""), character(1L))
-        else if (as.integer(quotes) == 1) word.list <- vapply(word.list, function(x) paste0("\'", x, "\'"), character(1L))
-        else stop("'quotes' must be boolean, 1, or 2.")
-    }
+    word.list <- add_quotes(word.list, quotes)
+    
     if (L == 0) {
         out <- ""
-        attr(out, "plural") = FALSE
+        attr(out, "plural") <- FALSE
     }
     else {
         word.list <- word.list[!word.list %in% c(NA_character_, "")]
         L <- length(word.list)
         if (L == 0) {
             out <- ""
-            attr(out, "plural") = FALSE
+            attr(out, "plural") <- FALSE
         }
         else if (L == 1) {
             out <- word.list
             if (is.are) out <- paste(out, "is")
-            attr(out, "plural") = FALSE
+            attr(out, "plural") <- FALSE
         }
         else {
             and.or <- match_arg(and.or)
             if (L == 2) {
-                out <- paste(word.list, collapse = paste0(" ", and.or," "))
+                out <- paste(word.list, collapse = paste0(" ", and.or, " "))
             }
             else {
-                out <- paste(paste(word.list[seq_len(L-1)], collapse = ", "),
-                             word.list[L], sep = paste0(", ", and.or," "))
+                out <- paste(paste(word.list[seq_len(L - 1)], collapse = ", "),
+                             word.list[L], sep = paste0(", ", and.or, " "))
                 
             }
             if (is.are) out <- paste(out, "are")
-            attr(out, "plural") = TRUE
+            attr(out, "plural") <- TRUE
         }
-        
         
     }
     return(out)
+}
+add_quotes <- function(x, quotes = 2L) {
+    if (isFALSE(quotes)) return(x)
+    
+    if (isTRUE(quotes)) quotes <- 2
+    
+    if (chk::vld_string(quotes)) x <- paste0(quotes, x, quotes)
+    else if (chk::vld_whole_number(quotes)) {
+        if (as.integer(quotes) == 0) return(x)
+        else if (as.integer(quotes) == 1) x <- paste0("\'", x, "\'")
+        else if (as.integer(quotes) == 2) x <- paste0("\"", x, "\"")
+        else stop("`quotes` must be boolean, 1, 2, or a string.")
+    }
+    else {
+        stop("`quotes` must be boolean, 1, 2, or a string.")
+    }
+    
+    x
 }
 firstup <- function(x) {
     #Capitalize first letter
@@ -160,26 +174,11 @@ text_box_plot <- function(range.list, width = 12) {
     }
     return(d)
 }
-.equivalent.factors <- function(f1, f2) {
-    if (is_(f1, c("character", "factor")) && is_(f1, c("character", "factor"))) {
-        nu1 <- nunique(f1)
-        nu2 <- nunique(f2)
-        if (nu1 == nu2) {
-            return(nu1 == nunique(paste.(f1, f2)))
-        }
-        else {
-            return(FALSE)
-        }
-    }
-    else {
-        return(FALSE)
-    }
-}
-.equivalent.factors2 <- function(f1, f2) {
-    return(qr(cbind(1, as.numeric(f1), as.numeric(f2)))$rank == 2)
-}
+
 equivalent.factors2 <- function(f1, f2) {
-    if (is_(f1, c("character", "factor")) && is_(f1, c("character", "factor"))) {
+    if (chk::vld_character_or_factor(f1) &&
+        chk::vld_character_or_factor(f2)) {
+        
         f1 <- as.factor(f1)
         f2 <- as.factor(f2)
         ll1 <- levels(f1)
@@ -546,7 +545,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
                  if (conditionMessage(e) == "'.' in formula and no 'data' argument") {
                      stop("'.' is not allowed in formulas.", call. = FALSE)
                  }
-                 else stop(conditionMessage(e), call. = FALSE)
+                 else .err(conditionMessage(e))
              })
     
     #Check if response exists
@@ -614,7 +613,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
         }
         addl.dfs <- setNames(lapply(rhs.vars.mentioned[rhs.df], function(x) {
             df <- eval(parse(text=x)[[1]], data, env)
-            if (is_(df, "rms")) {
+            if (inherits(df, "rms")) {
                 if (length(dim(df)) == 2L) class(df) <- "matrix"
                 df <- setNames(as.data.frame(as.matrix(df)), attr(df, "colnames"))
             }
@@ -664,7 +663,7 @@ get.covs.and.treat.from.formula <- function(f, data = NULL, terms = FALSE, sep =
                                             na.action = "na.pass"))
         
         tryCatch({covs <- eval(mf.covs)},
-                 error = function(e) {stop(conditionMessage(e), call. = FALSE)})
+                 error = function(e) {.err(conditionMessage(e))})
         
         if (is_not_null(treat.name) && treat.name %in% names(covs)) stop("The variable on the left side of the formula appears on the right side too.", call. = FALSE)
     }
@@ -716,9 +715,9 @@ assign.treat.type <- function(treat, use.multi = FALSE) {
     else if (!use.multi && nunique.treat == 2) {
         treat.type <- "binary"
     }
-    else if (use.multi || is_(treat, c("factor", "character"))) {
+    else if (use.multi || chk::vld_character_or_factor(treat)) {
         treat.type <- "multinomial"
-        if (!is_(treat, "processed.treat")) treat <- factor(treat)
+        if (!inherits(treat, "processed.treat")) treat <- factor(treat)
     }
     else {
         treat.type <- "continuous"
@@ -824,7 +823,7 @@ make_list <- function(n) {
     if (length(n) == 1L && is.numeric(n)) {
         vector("list", as.integer(n))
     }
-    else if (is_(n, "atomic")) {
+    else if (is.atomic(n)) {
         setNames(vector("list", length(n)), as.character(n))
     }
     else stop("'n' must be an integer(ish) scalar or an atomic variable.")
@@ -834,7 +833,7 @@ make_df <- function(ncol, nrow = 0, types = "numeric") {
         col_names <- NULL
         ncol <- as.integer(ncol)
     }
-    else if (is_(ncol, "atomic")) {
+    else if (is.atomic(ncol)) {
         col_names <- as.character(ncol)
         ncol <- length(ncol)
     }
@@ -842,7 +841,7 @@ make_df <- function(ncol, nrow = 0, types = "numeric") {
         row_names <- NULL
         nrow <- as.integer(nrow)
     }
-    else if (is_(nrow, "atomic")) {
+    else if (is.atomic(nrow)) {
         row_names <- as.character(nrow)
         nrow <- length(nrow)
     }
@@ -864,7 +863,7 @@ ifelse_ <- function(...) {
     if (dotlen %% 2 == 0) stop("ifelse_ must have an odd number of arguments: pairs of test/yes, and one no.")
     out <- ...elt(dotlen)
     if (dotlen > 1) {
-        if (!is_(out, "atomic")) stop("The last entry to ifelse_ must be atomic.")
+        if (!is.atomic(out)) stop("The last entry to ifelse_ must be atomic.")
         if (length(out) == 1) out <- rep(out, length(..1))
         n <- length(out)
         for (i in seq_len((dotlen - 1)/2)) {
@@ -873,13 +872,13 @@ ifelse_ <- function(...) {
             if (length(yes) == 1) yes <- rep(yes, n)
             if (length(yes) != n || length(test) != n) stop("All entries must have the same length.")
             if (!is.logical(test)) stop(paste("The", ordinal(2*i - 1), "entry to ifelse_ must be logical."))
-            if (!is_(yes, "atomic")) stop(paste("The", ordinal(2*i), "entry to ifelse_ must be atomic."))
+            if (!is.atomic(yes)) stop(paste("The", ordinal(2*i), "entry to ifelse_ must be atomic."))
             pos <- which(test)
             out[pos] <- yes[pos]
         }
     }
     else {
-        if (!is_(out, "atomic")) stop("The first entry to ifelse_ must be atomic.")
+        if (!is.atomic(out)) stop("The first entry to ifelse_ must be atomic.")
     }
     return(out)
 }
