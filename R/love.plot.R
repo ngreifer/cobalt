@@ -1,3 +1,112 @@
+#' @title Display Balance Statistics in a Love Plot
+#' 
+#' @description Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots. Detailed examples are available in \code{vignette("love.plot")}.
+#' 
+#' @param x the valid input to a call to [bal.tab()] (e.g., the output of a preprocessing function). Other arguments that would be supplied to \code{bal.tab()} can be entered with \code{...}. Can also be a \code{bal.tab} object, i.e., the output of a call to \code{bal.tab()}. See Examples. If \code{x} is not a \code{bal.tab} object, \code{love.plot()} calls \code{bal.tab()} with the arguments supplied.
+#' @param stats \code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
+#' @param abs \code{logical}; whether to present the statistic in absolute value or not. For variance ratios, this will force all ratios to be greater than or equal to 1. If \code{x} is a \code{bal.tab} object, \code{love.plot()} might ignore \code{abs} depending on the original \code{bal.tab()} call. If unspecified, uses whatever was used in the call to \code{bal.tab()}.
+#' @param agg.fun if balance is to be displayed across clusters or imputations rather than within a single cluster or imputation, which summarizing function ("mean", "max", or "range") of the balance statistics should be used. If "range" is entered, \code{love.plot()} will display a line from the min to the max with a point at the mean for each covariate. Abbreviations allowed; "range" is default. Remember to set \code{which.<ARG> = .none} (where \code{<ARG>} is the grouping argument, such as \code{cluster} or \code{imp}) to use \code{agg.fun}. See Details.
+#' @param var.order a \code{character} or \code{love.plot} object; how to order the variables in the plot. See Details. 
+#' @param drop.missing \code{logical}; whether to drop rows for variables for which the statistic has a value of \code{NA}, for example, variance ratios for binary variables. If \code{FALSE}, there will be rows for these variables but no points representing their value. Default is \code{TRUE}, so that variables with missing balance statistics are absent. When multiple \code{stats} are requested, only variables with \code{NA}s for all \code{stats} will be dropped if \code{drop.missing = TRUE}. This argument used to be called \code{no.missing}, and that name still works (but has been deprecated).
+#' @param drop.distance \code{logical}; whether to ignore the distance measure (if there are any) in plotting.
+#' @param thresholds \code{numeric}; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at \code{\link[=balance-statistics]{stats}}. If \code{x} is a \code{bal.tab} object and a threshold was set in it (e.g., with \code{thresholds}), its threshold will be used unless overridden using the \code{threshold} argument in \code{love.plot}.
+#' @param line \code{logical}; whether to display a line connecting the points for each sample.
+#' @param stars when mean differences are to be displayed, which variable names should have a star (i.e., an asterisk) next to them. Allowable values are "none", "std" (for variables with mean differences that have been standardized), or "raw" (for variables with mean differences that have not been standardized). If "raw", the x-axis title will be "Standardized Mean Differences". Otherwise, it will be "Mean Differences". Ignored when mean difference are not displayed. See Details for an explanation of the purpose of this option.
+#' @param grid \code{logical}; whether gridlines should be shown on the plot. Default is \code{FALSE}.
+#' @param limits \code{numeric}; the bounds for the x-axis of the plot. Must a (named) list of vectors of length 2 in ascending order, one for each value of \code{stats} that is to have limits; e.g., \code{list(m = c(-.2, .2))}. If values exceed the limits, they will be plotted at the edge.
+#' @param colors the colors of the points on the plot. See 'Color Specification' at [graphics::par()] or the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#colour-and-fill}{aesthetic specifications} page. The first value corresponds to the color for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to the default \pkg{ggplot2} colors.
+#' @param shapes the shapes of the points on the plot. Must be one or two numbers between 1 and 25 or the name of a valid shape. See the \code{ggplot2} \href{https://ggplot2.tidyverse.org/articles/ggplot2-specs.html#point}{aesthetic specifications} page for valid options. Values 15 to 25 are recommended. The first value corresponds to the shape for the unadjusted sample, and the second color to the adjusted sample. If only one is specified, it will apply to both. Defaults to 19 (\code{"circle filled"}).
+#' @param alpha \code{numeric}; the transparency of the points. See [ggplot2::scale_alpha()].
+#' @param size \code{numeric}; the size of the points on the plot. Defaults to 3. In previous versions, the size was scaled by a factor of 3. Now \code{size} corresponds directly to the \code{size} aesthetic in [ggplot2::geom_point()].
+#' @param wrap \code{numeric}; the number of characters at which to wrap axis labels to the next line. Defaults to 30. Decrease this if the axis labels are excessively long.
+#' @param var.names an optional object providing alternate names for the variables in the plot, which will otherwise be the variable names as they are stored. This may be useful when variables have ugly names. See Details on how to specify \code{var.names}. [var.names()] can be a useful tool for extracting and editing the names from the \code{bal.tab} object.
+#' @param title \code{character}; the title of the plot.
+#' @param sample.names \code{character}; new names to be given to the samples (i.e., in place of "Unadjusted" and "Adjusted"). For example, when matching it used, it may be useful to enter \code{c("Unmatched", "Matched")}.
+#' @param labels \code{logical} or \code{character}; labels to give the plots when multiple \code{stats} are requested. If \code{TRUE}, the labels will be capital letters. Otherwise, must be a string with the same length as \code{stats}. This can be useful when the plots are to be used in an article.
+#' @param position the position of the legend. When \code{stats} has length 1, this can be any value that would be appropriate as an argument to \code{legend.position} in [ggplot2::theme()]. When \code{stat} has length greater than 1, can be one of "none", "left", "right", "bottom", or "top".
+#' @param themes an optional list of \code{theme} objects to append to each individual plot. Each entry should be the output of a call to [ggplot2::theme()] in \pkg{ggplot2}. This is a way to customize the individual plots when multiple \code{stats} are requested since the final output is not a manipulable \code{ggplot} object. It can be used with length-1 \code{stats}, but it probably makes more sense to just add the \code{theme()} call after \code{love.plot()}.
+#' @param ... additional arguments passed to \code{bal.tab()} or options for display of the plot. The following related arguments are currently accepted:
+#' \describe{
+#'     \item{\code{use.grid}}{whether to use [gridExtra::arrangeGrob()] in \code{gridExtra} to make the plot when \code{stats} has length 1. See section Value.}
+#'     \item{\code{disp.subclass}}{whether to display individual subclasses if subclassification is used. Overrides the \code{disp.subclass} option in the original \code{bal.tab()} call if \code{x} is a \code{bal.tab} object.}
+#'     \item{\code{star_char}}{\code{character}; when \code{stars} are used, the character that should be the "star" next to the starred variables. The default is \code{"*"}. \code{"†"} or \code{"\u2020"} (i.e., dagger) might be appealing as well.}
+#' }
+#' Additionally, any of the \code{which.} arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to \code{.none} to aggregate across groups (in which \code{agg.fun} comes into effect) and set to \code{.all} to view all groups. See \code{display_options} for options, and see \code{vignette("segmented-data")} for details and examples.
+#' 
+#' @return When only one type of balance statistic is requested, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot()} provides automatically. 
+#' 
+#' When more than one type of balance statistic is requested, the plot is constructed using [gridExtra::arrangeGrob()] in \code{gridExtra}, which arranges multiple plots and their shared legend into one plot. Because the output of \code{arrangeGrob} is a \code{gtable} object, its features cannot be manipulated in the standard way. Use the \code{themes} argument to change theme elements of the component plots. The original plots are stored in the \code{"plots"} attribute of the output object.
+#' 
+#' @details \code{love.plot} can be used with clusters, imputations, and multi-category and longitudinal treatments in addition to the standard case. Setting the corresponding \code{which.} argument to \code{.none} will aggregate across that dimension. When aggregating, an argument should be specified to \code{agg.fun} referring to whether the mean, minimum ("min"), or maximum ("max") balance statistic or range ("range", the default) of balance statistics for each covariate should be presented in the plot. See \code{vignette("segmented-data")} for examples.
+#' 
+#' With subclasses, balance will be displayed for the unadjusted sample and the aggregated subclassified sample. If \code{disp.subclass} is \code{TRUE}, each subclass will be displayed additionally as a number on the plot. 
+#' 
+#' ### Variable order using \code{var.order}
+#' 
+#' The order that the variables are presented in depends on the argument to \code{var.order}. If \code{NULL}, the default, they will be displayed in the same order as in the call to \code{bal.tab()}, which is the order of the underlying data set. If "alphabetical", they will be displayed in alphabetical order. If "unadjusted", they will be ordered by the balance statistic of the unadjusted sample. To order by the values of the adjusted sample, "adjusted" can be supplied if only one set of weights (or subclasses) are specified; otherwise, the name of the set of weights should be specified.
+#' 
+#' If multiple \code{stats} are requested, the order will be determined by the first entry to \code{stats} (e.g., if both "mean.diffs" and "ks.statistics" are requested, and \code{var.order = "unadjusted"}, the variables will be displayed in order of the unadjusted mean differences for both plots). If multiple plots are produced simultaneously (i.e., for individual clusters or imputations), \code{var.order} can only be \code{NULL} or "alphabetical".
+#' 
+#' If a \code{love.plot} object is supplied, the plot being drawn will use the variable order in the supplied \code{love.plot} object. This can be useful when making more than one plot and the variable order should be the same across plots.
+#' 
+#' ### Variable names using \code{var.names}
+#' 
+#' The default in \code{love.plot} is to present variables as they are named in the output of the call to \code{bal.tab}, so it is important to know this output before specifying alternate variable names when using \code{var.names}, as the displayed variable names may differ from those in the original data.
+#' 
+#' There are several ways to specify alternate names for presentation in the displayed plot using the \code{var.names} argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the \code{names} of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from \code{bal.tab()} is not provided in the list of old variable names, \code{love.plot()} will use the original old variable name.
+#' 
+#' \code{love.plot()} can replace old variables names with new ones based on exact matching for the name strings or matching using the variable name components. For example, if a factor variable \code{"X"} with levels \code{"a"}, \code{"b"}, and \code{"c"} is displayed with \code{love.plot()}, the variables \code{"X_a"}, \code{"X_b"}, and \code{"X_c"} will be displayed. You can enter replacement names for all three variables individually with \code{var.names}, or you can simply specify a replacement name for \code{"X"}, and \code{"X"} will be replaced by the given name in all instances it appears, including not just factor expansions, but also polynomials and interactions in \code{int = TRUE} in the original \code{bal.tab()} call. In an interaction with another variable, say \code{"Y"}, there are several ways to replace the name of the interaction term \code{"X_a * Y"}. If the entire string (\code{"X_a * Y"}) is included in \code{var.names}, the entire string will be replaced. If \code{"X_a"} is included in \code{var.names}, only it will be replaced (and it will be replaced everywhere else it appears). If \code{"X"} is included in \code{var.names}, only it will be replaced (and it will be replaced everywhere else it appears). See example at [var.names()].
+#' 
+#' ### Stars and the x-axis label with mean differences
+#' 
+#' When mean differences are to be displayed, \code{love.plot()} attempts to figure out the appropriate label for the x-axis. If all mean differences are standardized, the x-axis label will be "Standardized Mean Differences". If all mean differences are raw (i.e., unstandardized), the x-axis label will be "Mean Differences". Otherwise, \code{love.plot()} turns to the \code{stars} argument. If "raw", the x-axis label will be "Standardized Mean Differences" (i.e., because un-starred variables have standardized mean differences displayed). If "std", the x-axis label will be "Mean Differences" (i.e., because un-starred variables have raw mean differences displayed). If "none", the x-axis label will be "Mean Differences" and a warning will be issued recommending the use of \code{stars}. 
+#' 
+#' The default is to display standardized mean differences for continuous variables, raw mean differences for binary variables, and no stars, so this warning will be issued in most default uses of \code{love.plot()}. The purpose of this is to correct behavior of previous versions of \pkg{cobalt} in which the default x-axis label was "Mean Differences", even when standardized mean differences were displayed, yielding a potentially misleading plot. This warning requires the user to think about what values are being displayed. The idea of using \code{stars} is that the user can, in a caption for the plot, explain that variables with an asterisk have standardized (or raw) mean differences display, in contrast to un-starred variables.
+#' 
+#' @note \code{love.plot} can also be called by using \code{plot()} or \code{autoplot()} on a \code{bal.tab} object. If used in this way, some messages may appear twice. It is recommended that you just use \code{love.plot()} instead.
+#' 
+#' @seealso 
+#' [bal.tab()], \code{vignette("love.plot")}
+#' 
+#' @examplesIf requireNamespace("WeightIt", quietly = TRUE)
+#' data("lalonde", package = "cobalt")
+#' 
+#' ## Propensity score weighting
+#' w.out1 <- WeightIt::weightit(treat ~ age + educ + race + married +
+#'                                  nodegree + re74 + re75, 
+#'                              data = lalonde)
+#' 
+#' love.plot(w.out1, thresholds = c(m = .1), var.order = "unadjusted")
+#' 
+#' ## Using alternate variable names
+#' v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
+#'                         "race_white", "married", "nodegree", "re74", 
+#'                         "re75", "distance"),
+#'                 new = c("Age", "Years of Education", "Black", 
+#'                         "Hispanic", "White", "Married", "No Degree", 
+#'                         "Earnings 1974", "Earnings 1975", 
+#'                         "Propensity Score"))
+#' 
+#' love.plot(w.out1, stats = "m", threshold = .1, 
+#'           var.order = "unadjusted", var.names = v)
+#' 
+#' #Using multiple stats
+#' love.plot(w.out1, stats = c("m", "ks"), 
+#'           thresholds = c(m = .1, ks = .05), 
+#'           var.order = "unadjusted", var.names = v, stars = "raw",
+#'           position = "bottom", wrap = 20)
+#' 
+#' #Changing visual elements
+#' love.plot(w.out1, thresholds = c(m = .1), 
+#'           var.order = "unadjusted", var.names = v, abs = TRUE,
+#'           shapes = c("triangle filled", "circle"), 
+#'           colors = c("red", "blue"), line = TRUE,
+#'           grid = FALSE, sample.names = c("Original", "Weighted"),
+#'           stars = "raw", position = "top")
+#' 
+
+#' @rdname love.plot
+#' @export 
 love.plot <- function(x, stats, abs, agg.fun = NULL, 
                       var.order = NULL, drop.missing = TRUE, drop.distance = FALSE, 
                       thresholds = NULL, line = FALSE, stars = "none", grid = FALSE, 
@@ -50,9 +159,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
     }
     
-    tryCatch(force(x), error = function(e) stop(conditionMessage(e), call. = FALSE))
+    tryCatch(force(x), error = function(e) .err(conditionMessage(e)))
     
-    if ("bal.tab" %nin% class(x)) {
+    if (!inherits(x, "bal.tab")) {
         #Use bal.tab on inputs first, then love.plot on that
         .call2 <- .call
         .call2[[1]] <- quote(cobalt::bal.tab)
@@ -95,9 +204,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     stats <- match_arg(stats, all_STATS(attr(x, "print.options")$type), several.ok = TRUE)
     
     #Get B and config
-    if ("bal.tab.subclass" %in% class(x)) {
+    if (inherits(x, "bal.tab.subclass")) {
         if (is_null(x[["Balance.Across.Subclass"]])) {
-            stop("'subclass.summary' must be set to TRUE in the original call to bal.tab().", call. = FALSE)
+            .err("`subclass.summary` must be set to `TRUE` in the original call to `bal.tab()`")
         }
         B <- cbind(x[["Balance.Across.Subclass"]], variable.names = row.names(x[["Balance.Across.Subclass"]]))
         
@@ -109,7 +218,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     sub <- x[["Subclass.Balance"]][[s]]
                     sub.B0 <- setNames(sub[endsWith(names(sub), ".Adj")],
                                        gsub(".Adj", paste0(".", s), names(sub)[endsWith(names(sub), ".Adj")]))
-                    return(sub.B0) }),
+                    return(sub.B0)
+                }),
                 list(variable.names = row.names(x[["Balance.Across.Subclass"]]))))
         }
         else subclass.names <- sub.B <- NULL
@@ -157,7 +267,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     if (i == "treat") {
                         treat_levels <- attr(x, "print.options")$treat_vals_multi
                         if (is.numeric(which.)) which. <- treat_levels[which.]
-                        if (any(which. %nin% treat_levels)) stop("All values in 'which.treat' must be names or indices of treatment levels.", call. = FALSE)
+                        if (!all(which. %in% treat_levels)) {
+                            .err("all values in `which.treat` must be names or indices of treatment levels")
+                        }
                         if (attr(x, "print.options")$pairwise) {
                             vs.combs <- cbind(vs.tmp <- as.matrix(expand.grid(treat_levels, treat_levels, stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)), 
                                               apply(vs.tmp, 1, paste, collapse = " vs. "))
@@ -180,7 +292,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         else if (is.character(which.) && all(which. %in% unique(facet_mat[,i]))) {
                             facet_mat <- facet_mat[facet_mat[,i] %in% which., ,drop = FALSE]
                         }
-                        else stop(paste0("The argument to 'which.", i, "' must be .none, .all, or the desired levels or indices of ", switch(i, time = "time points", i), "."), call. = FALSE)
+                        else .err(sprintf("The argument to `which.%s` must be `.none`, `.all`, or the desired levels or indices of %s", i, switch(i, time = "time points", i)))
                     }
                 }
                 
@@ -211,7 +323,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 
                 if (abs) B_stack[stat.cols] <- lapply(stat.cols, function(sc) abs_(B_stack[[sc]], ratio = startsWith(sc, "V.Ratio")))
                 
-                facet <- facet[facet %nin% agg.over]
+                facet <- setdiff(facet,  agg.over)
                 
                 aggregate_B <- function(FUN, B) {
                     B_agged <- aggregate(B[stat.cols], 
@@ -255,9 +367,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             B[names(B) %in% one.level.facet] <- NULL
             
-            if (sum(facet %nin% one.level.facet) > 1) stop(paste("At least one of", word_list(paste.("which", facet), "or", quotes = 1), "must be .none or of length 1."), call. = FALSE)
+            if (sum(facet %nin% one.level.facet) > 1) {
+                .err(sprintf("At least one of %s must be `.none` or of length 1",
+                             word_list(paste.("which", facet), "or", quotes = "`")))
+            }
             
-            facet <- facet[facet %nin% one.level.facet]
+            facet <- setdiff(facet, one.level.facet)
             
             subtitle <- paste(c(subtitle1, subtitle2), collapse = "\n")
             
@@ -292,11 +407,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     if (is_not_null(facet) && length(stats) > 1) {
-        stop("'stats' can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment).", call. = FALSE)
+        .err("`stats` can only have a length of 1 when faceting by other dimension (e.g., cluster, treatment)")
     }
     
     if (is_not_null(agg.fun) && config == "agg.none") {
-        warning("No aggregation will take place, so 'agg.fun' will be ignored. Remember to set 'which.<ARG> = .none' to aggregate across <ARG>.", call. = FALSE)
+        .wrn("no aggregation will take place, so `agg.fun` will be ignored. Remember to set `which.<ARG> = .none` to aggregate across <ARG>")
     }
     
     #Process variable names
@@ -306,34 +421,40 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 if (is_not_null(row.names(var.names))) {
                     new.labels <- setNames(unlist(as.character(var.names[,1])), rownames(var.names))
                 }
-                else warning("'var.names' is a data frame, but its rows are unnamed.", call. = FALSE)
+                else .wrn("`var.names` is a data frame, but its rows are unnamed")
             }
             else {
                 if (all(c("old", "new") %in% names(var.names))) {
                     new.labels <- setNames(unlist(as.character(var.names[,"new"])), var.names[,"old"])
                 }
                 else {
-                    if (ncol(var.names)>2) warning("Only using first 2 columns of 'var.names'.", call. = FALSE)
+                    if (ncol(var.names)>2) .wrn("only using first 2 columns of `var.names`")
                     new.labels <- setNames(unlist(as.character(var.names[,2])), var.names[,1])
                 }
             } 
         }
-        else if (is_(var.names, "atomic")) {
+        else if (is.atomic(var.names)) {
             if (is_not_null(names(var.names))) {
                 new.labels <- setNames(as.character(var.names), names(var.names))
             }
-            else warning("'var.names' is a vector, but its values are unnamed.", call. = FALSE)
+            else .wrn("`var.names` is a vector, but its values are unnamed")
         }
-        else if (is_(var.names, "list")) {
-            if (all(sapply(var.names, function(x) is_(x, c("character", "factor"))))) {
+        else if (is.list(var.names)) {
+            if (all(vapply(var.names, chk::vld_character_or_factor, logical(1L)))) {
                 if (is_not_null(names(var.names))) {
                     new.labels <- unlist(var.names) #already a list
                 }
-                else warning("'var.names' is a list, but its values are unnamed.", call. = FALSE)
+                else {
+                    .wrn("`var.names` is a list, but its values are unnamed")
+                }
             }
-            else warning("'var.names' is a list, but its values are not the new names of the variables.", call. = FALSE)
+            else {
+                .wrn("`var.names` is a list, but its values are not the new names of the variables")
+            }
         }
-        else warning("Argument to 'var.names' is not one of the accepted structures and will be ignored.\n  See help(love.plot) for details.", immediate.=TRUE, call. = FALSE)
+        else {
+            .wrn("the argument to `var.names` is not one of the accepted structures and will be ignored.\n  See `?love.plot` for details")
+        }
         
         co.names <- attr(x, "print.options")[["co.names"]]
         seps <- attr(co.names, "seps")
@@ -376,14 +497,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     #Process variable order
-    if (is_not_null(var.order) && "love.plot" %nin% class(var.order)) {
-        if ("bal.tab.subclass" %nin% class(x) && 
+    if (is_not_null(var.order) && !inherits(var.order, "love.plot")) {
+        if (!inherits(x, "bal.tab.subclass") && 
             (is_null(attr(x, "print.options")$nweights) ||
              attr(x, "print.options")$nweights == 0)) {
             ua <- c("Unadjusted", "Alphabetical")
             names(ua) <- c("unadjusted", "alphabetical")
         }
-        else if ("bal.tab.subclass" %in% class(x) ||
+        else if (inherits(x, "bal.tab.subclass") ||
                  attr(x, "print.options")$nweights == 1) {
             ua <- c("Adjusted", "Unadjusted", "Alphabetical")
             names(ua) <- c("adjusted", "unadjusted", "alphabetical")
@@ -405,11 +526,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     if (!missing(sample.names)) {
         if (!is.character(sample.names)) {
-            warning("The argument to 'sample.names' must be a character vector. Ignoring 'sample.names'.", call. = FALSE)
+            .wrn("the argument to `sample.names` must be a character vector. Ignoring `sample.names`")
             sample.names <- NULL
         }
         else if (length(sample.names) %nin% c(ntypes, ntypes - 1)) {
-            warning("The argument to 'sample.names' must contain as many names as there are sample types, or one fewer. Ignoring 'sample.names'.", call. = FALSE)
+            .wrn("the argument to `sample.names` must contain as many names as there are sample types, or one fewer. Ignoring `sample.names`")
             sample.names <- NULL
         }
     }
@@ -425,13 +546,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     #Process limits
     if (is_not_null(limits)) {
-        if (!is_(limits, "list")) {
+        if (!is.list(limits)) {
             limits <- list(limits)
         }
         if (any(vapply(limits, 
-                       function(l) !is_(l, "numeric") || length(l) %nin% c(0L, 2L), 
+                       function(l) !is.numeric(l) || length(l) %nin% c(0L, 2L), 
                        logical(1L)))) {
-            warning("'limits' must be a list of numeric vectors of legnth 2. Ignoring 'limits'.", call. = FALSE)
+            .wrn("`limits` must be a list of numeric vectors of legnth 2. Ignoring `limits`")
             limits <- NULL
         }
         
@@ -451,7 +572,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         !anyNA(alpha[1]) && 
         between(alpha[1], c(0,1))) alpha <- alpha[1]
     else {
-        warning("The argument to 'alpha' must be a number between 0 and 1. Using 1 instead.", call. = FALSE)
+        .wrn("the argument to `alpha` must be a number between 0 and 1. Using 1 instead")
         alpha <- 1
     }
     
@@ -468,15 +589,16 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         if (length(colors) == 1) colors <- rep(colors, ntypes)
         else if (length(colors) > ntypes) {
             colors <- colors[seq_len(ntypes)]
-            warning(paste("Only using first", ntypes, "value", if (ntypes > 1) "s " else " ", "in 'colors'."), call. = FALSE)
+            .wrn(sprintf("only using first %s value%%s in `colors`", ntypes),
+                 n = ntypes)
         }
         else if (length(colors) < ntypes) {
-            warning("Not enough colors were specified. Using default colors instead.", call. = FALSE)
+            .wrn("not enough colors were specified. Using default colors instead")
             colors <- gg_color_hue(ntypes)
         }
         
         if (!all(vapply(colors, isColor, logical(1L)))) {
-            warning("The argument to 'colors' contains at least one value that is not a recognized color. Using default colors instead.", call. = FALSE)
+            .wrn("the argument to `colors` contains at least one value that is not a recognized color. Using default colors instead")
             colors <- gg_color_hue(ntypes)
         }
         
@@ -492,7 +614,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     else {
         #check shapes
         if (!shapes.ok(shapes, ntypes)) {
-            warning(paste("The argument to shape must be", ntypes, "valid shape", if (ntypes > 1) "s." else ".", " See ?love.plot for more information.\nUsing default shapes instead."), call. = FALSE)
+            .wrn(sprintf("The argument to `shape` must be %s valid shape%%s. See `?love.plot` for more information.\nUsing default shapes instead", ntypes), n = ntypes)
             shapes <- assign.shapes(colors)
         }
         else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
@@ -502,7 +624,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     #Size
     if (is.numeric(size)) size <- size[1]
     else {
-        warning("The argument to size must be a number. Using 3 instead.", call. = FALSE)
+        .wrn("the argument to `size` must be a number. Using 3 instead")
         size <- 3
     }
     
@@ -516,8 +638,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     # stroke <- .8*size
     
     if (is_not_null(facet)) {
-        if (is_not_null(var.order) && "love.plot" %nin% class(var.order) && tolower(var.order) != "alphabetical") {
-            warning("'var.order' cannot be set with faceted plots (unless \"alphabetical\"). Ignoring 'var.order'.", call. = FALSE)
+        if (is_not_null(var.order) && !inherits(var.order, "love.plot") && tolower(var.order) != "alphabetical") {
+            .wrn("`var.order` cannot be set with faceted plots (unless \"alphabetical\"). Ignoring `var.order`")
             var.order <- NULL
         }
     }
@@ -539,9 +661,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             themes <- list(themes)
         }
         if (any(vapply(themes, 
-                       function(t) !all(c("theme", "gg") %in% class(t)), 
+                       function(t) !inherits(t, "theme") || !inherits(t, "gg"), 
                        logical(1L)))) {
-            warning("'themes' must be a list of \"theme\" objects. Ignoring 'themes'.", call. = FALSE)
+            .wrn("`themes` must be a list of `theme` objects. Ignoring `themes`")
             themes <- NULL
         }
         
@@ -580,21 +702,24 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
             
             if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) 
-                stop(paste("No balance statistics to display. This can occur when", 
-                           STATS[[s]]$disp_stat, 
-                           "= FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+                .err(sprintf("No balance statistics to display. This can occur when `%s = FALSE` and `quick = TRUE` in the original call to `bal.tab()`",
+                           STATS[[s]]$disp_stat))
             
             missing.stat <- all(is.na(SS[["mean.stat"]]))
-            if (missing.stat) stop(paste0(word_list(firstup(STATS[[s]]$balance_tally_for)), 
-                                          " cannot be displayed. This can occur when ", 
-                                          word_list(STATS[[s]]$disp_stat, and.or = "and", is.are = TRUE), 
-                                          " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            if (missing.stat) {
+                .err(sprintf("%s cannot be displayed. This can occur when %s `FALSE` and `quick = TRUE` in the original call to `bal.tab()`",
+                             word_list(firstup(STATS[[s]]$balance_tally_for)),
+                             word_list(STATS[[s]]$disp_stat, and.or = "and", is.are = TRUE,
+                                       quotes = "`")))
+            }
             
             gone <- character(0)
             for (i in sample.vals) {
                 if (all(sapply(SS[SS[["Sample"]] == i, c("min.stat", "max.stat", "mean.stat")], is.na))) {
                     gone <- c(gone, i)
-                    if (i == sample.names["Unadjusted"] && !adj_only) warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
+                    if (i == sample.names["Unadjusted"] && !adj_only) {
+                        .wrn("unadjusted values are missing. This can occur when `un = FALSE` and `quick = TRUE` in the original call to `bal.tab()`")
+                    }
                     SS <- SS[SS[["Sample"]] != i,]
                 }
             }
@@ -604,11 +729,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             if (is_not_null(plot.list[[1]])) var.order <- plot.list[[1]]
             
             if (is_not_null(var.order)) {
-                if ("love.plot" %in% class(var.order)) {
+                if (inherits(var.order, "love.plot")) {
                     old.vars <- levels(var.order$data$var)
                     old.vars[endsWith(old.vars, "*")] <- substr(old.vars[endsWith(old.vars, "*")], 1, nchar(old.vars[endsWith(old.vars, "*")])-1)
-                    if (any(SS[["var"]] %nin% old.vars)) {
-                        warning("The love.plot object in 'var.order' doesn't have the same variables as the current input. Ignoring 'var.order'.", call. = FALSE)
+                    if (!all(SS[["var"]] %in% old.vars)) {
+                        .wrn("the `love.plot` object in `var.order` doesn't have the same variables as the current input. Ignoring `var.order`")
                         var.order <- NULL
                     }
                     else {
@@ -629,19 +754,24 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         covnames <- unlist(covnames0)
                     }
                     else covnames <- sort(levels(SS[["var"]]))
-                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
+                    SS[["var"]] <- factor(SS[["var"]], levels = c(rev(setdiff(covnames, distance.names)),
+                                                                  sort(distance.names, decreasing = TRUE)))
                     
                 }
                 else if (var.order %in% ua) {
                     if (var.order %in% gone) {
-                        warning(paste0("'var.order' was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", STATS[[s]]$balance_tally_for, " were calculated. Ignoring 'var.order'."), call. = FALSE, immediate. = TRUE)
+                        .wrn(sprintf("`var.order` was set to %s but no %s %s were calculated. Ignoring `var.order`",
+                                     add_quotes(tolower(var.order)),
+                                     tolower(var.order),
+                                     STATS[[s]]$balance_tally_for))
                         var.order <- NULL
                     }
                     else {
-                        v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]]==sample.names[var.order]], decreasing = dec, na.last = FALSE)])
+                        v <- as.character(SS[["var"]][order(SS[["mean.stat"]][SS[["Sample"]] == sample.names[var.order]], 
+                                                            decreasing = dec, na.last = FALSE)])
                         
                         SS[["var"]] <- factor(SS[["var"]], 
-                                              levels=c(v[v %nin% distance.names], 
+                                              levels = c(setdiff(v, distance.names), 
                                                        sort(distance.names, decreasing = TRUE)))
                     }
                 }
@@ -649,10 +779,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
             if (is_null(var.order)) {
                 covnames <- as.character(unique(SS[["var"]]))
-                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE)))
+                SS[["var"]] <- factor(SS[["var"]], levels = c(rev(setdiff(covnames, distance.names)),
+                                                              sort(distance.names, decreasing = TRUE)))
             }
 
-            if (s == "mean.diffs" && any(base::abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
+            if (s == "mean.diffs" && any(base::abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) {
+                .wrn("large mean differences detected; you may not be using standardized mean differences for continuous variables")
+            }
             if (length(stats) == 1 && drop.missing) SS <- SS[!is.na(SS[["min.stat"]]),]
             SS[["stat"]] <- SS[["mean.stat"]]
         }
@@ -677,17 +810,21 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
 
             missing.stat <- all(is.na(SS[["stat"]]))
-            if (missing.stat) stop(paste0(word_list(firstup(STATS[[s]]$balance_tally_for)), 
-                                          " cannot be displayed. This can occur when ", 
-                                          word_list(STATS[[s]]$disp_stat, and.or = "and", is.are = TRUE), 
-                                          " FALSE and quick = TRUE in the original call to bal.tab()."), call. = FALSE)
+            if (missing.stat) {
+                .err(sprintf("%s cannot be displayed. This can occur when %s `FALSE` and `quick = TRUE` in the original call to `bal.tab()`",
+                             word_list(firstup(STATS[[s]]$balance_tally_for)), 
+                             word_list(STATS[[s]]$disp_stat, and.or = "and", is.are = TRUE,
+                                       quotes = "`")))
+            }
            
             gone <- character(0)
             for (i in sample.vals) {
-                if (all(is.na(SS[["stat"]][SS[["Sample"]]==i]))) {
+                if (all(is.na(SS[["stat"]][SS[["Sample"]] == i]))) {
                     gone <- c(gone, i)
-                    if (!adj_only && i == sample.names["Unadjusted"]) warning("Unadjusted values are missing. This can occur when un = FALSE and quick = TRUE in the original call to bal.tab().", call. = FALSE, immediate. = TRUE)
-                    SS <- SS[SS[["Sample"]]!=i,]
+                    if (!adj_only && i == sample.names["Unadjusted"]) {
+                        .wrn("unadjusted values are missing. This can occur when `un = FALSE` and `quick = TRUE` in the original call to `bal.tab()`")
+                    }
+                    SS <- SS[SS[["Sample"]] !=i ,]
                 }
             }
             
@@ -700,11 +837,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             #Apply var.order
             if (is_not_null(var.order)) {
-                if ("love.plot" %in% class(var.order)) {
+                if (inherits(var.order, "love.plot")) {
                     old.vars <- levels(var.order$data$var)
                     old.vars[endsWith(old.vars, "*")] <- substr(old.vars[endsWith(old.vars, "*")], 1, nchar(old.vars[endsWith(old.vars, "*")])-1)
-                    if (any(SS[["var"]] %nin% old.vars)) {
-                        warning("The love.plot object in 'var.order' doesn't have the same variables as the current input. Ignoring 'var.order'.", call. = FALSE)
+                    if (!all(SS[["var"]] %in% old.vars)) {
+                        .wrn("the `love.plot` object in `var.order` doesn't have the same variables as the current input. Ignoring `var.order`")
                         var.order <- NULL
                     }
                     else {
@@ -725,30 +862,36 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         covnames <- unlist(covnames0)
                     }
                     else covnames <- sort(levels(SS[["var"]]))
-                    SS.var.levels <- c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE))
+                    SS.var.levels <- c(rev(setdiff(covnames, distance.names)), sort(distance.names, decreasing = TRUE))
 
                 }
                 else if (var.order %in% ua) {
                     if (var.order %in% gone) {
-                        warning(paste0("var.order was set to \"", tolower(var.order), "\", but no ", tolower(var.order), " ", STATS[[s]]$balance_tally_for, " were calculated. Ignoring var.order."), call. = FALSE, immediate. = TRUE)
+                        .wrn(sprintf("`var.order` was set to %s, but no %s %s were calculated. Ignoring `var.order`",
+                                     add_quotes(tolower(var.order)),
+                                     tolower(var.order),
+                                     STATS[[s]]$balance_tally_for))
                         var.order <- NULL
                     }
                     else {
-                        v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]]==sample.names[var.order]], decreasing = dec, na.last = FALSE)])
-                        SS.var.levels <- c(v[v %nin% distance.names], sort(distance.names, decreasing = TRUE))
+                        v <- as.character(SS[["var"]][order(SS[["stat"]][SS[["Sample"]] == sample.names[var.order]], 
+                                                            decreasing = dec, na.last = FALSE)])
+                        SS.var.levels <- c(setdiff(v,  distance.names), sort(distance.names, decreasing = TRUE))
                     }
                 }
                 
             }
             if (is_null(var.order)) {
                 covnames <- as.character(unique(SS[["var"]])) #Don't use levels here to preserve original order
-                SS.var.levels <- c(rev(covnames[covnames %nin% distance.names]), sort(distance.names, decreasing = TRUE))
+                SS.var.levels <- c(rev(setdiff(covnames, distance.names)), sort(distance.names, decreasing = TRUE))
             }
             SS[["var"]] <- factor(SS[["var"]], levels = SS.var.levels)
             
             SS[["Sample"]] <- SS[["Sample"]][, drop = TRUE]
             
-            if (s == "mean.diffs" && any(base::abs(SS[["stat"]]) > 5, na.rm = TRUE)) warning("Large mean differences detected; you may not be using standardized mean differences for continuous variables.", call.=FALSE)
+            if (s == "mean.diffs" && any(base::abs(SS[["stat"]]) > 5, na.rm = TRUE)) {
+                .wrn("large mean differences detected; you may not be using standardized mean differences for continuous variables")
+            }
             if (length(stats) == 1 && drop.missing) SS <- SS[!is.na(SS[["stat"]]),]
             
             if (is_not_null(sub.B)) {
@@ -868,14 +1011,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                           position = position.dodge, 
                                           stat = "identity",
                                           mapping = aes(x = .data$mean.stat, color = .data$Sample), 
-                                          params = list(size = size0[1]*.8/3, na.rm = TRUE,
+                                          params = list(linewidth = size0[1]*.8/3, na.rm = TRUE,
                                                         alpha = alpha))
             }
             
             lp <- lp +
                 ggplot2::geom_linerange(aes(y = .data$var, xmin = .data$min.stat, xmax = .data$max.stat,
                                             color = .data$Sample), position = position.dodge,
-                                        size = size0[1]*.8/3,
+                                        linewidth = size0[1]*.8/3,
                                         alpha = alpha, 
                                         orientation = "y",
                                         show.legend = FALSE,
@@ -904,7 +1047,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
                                           position = "identity", stat = "identity",
                                           mapping = aes(color = .data$Sample),
-                                          params = list(size = size0[1]*.8/3,
+                                          params = list(linewidth = size0[1]*.8/3,
                                                         na.rm = TRUE,
                                                         alpha = alpha))
             }
@@ -963,19 +1106,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         if (isTRUE(labels)) labels <- LETTERS[seq_along(plot.list)]
         else if (is_null(labels) || isFALSE(labels)) labels <- NULL
         else if (!is.atomic(labels) || length(labels) != length(plot.list)) {
-            warning("'labels' must be TRUE or a string with the same length as 'stats'. Ignoring 'labels'.", call. = FALSE)
+            .wrn("`labels` must be `TRUE` or a string with the same length as `stats`. Ignoring `labels`")
             labels <- NULL
         }
         else labels <- as.character(labels)
-        
-        # p <- ggpubr::ggarrange(plotlist = plot.list, common.legend = TRUE, legend = position, 
-        #                align = "hv", nrow = 1)
-        # if (is_not_null(subtitle)) {
-        #     p <- ggpubr::annotate_figure(p, top = ggpubr::text_grob(subtitle, size = 11))
-        # }
-        # p <- ggpubr::annotate_figure(p, top = ggpubr::text_grob(title, size = 13.2))
-        # 
-        # P <- attr(P, "plots")
         
         plots.to.combine <- plot.list
         for (i in seq_along(plots.to.combine)) {
@@ -1062,5 +1196,229 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
 }
-autoplot.bal.tab <- love.plot
-plot.bal.tab <- autoplot.bal.tab
+
+#' @exportS3Method autoplot bal.tab
+autoplot.bal.tab <- function(object, ...) {
+    love.plot(object, ...)
+}
+
+#' @exportS3Method plot bal.tab
+plot.bal.tab <- function(x, ...) {
+    love.plot(x, ...)
+}
+
+# Helper functions
+isColor <- function(x) {
+    tryCatch(is.matrix(grDevices::col2rgb(x)), 
+             error = function(e) FALSE)
+}
+
+f.recode <- function(f, ...) {
+    #Simplified version of forcats::fct_recode
+    f <- factor(f)
+    new_levels <- unlist(list(...), use.names = TRUE)
+    old_levels <- levels(f)
+    idx <- match(new_levels, old_levels)
+    
+    old_levels[idx] <- names(new_levels)
+    
+    levels(f) <- old_levels
+    return(f)
+}
+
+seq_int_cycle <- function(begin, end, max) {
+    seq(begin, end, by = 1) - max*(seq(begin-1, end-1, by = 1) %/% max)
+}
+
+assign.shapes <- function(colors, default.shape = "circle") {
+    if (nunique(colors) < length(colors)) {
+        shapes <- seq_int_cycle(19, 19 + length(colors) - 1, max = 25)
+    }
+    else shapes <- rep.int(default.shape, length(colors))
+    return(shapes)
+}
+
+shapes.ok <- function(shapes, nshapes) {
+    shape_names <- c(
+        "circle", paste("circle", c("open", "filled", "cross", "plus", "small")), "bullet",
+        "square", paste("square", c("open", "filled", "cross", "plus", "triangle")),
+        "diamond", paste("diamond", c("open", "filled", "plus")),
+        "triangle", paste("triangle", c("open", "filled", "square")),
+        paste("triangle down", c("open", "filled")),
+        "plus", "cross", "asterisk"
+    )
+    shape_nums <- 1:25
+    return((length(shapes) == 1 || length(shapes) == nshapes) && ((is.numeric(shapes) && all(shapes %in% shape_nums)) || (is.character(shapes) && all(shapes %in% shape_names))))
+}
+
+gg_color_hue <- function(n) {
+    hues = seq(15, 375, length = n + 1)
+    grDevices::hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
+ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
+    #A thin version of egg:ggarrange
+    
+    gtable_frame <- function (g, width = grid::unit(1, "null"), height = grid::unit(1, "null")) {
+        panels <- g[["layout"]][grepl("panel", g[["layout"]][["name"]]),]
+        pargins <- g[["layout"]][grepl("panel", g[["layout"]][["name"]]),]
+        ll <- unique(panels$l)
+        margins <- if (length(ll) == 1) grid::unit(0, "pt") else g$widths[ll[-length(ll)] + 2]
+        tt <- unique(panels$t)
+        fixed_ar <- g$respect
+        if (fixed_ar) {
+            ar <- as.numeric(g$heights[tt[1]])/as.numeric(g$widths[ll[1]])
+            height <- width * (ar/length(ll))
+            g$respect <- FALSE
+        }
+        core <- g[seq(min(tt), max(tt)), seq(min(ll), max(ll))]
+        top <- g[seq(1, min(tt) - 1), seq(min(ll), max(ll))]
+        bottom <- g[seq(max(tt) + 1, nrow(g)), seq(min(ll), max(ll))]
+        left <- g[seq(min(tt), max(tt)), seq(1, min(ll) - 1)]
+        right <- g[seq(min(tt), max(tt)), seq(max(ll) + 1, ncol(g))]
+        fg <- grid::nullGrob()
+        if (length(left)) {
+            lg <- gtable::gtable_add_cols(left, grid::unit(1, "null"), 0)
+            lg <- gtable::gtable_add_grob(lg, fg, 1, l = 1)
+        }
+        else {
+            lg <- fg
+        }
+        if (length(right)) {
+            rg <- gtable::gtable_add_cols(right, grid::unit(1, "null"))
+            rg <- gtable::gtable_add_grob(rg, fg, 1, l = ncol(rg))
+        }
+        else {
+            rg <- fg
+        }
+        if (length(top)) {
+            tg <- gtable::gtable_add_rows(top, grid::unit(1, "null"), 0)
+            tg <- gtable::gtable_add_grob(tg, fg, t = 1, l = 1)
+        }
+        else {
+            tg <- fg
+        }
+        if (length(bottom)) {
+            bg <- gtable::gtable_add_rows(bottom, grid::unit(1, "null"), 
+                                          -1)
+            bg <- gtable::gtable_add_grob(bg, fg, t = nrow(bg), l = 1)
+        }
+        else {
+            bg <- fg
+        }
+        grobs <- list(fg, tg, fg, lg, core, rg, fg, bg, fg)
+        widths <- grid::unit.c(sum(left$widths), width, sum(right$widths))
+        heights <- grid::unit.c(sum(top$heights), height, sum(bottom$heights))
+        all <- gtable::gtable_matrix("all", grobs = matrix(grobs, ncol = 3, nrow = 3, byrow = TRUE), 
+                                     widths = widths, heights = heights)
+        
+        all[["layout"]][5, "name"] <- "panel"
+        if (fixed_ar) 
+            all$respect <- TRUE
+        all
+    }
+    
+    n <- length(plots)
+    
+    grobs <- lapply(plots, ggplot2::ggplotGrob)
+    
+    if (is_null(nrow) && is_null(ncol)) {
+        nm <- grDevices::n2mfrow(n)
+        nrow <- nm[1]
+        ncol <- nm[2]
+    }
+    
+    hw <- lapply(rep(1, n), grid::unit, "null")
+    
+    fg <- lapply(seq_along(plots), function(i) gtable_frame(g = grobs[[i]], 
+                                                            width = hw[[i]], height = hw[[i]]))
+    
+    spl <- split(fg, rep(1, n))
+    
+    rows <- lapply(spl, function(r) do.call(gridExtra::gtable_cbind, r))
+    
+    gt <- do.call(gridExtra::gtable_rbind, rows)
+    
+    invisible(gt)
+}
+
+bal.tab_class_sequence <- function(b) {
+    if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) return(NULL)
+    else {
+        b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1]]
+        return(c(class(b)[1], bal.tab_class_sequence(b_)))
+    }
+}
+
+unpack_bal.tab <- function(b) {
+    unpack_bal.tab_internal <- function(b) {
+        if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) return(b[["Balance"]])
+        else {
+            b_ <- b[[which(endsWith(names(b), ".Balance"))]]
+            
+            b_list <- lapply(b_, function(i) {
+                if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) return(i[["Balance"]])
+                else return(unpack_bal.tab_internal(i))
+            })
+            return(b_list)
+        }
+    }
+    LinearizeNestedList <- function(NList, NameSep) {
+        # LinearizeNestedList:
+        #
+        # https://sites.google.com/site/akhilsbehl/geekspace/
+        #         articles/r/linearize_nested_lists_in_r
+        #
+        # Akhil S Bhel
+        # 
+        
+        if (is.data.frame(NList)) return(NList)
+        
+        A <- 1
+        B <- length(NList)
+        
+        while (A <= B) {
+            Element <- NList[[A]]
+            EName <- names(NList)[A]
+            if (is.list(Element)) {
+                
+                if (A == 1) {
+                    Before <- NULL
+                } else {
+                    Before <- NList[1:(A - 1)]
+                }
+                if (A == B) {
+                    After <- NULL
+                } else {
+                    After <- NList[(A + 1):B]
+                }
+                
+                if (is.data.frame(Element)) {
+                    Jump <- 1
+                } else {
+                    NList[[A]] <- NULL
+                    
+                    Element <- LinearizeNestedList(Element, NameSep)
+                    names(Element) <- paste(EName, names(Element), sep = NameSep)
+                    Jump <- length(Element)
+                    NList <- c(Before, Element, After)
+                }
+            } else {
+                Jump <- 1
+            }
+            A <- A + Jump
+            B <- length(NList)
+        }
+        return(NList)
+    }
+    
+    namesep <- paste(c("|", do.call(c, lapply(1:20, function(i) sample(LETTERS, 1))), "|"), collapse = "")
+    
+    out_ <- unpack_bal.tab_internal(b)
+    out <- LinearizeNestedList(out_, NameSep = namesep)
+    
+    attr(out, "namesep") <- namesep
+    attr(out, "class_sequence") <- bal.tab_class_sequence(b)
+    
+    return(out)
+}

@@ -11,12 +11,12 @@ x2base.matchit <- function(m, ...) {
     m.data <- if (NROW(m[["model"]][["data"]]) != length(m[["treat"]])) NULL else m[["model"]][["data"]]
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data)) {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -132,7 +132,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with matchit objects.", call. = FALSE)
+        .err("matching strata are not allowed with matchit objects")
     }
     
     #Process weights
@@ -205,8 +205,10 @@ x2base.matchit <- function(m, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(sprintf("%s must be between %s; ignoring %s",
+                                 add_quotes(STATS[[s]][["threshold"]], "`"),
+                                 word_list(STATS[[s]][["threshold_range"]]),
+                                 add_quotes(STATS[[s]][["threshold"]], "`")))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -223,7 +225,7 @@ x2base.matchit <- function(m, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -246,26 +248,26 @@ x2base.ps <- function(ps, ...) {
     A <- list(...)
     
     #Process ps
-    if (is_not_null(A) && names(A)[1]=="" && is_null(A[["stop.method"]])) A[["stop.method"]] <- A[[1]]
+    if (is_not_null(A) && names(A)[1] == "" && is_null(A[["stop.method"]])) A[["stop.method"]] <- A[[1]]
     if (is_null(A[["stop.method"]]) && is_not_null(A[["full.stop.method"]])) A[["stop.method"]] <- A[["full.stop.method"]]
     
     if (is_not_null(A[["stop.method"]])) {
         if (is.character(A[["stop.method"]])) {
-            rule1 <- names(ps[["w"]])[sapply(t(sapply(tolower(A[["stop.method"]]), function(x) startsWith(tolower(names(ps[["w"]])), x))), any)]
+            rule1 <- names(ps[["w"]])[sapply(tolower(names(ps[["w"]])), function(x) any(startsWith(x, tolower(A[["stop.method"]]))))]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(names(ps[["w"]]), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
+                .msg(paste0("Warning: `stop.method` should be ", word_list(names(ps[["w"]]), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead"))
                 rule1 <- names(ps[["w"]])
             }
         }
         else if (is.numeric(A[["stop.method"]]) && any(A[["stop.method"]] %in% seq_along(names(ps[["w"]])))) {
             if (any(!A[["stop.method"]] %in% seq_along(names(ps[["w"]])))) {
-                message(paste0("Warning: There are ", length(names(ps[["w"]])), " stop methods available, but you requested ", 
-                               word_list(A[["stop.method"]][!A[["stop.method"]] %in% seq_along(names(ps[["w"]]))], and.or = "and"),"."))
+                .msg(paste0("Warning: There are ", length(names(ps[["w"]])), " stop methods available, but you requested ", 
+                               word_list(A[["stop.method"]][!A[["stop.method"]] %in% seq_along(names(ps[["w"]]))], and.or = "and")))
             }
             rule1 <- names(ps[["w"]])[A[["stop.method"]] %in% seq_along(names(ps[["w"]]))]
         }
         else {
-            warning("stop.method should be ", word_list(names(ps[["w"]]), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
+            .wrn("stop.method should be ", word_list(names(ps[["w"]]), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead")
             rule1 <- names(ps[["w"]])
         }
     }
@@ -279,13 +281,13 @@ x2base.ps <- function(ps, ...) {
     ps.data <- ps[["data"]]
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -323,7 +325,7 @@ x2base.ps <- function(ps, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with ps objects.", call. = FALSE)
+        .err("`focal` is not allowed with ps objects")
     } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
@@ -339,12 +341,12 @@ x2base.ps <- function(ps, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("'subclasses' are not allowed with ps objects.", call. = FALSE)
+        .err("subclasses are not allowed with ps objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with ps objects.", call. = FALSE)
+        .err("matching strata are not allowed with ps objects")
     }
     
     #Process weights
@@ -414,8 +416,8 @@ x2base.ps <- function(ps, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -431,7 +433,7 @@ x2base.ps <- function(ps, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -463,19 +465,19 @@ x2base.mnps <- function(mnps, ...) {
         if (any(is.character(A[["stop.method"]]))) {
             rule1 <- mnps[["stopMethods"]][sapply(t(sapply(tolower(A[["stop.method"]]), function(x) startsWith(tolower(mnps[["stopMethods"]]), x))), any)]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(mnps[["stopMethods"]], and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
+                .msg(paste0("Warning: `stop.method` should be ", word_list(mnps[["stopMethods"]], and.or = "or", quotes = 2), ".\nUsing all available stop methods instead"))
                 rule1 <- mnps[["stopMethods"]]
             }
         }
         else if (is.numeric(A[["stop.method"]]) && any(A[["stop.method"]] %in% seq_along(mnps[["stopMethods"]]))) {
             if (any(!A[["stop.method"]] %in% seq_along(mnps[["stopMethods"]]))) {
-                message(paste0("Warning: There are ", length(mnps[["stopMethods"]]), " stop methods available, but you requested ", 
-                               word_list(A[["stop.method"]][!A[["stop.method"]] %in% seq_along(mnps[["stopMethods"]])], and.or = "and"),"."))
+                .msg(paste0("Warning: There are ", length(mnps[["stopMethods"]]), " stop methods available, but you requested ", 
+                               word_list(A[["stop.method"]][!A[["stop.method"]] %in% seq_along(mnps[["stopMethods"]])], and.or = "and")))
             }
             rule1 <- mnps[["stopMethods"]][A[["stop.method"]] %in% seq_along(mnps[["stopMethods"]])]
         }
         else {
-            warning("stop.method should be ", word_list(mnps[["stopMethods"]], and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
+            .wrn("`stop.method` should be ", word_list(mnps[["stopMethods"]], and.or = "or", quotes = 2), ".\nUsing all available stop methods instead")
             rule1 <- mnps[["stopMethods"]]
         }
     }
@@ -489,13 +491,13 @@ x2base.mnps <- function(mnps, ...) {
     mnps.data <- mnps[["data"]]
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -534,12 +536,12 @@ x2base.mnps <- function(mnps, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with mnps objects.", call. = FALSE)
+        .err("subclasses are not allowed with mnps objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with mnps objects.", call. = FALSE)
+        .err("matching strata are not allowed with mnps objects")
     }
     
     #Process weights
@@ -609,8 +611,8 @@ x2base.mnps <- function(mnps, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -626,7 +628,7 @@ x2base.mnps <- function(mnps, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -654,13 +656,13 @@ x2base.ps.cont <- function(ps.cont, ...) {
     ps.data <- ps.cont[["data"]]
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -695,17 +697,17 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with ps.cont objects.", call. = FALSE)
+        .err("`focal` is not allowed with ps.cont objects")
     }
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with ps.cont objects.", call. = FALSE)
+        .err("subclasses are not allowed with ps.cont objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with ps.cont objects.", call. = FALSE)
+        .err("matching strata are not allowed with ps.cont objects")
     }
     
     #Process weights
@@ -774,8 +776,8 @@ x2base.ps.cont <- function(ps.cont, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -791,7 +793,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -816,18 +818,18 @@ x2base.Match <- function(Match, ...) {
     A <- list(...)
     
     #Process Match
-    if (is_not_null(Match) && !is.list(Match)) stop("'Match' object contains no valid matches")
+    if (is_not_null(Match) && !is.list(Match)) .err("the supplied Match object contains no valid matches")
     
     #Process data and get imp
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -863,7 +865,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with Match objects.", call. = FALSE)
+        .err("`focal` is not allowed with Match objects")
     } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
@@ -879,12 +881,12 @@ x2base.Match <- function(Match, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with Match objects.", call. = FALSE)
+        .err("subclasses are not allowed with Match objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with Match objects.", call. = FALSE)
+        .err("matching strata are not allowed with Match objects")
     }
     
     #Process weights
@@ -893,7 +895,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
-        stop("Sampling weights are not allowed with Match objects.", call. = FALSE)
+        .err("sampling weights are not allowed with Match objects")
     }
     
     #Process cluster
@@ -950,8 +952,8 @@ x2base.Match <- function(Match, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -967,7 +969,7 @@ x2base.Match <- function(Match, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -1005,13 +1007,13 @@ x2base.data.frame <- function(covs, ...) {
     #Process data and get imp
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -1032,20 +1034,19 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process covs
     if (is_null(covs)) {
-        stop("'covs' data.frame must be specified.", call. = FALSE)
+        .err("`covs` data.frame must be specified")
     }
     if (is.formula(covs)) {
         covs <- get_covs_from_formula(covs, data = data)
         if (is_null(covs)) {
-            stop("The right hand side of the formula must contain covariates for which balance is to be assessed.", call. = FALSE)
+            .err("The right hand side of the formula must contain covariates for which balance is to be assessed")
         }
     }
     if (is_null(attr(covs, "co.names"))) {
         if (is.matrix(covs)) covs <- as.data.frame.matrix(covs)
         covs <- get_covs_from_formula(data = covs)
     }
-    # is_(covs, "data.frame", stop = TRUE)
-    
+
     #Get estimand
     estimand <- A[["estimand"]]
     
@@ -1064,14 +1065,14 @@ x2base.data.frame <- function(covs, ...) {
     if (is_null(A[["method"]])) {
         if (specified["match.strata"]) {
             if (sum(specified) > 1) {
-                message(word_list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
+                .msg(word_list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]))
                 A[["weights"]] <- A[["subclass"]] <- NULL
             }
             method <- "matching"
         }
         else if (specified["subclass"]) {
             if (sum(specified) > 1) {
-                message(word_list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                .msg(word_list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]))
                 A[["weights"]] <- A[["match.strata"]] <- NULL
             }
             method <- "subclassification"
@@ -1079,7 +1080,7 @@ x2base.data.frame <- function(covs, ...) {
         }
         else if (specified["weights"]) {
             if (sum(specified) > 1) {
-                message(word_list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                .msg(word_list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]))
                 A[["match.strata"]] <- A[["subclass"]] <- NULL
             }
             method <- "weighting"
@@ -1093,18 +1094,18 @@ x2base.data.frame <- function(covs, ...) {
         if (specified.method == "weighting") {
             if (specified["weights"]) {
                 if (sum(specified) > 1) {
-                    message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
+                    .msg(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]))
                     A[["match.strata"]] <- A[["subclass"]] <- NULL
                 }
                 method <- "weighting"
             }
             else if (specified["match.strata"]) {
-                message("method = \"weighting\" is specified, but no weights are present. Assuming \"matching\" and using match.strata instead.")
+                .msg("method = \"weighting\" is specified, but no weights are present. Assuming \"matching\" and using match.strata instead")
                 A[["subclass"]] <- NULL
                 method <- "matching"
             }
             else if (specified["subclass"]) {
-                message("method = \"weighting\" is specified, but no weights are present. Assuming \"subclassification\" and using subclass instead.")
+                .msg("method = \"weighting\" is specified, but no weights are present. Assuming \"subclassification\" and using subclass instead")
                 method <- "subclassification"
             }
             else {
@@ -1114,20 +1115,20 @@ x2base.data.frame <- function(covs, ...) {
         else if (specified.method == "matching") {
             if (specified["match.strata"]) {
                 if (sum(specified) > 1) {
-                    message(word_list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
+                    .msg(word_list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]))
                     A[["weights"]] <- A[["subclass"]] <- NULL
                 }
                 method <- "matching"
             }
             else if (specified["weights"]) {
                 if (sum(specified) > 1) {
-                    message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
+                    .msg(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]))
                     A[["match.strata"]] <- A[["subclass"]] <- NULL
                 }
                 method <- "matching"
             }
             else if (specified["subclass"]) {
-                message("method = \"matching\" is specified, but no weights or match.strata are present. Assuming \"subclassification\" and using subclass instead.")
+                .msg("method = \"matching\" is specified, but no weights or match.strata are present. Assuming \"subclassification\" and using subclass instead")
                 method <- "subclassification"
             }
             else {
@@ -1137,18 +1138,18 @@ x2base.data.frame <- function(covs, ...) {
         else if (specified.method == "subclassification") {
             if (specified["subclass"]) {
                 if (sum(specified) > 1) {
-                    message(word_list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                    .msg(word_list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]))
                     A[["weights"]] <- A[["match.strata"]] <- NULL
                 }
                 method <- "subclassification"
             }
             else if (specified["match.strata"]) {
-                message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"matching\" and using match.strata instead.")
+                .msg("method = \"subclassification\" is specified, but no subclass is present. Assuming \"matching\" and using match.strata instead")
                 A[["weights"]] <- NULL
                 method <- "matching"
             }
             else if (specified["weights"]) {
-                message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"weighting\" and using weights instead.")
+                .msg("method = \"subclassification\" is specified, but no subclass is present. Assuming \"weighting\" and using weights instead")
                 method <- "weighting"
             }
         }
@@ -1156,13 +1157,13 @@ x2base.data.frame <- function(covs, ...) {
     else {
         specified.method <- match_arg(A[["method"]], c("weighting", "matching", "subclassification"), several.ok = TRUE)
         if (any(specified.method == "subclassification") || specified["subclass"]) {
-            stop("Subclassification cannot be specified along with other methods.", call. = FALSE)
+            .err("Subclassification cannot be specified along with other methods")
         }
         else if (specified["match.strata"]) {
-            stop("Only weights can be specified with multiple methods.", call. = FALSE)
+            .err("Only weights can be specified with multiple methods")
         }
         else if (!specified["weights"]) {
-            warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
+            .wrn("Multiple methods were specified, but no weights were provided. Providing unadjusted data only")
             method <- "matching"
         }
         else {
@@ -1288,8 +1289,8 @@ x2base.data.frame <- function(covs, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -1310,7 +1311,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -1332,18 +1333,18 @@ x2base.CBPS <- function(cbps.fit, ...) {
     A <- list(...)
     
     #Process CBPS
-    
+
     #Process data and get imp
     c.data <- cbps.fit[["data"]]
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -1367,7 +1368,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Get estimand
     if (is_not_null(estimand <- A[["estimand"]])) {
-        stop("'estimand' is not allowed with CBPS objects.", call. = FALSE)
+        .err("`estimand` is not allowed with CBPS objects")
     }
     
     #Get method
@@ -1382,7 +1383,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
                                  obj.distance.name = "prop.score")
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with CBPS objects.", call. = FALSE)
+        .err("`focal` is not allowed with CBPS objects")
     } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
@@ -1398,12 +1399,12 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with CBPS objects.", call. = FALSE)
+        .err("subclasses are not allowed with CBPS objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with CBPS objects.", call. = FALSE)
+        .err("matching strata are not allowed with CBPS objects")
     }
     
     #Process weights
@@ -1474,8 +1475,8 @@ x2base.CBPS <- function(cbps.fit, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -1495,7 +1496,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -1522,13 +1523,13 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process data and get imp
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -1564,7 +1565,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with ebalance objects.", call. = FALSE)
+        .err("`focal` is not allowed with ebalance objects")
     } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
@@ -1580,12 +1581,12 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with ebalance objects.", call. = FALSE)
+        .err("subclasses are not allowed with ebalance objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with ebalance objects.", call. = FALSE)
+        .err("matching strata are not allowed with ebalance objects")
     }
     
     #Process weights
@@ -1654,8 +1655,8 @@ x2base.ebalance <- function(ebalance, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -1671,7 +1672,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -1695,18 +1696,18 @@ x2base.optmatch <- function(optmatch, ...) {
     A <- list(...)
     
     #Process optmatch
-    if (all(is.na(optmatch))) stop("The 'optmatch' object contains no valid matches.", call. = FALSE)
+    if (all(is.na(optmatch))) .err("the supplied optmatch abject contains no valid matches")
     
     #Process data and get imp
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -1743,13 +1744,14 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with optmatch objects.", call. = FALSE)
+        .err("subclasses are not allowed with optmatch objects")
     }
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with optmatch objects.", call. = FALSE)
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+        .err("`focal` is not allowed with optmatch objects")
+    }
+    else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -1764,7 +1766,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with optmatch objects.", call. = FALSE)
+        .err("matching strata are not allowed with optmatch objects")
     }
     
     #Process weights
@@ -1773,7 +1775,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
-        stop("Sampling weights are not allowed with optmatch objects.", call. = FALSE)
+        .err("sampling weights are not allowed with optmatch objects")
     }
     
     #Process cluster
@@ -1828,8 +1830,8 @@ x2base.optmatch <- function(optmatch, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -1845,7 +1847,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -1870,29 +1872,29 @@ x2base.cem.match <- function(cem.match, ...) {
     A <- list(...)
     
     #Process cem.match
-    if (is_(cem.match, "cem.match.list")) {
+    if (inherits(cem.match, "cem.match.list")) {
         cem.match[["vars"]] <- cem.match[[1]][["vars"]]
         cem.match[["baseline.group"]] <- cem.match[[1]][["baseline.group"]]
         cem.match[["groups"]] <- unlist(lapply(cem.match[vapply(cem.match, is_, logical(1L), "cem.match")], `[[`, "groups"))
         cem.match[["w"]] <- get.w.cem.match(cem.match)
     }
-    if (all(check_if_zero(cem.match[["w"]]))) stop("The 'cem.match' object contains no valid matches.", call. = FALSE)
+    if (all(check_if_zero(cem.match[["w"]]))) .err("the supplied cem.match object contains no valid matches")
     
     #Process data and get imp
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
     if (is_null(data)) {
-        stop("An argument to 'data' must be specified with cem.match objects.", call. = FALSE)
+        .err("an argument to `data` must be specified with cem.match objects")
     }
     
     #Process imp
@@ -1904,8 +1906,8 @@ x2base.cem.match <- function(cem.match, ...) {
                               missing.okay = FALSE)
         imp <- factor(imp)
     }
-    else if (is_(cem.match, "cem.match.list") && sum(vapply(cem.match, is_, logical(1L), "cem.match")) != 1) {
-        stop("An argument to 'imp' must be specified or the argument to data must be a mids object.", call. = FALSE)
+    else if (inherits(cem.match, "cem.match.list") && sum(vapply(cem.match, is_, logical(1L), "cem.match")) != 1) {
+        .err("an argument to `imp` must be specified or the argument to data must be a mids object")
     }
     
     #Process treat
@@ -1930,7 +1932,7 @@ x2base.cem.match <- function(cem.match, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with cem.match objects.", call. = FALSE)
+        .err("subclasses are not allowed with cem.match objects")
     }
     
     #Process focal
@@ -1944,7 +1946,7 @@ x2base.cem.match <- function(cem.match, ...) {
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with cem.match objects.", call. = FALSE)
+        .err("matching strata are not allowed with cem.match objects")
     }
     
     #Process weights
@@ -1953,7 +1955,7 @@ x2base.cem.match <- function(cem.match, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
-        stop("Sampling weights are not allowed with cem.match objects.", call. = FALSE)
+        .err("sampling weights are not allowed with cem.match objects")
     }
     
     #Process cluster
@@ -2008,8 +2010,8 @@ x2base.cem.match <- function(cem.match, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -2025,7 +2027,7 @@ x2base.cem.match <- function(cem.match, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -2057,7 +2059,7 @@ x2base.weightit <- function(weightit, ...) {
     
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
@@ -2081,7 +2083,7 @@ x2base.weightit <- function(weightit, ...) {
     treat <- process_treat(weightit[["treat"]], datalist = list(data, weightit.data))
     
     #Process covs
-    if (is_null(covs <- weightit[["covs"]])) stop("No covariates were specified in the weightit object.", call. = FALSE)
+    if (is_null(covs <- weightit[["covs"]])) .err("No covariates were specified in the weightit object")
     covs <- get_covs_from_formula(data = covs)
     
     #Get estimand
@@ -2109,12 +2111,12 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with weightit objects.", call. = FALSE)
+        .err("subclasses are not allowed with weightit objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with weightit objects.", call. = FALSE)
+        .err("matching strata are not allowed with weightit objects")
     }
     
     #Process weights
@@ -2185,8 +2187,8 @@ x2base.weightit <- function(weightit, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -2205,7 +2207,7 @@ x2base.weightit <- function(weightit, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -2229,19 +2231,19 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process designmatch
     if (all(c("id_1", "id_2") %in% names(dm))) {
-        stop("Balance cannot currently be checked on a nonbipartite match.", call. = FALSE)
+        .err("Balance cannot currently be checked on a nonbipartite match")
     }
     
     #Process data and get imp
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -2259,7 +2261,7 @@ x2base.designmatch <- function(dm, ...) {
     #Process treat
     t.c <- use.tc.fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
     treat <- process_treat(t.c[["treat"]], datalist = list(data))
-    if (is.unsorted(rev(treat))) warning("designmatch requires the input data to be sorted by treatment; the data supplied to bal.tab() was not, indicating a possible coding error.", call. = FALSE)
+    if (is.unsorted(rev(treat))) .wrn("designmatch requires the input data to be sorted by treatment; the data supplied to bal.tab() was not, indicating a possible coding error")
     
     #Process covs
     covs <- t.c[["covs"]]
@@ -2278,7 +2280,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with designmatch objects.", call. = FALSE)
+        .err("`focal` is not allowed with designmatch objects")
     } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
@@ -2294,12 +2296,12 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with designmatch objects.", call. = FALSE)
+        .err("subclasses are not allowed with designmatch objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with designmatch objects.", call. = FALSE)
+        .err("matching strata are not allowed with designmatch objects")
     }
     
     #Process weights
@@ -2308,7 +2310,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
-        stop("Sampling weights are not allowed with designmatch objects.", call. = FALSE)
+        .err("sampling weights are not allowed with designmatch objects")
     }
     
     #Process cluster
@@ -2363,8 +2365,8 @@ x2base.designmatch <- function(dm, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -2380,7 +2382,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -2410,7 +2412,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process data and get imp
     if (old_version) {
-        if (is_(mimids[["original.datasets"]], "mids")) m.data <- imp.complete(mimids[["original.datasets"]])
+        if (inherits(mimids[["original.datasets"]], "mids")) m.data <- imp.complete(mimids[["original.datasets"]])
         else m.data <- imp.complete(mimids[["others"]][["source"]])
     }
     else {
@@ -2420,13 +2422,13 @@ x2base.mimids <- function(mimids, ...) {
     imp <- m.data[[".imp"]]
     
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -2469,7 +2471,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with mimids objects.", call. = FALSE)
+        .err("`focal` is not allowed with mimids objects")
     } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
@@ -2485,12 +2487,12 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with mimids objects.", call. = FALSE)
+        .err("subclasses are not allowed with mimids objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with mimids objects.", call. = FALSE)
+        .err("matching strata are not allowed with mimids objects")
     }
     
     #Process weights
@@ -2499,7 +2501,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
-        stop("Sampling weights are not allowed with mimids objects.", call. = FALSE)
+        .err("sampling weights are not allowed with mimids objects")
     }
     
     #Process cluster
@@ -2555,8 +2557,8 @@ x2base.mimids <- function(mimids, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -2572,7 +2574,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -2602,7 +2604,7 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process data and get imp
     if (old_version) {
-        if (is_(wimids[["original.datasets"]], "mids")) w.data <- imp.complete(wimids[["original.datasets"]])
+        if (inherits(wimids[["original.datasets"]], "mids")) w.data <- imp.complete(wimids[["original.datasets"]])
         else w.data <- imp.complete(wimids[["others"]][["source"]])
     }
     else {
@@ -2612,13 +2614,13 @@ x2base.wimids <- function(wimids, ...) {
     imp <- w.data[[".imp"]]
     
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -2668,12 +2670,12 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with wimids objects.", call. = FALSE)
+        .err("subclasses are not allowed with wimids objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with wimids objects.", call. = FALSE)
+        .err("matching strata are not allowed with wimids objects")
     }
     
     #Process weights
@@ -2743,8 +2745,8 @@ x2base.wimids <- function(wimids, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -2763,7 +2765,7 @@ x2base.wimids <- function(wimids, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -2793,13 +2795,13 @@ x2base.sbwcau <- function(sbwcau, ...) {
     sbw.data <- sbwcau[["dat_weights"]][names(sbwcau[["dat_weights"]]) != "weights"]
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -2835,7 +2837,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with sbwcau objects.", call. = FALSE)
+        .err("`focal` is not allowed with sbwcau objects")
     } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
@@ -2851,12 +2853,12 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with sbwcau objects.", call. = FALSE)
+        .err("subclasses are not allowed with sbwcau objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with sbwcau objects.", call. = FALSE)
+        .err("matching strata are not allowed with sbwcau objects")
     }
     
     #Process weights
@@ -2925,8 +2927,8 @@ x2base.sbwcau <- function(sbwcau, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -2942,7 +2944,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     #Missing values warning
     if (anyNA(covs) || anyNA(addl)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -2975,19 +2977,19 @@ x2base.iptw <- function(iptw, ...) {
         if (any(is.character(A[["stop.method"]]))) {
             rule1 <- available.stop.methods[vapply(available.stop.methods, function(x) any(startsWith(tolower(x), tolower(A[["stop.method"]]))), logical(1L))]
             if (is_null(rule1)) {
-                message(paste0("Warning: stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = 2), ".\nUsing all available stop methods instead."))
+                .msg(paste0("Warning: `stop.method` should be ", word_list(available.stop.methods, and.or = "or", quotes = 2), ".\nUsing all available stop methods instead"))
                 rule1 <- available.stop.methods
             }
         }
         else if (is.numeric(A[["stop.method"]]) && any(A[["stop.method"]] %in% seq_along(available.stop.methods))) {
             if (any(!A[["stop.method"]] %in% seq_along(available.stop.methods))) {
-                message(paste0("Warning: There are ", length(available.stop.methods), " stop methods available, but you requested ", 
-                               word_list(A[["stop.method"]][!A[["stop.method"]] %in% seq_along(available.stop.methods)], and.or = "and"),"."))
+                .msg(paste0("Warning: There are ", length(available.stop.methods), " stop methods available, but you requested ", 
+                               word_list(A[["stop.method"]][!A[["stop.method"]] %in% seq_along(available.stop.methods)], and.or = "and")))
             }
             rule1 <- available.stop.methods[A[["stop.method"]] %in% seq_along(available.stop.methods)]
         }
         else {
-            warning("stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = 2), ".\nUsing all available stop methods instead.", call. = FALSE)
+            .wrn("stop.method should be ", word_list(available.stop.methods, and.or = "or", quotes = 2), ".\nUsing all available stop methods instead")
             rule1 <- available.stop.methods
         }
     }
@@ -3001,13 +3003,13 @@ x2base.iptw <- function(iptw, ...) {
     ps.data <- iptw[["psList"]][[1]][["data"]]
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -3073,17 +3075,17 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with iptw objects.", call. = FALSE)
+        .err("`focal` is not allowed with iptw objects")
     }
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with iptw objects.", call. = FALSE)
+        .err("subclasses are not allowed with iptw objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with iptw objects.", call. = FALSE)
+        .err("matching strata are not allowed with iptw objects")
     }
     
     #Process weights
@@ -3154,8 +3156,8 @@ x2base.iptw <- function(iptw, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -3171,7 +3173,7 @@ x2base.iptw <- function(iptw, ...) {
     
     #Missing values warning
     if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -3198,13 +3200,13 @@ x2base.data.frame.list <- function(covs.list, ...) {
     #Process data and get imp
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -3220,20 +3222,20 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process covs.list
     if (is_null(covs.list)) {
-        stop("'covs.list' must be specified.", call. = FALSE)
+        .err("`covs.list` must be specified")
     }
-    if (!is_(covs.list, "list")) {
-        stop("'covs.list' must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
+    if (!is.list(covs.list) || is.data.frame(covs.list)) {
+        .err("`covs.list` must be a list of covariates for which balance is to be assessed at each time point")
     }
     if (any(!vapply(covs.list, is_mat_like, logical(1L)))) {
-        stop("Each item in 'covs.list' must be a data frame.", call. = FALSE)
+        .err("Each item in `covs.list` must be a data frame")
     }
     if (any(vapply(covs.list, function(x) is_null(attr(x, "co.names")), logical(1L)))) {
         covs.list <- lapply(covs.list, function(x) get_covs_from_formula(data = x))
     }
     
     if (length(treat.list) != length(covs.list)) {
-        stop("'treat.list' must be a list of treatment statuses at each time point.", call. = FALSE)
+        .err("`treat.list` must be a list of treatment statuses at each time point")
     }
     
     #Get estimand
@@ -3243,7 +3245,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     specified <- setNames(rep(FALSE, 1), "weights")
     if (is_not_null(A[["weights"]])) {
         if (!is_(A[["weights"]], c("character", "numeric", "data.frame", "list"))) {
-            stop("The argument to 'weights' must be a vector, list, or data frame of weights or the (quoted) names of variables in 'data' that contain weights.", call. = FALSE)
+            .err("the argument to `weights` must be a vector, list, or data frame of weights or the (quoted) names of variables in `data` that contain weights")
         }
         specified["weights"] <- TRUE
     }
@@ -3268,7 +3270,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         }
         else {
             if (specified["weights"]) {
-                warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
+                .wrn("Only weighting is allowed with multiple treatment time points. Assuming weighting instead")
                 method <- "matching"
             }
             else {
@@ -3279,15 +3281,15 @@ x2base.data.frame.list <- function(covs.list, ...) {
     else {
         specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
         if (any(specified.method == "subclassification") || specified["subclass"]) {
-            warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
+            .wrn("Only weighting is allowed with multiple treatment time points. Assuming weighting instead")
             method <- "matching"
         }
         else if (specified["match.strata"]) {
-            warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
+            .wrn("Only weighting is allowed with multiple treatment time points. Assuming weighting instead")
             method <- "matching"
         }
         else if (!specified["weights"]) {
-            warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
+            .wrn("Multiple methods were specified, but no weights were provided. Providing unadjusted data only")
             method <- "matching"
         }
         else {
@@ -3308,17 +3310,17 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with longitudinal treatments.", call. = FALSE)
+        .err("`focal` is not allowed with longitudinal treatments")
     }
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with longitudinal treatments.", call. = FALSE)
+        .err("subclasses are not allowed with longitudinal treatments")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with longitudinal treatments.", call. = FALSE)
+        .err("matching strata are not allowed with longitudinal treatments")
     }
     
     #Process weights
@@ -3389,8 +3391,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -3409,7 +3411,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Missing values warning
     if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -3457,13 +3459,13 @@ x2base.CBMSM <- function(cbmsm, ...) {
     cbmsm.data <- cbmsm[["data"]][cbmsm[["time"]] == 1, , drop = FALSE]
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -3516,17 +3518,17 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with CBMSM objects.", call. = FALSE)
+        .err("`focal` is not allowed with CBMSM objects")
     }
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with CBMSM objects.", call. = FALSE)
+        .err("subclasses are not allowed with CBMSM objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with CBMSM objects.", call. = FALSE)
+        .err("matching strata are not allowed with CBMSM objects")
     }
     
     #Process weights
@@ -3535,7 +3537,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
-        stop("Sampling weights are not allowed with CBMSM objects.", call. = FALSE)
+        .err("sampling weights are not allowed with CBMSM objects")
     }
     
     #Process cluster
@@ -3591,8 +3593,8 @@ x2base.CBMSM <- function(cbmsm, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -3611,7 +3613,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Missing values warning
     if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -3643,13 +3645,13 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
-        if (is_(data, "mids")) {
+        if (inherits(data, "mids")) {
             data <- imp.complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
         {
-            # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+            # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
     }
@@ -3697,17 +3699,17 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
-        stop("'focal' is not allowed with weightitMSM objects.", call. = FALSE)
+        .err("`focal` is not allowed with weightitMSM objects")
     }
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        stop("subclasses are not allowed with weightitMSM objects.", call. = FALSE)
+        .err("subclasses are not allowed with weightitMSM objects")
     }
     
     #Process match.strata
     if (is_not_null(match.strata <- A[["match.strata"]])) {
-        stop("Matching strata are not allowed with weightitMSM objects.", call. = FALSE)
+        .err("matching strata are not allowed with weightitMSM objects")
     }
     
     #Process weights
@@ -3778,8 +3780,8 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
                 thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                 if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                     thresholds[[s]] <- NULL
-                    warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                   "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                    .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                   "; ignoring ", STATS[[s]][["threshold"]]))
                 }
                 else stats <- unique(c(stats, s))
             }
@@ -3798,7 +3800,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Missing values warning
     if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-        warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+        .wrn("missing values exist in the covariates. Displayed values omit these observations")
     }
     
     #Get call
@@ -3823,10 +3825,10 @@ x2base.default <- function(obj, ...) {
     A <- list(...)
     
     if (is_not_null(A) && (is_null(names(A)) || "" %in% names(A))) {
-        stop("All arguments to '...' must be named.", call. = FALSE)
+        .err("All arguments to `...` must be named")
     }
     
-    if (!is.list(obj)) stop("The input object must be an appropriate list, data.frame, formula, or the output of one of the supported packages.", call. = FALSE)
+    if (!is.list(obj)) .err("The input object must be an appropriate list, data.frame, formula, or the output of one of the supported packages")
     
     Q <- list(treat = list(name = c("treat", "tr"), 
                            type = c("numeric", "character", "factor", "logical")),
@@ -3888,7 +3890,9 @@ x2base.default <- function(obj, ...) {
     
     #treat.list
     if (is_not_null(A[["treat.list"]])) {
-        if (!all(sapply(A[["treat.list"]], function(x) any(vapply(Q[["treat"]][["type"]], function(c) is_(x, c), logical(1L)))))) {
+        if (!all(sapply(A[["treat.list"]], function(x) {
+            any(vapply(Q[["treat"]][["type"]], function(c) is_(x, c), logical(1L)))
+        }))) {
             A[["treat.list"]] <- NULL
         }
         else msm <- TRUE
@@ -3917,7 +3921,7 @@ x2base.default <- function(obj, ...) {
     
     #data
     if (is_not_null(A[["data"]])) {
-        if (is_(A[["data"]], "mids")) {
+        if (inherits(A[["data"]], "mids")) {
             A[["data"]] <- imp.complete(A[["data"]])
             if ("imp" %nin% names(A)) A[["imp"]] <- A[["data"]][[".imp"]]
         }
@@ -3996,13 +4000,13 @@ x2base.default <- function(obj, ...) {
         #Process data and get imp
         imp <- A[["imp"]]
         if (is_not_null(data <- A[["data"]])) {
-            if (is_(data, "mids")) {
+            if (inherits(data, "mids")) {
                 data <- imp.complete(data)
                 if (is_null(imp)) imp <- data[[".imp"]]
             }
             else if (!is.data.frame(data))
             {
-                # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+                # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
                 data <- NULL
             }
         }
@@ -4024,7 +4028,7 @@ x2base.default <- function(obj, ...) {
         #Process covs
         covs <- t.c[["covs"]]
         if (is_null(covs)) {
-            stop("Covariates must be specified using 'covs' or 'formula'.", call. = FALSE)
+            .err("Covariates must be specified using `covs` or `formula`")
         }
         
         #Get estimand
@@ -4045,14 +4049,14 @@ x2base.default <- function(obj, ...) {
         if (is_null(method <- A[["method"]])) {
             if (specified["match.strata"]) {
                 if (sum(specified) > 1) {
-                    message(word_list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
+                    .msg(word_list(names(specified)[specified]), " are specified. Assuming \"matching\" and using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]))
                     A[["weights"]] <- A[["subclass"]] <- NULL
                 }
                 method <- "matching"
             }
             else if (specified["subclass"]) {
                 if (sum(specified) > 1) {
-                    message(word_list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                    .msg(word_list(names(specified)[specified]), " are specified. Assuming \"subclassification\" and using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]))
                     A[["weights"]] <- A[["match.strata"]] <- NULL
                 }
                 method <- "subclassification"
@@ -4060,7 +4064,7 @@ x2base.default <- function(obj, ...) {
             }
             else if (specified["weights"]) {
                 if (sum(specified) > 1) {
-                    message(word_list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                    .msg(word_list(names(specified)[specified]), " are specified. Assuming \"weighting\" and using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]))
                     A[["match.strata"]] <- A[["subclass"]] <- NULL
                 }
                 method <- "weighting"
@@ -4074,18 +4078,18 @@ x2base.default <- function(obj, ...) {
             if (specified.method == "weighting") {
                 if (specified["weights"]) {
                     if (sum(specified) > 1) {
-                        message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
+                        .msg(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]))
                         A[["match.strata"]] <- A[["subclass"]] <- NULL
                     }
                     method <- "weighting"
                 }
                 else if (specified["match.strata"]) {
-                    message("method = \"weighting\" is specified, but no weights are present. Assuming \"matching\" and using match.strata instead.")
+                    .msg("method = \"weighting\" is specified, but no weights are present. Assuming \"matching\" and using match.strata instead")
                     A[["subclass"]] <- NULL
                     method <- "matching"
                 }
                 else if (specified["subclass"]) {
-                    message("method = \"weighting\" is specified, but no weights are present. Assuming \"subclassification\" and using subclass instead.")
+                    .msg("method = \"weighting\" is specified, but no weights are present. Assuming \"subclassification\" and using subclass instead")
                     method <- "subclassification"
                 }
                 else {
@@ -4095,20 +4099,20 @@ x2base.default <- function(obj, ...) {
             else if (specified.method == "matching") {
                 if (specified["match.strata"]) {
                     if (sum(specified) > 1) {
-                        message(word_list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]), ".")
+                        .msg(word_list(names(specified)[specified]), " are specified. Using match.strata and ignoring ", word_list(names(specified)[specified & names(specified)!="match.strata"]))
                         A[["weights"]] <- A[["subclass"]] <- NULL
                     }
                     method <- "matching"
                 }
                 else if (specified["weights"]) {
                     if (sum(specified) > 1) {
-                        message(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]), ".")
+                        .msg(word_list(names(specified)[specified]), " are specified. Using weights and ignoring ", word_list(names(specified)[specified & names(specified)!="weights"]))
                         A[["match.strata"]] <- A[["subclass"]] <- NULL
                     }
                     method <- "matching"
                 }
                 else if (specified["subclass"]) {
-                    message("method = \"matching\" is specified, but no weights or match.strata are present. Assuming \"subclassification\" and using subclass instead.")
+                    .msg("method = \"matching\" is specified, but no weights or match.strata are present. Assuming \"subclassification\" and using subclass instead")
                     method <- "subclassification"
                 }
                 else {
@@ -4118,18 +4122,18 @@ x2base.default <- function(obj, ...) {
             else if (specified.method == "subclassification") {
                 if (specified["subclass"]) {
                     if (sum(specified) > 1) {
-                        message(word_list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]), ".")
+                        .msg(word_list(names(specified)[specified]), " are specified. Using subclass and ignoring ", word_list(names(specified)[specified & names(specified)!="subclass"]))
                         A[["weights"]] <- A[["match.strata"]] <- NULL
                     }
                     method <- "subclassification"
                 }
                 else if (specified["match.strata"]) {
-                    message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"matching\" and using match.strata instead.")
+                    .msg("method = \"subclassification\" is specified, but no subclass is present. Assuming \"matching\" and using match.strata instead")
                     A[["weights"]] <- NULL
                     method <- "matching"
                 }
                 else if (specified["weights"]) {
-                    message("method = \"subclassification\" is specified, but no subclass is present. Assuming \"weighting\" and using weights instead.")
+                    .msg("method = \"subclassification\" is specified, but no subclass is present. Assuming \"weighting\" and using weights instead")
                     method <- "weighting"
                 }
             }
@@ -4137,13 +4141,13 @@ x2base.default <- function(obj, ...) {
         else {
             specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
             if (any(specified.method == "subclassification") || specified["subclass"]) {
-                stop("Subclassification cannot be specified along with other methods.", call. = FALSE)
+                .err("Subclassification cannot be specified along with other methods")
             }
             else if (specified["match.strata"]) {
-                stop("Only weights can be specified with multiple methods.", call. = FALSE)
+                .err("Only weights can be specified with multiple methods")
             }
             else if (!specified["weights"]) {
-                warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
+                .wrn("Multiple methods were specified, but no weights were provided. Providing unadjusted data only")
                 method <- "matching"
             }
             else {
@@ -4266,8 +4270,8 @@ x2base.default <- function(obj, ...) {
                     thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                     if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                         thresholds[[s]] <- NULL
-                        warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                       "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                        .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                       "; ignoring ", STATS[[s]][["threshold"]]))
                     }
                     else stats <- unique(c(stats, s))
                 }
@@ -4288,7 +4292,7 @@ x2base.default <- function(obj, ...) {
         
         #Missing values warning
         if (anyNA(covs) || anyNA(addl)) {
-            warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+            .wrn("missing values exist in the covariates. Displayed values omit these observations")
         }
         
         #Get call
@@ -4310,7 +4314,7 @@ x2base.default <- function(obj, ...) {
         
         #Process input
         initial.list.lengths <- c(length(A[["formula.list"]]), length(A[["covs.list"]]), length(A[["treat.list"]]))
-        if (!all_the_same(initial.list.lengths[initial.list.lengths != 0])) stop("The lists in the object were not the same length.", call. = FALSE)
+        if (!all_the_same(initial.list.lengths[initial.list.lengths != 0])) .err("The lists in the object were not the same length")
         ntimes.guess <- max(initial.list.lengths)
         if (is_null(A[["treat.list"]])) A[["treat.list"]] <- make_list(length(ntimes.guess)) 
         if (is_null(A[["covs.list"]])) A[["covs.list"]] <- make_list(length(ntimes.guess)) 
@@ -4318,13 +4322,13 @@ x2base.default <- function(obj, ...) {
         #Process data and get imp
         imp <- A[["imp"]]
         if (is_not_null(data <- A[["data"]])) {
-            if (is_(data, "mids")) {
+            if (inherits(data, "mids")) {
                 data <- imp.complete(data)
                 if (is_null(imp)) imp <- data[[".imp"]]
             }
             else if (!is.data.frame(data))
             {
-                # warning("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt.")
+                # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
                 data <- NULL
             }
         }
@@ -4347,16 +4351,16 @@ x2base.default <- function(obj, ...) {
         
         #Process covs.list
         if (is_null(covs.list <- A[["covs.list"]])) {
-            stop("'covs.list' must be specified.", call. = FALSE)
+            .err("`covs.list` must be specified")
         }
-        if (!is_(covs.list, "list")) {
-            stop("'covs.list' must be a list of covariates for which balance is to be assessed at each time point.", call. = FALSE)
+        if (!is.list(covs.list) || is.data.frame(covs.list)) {
+            .err("`covs.list` must be a list of covariates for which balance is to be assessed at each time point")
         }
         if (any(!vapply(covs.list, is.data.frame, logical(1L)))) {
-            stop("Each item in 'covs.list' must be a data frame.", call. = FALSE)
+            .err("Each item in `covs.list` must be a data frame")
         }
         if (length(treat.list) != length(covs.list)) {
-            stop("'treat.list' must be a list of treatment statuses at each time point.", call. = FALSE)
+            .err("`treat.list` must be a list of treatment statuses at each time point")
         }
         
         #Get estimand
@@ -4366,7 +4370,7 @@ x2base.default <- function(obj, ...) {
         specified <- setNames(rep(FALSE, 1), "weights")
         if (is_not_null(A[["weights"]])) {
             if (!is_(A[["weights"]], c("character", "numeric", "data.frame", "list"))) {
-                stop("The argument to 'weights' must be a vector, list, or data frame of weights or the (quoted) names of variables in 'data' that contain weights.", call. = FALSE)
+                .err("the argument to `weights` must be a vector, list, or data frame of weights or the (quoted) names of variables in `data` that contain weights")
             }
             specified["weights"] <- TRUE
         }
@@ -4391,7 +4395,7 @@ x2base.default <- function(obj, ...) {
             }
             else {
                 if (specified["weights"]) {
-                    warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
+                    .wrn("only weighting is allowed with multiple treatment time points. Assuming weighting instead")
                     method <- "matching"
                 }
                 else {
@@ -4402,15 +4406,15 @@ x2base.default <- function(obj, ...) {
         else {
             specified.method <- match_arg(method, c("weighting", "matching", "subclassification"), several.ok = TRUE)
             if (any(specified.method == "subclassification") || specified["subclass"]) {
-                warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
+                .wrn("only weighting is allowed with multiple treatment time points. Assuming weighting instead")
                 method <- "matching"
             }
             else if (specified["match.strata"]) {
-                warning("Only weighting is allowed with multiple treatment time points. Assuming weighting instead.", call. = FALSE)
+                .wrn("only weighting is allowed with multiple treatment time points. Assuming weighting instead")
                 method <- "matching"
             }
             else if (!specified["weights"]) {
-                warning("Multiple methods were specified, but no weights were provided. Providing unadjusted data only.", call. = FALSE)
+                .wrn("multiple methods were specified, but no weights were provided. Providing unadjusted data only")
                 method <- "matching"
             }
             else {
@@ -4437,17 +4441,17 @@ x2base.default <- function(obj, ...) {
                                                covs.list = covs.list)
         #Process focal
         if (is_not_null(focal <- A[["focal"]])) {
-            stop("'focal' is not allowed with longitudinal treatments.", call. = FALSE)
+            .err("`focal` is not allowed with longitudinal treatments")
         }
         
         #Process subclass
         if (is_not_null(subclass <- A[["subclass"]])) {
-            stop("subclasses are not allowed with longitudinal treatments.", call. = FALSE)
+            .err("subclasses are not allowed with longitudinal treatments")
         }
         
         #Process match.strata
         if (is_not_null(match.strata <- A[["match.strata"]])) {
-            stop("Matching strata are not allowed with longitudinal treatments.", call. = FALSE)
+            .err("matching strata are not allowed with longitudinal treatments")
         }
         
         #Process weights
@@ -4512,8 +4516,8 @@ x2base.default <- function(obj, ...) {
                     thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
                     if (!between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
                         thresholds[[s]] <- NULL
-                        warning(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
-                                       "; ignoring ", STATS[[s]][["threshold"]], "."), call. = FALSE)
+                        .wrn(paste0(STATS[[s]][["threshold"]], " must be between ", word_list(STATS[[s]][["threshold_range"]]),
+                                       "; ignoring ", STATS[[s]][["threshold"]]))
                     }
                     else stats <- unique(c(stats, s))
                 }
@@ -4532,7 +4536,7 @@ x2base.default <- function(obj, ...) {
         
         #Missing values warning
         if (anyNA(covs.list, recursive = TRUE) || anyNA(addl.list, recursive = TRUE)) {
-            warning("Missing values exist in the covariates. Displayed values omit these observations.", call. = FALSE)
+            .wrn("missing values exist in the covariates. Displayed values omit these observations")
         }
         
         #Get call
