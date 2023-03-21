@@ -165,7 +165,7 @@
 
 
 <dt>stats</dt>
-<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. For continuous treatments, <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
+<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats()</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. For continuous treatments, <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
 
 
 <dt>int</dt>
@@ -205,15 +205,15 @@
 
 
 <dt>cluster</dt>
-<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
+<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p></dd>
 
 
 <dt>imp</dt>
-<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
+<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
 
 
 <dt>pairwise</dt>
-<dd><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></dd>
+<dd><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></dd>
 
 
 <dt>s.weights</dt>
@@ -249,7 +249,7 @@
 
 
 <dt>focal</dt>
-<dd><p>the name of the focal treatment when multi-category treatments are used. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p></dd>
+<dd><p>the name of the focal treatment when multi-category treatments are used. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details.</p></dd>
 
 
 <dt>...</dt>
@@ -267,28 +267,28 @@
 <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the specified treatment and covariates. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
 
 
-<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p>
+<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details.</p>
 
 
-<p>If multi-category treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p>
+<p>If multi-category treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details.</p>
 
 
-<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p>
+<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>bal.tab.data.frame()</code> generates a list of balance summaries for the covariates and treatment status values given. <code>bal.tab.formula()</code> does the same but uses a formula interface instead.  When the formula interface is used, the formula and data are reshaped into a treatment vector and <code>data.frame</code> of covariates and then simply passed through the <code>data.frame</code> method.</p>
 <p>If <code>weights</code>, <code>subclass</code> and <code>match.strata</code> are all <code>NULL</code>, balance information will be presented only for the unadjusted sample.</p>
-<p>The argument to <code>match.strata</code> corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the <span class="pkg">optmatch</span> package. If more than one of <code>weights</code>, <code>subclass</code>, or <code>match.strata</code> are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. <code><a href="bal.tab.html">bal.tab()</a></code> behaves differently depending on whether subclasses are used in conditioning or not. If they are used, <code><a href="bal.tab.html">bal.tab()</a></code> creates balance statistics for each subclass and for the sample in aggregate. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for more information.</p>
+<p>The argument to <code>match.strata</code> corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the <span class="pkg">optmatch</span> package. If more than one of <code>weights</code>, <code>subclass</code>, or <code>match.strata</code> are specified, <code><a href="bal.tab.html">bal.tab()</a></code> will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. <code><a href="bal.tab.html">bal.tab()</a></code> behaves differently depending on whether subclasses are used in conditioning or not. If they are used, <code><a href="bal.tab.html">bal.tab()</a></code> creates balance statistics for each subclass and for the sample in aggregate. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass()</a></code> for more information.</p>
 <p>Multiple sets of weights can be supplied simultaneously by entering a <code>data.frame</code> or a character vector containing the names of weight variables found in <code>data</code> or a list of weights vectors or names. The arguments to <code>method</code>, <code>s.d.denom</code>, and <code>estimand</code>, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to <code>s.d.denom</code> or <code>estimand</code>. When only one set of weights is supplied, the output for the adjusted group will simply be called <code>"Adj"</code>, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other outputs of <code><a href="bal.tab.html">bal.tab()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index">
 <ul><li><p><code><a href="bal.tab.html">bal.tab()</a></code> for details of calculations.</p></li>
-<li><p><code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for more information on clustered data.</p></li>
-<li><p><code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for more information on multiply imputed data.</p></li>
-<li><p><code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for more information on multi-category treatments.</p></li>
+<li><p><code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for more information on clustered data.</p></li>
+<li><p><code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for more information on multiply imputed data.</p></li>
+<li><p><code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for more information on multi-category treatments.</p></li>
 </ul></div>
     </div>
 

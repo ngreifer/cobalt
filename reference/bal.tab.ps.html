@@ -101,7 +101,7 @@
 
 
 <dt>stats</dt>
-<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. For continuous treatments, <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
+<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats()</a></code> for allowable options. For binary and multi-category treatments, <code>"mean.diffs"</code> (i.e., mean differences) is the default. For continuous treatments, <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
 
 
 <dt>int</dt>
@@ -145,15 +145,15 @@
 
 
 <dt>cluster</dt>
-<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
+<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p></dd>
 
 
 <dt>imp</dt>
-<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
+<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
 
 
 <dt>pairwise</dt>
-<dd><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></dd>
+<dd><p>whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details. This can also be used with a binary treatment to assess balance with respect to the full sample.</p></dd>
 
 
 <dt>s.weights</dt>
@@ -183,22 +183,22 @@
 <p>For binary or continuous point treatments, if clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>ps</code> object. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
 
 
-<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p>
+<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p>
 
 
-<p>If <code><a href="https://rdrr.io/pkg/twang/man/mnps.html" class="external-link">mnps()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p>
+<p>If <code><a href="https://rdrr.io/pkg/twang/man/mnps.html" class="external-link">mnps()</a></code> is used with multi-category treatments, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>bal.tab.ps()</code> generates a list of balance summaries for the input object given, and functions similarly to <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">twang::bal.table()</a></code>. The variances used in the denominator of the standardized mean differences computed in <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">twang::bal.table()</a></code> are weighted and computed using <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">survey::svyvar()</a></code> and are unweighted here (except when <code>s.weights</code> are specified, in which case <code><a href="balance-summary.html">col_w_sd</a></code> is used). <span class="pkg">twang</span> also uses "all" as the default <code>s.d.denom</code> when the estimand is the ATE; the default here is "pooled". For these reasons, results may differ slightly between the two packages.</p>
+    <p><code>bal.tab.ps()</code> generates a list of balance summaries for the input object given, and functions similarly to <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">twang::bal.table()</a></code>. The variances used in the denominator of the standardized mean differences computed in <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">twang::bal.table()</a></code> are weighted and computed using <code><a href="https://rdrr.io/pkg/survey/man/surveysummary.html" class="external-link">survey::svyvar()</a></code> and are unweighted here (except when <code>s.weights</code> are specified, in which case <code><a href="balance-summary.html">col_w_sd()</a></code> is used). <span class="pkg">twang</span> also uses "all" as the default <code>s.d.denom</code> when the estimand is the ATE; the default here is "pooled". For these reasons, results may differ slightly between the two packages.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index">
 <ul><li><p><code><a href="bal.tab.html">bal.tab()</a></code> for details of calculations.</p></li>
-<li><p><code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for more information on clustered data.</p></li>
-<li><p><code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for more information on multi-category treatments.</p></li>
-<li><p><code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code> for more information on longitudinal treatments.</p></li>
+<li><p><code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for more information on clustered data.</p></li>
+<li><p><code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for more information on multi-category treatments.</p></li>
+<li><p><code><a href="class-bal.tab.msm.html">bal.tab.msm()</a></code> for more information on longitudinal treatments.</p></li>
 </ul></div>
     </div>
 

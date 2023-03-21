@@ -126,51 +126,51 @@
 
 
 <dt>which.subclass</dt>
-<dd><p>when used with subclassification, which subclass(es) to display. If <code>NULL</code>, all subclasses will be displayed. If <code>NA</code>, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for details.</p></dd>
+<dd><p>when used with subclassification, which subclass(es) to display. If <code>NULL</code>, all subclasses will be displayed. If <code>NA</code>, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass()</a></code> for details.</p></dd>
 
 
 <dt>subclass.summary</dt>
-<dd><p><code>logical</code>; when used with subclassification, whether to display the subclass balance summary table. If <code>which.subclass</code> is <code>NA</code>, <code>subclass.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass</a></code> for details.</p></dd>
+<dd><p><code>logical</code>; when used with subclassification, whether to display the subclass balance summary table. If <code>which.subclass</code> is <code>NA</code>, <code>subclass.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass()</a></code> for details.</p></dd>
 
 
 <dt>which.imp</dt>
-<dd><p>when used with multiply imputed data, which imputation(s) to display. If <code>NULL</code>, all imputations will be displayed. If <code>NA</code>, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p></dd>
+<dd><p>when used with multiply imputed data, which imputation(s) to display. If <code>NULL</code>, all imputations will be displayed. If <code>NA</code>, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details.</p></dd>
 
 
 <dt>imp.summary</dt>
-<dd><p><code>logical</code>; when used with multiply imputed data, whether to display the imputation summary table. If <code>which.imp</code> is <code>NA</code>, <code>imp.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p></dd>
+<dd><p><code>logical</code>; when used with multiply imputed data, whether to display the imputation summary table. If <code>which.imp</code> is <code>NA</code>, <code>imp.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details.</p></dd>
 
 
 <dt>imp.fun</dt>
-<dd><p><code>character</code>; when used with multiply imputed data, a character vector of functions of balance statistics to display when displaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code> for details.</p></dd>
+<dd><p><code>character</code>; when used with multiply imputed data, a character vector of functions of balance statistics to display when displaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details.</p></dd>
 
 
 <dt>which.treat</dt>
-<dd><p>when used with multi-category treatments, which treatments to display. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p></dd>
+<dd><p>when used with multi-category treatments, which treatments to display. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details.</p></dd>
 
 
 <dt>multi.summary</dt>
-<dd><p><code>logical</code>; when used with multi-category treatments, whether to display the balance summary table across pairwise comparisons. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code> for details.</p></dd>
+<dd><p><code>logical</code>; when used with multi-category treatments, whether to display the balance summary table across pairwise comparisons. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details.</p></dd>
 
 
 <dt>which.time</dt>
-<dd><p>when used with longitudinal treatments, which time periods to display if longitudinal treatments are used. See <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code> for details.</p></dd>
+<dd><p>when used with longitudinal treatments, which time periods to display if longitudinal treatments are used. See <code><a href="class-bal.tab.msm.html">bal.tab.msm()</a></code> for details.</p></dd>
 
 
 <dt>msm.summary</dt>
-<dd><p><code>logical</code>; when used with longitudinal treatments, whether to display the balance summary table across time periods. See <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code> for details.</p></dd>
+<dd><p><code>logical</code>; when used with longitudinal treatments, whether to display the balance summary table across time periods. See <code><a href="class-bal.tab.msm.html">bal.tab.msm()</a></code> for details.</p></dd>
 
 
 <dt>which.cluster</dt>
-<dd><p>when used with clustered data, which cluster(s) to display. If <code>NULL</code>, all clusters will be displayed. If <code>NA</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
+<dd><p>when used with clustered data, which cluster(s) to display. If <code>NULL</code>, all clusters will be displayed. If <code>NA</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to <code><a href="bal.tab.html">bal.tab()</a></code>, omit this argument. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p></dd>
 
 
 <dt>cluster.summary</dt>
-<dd><p><code>logical</code>; when used with clustered data, whether to display the cluster summary table. If <code>which.cluster</code> is <code>NA</code>, <code>cluster.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
+<dd><p><code>logical</code>; when used with clustered data, whether to display the cluster summary table. If <code>which.cluster</code> is <code>NA</code>, <code>cluster.summary</code> will be set to <code>TRUE</code>. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p></dd>
 
 
 <dt>cluster.fun</dt>
-<dd><p><code>character</code>; when used with clustered data, a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code> for details.</p></dd>
+<dd><p><code>character</code>; when used with clustered data, a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p></dd>
 
 
 <dt>digits</dt>

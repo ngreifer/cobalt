@@ -89,7 +89,7 @@
 
 
 <dt><code>stats</code></dt>
-<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats</a></code> to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is <code>"mean.diffs"</code> (i.e., [standardized] mean differences), and for continuous treatments, the default is <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations).</p></dd>
+<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats()</a></code> to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is <code>"mean.diffs"</code> (i.e., [standardized] mean differences), and for continuous treatments, the default is <code>"correlations"</code> (i.e., treatment-covariate Pearson correlations).</p></dd>
 
 
 <dt><code>factor_sep</code></dt>
@@ -123,11 +123,11 @@
 
 
 <dl><dt><code>which.treat</code></dt>
-<dd><p>For which treatments or treatment combinations balance tables should be displayed. If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, setting  <code>which.treat = "A"</code> will display "A vs. B" and "A vs. C", while setting <code>which.treat = c("A", "B")</code> will only display "A vs. B". <code>.none</code> indicates no treatment comparisons will be displayed, and <code>.all</code> indicates all treatment comparisons will be displayed. Default is <code>.none</code>. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code>.</p></dd>
+<dd><p>For which treatments or treatment combinations balance tables should be displayed. If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, setting  <code>which.treat = "A"</code> will display "A vs. B" and "A vs. C", while setting <code>which.treat = c("A", "B")</code> will only display "A vs. B". <code>.none</code> indicates no treatment comparisons will be displayed, and <code>.all</code> indicates all treatment comparisons will be displayed. Default is <code>.none</code>. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code>.</p></dd>
 
 
 <dt><code>multi.summary</code></dt>
-<dd><p><code>logical</code>; whether to display the balance summary across all treatment pairs. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. Default is <code>TRUE</code> when <code>which.treat</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.multi.html">bal.tab.multi</a></code>.</p></dd>
+<dd><p><code>logical</code>; whether to display the balance summary across all treatment pairs. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. Default is <code>TRUE</code> when <code>which.treat</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code>.</p></dd>
 
 
 </dl></div>
@@ -137,15 +137,15 @@
 
 
 <dl><dt><code>which.cluster</code></dt>
-<dd><p>For which clusters balance tables should be displayed. If <code>.all</code>, all clusters in <code>cluster</code> will be displayed. If <code>.none</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names (or the order of cluster levels if a factor). Default is <code>.all</code>. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code>.</p></dd>
+<dd><p>For which clusters balance tables should be displayed. If <code>.all</code>, all clusters in <code>cluster</code> will be displayed. If <code>.none</code>, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names (or the order of cluster levels if a factor). Default is <code>.all</code>. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code>.</p></dd>
 
 
 <dt><code>cluster.summary</code></dt>
-<dd><p><code>logical</code>; whether to display the balance summary across clusters. Default is <code>TRUE</code> when <code>which.cluster</code> is <code>.none</code> and <code>FALSE</code> otherwise (note the default for <code>which.cluster</code> is <code>.all</code>). See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code>.</p></dd>
+<dd><p><code>logical</code>; whether to display the balance summary across clusters. Default is <code>TRUE</code> when <code>which.cluster</code> is <code>.none</code> and <code>FALSE</code> otherwise (note the default for <code>which.cluster</code> is <code>.all</code>). See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code>.</p></dd>
 
 
 <dt><code>cluster.fun</code></dt>
-<dd><p>Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if <code>cluster.fun = "mean"</code> the mean balance statistic across clusters will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster</a></code>.</p></dd>
+<dd><p>Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if <code>cluster.fun = "mean"</code> the mean balance statistic across clusters will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code>.</p></dd>
 
 
 </dl></div>
@@ -155,15 +155,15 @@
 
 
 <dl><dt><code>which.imp</code></dt>
-<dd><p>For which imputations balance tables should be displayed. If <code>.all</code>, all imputations in <code>imp</code> will be displayed. If <code>.none</code>, no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance. Default is <code>.none</code>. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code>.</p></dd>
+<dd><p>For which imputations balance tables should be displayed. If <code>.all</code>, all imputations in <code>imp</code> will be displayed. If <code>.none</code>, no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance. Default is <code>.none</code>. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code>.</p></dd>
 
 
 <dt><code>imp.summary</code></dt>
-<dd><p><code>logical</code>; whether to display the balance summary across imputations. Default is <code>TRUE</code> when <code>which.imp</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code>.</p></dd>
+<dd><p><code>logical</code>; whether to display the balance summary across imputations. Default is <code>TRUE</code> when <code>which.imp</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code>.</p></dd>
 
 
 <dt><code>imp.fun</code></dt>
-<dd><p>Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if <code>imp.fun = "mean"</code> the mean balance statistic across imputations will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic. See <code><a href="class-bal.tab.imp.html">bal.tab.imp</a></code>.</p></dd>
+<dd><p>Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if <code>imp.fun = "mean"</code> the mean balance statistic across imputations will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code>.</p></dd>
 
 
 </dl></div>
@@ -173,11 +173,11 @@
 
 
 <dl><dt><code>which.time</code></dt>
-<dd><p>For which time points balance tables should be displayed. If <code>.all</code>, all time points will be displayed. If <code>.none</code>, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance. Default is <code>.none</code>. See <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code>.</p></dd>
+<dd><p>For which time points balance tables should be displayed. If <code>.all</code>, all time points will be displayed. If <code>.none</code>, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance. Default is <code>.none</code>. See <code><a href="class-bal.tab.msm.html">bal.tab.msm()</a></code>.</p></dd>
 
 
 <dt><code>msm.summary</code></dt>
-<dd><p><code>logical</code>; whether to display the balance summary across time points. Default is <code>TRUE</code> when <code>which.time</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.msm.html">bal.tab.msm</a></code>.</p></dd>
+<dd><p><code>logical</code>; whether to display the balance summary across time points. Default is <code>TRUE</code> when <code>which.time</code> is <code>.none</code> and <code>FALSE</code> otherwise. See <code><a href="class-bal.tab.msm.html">bal.tab.msm()</a></code>.</p></dd>
 
 
 </dl></div>
