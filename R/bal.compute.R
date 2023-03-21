@@ -21,6 +21,7 @@
 #'     }
 #'     \item{\code{ks.mean}, \code{ks.max}, \code{ks.rms}}{
 #'         The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using [col_w_ks()]. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
+#'     }
 #'     \item{\code{ovl.mean}, \code{ovl.max}, \code{ovl.rms}}{
 #'         The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using [col_w_ovl()]. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{integrate} to select whether integration is done using using [integrate()] (\code{TRUE}) or a Riemann sum (\code{FALSE}, the default), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
 #'     }
@@ -30,8 +31,8 @@
 #'     \item{\code{energy.dist}}{
 #'         The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{improved} to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default \code{TRUE}). Can be used with binary and multi-category treatments.
 #'     }
-#'     \item{\code{L1.med}}{
-#'         The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include \code{L1.min.bin} (default 2) and \code{L1.max.bin} default (12) to select the minimum and maximum number of bins with which to bin continuous variables and \code{L1.n} (default 101) to select the number of binings used to select the binning at the median. \code{covs} should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.
+#'     \item{\code{l1.med}}{
+#'         The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include \code{l1.min.bin} (default 2) and \code{l1.max.bin} default (12) to select the minimum and maximum number of bins with which to bin continuous variables and \code{l1.n} (default 101) to select the number of binings used to select the binning at the median. \code{covs} should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.
 #'     }
 #'     \item{\code{r2}, \code{r2.2}, \code{r2.3}}{
 #'         The post-weighting \eqn{R^2} of a model for the treatment. The other allowable arguments include \code{poly} to add polynomial terms of the supplied order to the model and \code{int} (default \code{FALSE}) to add two-way interaction between covariates into the model. Using \code{r2.2} is a shortcut to requesting squares, and using \code{r2.3} is a shortcut to requesting cubes. Can be used with binary and continuous treatments. For binary treatments, the McKelvey and Zavoina \eqn{R^2} from a logistic regression is used; for continuous treatments, the \eqn{R^2} from a linear regression is used.
@@ -152,7 +153,7 @@ bal_stat.to.phrase <- function(stat) {
                      "mahalanobis" = "sample Mahalanobis distance",
                      "energy.dist" = "energy distance",
                      # "kernel.dist" = "kernel distance",
-                     "L1.med" = "L1 median",
+                     "l1.med" = "L1 median",
                      "r2" = "post-weighting treatment R-squared",
                      "p.mean" = "average Pearson correlation",
                      "p.max" = "maximum Pearson correlation",
@@ -659,8 +660,8 @@ init_distance.cov <- function(covs, treat, s.weights = NULL, ...) {
     class(out) <- "init_distance.cov"
     out
 }
-init_L1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL,
-                        .covs = NULL, L1.min.bin = 2, L1.max.bin = 12, L1.n = 101, ...) {
+init_l1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL,
+                        .covs = NULL, l1.min.bin = 2, l1.max.bin = 12, l1.n = 101, ...) {
     
     if (is_not_null(.covs)) covs <- .covs
     if (!is.data.frame(covs)) {
@@ -728,16 +729,16 @@ init_L1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal =
     is.numeric.cov <- setNames(vapply(covs, is.numeric, logical(1L)), names(covs))
     nunique.covs <- vapply(covs, nunique, integer(1L))
     
-    coarsenings <- lapply(1:L1.n, function(i) {
+    coarsenings <- lapply(1:l1.n, function(i) {
         cutpoints <- setNames(lapply(nunique.covs[is.numeric.cov], function(nu) {
-            sample(seq(min(L1.min.bin, nu), min(L1.max.bin, nu)), 1)
+            sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1)
         }), names(covs)[is.numeric.cov])
         grouping <- setNames(lapply(seq_along(covs)[!is.numeric.cov], function(x) {
             nu <- nunique.covs[x]
             u <- unique(covs[[x]], nmax = nu)
             
             #Randomly select number of bins
-            nbins <- sample(seq(min(L1.min.bin, nu), min(L1.max.bin, nu)), 1)
+            nbins <- sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1)
             
             #Randomly assign bin numbers to levels of covariate
             bin.assignments <- sample(seq_len(nbins), nu, replace = TRUE)
@@ -750,7 +751,7 @@ init_L1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal =
         list(cutpoints = cutpoints, grouping = grouping, treat_cutpoints = NULL)
     })
     
-    L1s <- unlist(lapply(coarsenings, function(co) {
+    l1s <- unlist(lapply(coarsenings, function(co) {
         x <- coarsen(covs, cutpoints = co[["cutpoints"]], grouping = co[["grouping"]])
         
         if (treat.type == "binary" || is_null(focal)) {
@@ -769,18 +770,18 @@ init_L1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal =
         }
     }))
     
-    L1.med <- sort(L1s, partial = ceiling(L1.n/2))[ceiling(L1.n/2)]
+    l1.med <- sort(l1s, partial = ceiling(l1.n/2))[ceiling(l1.n/2)]
     
-    L1.med.coarsening <- coarsenings[[which(L1s == L1.med)[1]]]
+    l1.med.coarsening <- coarsenings[[which(l1s == l1.med)[1]]]
     
     out <- list(coarsened.covs = coarsen(covs,
-                                         cutpoints = L1.med.coarsening[["cutpoints"]],
-                                         grouping = L1.med.coarsening[["grouping"]]),
+                                         cutpoints = l1.med.coarsening[["cutpoints"]],
+                                         grouping = l1.med.coarsening[["grouping"]]),
                 s.weights = s.weights,
                 treat = treat,
                 unique.treats = unique.treats,
                 focal = focal)
-    class(out) <- "init_L1.med"
+    class(out) <- "init_l1.med"
     out
     
 }
@@ -837,8 +838,8 @@ r2.binary <- function(init, weights = NULL) {
     
     SSmodel / (sum(weights) * pi^2/3 + SSmodel)
 }
-L1.med.binary <- function(init, weights = NULL) {
-    check_init(init, "init_L1.med")
+l1.med.binary <- function(init, weights = NULL) {
+    check_init(init, "init_l1.med")
     
     if (is_null(weights)) weights <- init[["s.weights"]]
     else weights <- weights * init[["s.weights"]]
@@ -903,8 +904,8 @@ ovl.multinomial <- function(init, weights = NULL) {
     }))
 }
 energy.dist.multinomial <- energy.dist.binary
-L1.med.multinomial <- function(init, weights = NULL) {
-    check_init(init, "init_L1.med")
+l1.med.multinomial <- function(init, weights = NULL) {
+    check_init(init, "init_l1.med")
     
     if (is_null(weights)) weights <- init[["s.weights"]]
     else weights <- weights * init[["s.weights"]]
@@ -1051,7 +1052,7 @@ bal_criterion <- function(treat.type, criterion) {
                     }
                     max(ovl.binary(init, weights))
                 },
-                init = init_ks
+                init = init_ovl
             ),
             ovl.rms = list(
                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
@@ -1092,14 +1093,14 @@ bal_criterion <- function(treat.type, criterion) {
             #     },
             #     init = init_kernel.dist
             # ),
-            L1.med = list(
+            l1.med = list(
                 fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, init = NULL, ...) {
                     if (is_null(init)) {
-                        init <- init_L1.med(covs, treat, s.weights, estimand, focal, ...)
+                        init <- init_l1.med(covs, treat, s.weights, estimand, focal, ...)
                     }
-                    L1.med.binary(init, weights)
+                    l1.med.binary(init, weights)
                 },
-                init = init_L1.med
+                init = init_l1.med
             ),
             r2 = list(
                 fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
@@ -1200,14 +1201,14 @@ bal_criterion <- function(treat.type, criterion) {
                 },
                 init = init_energy.dist
             ),
-            L1.med = list(
+            l1.med = list(
                 fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, init = NULL, ...) {
                     if (is_null(init)) {
-                        init <- init_L1.med(covs, treat, s.weights, estimand, focal, ...)
+                        init <- init_l1.med(covs, treat, s.weights, estimand, focal, ...)
                     }
-                    L1.med.multinomial(init, weights)
+                    l1.med.multinomial(init, weights)
                 },
-                init = init_L1.med
+                init = init_l1.med
             )
         ),
         
