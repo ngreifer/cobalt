@@ -207,13 +207,10 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># (requireNamespace("designmatch", quietly = TRUE) &amp;&amp; FALSE)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">designmatch</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: lattice</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: slam</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: Rglpk</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Using the GLPK callable library version 5.0</span>
 <span class="r-in"><span><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"educ"</span>, <span class="st">"re74"</span>, <span class="st">"re75"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">treat</span> <span class="op">&lt;-</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span></span></span>
 <span class="r-in"><span><span class="va">dmout</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/designmatch/man/bmatch.html" class="external-link">bmatch</a></span><span class="op">(</span><span class="va">treat</span>,</span></span>
@@ -222,25 +219,10 @@
 <span class="r-in"><span>                           tols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/designmatch/man/absstddif.html" class="external-link">absstddif</a></span><span class="op">(</span><span class="va">covariates</span>, </span></span>
 <span class="r-in"><span>                                            <span class="va">treat</span>, <span class="fl">.05</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Building the matching problem... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   GLPK optimizer is open... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Finding the optimal matches... </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Optimal matches found </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Using treat and covs</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">dmout</span>, treat <span class="op">=</span> <span class="va">treat</span>, covs <span class="op">=</span> <span class="va">covariates</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         Type Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age  Contin.   0.0567</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ Contin.  -0.0538</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74 Contin.  -0.0613</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75 Contin.  -0.0501</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           Control Treated</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> All           429     185</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Matched       185     185</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unmatched     244       0</span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
