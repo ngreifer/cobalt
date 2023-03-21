@@ -112,14 +112,13 @@ the propensity score should be used to trim samples, etc.</p>
 varying a number of parameters, which are sometimes called “tuning
 parameters”, in order to optimize balance. Many popular methods adjust
 tuning parameters to optimize balance as inherent parts of the method,
-like genetic matching <span class="citation">(Diamond and Sekhon
-2013)</span>, which tunes variance importance in the distance matrix, or
-generalized boosted modeling <span class="citation">(McCaffrey,
-Ridgeway, and Morral 2004)</span>, which tunes the number of trees in
-the prediction model for propensity scores. This strategy tends to yield
-methods that perform better than methods that don’t tune at all or tune
-to optimize a criterion other than balance (e.g., prediction accuracy)
-<span class="citation">Pirracchio and Carone (2018)</span>.</p>
+like genetic matching <span class="citation">(<a href="#ref-diamondGeneticMatchingEstimating2013" role="doc-biblioref">Diamond and Sekhon 2013</a>)</span>, which tunes
+variance importance in the distance matrix, or generalized boosted
+modeling <span class="citation">(<a href="#ref-mccaffreyPropensityScoreEstimation2004" role="doc-biblioref">McCaffrey, Ridgeway, and Morral 2004</a>)</span>,
+which tunes the number of trees in the prediction model for propensity
+scores. This strategy tends to yield methods that perform better than
+methods that don’t tune at all or tune to optimize a criterion other
+than balance (e.g., prediction accuracy) <span class="citation">Pirracchio and Carone (<a href="#ref-pirracchioBalanceSuperLearner2018" role="doc-biblioref">2018</a>)</span>.</p>
 <p>As of version 4.5.0, <code>cobalt</code> provides the functions
 <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> to aid in
 selecting these tuning parameters in an efficient way without needing to
@@ -218,7 +217,7 @@ try again with logistic regression:</p>
 <span><span class="fu"><a href="../reference/bal.compute.html">bal.compute</a></span><span class="op">(</span><span class="va">smd.init</span>, <span class="fu"><a href="../reference/get.w.html">get.w</a></span><span class="op">(</span><span class="va">w.out</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.4883804</span></span></code></pre></div>
 <p>This is better, but we can do even better with bias-reduced logistic
-regression <span class="citation">(Kosmidis and Firth 2020)</span>:</p>
+regression <span class="citation">(<a href="#ref-kosmidis2020" role="doc-biblioref">Kosmidis and Firth 2020</a>)</span>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">w.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span></span>
 <span>                      <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span>
@@ -359,14 +358,14 @@ computed as <span class="math display">\[
 \]</span> where <span class="math inline">\(\mathbf{\bar{x}}_1\)</span>
 and <span class="math inline">\(\mathbf{\bar{x}}_0\)</span> are the
 vectors of covariate means in the two treatment groups, <span class="math inline">\(\Sigma^-1\)</span> is the (generalized) inverse of
-the covariance matrix of the covariates <span class="citation">(Franklin
-et al. 2014)</span>. This is similar to <code>"smd.rms"</code> but the
-covariates are standardized to remove correlations between and
-de-emphasize redundant covariates. The other allowable arguments include
-<code>estimand</code> (ATE, ATC, or ATT) to select the estimand, which
-determines how the covariance matrix is calculated, and
-<code>focal</code> to identify the focal treatment group when the ATT is
-the estimand. Can only be used with binary treatments.</p>
+the covariance matrix of the covariates <span class="citation">(<a href="#ref-franklinMetricsCovariateBalance2014" role="doc-biblioref">Franklin et al. 2014</a>)</span>. This is similar
+to <code>"smd.rms"</code> but the covariates are standardized to remove
+correlations between and de-emphasize redundant covariates. The other
+allowable arguments include <code>estimand</code> (ATE, ATC, or ATT) to
+select the estimand, which determines how the covariance matrix is
+calculated, and <code>focal</code> to identify the focal treatment group
+when the ATT is the estimand. Can only be used with binary
+treatments.</p>
 </div>
 <div class="section level4">
 <h4 id="energy-dist">
@@ -375,14 +374,14 @@ the estimand. Can only be used with binary treatments.</p>
 <p>The total energy distance between each treatment group and the target
 sample, which is a scalar measure of the similarity between two
 multivariate distributions. See <span class="citation">Huling and Mak
-(n.d.)</span> for details. The other allowable arguments include
-<code>estimand</code> (ATE, ATC, or ATT) to select the estimand,
-<code>focal</code> to identify the focal treatment group when the ATT is
-the estimand and the treatment has more than two categories, and
-<code>improved</code> to select whether the “improved” energy distance
-should be used, which emphasizes difference between treatment groups in
-addition to difference between each treatment group and the target
-sample (default <code>TRUE</code>). Can be used with binary and
+(<a href="#ref-hulingEnergyBalancingCovariate2022" role="doc-biblioref">2022</a>)</span> for details. The other allowable
+arguments include <code>estimand</code> (ATE, ATC, or ATT) to select the
+estimand, <code>focal</code> to identify the focal treatment group when
+the ATT is the estimand and the treatment has more than two categories,
+and <code>improved</code> to select whether the “improved” energy
+distance should be used, which emphasizes difference between treatment
+groups in addition to difference between each treatment group and the
+target sample (default <code>TRUE</code>). Can be used with binary and
 multi-category treatments.</p>
 </div>
 <div class="section level4">
@@ -391,22 +390,22 @@ multi-category treatments.</p>
 </h4>
 <p>The median L1 statistic computed across a random selection of
 possible coarsening of the data. See <span class="citation">Iacus, King,
-and Porro (2011)</span> for details. The other allowable arguments
-include <code>l1.min.bin</code> (default 2) and <code>l1.max.bin</code>
-default (12) to select the minimum and maximum number of bins with which
-to bin continuous variables and <code>l1.n</code> (default 101) to
-select the number of binnings used to select the binning at the median.
-<code>covs</code> should be supplied without splitting factors into
-dummies to ensure the binning works correctly. Can be used with binary
-and multi-category treatments.</p>
+and Porro (<a href="#ref-iacusMultivariateMatchingMethods2011" role="doc-biblioref">2011</a>)</span> for details. The other allowable
+arguments include <code>l1.min.bin</code> (default 2) and
+<code>l1.max.bin</code> default (12) to select the minimum and maximum
+number of bins with which to bin continuous variables and
+<code>l1.n</code> (default 101) to select the number of binnings used to
+select the binning at the median. <code>covs</code> should be supplied
+without splitting factors into dummies to ensure the binning works
+correctly. Can be used with binary and multi-category treatments.</p>
 </div>
 <div class="section level4">
 <h4 id="r2-r2-2-r2-3">
 <code>r2</code>, <code>r2.2</code>, <code>r2.3</code><a class="anchor" aria-label="anchor" href="#r2-r2-2-r2-3"></a>
 </h4>
 <p>The post-weighting <span class="math inline">\(R^2\)</span> of a
-model for the treatment given the covariates. <span class="citation">Franklin et al. (2014)</span> describe a similar but
-less generalizable metric, the “post-matching c-statistic”. The other
+model for the treatment given the covariates. <span class="citation">Franklin et al. (<a href="#ref-franklinMetricsCovariateBalance2014" role="doc-biblioref">2014</a>)</span> describe a similar but less
+generalizable metric, the “post-matching c-statistic”. The other
 allowable arguments include <code>poly</code> to add polynomial terms of
 the supplied order to the model and <code>int</code> (default
 <code>FALSE</code>) to add two-way interactions between covariates into
@@ -442,17 +441,17 @@ treatments.</p>
 <p>The distance covariance between the scaled covariates and treatment,
 which is a scalar measure of the independence of two possibly
 multivariate distributions. See <span class="citation">Huling, Greifer,
-and Chen (n.d.)</span> for details. Can only be used with continuous
-treatments.</p>
+and Chen (<a href="#ref-hulingIndependenceWeightsCausal2021" role="doc-biblioref">2021</a>)</span> for details. Can only be used with
+continuous treatments.</p>
 </div>
 <div class="section level3">
 <h3 id="choosing-a-balance-statistic">Choosing a balance statistic<a class="anchor" aria-label="anchor" href="#choosing-a-balance-statistic"></a>
 </h3>
 <p>Given all these options, how should one choose? There has been some
-research into which yields the best results <span class="citation">Belitser et al. (2011)</span>, but the actual
-performance of each depends on the unique features of the data and
-system under study. For example, in the unlikely case the true outcome
-model is linear in the covariates, using the <code>"smd"</code> or
+research into which yields the best results <span class="citation">Belitser et al. (<a href="#ref-belitserMeasuringBalanceModel2011" role="doc-biblioref">2011</a>)</span>, but the actual performance of
+each depends on the unique features of the data and system under study.
+For example, in the unlikely case the true outcome model is linear in
+the covariates, using the <code>"smd"</code> or
 <code>"mahalanobis"</code> statistics will work well for binary and
 multicategory treatments. In other cases, though, every measure has its
 advantages and disadvantages.</p>
@@ -486,11 +485,10 @@ subclassification.</p>
 <p>GBM has many tuning parameters that can be optimized, but the key
 parameter is the number of trees to use to calculate the predictions.
 <code>WeightIt</code> and <code>twang</code> both implement the methods
-described in <span class="citation">McCaffrey, Ridgeway, and Morral
-(2004)</span> for selecting the number of trees using a balance
-criterion. Here, we will do so manually both to understand the internals
-of these functions and illustrate the uses of <code><a href="../reference/bal.compute.html">bal.compute()</a></code>
-and <code><a href="../reference/bal.compute.html">bal.init()</a></code>.</p>
+described in <span class="citation">McCaffrey, Ridgeway, and Morral (<a href="#ref-mccaffreyPropensityScoreEstimation2004" role="doc-biblioref">2004</a>)</span> for selecting the number of trees
+using a balance criterion. Here, we will do so manually both to
+understand the internals of these functions and illustrate the uses of
+<code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span><span class="op">)</span></span>
 <span></span>
@@ -586,12 +584,12 @@ Other Recommendations for Improving Nonparametric Propensity Score
 Models.”</span> <em>Journal of Causal Inference</em> 5 (2). <a href="https://doi.org/10.1515/jci-2015-0026" class="external-link">https://doi.org/10.1515/jci-2015-0026</a>.
 </div>
 <div id="ref-hulingIndependenceWeightsCausal2021" class="csl-entry">
-Huling, Jared D., Noah Greifer, and Guanhua Chen. n.d.
+Huling, Jared D., Noah Greifer, and Guanhua Chen. 2021.
 <span>“Independence Weights for Causal Inference with Continuous
 Exposures.”</span> <a href="https://doi.org/10.48550/arXiv.2107.07086" class="external-link">https://doi.org/10.48550/arXiv.2107.07086</a>.
 </div>
 <div id="ref-hulingEnergyBalancingCovariate2022" class="csl-entry">
-Huling, Jared D., and Simon Mak. n.d. <span>“Energy Balancing of
+Huling, Jared D., and Simon Mak. 2022. <span>“Energy Balancing of
 Covariate Distributions.”</span> <a href="https://doi.org/10.48550/arXiv.2004.13962" class="external-link">https://doi.org/10.48550/arXiv.2004.13962</a>.
 </div>
 <div id="ref-iacusMultivariateMatchingMethods2011" class="csl-entry">

@@ -106,10 +106,11 @@ balancing weights. The goal of applying weights is to simulate a
 sequential randomization design, where the probability of being assigned
 to treatment at each time point is independent of each unit’s prior
 covariate and treatment history. For introduction to MSMs in general,
-see <span class="citation">Thoemmes and Ong (2016)</span>, <span class="citation">VanderWeele, Jackson, and Li (2016)</span>, <span class="citation">Cole and Hernán (2008)</span>, or <span class="citation">Robins, Hernán, and Brumback (2000)</span>. The key
-issue addressed by this guide and <code>cobalt</code> in general is
-assessing balance before each treatment period to ensure the removal of
-confounding.</p>
+see <span class="citation">Thoemmes and Ong (<a href="#ref-thoemmesPrimerInverseProbability2016" role="doc-biblioref">2016</a>)</span>, <span class="citation">VanderWeele, Jackson, and Li (<a href="#ref-vanderweeleCausalInferenceLongitudinal2016" role="doc-biblioref">2016</a>)</span>, <span class="citation">Cole and
+Hernán (<a href="#ref-coleConstructingInverseProbability2008" role="doc-biblioref">2008</a>)</span>, or <span class="citation">Robins,
+Hernán, and Brumback (<a href="#ref-robinsMarginalStructuralModels2000" role="doc-biblioref">2000</a>)</span>. The key issue addressed by this
+guide and <code>cobalt</code> in general is assessing balance before
+each treatment period to ensure the removal of confounding.</p>
 <p>In preprocessing for MSMs, three types of variables are relevant:
 baseline covariates, treatments, and intermediate outcomes/time-varying
 covariates. The goal of balance assessment is to assess whether after

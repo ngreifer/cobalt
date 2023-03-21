@@ -250,10 +250,9 @@ plot and making sure everything still looks good will be its own
 challenge, but that’s true of all plots in R.</p>
 <p>Perhaps we want to display balance for a second set of weights, maybe
 using a different method to estimate them, like the covariate balancing
-propensity score [CBPS; <span class="citation">Imai and Ratkovic
-(2014)</span>] that is popular in political science. These can be easily
-added (but we’ll have to use the formula interface to set multiple
-weights).</p>
+propensity score [CBPS; <span class="citation">Imai and Ratkovic (<a href="#ref-imaiCovariateBalancingPropensity2014" role="doc-biblioref">2014</a>)</span>] that is popular in political
+science. These can be easily added (but we’ll have to use the formula
+interface to set multiple weights).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">w.out2</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span></span>
 <span>    <span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
@@ -346,12 +345,11 @@ differences).</p>
 <span>          wrap <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>          position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="love.plot_files/figure-html/unnamed-chunk-12-1.png" width="576"></p>
-<p>Below we recreate the plot in <span class="citation">West et al.
-(2014)</span>, which uses a simple theme and avoids color, which can be
-important for publication. In addition, the plot has labels and puts the
-legend in a different position. We can include those features by
-including an argument to <code>labels</code> and by supplying a
-<code>theme</code> object to <code>themes</code>:</p>
+<p>Below we recreate the plot in <span class="citation">West et al. (<a href="#ref-westPropensityScoresBasis2014" role="doc-biblioref">2014</a>)</span>, which uses a simple theme and
+avoids color, which can be important for publication. In addition, the
+plot has labels and puts the legend in a different position. We can
+include those features by including an argument to <code>labels</code>
+and by supplying a <code>theme</code> object to <code>themes</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">w.out1</span>, abs <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>          stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean.diffs"</span>, <span class="st">"variance.ratios"</span><span class="op">)</span>,</span>
