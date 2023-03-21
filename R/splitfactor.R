@@ -15,7 +15,7 @@
 #' @param dropped.level The value of each original factor variable whose dummy was dropped when the variable was split. If left empty and a dummy was dropped, the resulting factor will have the value `NA` instead of the dropped value. There should be one entry per variable to unsplit. If no dummy was dropped for a variable, an entry is still required, but it will be ignored.
 #' @param dropped.na If `TRUE`, will assume that `NA`s in the variables to be unsplit correspond to `NA` in the unsplit factor (i.e., that `drop.na = TRUE` was specified in `split.factor()`). If `FALSE`, will assume there is a dummy called "var.name_stem_NA" (e.g., "x_NA") that contains 1s where the unsplit factor should be `NA` (i.e., that `drop.na = FALSE` was specified in `split.factor()`. If `NA`s are stored in a different column with the same stem, e.g., "x_miss", that name (e.g., "miss") can be entered instead.
 #' 
-#' @return For `splitfactor()`, a `data.frame` containing the original data set with the newly created dummies. For `unsplitfactor()`. a `data.frame` containing the original data set with the newly created factor variables.
+#' @returns For `splitfactor()`, a `data.frame` containing the original data set with the newly created dummies. For `unsplitfactor()`. a `data.frame` containing the original data set with the newly created factor variables.
 #' 
 #' @details If there are `NA`s in the variable to be split, the new variables created by `splitfactor()` will have `NA` where the original variable is `NA`.
 #' 

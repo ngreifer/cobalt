@@ -46,29 +46,29 @@
 
 \item{disp}{\code{character}; which distribution summary statistics to display. Allowable options include "means" and "sds". Statistics that weren't requested in the original call to \code{bal.tab()} cannot be requested with \code{print()} unless \code{quick = FALSE} in the original call.}
 
-\item{which.subclass}{when used with subclassification, which subclass(es) to display. If \code{NULL}, all subclasses will be displayed. If \code{NA}, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.}
+\item{which.subclass}{when used with subclassification, which subclass(es) to display. If \code{NULL}, all subclasses will be displayed. If \code{NA}, no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance. To display the subclasses requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass()}} for details.}
 
-\item{subclass.summary}{\code{logical}; when used with subclassification, whether to display the subclass balance summary table. If \code{which.subclass} is \code{NA}, \code{subclass.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.}
+\item{subclass.summary}{\code{logical}; when used with subclassification, whether to display the subclass balance summary table. If \code{which.subclass} is \code{NA}, \code{subclass.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass()}} for details.}
 
-\item{which.imp}{when used with multiply imputed data, which imputation(s) to display. If \code{NULL}, all imputations will be displayed. If \code{NA}, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.}
+\item{which.imp}{when used with multiply imputed data, which imputation(s) to display. If \code{NULL}, all imputations will be displayed. If \code{NA}, no imputations will be displayed. Otherwise, can be a vector of imputations numbers for which to display balance. To display the imputations requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details.}
 
-\item{imp.summary}{\code{logical}; when used with multiply imputed data, whether to display the imputation summary table. If \code{which.imp} is \code{NA}, \code{imp.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.}
+\item{imp.summary}{\code{logical}; when used with multiply imputed data, whether to display the imputation summary table. If \code{which.imp} is \code{NA}, \code{imp.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details.}
 
-\item{imp.fun}{\code{character}; when used with multiply imputed data, a character vector of functions of balance statistics to display when displaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.}
+\item{imp.fun}{\code{character}; when used with multiply imputed data, a character vector of functions of balance statistics to display when displaying balance across imputations. Can be "mean", "min", or "max". More than one are allowed. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details.}
 
-\item{which.treat}{when used with multi-category treatments, which treatments to display. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.}
+\item{which.treat}{when used with multi-category treatments, which treatments to display. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details.}
 
-\item{multi.summary}{\code{logical}; when used with multi-category treatments, whether to display the balance summary table across pairwise comparisons. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.}
+\item{multi.summary}{\code{logical}; when used with multi-category treatments, whether to display the balance summary table across pairwise comparisons. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details.}
 
-\item{which.time}{when used with longitudinal treatments, which time periods to display if longitudinal treatments are used. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for details.}
+\item{which.time}{when used with longitudinal treatments, which time periods to display if longitudinal treatments are used. See \code{\link[=class-bal.tab.msm]{bal.tab.msm()}} for details.}
 
-\item{msm.summary}{\code{logical}; when used with longitudinal treatments, whether to display the balance summary table across time periods. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for details.}
+\item{msm.summary}{\code{logical}; when used with longitudinal treatments, whether to display the balance summary table across time periods. See \code{\link[=class-bal.tab.msm]{bal.tab.msm()}} for details.}
 
-\item{which.cluster}{when used with clustered data, which cluster(s) to display. If \code{NULL}, all clusters will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.}
+\item{which.cluster}{when used with clustered data, which cluster(s) to display. If \code{NULL}, all clusters will be displayed. If \code{NA}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names. To display the clusters requested in the original call to \code{bal.tab()}, omit this argument. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
 
-\item{cluster.summary}{\code{logical}; when used with clustered data, whether to display the cluster summary table. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.}
+\item{cluster.summary}{\code{logical}; when used with clustered data, whether to display the cluster summary table. If \code{which.cluster} is \code{NA}, \code{cluster.summary} will be set to \code{TRUE}. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
 
-\item{cluster.fun}{\code{character}; when used with clustered data, a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.}
+\item{cluster.fun}{\code{character}; when used with clustered data, a character vector of functions of balance statistics to display when displaying balance across clusters. Can be "mean", "min", or "max". More than one are allowed. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
 
 \item{digits}{the number of digits to display.}
 

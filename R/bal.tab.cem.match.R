@@ -1,24 +1,24 @@
-#' @title Balance Statistics for \code{cem} Objects
+#' @title Balance Statistics for `cem` Objects
 #' 
 #' @description
-#' Generates balance statistics for \code{cem.match} objects from \pkg{cem}.
+#' Generates balance statistics for `cem.match` objects from \pkg{cem}.
 #' 
 #' @inheritParams bal.tab
-#' @param x a \code{cem.match} or \code{cem.match.list} object; the output of a call to \pkgfun{cem}{cem}.
-#' @param data a data frame containing variables named in other arguments. An argument to \code{data} is \strong{required}. It must be the same data used in the call to \code{cem()} or a \code{mids} object from which the data supplied to \code{datalist} in the `cem()` call originated.
-#' @param s.d.denom \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, will be set to `"treated"`, where the treated group corresponds to the \code{baseline.group} in the call to \code{cem()}.
+#' @param x a `cem.match` or `cem.match.list` object; the output of a call to \pkgfun{cem}{cem}.
+#' @param data a data frame containing variables named in other arguments. An argument to `data` is **required**. It must be the same data used in the call to `cem()` or a `mids` object from which the data supplied to `datalist` in the `cem()` call originated.
+#' @param s.d.denom `character`; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, will be set to `"treated"`, where the treated group corresponds to the `baseline.group` in the call to `cem()`.
 #' 
-#' @return
-#' If clusters and imputations are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{cem.match} object. See \fun{bal.tab} for details.
+#' @returns
+#' If clusters and imputations are not specified, an object of class `"bal.tab"` containing balance summaries for the `cem.match` object. See [bal.tab()] for details.
 #' 
-#' If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.
+#' If imputations are specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations. See [`bal.tab.imp()`][class-bal.tab.imp] for details.
 #' 
-#' If \code{cem()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
+#' If `cem()` is used with multi-category treatments, an object of class `"bal.tab.multi"` containing balance summaries for each pairwise treatment comparison. See [`bal.tab.multi()`][class-bal.tab.multi] for details.
 #' 
-#' If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
+#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`bal.tab.cluster()`][class-bal.tab.cluster] for details.
 #' 
 #' @details
-#' \code{bal.tab.cem.match()} generates a list of balance summaries for the \code{cem.match} object given, and functions similarly to \pkgfun{cem}{imbalance}.
+#' `bal.tab.cem.match()` generates a list of balance summaries for the `cem.match` object given, and functions similarly to \pkgfun{cem}{imbalance}.
 #' 
 #' @seealso [bal.tab()] for details of calculations.
 #' 

@@ -7,7 +7,7 @@
 #' @param file optional; a file name to save the output if `type = "df"`. See [write.csv()], which `var.name()` calls. Must end in `.csv`.
 #' @param minimal whether the output should contain all variable names (i.e., all rows that appear the output of `bal.tab()`) or just the unique base variables. See "Details".
 #' 
-#' @return If `type = "vec"`, a character vector the the variable names both as the names and the entries.
+#' @returns If `type = "vec"`, a character vector the the variable names both as the names and the entries.
 #' 
 #' If `type = "df"`, a `data.frame` with two columns called `"old"` and `"new"`, each with the variables as the entries.
 #' 

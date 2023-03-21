@@ -1,14 +1,14 @@
-#' @title Balance Statistics for \code{optmatch} Objects
+#' @title Balance Statistics for `optmatch` Objects
 #' @description Generates balance statistics for output objects from \pkg{optmatch}.
 #' 
 #' @inheritParams bal.tab.Match
-#' @param x an \code{optmatch} object (the output of a call to \pkgfun{optmatch}{pairmatch} or \pkgfun{optmatch}{fullmatch}).
-#' @param estimand \code{character}; whether the desired estimand is the "ATT", "ATC", or "ATE". Default is "ATT".
-#' @param s.d.denom \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If unspecified, \code{bal.tab()} will figure out which one is best based on the \code{estimand}, if given (for ATT, \code{"treated"}; for ATC, \code{"control"}; otherwise \code{"pooled"}) and other clues if not.
+#' @param x an `optmatch` object (the output of a call to \pkgfun{optmatch}{pairmatch} or \pkgfun{optmatch}{fullmatch}).
+#' @param estimand `character`; whether the desired estimand is the "ATT", "ATC", or "ATE". Default is "ATT".
+#' @param s.d.denom `character`; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If unspecified, `bal.tab()` will figure out which one is best based on the `estimand`, if given (for ATT, `"treated"`; for ATC, `"control"`; otherwise `"pooled"`) and other clues if not.
 #' 
 #' @inherit bal.tab.Match return
 #' 
-#' @details \code{bal.tab()} generates a list of balance summaries for the object given. The input to \code{bal.tab.optmatch()} must include either both \code{formula} and \code{data} or just \code{covs} (\code{treat} is not necessary).
+#' @details `bal.tab()` generates a list of balance summaries for the object given. The input to `bal.tab.optmatch()` must include either both `formula` and `data` or just `covs` (`treat` is not necessary).
 #' 
 #' @inherit bal.tab.Match seealso
 #' 

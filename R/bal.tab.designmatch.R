@@ -1,15 +1,15 @@
-#' @title Balance Statistics for \code{designmatch} Objects
+#' @title Balance Statistics for `designmatch` Objects
 #' @description Generates balance statistics for output objects from \pkg{designmatch}.
 #' 
 #' @inheritParams bal.tab.Match
 #' @param x the output of a call to \pkgfun{designmatch}{bmatch} or related wrapper functions from the \pkg{designmatch} package.
-#' @param s.d.denom \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, will be set to `"treated"`.
+#' @param s.d.denom `character`; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, will be set to `"treated"`.
 #' 
 #' @inherit bal.tab.Match return
 #' 
-#' @details \code{bal.tab()} generates a list of balance summaries for the object given, and functions similarly to \pkgfun{designmatch}{meantab}. Note that output objects from \pkg{designmatch} do not have their own class; \code{bal.tab()} first checks whether the object meets the criteria to be treated as a \code{designmatch} object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.
+#' @details `bal.tab()` generates a list of balance summaries for the object given, and functions similarly to \pkgfun{designmatch}{meantab}. Note that output objects from \pkg{designmatch} do not have their own class; `bal.tab()` first checks whether the object meets the criteria to be treated as a `designmatch` object before dispatching the correct method. Renaming or removing items from the output object can create unintended consequences.
 #' 
-#' The input to \code{bal.tab.designmatch()} must include either both \code{formula} and \code{data} or both \code{covs} and \code{treat}. Using the \code{covs} + \code{treat} input mirrors how \pkgfun{designmatch}{meantab} is used (note that to see identical results to \code{meantab()}, \code{s.d.denom} must be set to \code{"pooled"}).
+#' The input to `bal.tab.designmatch()` must include either both `formula` and `data` or both `covs` and `treat`. Using the `covs` + `treat` input mirrors how \pkgfun{designmatch}{meantab} is used (note that to see identical results to `meantab()`, `s.d.denom` must be set to `"pooled"`).
 #' 
 #' @inherit bal.tab.Match seealso
 #' 

@@ -33,7 +33,7 @@ bal.tab(x, ...)
 
 \item{...}{for some input types, other arguments that are required or allowed. Otherwise, further arguments to control display of output. See \link[=display-options]{display options} for details.}
 
-\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
+\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats()}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
 
 \item{int}{\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.}
 
@@ -55,11 +55,11 @@ bal.tab(x, ...)
 
 \item{weights}{a vector, list, or \code{data.frame} containing weights for each unit, or a string containing the names of the weights variables in \code{data}, or an object with a \code{\link[=get.w]{get.w()}} method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.}
 
-\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.}
+\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
 
-\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.}
+\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details. Not necessary if \code{data} is a \code{mids} object.}
 
-\item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
+\item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
 
 \item{s.weights}{Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.}
 
@@ -76,18 +76,18 @@ For scenarios with binary point treatments and no subclasses, imputations, or cl
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{\\item\{Balance\}\{A data frame containing balance information for each covariate. Balance contains the following columns, with additional columns present when other balance statistics are requested:
         \\itemize\{
-            \\item\{\code{Type}: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).\}
-            \\item\{\code{M.0.Un}: The mean of the control group prior to adjusting.\}
-            \\item\{\code{SD.0.Un}: The standard deviation of the control group prior to adjusting.\}
-            \\item\{\code{M.1.Un}: The mean of the treated group prior to adjusting.\}
-            \\item\{\code{SD.1.Un}: The standard deviation of the treated group prior to adjusting.\}
-            \\item\{\code{Diff.Un}: The (standardized) difference in means between the two groups prior to adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.\}
-            \\item\{\code{M.0.Adj}: The mean of the control group after adjusting.\}
-            \\item\{\code{SD.0.Adj}: The standard deviation of the control group after adjusting.\}
-            \\item\{\code{M.1.Adj}: The mean of the treated group after adjusting.\}
-            \\item\{\code{SD.1.Adj}: The standard deviation of the treated group after adjusting.\}
-            \\item\{\code{Diff.Adj}: The (standardized) difference in means between the two groups after adjusting. See the \code{binary} and \code{continuous} arguments on the \code{bal.tab} method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.\}
-            \\item\{\code{M.Threshold}: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by \code{thresholds}.  If a threshold for mean differences is not specified, this column will be \code{NA}.\}
+            \\item\{`Type`: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).\}
+            \\item\{`M.0.Un`: The mean of the control group prior to adjusting.\}
+            \\item\{`SD.0.Un`: The standard deviation of the control group prior to adjusting.\}
+            \\item\{`M.1.Un`: The mean of the treated group prior to adjusting.\}
+            \\item\{`SD.1.Un`: The standard deviation of the treated group prior to adjusting.\}
+            \\item\{`Diff.Un`: The (standardized) difference in means between the two groups prior to adjusting. See the `binary` and `continuous` arguments on the `bal.tab` method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.\}
+            \\item\{`M.0.Adj`: The mean of the control group after adjusting.\}
+            \\item\{`SD.0.Adj`: The standard deviation of the control group after adjusting.\}
+            \\item\{`M.1.Adj`: The mean of the treated group after adjusting.\}
+            \\item\{`SD.1.Adj`: The standard deviation of the treated group after adjusting.\}
+            \\item\{`Diff.Adj`: The (standardized) difference in means between the two groups after adjusting. See the `binary` and `continuous` arguments on the `bal.tab` method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.\}
+            \\item\{`M.Threshold`: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by `thresholds`.  If a threshold for mean differences is not specified, this column will be `NA`.\}
         \}\}
 }\if{html}{\out{</div>}}
 
@@ -100,7 +100,7 @@ If the treatment is continuous, instead of producing mean differences, \code{bal
 
 If multiple weights are supplied, \code{"Adj"} in \code{Balance} will be replaced by the provided names of the sets of weights, and extra columns will be added for each set of weights. Additional columns and rows for other items in the output will be created as well.
 
-For \code{bal.tab} output with subclassification, see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}}.
+For \code{bal.tab} output with subclassification, see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass()}}.
 }
 \description{
 Generates balance statistics on covariates in relation to an observed treatment variable. It is a generic function that dispatches to the method corresponding to the class of the first argument.
@@ -109,17 +109,17 @@ Generates balance statistics on covariates in relation to an observed treatment 
 \code{bal.tab()} performs various calculations on the the data objects given. This page details the arguments and calculations that are used across \code{bal.tab()} methods.
 \subsection{With Binary Point Treatments}{
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Balance statistics can be requested with the \code{\link[=balance-statistics]{stats}} argument. The default balance statistic for mean differences for continuous variables is the standardized mean difference, which is the difference in the means divided by a measure of spread (i.e., a d-type effect size measure). This is the default because it puts the mean differences on the same scale for comparison with each other and with a given threshold. For binary variables, the default balance statistic is the raw difference in proportion. Although standardized differences in proportion can be computed, raw differences in proportion for binary variables are already on the same scale, and computing the standardized difference in proportion can obscure the true difference in proportion by dividing the difference in proportion by a number that is itself a function of the observed proportions.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Balance statistics can be requested with the [`stats()`][balance-statistics] argument. The default balance statistic for mean differences for continuous variables is the standardized mean difference, which is the difference in the means divided by a measure of spread (i.e., a d-type effect size measure). This is the default because it puts the mean differences on the same scale for comparison with each other and with a given threshold. For binary variables, the default balance statistic is the raw difference in proportion. Although standardized differences in proportion can be computed, raw differences in proportion for binary variables are already on the same scale, and computing the standardized difference in proportion can obscure the true difference in proportion by dividing the difference in proportion by a number that is itself a function of the observed proportions.
 
-Standardized mean differences are calculated using [col_w_smd()] as follows: the numerator is the mean of the treated group minus the mean of the control group, and the denominator is a measure of spread calculated in accordance with the argument to \code{s.d.denom} or the default of the specific method used. Common approaches in the literature include using the standard deviation of the treated group or using the "pooled" standard deviation (i.e., the square root of the mean of the group variances) in calculating standardized mean differences. The computed spread \code{bal.tab()} uses is always that of the full, unadjusted sample (i.e., before matching, weighting, or subclassification), as recommended by Stuart (2010).
+Standardized mean differences are calculated using [col_w_smd()] as follows: the numerator is the mean of the treated group minus the mean of the control group, and the denominator is a measure of spread calculated in accordance with the argument to `s.d.denom` or the default of the specific method used. Common approaches in the literature include using the standard deviation of the treated group or using the "pooled" standard deviation (i.e., the square root of the mean of the group variances) in calculating standardized mean differences. The computed spread `bal.tab()` uses is always that of the full, unadjusted sample (i.e., before matching, weighting, or subclassification), as recommended by Stuart (2010).
 
-Prior to computation, all variables are checked for variable type, which allows users to differentiate balance statistic calculations based on type using the arguments to \code{continuous} and \code{binary}. First, if a given covariate is numeric and has only 2 levels, it is converted into a binary (0,1) variable. If 0 is a value in the original variable, it retains its value and the other value is converted to 1; otherwise, the lower value is converted to 0 and the other to 1. Next, if the covariate is not numeric or logical (i.e., is a character or factor variable), it will be split into new binary variables, named with the original variable and the value, separated by an underscore. Otherwise, the covariate will be used as is and treated as a continuous variable.
+Prior to computation, all variables are checked for variable type, which allows users to differentiate balance statistic calculations based on type using the arguments to `continuous` and `binary`. First, if a given covariate is numeric and has only 2 levels, it is converted into a binary (0,1) variable. If 0 is a value in the original variable, it retains its value and the other value is converted to 1; otherwise, the lower value is converted to 0 and the other to 1. Next, if the covariate is not numeric or logical (i.e., is a character or factor variable), it will be split into new binary variables, named with the original variable and the value, separated by an underscore. Otherwise, the covariate will be used as is and treated as a continuous variable.
 
-Variance ratios are computed within-sample using [col_w_vr()], with the larger of the two variances in the numerator if \code{abs = TRUE}, yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion.
+Variance ratios are computed within-sample using [col_w_vr()], with the larger of the two variances in the numerator if `abs = TRUE`, yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion.
 
 When weighting or matching are used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being down-weighted. When matching is used, an additional "unweighted" sample size will be displayed indicating the total number of units contributing to the weighted sample.
 
-When subclassification is used, the balance tables for each subclass stored in \code{$Subclass.Balance} use values calculated as described above. For the aggregate balance table stored in \code{$Balance.Across.Subclass}, the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more details.
+When subclassification is used, the balance tables for each subclass stored in `$Subclass.Balance` use values calculated as described above. For the aggregate balance table stored in `$Balance.Across.Subclass`, the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See [`bal.tab.subclass()`][class-bal.tab.subclass] for more details.
 }\if{html}{\out{</div>}}
 }
 
@@ -131,31 +131,31 @@ When subclassification is used, the balance tables for each subclass stored in \
 
 \subsection{With Multi-Category Point Treatments}{
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{For information on using \code{bal.tab()} with multi-category treatments, see \code{\link[=class-bal.tab.multi]{bal.tab.multi}}. Essentially, \code{bal.tab()} compares pairs of treatment groups in a standard way.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{For information on using `bal.tab()` with multi-category treatments, see [`bal.tab.multi()`][class-bal.tab.multi]. Essentially, `bal.tab()` compares pairs of treatment groups in a standard way.
 }\if{html}{\out{</div>}}
 }
 
 \subsection{With Longitudinal Treatments}{
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{For information on using \code{bal.tab()} with longitudinal treatments, see \code{\link[=class-bal.tab.msm]{bal.tab.msm}}. Essentially, \code{bal.tab()} summarizes balance at each time point and summarizes across time points.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{For information on using `bal.tab()` with longitudinal treatments, see [`bal.tab.msm()`][class-bal.tab.msm]. Essentially, `bal.tab()` summarizes balance at each time point and summarizes across time points.
 }\if{html}{\out{</div>}}
 }
 
 \subsection{With Clustered or Multiply Imputed Data}{
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{For information on using \code{bal.tab()} with clustered data, see \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}}. For information on using \code{bal.tab()} with multiply imputed data, see \code{\link[=class-bal.tab.imp]{bal.tab.imp}}. 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{For information on using `bal.tab()` with clustered data, see [`bal.tab.cluster()`][class-bal.tab.cluster]. For information on using `bal.tab()` with multiply imputed data, see [`bal.tab.imp()`][class-bal.tab.imp]. 
 }\if{html}{\out{</div>}}
 }
 
 \subsection{Quick}{
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{Calculations can take some time, especially when there are many variables, interactions, or clusters. When certain values are not printed, by default they are not computed. In particular, variance ratios, KS statistics, and summary tables are not computed when their display has not been requested. This can speed up the overall production of the output when these values are not to be used later. However, when they are to be used later, such as when output is to be further examined with \code{print()} or is to be used in some other way after the original call to \code{bal.tab()}, it may be useful to compute them even if they are not to be printed initially. To do so, users can set \code{quick = FALSE}, which will cause \code{bal.tab()} to calculate all values and components it can. Note that \code{love.plot()} is fully functional even when \code{quick = TRUE} and values are requested that are otherwise not computed in \code{bal.tab()} with \code{quick = TRUE}.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Calculations can take some time, especially when there are many variables, interactions, or clusters. When certain values are not printed, by default they are not computed. In particular, variance ratios, KS statistics, and summary tables are not computed when their display has not been requested. This can speed up the overall production of the output when these values are not to be used later. However, when they are to be used later, such as when output is to be further examined with `print()` or is to be used in some other way after the original call to `bal.tab()`, it may be useful to compute them even if they are not to be printed initially. To do so, users can set `quick = FALSE`, which will cause `bal.tab()` to calculate all values and components it can. Note that `love.plot()` is fully functional even when `quick = TRUE` and values are requested that are otherwise not computed in `bal.tab()` with `quick = TRUE`.
 }\if{html}{\out{</div>}}
 }
 
 \subsection{Missing Data}{
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{If there is missing data in the covariates (i.e., \code{NA}s in the covariates provided to \code{bal.tab()}), a few additional things happen. A warning will appear mentioning that missing values were present in the data set. The computed balance summaries will be for the variables ignoring the missing values. New variables will be created representing missingness indicators for each variable, named \code{var:<NA>} (with \code{var} replaced by the actual name of the variable). If \code{int = TRUE}, balance for the pairwise interactions between the missingness indicators will also be computed. These variables are treated like regular variables once created.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{If there is missing data in the covariates (i.e., `NA`s in the covariates provided to `bal.tab()`), a few additional things happen. A warning will appear mentioning that missing values were present in the data set. The computed balance summaries will be for the variables ignoring the missing values. New variables will be created representing missingness indicators for each variable, named `var:<NA>` (with `var` replaced by the actual name of the variable). If `int = TRUE`, balance for the pairwise interactions between the missingness indicators will also be computed. These variables are treated like regular variables once created.
 }\if{html}{\out{</div>}}
 }
 }

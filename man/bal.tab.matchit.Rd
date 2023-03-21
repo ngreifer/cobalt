@@ -31,7 +31,7 @@
 \arguments{
 \item{x}{a \code{matchit} object; the output of a call to \pkgfun{MatchIt}{matchit}.}
 
-\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
+\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats()}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
 
 \item{int}{\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.}
 
@@ -53,11 +53,11 @@
 
 \item{weights}{a vector, list, or \code{data.frame} containing weights for each unit, or a string containing the names of the weights variables in \code{data}, or an object with a \code{\link[=get.w]{get.w()}} method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.}
 
-\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.}
+\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
 
-\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.}
+\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details. Not necessary if \code{data} is a \code{mids} object.}
 
-\item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
+\item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
 
 \item{s.weights}{Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used. If \code{s.weights} was specified in the call to \code{matchit()}, they will automatically be included and do not need be specified again (though there is no harm if they are).}
 
@@ -67,22 +67,22 @@
 
 \item{quick}{\code{logical}; if \code{TRUE}, will not compute any values that will not be displayed. Set to \code{FALSE} if computed values not displayed will be used later.}
 
-\item{method}{a character vector containing the method of adjustment. Ignored unless subclassification was used in the original call to \code{matchit()}. If \code{"weighting"}, the subclassification weights will be used and subclasses will be ignored. If \code{"subclassification"}, balance will be assessed using the subclasses (see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details). Abbreviations allowed.}
+\item{method}{a character vector containing the method of adjustment. Ignored unless subclassification was used in the original call to \code{matchit()}. If \code{"weighting"}, the subclassification weights will be used and subclasses will be ignored. If \code{"subclassification"}, balance will be assessed using the subclasses (see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass()}} for details). Abbreviations allowed.}
 
 \item{...}{for some input types, other arguments that are required or allowed. Otherwise, further arguments to control display of output. See \link[=display-options]{display options} for details.}
 }
 \value{
-If subclassification is used and \code{method} is set to \code{"subclassification"}, an object of class \code{"bal.tab.subclass"} containing balance summaries within and across subclasses. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for details.
+If subclassification is used and \code{method} is set to \code{"subclassification"}, an object of class \code{"bal.tab.subclass"} containing balance summaries within and across subclasses. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass()}} for details.
 
 If matching is used and clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{matchit} object. See \code{\link[=bal.tab]{bal.tab()}} for details.
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.
 }
 \description{
 Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 }
 \details{
-\code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \pkgfun{MatchIt}{summary.matchit}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate; see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more information.
+\code{bal.tab.matchit()} generates a list of balance summaries for the \code{matchit} object given, and functions similarly to \pkgfun{MatchIt}{summary.matchit}. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate; see \code{\link[=class-bal.tab.subclass]{bal.tab.subclass()}} for more information.
 }
 \examples{
 \dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

@@ -11,9 +11,9 @@
 #' * [love.plot()] - generate plots to summarize and report balance statistics
 #' 
 #' 
-#' Other functions include [get.w()] for extracting weights from objects produced by other packages, [col_w_smd()] (and friends documented on the same page) for computing (weighted) balance statistics outside of \code{bal.tab()}, and [splitfactor()] for splitting factor variables in a dataset into dummy variables.
+#' Other functions include [get.w()] for extracting weights from objects produced by other packages, [col_w_smd()] (and friends documented on the same page) for computing (weighted) balance statistics outside of `bal.tab()`, and [splitfactor()] for splitting factor variables in a dataset into dummy variables.
 #' 
-#' \pkg{cobalt} has several vignettes, which can be accessed using \code{vignette(package = "cobalt")} or visiting the website at \url{https://ngreifer.github.io/cobalt/}.
+#' \pkg{cobalt} has several vignettes, which can be accessed using `vignette(package = "cobalt")` or visiting the website at <https://ngreifer.github.io/cobalt/>.
 "_PACKAGE"
 
 ## usethis namespace: start

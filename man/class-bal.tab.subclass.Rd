@@ -27,7 +27,7 @@ There are three arguments for \code{bal.tab()} that relate to subclasses: \code{
 The output is a \code{bal.tab.subclass} object, which inherits from \code{bal.tab}. It has the following elements:
 \itemize{
 \item \code{Subclass.Balance}: A list of data frames containing balance information for each covariate in each subclass.
-\item \code{Balance.Across.Subclass}: A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted). See \fun{bal.tab} for details on what this includes.
+\item \code{Balance.Across.Subclass}: A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted). See \code{\link[=bal.tab]{bal.tab()}} for details on what this includes.
 \item \code{Observations}: A table of sample sizes in each subclass and overall.
 }
 }

@@ -1,49 +1,49 @@
 #' @title Initialize and efficiently compute scalar balance statistics
 #' @name bal.compute
 #' 
-#' @description These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. \code{bal.init()} initializes the input so that when \code{bal.compute()} is used on the output along with a set of weights, the computation of the balance statistic is fast. `vignette("optimizing-balance")` provides an overview and more examples of how to use these functions.
+#' @description These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. `bal.init()` initializes the input so that when `bal.compute()` is used on the output along with a set of weights, the computation of the balance statistic is fast. `vignette("optimizing-balance")` provides an overview and more examples of how to use these functions.
 #' 
 #' @param stat the name of the statistic to compute. See Details.
 #' @param treat a vector containing the treatment variable.
 #' @param covs a matrix or data frame containing the covariates.
 #' @param s.weights optional; a vector of sampling weights.
 #' @param ... other arguments used to specify options for the balance statistic. See Details for which arguments are allowed with each balance statistic.
-#' @param init a \code{bal.init} object created by `bal.init()`.
+#' @param init a `bal.init` object created by `bal.init()`.
 #' @param weights a vector of balancing weights to compute the weighted statistics
 #' 
-#' @return For \code{bal.init()}, a \code{bal.init} object containing the components created in the initialization and the function used to compute the balance statistic. For \code{bal.compute()}, a single numeric value.
+#' @returns For `bal.init()`, a `bal.init` object containing the components created in the initialization and the function used to compute the balance statistic. For `bal.compute()`, a single numeric value.
 #' 
 #' @details 
-#' The following list contains the allowable balance statistics that can be supplied to \code{bal.init()}, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance.
+#' The following list contains the allowable balance statistics that can be supplied to `bal.init()`, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance.
 #' \describe{
-#'     \item{\code{smd.mean}, \code{smd.max}, \code{smd.rms}}{
-#'         The mean, maximum, or root-mean-squared absolute standardized mean difference, computed using [col_w_smd()]. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{pairwise} to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
+#'     \item{`smd.mean`, `smd.max`, `smd.rms`}{
+#'         The mean, maximum, or root-mean-squared absolute standardized mean difference, computed using [col_w_smd()]. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 #'     }
-#'     \item{\code{ks.mean}, \code{ks.max}, \code{ks.rms}}{
-#'         The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using [col_w_ks()]. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
+#'     \item{`ks.mean`, `ks.max`, `ks.rms`}{
+#'         The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using [col_w_ks()]. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 #'     }
-#'     \item{\code{ovl.mean}, \code{ovl.max}, \code{ovl.rms}}{
-#'         The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using [col_w_ovl()]. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{integrate} to select whether integration is done using using [integrate()] (\code{TRUE}) or a Riemann sum (\code{FALSE}, the default), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
+#'     \item{`ovl.mean`, `ovl.max`, `ovl.rms`}{
+#'         The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using [col_w_ovl()]. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `integrate` to select whether integration is done using using [integrate()] (`TRUE`) or a Riemann sum (`FALSE`, the default), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 #'     }
-#'     \item{\code{mahalanobis}}{
-#'         The Mahalanobis distance between the treatment group means. This is similar to \code{smd.rms} but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand and \code{focal} to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.
+#'     \item{`mahalanobis`}{
+#'         The Mahalanobis distance between the treatment group means. This is similar to `smd.rms` but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand and `focal` to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.
 #'     }
-#'     \item{\code{energy.dist}}{
-#'         The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{improved} to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default \code{TRUE}). Can be used with binary and multi-category treatments.
+#'     \item{`energy.dist`}{
+#'         The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `improved` to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default `TRUE`). Can be used with binary and multi-category treatments.
 #'     }
-#'     \item{\code{l1.med}}{
-#'         The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include \code{l1.min.bin} (default 2) and \code{l1.max.bin} default (12) to select the minimum and maximum number of bins with which to bin continuous variables and \code{l1.n} (default 101) to select the number of binings used to select the binning at the median. \code{covs} should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.
+#'     \item{`l1.med`}{
+#'         The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include `l1.min.bin` (default 2) and `l1.max.bin` default (12) to select the minimum and maximum number of bins with which to bin continuous variables and `l1.n` (default 101) to select the number of binings used to select the binning at the median. `covs` should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.
 #'     }
-#'     \item{\code{r2}, \code{r2.2}, \code{r2.3}}{
-#'         The post-weighting \eqn{R^2} of a model for the treatment. The other allowable arguments include \code{poly} to add polynomial terms of the supplied order to the model and \code{int} (default \code{FALSE}) to add two-way interaction between covariates into the model. Using \code{r2.2} is a shortcut to requesting squares, and using \code{r2.3} is a shortcut to requesting cubes. Can be used with binary and continuous treatments. For binary treatments, the McKelvey and Zavoina \eqn{R^2} from a logistic regression is used; for continuous treatments, the \eqn{R^2} from a linear regression is used.
+#'     \item{`r2`, `r2.2`, `r2.3`}{
+#'         The post-weighting \eqn{R^2} of a model for the treatment. The other allowable arguments include `poly` to add polynomial terms of the supplied order to the model and `int` (default `FALSE`) to add two-way interaction between covariates into the model. Using `r2.2` is a shortcut to requesting squares, and using `r2.3` is a shortcut to requesting cubes. Can be used with binary and continuous treatments. For binary treatments, the McKelvey and Zavoina \eqn{R^2} from a logistic regression is used; for continuous treatments, the \eqn{R^2} from a linear regression is used.
 #'     }
-#'     \item{\code{p.mean}, \code{p.max}, \code{p.rms}}{
+#'     \item{`p.mean`, `p.max`, `p.rms`}{
 #'         The mean, maximum, or root-mean-squared absolute Pearson correlation between the treatment and covariates, computed using [col_w_corr()]. Can only be used with continuous treatments.
 #'     }
-#'     \item{\code{s.mean}, \code{s.max}, \code{s.rms}}{
+#'     \item{`s.mean`, `s.max`, `s.rms`}{
 #'         The mean, maximum, or root-mean-squared absolute Spearman correlation between the treatment and covariates, computed using [col_w_corr()]. Can only be used with continuous treatments.
 #'     }
-#'     \item{\code{distance.cov}}{
+#'     \item{`distance.cov`}{
 #'         The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.
 #'     }
 #' }

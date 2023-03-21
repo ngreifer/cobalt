@@ -97,7 +97,7 @@
 
 \item{data}{an optional data frame containing variables named in other arguments. For some input object types, this is required.}
 
-\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
+\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats()}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
 
 \item{int}{\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.}
 
@@ -117,11 +117,11 @@
 
 \item{weights}{a vector, list, or \code{data.frame} containing weights for each unit, or a string containing the names of the weights variables in \code{data}, or an object with a \code{\link[=get.w]{get.w()}} method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.}
 
-\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.}
+\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
 
-\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.}
+\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details. Not necessary if \code{data} is a \code{mids} object.}
 
-\item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
+\item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
 
 \item{s.weights}{Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.}
 
@@ -139,20 +139,20 @@
 
 \item{estimand}{\code{character}; whether the desired estimand is the "ATT", "ATC", or "ATE" for each set of weights. This argument can be used in place of \code{s.d.denom} to specify how standardized differences are calculated.}
 
-\item{focal}{the name of the focal treatment when multi-category treatments are used. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.}
+\item{focal}{the name of the focal treatment when multi-category treatments are used. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details.}
 
 \item{...}{for some input types, other arguments that are required or allowed. Otherwise, further arguments to control display of output. See \link[=display-options]{display options} for details.}
 
 \item{treat}{either a vector containing treatment status values for each unit or a string containing the name of the treatment variable in \code{data}. Required for the \code{data.frame} method.}
 }
 \value{
-For point treatments, if clusters and imputations are not specified, an object of class \code{"bal.tab"} containing balance summaries for the specified treatment and covariates. See \fun{bal.tab} for details.
+For point treatments, if clusters and imputations are not specified, an object of class \code{"bal.tab"} containing balance summaries for the specified treatment and covariates. See \code{\link[=bal.tab]{bal.tab()}} for details.
 
-If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details.
+If imputations are specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details.
 
-If multi-category treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
+If multi-category treatments are used, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details.
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.
 }
 \description{
 Generates balance statistics for unadjusted, matched, weighted, or stratified data using either a \code{data.frame} or formula interface.
@@ -162,7 +162,7 @@ Generates balance statistics for unadjusted, matched, weighted, or stratified da
 
 If \code{weights}, \code{subclass} and \code{match.strata} are all \code{NULL}, balance information will be presented only for the unadjusted sample.
 
-The argument to \code{match.strata} corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of \code{weights}, \code{subclass}, or \code{match.strata} are specified, \code{bal.tab()} will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass}} for more information.
+The argument to \code{match.strata} corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of \code{weights}, \code{subclass}, or \code{match.strata} are specified, \code{bal.tab()} will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. \code{bal.tab()} behaves differently depending on whether subclasses are used in conditioning or not. If they are used, \code{bal.tab()} creates balance statistics for each subclass and for the sample in aggregate. See \code{\link[=class-bal.tab.subclass]{bal.tab.subclass()}} for more information.
 
 Multiple sets of weights can be supplied simultaneously by entering a \code{data.frame} or a character vector containing the names of weight variables found in \code{data} or a list of weights vectors or names. The arguments to \code{method}, \code{s.d.denom}, and \code{estimand}, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to \code{s.d.denom} or \code{estimand}. When only one set of weights is supplied, the output for the adjusted group will simply be called \code{"Adj"}, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other outputs of \code{bal.tab()}.
 }
@@ -203,8 +203,8 @@ bal.tab(treat ~ age + educ + race, data = lalonde,
 \seealso{
 \itemize{
 \item \code{\link[=bal.tab]{bal.tab()}} for details of calculations.
-\item \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for more information on clustered data.
-\item \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for more information on multiply imputed data.
-\item \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multi-category treatments.
+\item \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for more information on clustered data.
+\item \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for more information on multiply imputed data.
+\item \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for more information on multi-category treatments.
 }
 }

@@ -33,7 +33,7 @@
 
 \item{stop.method}{a string containing the names of the stopping methods used in the original call to \code{ps()}, \code{mnps()}, or \code{iptw()}. Examples include \code{"es.max"} or \code{"ks.mean"} for \code{ps} and \code{mnps} objects. \code{bal.tab()} will assess balance for the weights created by those stopping methods. The names can be abbreviated as long as the abbreviations are specific enough. If no stopping methods are provided, \code{bal.tab()} will default to displaying balance for all available stopping methods. Ignored for \code{ps.cont} objects.}
 
-\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
+\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats()}} for allowable options. For binary and multi-category treatments, \code{"mean.diffs"} (i.e., mean differences) is the default. For continuous treatments, \code{"correlations"} (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
 
 \item{int}{\code{logical} or \code{numeric}; whether or not to include 2-way interactions of covariates included in \code{covs} and in \code{addl}. If \code{numeric}, will be passed to \code{poly} as well.}
 
@@ -55,11 +55,11 @@
 
 \item{weights}{a vector, list, or \code{data.frame} containing weights for each unit, or a string containing the names of the weights variables in \code{data}, or an object with a \code{\link[=get.w]{get.w()}} method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.}
 
-\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.}
+\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
 
-\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.}
+\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details. Not necessary if \code{data} is a \code{mids} object.}
 
-\item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
+\item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
 
 \item{s.weights}{Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in \code{data}. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used. If \code{sampw} was supplied in the call to \code{ps()}, \code{mnps()}, \code{iptw()}, or \code{ps.cont()}, they will automatically be supplied to \code{s.weights} and do not need be specified again (though there is no harm if they are).}
 
@@ -72,17 +72,17 @@
 \item{...}{for some input types, other arguments that are required or allowed. Otherwise, further arguments to control display of output. See \link[=display-options]{display options} for details.}
 }
 \value{
-For binary or continuous point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{ps} object. See \fun{bal.tab} for details.
+For binary or continuous point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{ps} object. See \code{\link[=bal.tab]{bal.tab()}} for details.
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.
 
-If \code{mnps()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for details.
+If \code{mnps()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details.
 }
 \description{
 Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects from \pkg{twang} and for \code{ps.cont} objects from \pkg{twangContinuous}.
 }
 \details{
-\code{bal.tab.ps()} generates a list of balance summaries for the input object given, and functions similarly to \pkgfun{twang}{bal.table}. The variances used in the denominator of the standardized mean differences computed in \code{twang::bal.table()} are weighted and computed using \code{survey::svyvar()} and are unweighted here (except when \code{s.weights} are specified, in which case \code{\link{col_w_sd}} is used). \pkg{twang} also uses "all" as the default \code{s.d.denom} when the estimand is the ATE; the default here is "pooled". For these reasons, results may differ slightly between the two packages.
+\code{bal.tab.ps()} generates a list of balance summaries for the input object given, and functions similarly to \pkgfun{twang}{bal.table}. The variances used in the denominator of the standardized mean differences computed in \code{twang::bal.table()} are weighted and computed using \code{survey::svyvar()} and are unweighted here (except when \code{s.weights} are specified, in which case \code{\link[=col_w_sd]{col_w_sd()}} is used). \pkg{twang} also uses "all" as the default \code{s.d.denom} when the estimand is the ATE; the default here is "pooled". For these reasons, results may differ slightly between the two packages.
 }
 \examples{
 \dontshow{if (requireNamespace("twang", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -102,8 +102,8 @@ bal.tab(ps.out, stop.method = "ks.mean", un = TRUE,
 \seealso{
 \itemize{
 \item \code{\link[=bal.tab]{bal.tab()}} for details of calculations.
-\item \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for more information on clustered data.
-\item \code{\link[=class-bal.tab.multi]{bal.tab.multi}} for more information on multi-category treatments.
-\item \code{\link[=class-bal.tab.msm]{bal.tab.msm}} for more information on longitudinal treatments.
+\item \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for more information on clustered data.
+\item \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for more information on multi-category treatments.
+\item \code{\link[=class-bal.tab.msm]{bal.tab.msm()}} for more information on longitudinal treatments.
 }
 }

@@ -1,19 +1,19 @@
-#' #' @title Balance Statistics for \code{sbw} Objects
+#' #' @title Balance Statistics for `sbw` Objects
 #' 
 #' @description
-#' Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
+#' Generates balance statistics for `sbwcau` objects from \pkg{sbw}.
 #' 
 #' @inheritParams bal.tab
-#' @param x an \code{sbwcau} object; the output of a call to \pkgfun{sbw}{sbw}.
-#' @param s.d.denom \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, \code{bal.tab()} will figure out which one is best based on the \code{par} component of the \code{sbwcau} object: if "att", `"treated"`; if "atc", `"control"`; otherwise `"pooled"`.
+#' @param x an `sbwcau` object; the output of a call to \pkgfun{sbw}{sbw}.
+#' @param s.d.denom `character`; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, `bal.tab()` will figure out which one is best based on the `par` component of the `sbwcau` object: if "att", `"treated"`; if "atc", `"control"`; otherwise `"pooled"`.
 #' 
-#' @return
-#' If clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{sbwcau} object. See [bal.tab()] for details.
+#' @returns
+#' If clusters are not specified, an object of class `"bal.tab"` containing balance summaries for the `sbwcau` object. See [bal.tab()] for details.
 #' 
-#' If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}} for details.
+#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`bal.tab.cluster()`][class-bal.tab.cluster] for details.
 #' 
 #' @details
-#' \code{bal.tab.sbwcau()} generates a list of balance summaries for the \code{sbwcau} object given, and functions similarly to \pkgfun{sbw}{summarize}.
+#' `bal.tab.sbwcau()` generates a list of balance summaries for the `sbwcau` object given, and functions similarly to \pkgfun{sbw}{summarize}.
 #' 
 #' @seealso
 #' * [bal.tab()] for details of calculations.

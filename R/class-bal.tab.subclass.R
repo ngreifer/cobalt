@@ -1,28 +1,28 @@
-#' Using \code{bal.tab()} with Subclassified Data
+#' Using `bal.tab()` with Subclassified Data
 #' @name class-bal.tab.subclass
 #' 
 #' @description
 #' When using [bal.tab()] with subclassified data, i.e., data split into subclasses where balance may hold, the output will be different from the standard, non-subclassified case, and there is an additional option for controlling display. This page outlines the outputs and options in this case.
 #'     
-#' There are two main components of the output of \code{bal.tab()} with subclassified data: the balance within subclasses and the balance summary across subclasses. The within-subclass balance displays essentially are standard balance displays for each subclass, except that only "adjusted" values are available, because the subclassification itself is the adjustment.
+#' There are two main components of the output of `bal.tab()` with subclassified data: the balance within subclasses and the balance summary across subclasses. The within-subclass balance displays essentially are standard balance displays for each subclass, except that only "adjusted" values are available, because the subclassification itself is the adjustment.
 #'     
-#' The balance summary is, for each variable, like a weighted average of the balance statistics across subclasses. This is computed internally by assigning each individual a weight based on their subclass and treatment group membership and then computing weighted balance statistics as usual with these weights. This summary is the same one would get if subclasses were supplied to the \code{match.strata} argument rather than to \code{subclass}. Because the means and mean differences are additive, their computed values will be weighted averages of the subclass-specific values, but for other statistics, the computed values will not be. 
+#' The balance summary is, for each variable, like a weighted average of the balance statistics across subclasses. This is computed internally by assigning each individual a weight based on their subclass and treatment group membership and then computing weighted balance statistics as usual with these weights. This summary is the same one would get if subclasses were supplied to the `match.strata` argument rather than to `subclass`. Because the means and mean differences are additive, their computed values will be weighted averages of the subclass-specific values, but for other statistics, the computed values will not be. 
 #'     
 #' @section Allowable arguments:
 #' 
-#' There are three arguments for \code{bal.tab()} that relate to subclasses: \code{subclass}, \code{which.subclass}, and \code{subclass.summary}.
+#' There are three arguments for `bal.tab()` that relate to subclasses: `subclass`, `which.subclass`, and `subclass.summary`.
 #' 
 #' \describe{
-#'     \item{`subclass`}{For the \code{data.frame} and formula methods of \code{bal.tab()}, a vector of subclass membership or the name of the variable in \code{data} containing subclass membership. When using subclassification with a function compatible with \pkg{cobalt}, such as \code{matchit()} in \pkg{MatchIt}, this argument can be omitted because the subclass are in the output object.}
-#'     \item{`which.subclass`}{This is a display option that does not affect computation. If \code{.all}, all subclasses in \code{subclass} will be displayed. If \code{.none} (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.}
-#'     \item{`subclass.summary`}{This is a display option that does not affect computation. If \code{TRUE}, the balance summary across subclasses will be displayed. The default is \code{TRUE}, and if \code{which.subclass} is \code{.none}, it will automatically be set to \code{TRUE}.}
+#'     \item{`subclass`}{For the `data.frame` and formula methods of `bal.tab()`, a vector of subclass membership or the name of the variable in `data` containing subclass membership. When using subclassification with a function compatible with \pkg{cobalt}, such as `matchit()` in \pkg{MatchIt}, this argument can be omitted because the subclass are in the output object.}
+#'     \item{`which.subclass`}{This is a display option that does not affect computation. If `.all`, all subclasses in `subclass` will be displayed. If `.none` (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.}
+#'     \item{`subclass.summary`}{This is a display option that does not affect computation. If `TRUE`, the balance summary across subclasses will be displayed. The default is `TRUE`, and if `which.subclass` is `.none`, it will automatically be set to `TRUE`.}
 #' }
 #' 
 #' @section Output:
-#' The output is a \code{bal.tab.subclass} object, which inherits from \code{bal.tab}. It has the following elements:
+#' The output is a `bal.tab.subclass` object, which inherits from `bal.tab`. It has the following elements:
 #'         
 #' * `Subclass.Balance`: A list of data frames containing balance information for each covariate in each subclass.
-#' * `Balance.Across.Subclass`: A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted). See \fun{bal.tab} for details on what this includes.
+#' * `Balance.Across.Subclass`: A data frame containing balance statistics for each covariate aggregated across subclasses and for the original sample (i.e., unadjusted). See [bal.tab()] for details on what this includes.
 #' * `Observations`: A table of sample sizes in each subclass and overall.
 #' 
 #' 

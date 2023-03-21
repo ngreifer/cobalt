@@ -4,7 +4,7 @@
 \alias{display-options}
 \title{Options for Displaying \code{bal.tab()} Output}
 \description{
-Several additional arguments can be passed to \fun{bal.tab} that control the display of the output; these arguments are documented here. Not all arguments are applicable to all uses of \code{bal.tab()}; for example, \code{which.subclass}, which controls which subclasses are displayed when subclassification is used, won't do anything when subclassification is not used. Note that when \code{quick = TRUE} is set in the call to \code{bal.tab()} (which is the default), setting any of these arguments to \code{FALSE} can prevent some values from being computed, which can have unintended effects.
+Several additional arguments can be passed to \code{\link[=bal.tab]{bal.tab()}} that control the display of the output; these arguments are documented here. Not all arguments are applicable to all uses of \code{bal.tab()}; for example, \code{which.subclass}, which controls which subclasses are displayed when subclassification is used, won't do anything when subclassification is not used. Note that when \code{quick = TRUE} is set in the call to \code{bal.tab()} (which is the default), setting any of these arguments to \code{FALSE} can prevent some values from being computed, which can have unintended effects.
 }
 \note{
 When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you are using \code{.all} or \code{.none} as inputs to arguments, you need to use \code{\link[=alist]{alist()}} rather than \code{\link[=list]{list()}} to group the arguments. For example, \code{do.call(bal.tab, list(., which.cluster = .none))} will produce an error, but \code{do.call(bal.tab, alist(., which.cluster = .none))} should work correctly.
@@ -25,7 +25,7 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \item{\code{disp}}{\code{character}; which distribution summary statistic(s) should be reported. Allowable options include \code{"means"} and \code{"sds"}. Multiple options are allowed. Abbreviations allowed.
 }
 
-\item{\code{stats}}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is \code{"mean.diffs"} (i.e., [standardized] mean differences), and for continuous treatments, the default is \code{"correlations"} (i.e., treatment-covariate Pearson correlations).
+\item{\code{stats}}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats()}} to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is \code{"mean.diffs"} (i.e., [standardized] mean differences), and for continuous treatments, the default is \code{"correlations"} (i.e., treatment-covariate Pearson correlations).
 }
 
 \item{\code{factor_sep}}{\code{character}; the string used to separate factor variables from their levels when variable names are printed. Default is \code{"_"}.
@@ -51,10 +51,10 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \subsection{When the treatment is multi-category}{
 
 \describe{
-\item{\code{which.treat}}{For which treatments or treatment combinations balance tables should be displayed. If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, setting  \code{which.treat = "A"} will display "A vs. B" and "A vs. C", while setting \code{which.treat = c("A", "B")} will only display "A vs. B". \code{.none} indicates no treatment comparisons will be displayed, and \code{.all} indicates all treatment comparisons will be displayed. Default is \code{.none}. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}}.
+\item{\code{which.treat}}{For which treatments or treatment combinations balance tables should be displayed. If a vector of length 1 is entered, all comparisons involving that treatment group will be displayed. If a vector of length 2 or more is entered, all comparisons involving treatments that both appear in the input will be displayed. For example, setting  \code{which.treat = "A"} will display "A vs. B" and "A vs. C", while setting \code{which.treat = c("A", "B")} will only display "A vs. B". \code{.none} indicates no treatment comparisons will be displayed, and \code{.all} indicates all treatment comparisons will be displayed. Default is \code{.none}. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}}.
 }
 
-\item{\code{multi.summary}}{\code{logical}; whether to display the balance summary across all treatment pairs. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. Default is \code{TRUE} when \code{which.treat} is \code{.none} and \code{FALSE} otherwise. See \code{\link[=class-bal.tab.multi]{bal.tab.multi}}.
+\item{\code{multi.summary}}{\code{logical}; whether to display the balance summary across all treatment pairs. This includes one row for each covariate with maximum balance statistic across all pairwise comparisons. Note that, if variance ratios or KS statistics are requested, the displayed values may not come from the same pairwise comparisons; that is, the greatest standardized mean difference and the greatest variance ratio may not come from the same comparison. Default is \code{TRUE} when \code{which.treat} is \code{.none} and \code{FALSE} otherwise. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}}.
 }
 }
 }
@@ -62,13 +62,13 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \subsection{When clusters are present}{
 
 \describe{
-\item{\code{which.cluster}}{For which clusters balance tables should be displayed. If \code{.all}, all clusters in \code{cluster} will be displayed. If \code{.none}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names (or the order of cluster levels if a factor). Default is \code{.all}. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}}.
+\item{\code{which.cluster}}{For which clusters balance tables should be displayed. If \code{.all}, all clusters in \code{cluster} will be displayed. If \code{.none}, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names (or the order of cluster levels if a factor). Default is \code{.all}. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}}.
 }
 
-\item{\code{cluster.summary}}{\code{logical}; whether to display the balance summary across clusters. Default is \code{TRUE} when \code{which.cluster} is \code{.none} and \code{FALSE} otherwise (note the default for \code{which.cluster} is \code{.all}). See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}}.
+\item{\code{cluster.summary}}{\code{logical}; whether to display the balance summary across clusters. Default is \code{TRUE} when \code{which.cluster} is \code{.none} and \code{FALSE} otherwise (note the default for \code{which.cluster} is \code{.all}). See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}}.
 }
 
-\item{\code{cluster.fun}}{Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if \code{cluster.fun = "mean"} the mean balance statistic across clusters will be displayed. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display all three. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display just the mean and max balance statistic. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster}}.
+\item{\code{cluster.fun}}{Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if \code{cluster.fun = "mean"} the mean balance statistic across clusters will be displayed. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display all three. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display just the mean and max balance statistic. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}}.
 }
 }
 }
@@ -76,13 +76,13 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \subsection{When multiple imputations are present}{
 
 \describe{
-\item{\code{which.imp}}{For which imputations balance tables should be displayed. If \code{.all}, all imputations in \code{imp} will be displayed. If \code{.none}, no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance. Default is \code{.none}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}}.
+\item{\code{which.imp}}{For which imputations balance tables should be displayed. If \code{.all}, all imputations in \code{imp} will be displayed. If \code{.none}, no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance. Default is \code{.none}. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}}.
 }
 
-\item{\code{imp.summary}}{\code{logical}; whether to display the balance summary across imputations. Default is \code{TRUE} when \code{which.imp} is \code{.none} and \code{FALSE} otherwise. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}}.
+\item{\code{imp.summary}}{\code{logical}; whether to display the balance summary across imputations. Default is \code{TRUE} when \code{which.imp} is \code{.none} and \code{FALSE} otherwise. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}}.
 }
 
-\item{\code{imp.fun}}{Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if \code{imp.fun = "mean"} the mean balance statistic across imputations will be displayed. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display all three. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display just the mean and max balance statistic. See \code{\link[=class-bal.tab.imp]{bal.tab.imp}}.
+\item{\code{imp.fun}}{Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if \code{imp.fun = "mean"} the mean balance statistic across imputations will be displayed. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display all three. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display just the mean and max balance statistic. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}}.
 }
 }
 }
@@ -90,10 +90,10 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \subsection{When the treatment is longitudinal}{
 
 \describe{
-\item{\code{which.time}}{For which time points balance tables should be displayed. If \code{.all}, all time points will be displayed. If \code{.none}, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance. Default is \code{.none}. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}}.
+\item{\code{which.time}}{For which time points balance tables should be displayed. If \code{.all}, all time points will be displayed. If \code{.none}, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance. Default is \code{.none}. See \code{\link[=class-bal.tab.msm]{bal.tab.msm()}}.
 }
 
-\item{\code{msm.summary}}{\code{logical}; whether to display the balance summary across time points. Default is \code{TRUE} when \code{which.time} is \code{.none} and \code{FALSE} otherwise. See \code{\link[=class-bal.tab.msm]{bal.tab.msm}}.
+\item{\code{msm.summary}}{\code{logical}; whether to display the balance summary across time points. Default is \code{TRUE} when \code{which.time} is \code{.none} and \code{FALSE} otherwise. See \code{\link[=class-bal.tab.msm]{bal.tab.msm()}}.
 }
 }
 }

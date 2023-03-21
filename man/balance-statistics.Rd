@@ -12,22 +12,22 @@ Below, each allowable entry to \code{stats} and \code{thresholds} are described,
 \subsection{Binary/Multi-Category Treatments}{
 
 \describe{
-\item{\code{"mean.diffs"}}{Mean differences as computed by \fun{col_w_smd}. Can be abbreviated as \code{"m"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When standardized mean differences are requested, the \code{s.d.denom} argument controls how the standardization occurs. When \code{abs = TRUE}, negative values become positive. Mean differences are requested by default when no entry to \code{stats} is provided.}
+\item{\code{"mean.diffs"}}{Mean differences as computed by \code{\link[=col_w_smd]{col_w_smd()}}. Can be abbreviated as \code{"m"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. When standardized mean differences are requested, the \code{s.d.denom} argument controls how the standardization occurs. When \code{abs = TRUE}, negative values become positive. Mean differences are requested by default when no entry to \code{stats} is provided.}
 
-\item{\code{"variance.ratios"}}{Variance ratios as computed by \fun{col_w_vr}. Can be abbreviated as \code{"v"}. Will not be computed for binary variables. When \code{abs = TRUE}, values less than 1 will have their inverse taken. When used with \code{love.plot}, the x-axis scaled will be logged so that, e.g., .5 is as far away from 1 as 2 is.}
+\item{\code{"variance.ratios"}}{Variance ratios as computed by \code{\link[=col_w_vr]{col_w_vr()}}. Can be abbreviated as \code{"v"}. Will not be computed for binary variables. When \code{abs = TRUE}, values less than 1 will have their inverse taken. When used with \code{love.plot}, the x-axis scaled will be logged so that, e.g., .5 is as far away from 1 as 2 is.}
 
-\item{\code{"ks.statistics"}}{Kolmogorov-Smirnov (KS) statistics as computed by \fun{col_w_ks}.}
+\item{\code{"ks.statistics"}}{Kolmogorov-Smirnov (KS) statistics as computed by \code{\link[=col_w_ks]{col_w_ks()}}.}
 
-\item{\code{"ovl.coefficients"}}{Overlapping (OVL) statistics as computed by \fun{col_w_ovl}. Can be abbreviated as \code{"ovl"}. Additional arguments passed to \code{col_w_ovl()}, such as \code{integrate} or \code{bw}, can be supplied to \code{bal.tab()} or \code{love.plot()}.}
+\item{\code{"ovl.coefficients"}}{Overlapping (OVL) statistics as computed by \code{\link[=col_w_ovl]{col_w_ovl()}}. Can be abbreviated as \code{"ovl"}. Additional arguments passed to \code{col_w_ovl()}, such as \code{integrate} or \code{bw}, can be supplied to \code{bal.tab()} or \code{love.plot()}.}
 }
 }
 
 \subsection{Continuous Treatments}{
 
 \describe{
-\item{\code{"correlations"}}{Pearson correlations as computed by \fun{col_w_cov}. Can be abbreviated as \code{"cor"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether correlations or covariances are calculated for continuous and categorical variables, respectively (they are both \code{"std"} by default). When correlations are requested, the \code{s.d.denom} argument controls how the standardization occurs. When \code{abs = TRUE}, negative values become positive. Pearson correlations are requested by default when no entry to \code{stats} is provided.}
+\item{\code{"correlations"}}{Pearson correlations as computed by \code{\link[=col_w_cov]{col_w_cov()}}. Can be abbreviated as \code{"cor"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether correlations or covariances are calculated for continuous and categorical variables, respectively (they are both \code{"std"} by default). When correlations are requested, the \code{s.d.denom} argument controls how the standardization occurs. When \code{abs = TRUE}, negative values become positive. Pearson correlations are requested by default when no entry to \code{stats} is provided.}
 
-\item{\code{"spearman.correlations"}}{Spearman correlations as computed by \fun{col_w_cov}. Can be abbreviated as \code{"sp"}. All arguments are the same as those for \code{"correlations"}. When \code{abs = TRUE}, negative values become positive.}
+\item{\code{"spearman.correlations"}}{Spearman correlations as computed by \code{\link[=col_w_cov]{col_w_cov()}}. Can be abbreviated as \code{"sp"}. All arguments are the same as those for \code{"correlations"}. When \code{abs = TRUE}, negative values become positive.}
 
 \item{\code{"mean.diffs.target"}}{Mean differences computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"m"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. The standardization factor will be computed in the unweighted sample. When \code{abs = TRUE}, negative values become positive. This statistic is only computed for the adjusted samples.}
 

@@ -1,13 +1,13 @@
-#' @title Balance Statistics for \code{ebalance} Objects
+#' @title Balance Statistics for `ebalance` Objects
 #' @description Generates balance statistics for output objects from \pkg{ebal}.
 #' 
 #' @inheritParams bal.tab.Match
-#' @param x an \code{ebalance} object (the output of a call to \pkgfun{ebal}{ebalance} or \pkgfun{ebal}{ebalance.trim}).
-#' @param s.d.denom \code{character}; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, will be set to `"treated"`.
+#' @param x an `ebalance` object (the output of a call to \pkgfun{ebal}{ebalance} or \pkgfun{ebal}{ebalance.trim}).
+#' @param s.d.denom `character`; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, will be set to `"treated"`.
 #' 
 #' @inherit bal.tab.Match return
 #' 
-#' @details \code{bal.tab()} generates a list of balance summaries for the object given. The input to \code{bal.tab.ebalance()} must include either both \code{formula} and \code{data} or both \code{covs} and \code{treat}.
+#' @details `bal.tab()` generates a list of balance summaries for the object given. The input to `bal.tab.ebalance()` must include either both `formula` and `data` or both `covs` and `treat`.
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
