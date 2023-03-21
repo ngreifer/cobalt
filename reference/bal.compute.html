@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.4.1.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,7 +123,7 @@
 <dd><p>The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include <code>estimand</code> (ATE, ATC, or ATT) to select the estimand, <code>focal</code> to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and <code>improved</code> to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default <code>TRUE</code>). Can be used with binary and multi-category treatments.</p></dd>
 
 <dt><code>l1.med</code></dt>
-<dd><p>The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include <code>l1.min.bin</code> (default 2) and <code>l1.max.bin</code> default (12) to select the minimum and maximum number of bins with which to bin continuous variables and <code>l1.n</code> (default 101) to select the number of binings used to select the binning at the median. <code>covs</code> should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.</p></dd>
+<dd><p>The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include <code>l1.min.bin</code> (default 2) and <code>l1.max.bin</code> default (12) to select the minimum and maximum number of bins with which to bin continuous variables and <code>l1.n</code> (default 101) to select the number of binnings used to select the binning at the median. <code>covs</code> should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.</p></dd>
 
 <dt><code>r2</code>, <code>r2.2</code>, <code>r2.3</code></dt>
 <dd><p>The post-weighting \(R^2\) of a model for the treatment. The other allowable arguments include <code>poly</code> to add polynomial terms of the supplied order to the model and <code>int</code> (default <code>FALSE</code>) to add two-way interaction between covariates into the model. Using <code>r2.2</code> is a shortcut to requesting squares, and using <code>r2.3</code> is a shortcut to requesting cubes. Can be used with binary and continuous treatments. For binary treatments, the McKelvey and Zavoina \(R^2\) from a logistic regression is used; for continuous treatments, the \(R^2\) from a linear regression is used.</p></dd>
