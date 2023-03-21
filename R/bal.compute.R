@@ -1,7 +1,7 @@
 #' @title Initialize and efficiently compute scalar balance statistics
 #' @name bal.compute
 #' 
-#' @description These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. \code{bal.init()} initializes the input so that when \code{bal.compute()} is used on the output along with a set of weights, the computation of the balance statistic is fast.
+#' @description These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. \code{bal.init()} initializes the input so that when \code{bal.compute()} is used on the output along with a set of weights, the computation of the balance statistic is fast. `vignette("optimizing-balance")` provides an overview and more examples of how to use these functions.
 #' 
 #' @param stat the name of the statistic to compute. See Details.
 #' @param treat a vector containing the treatment variable.
@@ -21,18 +21,20 @@
 #'     }
 #'     \item{\code{ks.mean}, \code{ks.max}, \code{ks.rms}}{
 #'         The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using [col_w_ks()]. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
+#'     \item{\code{ovl.mean}, \code{ovl.max}, \code{ovl.rms}}{
+#'         The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using [col_w_ovl()]. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{integrate} to select whether integration is done using using [integrate()] (\code{TRUE}) or a Riemann sum (\code{FALSE}, the default), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
 #'     }
 #'     \item{\code{mahalanobis}}{
-#'         The Mahalanobis distance between the treatment group means. This is similar to \code{smd.rms} but the covariates are standardized to remove correlations between and de-emphasize redundant covariates. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand and \code{focal} to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.
+#'         The Mahalanobis distance between the treatment group means. This is similar to \code{smd.rms} but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand and \code{focal} to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.
 #'     }
 #'     \item{\code{energy.dist}}{
-#'         The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. See Huling and Mak (2022) for details. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{improved} to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default \code{TRUE}). Can be used with binary and multi-category treatments.
+#'         The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include \code{estimand} (ATE, ATC, or ATT) to select the estimand, \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{improved} to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default \code{TRUE}). Can be used with binary and multi-category treatments.
 #'     }
 #'     \item{\code{L1.med}}{
-#'         The median L1 statistic computed across a random selection of possible coarsening of the data. See [] for details. The other allowable arguments include \code{L1.min.bin} (default 2) and \code{L1.max.bin} default (12) to select the minimum and maximum number of bins with which to bin continuous variables and \code{L1.n} (default 101) to select the number of binings used to select the binning at the median. \code{covs} should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.
+#'         The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include \code{L1.min.bin} (default 2) and \code{L1.max.bin} default (12) to select the minimum and maximum number of bins with which to bin continuous variables and \code{L1.n} (default 101) to select the number of binings used to select the binning at the median. \code{covs} should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.
 #'     }
 #'     \item{\code{r2}, \code{r2.2}, \code{r2.3}}{
-#'         The post-weighting \eqn{R^2} of a model for the treatment. See [] for details. The other allowable arguments include \code{poly} to add polynomial terms of the supplied order to the model and \code{int} (default \code{FALSE}) to add two-way interaction between covariates into the model. Using \code{r2.2} is a shortcut to requesting squares, and using \code{r2.3} is a shortcut to requesting cubes. Can be used with binary and continuous treatments. For binary treatments, a the McKelvey and Zavoina \eqn{R^2} from a logistic regression is used; for continuous treatments, the \eqn{R^2} from a linear regression is used.
+#'         The post-weighting \eqn{R^2} of a model for the treatment. The other allowable arguments include \code{poly} to add polynomial terms of the supplied order to the model and \code{int} (default \code{FALSE}) to add two-way interaction between covariates into the model. Using \code{r2.2} is a shortcut to requesting squares, and using \code{r2.3} is a shortcut to requesting cubes. Can be used with binary and continuous treatments. For binary treatments, the McKelvey and Zavoina \eqn{R^2} from a logistic regression is used; for continuous treatments, the \eqn{R^2} from a linear regression is used.
 #'     }
 #'     \item{\code{p.mean}, \code{p.max}, \code{p.rms}}{
 #'         The mean, maximum, or root-mean-squared absolute Pearson correlation between the treatment and covariates, computed using [col_w_corr()]. Can only be used with continuous treatments.
@@ -41,11 +43,13 @@
 #'         The mean, maximum, or root-mean-squared absolute Spearman correlation between the treatment and covariates, computed using [col_w_corr()]. Can only be used with continuous treatments.
 #'     }
 #'     \item{\code{distance.cov}}{
-#'         The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. See Huling et al. (2022) for details. Can only be used with continuous treatments.
+#'         The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.
 #'     }
 #' }
 #' 
 #' @seealso [`balance-summary`], [bal.tab()]
+#' 
+#' See `vignette("optimizing-balance")` for references and definitions of some of the above quantities.
 #' 
 #' @examplesIf requireNamespace("MatchIt", quietly = TRUE)
 #' # Select the optimal number of subclasses for
@@ -142,6 +146,9 @@ bal_stat.to.phrase <- function(stat) {
                      "ks.mean" = "average Kolmogorov-Smirnov statistic",
                      "ks.max" = "maximum Kolmogorov-Smirnov statistic",
                      "ks.rms" = "root-mean-square Kolmogorov-Smirnov statistic",
+                     "ovl.mean" = "average overlapping coefficient complement",
+                     "ovl.max" = "maximum overlapping coefficient complement",
+                     "ovl.rms" = "root-mean-square overlapping coefficient complement",
                      "mahalanobis" = "sample Mahalanobis distance",
                      "energy.dist" = "energy distance",
                      # "kernel.dist" = "kernel distance",
@@ -195,6 +202,8 @@ process_init_covs <- function(covs) {
 init_smd <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, ...) {
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
+    
+    chk::chk_flag(pairwise)
     
     covs <- process_init_covs(covs)
     bin.vars <- attr(covs, "bin")
@@ -256,11 +265,13 @@ init_smd <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
     out
 }
 init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, ...) {
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
-    
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
+    
+    chk::chk_flag(pairwise)
+    
+    covs <- process_init_covs(covs)
+    bin.vars <- attr(covs, "bin")
     
     check_arg_lengths(covs, treat, s.weights)
     
@@ -311,12 +322,74 @@ init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NUL
     class(out) <- "init_ks"
     out
 }
-init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, ...) {
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
-    
+init_ovl <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE,
+                     integrate = FALSE, ...) {
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
+    
+    chk::chk_flag(pairwise)
+    
+    covs <- process_init_covs(covs)
+    bin.vars <- attr(covs, "bin")
+
+    chk::chk_flag(integrate)
+
+    check_arg_lengths(covs, treat, s.weights)
+    
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    
+    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+    treat.type <- get.treat.type(treat)
+    
+    if (treat.type %nin% c("binary", "multinomial")) {
+        .err("`treat` must be a binary or multi-category variable")
+    }
+    
+    f.e <- process_focal_and_estimand(focal, estimand, treat)
+    focal <- f.e[["focal"]]
+    estimand <- f.e[["estimand"]]
+    
+    unique.treats <- unique(treat)
+    
+    if (treat.type == "multinomial") {
+        if (is_null(focal) && !pairwise) {
+            treat.all <- last(make.unique(unique.treats, "All"))
+            treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
+                            levels = c(unique.treats, treat.all))
+            covs <- rbind(covs, covs)
+            s.weights <- rep(s.weights, 2)
+            focal <- treat.all
+        }
+        
+        if (is_null(focal) || pairwise) {
+            treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
+        }
+        else {
+            treatment.pairs <- lapply(setdiff(unique.treats, focal), function(x) c(x, focal))
+        }
+    }
+    else {
+        treatment.pairs <- list(unique.treats)
+        pairwise <- TRUE
+    }
+    
+    out <- list(treat = treat,
+                covs = covs,
+                bin.vars = bin.vars,
+                s.weights = s.weights,
+                focal = focal,
+                pairwise = pairwise,
+                treatment.pairs = treatment.pairs,
+                integrate = integrate)
+    class(out) <- "init_ovl"
+    out
+}
+init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, ...) {
+    chk::chk_not_missing(treat)
+    chk::chk_atomic(treat)
+    
+    covs <- process_init_covs(covs)
+    bin.vars <- attr(covs, "bin")
     
     check_arg_lengths(covs, treat, s.weights)
     
@@ -372,11 +445,11 @@ init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
     out
 }
 init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, ...) {
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
-    
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
+    
+    covs <- process_init_covs(covs)
+    bin.vars <- attr(covs, "bin")
     
     check_arg_lengths(covs, treat, s.weights)
     
@@ -723,6 +796,11 @@ ks.binary <- function(init, weights = NULL) {
     col_w_ks(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
              bin.vars = init$bin.vars)
 }
+ovl.binary <- function(init, weights = NULL) {
+    check_init(init, "init_ovl")
+    col_w_ovl(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
+              bin.vars = init$bin.vars, integrate = init$integrate)
+}
 mahalanobis.binary <- function(init, weights = NULL) {
     check_init(init, "init_mahalanobis")
     mean.diffs <- col_w_smd(init$covs, init$treat, weights, s.weights = init$s.weights,
@@ -806,6 +884,22 @@ ks.multinomial <- function(init, weights = NULL) {
                  weights = weights[init$treat %in% x],
                  s.weights = init$s.weights[init$treat %in% x],
                  bin.vars = init$bin.vars)
+    }))
+}
+ovl.multinomial <- function(init, weights = NULL) {
+    check_init(init, "init_ks")
+    
+    if (!init$pairwise) {
+        weights <- c(weights, rep(1, length(weights)))
+    }
+    
+    unlist(lapply(init$treatment.pairs, function(x) {
+        col_w_ovl(init$covs[init$treat %in% x,,drop = FALSE],
+                 treat = init$treat[init$treat %in% x],
+                 weights = weights[init$treat %in% x],
+                 s.weights = init$s.weights[init$treat %in% x],
+                 bin.vars = init$bin.vars,
+                 integrate = init$integrate)
     }))
 }
 energy.dist.multinomial <- energy.dist.binary
@@ -939,6 +1033,36 @@ bal_criterion <- function(treat.type, criterion) {
                 },
                 init = init_ks
             ),
+            ovl.mean = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                               init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ovl(covs, treat, s.weights, integrate = integrate)
+                    }
+                    mean_fast(ovl.binary(init, weights))
+                },
+                init = init_ovl
+            ),
+            ovl.max = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                               init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ovl(covs, treat, s.weights, integrate = integrate)
+                    }
+                    max(ovl.binary(init, weights))
+                },
+                init = init_ks
+            ),
+            ovl.rms = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                               init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ovl(covs, treat, s.weights, integrate = integrate)
+                    }
+                    rms(ovl.binary(init, weights))
+                },
+                init = init_ovl
+            ),
             mahalanobis = list(
                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
                     if (is_null(init)) {
@@ -1033,32 +1157,38 @@ bal_criterion <- function(treat.type, criterion) {
                 },
                 init = init_smd
             ),
-            ks.mean = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+            ovl.mean = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
                     if (is_null(init)) {
-                        init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                        init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                         integrate = integrate)
                     }
-                    mean_fast(ks.multinomial(init, weights))
+                    mean_fast(ovl.multinomial(init, weights))
                 },
                 init = init_ks
             ),
-            ks.max = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+            ovl.max = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
                     if (is_null(init)) {
-                        init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                        init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                         integrate = integrate)
                     }
-                    max(ks.multinomial(init, weights))
+                    max(ovl.multinomial(init, weights))
                 },
-                init = init_ks
+                init = init_ovl
             ),
-            ks.rms = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+            ovl.rms = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
                     if (is_null(init)) {
-                        init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                        init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                         integrate = integrate)
                     }
-                    rms(ks.multinomial(init, weights))
+                    rms(ovl.multinomial(init, weights))
                 },
-                init = init_ks
+                init = init_ovl
             ),
             energy.dist = list(
                 fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, init = NULL, ...) {

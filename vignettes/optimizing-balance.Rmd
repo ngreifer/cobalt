@@ -6,8 +6,8 @@ output:
         toc: true
 vignette: >
   %\VignetteIndexEntry{Optimizing Tuning Parameters for Balance}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
 bibliography: references.bib
@@ -150,6 +150,10 @@ The mean, maximum, and root mean square of the absolute standardized mean differ
 
 The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using `col_w_ks()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 
+#### `ovl.mean`, `ovl.max`, `ovl.rms`
+
+The mean, maximum, or root-mean-squared overlapping coefficient compliment, computed using `col_w_ovl()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+
 #### `mahalanobis`
 
 The Mahalanobis distance between the treatment group means, which is computed as $$
@@ -182,7 +186,7 @@ The distance covariance between the scaled covariates and treatment, which is a 
 
 ### Choosing a balance statistic
 
-Given all these options, how should one choose? There has been some research into which yields the best results [@franklinMetricsCovariateBalance2014, @griffinChasingBalanceOther2017, @stuartPrognosticScorebasedBalance2013, @belitserMeasuringBalanceModel2011], but the actual performance of each depends on the unique features of the data and system under study. For example, if the true outcome model is linear in the covariates, using the `"smd"` or `"mahalanobis"` statistics will work well for binary and multicategory treatments. In other cases, though, every measure has its advantages and disadvantages.
+Given all these options, how should one choose? There has been some research into which yields the best results [@franklinMetricsCovariateBalance2014, @griffinChasingBalanceOther2017, @stuartPrognosticScorebasedBalance2013, @belitserMeasuringBalanceModel2011], but the actual performance of each depends on the unique features of the data and system under study. For example, in the unlikely case the true outcome model is linear in the covariates, using the `"smd"` or `"mahalanobis"` statistics will work well for binary and multicategory treatments. In other cases, though, every measure has its advantages and disadvantages.
 
 For binary and multi-category treatments, only `"energy.dist"` and `"L1.med"` reflect balance on all features of the joint covariate distribution, whereas the others summarize across balance statistics computed for each covariate ignoring the others. Similarly, for continuous treatments, only `"distance.cov"` reflects balance on all features of the joint covariate distribution. Given these advantages, `"energy.dist"` and `"distance.cov"` are my preferences. That said, other measures are better studied, possibly more intuitive, and more familiar to a broad audience.
 
