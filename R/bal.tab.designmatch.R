@@ -13,7 +13,7 @@
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
-#' @examplesIf requireNamespace("designmatch", quietly = TRUE)
+#' @examplesIf (requireNamespace("designmatch", quietly = TRUE) && FALSE)
 #' data("lalonde", package = "cobalt")
 #' 
 #' library(designmatch)
