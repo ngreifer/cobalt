@@ -360,10 +360,7 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
     ovl <- setNames(numeric(ncol(mat)), colnames(mat))
     if (any(!bin.vars)) {
         if (is_null(A[["bw"]])) A[["bw"]] <- "nrd"
-        if (is.function(get0(paste0("bw.", A[["bw"]])))) {
-            A[["bw"]] <- get0(paste0("bw.", A[["bw"]]))(cov[treat == smallest.t])
-        }
-        else {
+        if (!is.function(get0(paste0("bw.", A[["bw"]])))) {
             .err(sprintf("%s is not an acceptable entry to `bw`. See `?stats::density` for allowable options",
                          add_quotes(A[["bw"]])))
         }
@@ -373,53 +370,53 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, in
         ovl[!bin.vars] <- apply(mat[, !bin.vars, drop = FALSE], 2, function(cov) {
             if (na.rm) cov <- na.rem(cov)
             if (!na.rm && anyNA(cov)) return(NA_real_)
-            else {
-                cov <- center(cov)/sd(cov)
-                
-               bw <- get0(paste0("bw.", A[["bw"]]))(cov[treat == smallest.t])
-                
-                f1_ <- approxfun(do.call(density.default,
-                                         c(list(cov[treat == tval1], 
-                                                weights = weights[treat == tval1] / sum(weights[treat == tval1]),
-                                                bw = bw),
-                                           A[setdiff(names(A), "bw")])))
-                f1 <- function(x) {
-                    y <- f1_(x)
-                    y[is.na(y)] <- 0
-                    return(y)
-                }
-                f0_ <- approxfun(do.call(density.default,
-                                         c(list(cov[treat != tval1], 
-                                                weights = weights[treat != tval1] / sum(weights[treat != tval1]),
-                                                bw = bw),
-                                           A[setdiff(names(A), "bw")])))
-                f0 <- function(x) {
-                    y <- f0_(x)
-                    y[is.na(y)] <- 0
-                    return(y)
-                }
-                fn <- function(x) {
-                    pmin(f1(x), f0(x))
-                }
-                min.c <- min(cov) - 4 * bw
-                max.c <- max(cov) + 4 * bw
-                # range <- max.c - min.c
-                # min.c.ext <- min.c - .01 * range
-                # max.c.ext <- max.c + .01 * range
-                if (isTRUE(integrate)) {
-                    s <- try(integrate(fn, lower = min.c,
-                                       upper = max.c)$value,
-                             silent = TRUE)
-                }
-                else {
-                    seg <- seq(min.c, max.c, length = 1001)
-                    mids <- .5 * (seg[2:length(seg)] + seg[1:(length(seg)-1)])
-                    s <- sum(fn(mids)) * (seg[2] - seg[1])
-                }
-                
-                if (inherits(s, "try-error") || s > 1.2)  return(NA_real_)
-                else return(1 - s) #Reverse: measure imbalance
+            
+            cov <- center(cov)/sd(cov)
+            
+            bw <- get0(paste0("bw.", A[["bw"]]))(cov[treat == smallest.t])
+            
+            f1_ <- approxfun(do.call(density.default,
+                                     c(list(cov[treat == tval1], 
+                                            weights = weights[treat == tval1] / sum(weights[treat == tval1]),
+                                            bw = bw),
+                                       A[setdiff(names(A), "bw")])))
+            f1 <- function(x) {
+                y <- f1_(x)
+                y[is.na(y)] <- 0
+                return(y)
             }
+            f0_ <- approxfun(do.call(density.default,
+                                     c(list(cov[treat != tval1], 
+                                            weights = weights[treat != tval1] / sum(weights[treat != tval1]),
+                                            bw = bw),
+                                       A[setdiff(names(A), "bw")])))
+            f0 <- function(x) {
+                y <- f0_(x)
+                y[is.na(y)] <- 0
+                return(y)
+            }
+            fn <- function(x) {
+                pmin(f1(x), f0(x))
+            }
+            min.c <- min(cov) - 4 * bw
+            max.c <- max(cov) + 4 * bw
+            # range <- max.c - min.c
+            # min.c.ext <- min.c - .01 * range
+            # max.c.ext <- max.c + .01 * range
+            if (isTRUE(integrate)) {
+                s <- try(integrate(fn, lower = min.c,
+                                   upper = max.c)$value,
+                         silent = TRUE)
+            }
+            else {
+                seg <- seq(min.c, max.c, length = 1001)
+                mids <- .5 * (seg[2:length(seg)] + seg[1:(length(seg)-1)])
+                s <- sum(fn(mids)) * (seg[2] - seg[1])
+            }
+            
+            if (inherits(s, "try-error") || s > 1.2)  return(NA_real_)
+            else return(1 - s) #Reverse: measure imbalance
+            
         })
     }
     if (any(bin.vars)) {
