@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.5.0
 
 * Added new functions `bal.compute()` and `bal.init()`, which are used for compute scalar balance statistics efficiently for use in optimizing balance. A new vignette, `vignette("optimizing-balance")` is available as well.
 
