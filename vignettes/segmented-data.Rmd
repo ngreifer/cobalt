@@ -2,12 +2,17 @@
 title: "Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data"
 author: "Noah Greifer"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+    html_vignette:
+        df_print: kable
+        toc: true
 
 vignette: >
   %\VignetteIndexEntry{Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: references.bib
+link-citations: true
 ---
 ```{r, include = FALSE}
   knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.width = 5)
