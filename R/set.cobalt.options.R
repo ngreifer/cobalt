@@ -8,7 +8,7 @@
 #' 
 #' @param default if `TRUE`, sets all \pkg{cobalt} options not named in `...` to their default values.
 #' 
-#' @details When an option is set to `NULL`, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed [here][display-options]. Some others (e.g., `continous` and `binary`) are described on the [bal.tab()] help page.
+#' @details When an option is set to `NULL`, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed [here][display-options]. Some others (e.g., `continuous` and `binary`) are described on the [bal.tab()] help page.
 #' 
 #' @seealso 
 #' * [options()]

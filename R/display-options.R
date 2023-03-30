@@ -19,7 +19,7 @@
 #' \item{`disp`}{`character`; which distribution summary statistic(s) should be reported. Allowable options include `"means"` and `"sds"`. Multiple options are allowed. Abbreviations allowed.
 #' }
 #' 
-#' \item{`stats`}{`character`; which statistic(s) should be reported. See [`stats()`][balance-statistics] to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is `"mean.diffs"` (i.e., \[standardized\] mean differences), and for continuous treatments, the default is `"correlations"` (i.e., treatment-covariate Pearson correlations).
+#' \item{`stats`}{`character`; which statistic(s) should be reported. See [`stats`][balance-statistics] to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is `"mean.diffs"` (i.e., \[standardized\] mean differences), and for continuous treatments, the default is `"correlations"` (i.e., treatment-covariate Pearson correlations).
 #' }
 #' 
 #' \item{`factor_sep`}{`character`; the string used to separate factor variables from their levels when variable names are printed. Default is `"_"`.

@@ -36,7 +36,7 @@
 #' @seealso 
 #' [print()], [bal.tab()]
 #' 
-#' [display options][display-options] for further information on some of these options.
+#' [`display-options`] for further information on some of these options.
 #' 
 #' @examplesIf requireNamespace("WeightIt", quietly = TRUE)
 #' data("lalonde", package = "cobalt")
