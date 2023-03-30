@@ -1,6 +1,22 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Added a new function `available_stats()` which lists the available balance statistics for use with `bal.init()` and `bal.compute()`.
+
+* The interfaces to `bal.compute()` and `bal.init()` have changed slightly. The arguments have a slightly different order to match other `cobalt` functions. `bal.compute()` now is a generic function with a method for `bal.init` objects and a default method. The default method accepts the same arguments as `bal.init()` (and optionally an additional `weights` argument) and computes the (weighted) balance statistic directly. For most uses, the `bal.init() |> bal.compute()` workflow should be preferred.
+
+* Added a new univariate balance statistic, the entropic distance as described by Oyenubi and Wittenberg (2021). This can be requested in `bal.tab()` and `love.plot()` using `stats = "ent"`, which uses the new function `col_w_ent()` to compute the statistics. These can also computed using `bal.compute()`.
+
+* Added a new multivariate balance statistic, the kernel distance as described by Zhu, Savage, and Ghosh (2018). This can be requested in `bal.compute()` and `bal.init()` by setting `stat = "kernel.dist"`. In most cases, this will perform similarly to the energy distance.
+
+* Fixed a bug when using `bal.init()` with non-`NULL` `s.weights`.
+
+* Fixed bugs when using `bal.init()` and `bal.compute()` with multi-category treatments.
+
+* Improved some errors in `col_w_smd()` and friends and `var.names()`.
+
 # cobalt 4.5.0
 
 * Added new functions `bal.compute()` and `bal.init()`, which are used for compute scalar balance statistics efficiently for use in optimizing balance. A new vignette, `vignette("optimizing-balance")` is available as well.

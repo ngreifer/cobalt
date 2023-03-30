@@ -138,7 +138,7 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, you could write: “Matching was performed using
 the *Matching* package (Sekhon, 2011), and covariate balance was
-assessed using *cobalt* (Greifer, 2022), both in R (R Core Team, 2022).”
+assessed using *cobalt* (Greifer, 2023), both in R (R Core Team, 2023).”
 Use `citation("cobalt")` to generate a bibliographic reference for the
 `cobalt` package.
 
