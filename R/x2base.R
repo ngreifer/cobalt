@@ -1029,14 +1029,16 @@ x2base.data.frame <- function(covs, ...) {
     }
     
     #Process treat
-    if (is.formula(covs)) A[["treat"]] <- get_treat_from_formula(covs, data, treat = A[["treat"]])
+    if (rlang::is_formula(covs)) {
+        A[["treat"]] <- get_treat_from_formula(covs, data, treat = A[["treat"]])
+    }
     treat <- process_treat(A[["treat"]], datalist = list(data))
     
     #Process covs
     if (is_null(covs)) {
         .err("`covs` data.frame must be specified")
     }
-    if (is.formula(covs)) {
+    if (rlang::is_formula(covs)) {
         covs <- get_covs_from_formula(covs, data = data)
         if (is_null(covs)) {
             .err("The right hand side of the formula must contain covariates for which balance is to be assessed")
