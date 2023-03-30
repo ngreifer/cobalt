@@ -6,7 +6,7 @@
 #' @param x for `bal.compute()`, a `bal.init` object created by `bal.init()` or a matrix or data frame containing the covariates. For `bal.init()`, a matrix or data frame containing the covariates.
 #' @param weights a vector of balancing weights to compute the weighted statistics.
 #' @param treat a vector containing the treatment variable.
-#' @param stat the name of the statistic to compute. See Details.
+#' @param stat string; the name of the statistic to compute. See Details.
 #' @param s.weights optional; a vector of sampling weights.
 #' @param ... other arguments used to specify options for the balance statistic. See Details for which arguments are allowed with each balance statistic. Ignored for the `bal.init` method of `bal.compute()`.
 #' @param treat.type string; the treatment type, either `"binary"`, `"multinomial"`, or `"continuous"`. Abbreviations allowed.
@@ -54,7 +54,7 @@
 #'     }
 #' }
 #' 
-#' Although statistics can be comptued directly using `bal.compute()` alone, the intended workflow is to use `bal.init()` to initialize a `bal.init` object, which can then be passed to `bal.compute()` many times with different sets of weights, thereby minimizing the processing that `bal.init()` does because it is only done once. In contrast, using `bal.compute()` on covariates directly (i.e., using the default method) calls `bal.init()` internally each time, which can slow down evaluation. When speed isn't of interest or to calculate a balance statistic outside the context of balance optimization, the default method of `bal.compute()` can be a quick shortcut to avoid having to create a `bal.init` object first.
+#' Although statistics can be computed directly using `bal.compute()` alone, the intended workflow is to use `bal.init()` to initialize a `bal.init` object, which can then be passed to `bal.compute()` many times with different sets of weights, thereby minimizing the processing that `bal.init()` does because it is only done once. In contrast, using `bal.compute()` on covariates directly (i.e., using the default method) calls `bal.init()` internally each time, which can slow down evaluation. When speed isn't of interest or to calculate a balance statistic outside the context of balance optimization, the default method of `bal.compute()` can be a quick shortcut to avoid having to create a `bal.init` object first.
 #' 
 #' @seealso [`balance-summary`], [bal.tab()]
 #' 
@@ -116,7 +116,9 @@ bal.compute <- function(x, ...) {
 
 #' @rdname bal.compute
 #' @exportS3Method bal.compute bal.init
-bal.compute.bal.init <- function(x, weights = NULL, ...) {
+bal.compute.bal.init <- function(x,
+                                 weights = NULL,
+                                 ...) {
     fun <- attr(x, "fun")
     
     fun(init = x, weights = weights)
@@ -124,7 +126,12 @@ bal.compute.bal.init <- function(x, weights = NULL, ...) {
 
 #' @rdname bal.compute
 #' @exportS3Method bal.compute default
-bal.compute.default <- function(x, treat, stat, s.weights = NULL, weights = NULL, ...) {
+bal.compute.default <- function(x,
+                                treat,
+                                stat,
+                                s.weights = NULL,
+                                weights = NULL,
+                                ...) {
     init <- bal.init(x = x, treat = treat, stat = stat, s.weights = s.weights, ...)
     
     bal.compute.bal.init(init, weights = weights)
@@ -132,7 +139,11 @@ bal.compute.default <- function(x, treat, stat, s.weights = NULL, weights = NULL
 
 #' @rdname bal.compute
 #' @export
-bal.init <- function(x, treat, stat, s.weights = NULL, ...) {
+bal.init <- function(x,
+                     treat,
+                     stat,
+                     s.weights = NULL,
+                     ...) {
     chk::chk_not_missing(x)
     chk::chk_not_missing(treat)
     chk::chk_not_missing(stat)
