@@ -21,10 +21,10 @@ process_obj <- function(obj) {
             class(obj) <- c("cem.match", "cem.match.list")
         }
         #time.list
-        else if (inherits(obj, "list") && all(vapply(obj, rlang::is_formula, logical(1)))) {
+        else if (is.list(obj) && all(vapply(obj, rlang::is_formula, logical(1L)))) {
             class(obj) <- c("formula.list", "time.list", class(obj))
         }
-        else if (inherits(obj, "list") && all(vapply(obj, is.data.frame, logical(1)))) {
+        else if (is.list(obj) && all(vapply(obj, is.data.frame, logical(1L)))) {
             class(obj) <- c("data.frame.list", "time.list", class(obj))
         }
         #designmatch
@@ -1544,7 +1544,7 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
     }
     else resp.vars.failed <- TRUE
     
-    if (!all(resp.vars.failed)) {
+    if (any(!resp.vars.failed)) {
         treat.name <- resp.vars.mentioned[!resp.vars.failed][1]
         treat <- eval(str2expression(treat.name), data, env)
     }
@@ -3046,6 +3046,25 @@ pkg_caller_call <- function(start = 1) {
     chk::msg(...)
 }
 
+.chk_null_or <- function(x, chk, ..., x_name = NULL) {
+  if (is.null(x_name)) {
+    x_name <- deparse1(substitute(x))
+  }
+  
+  x_name <- add_quotes(x_name, "`")
+  
+  if (is.null(x)) {
+    return(invisible(x))
+  }
+  
+  tryCatch(chk(x, ..., x_name = x_name),
+           error = function(e) {
+             msg <- sub("[.]$", " or `NULL`.",
+                        conditionMessage(e))
+             .err(msg, .subclass = "chk_error")
+           })
+}
+
 check_arg_lengths <- function(...) {
     dots_names <- vapply(match.call(expand.dots = FALSE)$..., deparse1,
                          character(1L))
@@ -3056,4 +3075,23 @@ check_arg_lengths <- function(...) {
         .err(sprintf("%s must have the same number of units",
                      word_list(dots_names[supplied], quotes = "`")))
     }
+}
+
+intapprox <- function(f, from, to, steps, method = "midpoint") {
+    method <- match_arg(method, c("midpoint", "trapezoidal", "simpsons"))
+    if (method == "midpoint") {
+        seg <- seq(from, to, length = steps)
+        delta <- seg[2] - seg[1]
+        mids <- .5 * (seg[-1] + seg[-steps])
+        s <- sum(f(mids)) * delta
+    }
+    else if (method == "trapezoidal") {
+        seg <- seq(from, to, length = steps)
+        delta <- seg[2] - seg[1]
+        s <- (f(from) + 2 * sum(f(seg[-c(1, steps)])) + f(to)) * delta / 2
+    }
+    else if (method == "simpsons") {
+        s <- (2 * intapprox(f, from, to, steps, "m") + intapprox(f, from, to, steps, "t")) / 3
+    }
+    s
 }
