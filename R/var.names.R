@@ -60,9 +60,9 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
         .err("no variable names were found in the object. It is probably not a bal.tab object")
     }
     
-    if (is_not_null(file)) {
-        chk::chk_string(file)
-        if (!endsWith(file, ".csv")) .err("the filename in `file` must end in \".csv\"")
+    .chk_null_or(file, chk::chk_string)
+    if (is_not_null(file) && !endsWith(file, ".csv")) {
+        .err("the filename in `file` must end in \".csv\"")
     }
     
     if (missing(type)) {
@@ -70,27 +70,24 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
         else type <- "vec"
     }
     else {
+        type <- chk::chk_string(type)
+        type <- tolower(type)
         type <- match_arg(type, c("df", "vec"))
     }
     
-    if (type == "df") {
-        out <- data.frame(old = vars, new = vars, stringsAsFactors = FALSE, row.names = NULL)
-    }
-    else {
-        out <- setNames(vars, vars)
-    }
+    out <- switch(type,
+                  "df" = data.frame(old = vars, new = vars),
+                  "vec" = setNames(vars, vars))
     
-    if (is_not_null(file)) {
-        if (type == "df") {
-            write.csv(out, file = file, row.names = FALSE)
-            return(invisible(out))
-        }
-        else {
-            .wrn("only `type = \"df\"` is compatible with a file name")
-            return(out)
-        }
-    }
-    else {
+    if (is_null(file)) {
         return(out)
     }
+    
+    if (type == "df") {
+        write.csv(out, file = file, row.names = FALSE)
+        return(invisible(out))
+    }
+    
+    .wrn("only `type = \"df\"` is compatible with a file name")
+    out
 }
