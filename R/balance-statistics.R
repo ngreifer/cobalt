@@ -16,6 +16,8 @@
 #'   \item{`"ks.statistics"`}{Kolmogorov-Smirnov (KS) statistics as computed by [col_w_ks()].}
 #'             
 #'   \item{`"ovl.coefficients"`}{Overlapping (OVL) statistics as computed by [col_w_ovl()]. Can be abbreviated as `"ovl"`. Additional arguments passed to `col_w_ovl()`, such as `integrate` or `bw`, can be supplied to `bal.tab()` or `love.plot()`.}
+#'   
+#'   \item{`"entropic.distances"`}{Entropic distances as computed by [col_w_ent()]. Can be abbreviated as `"ent"`. Additional arguments passed to `col_w_ent()`, such as `integrate` or `bw`, can be supplied to `bal.tab()` or `love.plot()`.}
 #' }
 #'     
 #' ## Continuous Treatments
@@ -243,6 +245,35 @@ STATS[["ovl.coefficients"]] <- {list(
     fun = function(C, treat, weights, s.weights, bin.vars, integrate = FALSE, subset = NULL, ...) {
         A <- list(...)
         do.call("col_w_ovl", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
+                                    subset = subset, integrate = integrate), A))
+    }
+)}
+
+STATS[["entropic.distances"]] <- {list(
+    type = "bin",
+    threshold = "ent.threshold",
+    Threshold = "ENT.Threshold",
+    disp_stat = "disp.ent",
+    adj_only = FALSE,
+    abs = function(x) abs_(x),
+    bal.tab_column_prefix = "ENT", #Also which.stat in love.plot
+    threshold_range = c(0, 1),
+    balance_tally_for = "entropic distances",
+    variable_with_the_greatest = "entropic distance", #also which.stat2 in love.plot
+    love.plot_xlab = function(...) {
+        "Entropic Distances"
+    },
+    love.plot_add_stars = function(SS.var, variable.names, ...) {
+        return(SS.var)
+    },
+    baseline.xintercept = 0,
+    threshold.xintercepts = function(threshold, abs) {
+        c(lower = base::abs(threshold))
+    },
+    love.plot_axis_scale = ggplot2::scale_x_continuous,
+    fun = function(C, treat, weights, s.weights, bin.vars, integrate = FALSE, subset = NULL, ...) {
+        A <- list(...)
+        do.call("col_w_ent", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
                                     subset = subset, integrate = integrate), A))
     }
 )}
