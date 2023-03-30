@@ -24,21 +24,21 @@
 #' @param alpha.weight `logical`; if both the treatment and the covariate are continuous, whether points should be shaded according to their weight. Fainter points are those that have smaller weights. Default is `TRUE`.
 #' 
 #' @section Additional Arguments:
-#' `bal.plot()` works like [bal.tab()] in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional parameters are required in `\dots`. For details on what is required and allowed for each additional input and their defaults, see the help file for the [bal.tab()] method associated with the input. The following are the required additional arguments based on each input type:
+#' `bal.plot()` works like [bal.tab()] in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional parameters are required in `...`. For details on what is required and allowed for each additional input and their defaults, see the help file for the [bal.tab()] method associated with the input. The following are the required additional arguments based on each input type:
 #'     
-#'         * For `matchit` objects: None
-#'         * For `weightit` objects: None
-#'         * For `ps`, `ps.cont`, `mnps`, and `iptw` objects: (`stop.method`; see [defaults][bal.tab.ps]).
-#'         * For `Match` objects: `formula` and `data` or `covs` and `treat`.
-#'         * For `optmatch` objects: `formula` and `data` or `covs` (`treat` is not required).
-#'         * For `CBPS` objects: None
-#'         * For `ebalance` objects: `formula` and `data` or `covs` and `treat`.
-#'         * For `formula`s: `data`
-#'         * For `data.frame`s: `treat`
-#'         * For `designmatch` objects: `formula` and `data` or `covs` and `treat`.
-#'         * For `sbw` objects: None
-#'         * For `mimids` and `wimids` objects: None, but an argument to `which.imp` should be specified.
-#'         * For other objects processed through `bal.tab()`'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
+#' * For `matchit` objects: None
+#' * For `weightit` objects: None
+#' * For `ps`, `ps.cont`, `mnps`, and `iptw` objects: (`stop.method`; see [defaults][bal.tab.ps]).
+#' * For `Match` objects: `formula` and `data` or `covs` and `treat`.
+#' * For `optmatch` objects: `formula` and `data` or `covs` (`treat` is not required).
+#' * For `CBPS` objects: None
+#' * For `ebalance` objects: `formula` and `data` or `covs` and `treat`.
+#' * For `formula`s: `data`
+#' * For `data.frame`s: `treat`
+#' * For `designmatch` objects: `formula` and `data` or `covs` and `treat`.
+#' * For `sbw` objects: None
+#' * For `mimids` and `wimids` objects: None, but an argument to `which.imp` should be specified.
+#' * For other objects processed through `bal.tab()`'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
 #'
 #' @returns A `"ggplot"` object, returned invisibly.
 #' 
@@ -399,7 +399,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                         }
                         else if (any(which.time %in% treat.names[appears.in.time])) {
                             time.periods <- word_list(which.time[!which.time %in% treat.names[appears.in.time]], "and")
-                            chk::wrn(sprintf("%s does not appear in the time period%%s corresponding to treatment%%s %s",
+                            .wrn(sprintf("%s does not appear in the time period%%s corresponding to treatment%%s %s",
                                              add_quotes(var.name), time.periods), n = sum(!which.time %in% treat.names[appears.in.time]))
                             which.time <- which.time[which.time %in% treat.names[appears.in.time]]
                         }
@@ -604,10 +604,8 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                 ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, .05)))
         }
         else { #Continuous vars
-            D$var.mean <- ave(D[c("var", "s.weights")], D[facet], 
-                              FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
-            D$treat.mean <- ave(D[c("treat", "s.weights")], D[facet], 
-                                FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
+            D$var.mean <- ave_w.m(D[["var"]], D[facet], w = D[["s.weights"]])
+            D$treat.mean <- ave_w.m(D[["treat"]], D[facet], w = D[["s.weights"]])
             
             bp <- ggplot2::ggplot(D, mapping = aes(x = .data$var, y = .data$treat, weight = .data$weights * .data$s.weights))
             
@@ -725,8 +723,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
             
             if (type == "histogram") {
                 if (isTRUE(disp.means)) {
-                    D$var.mean <- ave(D[c("var", "weights")], D[c("treat", facet)], 
-                                      FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
+                    D$var.mean <- ave_w.m(D[["var"]], D[c("treat", facet)], w = D[["weights"]])
                 }
                 
                 if (!is.numeric(args$bins)) args$bins <- 12
@@ -795,8 +792,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                 }
                 
                 if (isTRUE(disp.means)) {
-                    D$var.mean <- ave(D[c("var", "weights")], D[c("treat", facet)], 
-                                      FUN = function(x) w.m(x[[1]], x[[2]]))[[1]]
+                    D$var.mean <- ave_w.m(D[["var"]], D[c("treat", facet)], w = D[["weights"]])
                 }
                 
                 geom_fun <- function(t) {
