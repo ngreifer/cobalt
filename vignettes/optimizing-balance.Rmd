@@ -35,7 +35,7 @@ As of version 4.5.0, `cobalt` provides the functions `bal.compute()` and `bal.in
 
 Broadly, these functions work by taking in the treatment, covariates for which balance is to be computed, and a set of balancing weights and return a scalar balance statistic that summarizes balance for the sample. `bal.compute()` does the work of computing the balance statistic, and `bal.init()` processes the inputs so they don't need to be processed every time `bal.compute()` is called with a new set of weights.
 
-For `bal.init()`, we need to supply the name of the balance statistic we wish to compute, the treatment, the covariates, sampling weights (if any), and any other inputs required, which depend on the specific balance statistic requested. `bal.init()` returns a `bal.init` object, which is then passed to `bal.compute()` along with a set of balancing weights (which may result for weighting, matching, or subclassification).
+For `bal.init()`, we need to supply the covariates, the treatment, the name of the balance statistic we wish to compute, sampling weights (if any), and any other inputs required, which depend on the specific balance statistic requested. `bal.init()` returns a `bal.init` object, which is then passed to `bal.compute()` along with a set of balancing weights (which may result from weighting, matching, or subclassification).
 
 Below, we provide an example using the `lalonde` dataset. Our balance statistic will be the largest absolute standardized mean difference among the included covariates, which is specified as `smd.max`. We will first supply the required inputs to `bal.init()` and pass its output to `bal.compute()` to compute the balance statistic for the sample prior to weighting.
 
@@ -47,11 +47,15 @@ covs <- subset(lalonde, select = -c(treat, race, re78))
 
 # Initialize the object with the balance statistic,
 # treatment, and covariates
-smd.init <- bal.init("smd.max", treat = lalonde$treat,
-                     covs = covs)
+smd.init <- bal.init(covs, treat = lalonde$treat,
+                     stat = "smd.max")
 
 # Compute balance with no weights
 bal.compute(smd.init)
+
+# Can also compute the statistic directly using bal.compute():
+bal.compute(covs, treat = lalonde$treat,
+            stat = "smd.max")
 ```
 
 The largest absolute standardized mean difference with no weights is 0.72, which we can verify and investigate further using `bal.tab()`:
@@ -103,8 +107,8 @@ Instead of writing each complete call one at a time, we can do a little programm
 
 ```{r, eval = weightit.ok && br.ok}
 # Initialize object to compute the largest SMD
-smd.init <- bal.init("smd.max", treat = lalonde$treat,
-                     covs = covs)
+smd.init <- bal.init(covs, treat = lalonde$treat,
+                     stat = "smd.max")
 
 # Create vector of tuning parameters
 links <- c("probit", "logit", "br.probit", "br.logit",
@@ -123,7 +127,7 @@ weights.list <- sapply(links, function(link) {
 # Use each set of weights to compute balance
 # Can replace sapply() with purrr:map_vec()
 stats <- sapply(weights.list, bal.compute,
-                init = smd.init)
+                x = smd.init)
 
 # See which set of weights is the best
 stats
@@ -141,7 +145,7 @@ If balance is acceptable (in this case, it is not), you would move forward with 
 
 ## Balance statistics
 
-Several balance statistics can be computed by `bal.compute()` and `bal.init()`, and the ones available depend on whether the treatment is binary, multi-category, or continuous. These are explained below and on the help page `?bal.compute`. Some balance statistics are appended with `".mean"`, `".max"`, or `".rms"`, which correspond to the mean (or L1-norm), maximum (or L-infinity norm), and root mean square (or L2-norm) of the absolute univariate balance statistic computed for each covariate.
+Several balance statistics can be computed by `bal.compute()` and `bal.init()`, and the ones available depend on whether the treatment is binary, multi-category, or continuous. These are explained below and on the help page `?bal.compute`. A complete list for a given treatment type can be requested using `available.stats()`. Some balance statistics are appended with `".mean"`, `".max"`, or `".rms"`, which correspond to the mean (or L1-norm), maximum (or L-infinity norm), and root mean square (or L2-norm) of the absolute univariate balance statistic computed for each covariate.
 
 #### `smd.mean`, `smd.max`, `smd.rms`
 
@@ -155,6 +159,10 @@ The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed u
 
 The mean, maximum, or root-mean-squared overlapping coefficient compliment, computed using `col_w_ovl()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 
+#### `ent.mean`, `ent.max`, `ent.rms`
+
+The mean, maximum, or root-mean-squared entropic distance, computed using `col_w_ent()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+
 #### `mahalanobis`
 
 The Mahalanobis distance between the treatment group means, which is computed as $$
@@ -164,6 +172,10 @@ $$ where $\mathbf{\bar{x}}_1$ and $\mathbf{\bar{x}}_0$ are the vectors of covari
 #### `energy.dist`
 
 The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. See @hulingEnergyBalancingCovariate2022 for details. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `improved` to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default `TRUE`). Can be used with binary and multi-category treatments.
+
+#### `kernel.dist`
+
+The kernel distance between treatment groups, which is a scalar measure of the similarity between two multivariate distributions. See @zhuKernelBasedMetricBalance2018 for details. Can only be used with binary treatments.
 
 #### `l1.med`
 
@@ -187,9 +199,9 @@ The distance covariance between the scaled covariates and treatment, which is a 
 
 ### Choosing a balance statistic
 
-Given all these options, how should one choose? There has been some research into which yields the best results [@franklinMetricsCovariateBalance2014, @griffinChasingBalanceOther2017, @stuartPrognosticScorebasedBalance2013, @belitserMeasuringBalanceModel2011], but the actual performance of each depends on the unique features of the data and system under study. For example, in the unlikely case the true outcome model is linear in the covariates, using the `"smd"` or `"mahalanobis"` statistics will work well for binary and multicategory treatments. In other cases, though, every measure has its advantages and disadvantages.
+Given all these options, how should one choose? There has been some research into which yields the best results [@franklinMetricsCovariateBalance2014, @griffinChasingBalanceOther2017, @stuartPrognosticScorebasedBalance2013, @belitserMeasuringBalanceModel2011, @parastOptimizingVariancebiasTradeoff2017], but the actual performance of each depends on the unique features of the data and system under study. For example, in the unlikely case the true outcome model is linear in the covariates, using the `"smd"` or `"mahalanobis"` statistics will work well for binary and multi-category treatments. In more realistic cases, though, every measure has its advantages and disadvantages.
 
-For binary and multi-category treatments, only `"energy.dist"` and `"L1.med"` reflect balance on all features of the joint covariate distribution, whereas the others summarize across balance statistics computed for each covariate ignoring the others. Similarly, for continuous treatments, only `"distance.cov"` reflects balance on all features of the joint covariate distribution. Given these advantages, `"energy.dist"` and `"distance.cov"` are my preferences. That said, other measures are better studied, possibly more intuitive, and more familiar to a broad audience.
+For binary and multi-category treatments, only `"energy.dist"`, `"kernel.dist"`, and `"L1.med"` reflect balance on all features of the joint covariate distribution, whereas the others summarize across balance statistics computed for each covariate ignoring the others. Similarly, for continuous treatments, only `"distance.cov"` reflects balance on all features of the joint covariate distribution. Given these advantages, `"energy.dist"` and `"distance.cov"` are my preferences. That said, other measures are better studied, possibly more intuitive, and more familiar to a broad audience.
 
 ## Example
 
@@ -204,9 +216,8 @@ data("lalonde")
 
 # Initialize balance
 covs <- subset(lalonde, select = -c(treat, re78))
-ks.init <- bal.init("ks.max", covs = covs,
-                    treat = lalonde$treat,
-                    estimand = "ATT")
+ks.init <- bal.init(covs, treat = lalonde$treat,
+                    stat = "ks.max", estimand = "ATT")
 
 # Fit a GBM model using `WeightIt` and `twang` defaults
 fit <- gbm::gbm(treat ~ age + educ + married + race +
