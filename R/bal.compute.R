@@ -1,38 +1,44 @@
-#' @title Initialize and efficiently compute scalar balance statistics
+#' @title Efficiently compute scalar balance statistics
 #' @name bal.compute
 #' 
-#' @description These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. `bal.init()` initializes the input so that when `bal.compute()` is used on the output along with a set of weights, the computation of the balance statistic is fast. `vignette("optimizing-balance")` provides an overview and more examples of how to use these functions.
+#' @description These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. `bal.compute()` computes a scalar balance statistics from the supplied inputs. `bal.init()` initializes the input so that when `bal.compute()` is used on the output along with a set of weights, the computation of the balance statistic is fast. `vignette("optimizing-balance")` provides an overview and more examples of how to use these functions. `available.stats()` returns the balance statistics available for the given treatment type.
 #' 
-#' @param stat the name of the statistic to compute. See Details.
+#' @param x for `bal.compute()`, a `bal.init` object created by `bal.init()` or a matrix or data frame containing the covariates. For `bal.init()`, a matrix or data frame containing the covariates.
+#' @param weights a vector of balancing weights to compute the weighted statistics.
 #' @param treat a vector containing the treatment variable.
-#' @param covs a matrix or data frame containing the covariates.
+#' @param stat the name of the statistic to compute. See Details.
 #' @param s.weights optional; a vector of sampling weights.
-#' @param ... other arguments used to specify options for the balance statistic. See Details for which arguments are allowed with each balance statistic.
-#' @param init a `bal.init` object created by `bal.init()`.
-#' @param weights a vector of balancing weights to compute the weighted statistics
+#' @param ... other arguments used to specify options for the balance statistic. See Details for which arguments are allowed with each balance statistic. Ignored for the `bal.init` method of `bal.compute()`.
+#' @param treat.type string; the treatment type, either `"binary"`, `"multinomial"`, or `"continuous"`. Abbreviations allowed.
 #' 
-#' @returns For `bal.init()`, a `bal.init` object containing the components created in the initialization and the function used to compute the balance statistic. For `bal.compute()`, a single numeric value.
+#' @returns For `bal.compute()`, a single numeric value. For `bal.init()`, a `bal.init` object containing the components created in the initialization and the function used to compute the balance statistic. For `available.stats()`, a character vector of available statistics.
 #' 
 #' @details 
-#' The following list contains the allowable balance statistics that can be supplied to `bal.init()`, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance.
+#' The following list contains the allowable balance statistics that can be supplied to `bal.init()` or the default method of `bal.compute()`, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance.
 #' \describe{
 #'     \item{`smd.mean`, `smd.max`, `smd.rms`}{
-#'         The mean, maximum, or root-mean-squared absolute standardized mean difference, computed using [col_w_smd()]. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+#'         The mean, maximum, or root-mean-squared absolute standardized mean difference, computed using [col_w_smd()]. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 #'     }
 #'     \item{`ks.mean`, `ks.max`, `ks.rms`}{
-#'         The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using [col_w_ks()]. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+#'         The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using [col_w_ks()]. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 #'     }
 #'     \item{`ovl.mean`, `ovl.max`, `ovl.rms`}{
-#'         The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using [col_w_ovl()]. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `integrate` to select whether integration is done using using [integrate()] (`TRUE`) or a Riemann sum (`FALSE`, the default), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+#'         The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using [col_w_ovl()]. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`), `integrate` to select whether integration is done using using [integrate()] (`TRUE`) or a Riemann sum (`FALSE`, the default), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+#'     }
+#'     \item{`ent.mean`, `ent.max`, `ent.rms`}{
+#'         The mean, maximum, or root-mean-squared entropic distance, computed using [col_w_ent()]. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`), `integrate` to select whether integration is done using using [integrate()] (`TRUE`) or a Riemann sum (`FALSE`, the default), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 #'     }
 #'     \item{`mahalanobis`}{
-#'         The Mahalanobis distance between the treatment group means. This is similar to `smd.rms` but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand and `focal` to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.
+#'         The Mahalanobis distance between the treatment group means. This is similar to `smd.rms` but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`) and `focal` to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.
 #'     }
 #'     \item{`energy.dist`}{
-#'         The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `improved` to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default `TRUE`). Can be used with binary and multi-category treatments.
+#'         The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, `"ATC"`, or `NULL`) to select the estimand (default is `NULL`), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `improved` to select whether the "improved" energy distance should be used when `estimand = "ATE"`, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default `TRUE`). When `estimand = NULL`, only the energy distance between the treatment groups will be computed (i.e., as opposed to the energy distance between each treatment groups and the target sample). Can be used with binary and multi-category treatments.
+#'     }
+#'     \item{`kernel.dist`}{
+#'         The kernel distance between the treatment groups, which is a scalar measure of the similarity between two multivariate distributions. Can only be used with binary treatments.
 #'     }
 #'     \item{`l1.med`}{
-#'         The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include `l1.min.bin` (default 2) and `l1.max.bin` default (12) to select the minimum and maximum number of bins with which to bin continuous variables and `l1.n` (default 101) to select the number of binnings used to select the binning at the median. `covs` should be supplied without splitting factors into dummies to ensure the binning works correctly. Can be used with binary and multi-category treatments.
+#'         The median L1 statistic computed across a random selection of possible coarsening of the data. The other allowable arguments include `estimand` (`"ATE"`, `"ATT"`, or `"ATC"`) to select the estimand (default is `"ATE"`), `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, `l1.min.bin` (default 2) and `l1.max.bin` default (12) to select the minimum and maximum number of bins with which to bin continuous variables and `l1.n` (default 101) to select the number of binnings used to select the binning at the median. `covs` should be supplied without splitting factors into dummies to ensure the binning works correctly; for simplicity, the `.covs` argument can be supplied, which will override `covs` but isn't used by other statistics. Can be used with binary and multi-category treatments.
 #'     }
 #'     \item{`r2`, `r2.2`, `r2.3`}{
 #'         The post-weighting \eqn{R^2} of a model for the treatment. The other allowable arguments include `poly` to add polynomial terms of the supplied order to the model and `int` (default `FALSE`) to add two-way interaction between covariates into the model. Using `r2.2` is a shortcut to requesting squares, and using `r2.3` is a shortcut to requesting cubes. Can be used with binary and continuous treatments. For binary treatments, the McKelvey and Zavoina \eqn{R^2} from a logistic regression is used; for continuous treatments, the \eqn{R^2} from a linear regression is used.
@@ -47,6 +53,8 @@
 #'         The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.
 #'     }
 #' }
+#' 
+#' Although statistics can be comptued directly using `bal.compute()` alone, the intended workflow is to use `bal.init()` to initialize a `bal.init` object, which can then be passed to `bal.compute()` many times with different sets of weights, thereby minimizing the processing that `bal.init()` does because it is only done once. In contrast, using `bal.compute()` on covariates directly (i.e., using the default method) calls `bal.init()` internally each time, which can slow down evaluation. When speed isn't of interest or to calculate a balance statistic outside the context of balance optimization, the default method of `bal.compute()` can be a quick shortcut to avoid having to create a `bal.init` object first.
 #' 
 #' @seealso [`balance-summary`], [bal.tab()]
 #' 
@@ -76,9 +84,12 @@
 #' }
 #' 
 #' # Initialize balance statistic; largest KS statistic
-#' init <- bal.init("ks.max", treat = lalonde$treat,
-#'                  covs = lalonde[covs],
+#' init <- bal.init(lalonde[covs], treat = lalonde$treat, 
+#'                  stat = "ks.max",
 #'                  estimand = "ATE")
+#' 
+#' # Statistic prior to subclassification:
+#' bal.compute(init)
 #' 
 #' # Testing 4 to 50 subclasses
 #' nsubs <- 4:50
@@ -92,24 +103,53 @@
 #' # 6 subclass gives lowest ks.max value (.238)
 #' nsubs[which.min(stats)]
 #' stats[which.min(stats)]
+#' 
+#' # See which statistics are available
+#' available.stats("binary")
+#' available.stats("multinomial")
+
 
 #' @export
-bal.init <- function(stat, treat, covs, s.weights = NULL, ...) {
-    chk::chk_not_missing(stat)
-    chk::chk_not_missing(treat)
-    chk::chk_not_missing(covs)
+bal.compute <- function(x, ...) {
+    UseMethod("bal.compute")
+}
 
+#' @rdname bal.compute
+#' @exportS3Method bal.compute bal.init
+bal.compute.bal.init <- function(x, weights = NULL, ...) {
+    fun <- attr(x, "fun")
+    
+    fun(init = x, weights = weights)
+}
+
+#' @rdname bal.compute
+#' @exportS3Method bal.compute default
+bal.compute.default <- function(x, treat, stat, s.weights = NULL, weights = NULL, ...) {
+    init <- bal.init(x = x, treat = treat, stat = stat, s.weights = s.weights, ...)
+    
+    bal.compute.bal.init(init, weights = weights)
+}
+
+#' @rdname bal.compute
+#' @export
+bal.init <- function(x, treat, stat, s.weights = NULL, ...) {
+    chk::chk_not_missing(x)
+    chk::chk_not_missing(treat)
+    chk::chk_not_missing(stat)
+    
     chk::chk_string(stat)
     chk::chk_vector(treat)
     
-    chk::chk_null_or(s.weights, vld = chk::chk_numeric)
-
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
+    stat <- match_arg(stat, available.stats(treat.type))
+    
+    .chk_null_or(s.weights, chk = chk::chk_numeric)
+    
     init <- bal_criterion(treat.type, stat)
     
-    out <- init$init(treat = treat, covs = covs, s.weights = s.weights, ...)
+    out <- init$init(x = x, treat = treat, s.weights = s.weights, ...)
     
     attr(out, "fun") <- init$fun
     attr(out, "treat.type") <- attr(init, "treat.type")
@@ -122,12 +162,64 @@ bal.init <- function(stat, treat, covs, s.weights = NULL, ...) {
 
 #' @rdname bal.compute
 #' @export
-bal.compute <- function(init, weights = NULL) {
-    chk::chk_is(init, "bal.init")
-
-    fun <- attr(init, "fun")
+available.stats <- function(treat.type = "binary") {
+    chk::chk_string(treat.type)
+    treat.type <- match_arg(treat.type, c("binary", "multinomial", "continuous"))
     
-    fun(init = init, weights = weights)
+    criteria <- switch(
+        treat.type,
+        binary = c(
+            "smd.mean",
+            "smd.max",
+            "smd.rms",
+            "ks.mean",
+            "ks.max",
+            "ks.rms",
+            "ovl.mean",
+            "ovl.max",
+            "ovl.rms",
+            "ent.mean",
+            "ent.max",
+            "ent.rms",
+            "mahalanobis",
+            "energy.dist",
+            "kernel.dist",
+            "l1.med",
+            "r2",
+            "r2.2",
+            "r2.3"
+        ),
+        multinomial = c(
+            "smd.mean",
+            "smd.max",
+            "smd.rms",
+            "ks.mean",
+            "ks.max",
+            "ks.rms",
+            "ovl.mean",
+            "ovl.max",
+            "ovl.rms",
+            "ent.mean",
+            "ent.max",
+            "ent.rms",
+            "energy.dist",
+            "l1.med"
+        ),
+        continuous = c(
+            "p.mean",
+            "p.max",
+            "p.rms",
+            "s.mean",
+            "s.max",
+            "s.rms",
+            "r2",
+            "r2.2",
+            "r2.3",
+            "distance.cov"
+        )
+    )
+    
+    criteria
 }
 
 #' @exportS3Method print bal.init
@@ -150,6 +242,9 @@ bal_stat.to.phrase <- function(stat) {
                      "ovl.mean" = "average overlapping coefficient complement",
                      "ovl.max" = "maximum overlapping coefficient complement",
                      "ovl.rms" = "root-mean-square overlapping coefficient complement",
+                     "ent.mean" = "average entropic distance",
+                     "ent.max" = "maximum entropic distance",
+                     "ent.rms" = "root-mean-square entropic distance",
                      "mahalanobis" = "sample Mahalanobis distance",
                      "energy.dist" = "energy distance",
                      # "kernel.dist" = "kernel distance",
@@ -173,6 +268,7 @@ bal_stat.to.phrase <- function(stat) {
 }
 
 process_init_covs <- function(covs) {
+    nm <- deparse1(substitute(covs))
     needs.splitting <- FALSE
     if (!is.matrix(covs)) {
         if (is.data.frame(covs)) {
@@ -182,16 +278,19 @@ process_init_covs <- function(covs) {
             else covs <- as.matrix(covs)
         }
         else if (is.numeric(covs)) covs <- matrix(covs, ncol = 1)
-        else .err("`covs` must be a data.frame or numeric matrix")
+        else .err(sprintf("`%s` must be a data.frame or numeric matrix", nm))
     }
-    else if (!is.numeric(covs)) .err("`covs` must be a data.frame or numeric matrix")
+    else if (!is.numeric(covs)) .err(sprintf("`%s` must be a data.frame or numeric matrix", nm))
     
-    bin.vars <- process.bin.vars(mat = covs)
+    bin.vars <- {
+        if (is_null(attr(covs, "bin"))) process.bin.vars(mat = covs)
+        else attr(covs, "bin")
+    }
     
     if (needs.splitting) {
         bin.vars[to.split] <- TRUE
-        covs <- do.call(splitfactor, list(covs, drop.first ="if2",
-                                          split.with = bin.vars))
+        covs <- do.call("splitfactor", list(covs, drop.first ="if2",
+                                            split.with = bin.vars))
         bin.vars <- attr(covs, "split.with")[[1]]
     }
     
@@ -200,18 +299,15 @@ process_init_covs <- function(covs) {
 }
 
 #init functions
-init_smd <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, ...) {
-    chk::chk_not_missing(treat)
-    chk::chk_atomic(treat)
-    
+init_smd <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, ...) {
     chk::chk_flag(pairwise)
     
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
 
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -219,6 +315,9 @@ init_smd <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
     if (treat.type %nin% c("binary", "multinomial")) {
         .err("`treat` must be a binary or multi-category variable")
     }
+    
+    .chk_null_or(estimand, chk::chk_string)
+    if (is_null(estimand)) estimand <- "ATE"
     
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
@@ -231,7 +330,7 @@ init_smd <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
             treat.all <- last(make.unique(unique.treats, "All"))
             treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
                             levels = c(unique.treats, treat.all))
-            covs <- rbind(covs, covs)
+            x <- rbind(x, x)
             s.weights <- rep(s.weights, 2)
             focal <- treat.all
         }
@@ -240,7 +339,7 @@ init_smd <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
             treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
         }
         else {
-            treatment.pairs <- lapply(setdiff(unique.treats, focal), function(x) c(x, focal))
+            treatment.pairs <- lapply(setdiff(unique.treats, focal), c, focal)
         }
     }
     else {
@@ -250,12 +349,12 @@ init_smd <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
     
     s.d.denom <- get.s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
     
-    denoms <- compute_s.d.denom(covs, treat = treat,
+    denoms <- compute_s.d.denom(x, treat = treat,
                                 s.d.denom = s.d.denom, s.weights = s.weights,
                                 bin.vars = bin.vars)
     
     out <- list(treat = treat,
-                covs = covs,
+                covs = x,
                 bin.vars = bin.vars,
                 s.weights = s.weights,
                 s.d.denom = denoms,
@@ -265,18 +364,18 @@ init_smd <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
     class(out) <- "init_smd"
     out
 }
-init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, ...) {
+init_ks <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, ...) {
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
     chk::chk_flag(pairwise)
     
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
     
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -284,6 +383,9 @@ init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NUL
     if (treat.type %nin% c("binary", "multinomial")) {
         .err("`treat` must be a binary or multi-category variable")
     }
+    
+    .chk_null_or(estimand, chk::chk_string)
+    if (is_null(estimand)) estimand <- "ATE"
     
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
@@ -296,7 +398,7 @@ init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NUL
             treat.all <- last(make.unique(unique.treats, "All"))
             treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
                             levels = c(unique.treats, treat.all))
-            covs <- rbind(covs, covs)
+            x <- rbind(x, x)
             s.weights <- rep(s.weights, 2)
             focal <- treat.all
         }
@@ -305,7 +407,7 @@ init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NUL
             treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
         }
         else {
-            treatment.pairs <- lapply(setdiff(unique.treats, focal), function(x) c(x, focal))
+            treatment.pairs <- lapply(setdiff(unique.treats, focal), c, focal)
         }
     }
     else {
@@ -314,7 +416,7 @@ init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NUL
     }
     
     out <- list(treat = treat,
-                covs = covs,
+                covs = x,
                 bin.vars = bin.vars,
                 s.weights = s.weights,
                 focal = focal,
@@ -323,21 +425,21 @@ init_ks <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NUL
     class(out) <- "init_ks"
     out
 }
-init_ovl <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE,
+init_ovl <- function(covs, treat, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE,
                      integrate = FALSE, ...) {
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
     chk::chk_flag(pairwise)
     
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
 
     chk::chk_flag(integrate)
 
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -345,6 +447,9 @@ init_ovl <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
     if (treat.type %nin% c("binary", "multinomial")) {
         .err("`treat` must be a binary or multi-category variable")
     }
+    
+    .chk_null_or(estimand, chk::chk_string)
+    if (is_null(estimand)) estimand <- "ATE"
     
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
@@ -357,7 +462,7 @@ init_ovl <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
             treat.all <- last(make.unique(unique.treats, "All"))
             treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
                             levels = c(unique.treats, treat.all))
-            covs <- rbind(covs, covs)
+            x <- rbind(x, x)
             s.weights <- rep(s.weights, 2)
             focal <- treat.all
         }
@@ -366,7 +471,7 @@ init_ovl <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
             treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
         }
         else {
-            treatment.pairs <- lapply(setdiff(unique.treats, focal), function(x) c(x, focal))
+            treatment.pairs <- lapply(setdiff(unique.treats, focal), c, focal)
         }
     }
     else {
@@ -375,7 +480,7 @@ init_ovl <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
     }
     
     out <- list(treat = treat,
-                covs = covs,
+                covs = x,
                 bin.vars = bin.vars,
                 s.weights = s.weights,
                 focal = focal,
@@ -385,16 +490,21 @@ init_ovl <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NU
     class(out) <- "init_ovl"
     out
 }
-init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, ...) {
+init_ent <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE,
+                     integrate = FALSE, ...) {
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+    chk::chk_flag(pairwise)
     
-    check_arg_lengths(covs, treat, s.weights)
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    chk::chk_flag(integrate)
+    
+    check_arg_lengths(x, treat, s.weights)
+    
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -403,30 +513,93 @@ init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
         .err("`treat` must be a binary or multi-category variable")
     }
     
+    .chk_null_or(estimand, chk::chk_string)
+    if (is_null(estimand)) estimand <- "ATE"
+    
+    f.e <- process_focal_and_estimand(focal, estimand, treat)
+    focal <- f.e[["focal"]]
+    estimand <- f.e[["estimand"]]
+    
+    unique.treats <- unique(treat)
+    
+    if (treat.type == "multinomial") {
+        if (is_null(focal) && !pairwise) {
+            treat.all <- last(make.unique(unique.treats, "All"))
+            treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
+                            levels = c(unique.treats, treat.all))
+            x <- rbind(x, x)
+            s.weights <- rep(s.weights, 2)
+            focal <- treat.all
+        }
+        
+        if (is_null(focal) || pairwise) {
+            treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
+        }
+        else {
+            treatment.pairs <- lapply(setdiff(unique.treats, focal), c, focal)
+        }
+    }
+    else {
+        treatment.pairs <- list(unique.treats)
+        pairwise <- TRUE
+    }
+    
+    out <- list(treat = treat,
+                covs = x,
+                bin.vars = bin.vars,
+                s.weights = s.weights,
+                focal = focal,
+                pairwise = pairwise,
+                treatment.pairs = treatment.pairs,
+                integrate = integrate)
+    class(out) <- "init_ent"
+    out
+}
+init_mahalanobis <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, ...) {
+    chk::chk_not_missing(treat)
+    chk::chk_atomic(treat)
+    
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
+    
+    check_arg_lengths(x, treat, s.weights)
+    
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
+    
+    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+    treat.type <- get.treat.type(treat)
+    
+    if (treat.type %nin% c("binary", "multinomial")) {
+        .err("`treat` must be a binary or multi-category variable")
+    }
+    
+    .chk_null_or(estimand, chk::chk_string)
+    if (is_null(estimand)) estimand <- "ATE"
+    
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
     estimand <- f.e[["estimand"]]
     
     s.d.denom <- get.s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
     
-    if (any(!bin.vars)) covs[,!bin.vars] <- scale(covs[,!bin.vars])
+    if (any(!bin.vars)) x[,!bin.vars] <- scale(x[,!bin.vars])
     
     if (s.d.denom %in% as.character(treat)) {
-        sigma <- cov.wt(covs[treat == s.d.denom,,drop = FALSE], s.weights[treat == s.d.denom])$cov
+        sigma <- cov.wt(x[treat == s.d.denom,,drop = FALSE], s.weights[treat == s.d.denom])$cov
         if (any(zeros <- diag(sigma) == 0)) {
-            sigma_all <- cov.wt(covs, s.weights)$cov
+            sigma_all <- cov.wt(x, s.weights)$cov
             sigma[zeros,] <- sigma_all[zeros,]
             sigma[,zeros] <- sigma_all[,zeros]
             if (any(zeros <- diag(sigma) == 0)) diag(sigma)[zeros]  <- 1
         }
     }
     else if (s.d.denom == "pooled") {
-        sigma <- .5 * (cov.wt(covs[treat == treat[1],,drop = FALSE], s.weights[treat == treat[1]])$cov +
-                           cov.wt(covs[treat != treat[1],,drop = FALSE], s.weights[treat != treat[1]])$cov)
+        sigma <- .5 * (cov.wt(x[treat == treat[1],,drop = FALSE], s.weights[treat == treat[1]])$cov +
+                           cov.wt(x[treat != treat[1],,drop = FALSE], s.weights[treat != treat[1]])$cov)
         if (any(zeros <- diag(sigma) == 0)) diag(sigma)[zeros] <- 1
     }
     else {
-        sigma <- cov.wt(covs, s.weights)$cov
+        sigma <- cov.wt(x, s.weights)$cov
         if (any(zeros <- diag(sigma) == 0)) diag(sigma)[zeros] <- 1
     }
     
@@ -437,7 +610,7 @@ init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
                                                           t(sigmasvd$u[, pos, drop = FALSE]))
     
     out <- list(treat = treat,
-                covs = covs,
+                covs = x,
                 bin.vars = bin.vars,
                 s.weights = s.weights,
                 s.d.denom = s.d.denom,
@@ -445,16 +618,16 @@ init_mahalanobis <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
     class(out) <- "init_mahalanobis"
     out
 }
-init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, ...) {
+init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, ...) {
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
     
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -465,18 +638,19 @@ init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
     
     treat <- factor(treat)
     
-    f.e <- process_focal_and_estimand(focal, estimand, treat)
-    focal <- f.e[["focal"]]
-    estimand <- f.e[["estimand"]]
+    if (is_not_null(estimand)) {
+        chk::chk_string(estimand)
+        f.e <- process_focal_and_estimand(focal, estimand, treat)
+        focal <- f.e[["focal"]]
+        estimand <- f.e[["estimand"]]
+    }
     
-    dist.covs <- scale(covs, scale = sqrt(col.w.v(covs, s.weights, bin.vars)))
+    dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
     
     d <- unname(as.matrix(dist(dist.covs)))
     
     n <- length(treat)
     unique.treats <- levels(treat)
-    treat.seq <- seq_along(unique.treats)
-    diagn <- diag(n)
     
     for (t in unique.treats) {
         s.weights[treat == t] <- s.weights[treat == t]/mean_fast(s.weights[treat == t])
@@ -487,8 +661,15 @@ init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
     
     s.weights_n_t <- setNames(lapply(unique.treats, function(t) treat_t[,t] * s.weights / n_t[t]),
                               unique.treats)
-   
-    if (is_null(focal)) {
+    
+    if (is_null(estimand)) {
+        all_pairs <- combn(unique.treats, 2, simplify = FALSE)
+        P <- - d * Reduce("+", lapply(all_pairs, function(p) {
+            tcrossprod(s.weights_n_t[[p[1]]] - s.weights_n_t[[p[2]]])
+        }))
+        q <- rep(0, n)
+    }
+    else if (is_null(focal)) {
         
         P <- -d * Reduce("+", lapply(s.weights_n_t, tcrossprod))
         
@@ -506,10 +687,10 @@ init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
         in_focal <- treat == focal
         
         P <- -d[!in_focal, !in_focal] *
-            Reduce("+", lapply(s.weights_n_t[non_focal], function(x) tcrossprod(x[!in_focal])))
+            Reduce("+", lapply(s.weights_n_t[non_focal], function(s) tcrossprod(s[!in_focal])))
         
         q <- 2 * (s.weights_n_t[[focal]][in_focal] %*% d[in_focal, !in_focal]) *
-            Reduce("+", lapply(s.weights_n_t[non_focal], function(x) x[!in_focal]))
+            Reduce("+", lapply(s.weights_n_t[non_focal], function(s) s[!in_focal]))
     }
     
     out <- list(q = q,
@@ -521,16 +702,57 @@ init_energy.dist <- function(covs, treat, s.weights = NULL, estimand = "ATE", fo
     class(out) <- "init_energy.dist"
     out
 }
-init_p <- function(covs, treat, s.weights = NULL, ...) {
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, ...) {
+    chk::chk_not_missing(treat)
+    chk::chk_atomic(treat)
+    
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
+    
+    check_arg_lengths(x, treat, s.weights)
+    
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
+    
+    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+    treat.type <- get.treat.type(treat)
+    
+    if (treat.type %nin% c("binary")) {
+        .err("`treat` must be a binary variable")
+    }
+    
+    treat <- as.numeric(treat == treat[1])
+    
+    for (t in 0:1) {
+        s.weights[treat == t] <- s.weights[treat == t]/mean_fast(s.weights[treat == t])
+    }
+    
+    dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
+    
+    d <- unname(as.matrix(dist(dist.covs)))
+    
+    K <- exp(-(d^2)/median(d))
+
+    T_star <- numeric(length(treat))
+    T_star[treat == 1] <- 1/sum(treat == 1)
+    T_star[treat == 0] <- -1/sum(treat == 0)
+    
+    out <- list(K = K,
+                T_star = T_star,
+                s.weights = s.weights,
+                treat = treat)
+    class(out) <- "init_kernel.dist"
+    out
+}
+init_p <- function(x, treat, s.weights = NULL, ...) {
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
     
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -541,28 +763,28 @@ init_p <- function(covs, treat, s.weights = NULL, ...) {
     
     s.d.denom <- get.s.d.denom.cont(quietly = TRUE)
     
-    denoms <- compute_s.d.denom(covs, treat = treat,
+    denoms <- compute_s.d.denom(x, treat = treat,
                                 s.d.denom = s.d.denom, s.weights = s.weights,
                                 bin.vars = bin.vars)
     
     out <- list(treat = treat,
-                covs = covs,
+                covs = x,
                 bin.vars = bin.vars,
                 s.weights = s.weights,
                 s.d.denom = denoms)
     class(out) <- "init_p"
     out
 }
-init_s <- function(covs, treat, s.weights = NULL, ...) {
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+init_s <- function(x, treat, s.weights = NULL, ...) {
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
     
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -571,35 +793,35 @@ init_s <- function(covs, treat, s.weights = NULL, ...) {
         .err("`treat` must be a continuous (numeric) variable")
     }
     
-    for (i in seq_len(ncol(covs))[!bin.vars[i]]) {
-        covs[,i] <- rank(covs[,i], na.last = "keep")
+    for (i in seq_len(ncol(x))[!bin.vars[i]]) {
+        x[,i] <- rank(x[,i], na.last = "keep")
     }
     treat <- rank(treat, na.last = "keep")
     
     s.d.denom <- get.s.d.denom.cont(quietly = TRUE)
     
-    denoms <- compute_s.d.denom(covs, treat = treat,
+    denoms <- compute_s.d.denom(x, treat = treat,
                                 s.d.denom = s.d.denom, s.weights = s.weights,
                                 bin.vars = bin.vars)
     
     out <- list(treat = treat,
-                covs = covs,
+                covs = x,
                 bin.vars = bin.vars,
                 s.weights = s.weights,
                 s.d.denom = denoms)
     class(out) <- "init_s"
     out
 }
-init_r2 <- function(covs, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
     
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -610,7 +832,7 @@ init_r2 <- function(covs, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
     
     if (treat.type == "binary") treat <- as.numeric(treat == treat[1])
     
-    x <- cbind(`(Intercept)` = 1, covs, int.poly.f2(covs, poly = poly, int = int))
+    x <- cbind(`(Intercept)` = 1, x, int.poly.f2(x, poly = poly, int = int))
     
     out <- list(treat = treat,
                 x = x,
@@ -618,16 +840,16 @@ init_r2 <- function(covs, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
     class(out) <- "init_r2"
     out
 }
-init_distance.cov <- function(covs, treat, s.weights = NULL, ...) {
-    covs <- process_init_covs(covs)
-    bin.vars <- attr(covs, "bin")
+init_distance.cov <- function(x, treat, s.weights = NULL, ...) {
+    x <- process_init_covs(x)
+    bin.vars <- attr(x, "bin")
     
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -636,7 +858,7 @@ init_distance.cov <- function(covs, treat, s.weights = NULL, ...) {
         .err("`treat` must be a continuous (numeric) variable")
     }
     
-    dist.covs <- scale(covs, scale = sqrt(col.w.v(covs, s.weights, bin.vars)))
+    dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
     
     Xdist <- unname(as.matrix(dist(dist.covs)))
     
@@ -660,22 +882,22 @@ init_distance.cov <- function(covs, treat, s.weights = NULL, ...) {
     class(out) <- "init_distance.cov"
     out
 }
-init_l1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal = NULL,
+init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL,
                         .covs = NULL, l1.min.bin = 2, l1.max.bin = 12, l1.n = 101, ...) {
     
-    if (is_not_null(.covs)) covs <- .covs
-    if (!is.data.frame(covs)) {
-        if (is.atomic(covs) && is_null(dim(covs))) covs <- data.frame(covs)
-        else if (!is.matrix(covs)) .err("`covs` must be a data.frame or matrix.")
+    if (is_not_null(.covs)) x <- .covs
+    if (!is.data.frame(x)) {
+        if (is.atomic(x) && is_null(dim(x))) x <- data.frame(x)
+        else if (!is.matrix(x)) .err("`x` must be a data.frame or matrix.")
     }
-    covs <- as.data.frame(covs)
+    x <- as.data.frame(x)
     
     chk::chk_not_missing(treat)
     chk::chk_atomic(treat)
     
-    check_arg_lengths(covs, treat, s.weights)
+    check_arg_lengths(x, treat, s.weights)
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(covs))
+    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
     
     if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
@@ -719,6 +941,9 @@ init_l1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal =
         factor(do.call("paste", c(covs, sep = " | ")))
     }
     
+    .chk_null_or(estimand, chk::chk_string)
+    if (is_null(estimand)) estimand <- "ATE"
+    
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
     estimand <- f.e[["estimand"]]
@@ -726,16 +951,16 @@ init_l1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal =
     unique.treats <- unique(treat)
     for (t in unique.treats) s.weights[treat == t] <- s.weights[treat == t]/sum(s.weights[treat == t])
     
-    is.numeric.cov <- setNames(vapply(covs, is.numeric, logical(1L)), names(covs))
-    nunique.covs <- vapply(covs, nunique, integer(1L))
+    is.numeric.cov <- setNames(vapply(x, is.numeric, logical(1L)), names(x))
+    nunique.covs <- vapply(x, nunique, integer(1L))
     
     coarsenings <- lapply(1:l1.n, function(i) {
         cutpoints <- setNames(lapply(nunique.covs[is.numeric.cov], function(nu) {
             sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1)
-        }), names(covs)[is.numeric.cov])
-        grouping <- setNames(lapply(seq_along(covs)[!is.numeric.cov], function(x) {
-            nu <- nunique.covs[x]
-            u <- unique(covs[[x]], nmax = nu)
+        }), names(x)[is.numeric.cov])
+        grouping <- setNames(lapply(seq_along(x)[!is.numeric.cov], function(i) {
+            nu <- nunique.covs[i]
+            u <- unique(x[[i]], nmax = nu)
             
             #Randomly select number of bins
             nbins <- sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1)
@@ -747,12 +972,12 @@ init_l1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal =
             lapply(unique(bin.assignments, nmax = nbins),
                    function(b) u[bin.assignments == b])
             
-        }), names(covs)[!is.numeric.cov])
+        }), names(x)[!is.numeric.cov])
         list(cutpoints = cutpoints, grouping = grouping, treat_cutpoints = NULL)
     })
     
     l1s <- unlist(lapply(coarsenings, function(co) {
-        x <- coarsen(covs, cutpoints = co[["cutpoints"]], grouping = co[["grouping"]])
+        x <- coarsen(x, cutpoints = co[["cutpoints"]], grouping = co[["grouping"]])
         
         if (treat.type == "binary" || is_null(focal)) {
             sum(vapply(levels(x), function(l) {
@@ -774,7 +999,7 @@ init_l1.med <- function(covs, treat, s.weights = NULL, estimand = "ATE", focal =
     
     l1.med.coarsening <- coarsenings[[which(l1s == l1.med)[1]]]
     
-    out <- list(coarsened.covs = coarsen(covs,
+    out <- list(coarsened.covs = coarsen(x,
                                          cutpoints = l1.med.coarsening[["cutpoints"]],
                                          grouping = l1.med.coarsening[["grouping"]]),
                 s.weights = s.weights,
@@ -802,6 +1027,11 @@ ovl.binary <- function(init, weights = NULL) {
     col_w_ovl(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
               bin.vars = init$bin.vars, integrate = init$integrate)
 }
+ent.binary <- function(init, weights = NULL) {
+    check_init(init, "init_ent")
+    col_w_ent(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
+              bin.vars = init$bin.vars, integrate = init$integrate)
+}
 mahalanobis.binary <- function(init, weights = NULL) {
     check_init(init, "init_mahalanobis")
     mean.diffs <- col_w_smd(init$covs, init$treat, weights, s.weights = init$s.weights,
@@ -823,6 +1053,20 @@ energy.dist.binary <- function(init, weights = NULL) {
     }
     
     return(drop(weights %*% init[["P"]] %*% weights + init[["q"]] %*% weights))
+}
+kernel.dist.binary <- function(init, weights = NULL) {
+    check_init(init, "init_kernel.dist")
+    
+    if (is_null(weights)) weights <- init[["s.weights"]]
+    else weights <- weights * init[["s.weights"]]
+    
+    for (t in 0:1) {
+        weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/mean_fast(weights[init[["treat"]] == t])
+    }
+    
+    T_weights <- init[["T_star"]] * weights
+    
+    drop(sqrt(T_weights %*% init[["K"]] %*% T_weights))
 }
 r2.binary <- function(init, weights = NULL) {
     check_init(init, "init_r2")
@@ -888,7 +1132,7 @@ ks.multinomial <- function(init, weights = NULL) {
     }))
 }
 ovl.multinomial <- function(init, weights = NULL) {
-    check_init(init, "init_ks")
+    check_init(init, "init_ovl")
     
     if (!init$pairwise) {
         weights <- c(weights, rep(1, length(weights)))
@@ -903,7 +1147,25 @@ ovl.multinomial <- function(init, weights = NULL) {
                  integrate = init$integrate)
     }))
 }
-energy.dist.multinomial <- energy.dist.binary
+ent.multinomial <- function(init, weights = NULL) {
+    check_init(init, "init_ent")
+    
+    if (!init$pairwise) {
+        weights <- c(weights, rep(1, length(weights)))
+    }
+    
+    unlist(lapply(init$treatment.pairs, function(x) {
+        col_w_ent(init$covs[init$treat %in% x,,drop = FALSE],
+                  treat = init$treat[init$treat %in% x],
+                  weights = weights[init$treat %in% x],
+                  s.weights = init$s.weights[init$treat %in% x],
+                  bin.vars = init$bin.vars,
+                  integrate = init$integrate)
+    }))
+}
+energy.dist.multinomial <- function(init, weights = NULL) {
+    energy.dist.binary(init, weights)
+}
 l1.med.multinomial <- function(init, weights = NULL) {
     check_init(init, "init_l1.med")
     
@@ -975,13 +1237,12 @@ distance.cov.continuous <- function(init, weights = NULL) {
 bal_criterion <- function(treat.type, criterion) {
     chk::chk_not_missing(criterion)
     chk::chk_not_missing(treat.type)
-
-    treat.type <- match_arg(treat.type, c("binary", "multinomial", "continuous"))
-    criteria <- switch(
+    
+    bal.obj <- switch(
         treat.type,
-        binary = list(
+        binary = switch(criterion,
             smd.mean = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_smd(covs, treat, s.weights, estimand)
                     }
@@ -990,7 +1251,7 @@ bal_criterion <- function(treat.type, criterion) {
                 init = init_smd
             ),
             smd.max = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_smd(covs, treat, s.weights, estimand)
                     }
@@ -999,7 +1260,7 @@ bal_criterion <- function(treat.type, criterion) {
                 init = init_smd
             ),
             smd.rms = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_smd(covs, treat, s.weights, estimand)
                     }
@@ -1064,8 +1325,38 @@ bal_criterion <- function(treat.type, criterion) {
                 },
                 init = init_ovl
             ),
+            ent.mean = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                               init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ent(covs, treat, s.weights, integrate = integrate)
+                    }
+                    mean_fast(ent.binary(init, weights))
+                },
+                init = init_ent
+            ),
+            ent.max = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                               init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ent(covs, treat, s.weights, integrate = integrate)
+                    }
+                    max(ent.binary(init, weights))
+                },
+                init = init_ent
+            ),
+            ent.rms = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                               init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ent(covs, treat, s.weights, integrate = integrate)
+                    }
+                    rms(ent.binary(init, weights))
+                },
+                init = init_ent
+            ),
             mahalanobis = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_mahalanobis(covs, treat, s.weights, estimand)
                     }
@@ -1074,7 +1365,7 @@ bal_criterion <- function(treat.type, criterion) {
                 init = init_mahalanobis
             ),
             energy.dist = list(
-                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, init = NULL, ...) {
                     
                     if (is_null(init)) {
                         init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
@@ -1083,18 +1374,18 @@ bal_criterion <- function(treat.type, criterion) {
                 },
                 init = init_energy.dist
             ),
-            # kernel.dist = list(
-            #     fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, init = NULL, ...) {
-            #
-            #         if (is_null(init)) {
-            #             init <- init_kernel.dist(covs, treat, s.weights, estimand, focal)
-            #         }
-            #         kernel.dist.binary(init, weights)
-            #     },
-            #     init = init_kernel.dist
-            # ),
+            kernel.dist = list(
+                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
+                    
+                    if (is_null(init)) {
+                        init <- init_kernel.dist(covs, treat, s.weights, estimand, focal)
+                    }
+                    kernel.dist.binary(init, weights)
+                },
+                init = init_kernel.dist
+            ),
             l1.med = list(
-                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_l1.med(covs, treat, s.weights, estimand, focal, ...)
                     }
@@ -1130,9 +1421,9 @@ bal_criterion <- function(treat.type, criterion) {
                 init = function(...) init_r2(..., poly = 3)
             )
         ),
-        multinomial = list(
+        multinomial = switch(criterion,
             smd.mean = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
                     }
@@ -1141,7 +1432,7 @@ bal_criterion <- function(treat.type, criterion) {
                 init = init_smd
             ),
             smd.max = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
                     }
@@ -1150,13 +1441,43 @@ bal_criterion <- function(treat.type, criterion) {
                 init = init_smd
             ),
             smd.rms = list(
-                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = "ATE", focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
                     }
                     rms(smd.multinomial(init, weights))
                 },
                 init = init_smd
+            ),
+            ks.mean = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                    }
+                    mean_fast(ks.multinomial(init, weights))
+                },
+                init = init_ks
+            ),
+            ks.max = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                    }
+                    max(ks.multinomial(init, weights))
+                },
+                init = init_ks
+            ),
+            ks.rms = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                    }
+                    rms(ks.multinomial(init, weights))
+                },
+                init = init_ks
             ),
             ovl.mean = list(
                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
@@ -1167,7 +1488,7 @@ bal_criterion <- function(treat.type, criterion) {
                     }
                     mean_fast(ovl.multinomial(init, weights))
                 },
-                init = init_ks
+                init = init_ovl
             ),
             ovl.max = list(
                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
@@ -1191,8 +1512,41 @@ bal_criterion <- function(treat.type, criterion) {
                 },
                 init = init_ovl
             ),
+            ent.mean = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ent(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                         integrate = integrate)
+                    }
+                    mean_fast(ent.multinomial(init, weights))
+                },
+                init = init_ent
+            ),
+            ent.max = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ent(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                         integrate = integrate)
+                    }
+                    max(ent.multinomial(init, weights))
+                },
+                init = init_ent
+            ),
+            ent.rms = list(
+                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                               pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
+                    if (is_null(init)) {
+                        init <- init_ent(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                         integrate = integrate)
+                    }
+                    rms(ent.multinomial(init, weights))
+                },
+                init = init_ent
+            ),
             energy.dist = list(
-                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, improved = TRUE, init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, init = NULL, ...) {
                     
                     if (is_null(init)) {
                         init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
@@ -1202,7 +1556,7 @@ bal_criterion <- function(treat.type, criterion) {
                 init = init_energy.dist
             ),
             l1.med = list(
-                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = "ATE", focal = NULL, init = NULL, ...) {
+                fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
                     if (is_null(init)) {
                         init <- init_l1.med(covs, treat, s.weights, estimand, focal, ...)
                     }
@@ -1212,7 +1566,7 @@ bal_criterion <- function(treat.type, criterion) {
             )
         ),
         
-        continuous = list(
+        continuous = switch(criterion,
             p.mean = list(
                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
                     if (is_null(init)) {
@@ -1305,9 +1659,8 @@ bal_criterion <- function(treat.type, criterion) {
             )
         )
     )
-    criterion <- match_arg(criterion, names(criteria))
     
-    criteria[[criterion]]
+    bal.obj
 }
 
 check_init <- function(init, init_class) {
