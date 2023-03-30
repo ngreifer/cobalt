@@ -25,7 +25,7 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \item{\code{disp}}{\code{character}; which distribution summary statistic(s) should be reported. Allowable options include \code{"means"} and \code{"sds"}. Multiple options are allowed. Abbreviations allowed.
 }
 
-\item{\code{stats}}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats()}} to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is \code{"mean.diffs"} (i.e., [standardized] mean differences), and for continuous treatments, the default is \code{"correlations"} (i.e., treatment-covariate Pearson correlations).
+\item{\code{stats}}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} to see which options are available. Multiple options are allowed. Abbreviations allowed. For binary and multi-category treatments, the default is \code{"mean.diffs"} (i.e., [standardized] mean differences), and for continuous treatments, the default is \code{"correlations"} (i.e., treatment-covariate Pearson correlations).
 }
 
 \item{\code{factor_sep}}{\code{character}; the string used to separate factor variables from their levels when variable names are printed. Default is \code{"_"}.

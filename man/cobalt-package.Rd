@@ -12,12 +12,12 @@ A set of tools for assessing covariate balance in observational studies numerica
 
 The main functions of \pkg{cobalt} are the following:
 \itemize{
-\item \code{\link[=bal.tab]{bal.tab()}} - generate tables of balance statstics before and after matching, weighting, or subclassification
+\item \code{\link[=bal.tab]{bal.tab()}} - generate tables of balance statistics before and after matching, weighting, or subclassification
 \item \code{\link[=bal.plot]{bal.plot()}} - generate plots to assess balance visually on one covariate at a time
 \item \code{\link[=love.plot]{love.plot()}} - generate plots to summarize and report balance statistics
 }
 
-Other functions include \code{\link[=get.w]{get.w()}} for extracting weights from objects produced by other packages, \code{\link[=col_w_smd]{col_w_smd()}} (and friends documented on the same page) for computing (weighted) balance statistics outside of \code{bal.tab()}, and \code{\link[=splitfactor]{splitfactor()}} for splitting factor variables in a dataset into dummy variables.
+Other functions include \code{\link[=get.w]{get.w()}} for extracting weights from objects produced by other packages, \code{\link[=col_w_smd]{col_w_smd()}} (and friends documented on the same page) for computing (weighted) balance statistics outside of \code{bal.tab()}, \code{\link[=bal.compute]{bal.compute()}} for computing scalar balance statistics efficiently, and \code{\link[=splitfactor]{splitfactor()}} for splitting factor variables in a dataset into dummy variables.
 
 \pkg{cobalt} has several vignettes, which can be accessed using \code{vignette(package = "cobalt")} or visiting the website at \url{https://ngreifer.github.io/cobalt/}.
 }

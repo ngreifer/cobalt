@@ -34,7 +34,7 @@ love.plot(
 \arguments{
 \item{x}{the valid input to a call to \code{\link[=bal.tab]{bal.tab()}} (e.g., the output of a preprocessing function). Other arguments that would be supplied to \code{bal.tab()} can be entered with \code{...}. Can also be a \code{bal.tab} object, i.e., the output of a call to \code{bal.tab()}. See Examples. If \code{x} is not a \code{bal.tab} object, \code{love.plot()} calls \code{bal.tab()} with the arguments supplied.}
 
-\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats()}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
+\item{stats}{\code{character}; which statistic(s) should be reported. See \code{\link[=balance-statistics]{stats}} for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.}
 
 \item{abs}{\code{logical}; whether to present the statistic in absolute value or not. For variance ratios, this will force all ratios to be greater than or equal to 1. If \code{x} is a \code{bal.tab} object, \code{love.plot()} might ignore \code{abs} depending on the original \code{bal.tab()} call. If unspecified, uses whatever was used in the call to \code{bal.tab()}.}
 
@@ -46,7 +46,7 @@ love.plot(
 
 \item{drop.distance}{\code{logical}; whether to ignore the distance measure (if there are any) in plotting.}
 
-\item{thresholds}{\code{numeric}; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at \code{\link[=balance-statistics]{stats()}}. If \code{x} is a \code{bal.tab} object and a threshold was set in it (e.g., with \code{thresholds}), its threshold will be used unless overridden using the \code{threshold} argument in \code{love.plot}.}
+\item{thresholds}{\code{numeric}; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at \code{\link[=balance-statistics]{stats}}. If \code{x} is a \code{bal.tab} object and a threshold was set in it (e.g., with \code{thresholds}), its threshold will be used unless overridden using the \code{threshold} argument in \code{love.plot()}.}
 
 \item{line}{\code{logical}; whether to display a line connecting the points for each sample.}
 
@@ -84,7 +84,7 @@ love.plot(
 \item{\code{disp.subclass}}{whether to display individual subclasses if subclassification is used. Overrides the \code{disp.subclass} option in the original \code{bal.tab()} call if \code{x} is a \code{bal.tab} object.}
 \item{\code{star_char}}{\code{character}; when \code{stars} are used, the character that should be the "star" next to the starred variables. The default is \code{"*"}. \code{"†"} or \code{"\\u2020"} (i.e., dagger) might be appealing as well.}
 }
-Additionally, any of the \code{which.} arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to \code{.none} to aggregate across groups (in which \code{agg.fun} comes into effect) and set to \code{.all} to view all groups. See \code{display_options} for options, and see \code{vignette("segmented-data")} for details and examples.}
+Additionally, any of the \code{which.} arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to \code{.none} to aggregate across groups (in which \code{agg.fun} comes into effect) and set to \code{.all} to view all groups. See \link{display-options} for options, and see \code{vignette("segmented-data")} for details and examples.}
 }
 \value{
 When only one type of balance statistic is requested, the returned object is a standard \code{ggplot} object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what \code{love.plot()} provides automatically.
@@ -109,7 +109,7 @@ If a \code{love.plot} object is supplied, the plot being drawn will use the vari
 
 \subsection{Variable names using \code{var.names}}{
 
-The default in \code{love.plot} is to present variables as they are named in the output of the call to \code{bal.tab}, so it is important to know this output before specifying alternate variable names when using \code{var.names}, as the displayed variable names may differ from those in the original data.
+The default in \code{love.plot()} is to present variables as they are named in the output of the call to \code{bal.tab()}, so it is important to know this output before specifying alternate variable names when using \code{var.names}, as the displayed variable names may differ from those in the original data.
 
 There are several ways to specify alternate names for presentation in the displayed plot using the \code{var.names} argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the \code{names} of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from \code{bal.tab()} is not provided in the list of old variable names, \code{love.plot()} will use the original old variable name.
 

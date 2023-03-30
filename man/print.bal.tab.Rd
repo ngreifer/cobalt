@@ -105,5 +105,5 @@ print(b, un = FALSE, stats = c("m", "v"),
 \seealso{
 \code{\link[=print]{print()}}, \code{\link[=bal.tab]{bal.tab()}}
 
-\link[=display-options]{display options} for further information on some of these options.
+\code{\link{display-options}} for further information on some of these options.
 }

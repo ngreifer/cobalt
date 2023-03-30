@@ -85,22 +85,22 @@ To change the plot and axis titles, use \code{\link[ggplot2:labs]{ggplot2::labs(
 }
 \section{Additional Arguments}{
 
-\code{bal.plot()} works like \code{\link[=bal.tab]{bal.tab()}} in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional parameters are required in \verb{\\dots}. For details on what is required and allowed for each additional input and their defaults, see the help file for the \code{\link[=bal.tab]{bal.tab()}} method associated with the input. The following are the required additional arguments based on each input type:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    * For `matchit` objects: None
-    * For `weightit` objects: None
-    * For `ps`, `ps.cont`, `mnps`, and `iptw` objects: (`stop.method`; see [defaults][bal.tab.ps]).
-    * For `Match` objects: `formula` and `data` or `covs` and `treat`.
-    * For `optmatch` objects: `formula` and `data` or `covs` (`treat` is not required).
-    * For `CBPS` objects: None
-    * For `ebalance` objects: `formula` and `data` or `covs` and `treat`.
-    * For `formula`s: `data`
-    * For `data.frame`s: `treat`
-    * For `designmatch` objects: `formula` and `data` or `covs` and `treat`.
-    * For `sbw` objects: None
-    * For `mimids` and `wimids` objects: None, but an argument to `which.imp` should be specified.
-    * For other objects processed through `bal.tab()`'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
-}\if{html}{\out{</div>}}
+\code{bal.plot()} works like \code{\link[=bal.tab]{bal.tab()}} in that it can take a variety of types of inputs and yield the same output for each. Depending on what kind of input is given, different additional parameters are required in \code{...}. For details on what is required and allowed for each additional input and their defaults, see the help file for the \code{\link[=bal.tab]{bal.tab()}} method associated with the input. The following are the required additional arguments based on each input type:
+\itemize{
+\item For \code{matchit} objects: None
+\item For \code{weightit} objects: None
+\item For \code{ps}, \code{ps.cont}, \code{mnps}, and \code{iptw} objects: (\code{stop.method}; see \link[=bal.tab.ps]{defaults}).
+\item For \code{Match} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{optmatch} objects: \code{formula} and \code{data} or \code{covs} (\code{treat} is not required).
+\item For \code{CBPS} objects: None
+\item For \code{ebalance} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{formula}s: \code{data}
+\item For \code{data.frame}s: \code{treat}
+\item For \code{designmatch} objects: \code{formula} and \code{data} or \code{covs} and \code{treat}.
+\item For \code{sbw} objects: None
+\item For \code{mimids} and \code{wimids} objects: None, but an argument to \code{which.imp} should be specified.
+\item For other objects processed through \code{bal.tab()}'s default method, whichever arguments are required to identify treatment, variables, and a conditioning method (if any).
+}
 }
 
 \examples{

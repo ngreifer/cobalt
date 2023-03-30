@@ -20,7 +20,7 @@ For \code{get.cobalt.options()}, one or more strings containing the name of a pa
 Makes it easier to set \pkg{cobalt} options. \code{set.cobalt.options()} is essentially a wrapper for \code{\link[=options]{options()}} but performs several checks, and \code{get.cobalt.options()} is essentially a wrapper for \code{\link[=getOption]{getOption()}}.
 }
 \details{
-When an option is set to \code{NULL}, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed \link[=display-options]{here}. Some others (e.g., \code{continous} and \code{binary}) are described on the \code{\link[=bal.tab]{bal.tab()}} help page.
+When an option is set to \code{NULL}, it is set to its default value. The defaults are not displayed but are listed on the help pages where they appear. Most options correspond to display options, which can be accessed \link[=display-options]{here}. Some others (e.g., \code{continuous} and \code{binary}) are described on the \code{\link[=bal.tab]{bal.tab()}} help page.
 }
 \examples{
 # Set un to be TRUE to always display unadjusted 
