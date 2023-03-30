@@ -3,13 +3,13 @@
 #' @description Generates a "Love" plot graphically displaying covariate balance before and after adjusting. Options are available for producing publication-ready plots. Detailed examples are available in `vignette("love.plot")`.
 #' 
 #' @param x the valid input to a call to [bal.tab()] (e.g., the output of a preprocessing function). Other arguments that would be supplied to `bal.tab()` can be entered with `...`. Can also be a `bal.tab` object, i.e., the output of a call to `bal.tab()`. See Examples. If `x` is not a `bal.tab` object, `love.plot()` calls `bal.tab()` with the arguments supplied.
-#' @param stats `character`; which statistic(s) should be reported. See [`stats()`][balance-statistics] for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
+#' @param stats `character`; which statistic(s) should be reported. See [`stats`][balance-statistics] for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.
 #' @param abs `logical`; whether to present the statistic in absolute value or not. For variance ratios, this will force all ratios to be greater than or equal to 1. If `x` is a `bal.tab` object, `love.plot()` might ignore `abs` depending on the original `bal.tab()` call. If unspecified, uses whatever was used in the call to `bal.tab()`.
 #' @param agg.fun if balance is to be displayed across clusters or imputations rather than within a single cluster or imputation, which summarizing function ("mean", "max", or "range") of the balance statistics should be used. If "range" is entered, `love.plot()` will display a line from the min to the max with a point at the mean for each covariate. Abbreviations allowed; "range" is default. Remember to set `which.<ARG> = .none` (where `<ARG>` is the grouping argument, such as `cluster` or `imp`) to use `agg.fun`. See Details.
 #' @param var.order a `character` or `love.plot` object; how to order the variables in the plot. See Details. 
 #' @param drop.missing `logical`; whether to drop rows for variables for which the statistic has a value of `NA`, for example, variance ratios for binary variables. If `FALSE`, there will be rows for these variables but no points representing their value. Default is `TRUE`, so that variables with missing balance statistics are absent. When multiple `stats` are requested, only variables with `NA`s for all `stats` will be dropped if `drop.missing = TRUE`. This argument used to be called `no.missing`, and that name still works (but has been deprecated).
 #' @param drop.distance `logical`; whether to ignore the distance measure (if there are any) in plotting.
-#' @param thresholds `numeric`; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at [`stats()`][balance-statistics]. If `x` is a `bal.tab` object and a threshold was set in it (e.g., with `thresholds`), its threshold will be used unless overridden using the `threshold` argument in `love.plot`.
+#' @param thresholds `numeric`; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at [`stats`][balance-statistics]. If `x` is a `bal.tab` object and a threshold was set in it (e.g., with `thresholds`), its threshold will be used unless overridden using the `threshold` argument in `love.plot()`.
 #' @param line `logical`; whether to display a line connecting the points for each sample.
 #' @param stars when mean differences are to be displayed, which variable names should have a star (i.e., an asterisk) next to them. Allowable values are "none", "std" (for variables with mean differences that have been standardized), or "raw" (for variables with mean differences that have not been standardized). If "raw", the x-axis title will be "Standardized Mean Differences". Otherwise, it will be "Mean Differences". Ignored when mean difference are not displayed. See Details for an explanation of the purpose of this option.
 #' @param grid `logical`; whether gridlines should be shown on the plot. Default is `FALSE`.
@@ -31,7 +31,7 @@
 #'     \item{`disp.subclass`}{whether to display individual subclasses if subclassification is used. Overrides the `disp.subclass` option in the original `bal.tab()` call if `x` is a `bal.tab` object.}
 #'     \item{`star_char`}{`character`; when `stars` are used, the character that should be the "star" next to the starred variables. The default is `"*"`. `"†"` or `"\u2020"` (i.e., dagger) might be appealing as well.}
 #' }
-#' Additionally, any of the `which.` arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to `.none` to aggregate across groups (in which `agg.fun` comes into effect) and set to `.all` to view all groups. See `display_options` for options, and see `vignette("segmented-data")` for details and examples.
+#' Additionally, any of the `which.` arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to `.none` to aggregate across groups (in which `agg.fun` comes into effect) and set to `.all` to view all groups. See [display-options] for options, and see `vignette("segmented-data")` for details and examples.
 #' 
 #' @returns When only one type of balance statistic is requested, the returned object is a standard `ggplot` object that can be manipulated using \pkg{ggplot2} syntax. This facilitates changing fonts, background colors, and features of the legend outside of what `love.plot()` provides automatically. 
 #' 
@@ -51,7 +51,7 @@
 #' 
 #' ### Variable names using `var.names`
 #' 
-#' The default in `love.plot` is to present variables as they are named in the output of the call to `bal.tab`, so it is important to know this output before specifying alternate variable names when using `var.names`, as the displayed variable names may differ from those in the original data.
+#' The default in `love.plot()` is to present variables as they are named in the output of the call to `bal.tab()`, so it is important to know this output before specifying alternate variable names when using `var.names`, as the displayed variable names may differ from those in the original data.
 #' 
 #' There are several ways to specify alternate names for presentation in the displayed plot using the `var.names` argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the `names` of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from `bal.tab()` is not provided in the list of old variable names, `love.plot()` will use the original old variable name.
 #' 
@@ -223,7 +223,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 list(variable.names = row.names(x[["Balance.Across.Subclass"]]))))
         }
         else subclass.names <- sub.B <- NULL
-
+        
         attr(x, "print.options")$weight.names <- "Adj"
         subtitle <- "Across Subclasses"
         config <- "agg.none"
@@ -233,7 +233,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         B_list <- unpack_bal.tab(x)
         namesep <- attr(B_list, "namesep")
         class_sequence <- attr(B_list, "class_sequence")
-
+        
         if (is_not_null(class_sequence)) {
             #Multiple layers present
             facet_mat <- as.matrix(do.call(rbind, strsplit(names(B_list), namesep, fixed = TRUE)))
@@ -343,7 +343,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 }
                 
                 B <- B[order(B[["variable.names"]]),]
-
+                
                 subtitle1 <- paste0(Agg.Fun, " across ", word_list(vapply(agg.over, switch, character(1L),
                                                                           "cluster" = "clusters",
                                                                           "time" = "time points",
@@ -384,8 +384,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         else {
             #Single-layer bal.tab
             B <- cbind(B_list, 
-                            variable.names = factor(rownames(B_list), levels = rownames(B_list)))
-
+                       variable.names = factor(rownames(B_list), levels = rownames(B_list)))
+            
             facet <- one.level.facet <- agg.over <- NULL
             
             B_names <- names(B)
@@ -520,7 +520,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     #Process sample names
     
     ntypes <- length(attr(x, "print.options")$weight.names) + 1
-
+    
     original.sample.names <- c("Unadjusted", attr(x, "print.options")$weight.names)
     if (length(original.sample.names) == 2) original.sample.names[2] <- "Adjusted"
     
@@ -561,7 +561,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             limits <- limits[!is.na(names(limits))]
         }
         else {
-            names(limits) <- stats[1:length(limits)]
+            names(limits) <- stats[seq_len(limits)]
         }
     }
     
@@ -614,7 +614,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     else {
         #check shapes
         if (!shapes.ok(shapes, ntypes)) {
-            .wrn(sprintf("The argument to `shape` must be %s valid shape%%s. See `?love.plot` for more information.\nUsing default shapes instead", ntypes), n = ntypes)
+            .wrn(sprintf("the argument to `shape` must be %s valid shape%%s. See `?love.plot` for more information.\nUsing default shapes instead", ntypes), n = ntypes)
             shapes <- assign.shapes(colors)
         }
         else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
@@ -697,13 +697,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                         B[facet],
                                                         row.names = NULL,
                                                         stringsAsFactors = TRUE)))
-           
+            
             sample.vals <- sample.names[levels(SS[["Sample"]])]
             SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
             
             if (all(sapply(SS[c("min.stat", "max.stat", "mean.stat")], is.na))) 
-                .err(sprintf("No balance statistics to display. This can occur when `%s = FALSE` and `quick = TRUE` in the original call to `bal.tab()`",
-                           STATS[[s]]$disp_stat))
+                .err(sprintf("no balance statistics to display. This can occur when `%s = FALSE` and `quick = TRUE` in the original call to `bal.tab()`",
+                             STATS[[s]]$disp_stat))
             
             missing.stat <- all(is.na(SS[["mean.stat"]]))
             if (missing.stat) {
@@ -772,7 +772,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         
                         SS[["var"]] <- factor(SS[["var"]], 
                                               levels = c(setdiff(v, distance.names), 
-                                                       sort(distance.names, decreasing = TRUE)))
+                                                         sort(distance.names, decreasing = TRUE)))
                     }
                 }
                 
@@ -782,7 +782,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 SS[["var"]] <- factor(SS[["var"]], levels = c(rev(setdiff(covnames, distance.names)),
                                                               sort(distance.names, decreasing = TRUE)))
             }
-
+            
             if (s == "mean.diffs" && any(base::abs(SS[["max.stat"]]) > 5, na.rm = TRUE)) {
                 .wrn("large mean differences detected; you may not be using standardized mean differences for continuous variables")
             }
@@ -808,7 +808,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             sample.vals <- sample.names[levels(SS[["Sample"]])]
             SS[["Sample"]] <- factor(SS[["Sample"]], levels = original.sample.names, labels = sample.names)
-
+            
             missing.stat <- all(is.na(SS[["stat"]]))
             if (missing.stat) {
                 .err(sprintf("%s cannot be displayed. This can occur when %s `FALSE` and `quick = TRUE` in the original call to `bal.tab()`",
@@ -816,7 +816,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                              word_list(STATS[[s]]$disp_stat, and.or = "and", is.are = TRUE,
                                        quotes = "`")))
             }
-           
+            
             gone <- character(0)
             for (i in sample.vals) {
                 if (all(is.na(SS[["stat"]][SS[["Sample"]] == i]))) {
@@ -863,7 +863,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     }
                     else covnames <- sort(levels(SS[["var"]]))
                     SS.var.levels <- c(rev(setdiff(covnames, distance.names)), sort(distance.names, decreasing = TRUE))
-
+                    
                 }
                 else if (var.order %in% ua) {
                     if (var.order %in% gone) {
@@ -917,8 +917,6 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         SS[["var"]] <- SS[["var"]][, drop = TRUE]
         
         #Make the plot
-        #library(ggplot2)
-        
         baseline.xintercept <- STATS[[s]]$baseline.xintercept
         if (is_not_null(thresholds[[s]])) threshold.xintercepts <- STATS[[s]]$threshold.xintercepts(thresholds[[s]], abs)
         else threshold.xintercepts <- NULL
@@ -1043,7 +1041,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 SS[["Sample"]] <- SS[["Sample"]][, drop = TRUE]
             }
             if (isTRUE(line)) { #Add line except to distance
-                f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
+                f <- function(q) {is.na(q[["stat"]])[q$type == "Distance"] <- TRUE; q}
                 lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
                                           position = "identity", stat = "identity",
                                           mapping = aes(color = .data$Sample),
@@ -1141,7 +1139,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         else {
             if (any(!get_from_STATS("adj_only")[stats])) {
-                    legend.to.get <- which(!get_from_STATS("adj_only")[stats])[1]
+                legend.to.get <- which(!get_from_STATS("adj_only")[stats])[1]
             }
             else legend.to.get <- 1
             
@@ -1256,7 +1254,7 @@ gg_color_hue <- function(n) {
     grDevices::hcl(h = hues, l = 65, c = 100)[1:n]
 }
 
-ggarrange_simple <- function (plots, nrow = NULL, ncol = NULL) {
+ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
     #A thin version of egg:ggarrange
     
     gtable_frame <- function (g, width = grid::unit(1, "null"), height = grid::unit(1, "null")) {
