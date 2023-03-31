@@ -561,7 +561,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             limits <- limits[!is.na(names(limits))]
         }
         else {
-            names(limits) <- stats[seq_len(limits)]
+            names(limits) <- stats[seq_along(limits)]
         }
     }
     
