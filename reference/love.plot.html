@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,7 +99,7 @@
 
 
 <dt>stats</dt>
-<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats()</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
+<dd><p><code>character</code>; which statistic(s) should be reported. See <code><a href="balance-statistics.html">stats</a></code> for allowable options. For binary and multi-category treatments, "mean.diffs" (i.e., mean differences) is the default. For continuous treatments, "correlations" (i.e., treatment-covariate Pearson correlations) is the default. Multiple options are allowed.</p></dd>
 
 
 <dt>abs</dt>
@@ -123,7 +123,7 @@
 
 
 <dt>thresholds</dt>
-<dd><p><code>numeric</code>; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at <code><a href="balance-statistics.html">stats()</a></code>. If <code>x</code> is a <code>bal.tab</code> object and a threshold was set in it (e.g., with <code>thresholds</code>), its threshold will be used unless overridden using the <code>threshold</code> argument in <code>love.plot</code>.</p></dd>
+<dd><p><code>numeric</code>; an optional value to be used as a threshold marker in the plot. Should be a named vector where each name corresponds to the statistic for which the threshold is to be applied. See example at <code><a href="balance-statistics.html">stats</a></code>. If <code>x</code> is a <code>bal.tab</code> object and a threshold was set in it (e.g., with <code>thresholds</code>), its threshold will be used unless overridden using the <code>threshold</code> argument in <code>love.plot()</code>.</p></dd>
 
 
 <dt>line</dt>
@@ -197,7 +197,7 @@
 <dd><p><code>character</code>; when <code>stars</code> are used, the character that should be the "star" next to the starred variables. The default is <code>"*"</code>. <code>"†"</code> or <code>"\u2020"</code> (i.e., dagger) might be appealing as well.</p></dd>
 
 
-</dl><p>Additionally, any of the <code>which.</code> arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to <code>.none</code> to aggregate across groups (in which <code>agg.fun</code> comes into effect) and set to <code>.all</code> to view all groups. See <code>display_options</code> for options, and see <code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for details and examples.</p></dd>
+</dl><p>Additionally, any of the <code>which.</code> arguments used with clustered or multiply imputed data or longitudinal or multi-category treatments can be specified to display balance on selected groupings. Set to <code>.none</code> to aggregate across groups (in which <code>agg.fun</code> comes into effect) and set to <code>.all</code> to view all groups. See <a href="display-options.html">display-options</a> for options, and see <code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for details and examples.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -225,7 +225,7 @@
 <h3 id="variable-names-using-var-names">Variable names using <code>var.names</code><a class="anchor" aria-label="anchor" href="#variable-names-using-var-names"></a></h3>
 
 
-<p>The default in <code>love.plot</code> is to present variables as they are named in the output of the call to <code>bal.tab</code>, so it is important to know this output before specifying alternate variable names when using <code>var.names</code>, as the displayed variable names may differ from those in the original data.</p>
+<p>The default in <code>love.plot()</code> is to present variables as they are named in the output of the call to <code><a href="bal.tab.html">bal.tab()</a></code>, so it is important to know this output before specifying alternate variable names when using <code>var.names</code>, as the displayed variable names may differ from those in the original data.</p>
 <p>There are several ways to specify alternate names for presentation in the displayed plot using the <code>var.names</code> argument by specifying a list of old and new variable names, pairing the old name with the new name. You can do this in three ways: 1) use a vector or list of new variable names, with the <code>names</code> of the values the old variable names; 2) use a data frame with exactly one column containing the new variable names and the row names containing the old variable names; or 3) use a data frame with two columns, the first (or the one named "old") containing the old variable names and the second (or the one named "new") containing the new variable names. If a variable in the output from <code><a href="bal.tab.html">bal.tab()</a></code> is not provided in the list of old variable names, <code>love.plot()</code> will use the original old variable name.</p>
 <p><code>love.plot()</code> can replace old variables names with new ones based on exact matching for the name strings or matching using the variable name components. For example, if a factor variable <code>"X"</code> with levels <code>"a"</code>, <code>"b"</code>, and <code>"c"</code> is displayed with <code>love.plot()</code>, the variables <code>"X_a"</code>, <code>"X_b"</code>, and <code>"X_c"</code> will be displayed. You can enter replacement names for all three variables individually with <code>var.names</code>, or you can simply specify a replacement name for <code>"X"</code>, and <code>"X"</code> will be replaced by the given name in all instances it appears, including not just factor expansions, but also polynomials and interactions in <code>int = TRUE</code> in the original <code><a href="bal.tab.html">bal.tab()</a></code> call. In an interaction with another variable, say <code>"Y"</code>, there are several ways to replace the name of the interaction term <code>"X_a * Y"</code>. If the entire string (<code>"X_a * Y"</code>) is included in <code>var.names</code>, the entire string will be replaced. If <code>"X_a"</code> is included in <code>var.names</code>, only it will be replaced (and it will be replaced everywhere else it appears). If <code>"X"</code> is included in <code>var.names</code>, only it will be replaced (and it will be replaced everywhere else it appears). See example at <code><a href="var.names.html">var.names()</a></code>.</p>
 </div>

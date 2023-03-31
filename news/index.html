@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.0.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,17 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="4.5.0" id="cobalt-450">cobalt 4.5.0<a class="anchor" aria-label="anchor" href="#cobalt-450"></a></h2>
+<h2 class="pkg-version" data-toc-text="development version" id="cobalt-development-version">cobalt (development version)<a class="anchor" aria-label="anchor" href="#cobalt-development-version"></a></h2>
+<ul><li><p>Added a new function <code>available_stats()</code> which lists the available balance statistics for use with <code><a href="../reference/bal.compute.html">bal.init()</a></code> and <code><a href="../reference/bal.compute.html">bal.compute()</a></code>.</p></li>
+<li><p>The interfaces to <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> have changed slightly. The arguments have a slightly different order to match other <code>cobalt</code> functions. <code><a href="../reference/bal.compute.html">bal.compute()</a></code> now is a generic function with a method for <code>bal.init</code> objects and a default method. The default method accepts the same arguments as <code><a href="../reference/bal.compute.html">bal.init()</a></code> (and optionally an additional <code>weights</code> argument) and computes the (weighted) balance statistic directly. For most uses, the <code>bal.init() |&gt; bal.compute()</code> workflow should be preferred.</p></li>
+<li><p>Added a new univariate balance statistic, the entropic distance as described by Oyenubi and Wittenberg (2021). This can be requested in <code><a href="../reference/bal.tab.html">bal.tab()</a></code> and <code><a href="../reference/love.plot.html">love.plot()</a></code> using <code>stats = "ent"</code>, which uses the new function <code><a href="../reference/balance-summary.html">col_w_ent()</a></code> to compute the statistics. These can also computed using <code><a href="../reference/bal.compute.html">bal.compute()</a></code>.</p></li>
+<li><p>Added a new multivariate balance statistic, the kernel distance as described by Zhu, Savage, and Ghosh (2018). This can be requested in <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> by setting <code>stat = "kernel.dist"</code>. In most cases, this will perform similarly to the energy distance.</p></li>
+<li><p>Fixed a bug when using <code><a href="../reference/bal.compute.html">bal.init()</a></code> with non-<code>NULL</code> <code>s.weights</code>.</p></li>
+<li><p>Fixed bugs when using <code><a href="../reference/bal.compute.html">bal.init()</a></code> and <code><a href="../reference/bal.compute.html">bal.compute()</a></code> with multi-category treatments.</p></li>
+<li><p>Improved some errors in <code><a href="../reference/balance-summary.html">col_w_smd()</a></code> and friends and <code><a href="../reference/var.names.html">var.names()</a></code>.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="4.5.0" id="cobalt-450">cobalt 4.5.0<a class="anchor" aria-label="anchor" href="#cobalt-450"></a></h2><p class="text-muted">CRAN release: 2023-03-22</p>
 <ul><li><p>Added new functions <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code>, which are used for compute scalar balance statistics efficiently for use in optimizing balance. A new vignette, <code><a href="../articles/optimizing-balance.html">vignette("optimizing-balance")</a></code> is available as well.</p></li>
 <li><p>When <code>focal</code> is specified with multi-category treatments (by the user or implicitly by the supplied object), <code>pairwise</code> can be set to <code>TRUE</code> to request balance between each pair of treatment groups and to <code>FALSE</code> to request balance only between each non-focal group and the focal group. Previously only the behavior of setting <code>pairwise</code> to <code>FALSE</code> was supported. Now the default is for <code>pairwise</code> to be <code>TRUE</code>. To recover balance results for version prior to this one, set <code>pairwise = FALSE</code> with non-<code>NULL</code> <code>focal</code>.</p></li>
 <li><p>With <code>optmatch</code> objects, the <code>estimand</code> argument can now be supplied to <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, etc., to control how the matching weights are computed from the subclass/pair membership. This is consistent with how <code><a href="../reference/get.w.html">get.w()</a></code> uses the same argument.</p></li>
