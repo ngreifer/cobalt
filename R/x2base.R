@@ -242,7 +242,7 @@ x2base.matchit <- function(m, ...) {
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
-    return(X)
+    X
 }
 x2base.ps <- function(ps, ...) {
     A <- list(...)
@@ -253,7 +253,7 @@ x2base.ps <- function(ps, ...) {
     
     if (is_not_null(A[["stop.method"]])) {
         if (is.character(A[["stop.method"]])) {
-            rule1 <- names(ps[["w"]])[sapply(tolower(names(ps[["w"]])), function(x) any(startsWith(x, tolower(A[["stop.method"]]))))]
+            rule1 <- names(ps[["w"]])[vapply(tolower(names(ps[["w"]])), function(x) any(startsWith(x, tolower(A[["stop.method"]]))), logical(1L))]
             if (is_null(rule1)) {
                 .msg(paste0("Warning: `stop.method` should be ", word_list(names(ps[["w"]]), and.or = "or", quotes = 2), ".\nUsing all available stop methods instead"))
                 rule1 <- names(ps[["w"]])
@@ -452,7 +452,7 @@ x2base.ps <- function(ps, ...) {
     
     class(X) <- "binary"
     
-    return(X)
+    X
 }
 x2base.mnps <- function(mnps, ...) {
     A <- list(...)
@@ -463,7 +463,7 @@ x2base.mnps <- function(mnps, ...) {
     
     if (is_not_null(A[["stop.method"]])) {
         if (any(is.character(A[["stop.method"]]))) {
-            rule1 <- mnps[["stopMethods"]][sapply(t(sapply(tolower(A[["stop.method"]]), function(x) startsWith(tolower(mnps[["stopMethods"]]), x))), any)]
+            rule1 <- mnps[["stopMethods"]][vapply(t(sapply(tolower(A[["stop.method"]]), function(x) startsWith(tolower(mnps[["stopMethods"]]), x))), any, logical(1L))]
             if (is_null(rule1)) {
                 .msg(paste0("Warning: `stop.method` should be ", word_list(mnps[["stopMethods"]], and.or = "or", quotes = 2), ".\nUsing all available stop methods instead"))
                 rule1 <- mnps[["stopMethods"]]
@@ -647,7 +647,7 @@ x2base.mnps <- function(mnps, ...) {
     
     class(X) <- "multi"
     
-    return(X)
+    X
 }
 x2base.ps.cont <- function(ps.cont, ...) {
     A <- list(...)
@@ -786,7 +786,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("correlations" %in% stats) {
+        if (any(c("correlations", "spearman.correlations") %in% stats)) {
             s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
@@ -812,7 +812,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     class(X) <- "cont"
     
-    return(X)
+    X
 }
 x2base.Match <- function(Match, ...) {
     A <- list(...)
@@ -988,7 +988,7 @@ x2base.Match <- function(Match, ...) {
     
     class(X) <- "binary"
     
-    return(X)
+    X
 }
 x2base.formula <- function(formula, ...) {
     A <- list(...)
@@ -996,8 +996,7 @@ x2base.formula <- function(formula, ...) {
     #Pass to x2base.data.frame, which processes covs as a formula
     A[["covs"]] <- NULL
 
-    X <- do.call(x2base.data.frame, c(list(covs = formula), A))
-    return(X)
+    do.call(x2base.data.frame, c(list(covs = formula), A))
 }
 x2base.data.frame <- function(covs, ...) {
     A <- list(...)
@@ -1035,14 +1034,14 @@ x2base.data.frame <- function(covs, ...) {
     treat <- process_treat(A[["treat"]], datalist = list(data))
     
     #Process covs
-    if (is_null(covs)) {
+    if (is.null(covs)) {
         .err("`covs` data.frame must be specified")
     }
     if (rlang::is_formula(covs)) {
         covs <- get_covs_from_formula(covs, data = data)
-        if (is_null(covs)) {
-            .err("The right hand side of the formula must contain covariates for which balance is to be assessed")
-        }
+        # if (is_null(covs)) {
+        #     .err("The right hand side of the formula must contain covariates for which balance is to be assessed")
+        # }
     }
     if (is_null(attr(covs, "co.names"))) {
         if (is.matrix(covs)) covs <- as.data.frame.matrix(covs)
@@ -1306,7 +1305,7 @@ x2base.data.frame <- function(covs, ...) {
                                        weights = weights, subclass = subclass, 
                                        treat = treat, focal = focal)
         }
-        else if ("correlations" %in% stats) {
+        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
             s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
@@ -1329,7 +1328,7 @@ x2base.data.frame <- function(covs, ...) {
     X <- subset_X(X, subset)
     X <- setNames(X[X.names], X.names)
     
-    return(X)
+    X
 }
 x2base.CBPS <- function(cbps.fit, ...) {
     A <- list(...)
@@ -1491,7 +1490,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
             s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal,
                                        quietly = TRUE)
         }
-        else if ("correlations" %in% stats) {
+        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
             s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
@@ -1513,9 +1512,8 @@ x2base.CBPS <- function(cbps.fit, ...) {
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[X.names], X.names)
     
-    return(X)
+    setNames(X[X.names], X.names)
 }
 x2base.ebalance <- function(ebalance, ...) {
     A <- list(...)
@@ -1692,7 +1690,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     class(X) <- "binary"
     
-    return(X)
+    X
 }
 x2base.optmatch <- function(optmatch, ...) {
     A <- list(...)
@@ -1868,7 +1866,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     class(X) <- "binary"
     
-    return(X)
+    X
 }
 x2base.cem.match <- function(cem.match, ...) {
     A <- list(...)
@@ -1877,7 +1875,7 @@ x2base.cem.match <- function(cem.match, ...) {
     if (inherits(cem.match, "cem.match.list")) {
         cem.match[["vars"]] <- cem.match[[1]][["vars"]]
         cem.match[["baseline.group"]] <- cem.match[[1]][["baseline.group"]]
-        cem.match[["groups"]] <- unlist(lapply(cem.match[vapply(cem.match, is_, logical(1L), "cem.match")], `[[`, "groups"))
+        cem.match[["groups"]] <- unlist(grab(cem.match[vapply(cem.match, inherits, logical(1L), "cem.match")], "groups"))
         cem.match[["w"]] <- get.w.cem.match(cem.match)
     }
     if (all(check_if_zero(cem.match[["w"]]))) .err("the supplied cem.match object contains no valid matches")
@@ -2047,7 +2045,7 @@ x2base.cem.match <- function(cem.match, ...) {
     
     class(X) <- "binary"
     
-    return(X)
+    X
 }
 x2base.weightit <- function(weightit, ...) {
     A <- list(...)
@@ -2202,7 +2200,7 @@ x2base.weightit <- function(weightit, ...) {
         if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
-        else if ("correlations" %in% stats) {
+        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
             s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
@@ -2224,9 +2222,8 @@ x2base.weightit <- function(weightit, ...) {
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[X.names], X.names)
     
-    return(X)
+    setNames(X[X.names], X.names)
 }
 x2base.designmatch <- function(dm, ...) {
     A <- list(...)
@@ -2403,7 +2400,7 @@ x2base.designmatch <- function(dm, ...) {
     
     class(X) <- "binary"
     
-    return(X)
+    X
 }
 x2base.mimids <- function(mimids, ...) {
     A <- list(...)
@@ -2435,7 +2432,6 @@ x2base.mimids <- function(mimids, ...) {
         }
     }
     
-    
     #Process imp
     if (is_not_null(imp)) {
         imp <- vector.process(imp, 
@@ -2447,10 +2443,10 @@ x2base.mimids <- function(mimids, ...) {
     }
     
     #Process treat
-    treat <- process_treat(unlist(lapply(models, function(m) m[["treat"]])))
+    treat <- process_treat(unlist(grab(models, "treat")))
     
     #Process covs
-    covs <- do.call("rbind", lapply(models, function(m) m[["X"]]))
+    covs <- do.call("rbind", grab(models, "X"))
     covs <- get_covs_from_formula(data = covs)
     
     #Get estimand
@@ -2463,7 +2459,7 @@ x2base.mimids <- function(mimids, ...) {
     addl <- process_addl(A[["addl"]], datalist = list(data, m.data))
     
     #Process distance
-    m.distance <- unlist(lapply(models, function(m) m[["distance"]]))
+    m.distance <- unlist(grab(models, "distance"))
     
     if (all(is.na(m.distance))) m.distance <- NULL
     
@@ -2474,7 +2470,8 @@ x2base.mimids <- function(mimids, ...) {
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
         .err("`focal` is not allowed with mimids objects")
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    }
+    if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -2502,8 +2499,13 @@ x2base.mimids <- function(mimids, ...) {
     method <- attr(weights, "method")
     
     #Process s.weights
-    if (is_not_null(s.weights <- A[["s.weights"]])) {
-        .err("sampling weights are not allowed with mimids objects")
+    if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], unlist(grab(models, "s.weights"))))) {
+        s.weights <- vector.process(s.weights, 
+                                    datalist = list(data, m.data),
+                                    name = "s.weights", 
+                                    which = "sampling weights",
+                                    missing.okay = FALSE)
+        weight.check(s.weights)
     }
     
     #Process cluster
@@ -2523,7 +2525,7 @@ x2base.mimids <- function(mimids, ...) {
     }
     
     #Process discarded
-    discarded <- unlist(lapply(models, function(m) m[["discarded"]]))
+    discarded <- unlist(grab(models, "discarded"))
     
     #Process imp and length
     length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
@@ -2595,7 +2597,7 @@ x2base.mimids <- function(mimids, ...) {
     
     class(X) <- "imp"
     
-    return(X)
+    X
 }
 x2base.wimids <- function(wimids, ...) {
     A <- list(...)
@@ -2638,14 +2640,14 @@ x2base.wimids <- function(wimids, ...) {
     }
     
     #Process treat
-    treat <- process_treat(unlist(lapply(models, function(w) w[["treat"]])))
+    treat <- process_treat(unlist(grab(models, "treat")))
     
     #Process covs
-    covs <- do.call("rbind", lapply(models, function(w) w[["covs"]]))
+    covs <- do.call("rbind", grab(models, "covs"))
     covs <- get_covs_from_formula(data = covs)
     
     #Get estimand
-    estimand <- unique(unlist(lapply(models, function(w) w[["estimand"]])))
+    estimand <- unique(unlist(grab(models, "estimand")))
  
     #Get method
     method <- "weighting"
@@ -2654,7 +2656,7 @@ x2base.wimids <- function(wimids, ...) {
     addl <- process_addl(A[["addl"]], datalist = list(data, w.data))
     
     #Process distance
-    w.distance <- unlist(lapply(models, function(m) m[["ps"]]))
+    w.distance <- unlist(grab(models, "ps"))
     if (all(is.na(w.distance))) w.distance <- NULL
     
     distance <- process_distance(A[["distance"]], datalist = list(data, w.data),
@@ -2662,7 +2664,7 @@ x2base.wimids <- function(wimids, ...) {
                                  obj.distance.name = "prop.score")
     
     #Process focal
-    focal <- unique(unlist(lapply(models, function(w) w[["focal"]])))
+    focal <- unique(unlist(grab(models, "focal")))
     
     #Process pairwise
     if (get.treat.type(treat) == "binary" && is_null(focal)) {
@@ -2685,7 +2687,7 @@ x2base.wimids <- function(wimids, ...) {
     method <- attr(weights, "method")
     
     #Process s.weights
-    if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], unlist(lapply(models, function(w) w[["s.weights"]]))))) {
+    if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], unlist(grab(models, "s.weights"))))) {
         s.weights <- vector.process(s.weights, 
                                     datalist = list(data, w.data),
                                     name = "s.weights", 
@@ -2711,7 +2713,7 @@ x2base.wimids <- function(wimids, ...) {
     }
     
     #Process discarded
-    discarded <- unlist(lapply(models, function(w) w[["discarded"]]))
+    discarded <- unlist(grab(models, "discarded"))
     
     #Process imp and length
     length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
@@ -2760,7 +2762,7 @@ x2base.wimids <- function(wimids, ...) {
         if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
-        else if ("correlations" %in% stats) {
+        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
             s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
@@ -2786,7 +2788,7 @@ x2base.wimids <- function(wimids, ...) {
     
     class(X) <- "imp"
     
-    return(X)
+    X
 }
 x2base.sbwcau <- function(sbwcau, ...) {
     A <- list(...)
@@ -2964,7 +2966,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     class(X) <- "binary"
     
-    return(X)
+    X
 }
 
 #MSMs wth multiple time points
@@ -3023,7 +3025,7 @@ x2base.iptw <- function(iptw, ...) {
     }
     
     #Process treat.list
-    treat.list <- process_treat.list(lapply(iptw[["psList"]], function(x) x[["treat"]]), datalist = list(data, ps.data))
+    treat.list <- process_treat.list(grab(iptw[["psList"]], "treat"), datalist = list(data, ps.data))
     
     #Process covs.list
     covs.list <- lapply(iptw[["psList"]], function(x) get_covs_from_formula(reformulate(x[["gbm.obj"]][["var.names"]]), data = x[["data"]]))
@@ -3190,9 +3192,8 @@ x2base.iptw <- function(iptw, ...) {
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[X.names], X.names)
     
-    return(X)
+    setNames(X[X.names], X.names)
 }
 x2base.data.frame.list <- function(covs.list, ...) {
     A <- list(...)
@@ -3406,7 +3407,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
-        else if ("correlations" %in% stats){
+        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
             s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
@@ -3432,7 +3433,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     class(X) <- "msm"
     
-    return(X)
+    X
 }
 x2base.formula.list <- function(formula.list, ...) {
     A <- list(...)
@@ -3446,8 +3447,7 @@ x2base.formula.list <- function(formula.list, ...) {
         names(treat.list)[i] <- attr(treat.list[[i]], "treat.name")
     }
     
-    X <- do.call("x2base.data.frame.list", c(list(covs.list, treat.list = treat.list), A))
-    return(X)
+    do.call("x2base.data.frame.list", c(list(covs.list, treat.list = treat.list), A))
 }
 x2base.CBMSM <- function(cbmsm, ...) {
     A <- list(...)
@@ -3608,7 +3608,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
         if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
-        else if ("correlations" %in% stats) {
+        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
             s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
@@ -3630,9 +3630,8 @@ x2base.CBMSM <- function(cbmsm, ...) {
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[X.names], X.names)
     
-    return(X)
+    setNames(X[X.names], X.names)
 }
 x2base.weightitMSM <- function(weightitMSM, ...) {
     A <- list(...)
@@ -3795,7 +3794,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         if ("mean.diffs" %in% stats) {
             s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
-        else if ("correlations" %in% stats) {
+        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
             s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
@@ -3817,9 +3816,8 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     }
     
     X <- subset_X(X, subset)
-    X <- setNames(X[X.names], X.names)
     
-    return(X)
+    setNames(X[X.names], X.names)
 }
 
 x2base.default <- function(obj, ...) {
@@ -3892,9 +3890,9 @@ x2base.default <- function(obj, ...) {
     
     #treat.list
     if (is_not_null(A[["treat.list"]])) {
-        if (!all(sapply(A[["treat.list"]], function(x) {
+        if (!all(vapply(A[["treat.list"]], function(x) {
             any(vapply(Q[["treat"]][["type"]], function(c) is_(x, c), logical(1L)))
-        }))) {
+        }, logical(1L)))) {
             A[["treat.list"]] <- NULL
         }
         else msm <- TRUE
@@ -4287,7 +4285,7 @@ x2base.default <- function(obj, ...) {
                                            weights = weights, subclass = subclass, 
                                            treat = treat, focal = focal)
             }
-            else if ("correlations" %in% stats) {
+            else if (any(c("correlations", "spearman.correlations") %in% stats)) {
                 s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
             }
         }
@@ -4359,7 +4357,7 @@ x2base.default <- function(obj, ...) {
             .err("`covs.list` must be a list of covariates for which balance is to be assessed at each time point")
         }
         if (any(!vapply(covs.list, is.data.frame, logical(1L)))) {
-            .err("Each item in `covs.list` must be a data frame")
+            .err("each item in `covs.list` must be a data frame")
         }
         if (length(treat.list) != length(covs.list)) {
             .err("`treat.list` must be a list of treatment statuses at each time point")
@@ -4531,7 +4529,7 @@ x2base.default <- function(obj, ...) {
             if ("mean.diffs" %in% stats) {
                 s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
             }
-            else if ("correlations" %in% stats) {
+            else if (any(c("correlations", "spearman.correlations") %in% stats)) {
                 s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
             }
         }
@@ -4558,5 +4556,5 @@ x2base.default <- function(obj, ...) {
         class(X) <- "msm"
     }
     
-    return(X)
+    X
 }
