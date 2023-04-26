@@ -159,10 +159,6 @@ The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed u
 
 The mean, maximum, or root-mean-squared overlapping coefficient compliment, computed using `col_w_ovl()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
 
-#### `ent.mean`, `ent.max`, `ent.rms`
-
-The mean, maximum, or root-mean-squared entropic distance, computed using `col_w_ent()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
-
 #### `mahalanobis`
 
 The Mahalanobis distance between the treatment group means, which is computed as $$
