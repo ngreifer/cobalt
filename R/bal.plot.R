@@ -214,6 +214,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         else treat.names <- which(appears.in.time)
         
         if (is_not_null(X$weights)) X$weights <- do.call("rbind", lapply(seq_len(sum(appears.in.time)), function(x) X$weights))
+        if (is_not_null(X$s.weights)) X$s.weights <- do.call("c", lapply(seq_len(sum(appears.in.time)), function(x) X$s.weights))
         if (is_not_null(X$cluster)) X$cluster <- rep(X$cluster, sum(appears.in.time))
         if (is_not_null(X$imp)) X$imp <- rep(X$imp, sum(appears.in.time))
     }
@@ -379,12 +380,12 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                         }
                         else if (any(which.time %in% seq_along(X$covs.list)[appears.in.time])) {
                             .wrn(sprintf("%s does not appear in time period %s",
-                                            add_quotes(var.name), word_list(which.time[!which.time %in% seq_along(X$covs.list)[appears.in.time]], "or"), "."))
+                                            add_quotes(var.name), word_list(which.time[!which.time %in% seq_along(X$covs.list)[appears.in.time]], "or")))
                             which.time <- which.time[which.time %in% seq_along(X$covs.list)[appears.in.time]]
                         }
                         else {
                             .err(sprintf("%s does not appear in time period %s",
-                                         add_quotes(var.name), word_list(which.time, "or"), "."))
+                                         add_quotes(var.name), word_list(which.time, "or")))
                         }
                         in.time <- !is.na(X$time) & X$time %in% which.time
                     }
@@ -409,7 +410,6 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                                          add_quotes(var.name), time.periods), n = length(which.time))
                         }
                         in.time <- !is.na(X$time) & treat.names[X$time] %in% which.time
-                        
                     }
                     else {
                         .err(paste0("The following inputs to `which.time` do not correspond to given time periods:\n\t", word_list(which.time[!which.time %in% treat.names])), tidy = FALSE)
@@ -738,7 +738,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
                                                   mapping = aes(x = .data$var.mean, xend = .data$var.mean, y = 0, yend = posneg[t]*Inf), 
                                                   color = if (isTRUE(mirror)) "black" else colors[[t]])
-                    return(clear_null(out))
+                    clear_null(out)
                 }
                 ylab <- "Proportion"
                 
@@ -808,7 +808,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                             ggplot2::geom_segment(data = unique(D[D$treat == levels(D$treat)[t], c("var.mean", facet), drop = FALSE]),
                                                   mapping = aes(x = .data$var.mean, xend = .data$var.mean, y = 0, yend = posneg[t]*Inf), 
                                                   color = if (isTRUE(mirror)) "black" else colors[[t]])
-                    return(clear_null(out))
+                    clear_null(out)
                 }
                 ylab <- "Density"
                 
@@ -880,7 +880,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         bp <- bp + ggplot2::facet_grid(facet.formula, drop = FALSE, scales = ifelse("subclass" %in% facet, "free_x", "fixed"))
     }
     
-    return(bp)
+   bp
 }
 
 # Helper functions
@@ -909,7 +909,8 @@ compute_density2 <- function(x, w, from, to, bw = "nrd0", adjust = 1,
     nx <- length(x)
     if (is.null(w)) {
         w <- rep(1 / nx, nx)
-    } else {
+    }
+    else {
         w <- w / sum(w)
     }
     
