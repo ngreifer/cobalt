@@ -40,9 +40,9 @@
 #' }
 
 #' @exportS3Method bal.tab ps
-bal.tab.ps <-         function(x, stop.method,
-                               stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
-                               ...) {
+bal.tab.ps <- function(x, stop.method,
+                       stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
+                       ...) {
     
     tryCatch(args <- c(as.list(environment()), list(...))[-1], error = function(e) .err(conditionMessage(e)))
     
@@ -58,9 +58,8 @@ bal.tab.ps <-         function(x, stop.method,
     
     X <- assign.X.class(X)
     
-    out <- do.call("base.bal.tab", c(list(X), args),
-                   quote = TRUE)
-    return(out)
+    do.call("base.bal.tab", c(list(X), args),
+            quote = TRUE)
 }
 
 #' @exportS3Method bal.tab mnps

@@ -90,10 +90,8 @@ bal.tab.formula <-    function(x, data = NULL,
     
     X <- assign.X.class(X)
     
-    out <- do.call("base.bal.tab", c(list(X), args),
-                   quote = TRUE)
-    
-    return(out)
+    do.call("base.bal.tab", c(list(X), args),
+            quote = TRUE)
 }
 #' @exportS3Method bal.tab data.frame
 #' @rdname bal.tab.formula
@@ -115,10 +113,8 @@ bal.tab.data.frame <- function(x, treat,
     
     X <- assign.X.class(X)
     
-    out <- do.call("base.bal.tab", c(list(X), args),
-                   quote = TRUE)
-    
-    return(out)
+    do.call("base.bal.tab", c(list(X), args),
+            quote = TRUE)
 }
 
 #' @exportS3Method bal.tab matrix

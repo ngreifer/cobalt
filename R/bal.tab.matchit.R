@@ -42,7 +42,7 @@
 #' bal.tab(m.out2, disp.subclass = TRUE)
 
 #' @exportS3Method bal.tab matchit
-bal.tab.matchit <-    function(x,
+bal.tab.matchit <- function(x,
                                stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
                                method, ...) {
     
@@ -60,7 +60,6 @@ bal.tab.matchit <-    function(x,
     
     X <- assign.X.class(X)
     
-    out <- do.call("base.bal.tab", c(list(X), args),
+    do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)
-    return(out)
 }

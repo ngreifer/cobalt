@@ -58,9 +58,8 @@ bal.tab.CBPS <-       function(x,
     
     X <- assign.X.class(X)
     
-    out <- do.call("base.bal.tab", c(list(X), args),
-                   quote = TRUE)
-    return(out)
+    do.call("base.bal.tab", c(list(X), args),
+            quote = TRUE)
 }
 
 #' @exportS3Method bal.tab CBMSM

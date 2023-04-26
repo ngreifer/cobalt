@@ -113,8 +113,6 @@ bal.tab.default <- function(x, stats, int = FALSE, poly = 1, distance = NULL, ad
     
     X <- assign.X.class(X)
     
-    out <- do.call("base.bal.tab", c(list(X), args),
-                   quote = TRUE)
-    
-    return(out)
+    do.call("base.bal.tab", c(list(X), args),
+            quote = TRUE)
 }
