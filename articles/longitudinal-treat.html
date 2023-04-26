@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.0.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2023-03-31</h4>
+            <h4 data-toc-skip class="date">2023-04-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/longitudinal-treat.Rmd" class="external-link"><code>vignettes/longitudinal-treat.Rmd</code></a></small>
       <div class="d-none name"><code>longitudinal-treat.Rmd</code></div>
@@ -127,56 +127,46 @@ present balance.</p>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
-<p>We’re going to use the <code>iptwExWide</code> data set in the
-<code>twang</code> package.</p>
+<p>We’re going to use the <code>msmdata</code> data set in the
+<code>WeightIt</code> package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ngreifer.github.io/cobalt/">"cobalt"</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"iptwExWide"</span>, package <span class="op">=</span> <span class="st">"twang"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">iptwExWide</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##      outcome gender age        use0         use1       use2 tx1 tx2 tx3</span></span>
-<span><span class="co">## 1 -0.2782802      0  43  1.13496509  0.467482544  0.3174825   1   1   1</span></span>
-<span><span class="co">## 2  0.5319329      0  50  1.11193185  0.455965923  0.4059659   1   0   1</span></span>
-<span><span class="co">## 3 -0.8173614      1  36 -0.87077763 -0.535388817 -0.5853888   1   0   0</span></span>
-<span><span class="co">## 4 -0.1530853      1  63  0.21073159  0.005365793 -0.1446342   1   1   1</span></span>
-<span><span class="co">## 5 -0.7344267      0  24  0.06939565 -0.065302176 -0.1153022   1   0   1</span></span>
-<span><span class="co">## 6 -0.8519376      1  20 -1.66264885 -0.931324426 -1.0813244   1   1   1</span></span></code></pre>
-<p>We have the variables <code>outcome</code>, which is the outcome,
-<code>gender</code>, <code>age</code>, and <code>use0</code>, which are
-the baseline covariates, <code>use1</code> and <code>use2</code>, which
-are time-varying covariates measured after treatment periods 1 and 2,
-and <code>tx1</code>, <code>tx2</code>, and <code>tx3</code>, which are
-the treatments at each of the three treatment periods.</p>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"msmdata"</span>, package <span class="op">=</span> <span class="st">"WeightIt"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">msmdata</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   X1_0 X2_0 A_1 X1_1 X2_1 A_2 X1_2 X2_2 A_3 Y_B</span></span>
+<span><span class="co">## 1    2    0   1    5    1   0    4    1   0   0</span></span>
+<span><span class="co">## 2    4    0   1    9    0   1   10    0   1   1</span></span>
+<span><span class="co">## 3    4    1   0    5    0   1    4    0   0   1</span></span>
+<span><span class="co">## 4    4    1   0    4    0   0    6    1   0   1</span></span>
+<span><span class="co">## 5    6    1   1    5    0   1    6    0   0   1</span></span>
+<span><span class="co">## 6    5    1   0    4    0   1    4    0   1   0</span></span></code></pre>
+<p>We have the variables <code>Y_B</code>, the outcome;
+<code>X1_0</code> and <code>X2_0</code>, the baseline covariates;
+<code>X1_1</code> and <code>X2_1</code>, time-varying covariates
+measured after treatment period 1; <code>X1_1</code> and
+<code>X2_1</code>, covariates measured after treatment period 2; and
+<code>A_1</code>, <code>A_2</code>, and <code>A_3</code>, the treatments
+at each of the three treatment periods.</p>
 <p>The goal of balance assessment in this scenario is to ensure the
 following:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code>tx1</code> is independent from <code>gender</code>,
-<code>age</code>, and <code>use0</code>
+<code>A_1</code> is independent from <code>X1_0</code> and
+<code>X2_0</code>
 </li>
 <li>
-<code>tx2</code> is independent from <code>gender</code>,
-<code>age</code>, <code>use0</code>, <code>tx1</code>, and
-<code>use1</code>
-</li>
+<code>A_2</code> is independent from <code>X1_0</code>,
+<code>X2_0</code>, <code>A_1,</code>X1_1<code>, and</code>X2_1`</li>
 <li>
-<code>tx3</code> is independent from <code>gender</code>,
-<code>age</code>, <code>use0</code>, <code>tx1</code>,
-<code>use1</code>, <code>tx2</code>, and <code>use2</code>
+<code>tx3</code> is independent from <code>X1_0</code>,
+<code>X2_0</code>,
+<code>A_1,</code>X1_1<code>,</code>X2_1<code>,</code>A_2,
+<code>X1_2</code>, and <code>X2_2</code>
 </li>
 </ol>
-<p>To estimate the weights, we’ll use <code>WeightIt</code> to fit a
-series of logistic regressions that generate the weights. See the
-<code>WeightIt</code> documentation for more information on how to use
-<code>WeightIt</code> with longitudinal treatments.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Wmsm</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">tx1</span> <span class="op">~</span> <span class="va">use0</span> <span class="op">+</span> <span class="va">gender</span> <span class="op">+</span> <span class="va">age</span>,</span>
-<span>         <span class="va">tx2</span> <span class="op">~</span> <span class="va">use0</span> <span class="op">+</span> <span class="va">gender</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">use1</span> <span class="op">+</span> <span class="va">tx1</span>,</span>
-<span>         <span class="va">tx3</span> <span class="op">~</span> <span class="va">use0</span> <span class="op">+</span> <span class="va">gender</span> <span class="op">+</span> <span class="va">age</span> <span class="op">+</span> <span class="va">use1</span> <span class="op">+</span> <span class="va">tx1</span> <span class="op">+</span> <span class="va">use2</span> <span class="op">+</span> <span class="va">tx2</span><span class="op">)</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">iptwExWide</span>,</span>
-<span>    method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></span></code></pre></div>
-<p>Next we’ll use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> to examine balance before and
-after applying the weights.</p>
+<p>Note these conditions are different from and weaker than those
+described by <span class="citation">Jackson (<a href="#ref-jacksonDiagnosticsConfoundingTimevarying2016" role="doc-biblioref">2016</a>)</span>. See his <code>confoundr</code>
+package for implementing the diagnostics he describes.</p>
 </div>
 <div class="section level2">
 <h2 id="bal-tab">
@@ -191,33 +181,37 @@ data set containing the relevant variables. The data set must be in the
 unit has exactly one row of data. The formula interface is similar to
 the <code>WeightIt</code> input seen above. The data frame interface
 requires a list of treatment values for each time point and a data frame
-or list of covariates for each time point. We’ll use the data frame
+or list of covariates for each time point. We’ll use the formula
 interface here.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">iptwExWide</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"use0"</span>, <span class="st">"gender"</span>, <span class="st">"age"</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>             <span class="va">iptwExWide</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"use0"</span>, <span class="st">"gender"</span>, <span class="st">"age"</span>, <span class="st">"use1"</span>, <span class="st">"tx1"</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>             <span class="va">iptwExWide</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"use0"</span>, <span class="st">"gender"</span>, <span class="st">"age"</span>, <span class="st">"use1"</span>, <span class="st">"tx1"</span>, <span class="st">"use2"</span>, <span class="st">"tx2"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>        treat.list <span class="op">=</span> <span class="va">iptwExWide</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tx1"</span>, <span class="st">"tx2"</span>, <span class="st">"tx3"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>             <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                 <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>             <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
+<span>                 <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                 <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
+<span>        data <span class="op">=</span> <span class="va">msmdata</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all time points</span></span></span>
-<span><span class="co">##          Times    Type Max.Diff.Un</span></span>
-<span><span class="co">## use0   1, 2, 3 Contin.      0.2668</span></span>
-<span><span class="co">## gender 1, 2, 3  Binary      0.2945</span></span>
-<span><span class="co">## age    1, 2, 3 Contin.      0.3799</span></span>
-<span><span class="co">## use1      2, 3 Contin.      0.1662</span></span>
-<span><span class="co">## tx1       2, 3  Binary      0.1695</span></span>
-<span><span class="co">## use2         3 Contin.      0.1087</span></span>
-<span><span class="co">## tx2          3  Binary      0.2423</span></span>
+<span><span class="co">##        Times    Type Max.Diff.Un</span></span>
+<span><span class="co">## X1_0 1, 2, 3 Contin.      0.6897</span></span>
+<span><span class="co">## X2_0 1, 2, 3  Binary      0.3253</span></span>
+<span><span class="co">## X1_1    2, 3 Contin.      0.8736</span></span>
+<span><span class="co">## X2_1    2, 3  Binary      0.2994</span></span>
+<span><span class="co">## A_1     2, 3  Binary      0.1267</span></span>
+<span><span class="co">## X1_2       3 Contin.      0.4749</span></span>
+<span><span class="co">## X2_2       3  Binary      0.5945</span></span>
+<span><span class="co">## A_2        3  Binary      0.1620</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##  - <span style="font-style: italic;">Time 1</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
-<span><span class="co">## All     294     706</span></span>
+<span><span class="co">## All    3306    4194</span></span>
 <span><span class="co">##  - <span style="font-style: italic;">Time 2</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
-<span><span class="co">## All     492     508</span></span>
+<span><span class="co">## All    3701    3799</span></span>
 <span><span class="co">##  - <span style="font-style: italic;">Time 3</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
-<span><span class="co">## All     415     585</span></span></code></pre>
+<span><span class="co">## All    4886    2614</span></span></code></pre>
 <p>Here we see a summary of balance across all time points. This
 displays each variable, how many times it appears in balance tables, its
 type, and the greatest imbalance for that variable across all time
@@ -229,52 +223,55 @@ we’ll request balance on all time points by setting
 <code>which.time = .all</code>. Doing so hides the balance summary
 across time points, but this can be requested again by setting
 <code>msm.summary = TRUE</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">iptwExWide</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"use0"</span>, <span class="st">"gender"</span>, <span class="st">"age"</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>             <span class="va">iptwExWide</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"use0"</span>, <span class="st">"gender"</span>, <span class="st">"age"</span>, <span class="st">"use1"</span>, <span class="st">"tx1"</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>             <span class="va">iptwExWide</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"use0"</span>, <span class="st">"gender"</span>, <span class="st">"age"</span>, <span class="st">"use1"</span>, <span class="st">"tx1"</span>, <span class="st">"use2"</span>, <span class="st">"tx2"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>        treat.list <span class="op">=</span> <span class="va">iptwExWide</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tx1"</span>, <span class="st">"tx2"</span>, <span class="st">"tx3"</span><span class="op">)</span><span class="op">]</span>,</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>             <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                 <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>             <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
+<span>                 <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>                 <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
+<span>        data <span class="op">=</span> <span class="va">msmdata</span>,</span>
 <span>        which.time <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance by Time Point</span></span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">Time: 1</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
-<span><span class="co">##           Type Diff.Un</span></span>
-<span><span class="co">## use0   Contin.  0.2668</span></span>
-<span><span class="co">## gender  Binary  0.2945</span></span>
-<span><span class="co">## age    Contin.  0.3799</span></span>
+<span><span class="co">##         Type Diff.Un</span></span>
+<span><span class="co">## X1_0 Contin.  0.6897</span></span>
+<span><span class="co">## X2_0  Binary -0.3253</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
-<span><span class="co">## All     294     706</span></span>
+<span><span class="co">## All    3306    4194</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">Time: 2</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
-<span><span class="co">##           Type Diff.Un</span></span>
-<span><span class="co">## use0   Contin.  0.1169</span></span>
-<span><span class="co">## gender  Binary  0.1927</span></span>
-<span><span class="co">## age    Contin.  0.2240</span></span>
-<span><span class="co">## use1   Contin.  0.0848</span></span>
-<span><span class="co">## tx1     Binary  0.1695</span></span>
+<span><span class="co">##         Type Diff.Un</span></span>
+<span><span class="co">## X1_1 Contin.  0.8736</span></span>
+<span><span class="co">## X2_1  Binary -0.2994</span></span>
+<span><span class="co">## A_1   Binary  0.1267</span></span>
+<span><span class="co">## X1_0 Contin.  0.5276</span></span>
+<span><span class="co">## X2_0  Binary -0.0599</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
-<span><span class="co">## All     492     508</span></span>
+<span><span class="co">## All    3701    3799</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">Time: 3</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
-<span><span class="co">##           Type Diff.Un</span></span>
-<span><span class="co">## use0   Contin.  0.1859</span></span>
-<span><span class="co">## gender  Binary  0.1532</span></span>
-<span><span class="co">## age    Contin.  0.3431</span></span>
-<span><span class="co">## use1   Contin.  0.1662</span></span>
-<span><span class="co">## tx1     Binary  0.1071</span></span>
-<span><span class="co">## use2   Contin.  0.1087</span></span>
-<span><span class="co">## tx2     Binary  0.2423</span></span>
+<span><span class="co">##         Type Diff.Un</span></span>
+<span><span class="co">## X1_2 Contin.  0.4749</span></span>
+<span><span class="co">## X2_2  Binary -0.5945</span></span>
+<span><span class="co">## A_2   Binary  0.1620</span></span>
+<span><span class="co">## X1_1 Contin.  0.5727</span></span>
+<span><span class="co">## X2_1  Binary -0.0405</span></span>
+<span><span class="co">## A_1   Binary  0.1000</span></span>
+<span><span class="co">## X1_0 Contin.  0.3614</span></span>
+<span><span class="co">## X2_0  Binary -0.0402</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##     Control Treated</span></span>
-<span><span class="co">## All     415     585</span></span>
+<span><span class="co">## All    4886    2614</span></span>
 <span><span class="co">##  - - - - - - - - - - -</span></span></code></pre>
 <p>Here we see balance by time point. At each time point, a
 <code>bal.tab</code> object is produced for that time point. These
@@ -283,6 +280,20 @@ function just like regular <code>bal.tab</code> objects.</p>
 binary, continuous, multi-category), but for multi-category treatments
 or when the treatment types vary or for multiply imputed data, no
 balance summary will be computed or displayed.</p>
+<p>To estimate the weights, we’ll use <code>WeightIt</code> to fit a
+series of logistic regressions that generate the weights. See the
+<code>WeightIt</code> documentation for more information on how to use
+<code>WeightIt</code> with longitudinal treatments.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Wmsm</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>         <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>             <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
+<span>         <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span>
+<span>             <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span>
+<span>             <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">msmdata</span>,</span>
+<span>    method <span class="op">=</span> <span class="st">"glm"</span><span class="op">)</span></span></code></pre></div>
 <p>We can use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with the <code>weightitMSM</code>
 object generated above. Setting <code>un = TRUE</code> would produce
 balance statistics before adjustment, like we did before. We’ll set
@@ -295,73 +306,74 @@ see balance for each time point and across time points.</p>
 <span><span class="co">##  - - - <span style="font-style: italic;">Time: 1</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Un Diff.Adj</span></span>
-<span><span class="co">## prop.score Distance  0.7862   0.0251</span></span>
-<span><span class="co">## use0        Contin.  0.2668   0.0558</span></span>
-<span><span class="co">## gender       Binary  0.2945   0.0224</span></span>
-<span><span class="co">## age         Contin.  0.3799  -0.0019</span></span>
+<span><span class="co">## prop.score Distance  0.9851   0.0409</span></span>
+<span><span class="co">## X1_0        Contin.  0.6897   0.0026</span></span>
+<span><span class="co">## X2_0         Binary -0.3253  -0.0239</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
-<span><span class="co">## Unadjusted  294.     706. </span></span>
-<span><span class="co">## Adjusted    185.18   573.6</span></span>
+<span><span class="co">## Unadjusted 3306.    4194. </span></span>
+<span><span class="co">## Adjusted    845.79   899.4</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">Time: 2</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Un Diff.Adj</span></span>
-<span><span class="co">## prop.score Distance  0.5288  -0.0065</span></span>
-<span><span class="co">## use0        Contin.  0.1169  -0.0327</span></span>
-<span><span class="co">## gender       Binary  0.1927  -0.0117</span></span>
-<span><span class="co">## age         Contin.  0.2240   0.0703</span></span>
-<span><span class="co">## use1        Contin.  0.0848  -0.0311</span></span>
-<span><span class="co">## tx1          Binary  0.1695  -0.0088</span></span>
+<span><span class="co">## prop.score Distance  1.1546   0.0773</span></span>
+<span><span class="co">## X1_1        Contin.  0.8736   0.0531</span></span>
+<span><span class="co">## X2_1         Binary -0.2994  -0.0299</span></span>
+<span><span class="co">## A_1          Binary  0.1267   0.0065</span></span>
+<span><span class="co">## X1_0        Contin.  0.5276   0.0183</span></span>
+<span><span class="co">## X2_0         Binary -0.0599  -0.0299</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
-<span><span class="co">## Unadjusted   492.   508.  </span></span>
-<span><span class="co">## Adjusted     318.9  264.49</span></span>
+<span><span class="co">## Unadjusted 3701.   3799.  </span></span>
+<span><span class="co">## Adjusted    912.87  829.87</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">Time: 3</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Un Diff.Adj</span></span>
-<span><span class="co">## prop.score Distance  0.6565   0.0229</span></span>
-<span><span class="co">## use0        Contin.  0.1859  -0.0347</span></span>
-<span><span class="co">## gender       Binary  0.1532   0.0263</span></span>
-<span><span class="co">## age         Contin.  0.3431   0.0182</span></span>
-<span><span class="co">## use1        Contin.  0.1662  -0.0316</span></span>
-<span><span class="co">## tx1          Binary  0.1071  -0.0171</span></span>
-<span><span class="co">## use2        Contin.  0.1087  -0.0315</span></span>
-<span><span class="co">## tx2          Binary  0.2423   0.0085</span></span>
+<span><span class="co">## prop.score Distance  1.6762   0.0327</span></span>
+<span><span class="co">## X1_2        Contin.  0.4749   0.0643</span></span>
+<span><span class="co">## X2_2         Binary -0.5945   0.0096</span></span>
+<span><span class="co">## A_2          Binary  0.1620  -0.0054</span></span>
+<span><span class="co">## X1_1        Contin.  0.5727   0.0657</span></span>
+<span><span class="co">## X2_1         Binary -0.0405  -0.0248</span></span>
+<span><span class="co">## A_1          Binary  0.1000  -0.0262</span></span>
+<span><span class="co">## X1_0        Contin.  0.3614   0.0342</span></span>
+<span><span class="co">## X2_0         Binary -0.0402   0.0147</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
-<span><span class="co">## Unadjusted  415.     585. </span></span>
-<span><span class="co">## Adjusted    235.67   366.4</span></span>
+<span><span class="co">## Unadjusted 4886.   2614.  </span></span>
+<span><span class="co">## Adjusted   1900.26  600.12</span></span>
 <span><span class="co">##  - - - - - - - - - - - </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance summary across all time points</span></span></span>
 <span><span class="co">##              Times     Type Max.Diff.Un Max.Diff.Adj</span></span>
-<span><span class="co">## prop.score 1, 2, 3 Distance      0.7862       0.0251</span></span>
-<span><span class="co">## use0       1, 2, 3  Contin.      0.2668       0.0558</span></span>
-<span><span class="co">## gender     1, 2, 3   Binary      0.2945       0.0263</span></span>
-<span><span class="co">## age        1, 2, 3  Contin.      0.3799       0.0703</span></span>
-<span><span class="co">## use1          2, 3  Contin.      0.1662       0.0316</span></span>
-<span><span class="co">## tx1           2, 3   Binary      0.1695       0.0171</span></span>
-<span><span class="co">## use2             3  Contin.      0.1087       0.0315</span></span>
-<span><span class="co">## tx2              3   Binary      0.2423       0.0085</span></span>
+<span><span class="co">## prop.score 1, 2, 3 Distance      1.6762       0.0773</span></span>
+<span><span class="co">## X1_0       1, 2, 3  Contin.      0.6897       0.0342</span></span>
+<span><span class="co">## X2_0       1, 2, 3   Binary      0.3253       0.0299</span></span>
+<span><span class="co">## X1_1          2, 3  Contin.      0.8736       0.0657</span></span>
+<span><span class="co">## X2_1          2, 3   Binary      0.2994       0.0299</span></span>
+<span><span class="co">## A_1           2, 3   Binary      0.1267       0.0262</span></span>
+<span><span class="co">## X1_2             3  Contin.      0.4749       0.0643</span></span>
+<span><span class="co">## X2_2             3   Binary      0.5945       0.0096</span></span>
+<span><span class="co">## A_2              3   Binary      0.1620       0.0054</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##  - <span style="font-style: italic;">Time 1</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
-<span><span class="co">## Unadjusted  294.     706. </span></span>
-<span><span class="co">## Adjusted    185.18   573.6</span></span>
+<span><span class="co">## Unadjusted 3306.    4194. </span></span>
+<span><span class="co">## Adjusted    845.79   899.4</span></span>
 <span><span class="co">##  - <span style="font-style: italic;">Time 2</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
-<span><span class="co">## Unadjusted   492.   508.  </span></span>
-<span><span class="co">## Adjusted     318.9  264.49</span></span>
+<span><span class="co">## Unadjusted 3701.   3799.  </span></span>
+<span><span class="co">## Adjusted    912.87  829.87</span></span>
 <span><span class="co">##  - <span style="font-style: italic;">Time 3</span></span></span>
 <span><span class="co">##            Control Treated</span></span>
-<span><span class="co">## Unadjusted  415.     585. </span></span>
-<span><span class="co">## Adjusted    235.67   366.4</span></span></code></pre>
+<span><span class="co">## Unadjusted 4886.   2614.  </span></span>
+<span><span class="co">## Adjusted   1900.26  600.12</span></span></code></pre>
 <p>Note that to add covariates, we must use <code>addl.list</code>
 (which can be abbreviated as <code>addl</code>), which functions like
 <code>addl</code> in point treatments. The input to
@@ -381,12 +393,13 @@ covariate balance.</p>
 for each time point using <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, just as we could with
 point treatments.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, var.name <span class="op">=</span> <span class="st">"age"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, var.name <span class="op">=</span> <span class="st">"X1_0"</span>, which <span class="op">=</span> <span class="st">"both"</span>,</span>
+<span>         type <span class="op">=</span> <span class="st">"histogram"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-7-1.png" width="480"></p>
 <p>Balance for variables that only appear in certain time points will
 only be displayed at those time points:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, var.name <span class="op">=</span> <span class="st">"tx1"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.plot.html">bal.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, var.name <span class="op">=</span> <span class="st">"X2_1"</span>, which <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-8-1.png" width="480"></p>
 <p>As with <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code>which.time</code> can be
 specified to limit output to chosen time points.</p>
@@ -406,14 +419,10 @@ set to <code>.none</code>, the summary across time points is displayed.
 The <code>agg.fun</code> argument is set to <code>"max"</code> by
 default.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, abs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: Standardized mean differences and raw mean differences are present in the same plot. </span></span>
-<span><span class="co">## Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></span></code></pre>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, abs <span class="op">=</span> <span class="cn">TRUE</span>, binary <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-9-1.png" width="480"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, which.time <span class="op">=</span> <span class="va">.none</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: Standardized mean differences and raw mean differences are present in the same plot. </span></span>
-<span><span class="co">## Use the 'stars' argument to distinguish between them and appropriately label the x-axis.</span></span></code></pre>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, which.time <span class="op">=</span> <span class="va">.none</span>, binary <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-10-1.png" width="384"></p>
 </div>
 <div class="section level2">
@@ -449,6 +458,11 @@ Cole, Stephen R., and Miguel A Hernán. 2008. <span>“Constructing
 <span>Inverse Probability Weights</span> for <span>Marginal Structural
 Models</span>.”</span> <em>American Journal of Epidemiology</em> 168
 (6): 656–64. <a href="https://doi.org/10.1093/aje/kwn164" class="external-link">https://doi.org/10.1093/aje/kwn164</a>.
+</div>
+<div id="ref-jacksonDiagnosticsConfoundingTimevarying2016" class="csl-entry">
+Jackson, John W. 2016. <span>“Diagnostics for Confounding of
+Time-Varying and Other Joint Exposures:”</span> <em>Epidemiology</em> 27
+(6): 859–69. <a href="https://doi.org/10.1097/EDE.0000000000000547" class="external-link">https://doi.org/10.1097/EDE.0000000000000547</a>.
 </div>
 <div id="ref-robinsMarginalStructuralModels2000" class="csl-entry">
 Robins, James M., Miguel Ángel Hernán, and Babette Brumback. 2000.
