@@ -16,29 +16,28 @@
 
 #' @rdname f.build
 #' @export 
-f.build <- function(y, rhs) {
-    if (missing(rhs)) {
-        if (missing(y)) {
-            .err("the right hand side argument to `f.build()` must be a vector of variable names or a data set with named variables")
+f.build <- function(y = NULL, rhs = NULL) {
+    if (is_null(rhs)) {
+        if (is_null(y)) {
+            return(formula("~ 1"))
+            # .err("the right hand side argument to `f.build()` must be a vector of variable names or a data set with named variables")
         }
-        else {
-            rhs <- y
-            y <- ""
-        }
+        rhs <- y
+        y <- ""
     }
     
     tryCatch(force(y), error = function(e) .err(conditionMessage(e), tidy = FALSE))
     tryCatch(force(rhs), error = function(e) .err(conditionMessage(e), tidy = FALSE))
     
     if (is_mat_like(rhs) && is_not_null(colnames(rhs))) {
-        vars <- paste0("`", gsub("`", "", colnames(rhs)), "`")
+        vars <- add_quotes(gsub("`", "", colnames(rhs)), "`")
     }
     else if (is.character(rhs)) {
         vars <- add_quotes(gsub("`", "", rhs), "`")
     }
     else .err("the right hand side argument to `f.build()` must be a vector of variable names or a data set with named variables")
     
-    if (missing(y) || is_null(y) || identical(y, "")) y <- NULL
+    if (is_null(y) || identical(y, "")) y <- NULL
     else if (!is.atomic(y)) {
         .err("the response argument to `f.build()` must be a string containing the response variable")
     }
@@ -47,5 +46,5 @@ f.build <- function(y, rhs) {
         paste(as.character(y), collapse = " + ") , "~", paste(vars, collapse = " + ")
     ))
     # f <- reformulate(vars, y)
-    return(f)
+    f
 }
