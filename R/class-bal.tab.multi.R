@@ -175,6 +175,5 @@ base.bal.tab.multi <- function(X,
     
     class(out) <- c("bal.tab.multi", "bal.tab")
     
-    return(out)
-    
+    out
 }

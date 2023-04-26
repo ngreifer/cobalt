@@ -105,7 +105,7 @@ base.bal.tab.imp <- function(X,
                                             agg.fun = agg.fun))
         }
         
-        observations <- lapply(out[["Imputation.Balance"]], function(x) x[["Observations"]])
+        observations <- grab(out[["Imputation.Balance"]], "Observations")
         
         out[["Observations"]] <- samplesize.across.imps(observations)
     }
@@ -117,5 +117,5 @@ base.bal.tab.imp <- function(X,
                                          imp.fun = agg.fun))
     class(out) <- c("bal.tab.imp", "bal.tab")
     
-    return(out)
+    out
 }

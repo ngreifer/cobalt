@@ -172,7 +172,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
         drop.level <- NULL
     }
     
-    chk::chk_flag(drop.singleton)
+    .chk_flag(drop.singleton)
     drop.na <- rlang::rep_named(var.name, drop.na)
     
     for (v in var.name) {
@@ -192,7 +192,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
             
         }
         else {
-            chk::chk_flag(drop.singleton)
+            .chk_flag(drop.singleton)
             if (drop.singleton) {
                 data[[v]] <- NULL
                 next
@@ -244,7 +244,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, dr
             }
         }
         else {
-            chk::chk_flag(replace)
+            .chk_flag(replace)
             if (replace) {
                 if (match(v, names(data)) == 1){
                     data <- setNames(data.frame(k, data[names(data)!=v], row.names = rownames(data)),
@@ -364,7 +364,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
             dropped.na <- FALSE
         }
         
-        chk::chk_flag(dropped.na)
+        .chk_flag(dropped.na)
         if (!dropped.na) {
             NA.column <- {
                 if (v.is.split) {
@@ -449,7 +449,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
         
         k <- factor(k, levels = k.levels)
         
-        chk::chk_flag(replace)
+        .chk_flag(replace)
         if (replace) {
             where <- which(names(data) %in% c(names(var.to.combine), NA.column))
             

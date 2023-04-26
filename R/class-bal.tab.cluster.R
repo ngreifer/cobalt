@@ -100,7 +100,7 @@ base.bal.tab.cluster <- function(X,
                                             agg.fun = agg.fun))
         }
         
-        observations <- lapply(out[["Cluster.Balance"]], function(x) x[["Observations"]])
+        observations <- grab(out[["Cluster.Balance"]], "Observations")
         
         out[["Observations"]] <- samplesize.across.clusters(observations)
     }
@@ -113,5 +113,5 @@ base.bal.tab.cluster <- function(X,
                                          cluster.fun = agg.fun))
     class(out) <- c("bal.tab.cluster", "bal.tab")
     
-    return(out)
+    out
 }

@@ -206,7 +206,7 @@ base.bal.tab.subclass <- function(X,
                                        co.names = co.names)
     class(out) <- c("bal.tab.subclass", "bal.tab")
     
-    return(out)
+    out
 }
 
 base.bal.tab.subclass.binary <- function(X, ...) {

@@ -138,37 +138,35 @@ get.cobalt.options <- function(...) {
         }
     }
     
-    out <- setNames(lapply(paste0("cobalt_", opts), getOption), opts)
-    return(out)
-    
+    setNames(lapply(paste0("cobalt_", opts), getOption), opts)
 }
 
 #set.cobalt.options
 acceptable.options <- function() {
     TF <- c(TRUE, FALSE)
-    return(list(stats = c("mean.diffs"),
-                un = TF,
-                continuous = c("raw", "std"),
-                binary = c("raw", "std"),
-                imbalanced.only = TF,
-                disp = c("means", "sds"),
-                disp.means = TF,
-                disp.sds = TF,
-                disp.v.ratio = TF,
-                disp.ks = TF,
-                disp.subclass = TF,
-                disp.bal.tab = TF,
-                cluster.summary = TF,
-                cluster.fun = c("min", "mean", "max"),
-                imp.summary = TF,
-                imp.fun = c("min", "mean", "max"),
-                multi.summary = TF,
-                msm.summary = TF,
-                target.summary = TF,
-                subclass.summary = TF,
-                int_sep = " * ",
-                factor_sep = "_",
-                center = TF,
-                remove_perfect_col = TF,
-                disp.call = TF))
+    list(stats = c("mean.diffs"),
+         un = TF,
+         continuous = c("raw", "std"),
+         binary = c("raw", "std"),
+         imbalanced.only = TF,
+         disp = c("means", "sds"),
+         disp.means = TF,
+         disp.sds = TF,
+         disp.v.ratio = TF,
+         disp.ks = TF,
+         disp.subclass = TF,
+         disp.bal.tab = TF,
+         cluster.summary = TF,
+         cluster.fun = c("min", "mean", "max"),
+         imp.summary = TF,
+         imp.fun = c("min", "mean", "max"),
+         multi.summary = TF,
+         msm.summary = TF,
+         target.summary = TF,
+         subclass.summary = TF,
+         int_sep = " * ",
+         factor_sep = "_",
+         center = TF,
+         remove_perfect_col = TF,
+         disp.call = TF)
 }

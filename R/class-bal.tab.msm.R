@@ -102,7 +102,7 @@ base.bal.tab.msm <- function(X,
                                         weight.names = attr(out[["Time.Balance"]][[1]], "print.options")$weight.names,
                                         agg.fun = "max"))
         
-        out[["Observations"]] <- lapply(out[["Time.Balance"]], function(x) x$Observations)
+        out[["Observations"]] <- grab(out[["Time.Balance"]], "Observations")
     }
     
     out[["call"]] <- X$call
@@ -113,5 +113,5 @@ base.bal.tab.msm <- function(X,
     
     class(out) <- c("bal.tab.msm", "bal.tab")
     
-    return(out)
+    out
 }
