@@ -8,7 +8,6 @@
 \alias{col_w_vr}
 \alias{col_w_ks}
 \alias{col_w_ovl}
-\alias{col_w_ent}
 \alias{col_w_cov}
 \alias{col_w_corr}
 \title{Compute Balance and Summary Statistics for Covariates}
@@ -71,18 +70,6 @@ col_w_ks(
 )
 
 col_w_ovl(
-  mat,
-  treat,
-  weights = NULL,
-  s.weights = NULL,
-  bin.vars,
-  integrate = FALSE,
-  subset = NULL,
-  na.rm = TRUE,
-  ...
-)
-
-col_w_ent(
   mat,
   treat,
   weights = NULL,
@@ -160,7 +147,7 @@ For \code{col_w_cov()} and \code{col_w_corr()}, only \code{"all"} and \code{"wei
 
 \item{weighted.weights}{for \code{col_w_smd()}, \code{col_w_cov()}, and \code{col_w_corr()}, when \code{std = TRUE} and \code{s.d.denom = "weighted"}, a vector of weights to be applied to the computation of the denominator standard deviation. If not specified, will use the argument to \code{weights}. When \code{s.d.denom} is not \code{"weighted"}, this is ignored. The main purpose of this is to allow \code{weights} to be \code{NULL} while weighting the denominator standard deviations for assessing balance in the unweighted sample but using the standard deviations of the weighted sample.}
 
-\item{integrate}{\code{logical}; for \code{col_w_ovl()} and \code{col_w-ent()}, whether to use \code{\link[=integrate]{integrate()}} to calculate the area of overlap or the distance between the densities, respectively. If \code{FALSE}, a midpoint Riemann sum with 1000 partitions will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts), but the integral can fail sometimes and thus is less stable. The default is to use the Riemann sum.}
+\item{integrate}{\code{logical}; for \code{col_w_ovl()}, whether to use \code{\link[=integrate]{integrate()}} to calculate the area of overlap or the distance between the densities, respectively. If \code{FALSE}, a midpoint Riemann sum with 1000 partitions will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts), but the integral can fail sometimes and thus is less stable. The default is to use the Riemann sum.}
 
 \item{type}{for \code{col_w_cov()} and \code{col_w_corr()}, the type of covariance/correlation to be computed. Allowable options include \code{"pearson"} and \code{"spearman"}. When \code{"spearman"} is requested, the covariates and treatment are first turned into ranks using \code{\link[=rank]{rank()}} with \code{na.last = "keep"}.}
 }
@@ -176,7 +163,6 @@ These functions quickly compute balance statistics for the given covariates. The
 \item{\code{col_w_vr()} computes the (weighted) variance ratio for a set of covariates, a binary treatment, and weights.}
 \item{\code{col_w_ks()} computes the (weighted) Kolmogorov-Smirnov (KS) statistic for a set of covariates, a binary treatment, and weights.}
 \item{\code{col_w_ovl()} computes the complement of the (weighted) overlapping coefficient compliment for a set of covariates, a binary treatment, and weights (based on Franklin et al, 2014).}
-\item{\code{col_w_ent()} computes the entropic distance for a set of covariates, a binary treatment, and weights (based on Oyenubi and Wittenerg, 2021).}
 \item{\code{col_w_cov()} and \code{col_w_corr()} compute the (weighted) (absolute) treatment-covariate covariance or correlation for a set of covariates, a continuous treatment, and weights.}
 }
 }
@@ -192,8 +178,6 @@ These functions quickly compute balance statistics for the given covariates. The
 \code{col_w_ks()} computes the KS statistic for each covariate using the method implemented in \pkg{twang}. The KS statistics can optionally be weighted. For binary variables, the KS statistic is just the difference in proportions. \code{weights} and \code{s.weights} are multiplied together prior to being used, and there is no distinction between them.
 
 \code{col_w_ovl()} computes the complement of the overlapping coefficient as described by Franklin et al. (2014). It does so by computing the density of the covariate in the treated and control groups, then finding the area where those density overlap, and subtracting that number from 1, yielding a value between 0 and 1 where 1 indicates complete imbalance, and 0 indicates perfect balance. \code{\link[=density]{density()}} is used to model the density in each group. The bandwidth of the covariate in the smaller treatment group is used for both groups. The area of overlap can be computed using \code{integrate}, which quickly and accurately computes the integral, or using a midpoint Riemann sum with 1000 partitions, which approximates the area more slowly. A reason to prefer the Riemann sum is that \code{integrate} can fail for unknown reasons, though Riemann sums will fail with some extreme distributions. When either method fails, the resulting value will be \code{NA}. For binary variables, the complement of the overlapping coefficient is just the difference in proportions. \code{weights} and \code{s.weights} are multiplied together prior to being used, and there is no distinction between them. The weights are used to compute the weighted density by supplying them to the \code{weights} argument of \code{density}.
-
-\code{col_w_ent()} computes the entropic distance as described by Oyenubi and Wittenberg (2021). The entropic distance is similar to the complement of the overlapping coefficient and is computed in the same way (i.e., using kernel density estimation and integration), except that the covariate densities in the treatment groups are contrasted in a different way. See Oyenubi and Wittenberg (2021) for details.
 
 \code{col_w_cov()} computes the covariance between a continuous treatment and the covariates to assess balance for continuous treatments as recommended in Austin (2019). These covariance can optionally be weighted or in absolute value or can be requested as correlations (i.e., standardized covariances). The correlations are computed as the covariance between the treatment and covariate divided by a standardization factor, which is equal to the square root of the product of the variance of treatment and the variance of the covariate. The standardization factor is computed using the unweighted variances when \code{s.weights} are absent, and is computed using the sampling weighted variances when \code{s.weights} are present, except when \code{s.d.denom = "weighted"}, in which case the product of \code{weighted.weights} and \code{s.weights} (if present) are used to weight the standardization factor. For this reason, the computed correlation can be greater than 1 or less than -1. The standardization factor is always computed using the whole sample even when \code{subset} is used. The covariance is computed using the product of \code{weights} and \code{s.weights}, if specified. The variance of binary variables is computed as \eqn{p(1-p)}, where \eqn{p} is the (weighted) proportion of 1s, while the variance of continuous variables is computed using the standard formula.
 
@@ -240,8 +224,6 @@ bal.tab(covs, treat = treat, weights = weights,
 Austin, P. C. (2019). Assessing covariate balance when using the generalized propensity score with quantitative or continuous exposures. \emph{Statistical Methods in Medical Research}, 28(5), 1365–1377. \doi{10.1177/0962280218756159}
 
 Franklin, J. M., Rassen, J. A., Ackermann, D., Bartels, D. B., & Schneeweiss, S. (2014). Metrics for covariate balance in cohort studies of causal effects. \emph{Statistics in Medicine}, 33(10), 1685–1699. \doi{10.1002/sim.6058}
-
-Oyenubi, A., & Wittenberg, M. (2021). Does the choice of balance-measure matter under genetic matching? \emph{Empirical Economics}, 61(1), 489–502. \doi{10.1007/s00181-020-01873-9}
 
 What Works Clearinghouse. (2020). WWC Procedures Handbook (Version 4.1). Retrieved from
 \url{https://ies.ed.gov/ncee/wwc/Handbooks}

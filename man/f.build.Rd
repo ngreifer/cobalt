@@ -4,7 +4,7 @@
 \alias{f.build}
 \title{Convenient Formula Generation}
 \usage{
-f.build(y, rhs)
+f.build(y = NULL, rhs = NULL)
 }
 \arguments{
 \item{y}{the quoted name of the response (left hand side) variable in the formula. Only one variable is supported. If missing, \code{NULL}, or the empty string (\code{""}), the formula will have no response variable. If \code{rhs} is not supplied, \code{y} will replace \code{rhs} and \code{y} will be set to \code{""}.}

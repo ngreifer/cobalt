@@ -15,6 +15,8 @@
 #' 
 #' @details `bal.tab()` generates a list of balance summaries for the object given, and functions similarly to \pkgfun{Matching}{MatchBalance}. The input to `bal.tab.Match()` must include either both `formula` and `data` or both `covs` and `treat`. Using the `formula` + `data` inputs mirrors how \pkgfun{Matching}{MatchBalance} is used.
 #' 
+#' `cobalt` functiosn do not support `Match` object with sampling weights, i.e., with an argument passed to the `weights` argument of `Matching::Match()`.
+#' 
 #' @seealso [bal.tab()] for details of calculations.
 #' 
 #' @examplesIf requireNamespace("Matching", quietly = TRUE)

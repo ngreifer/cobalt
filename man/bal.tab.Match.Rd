@@ -87,6 +87,8 @@ Generates balance statistics for output objects from \pkg{Matching}.
 }
 \details{
 \code{bal.tab()} generates a list of balance summaries for the object given, and functions similarly to \pkgfun{Matching}{MatchBalance}. The input to \code{bal.tab.Match()} must include either both \code{formula} and \code{data} or both \code{covs} and \code{treat}. Using the \code{formula} + \code{data} inputs mirrors how \pkgfun{Matching}{MatchBalance} is used.
+
+\code{cobalt} functiosn do not support \code{Match} object with sampling weights, i.e., with an argument passed to the \code{weights} argument of \code{Matching::Match()}.
 }
 \examples{
 \dontshow{if (requireNamespace("Matching", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

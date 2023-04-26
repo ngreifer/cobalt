@@ -19,8 +19,6 @@ Below, each allowable entry to \code{stats} and \code{thresholds} are described,
 \item{\code{"ks.statistics"}}{Kolmogorov-Smirnov (KS) statistics as computed by \code{\link[=col_w_ks]{col_w_ks()}}.}
 
 \item{\code{"ovl.coefficients"}}{Overlapping (OVL) statistics as computed by \code{\link[=col_w_ovl]{col_w_ovl()}}. Can be abbreviated as \code{"ovl"}. Additional arguments passed to \code{col_w_ovl()}, such as \code{integrate} or \code{bw}, can be supplied to \code{bal.tab()} or \code{love.plot()}.}
-
-\item{\code{"entropic.distances"}}{Entropic distances as computed by \code{\link[=col_w_ent]{col_w_ent()}}. Can be abbreviated as \code{"ent"}. Additional arguments passed to \code{col_w_ent()}, such as \code{integrate} or \code{bw}, can be supplied to \code{bal.tab()} or \code{love.plot()}.}
 }
 }
 
