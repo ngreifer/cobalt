@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.5.0.9000
+Version: 4.5.0.9001
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -26,7 +26,7 @@ Imports:
     backports (>= 1.1.9)
 Suggests:
     MatchIt (>= 4.0.0),
-    WeightIt (>= 0.12.0),
+    WeightIt (>= 0.14.0),
     twang (>= 1.6),
     twangContinuous,
     Matching,
