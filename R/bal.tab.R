@@ -167,7 +167,6 @@ bal.tab <- function(x, ...) {
         
         return(eval.parent(.call))
     }
-    else {
-        UseMethod("bal.tab")
-    }
+    
+    UseMethod("bal.tab")
 }

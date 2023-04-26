@@ -216,9 +216,8 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             sub.B <- do.call("cbind", c(
                 lapply(subclass.names, function(s) {
                     sub <- x[["Subclass.Balance"]][[s]]
-                    sub.B0 <- setNames(sub[endsWith(names(sub), ".Adj")],
+                    setNames(sub[endsWith(names(sub), ".Adj")],
                                        gsub(".Adj", paste0(".", s), names(sub)[endsWith(names(sub), ".Adj")]))
-                    return(sub.B0)
                 }),
                 list(variable.names = row.names(x[["Balance.Across.Subclass"]]))))
         }
@@ -330,7 +329,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                          by = B[c("variable.names", "Type", facet)], 
                                          FUN = FUN)
                     names(B_agged)[names(B_agged) %in% stat.cols] <- paste.(firstup(FUN), names(B_agged)[names(B_agged) %in% stat.cols])
-                    return(B_agged)
+                    B_agged
                 }
                 
                 if (agg.fun == "range") {
@@ -477,7 +476,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         var.is.base <- type[inds] == "base"
                         pasted.var <- paste(var, collapse = "")
                         if (pasted.var %in% names(new.labels)) return(new.labels[pasted.var])
-                        else return(paste(ifelse(var.is.base & var %in% names(new.labels) & !is.na(new.labels[var]), new.labels[var], var), collapse = ""))
+                       
+                        paste(ifelse(var.is.base & var %in% names(new.labels) & !is.na(new.labels[var]),
+                                     new.labels[var], var), collapse = "")
                     })
                     co.names[[i]][["component"]] <- do.call("paste", c(unname(named.vars), list(sep = seps["int"])))
                 }
@@ -1094,11 +1095,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     if (length(stats) > 1 || isTRUE(args$use.grid)) {
         
-        if (!rlang::is_string(position)) {
-            position <- NA_character_
+        position <- {
+            if (!chk::vld_string(position)) NA_character_
+            else match_arg(position, 
+                           c("right", "left", "top", "bottom", "none"))
         }
-        else position <- match_arg(position, 
-                                   c("right", "left", "top", "bottom", "none"))
         
         #Process labels
         if (isTRUE(labels)) labels <- LETTERS[seq_along(plot.list)]
@@ -1177,22 +1178,18 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         
         return(invisible(p))
     }
-    else {
-        
-        p <- plot.list[[1]] + 
-            ggplot2::labs(title = title, subtitle = subtitle) +
-            ggplot2::theme(plot.title = element_text(hjust = 0.5),
-                           plot.subtitle = element_text(hjust = 0.5),
-                           legend.position = position)
-        
-        if (is_not_null(themes[[1]])) {
-            p <- p + themes[[1]]
-        }
-        
-        return(p)
-        
+    
+    p <- plot.list[[1]] + 
+        ggplot2::labs(title = title, subtitle = subtitle) +
+        ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                       plot.subtitle = element_text(hjust = 0.5),
+                       legend.position = position)
+    
+    if (is_not_null(themes[[1]])) {
+        p <- p + themes[[1]]
     }
     
+    p
 }
 
 #' @exportS3Method autoplot bal.tab
@@ -1221,19 +1218,21 @@ f.recode <- function(f, ...) {
     old_levels[idx] <- names(new_levels)
     
     levels(f) <- old_levels
-    return(f)
+    
+    f
 }
 
 seq_int_cycle <- function(begin, end, max) {
-    seq(begin, end, by = 1) - max*(seq(begin-1, end-1, by = 1) %/% max)
+    seq(begin, end, by = 1) - max * (seq(begin - 1, end - 1, by = 1) %/% max)
 }
 
 assign.shapes <- function(colors, default.shape = "circle") {
     if (nunique(colors) < length(colors)) {
-        shapes <- seq_int_cycle(19, 19 + length(colors) - 1, max = 25)
+        seq_int_cycle(19, 19 + length(colors) - 1, max = 25)
     }
-    else shapes <- rep.int(default.shape, length(colors))
-    return(shapes)
+    else {
+        rep.int(default.shape, length(colors))
+    }
 }
 
 shapes.ok <- function(shapes, nshapes) {
@@ -1246,12 +1245,14 @@ shapes.ok <- function(shapes, nshapes) {
         "plus", "cross", "asterisk"
     )
     shape_nums <- 1:25
-    return((length(shapes) == 1 || length(shapes) == nshapes) && ((is.numeric(shapes) && all(shapes %in% shape_nums)) || (is.character(shapes) && all(shapes %in% shape_names))))
+    (length(shapes) == 1 || length(shapes) == nshapes) &&
+        ((is.numeric(shapes) && all(shapes %in% shape_nums)) ||
+             (is.character(shapes) && all(shapes %in% shape_names)))
 }
 
 gg_color_hue <- function(n) {
-    hues = seq(15, 375, length = n + 1)
-    grDevices::hcl(h = hues, l = 65, c = 100)[1:n]
+    hues <- seq(15, 375, length = n + 1)
+    grDevices::hcl(h = hues, l = 65, c = 100)[seq_len(n)]
 }
 
 ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
@@ -1342,24 +1343,24 @@ ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
 
 bal.tab_class_sequence <- function(b) {
     if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) return(NULL)
-    else {
-        b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1]]
-        return(c(class(b)[1], bal.tab_class_sequence(b_)))
-    }
+    
+    b_ <- b[[which(endsWith(names(b), ".Balance"))]][[1]]
+    c(class(b)[1], bal.tab_class_sequence(b_))
 }
 
 unpack_bal.tab <- function(b) {
     unpack_bal.tab_internal <- function(b) {
         if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) return(b[["Balance"]])
-        else {
-            b_ <- b[[which(endsWith(names(b), ".Balance"))]]
+        
+        b_ <- b[[which(endsWith(names(b), ".Balance"))]]
+        
+        b_list <- lapply(b_, function(i) {
+            if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) return(i[["Balance"]])
             
-            b_list <- lapply(b_, function(i) {
-                if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) return(i[["Balance"]])
-                else return(unpack_bal.tab_internal(i))
-            })
-            return(b_list)
-        }
+            unpack_bal.tab_internal(i)
+        })
+        
+        b_list
     }
     LinearizeNestedList <- function(NList, NameSep) {
         # LinearizeNestedList:
@@ -1407,7 +1408,8 @@ unpack_bal.tab <- function(b) {
             A <- A + Jump
             B <- length(NList)
         }
-        return(NList)
+       
+        NList
     }
     
     namesep <- paste(c("|", do.call(c, lapply(1:20, function(i) sample(LETTERS, 1))), "|"), collapse = "")
@@ -1418,5 +1420,5 @@ unpack_bal.tab <- function(b) {
     attr(out, "namesep") <- namesep
     attr(out, "class_sequence") <- bal.tab_class_sequence(b)
     
-    return(out)
+    out
 }

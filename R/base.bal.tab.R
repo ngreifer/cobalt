@@ -57,7 +57,7 @@ base.bal.tab.base <- function(X,
     
     #Actions
     out <- list()
-    
+   
     C <- do.call("get.C2", c(X, A[names(A) %nin% names(X)], list(int = int, poly = poly)), quote = TRUE)
     
     co.names <- attr(C, "co.names")
@@ -107,5 +107,5 @@ base.bal.tab.base <- function(X,
                                        co.names = co.names)
     class(out) <- c(paste.("bal.tab", type), "bal.tab")
     
-    return(out)
+    out
 }

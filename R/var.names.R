@@ -45,7 +45,7 @@
 
 var.names <- function(b, type, file = NULL, minimal = FALSE) {
     if (is_not_null(attr(b, "print.options")[["co.names"]])) {
-        chk::chk_flag(minimal)
+        .chk_flag(minimal)
         if (minimal) {
             vars <- unique(unlist(lapply(attr(b, "print.options")[["co.names"]],
                                          function(x) x[["component"]][x[["type"]] == "base"])))
@@ -60,7 +60,7 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
         .err("no variable names were found in the object. It is probably not a bal.tab object")
     }
     
-    .chk_null_or(file, chk::chk_string)
+    .chk_null_or(file, .chk_string)
     if (is_not_null(file) && !endsWith(file, ".csv")) {
         .err("the filename in `file` must end in \".csv\"")
     }
@@ -70,7 +70,7 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
         else type <- "vec"
     }
     else {
-        type <- chk::chk_string(type)
+        type <- .chk_string(type)
         type <- tolower(type)
         type <- match_arg(type, c("df", "vec"))
     }
