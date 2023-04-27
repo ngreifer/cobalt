@@ -9,7 +9,7 @@
 #' @param s.d.denom `character`; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. It is recommended not to set this argument for longitudinal treatments.
 #' 
 #' @returns 
-#' An object of class `bal.tab.msm` containing balance summaries at each time point. Each balance summary is its own `bal.tab` object. See [`bal.tab.msm()`][class-bal.tab.msm] for more details.
+#' An object of class `bal.tab.msm` containing balance summaries at each time point. Each balance summary is its own `bal.tab` object. See [`class-bal.tab.msm`] for more details.
 #' 
 #' See [`bal.tab() base methods()`][bal.tab.formula] for more detailed information on the value of the `bal.tab` objects produced for each time point.
 #' 
@@ -20,9 +20,9 @@
 #' 
 #' @seealso 
 #' * [bal.tab()] for details of calculations.
-#' * [`bal.tab.msm()`][class-bal.tab.msm] for output and related options.
-#' * [`bal.tab.cluster()`][class-bal.tab.cluster] for more information on clustered data.
-#' * [`bal.tab.imp()`][class-bal.tab.imp] for more information on multiply imputed data.
+#' * [`class-bal.tab.msm`] for output and related options.
+#' * [`class-bal.tab.cluster`] for more information on clustered data.
+#' * [`class-bal.tab.imp`] for more information on multiply imputed data.
 #' * [`bal.tab.multi()`][class-bal.tab.multi] for more information on multi-category treatments.
 #' 
 #' @examplesIf requireNamespace("twang", quietly = TRUE)

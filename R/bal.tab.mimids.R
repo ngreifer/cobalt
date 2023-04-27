@@ -9,7 +9,7 @@
 #' @param s.d.denom `character`; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. Abbreviations allowed. If not specified, the defaults depend on the options specified in the original function calls; see [bal.tab.matchit()] and [bal.tab.weightit()] for details on the defaults.
 #' 
 #' @returns
-#' If clusters are not specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations. See [`bal.tab.imp()`][class-bal.tab.imp] for details.
+#' If clusters are not specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations. See [`class-bal.tab.imp`] for details.
 #' 
 #' If clusters are specified, an object of class `"bal.tab.imp.cluster"` containing summaries between and across all clusters and imputations.
 #' 

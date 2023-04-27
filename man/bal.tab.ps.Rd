@@ -55,9 +55,9 @@
 
 \item{weights}{a vector, list, or \code{data.frame} containing weights for each unit, or a string containing the names of the weights variables in \code{data}, or an object with a \code{\link[=get.w]{get.w()}} method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.}
 
-\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
+\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link{class-bal.tab.cluster}} for details.}
 
-\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details. Not necessary if \code{data} is a \code{mids} object.}
+\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link{class-bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.}
 
 \item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
 
@@ -74,7 +74,7 @@
 \value{
 For binary or continuous point treatments, if clusters are not specified, an object of class \code{"bal.tab"} containing balance summaries for the \code{ps} object. See \code{\link[=bal.tab]{bal.tab()}} for details.
 
-If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.
+If clusters are specified, an object of class \code{"bal.tab.cluster"} containing balance summaries within each cluster and a summary of balance across clusters. See \code{\link{class-bal.tab.cluster}} for details.
 
 If \code{mnps()} is used with multi-category treatments, an object of class \code{"bal.tab.multi"} containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details.
 }
@@ -102,8 +102,8 @@ bal.tab(ps.out, stop.method = "ks.mean", un = TRUE,
 \seealso{
 \itemize{
 \item \code{\link[=bal.tab]{bal.tab()}} for details of calculations.
-\item \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for more information on clustered data.
+\item \code{\link{class-bal.tab.cluster}} for more information on clustered data.
 \item \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for more information on multi-category treatments.
-\item \code{\link[=class-bal.tab.msm]{bal.tab.msm()}} for more information on longitudinal treatments.
+\item \code{\link{class-bal.tab.msm}} for more information on longitudinal treatments.
 }
 }

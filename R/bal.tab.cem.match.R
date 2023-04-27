@@ -11,11 +11,11 @@
 #' @returns
 #' If clusters and imputations are not specified, an object of class `"bal.tab"` containing balance summaries for the `cem.match` object. See [bal.tab()] for details.
 #' 
-#' If imputations are specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations. See [`bal.tab.imp()`][class-bal.tab.imp] for details.
+#' If imputations are specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations. See [`class-bal.tab.imp`] for details.
 #' 
 #' If `cem()` is used with multi-category treatments, an object of class `"bal.tab.multi"` containing balance summaries for each pairwise treatment comparison. See [`bal.tab.multi()`][class-bal.tab.multi] for details.
 #' 
-#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`bal.tab.cluster()`][class-bal.tab.cluster] for details.
+#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`class-bal.tab.cluster`] for details.
 #' 
 #' @details
 #' `bal.tab.cem.match()` generates a list of balance summaries for the `cem.match` object given, and functions similarly to \pkgfun{cem}{imbalance}.

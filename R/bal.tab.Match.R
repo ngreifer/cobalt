@@ -11,7 +11,7 @@
 #' 
 #' @returns If clusters and imputations are not specified, an object of class `"bal.tab"` containing balance summaries for the given object. See [bal.tab()] for details.
 #' 
-#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`bal.tab.cluster()`][class-bal.tab.cluster] for details.
+#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`class-bal.tab.cluster`] for details.
 #' 
 #' @details `bal.tab()` generates a list of balance summaries for the object given, and functions similarly to \pkgfun{Matching}{MatchBalance}. The input to `bal.tab.Match()` must include either both `formula` and `data` or both `covs` and `treat`. Using the `formula` + `data` inputs mirrors how \pkgfun{Matching}{MatchBalance} is used.
 #' 

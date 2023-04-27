@@ -9,13 +9,13 @@
 #' @returns 
 #' For point treatments, if clusters and imputations are not specified, an object of class `"bal.tab"` containing balance summaries for the specified treatment and covariates. See [bal.tab()] for details.
 #' 
-#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`bal.tab.cluster()`][class-bal.tab.cluster] for details.
+#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`class-bal.tab.cluster`] for details.
 #' 
-#' If imputations are specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See [`bal.tab.imp()`][class-bal.tab.imp] for details.
+#' If imputations are specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See [`class-bal.tab.imp`] for details.
 #' 
 #' If multi-category treatments are used, an object of class `"bal.tab.multi"` containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See [`bal.tab.multi()`][class-bal.tab.multi] for details.
 #' 
-#' If longitudinal treatments are used, an object of class `"bal.tab.msm"` containing balance summaries at each time point. Each balance summary is its own `bal.tab` object. See [`bal.tab.msm()`][class-bal.tab.msm] for more details.
+#' If longitudinal treatments are used, an object of class `"bal.tab.msm"` containing balance summaries at each time point. Each balance summary is its own `bal.tab` object. See [`class-bal.tab.msm`] for more details.
 #' 
 #' @details 
 #' `bal.tab.default()` processes its input and attempt to extract enough information from it to display covariate balance for `x`. The purpose of this method is to allow users who have created their own objects containing conditioning information (i.e., weights, subclasses, treatments, covariates, etc.) to access the capabilities of `bal.tab()` without having a special method written for them. By including the correct items in `x`, `bal.tab.default()` can present balance tables as if the input was the output of one of the specifically supported packages (e.g., \pkg{MatchIt}, \pkg{twang}, etc.).
@@ -65,8 +65,8 @@
 #' @seealso 
 #' * [bal.tab.formula()] and [bal.tab.time.list()] for additional arguments to be supplied.
 #' * [bal.tab()] for output and details of calculations.
-#' * [`bal.tab.cluster()`][class-bal.tab.cluster] for more information on clustered data.
-#' * [`bal.tab.imp()`][class-bal.tab.imp] for more information on multiply imputed data.
+#' * [`class-bal.tab.cluster`] for more information on clustered data.
+#' * [`class-bal.tab.imp`] for more information on multiply imputed data.
 #' * [`bal.tab.multi()`][class-bal.tab.multi] for more information on multi-category treatments.
 #' 
 #' @examples

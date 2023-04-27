@@ -15,25 +15,25 @@
 #' @returns 
 #' For point treatments, if clusters and imputations are not specified, an object of class `"bal.tab"` containing balance summaries for the specified treatment and covariates. See [bal.tab()] for details.
 #' 
-#' If imputations are specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations. See [`bal.tab.imp()`][class-bal.tab.imp] for details.
+#' If imputations are specified, an object of class `"bal.tab.imp"` containing balance summaries for each imputation and a summary of balance across imputations. See [`class-bal.tab.imp`] for details.
 #' 
 #' If multi-category treatments are used, an object of class `"bal.tab.multi"` containing balance summaries for each pairwise treatment comparison. See [`bal.tab.multi()`][class-bal.tab.multi] for details.
 #' 
-#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`bal.tab.cluster()`][class-bal.tab.cluster] for details.
+#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`class-bal.tab.cluster`] for details.
 #' 
 #' @details 
 #' `bal.tab.data.frame()` generates a list of balance summaries for the covariates and treatment status values given. `bal.tab.formula()` does the same but uses a formula interface instead.  When the formula interface is used, the formula and data are reshaped into a treatment vector and `data.frame` of covariates and then simply passed through the `data.frame` method.  
 #' 
 #' If `weights`, `subclass` and `match.strata` are all `NULL`, balance information will be presented only for the unadjusted sample.
 #' 
-#' The argument to `match.strata` corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of `weights`, `subclass`, or `match.strata` are specified, `bal.tab()` will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. `bal.tab()` behaves differently depending on whether subclasses are used in conditioning or not. If they are used, `bal.tab()` creates balance statistics for each subclass and for the sample in aggregate. See [`bal.tab.subclass()`][class-bal.tab.subclass] for more information.
+#' The argument to `match.strata` corresponds to a factor vector containing the name or index of each pair/stratum for units conditioned through matching, for example, using the \pkg{optmatch} package. If more than one of `weights`, `subclass`, or `match.strata` are specified, `bal.tab()` will attempt to figure out which one to apply. Currently only one of these can be applied ta a time. `bal.tab()` behaves differently depending on whether subclasses are used in conditioning or not. If they are used, `bal.tab()` creates balance statistics for each subclass and for the sample in aggregate. See [`class-bal.tab.subclass`] for more information.
 #' 
 #' Multiple sets of weights can be supplied simultaneously by entering a `data.frame` or a character vector containing the names of weight variables found in `data` or a list of weights vectors or names. The arguments to `method`, `s.d.denom`, and `estimand`, if any, must be either the same length as the number of sets of weights or of length one, where the sole entry is applied to all sets. When standardized differences are computed for the unadjusted group, they are done using the first entry to `s.d.denom` or `estimand`. When only one set of weights is supplied, the output for the adjusted group will simply be called `"Adj"`, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other outputs of `bal.tab()`.
 #' 
 #' @seealso 
 #' * [bal.tab()] for details of calculations.
-#' * [`bal.tab.cluster()`][class-bal.tab.cluster] for more information on clustered data.
-#' * [`bal.tab.imp()`][class-bal.tab.imp] for more information on multiply imputed data.
+#' * [`class-bal.tab.cluster`] for more information on clustered data.
+#' * [`class-bal.tab.imp`] for more information on multiply imputed data.
 #' * [`bal.tab.multi()`][class-bal.tab.multi] for more information on multi-category treatments.
 #' 
 #' @examples

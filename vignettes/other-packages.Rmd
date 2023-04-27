@@ -84,7 +84,7 @@ The other arguments to `bal.tab()` when using it with `twang` have the same form
 
 If sampling weights are used in the call to `ps()`, they will be automatically incorporated into the `bal.tab()` calculations for both the adjusted and unadjusted samples, just as `twang` does.
 
-`mnps` objects resulting from fitting models in `twang` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette. `ps.cont` objects resulting from using `ps.cont()` in `WeightIt`, which implements GBM for continuous treatments, are also compatible. See the section "Using `cobalt` with continuous treatments" in the main vignette.
+`mnps` objects resulting from fitting models in `twang` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette. `ps.cont` objects resulting from using `ps.cont()` in `twangContinuous`, which implements GBM for continuous treatments, are also compatible. See the section "Using `cobalt` with continuous treatments" in the main vignette.
 ```{r, include=FALSE, eval=TRUE}
 knitr::opts_chunk$set(eval = TRUE)
 ```
@@ -175,7 +175,7 @@ knitr::opts_chunk$set(eval = TRUE)
 ```{r, include=FALSE}
 if (!requireNamespace("ebal", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
 ```
-The `ebal` package implements entropy balancing, a method of weighting for the ATT that yields perfect balance on all desired moments of the covariate distributions between groups. Rather than estimate a propensity score, entropy balancing generates weights directly that satisfy a user-defined moment condition, specifying which moments are to be balanced. Not that all the functionality of `ebal` is contained within `Weightit`. `ebal` does not have its own balance assessment function; thus, `cobalt` is the only way to assess balance without programming, which the `ebal` documentation instructs. Below is a simple example of using `bal.tab()` with `ebal`:
+The `ebal` package implements entropy balancing, a method of weighting for the ATT that yields perfect balance on all desired moments of the covariate distributions between groups. Rather than estimate a propensity score, entropy balancing generates weights directly that satisfy a user-defined moment condition, specifying which moments are to be balanced. Note that all the functionality of `ebal` is contained within `Weightit`. `ebal` does not have its own balance assessment function; thus, `cobalt` is the only way to assess balance without programming, which the `ebal` documentation instructs. Below is a simple example of using `bal.tab()` with `ebal`:
 
 ```{r}
 #Entropy balancing
@@ -188,7 +188,7 @@ e.out <- ebal::ebalance(lalonde$treat, covs0)
 bal.tab(e.out, treat = lalonde$treat, covs = covs0)
 ```
 
-First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. The "effective" sample size is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" in the main vignette for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure.
+First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. See `?bal.tab` or "Details on Calculations" in the main vignette for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure.
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `ebalance` object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
 
@@ -256,7 +256,7 @@ knitr::opts_chunk$set(eval = TRUE)
 ```{r, include=FALSE}
 if (!requireNamespace("MatchThem", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
 ```
-The `MatchThem` package is essentially a wrapper for `matchit()` from `MatchIt` and `weightit()` from `WeightIt` but for use with multiply imputed data. Using `bal.tab()` on `mimids` or `wimids` objects from `MatchThem` activates the features that accompany multiply imputed data; balance is assessed within each imputed dataset and aggregated across imputations. See `?bal.tab.imp` or the accompanying Appendix 2 for more information about using `cobalt` with multiply imputed data. Below is a simple example of using `bal.tab()` with `MatchThem`:
+The `MatchThem` package is essentially a wrapper for `matchit()` from `MatchIt` and `weightit()` from `WeightIt` but for use with multiply imputed data. Using `bal.tab()` on `mimids` or `wimids` objects from `MatchThem` activates the features that accompany multiply imputed data; balance is assessed within each imputed dataset and aggregated across imputations. See `?bal.tab.imp` or `vignette("segmented-data")` for more information about using `cobalt` with multiply imputed data. Below is a simple example of using `bal.tab()` with `MatchThem`:
 ```{r}
 #PS weighting on multiply imputed data
 data("lalonde_mis", package = "cobalt")
@@ -309,9 +309,9 @@ bal.tab(cem.out, data = lalonde, stats = c("m", "ks"))
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `cem()` output object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates. Unlike with `Matching`, entering the treatment variable is optional as it is already stored in the output object. The output is similar to that of `optmatch`. 
 
-When using `cem()` with multiply imputed data (i.e., by supplying a list of data.frames to the `datalist` argument in `cem()`), an argument to `imp` should be specified to `bal.tab()` or a `mids` object from the `mice` package should be given as the argument to `data`. See `?bal.tab.imp` or the accompanying Appendix 2 for more information about using `cobalt` with multiply imputed data. Below is an example of using `cem` with multiply imputed data from `mice`:
+When using `cem()` with multiply imputed data (i.e., by supplying a list of data.frames to the `datalist` argument in `cem()`), an argument to `imp` should be specified to `bal.tab()` or a `mids` object from the `mice` package should be given as the argument to `data`. See `?bal.tab.imp` or `vignette("segmented-data")` for more information about using `cobalt` with multiply imputed data. Below is an example of using `cem` with multiply imputed data from `mice`:
 
-```{r}
+```{r, message = F}
 #Coarsened exact matching on multiply imputed data
 data("lalonde_mis", package = "cobalt")
 
@@ -325,7 +325,6 @@ cem.out.imp <- cem::cem("treat", datalist = imp.data.list,
                         drop = "re78")
 
 bal.tab(cem.out.imp, data = imp.out)
-
 ```
 
 ```{r, include=FALSE, eval=TRUE}
@@ -334,7 +333,7 @@ knitr::opts_chunk$set(eval = TRUE)
 
 ### Using `bal.tab()` with other packages
 
-It is possible to use `bal.tab` with objects that don't come from these packages using the `default` method. If an object that doesn't correspond to the output from one of the specifically supported packages is passed as the first argument to `bal.tab`, `bal.tab` will do its best to process that object as if it did come from a supported package. It will search through the components of the object for items with names like `"treat"`, `"covs"`, `"data"`, `"weights"`, etc., that have the correct object types. Any additional arguments can be specified by the user. 
+It is possible to use `bal.tab()` with objects that don't come from these packages using the `default` method. If an object that doesn't correspond to the output from one of the specifically supported packages is passed as the first argument to `bal.tab()`, `bal.tab()` will do its best to process that object as if it did come from a supported package. It will search through the components of the object for items with names like `"treat"`, `"covs"`, `"data"`, `"weights"`, etc., that have the correct object types. Any additional arguments can be specified by the user. 
 
 The goal of the `default` method is to allow package authors to rely on `cobalt` as a substitute for any balancing function they might otherwise write. By ensuring compatibility with the `default` method, package authors can have their users simply supply the output of a compatible function into `cobalt` functions without having to write a specific method in `cobalt`. A package author would need to make sure the output of their package contained enough information with correctly named components; if so, `cobalt` functions can be used as conveniently with the output as it is with specifically supported packages.
 

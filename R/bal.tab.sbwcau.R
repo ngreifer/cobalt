@@ -1,4 +1,4 @@
-#' #' @title Balance Statistics for `sbw` Objects
+#' @title Balance Statistics for `sbw` Objects
 #' 
 #' @description
 #' Generates balance statistics for `sbwcau` objects from \pkg{sbw}.
@@ -10,7 +10,7 @@
 #' @returns
 #' If clusters are not specified, an object of class `"bal.tab"` containing balance summaries for the `sbwcau` object. See [bal.tab()] for details.
 #' 
-#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`bal.tab.cluster()`][class-bal.tab.cluster] for details.
+#' If clusters are specified, an object of class `"bal.tab.cluster"` containing balance summaries within each cluster and a summary of balance across clusters. See [`class-bal.tab.cluster`] for details.
 #' 
 #' @details
 #' `bal.tab.sbwcau()` generates a list of balance summaries for the `sbwcau` object given, and functions similarly to \pkgfun{sbw}{summarize}.

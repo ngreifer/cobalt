@@ -51,7 +51,7 @@
 
 \item{weights}{a vector, list, or \code{data.frame} containing weights for each unit, or a string containing the names of the weights variables in \code{data}, or an object with a \code{\link[=get.w]{get.w()}} method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.}
 
-\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
+\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link{class-bal.tab.cluster}} for details.}
 
 \item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
 
@@ -66,7 +66,7 @@
 \item{...}{for some input types, other arguments that are required or allowed. Otherwise, further arguments to control display of output. See \link[=display-options]{display options} for details.}
 }
 \value{
-If clusters are not specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details.
+If clusters are not specified, an object of class \code{"bal.tab.imp"} containing balance summaries for each imputation and a summary of balance across imputations. See \code{\link{class-bal.tab.imp}} for details.
 
 If clusters are specified, an object of class \code{"bal.tab.imp.cluster"} containing summaries between and across all clusters and imputations.
 }

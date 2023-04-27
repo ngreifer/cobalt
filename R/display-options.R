@@ -54,36 +54,36 @@
 #' ## When clusters are present
 #' 
 #' \describe{
-#' \item{`which.cluster`}{For which clusters balance tables should be displayed. If `.all`, all clusters in `cluster` will be displayed. If `.none`, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names (or the order of cluster levels if a factor). Default is `.all`. See [`bal.tab.cluster()`][class-bal.tab.cluster].
+#' \item{`which.cluster`}{For which clusters balance tables should be displayed. If `.all`, all clusters in `cluster` will be displayed. If `.none`, no clusters will be displayed. Otherwise, can be a vector of cluster names or numerical indices for which to display balance. Indices correspond to the alphabetical order of cluster names (or the order of cluster levels if a factor). Default is `.all`. See [`class-bal.tab.cluster`].
 #' }
 #' 
-#' \item{`cluster.summary`}{`logical`; whether to display the balance summary across clusters. Default is `TRUE` when `which.cluster` is `.none` and `FALSE` otherwise (note the default for `which.cluster` is `.all`). See [`bal.tab.cluster()`][class-bal.tab.cluster].
+#' \item{`cluster.summary`}{`logical`; whether to display the balance summary across clusters. Default is `TRUE` when `which.cluster` is `.none` and `FALSE` otherwise (note the default for `which.cluster` is `.all`). See [`class-bal.tab.cluster`].
 #' }
 #' 
-#' \item{`cluster.fun`}{Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if `cluster.fun = "mean"` the mean balance statistic across clusters will be displayed. The default when `abs = FALSE` in the `bal.tab()` call is to display all three. The default when `abs = FALSE` in the `bal.tab()` call is to display just the mean and max balance statistic. See [`bal.tab.cluster()`][class-bal.tab.cluster].
+#' \item{`cluster.fun`}{Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if `cluster.fun = "mean"` the mean balance statistic across clusters will be displayed. The default when `abs = FALSE` in the `bal.tab()` call is to display all three. The default when `abs = FALSE` in the `bal.tab()` call is to display just the mean and max balance statistic. See [`class-bal.tab.cluster`].
 #' }
 #' }
 #' 
 #' ## When multiple imputations are present
 #' 
 #' \describe{
-#'\item{`which.imp`}{For which imputations balance tables should be displayed. If `.all`, all imputations in `imp` will be displayed. If `.none`, no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance. Default is `.none`. See [`bal.tab.imp()`][class-bal.tab.imp].
+#'\item{`which.imp`}{For which imputations balance tables should be displayed. If `.all`, all imputations in `imp` will be displayed. If `.none`, no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance. Default is `.none`. See [`class-bal.tab.imp`].
 #' }
 #' 
-#'\item{`imp.summary`}{`logical`; whether to display the balance summary across imputations. Default is `TRUE` when `which.imp` is `.none` and `FALSE` otherwise. See [`bal.tab.imp()`][class-bal.tab.imp].
+#'\item{`imp.summary`}{`logical`; whether to display the balance summary across imputations. Default is `TRUE` when `which.imp` is `.none` and `FALSE` otherwise. See [`class-bal.tab.imp`].
 #' }
 #' 
-#' \item{`imp.fun`}{Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if `imp.fun = "mean"` the mean balance statistic across imputations will be displayed. The default when `abs = FALSE` in the `bal.tab()` call is to display all three. The default when `abs = FALSE` in the `bal.tab()` call is to display just the mean and max balance statistic. See [`bal.tab.imp()`][class-bal.tab.imp].
+#' \item{`imp.fun`}{Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if `imp.fun = "mean"` the mean balance statistic across imputations will be displayed. The default when `abs = FALSE` in the `bal.tab()` call is to display all three. The default when `abs = FALSE` in the `bal.tab()` call is to display just the mean and max balance statistic. See [`class-bal.tab.imp`].
 #' }
 #' }
 #' 
 #' ## When the treatment is longitudinal
 #' 
 #' \describe{
-#' \item{`which.time`}{For which time points balance tables should be displayed. If `.all`, all time points will be displayed. If `.none`, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance. Default is `.none`. See [`bal.tab.msm()`][class-bal.tab.msm].
+#' \item{`which.time`}{For which time points balance tables should be displayed. If `.all`, all time points will be displayed. If `.none`, no time points will be displayed. Otherwise, can be a vector of treatment names or indices for which to display balance. Default is `.none`. See [`class-bal.tab.msm`].
 #' }
 #' 
-#' \item{`msm.summary`}{`logical`; whether to display the balance summary across time points. Default is `TRUE` when `which.time` is `.none` and `FALSE` otherwise. See [`bal.tab.msm()`][class-bal.tab.msm].
+#' \item{`msm.summary`}{`logical`; whether to display the balance summary across time points. Default is `TRUE` when `which.time` is `.none` and `FALSE` otherwise. See [`class-bal.tab.msm`].
 #' }
 #' }
 #' 

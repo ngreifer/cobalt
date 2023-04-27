@@ -261,7 +261,7 @@ Setting `binary = "std"` in `bal.tab()` will produce identical calculations to t
 
 #### Using `bal.tab()` with `WeightIt`
 
-The `WeightIt` package is a convenient wrapper for the weighting functions of several packages, including `twang`, `CBPS`, `ebal`, `sbw`, and `ATE`, and allows for the estimation of weights for binary, multi-category, and categorical treatments and both point and longitudinal treatments. It was designed to work seamlessly with `cobalt`, so using it with `cobalt` is very straightforward. Below is a simple example of using `bal.tab()` with `WeightIt`:
+The `WeightIt` package provides functions and utilities for estimating balancing weights and allows for the estimation of weights for binary, multi-category, and categorical treatments and both point and longitudinal treatments. It was designed to work seamlessly with `cobalt`, so using it with `cobalt` is very straightforward. Below is a simple example of using `bal.tab()` with `WeightIt`:
 
 ```{r}
 data("lalonde", package = "cobalt") #If not yet loaded
@@ -392,16 +392,16 @@ data("lalonde", package = "cobalt")
 
 #Generating weights with re75 as the continuous treatment
 W.out.c <- WeightIt::weightit(re75 ~ age + educ + race + married +
-                                  nodegree + re74 + I(re74^2), 
+                                  nodegree + re74, 
                               data = lalonde,
-                              method = "ps")
+                              method = "energy")
 ```
 
 First, we can assess balance numerically using `bal.tab()`. The main balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using `thresholds`; @zhuBoostingAlgorithmEstimating2015 recommend using .1 as indicating balance, but in general lower is better. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and polynomial terms through the use of arguments to `int` and `poly` is recommended (we just display the use of `poly` here for brevity). In addition to treatment-covariate correlations, we request standardized mean difference between the weighted and unweighted samples by include `"m"` (for `"mean.diffs.target"`) in the argument to `stats` along with `"c"` (for `"correlations"`).
 
 ```{r}
 #Assessing balance numerically
-bal.tab(W.out.c, stats = c("c", "m"), un = TRUE, 
+bal.tab(W.out.c, stats = c("c", "k"), un = TRUE, 
         thresholds = c(cor = .1), poly = 3)
 ```
 
@@ -415,11 +415,12 @@ bal.plot(W.out.c, "married", which = "both")
 
 When balance has been achieved to a satisfactory level, users can present balance improvements in a Love plot using the `love.plot()` command, just as with binary treatments.
 
-```{r, fig.width = 5}
+```{r, fig.width = 6, fig.height = 3}
 #Summarizing balance in a Love plot
 love.plot(W.out.c, stats = c("c", "ks"),
           thresholds = c(cor = .1), 
           abs = TRUE, wrap = 20,
+          limits = list(ks = c(0, .5)),
           var.order = "unadjusted", line = TRUE)
 ```
 
@@ -431,7 +432,7 @@ In `cobalt`, users can assess and present balance for multi-category treatments 
 
 `love.plot()` allows for the display of each pairwise treatment or the range of balance across treatment pairs for each covariate. `bal.plot()` displays distributional balance for the requested covariate across all treatment groups.
 
-Below is an example of using `cobalt` with multi-category treatments. For this example, `race` will be the "treatment"; this type of analysis is not meant to be causal, but rather represents a method to examine disparities among groups accounting for covariates that might otherwise explain differences among groups. We will use `WeightIt` to generate balanced groups by estimating propensity score weights with multinomial logistic regression.
+Below is an example of using `cobalt` with multi-category treatments. For this example, `race` will be the "treatment"; this type of analysis is not meant to be causal, but rather represents a method to examine disparities among groups accounting for covariates that might otherwise explain differences among groups. We will use `WeightIt` to generate balanced groups by estimating energy balancing weights.
 
 ```{r}
 data("lalonde", package = "cobalt")
@@ -441,7 +442,7 @@ data("lalonde", package = "cobalt")
 W.out.mn <- WeightIt::weightit(race ~ age + educ + married +
                                    nodegree + re74 + re75,
                                data = lalonde,
-                               method = "ps",
+                               method = "energy",
                                use.mlogit = FALSE)
 ```
 
@@ -453,7 +454,7 @@ bal.tab(W.out.mn, un = TRUE)
 
 #Assessing balance for each pair of treatments
 bal.tab(W.out.mn, un = TRUE,
-        disp.means = TRUE,
+        disp = "means",
         which.treat = .all)
 ```
 

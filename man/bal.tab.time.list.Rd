@@ -78,9 +78,9 @@
 
 \item{weights}{a vector, list, or \code{data.frame} containing weights for each unit, or a string containing the names of the weights variables in \code{data}, or an object with a \code{\link[=get.w]{get.w()}} method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.}
 
-\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for details.}
+\item{cluster}{either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in \code{data} or the input object. See \code{\link{class-bal.tab.cluster}} for details.}
 
-\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for details. Not necessary if \code{data} is a \code{mids} object.}
+\item{imp}{either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in \code{data} or the input object. See \code{\link{class-bal.tab.imp}} for details. Not necessary if \code{data} is a \code{mids} object.}
 
 \item{pairwise}{whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for details. This can also be used with a binary treatment to assess balance with respect to the full sample.}
 
@@ -97,7 +97,7 @@
 \item{treat.list}{treatment status for each unit at each time point. This can be specified as a list or data frame of vectors, each of which contains the treatment status of each individual at each time point, or a list or vector of the names of variables in \code{data} that contain treatment at each time point. Required for the \code{data.frame.list} method.}
 }
 \value{
-An object of class \code{bal.tab.msm} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link[=class-bal.tab.msm]{bal.tab.msm()}} for more details.
+An object of class \code{bal.tab.msm} containing balance summaries at each time point. Each balance summary is its own \code{bal.tab} object. See \code{\link{class-bal.tab.msm}} for more details.
 
 See \code{\link[=bal.tab.formula]{bal.tab() base methods()}} for more detailed information on the value of the \code{bal.tab} objects produced for each time point.
 }
@@ -153,9 +153,9 @@ bal.tab(list(iptwExWide[c("use0", "gender")],
 \seealso{
 \itemize{
 \item \code{\link[=bal.tab]{bal.tab()}} for details of calculations.
-\item \code{\link[=class-bal.tab.msm]{bal.tab.msm()}} for output and related options.
-\item \code{\link[=class-bal.tab.cluster]{bal.tab.cluster()}} for more information on clustered data.
-\item \code{\link[=class-bal.tab.imp]{bal.tab.imp()}} for more information on multiply imputed data.
+\item \code{\link{class-bal.tab.msm}} for output and related options.
+\item \code{\link{class-bal.tab.cluster}} for more information on clustered data.
+\item \code{\link{class-bal.tab.imp}} for more information on multiply imputed data.
 \item \code{\link[=class-bal.tab.multi]{bal.tab.multi()}} for more information on multi-category treatments.
 }
 }

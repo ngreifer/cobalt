@@ -21,7 +21,9 @@
 
 * Fixed a bug when using `bal.plot()` with longitudinal treatments.
 
-* Fixed a bug when no covariates are supplied
+* Fixed a bug in while the display options `factor_sep` and `int_sep` were not functioning correctly.
+
+* Fixed a bug when no covariates are supplied.
 
 * Improved some errors all around, and particularly in `col_w_smd()` and friends, `bal.init()`, and `var.names()`.
 

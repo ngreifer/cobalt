@@ -77,7 +77,7 @@ Here we see balance by time point. At each time point, a `bal.tab` object is pro
 
 This output will appear no matter what the treatment types are (i.e., binary, continuous, multi-category), but for multi-category treatments or when the treatment types vary or for multiply imputed data, no balance summary will be computed or displayed.
 
-To estimate the weights, we'll use `WeightIt` to fit a series of logistic regressions that generate the weights. See the `WeightIt` documentation for more information on how to use `WeightIt` with longitudinal treatments.
+To estimate the weights, we'll use `WeightIt::weightitMSM()` to fit a series of logistic regressions that generate the weights. See the `WeightIt` documentation for more information on how to use `WeightIt` with longitudinal treatments.
 
 ```{r}
 Wmsm <- WeightIt::weightitMSM(
@@ -122,19 +122,19 @@ Finally, we'll examine using `love.plot()` with longitudinal treatments to displ
 
 ## `love.plot()`
 
-`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time point or one plot with the summary across time points. As with `bal.tab()`, the user can set `which.time` to display only certain time points. When set to `.none`, the summary across time points is displayed. The `agg.fun` argument is set to `"max"` by default.
+`love.plot()` works with longitudinal treatments just as it does with point treatments, except that the user can choose whether to display separate plots for each time point or one plot with the summary across time points. As with `bal.tab()`, the user can set `which.time` to display only certain time points, including setting it to `.all` to display all time points (note that not all variables will be present in all time points). When set to `.none` (the default), the summary across time points is displayed. The `agg.fun` argument is set to `"max"` by default.
 
 ```{r}
-love.plot(Wmsm, abs = TRUE, binary = "std")
+love.plot(Wmsm, binary = "std")
 ```
 
-```{r, fig.width=4}
-love.plot(Wmsm, which.time = .none, binary = "std")
+```{r}
+love.plot(Wmsm, binary = "std", which.time = .all)
 ```
 
 ## Other Packages
 
-Here we used `WeightIt` to generate our MSM weights, but `cobalt` is compatible with other packages for longitudinal treatments as well. `CBMSM` objects from the `CBPS` package and `iptw` objects from the `twang` package can be used in place of the `weightitMSM` object in the above examples. In addition, users who have generated balancing weights outside any of these package can specify an argument to `weights` in `bal.tab()` with the formula or data frame methods to assess balance using those weights, or they can use the default method of `bal.tab()` to supply an object containing any of the objects required for balance assessment (output from `optweight` is particularly well suited for this).
+Here we used `WeightIt` to generate our MSM weights, but `cobalt` is compatible with other packages for longitudinal treatments as well. `CBMSM` objects from the `CBPS` package and `iptw` objects from the `twang` package can be used in place of the `weightitMSM` object in the above examples. In addition, users who have generated balancing weights outside any of these package can specify an argument to `weights` in `bal.tab()` with the formula or data frame methods to assess balance using those weights, or they can use the default method of `bal.tab()` to supply an object containing any of the objects required for balance assessment.
 
 Note that `CBPS` estimates and assesses balance on MSM weights differently from `twang` and `cobalt`. Its focus is on ensuring balance across all treatment history permutations, whereas `cobalt` focuses on evaluating the similarity to sequential randomization. For this reason, it may appear that `CBMSM` objects have different balance qualities as measured by the two packages.
 

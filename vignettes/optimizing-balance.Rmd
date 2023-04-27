@@ -37,7 +37,7 @@ Broadly, these functions work by taking in the treatment, covariates for which b
 
 For `bal.init()`, we need to supply the covariates, the treatment, the name of the balance statistic we wish to compute, sampling weights (if any), and any other inputs required, which depend on the specific balance statistic requested. `bal.init()` returns a `bal.init` object, which is then passed to `bal.compute()` along with a set of balancing weights (which may result from weighting, matching, or subclassification).
 
-Below, we provide an example using the `lalonde` dataset. Our balance statistic will be the largest absolute standardized mean difference among the included covariates, which is specified as `smd.max`. We will first supply the required inputs to `bal.init()` and pass its output to `bal.compute()` to compute the balance statistic for the sample prior to weighting.
+Below, we provide an example using the `lalonde` dataset. Our balance statistic will be the largest absolute standardized mean difference among the included covariates, which is specified as `"smd.max"`. We will first supply the required inputs to `bal.init()` and pass its output to `bal.compute()` to compute the balance statistic for the sample prior to weighting.
 
 ```{r}
 library(cobalt)
@@ -195,7 +195,7 @@ The distance covariance between the scaled covariates and treatment, which is a 
 
 ### Choosing a balance statistic
 
-Given all these options, how should one choose? There has been some research into which yields the best results [@franklinMetricsCovariateBalance2014, @griffinChasingBalanceOther2017, @stuartPrognosticScorebasedBalance2013, @belitserMeasuringBalanceModel2011, @parastOptimizingVariancebiasTradeoff2017], but the actual performance of each depends on the unique features of the data and system under study. For example, in the unlikely case the true outcome model is linear in the covariates, using the `"smd"` or `"mahalanobis"` statistics will work well for binary and multi-category treatments. In more realistic cases, though, every measure has its advantages and disadvantages.
+Given all these options, how should one choose? There has been some research into which yields the best results [@franklinMetricsCovariateBalance2014; @griffinChasingBalanceOther2017; @stuartPrognosticScorebasedBalance2013; @belitserMeasuringBalanceModel2011; @parastOptimizingVariancebiasTradeoff2017], but the actual performance of each depends on the unique features of the data and system under study. For example, in the unlikely case that the true outcome model is linear in the covariates, using the `"smd"` or `"mahalanobis"` statistics will work well for binary and multi-category treatments. In more realistic cases, though, every measure has its advantages and disadvantages.
 
 For binary and multi-category treatments, only `"energy.dist"`, `"kernel.dist"`, and `"L1.med"` reflect balance on all features of the joint covariate distribution, whereas the others summarize across balance statistics computed for each covariate ignoring the others. Similarly, for continuous treatments, only `"distance.cov"` reflects balance on all features of the joint covariate distribution. Given these advantages, `"energy.dist"` and `"distance.cov"` are my preferences. That said, other measures are better studied, possibly more intuitive, and more familiar to a broad audience.
 

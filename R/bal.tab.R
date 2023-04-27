@@ -39,8 +39,8 @@
 #' @param s.d.denom `character`; how the denominator for standardized mean differences should be calculated, if requested. See [col_w_smd()] for allowable options. If weights are supplied, each set of weights should have a corresponding entry to `s.d.denom`. Abbreviations allowed. If left blank and weights, subclasses, or matching strata are supplied, `bal.tab()` will figure out which one is best based on the `estimand`, if given (for ATT, `"treated"`; for ATC, `"control"`; otherwise `"pooled"`) and other clues if not.
 #' @param thresholds a named vector of balance thresholds, where the name corresponds to the statistic (i.e., in `stats`) that the threshold applies to. For example, to request thresholds on mean differences and variance ratios, one can set `thresholds = c(m = .05, v = 2)`. Requesting a threshold automatically requests the display of that statistic. When specified, extra columns are inserted into the Balance table describing whether the requested balance statistics exceeded the threshold or not. Summary tables tallying the number of variables that exceeded and were within the threshold and displaying the variables with the greatest imbalance on that balance measure are added to the output.
 #' @param weights a vector, list, or `data.frame` containing weights for each unit, or a string containing the names of the weights variables in `data`, or an object with a [get.w()] method or a list thereof. The weights can be, e.g., inverse probability weights or matching weights resulting from a matching algorithm.
-#' @param cluster either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in `data` or the input object. See [`bal.tab.cluster()`][class-bal.tab.cluster] for details.
-#' @param imp either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in `data` or the input object. See [`bal.tab.imp()`][class-bal.tab.imp] for details. Not necessary if `data` is a `mids` object.
+#' @param cluster either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in `data` or the input object. See [`class-bal.tab.cluster`] for details.
+#' @param imp either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in `data` or the input object. See [`class-bal.tab.imp`] for details. Not necessary if `data` is a `mids` object.
 #' @param pairwise whether balance should be computed for pairs of treatments or for each treatment against all groups combined. See [`bal.tab.multi()`][class-bal.tab.multi] for details. This can also be used with a binary treatment to assess balance with respect to the full sample.
 #' @param s.weights Optional; either a vector containing sampling weights for each unit or a string containing the name of the sampling weight variable in `data`. These function like regular weights except that both the adjusted and unadjusted samples will be weighted according to these weights if weights are used.
 #' @param abs `logical`; whether displayed balance statistics should be in absolute value or not. 
@@ -53,31 +53,31 @@
 #' 
 #' For scenarios with binary point treatments and no subclasses, imputations, or clusters, the following are the elements of the `bal.tab` object:
 #'     
-#'     \item{Balance}{A data frame containing balance information for each covariate. Balance contains the following columns, with additional columns present when other balance statistics are requested, and some columns omitted when not requested:
-#'             \itemize{
-#'                 \item{`Type`: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
-#'                 \item{`M.0.Un`: The mean of the control group prior to adjusting.}
-#'                 \item{`SD.0.Un`: The standard deviation of the control group prior to adjusting.}
-#'                 \item{`M.1.Un`: The mean of the treated group prior to adjusting.}
-#'                 \item{`SD.1.Un`: The standard deviation of the treated group prior to adjusting.}
-#'                 \item{`Diff.Un`: The (standardized) difference in means between the two groups prior to adjusting. See the `binary` and `continuous` arguments on the `bal.tab` method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
-#'                 \item{`M.0.Adj`: The mean of the control group after adjusting.}
-#'                 \item{`SD.0.Adj`: The standard deviation of the control group after adjusting.}
-#'                 \item{`M.1.Adj`: The mean of the treated group after adjusting.}
-#'                 \item{`SD.1.Adj`: The standard deviation of the treated group after adjusting.}
-#'                 \item{`Diff.Adj`: The (standardized) difference in means between the two groups after adjusting. See the `binary` and `continuous` arguments on the `bal.tab` method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
-#'                 \item{`M.Threshold`: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by `thresholds`.  If a threshold for mean differences is not specified, this column will be `NA`.}
-#'             }}
+#' \item{Balance}{A data frame containing balance information for each covariate. Balance contains the following columns, with additional columns present when other balance statistics are requested, and some columns omitted when not requested:
+#' \itemize{
+#' \item{`Type`: Whether the covariate is binary, continuous, or a measure of distance (e.g., the propensity score).}
+#' \item{`M.0.Un`: The mean of the control group prior to adjusting.}
+#' \item{`SD.0.Un`: The standard deviation of the control group prior to adjusting.}
+#' \item{`M.1.Un`: The mean of the treated group prior to adjusting.}
+#' \item{`SD.1.Un`: The standard deviation of the treated group prior to adjusting.}
+#' \item{`Diff.Un`: The (standardized) difference in means between the two groups prior to adjusting. See the `binary` and `continuous` arguments on the `bal.tab` method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
+#' \item{`M.0.Adj`: The mean of the control group after adjusting.}
+#' \item{`SD.0.Adj`: The standard deviation of the control group after adjusting.}
+#' \item{`M.1.Adj`: The mean of the treated group after adjusting.}
+#' \item{`SD.1.Adj`: The standard deviation of the treated group after adjusting.}
+#' \item{`Diff.Adj`: The (standardized) difference in means between the two groups after adjusting. See the `binary` and `continuous` arguments on the `bal.tab` method pages to determine whether standardized or raw mean differences are being reported. By default, the standardized mean difference is displayed for continuous variables and the raw mean difference (difference in proportion) is displayed for binary variables.}
+#' \item{`M.Threshold`: Whether or not the calculated mean difference after adjusting exceeds or is within the threshold given by `thresholds`.  If a threshold for mean differences is not specified, this column will be `NA`.}
+#' }}
 #' \item{Balanced.Means}{If a threshold on mean differences is specified, a table tallying the number of variables that exceed or are within the threshold.}
 #' \item{Max.Imbalance.Means}{If a threshold on mean differences is specified, a table displaying the variable with the greatest absolute mean difference.}
 #' \item{Observations}{A table displaying the sample sizes before and after adjusting. Often the effective sample size (ESS) will be displayed. See Details.}
 #' \item{call}{The original function call, if adjustment was performed by a function in another package.}
 #' 
-#' If the treatment is continuous, instead of producing mean differences, `bal.tab()` will produce correlations between the covariates and the treatment. The default corresponding entries in the output will be "Corr.Un", "Corr.Adj", and "R.Threshold" (and accordingly for the balance tally and maximum imbalance tables).
+#' If the treatment is continuous, instead of producing mean differences, `bal.tab()` will produce correlations between the covariates and the treatment. The default corresponding entries in the output will be `"Corr.Un"`, "`Corr.Adj"`, and `"R.Threshold"` (and accordingly for the balance tally and maximum imbalance tables).
 #' 
 #' If multiple weights are supplied, `"Adj"` in `Balance` will be replaced by the provided names of the sets of weights, and extra columns will be added for each set of weights. Additional columns and rows for other items in the output will be created as well.
 #' 
-#' For `bal.tab` output with subclassification, see [`bal.tab.subclass()`][class-bal.tab.subclass].
+#' For `bal.tab` output with subclassification, see [`class-bal.tab.subclass`].
 #' 
 #' @details
 #' `bal.tab()` performs various calculations on the the data objects given. This page details the arguments and calculations that are used across `bal.tab()` methods.
@@ -90,11 +90,9 @@
 #'     
 #' Prior to computation, all variables are checked for variable type, which allows users to differentiate balance statistic calculations based on type using the arguments to `continuous` and `binary`. First, if a given covariate is numeric and has only 2 levels, it is converted into a binary (0,1) variable. If 0 is a value in the original variable, it retains its value and the other value is converted to 1; otherwise, the lower value is converted to 0 and the other to 1. Next, if the covariate is not numeric or logical (i.e., is a character or factor variable), it will be split into new binary variables, named with the original variable and the value, separated by an underscore. Otherwise, the covariate will be used as is and treated as a continuous variable.
 #'     
-#' Variance ratios are computed within-sample using [col_w_vr()], with the larger of the two variances in the numerator if `abs = TRUE`, yielding values greater than or equal to 1. Variance ratios are not calculated for binary variables since they are only a function of the group proportions and thus provide the same information as differences in proportion. See [balance-statistics] for information on other balance statistics that can be calculated.
-#'     
 #' When weighting or matching are used, an "effective sample size" is calculated for each group using the following formula: \eqn{(\sum w)^2 / \sum w^2}. The effective sample size is "approximately the number of observations from a simple random sample that yields an estimate with sampling variation equal to the sampling variation obtained with the weighted comparison observations" (Ridgeway et al., 2016). The calculated number tends to underestimate the true effective sample size of the weighted samples. The number depends on the variability of the weights, so sometimes trimming units with large weights can actually increase the effective sample size, even though units are being down-weighted. When matching is used, an additional "unweighted" sample size will be displayed indicating the total number of units contributing to the weighted sample.
 #'     
-#' When subclassification is used, the balance tables for each subclass stored in `$Subclass.Balance` use values calculated as described above. For the aggregate balance table stored in `$Balance.Across.Subclass`, the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See [`bal.tab.subclass()`][class-bal.tab.subclass] for more details.
+#' When subclassification is used, the balance tables for each subclass stored in `$Subclass.Balance` use values calculated as described above. For the aggregate balance table stored in `$Balance.Across.Subclass`, the values of each statistic are computed as a weighted average of the statistic across subclasses, weighted by the proportion of units in each subclass. See [`class-bal.tab.subclass`] for more details.
 #' 
 #' ### With Continuous Point Treatments
 #'     
@@ -102,24 +100,23 @@
 #' 
 #' ### With Multi-Category Point Treatments
 #'     
-#' For information on using `bal.tab()` with multi-category treatments, see [`bal.tab.multi()`][class-bal.tab.multi]. Essentially, `bal.tab()` compares pairs of treatment groups in a standard way.
+#' For information on using `bal.tab()` with multi-category treatments, see [`class-bal.tab.multi`]. Essentially, `bal.tab()` compares pairs of treatment groups in a standard way.
 #' 
 #' ### With Longitudinal Treatments
 #'     
-#' For information on using `bal.tab()` with longitudinal treatments, see [`bal.tab.msm()`][class-bal.tab.msm] and `vignette("longitudinal-treat")`. Essentially, `bal.tab()` summarizes balance at each time point and summarizes across time points.
+#' For information on using `bal.tab()` with longitudinal treatments, see [`class-bal.tab.msm`] and `vignette("longitudinal-treat")`. Essentially, `bal.tab()` summarizes balance at each time point and summarizes across time points.
 #' 
 #' ### With Clustered or Multiply Imputed Data
 #'     
-#' For information on using `bal.tab()` with clustered data, see [`bal.tab.cluster()`][class-bal.tab.cluster]. For information on using `bal.tab()` with multiply imputed data, see [`bal.tab.imp()`][class-bal.tab.imp]. 
+#' For information on using `bal.tab()` with clustered data, see [`class-bal.tab.cluster`]. For information on using `bal.tab()` with multiply imputed data, see [`class-bal.tab.imp`]. 
 #' 
-#' 
-#' ### Quick
+#' ### `quick`
 #'     
 #' Calculations can take some time, especially when there are many variables, interactions, or clusters. When certain values are not printed, by default they are not computed. In particular, summary tables are not computed when their display has not been requested. This can speed up the overall production of the output when these values are not to be used later. However, when they are to be used later, such as when output is to be further examined with `print()` or is to be used in some other way after the original call to `bal.tab()`, it may be useful to compute them even if they are not to be printed initially. To do so, users can set `quick = FALSE`, which will cause `bal.tab()` to calculate all values and components it can. Note that `love.plot()` is fully functional even when `quick = TRUE` and values are requested that are otherwise not computed in `bal.tab()` with `quick = TRUE`.
 #' 
 #' ### Missing Data
 #'     
-#' If there is missing data in the covariates (i.e., `NA`s in the covariates provided to `bal.tab()`), a few additional things happen. A warning will appear mentioning that missing values were present in the data set. The computed balance summaries will be for the variables ignoring the missing values. New variables will be created representing missingness indicators for each variable, named `var:<NA>` (with `var` replaced by the actual name of the variable). If `int = TRUE`, balance for the pairwise interactions between the missingness indicators will also be computed. These variables are treated like regular variables once created.
+#' If there is missing data in the covariates (i.e., `NA`s in the covariates provided to `bal.tab()`), a few additional things happen. A warning will appear mentioning that missing values were present in the data set. The computed balance summaries will be for the variables ignoring the missing values. New variables will be created representing missingness indicators for each variable, named `var: <NA>` (with `var` replaced by the actual name of the variable). If `int = TRUE`, balance for the pairwise interactions between the missingness indicators will also be computed. These variables are treated like regular variables once created.
 #' 
 #' @references 
 #' Ridgeway, G., McCaffrey, D., Morral, A., Burgette, L., & Griffin, B. A. (2016). Toolkit for Weighting and Analysis of Nonequivalent Groups: A tutorial for the twang package. R vignette. RAND.
@@ -144,7 +141,7 @@
 #'     
 #' @examples 
 #' ## See individual pages above for examples with
-#' ## different inputs, or see vignette("cobalt")
+#' ## different inputs, or see `vignette("cobalt")`
 
 #' @rdname bal.tab
 #' @export 
