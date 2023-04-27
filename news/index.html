@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="cobalt-development-version">cobalt (development version)<a class="anchor" aria-label="anchor" href="#cobalt-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="4.5.1" id="cobalt-451">cobalt 4.5.1<a class="anchor" aria-label="anchor" href="#cobalt-451"></a></h2>
 <ul><li><p>Added a new function <code><a href="../reference/bal.compute.html">available.stats()</a></code> which lists the available balance statistics for use with <code><a href="../reference/bal.compute.html">bal.init()</a></code> and <code><a href="../reference/bal.compute.html">bal.compute()</a></code>.</p></li>
 <li><p>The interfaces to <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> have changed slightly. The arguments have a slightly different order to match other <code>cobalt</code> functions. <code><a href="../reference/bal.compute.html">bal.compute()</a></code> now is a generic function with a method for <code>bal.init</code> objects and a default method. The default method accepts the same arguments as <code><a href="../reference/bal.compute.html">bal.init()</a></code> (and optionally an additional <code>weights</code> argument) and computes the (weighted) balance statistic directly. For most uses, the <code>bal.init() |&gt; bal.compute()</code> workflow should be preferred.</p></li>
 <li><p>Added a new multivariate balance statistic, the kernel distance as described by Zhu, Savage, and Ghosh (2018). This can be requested in <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code> by setting <code>stat = "kernel.dist"</code>. In most cases, this will perform similarly to the energy distance.</p></li>
