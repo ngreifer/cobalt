@@ -152,13 +152,13 @@ may result from weighting, matching, or subclassification).</p>
 <p>Below, we provide an example using the <code>lalonde</code> dataset.
 Our balance statistic will be the largest absolute standardized mean
 difference among the included covariates, which is specified as
-<code>smd.max</code>. We will first supply the required inputs to
+<code>"smd.max"</code>. We will first supply the required inputs to
 <code><a href="../reference/bal.compute.html">bal.init()</a></code> and pass its output to
 <code><a href="../reference/bal.compute.html">bal.compute()</a></code> to compute the balance statistic for the
 sample prior to weighting.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ngreifer.github.io/cobalt/">cobalt</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt;  cobalt (Version 4.5.0.9001, Build Date: 2023-04-26)</span></span>
+<span><span class="co">#&gt;  cobalt (Version 4.5.0.9001, Build Date: 2023-04-27)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">covs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">race</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -463,11 +463,12 @@ continuous treatments.</p>
 <h3 id="choosing-a-balance-statistic">Choosing a balance statistic<a class="anchor" aria-label="anchor" href="#choosing-a-balance-statistic"></a>
 </h3>
 <p>Given all these options, how should one choose? There has been some
-research into which yields the best results <span class="citation">Parast et al. (<a href="#ref-parastOptimizingVariancebiasTradeoff2017" role="doc-biblioref">2017</a>)</span>, but the actual performance of
-each depends on the unique features of the data and system under study.
-For example, in the unlikely case the true outcome model is linear in
-the covariates, using the <code>"smd"</code> or
-<code>"mahalanobis"</code> statistics will work well for binary and
+research into which yields the best results <span class="citation">(<a href="#ref-franklinMetricsCovariateBalance2014" role="doc-biblioref">Franklin et al. 2014</a>; <a href="#ref-griffinChasingBalanceOther2017" role="doc-biblioref">Griffin
+et al. 2017</a>; <a href="#ref-stuartPrognosticScorebasedBalance2013" role="doc-biblioref">Stuart, Lee, and Leacy 2013</a>; <a href="#ref-belitserMeasuringBalanceModel2011" role="doc-biblioref">Belitser et al. 2011</a>; <a href="#ref-parastOptimizingVariancebiasTradeoff2017" role="doc-biblioref">Parast et al. 2017</a>)</span>, but the actual
+performance of each depends on the unique features of the data and
+system under study. For example, in the unlikely case that the true
+outcome model is linear in the covariates, using the <code>"smd"</code>
+or <code>"mahalanobis"</code> statistics will work well for binary and
 multi-category treatments. In more realistic cases, though, every
 measure has its advantages and disadvantages.</p>
 <p>For binary and multi-category treatments, only

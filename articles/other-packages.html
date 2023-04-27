@@ -89,7 +89,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2023-04-26</h4>
+            <h4 data-toc-skip class="date">2023-04-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/other-packages.Rmd" class="external-link"><code>vignettes/other-packages.Rmd</code></a></small>
       <div class="d-none name"><code>other-packages.Rmd</code></div>
@@ -283,10 +283,10 @@ with multi-category treatments” in the main vignette. <code>iptw</code>
 objects resulting from fitting models in <code>twang</code> with
 longitudinal treatments are also compatible with <code>cobalt</code>.
 See the Appendix 3 vignette. <code>ps.cont</code> objects resulting from
-using <code>ps.cont()</code> in <code>WeightIt</code>, which implements
-GBM for continuous treatments, are also compatible. See the section
-“Using <code>cobalt</code> with continuous treatments” in the main
-vignette.</p>
+using <code>ps.cont()</code> in <code>twangContinuous</code>, which
+implements GBM for continuous treatments, are also compatible. See the
+section “Using <code>cobalt</code> with continuous treatments” in the
+main vignette.</p>
 </div>
 <div class="section level3">
 <h3 id="using-bal-tab-with-matching">Using <code>bal.tab()</code> with <code>Matching</code><a class="anchor" aria-label="anchor" href="#using-bal-tab-with-matching"></a>
@@ -503,7 +503,7 @@ of weighting for the ATT that yields perfect balance on all desired
 moments of the covariate distributions between groups. Rather than
 estimate a propensity score, entropy balancing generates weights
 directly that satisfy a user-defined moment condition, specifying which
-moments are to be balanced. Not that all the functionality of
+moments are to be balanced. Note that all the functionality of
 <code>ebal</code> is contained within <code>Weightit</code>.
 <code>ebal</code> does not have its own balance assessment function;
 thus, <code>cobalt</code> is the only way to assess balance without
@@ -536,13 +536,12 @@ is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()
 <p>First is the balance table containing mean differences for covariates
 included in the original call to <code>ebalance</code>. In general,
 these will all be very close to 0. Next is a table displaying effective
-sample size information. The “effective” sample size is calculated as is
-done in <code>twang</code>. See the <code>twang</code> documentation,
-<code><a href="../reference/bal.tab.html">?bal.tab</a></code>, or “Details on Calculations” in the main vignette
-for details on this calculation. A common issue when using entropy
-balancing is small effective sample size, which can yield low precision
-in effect estimation when using weighted regression, so it is important
-that users pay attention to this measure.</p>
+sample size information. See <code><a href="../reference/bal.tab.html">?bal.tab</a></code> or “Details on
+Calculations” in the main vignette for details on this calculation. A
+common issue when using entropy balancing is small effective sample
+size, which can yield low precision in effect estimation when using
+weighted regression, so it is important that users pay attention to this
+measure.</p>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 <code>Matching</code> or <code>optmatch</code>. In addition to the
 <code>ebalance</code> object, one must specify either both a formula and
@@ -661,8 +660,8 @@ multiply imputed data. Using <code><a href="../reference/bal.tab.html">bal.tab()
 <code>mimids</code> or <code>wimids</code> objects from
 <code>MatchThem</code> activates the features that accompany multiply
 imputed data; balance is assessed within each imputed dataset and
-aggregated across imputations. See <code>?bal.tab.imp</code> or the
-accompanying Appendix 2 for more information about using
+aggregated across imputations. See <code>?bal.tab.imp</code> or
+<code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for more information about using
 <code>cobalt</code> with multiply imputed data. Below is a simple
 example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchThem</code>:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
@@ -684,15 +683,15 @@ example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> 
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">mt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## distance    Distance       0.9460        0.9583       0.9786</span></span>
-<span><span class="co">## age          Contin.      -0.0521        0.0076       0.0990</span></span>
-<span><span class="co">## educ         Contin.      -0.2124       -0.1605      -0.1210</span></span>
-<span><span class="co">## married       Binary      -0.0270       -0.0135      -0.0054</span></span>
-<span><span class="co">## race_black    Binary       0.3730        0.3741       0.3784</span></span>
-<span><span class="co">## race_hispan   Binary      -0.1838       -0.1730      -0.1622</span></span>
-<span><span class="co">## race_white    Binary      -0.2162       -0.2011      -0.1892</span></span>
-<span><span class="co">## re74         Contin.      -0.0840       -0.0518      -0.0175</span></span>
-<span><span class="co">## re75         Contin.      -0.0781       -0.0651      -0.0523</span></span>
+<span><span class="co">## distance    Distance       0.9413        0.9511       0.9762</span></span>
+<span><span class="co">## age          Contin.      -0.0808        0.0123       0.0567</span></span>
+<span><span class="co">## educ         Contin.      -0.1989       -0.1471      -0.0941</span></span>
+<span><span class="co">## married       Binary      -0.0270       -0.0108       0.0054</span></span>
+<span><span class="co">## race_black    Binary       0.3730        0.3735       0.3784</span></span>
+<span><span class="co">## race_hispan   Binary      -0.1838       -0.1784      -0.1676</span></span>
+<span><span class="co">## race_white    Binary      -0.2054       -0.1951      -0.1892</span></span>
+<span><span class="co">## re74         Contin.      -0.1039       -0.0452       0.0032</span></span>
+<span><span class="co">## re75         Contin.      -0.0950       -0.0742      -0.0561</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average sample sizes across imputations</span></span></span>
 <span><span class="co">##             0   1</span></span>
@@ -711,20 +710,20 @@ example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> 
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## prop.score  Distance       0.1355        0.1525       0.1684</span></span>
-<span><span class="co">## age          Contin.      -0.1921       -0.1872      -0.1812</span></span>
-<span><span class="co">## educ         Contin.       0.0758        0.0836       0.0897</span></span>
-<span><span class="co">## married       Binary      -0.1135       -0.0982      -0.0839</span></span>
-<span><span class="co">## race_black    Binary       0.0471        0.0551       0.0610</span></span>
-<span><span class="co">## race_hispan   Binary       0.0076        0.0096       0.0111</span></span>
-<span><span class="co">## race_white    Binary      -0.0721       -0.0647      -0.0559</span></span>
-<span><span class="co">## re74         Contin.      -0.3088       -0.2889      -0.2696</span></span>
-<span><span class="co">## re75         Contin.      -0.1798       -0.1597      -0.1453</span></span>
+<span><span class="co">## prop.score  Distance       0.1395        0.1553       0.1653</span></span>
+<span><span class="co">## age          Contin.      -0.1945       -0.1870      -0.1823</span></span>
+<span><span class="co">## educ         Contin.       0.0733        0.0803       0.0937</span></span>
+<span><span class="co">## married       Binary      -0.1121       -0.1050      -0.0932</span></span>
+<span><span class="co">## race_black    Binary       0.0494        0.0560       0.0631</span></span>
+<span><span class="co">## race_hispan   Binary       0.0084        0.0102       0.0126</span></span>
+<span><span class="co">## race_white    Binary      -0.0743       -0.0662      -0.0590</span></span>
+<span><span class="co">## re74         Contin.      -0.3186       -0.2906      -0.2650</span></span>
+<span><span class="co">## re75         Contin.      -0.1700       -0.1558      -0.1359</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
 <span><span class="co">##                 0      1</span></span>
 <span><span class="co">## Unadjusted 429.   185.  </span></span>
-<span><span class="co">## Adjusted   331.82  66.65</span></span></code></pre>
+<span><span class="co">## Adjusted   332.65  68.05</span></span></code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>
@@ -776,10 +775,11 @@ supplying a list of data.frames to the <code>datalist</code> argument in
 <code>cem()</code>), an argument to <code>imp</code> should be specified
 to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or a <code>mids</code> object from the
 <code>mice</code> package should be given as the argument to
-<code>data</code>. See <code>?bal.tab.imp</code> or the accompanying
-Appendix 2 for more information about using <code>cobalt</code> with
-multiply imputed data. Below is an example of using <code>cem</code>
-with multiply imputed data from <code>mice</code>:</p>
+<code>data</code>. See <code>?bal.tab.imp</code> or
+<code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for more information about using
+<code>cobalt</code> with multiply imputed data. Below is an example of
+using <code>cem</code> with multiply imputed data from
+<code>mice</code>:</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Coarsened exact matching on multiply imputed data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde_mis"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
@@ -816,33 +816,33 @@ with multiply imputed data from <code>mice</code>:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cem.out.imp</span>, data <span class="op">=</span> <span class="va">imp.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## age         Contin.       0.0454        0.0477       0.0489</span></span>
-<span><span class="co">## educ        Contin.      -0.0386       -0.0360      -0.0311</span></span>
+<span><span class="co">## age         Contin.       0.0461        0.0478       0.0498</span></span>
+<span><span class="co">## educ        Contin.      -0.0447       -0.0381      -0.0315</span></span>
 <span><span class="co">## race_black   Binary      -0.0000       -0.0000       0.0000</span></span>
-<span><span class="co">## race_hispan  Binary      -0.0000       -0.0000       0.0000</span></span>
+<span><span class="co">## race_hispan  Binary      -0.0000        0.0000       0.0000</span></span>
 <span><span class="co">## race_white   Binary      -0.0000       -0.0000       0.0000</span></span>
-<span><span class="co">## married      Binary      -0.0000       -0.0000       0.0000</span></span>
+<span><span class="co">## married      Binary      -0.0000        0.0000       0.0000</span></span>
 <span><span class="co">## nodegree     Binary       0.0000        0.0000       0.0000</span></span>
-<span><span class="co">## re74        Contin.      -0.0495       -0.0381      -0.0335</span></span>
-<span><span class="co">## re75        Contin.      -0.0656       -0.0547      -0.0435</span></span>
+<span><span class="co">## re74        Contin.      -0.0405       -0.0367      -0.0329</span></span>
+<span><span class="co">## re75        Contin.      -0.0745       -0.0585      -0.0512</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average sample sizes across imputations</span></span></span>
 <span><span class="co">##                           0     1</span></span>
 <span><span class="co">## All                  429.   185. </span></span>
-<span><span class="co">## Matched (ESS)         35.45  66.5</span></span>
-<span><span class="co">## Matched (Unweighted)  77.9   66.5</span></span>
-<span><span class="co">## Unmatched            351.1  118.5</span></span></code></pre>
+<span><span class="co">## Matched (ESS)         35.44  66.5</span></span>
+<span><span class="co">## Matched (Unweighted)  77.5   66.5</span></span>
+<span><span class="co">## Unmatched            351.5  118.5</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="using-bal-tab-with-other-packages">Using <code>bal.tab()</code> with other packages<a class="anchor" aria-label="anchor" href="#using-bal-tab-with-other-packages"></a>
 </h3>
-<p>It is possible to use <code>bal.tab</code> with objects that don’t
+<p>It is possible to use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with objects that don’t
 come from these packages using the <code>default</code> method. If an
 object that doesn’t correspond to the output from one of the
 specifically supported packages is passed as the first argument to
-<code>bal.tab</code>, <code>bal.tab</code> will do its best to process
-that object as if it did come from a supported package. It will search
-through the components of the object for items with names like
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code>, <code><a href="../reference/bal.tab.html">bal.tab()</a></code> will do its best to
+process that object as if it did come from a supported package. It will
+search through the components of the object for items with names like
 <code>"treat"</code>, <code>"covs"</code>, <code>"data"</code>,
 <code>"weights"</code>, etc., that have the correct object types. Any
 additional arguments can be specified by the user.</p>

@@ -89,7 +89,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2023-04-26</h4>
+            <h4 data-toc-skip class="date">2023-04-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/longitudinal-treat.Rmd" class="external-link"><code>vignettes/longitudinal-treat.Rmd</code></a></small>
       <div class="d-none name"><code>longitudinal-treat.Rmd</code></div>
@@ -280,10 +280,11 @@ function just like regular <code>bal.tab</code> objects.</p>
 binary, continuous, multi-category), but for multi-category treatments
 or when the treatment types vary or for multiply imputed data, no
 balance summary will be computed or displayed.</p>
-<p>To estimate the weights, we’ll use <code>WeightIt</code> to fit a
-series of logistic regressions that generate the weights. See the
-<code>WeightIt</code> documentation for more information on how to use
-<code>WeightIt</code> with longitudinal treatments.</p>
+<p>To estimate the weights, we’ll use
+<code><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">WeightIt::weightitMSM()</a></code> to fit a series of logistic
+regressions that generate the weights. See the <code>WeightIt</code>
+documentation for more information on how to use <code>WeightIt</code>
+with longitudinal treatments.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Wmsm</span> <span class="op">&lt;-</span> <span class="fu">WeightIt</span><span class="fu">::</span><span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span>
@@ -414,16 +415,18 @@ longitudinal treatments to display balance for presentation.</p>
 it does with point treatments, except that the user can choose whether
 to display separate plots for each time point or one plot with the
 summary across time points. As with <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, the user can
-set <code>which.time</code> to display only certain time points. When
-set to <code>.none</code>, the summary across time points is displayed.
-The <code>agg.fun</code> argument is set to <code>"max"</code> by
-default.</p>
+set <code>which.time</code> to display only certain time points,
+including setting it to <code>.all</code> to display all time points
+(note that not all variables will be present in all time points). When
+set to <code>.none</code> (the default), the summary across time points
+is displayed. The <code>agg.fun</code> argument is set to
+<code>"max"</code> by default.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, abs <span class="op">=</span> <span class="cn">TRUE</span>, binary <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, binary <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-9-1.png" width="480"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, which.time <span class="op">=</span> <span class="va">.none</span>, binary <span class="op">=</span> <span class="st">"std"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-10-1.png" width="384"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/love.plot.html">love.plot</a></span><span class="op">(</span><span class="va">Wmsm</span>, binary <span class="op">=</span> <span class="st">"std"</span>, which.time <span class="op">=</span> <span class="va">.all</span><span class="op">)</span></span></code></pre></div>
+<p><img src="longitudinal-treat_files/figure-html/unnamed-chunk-10-1.png" width="480"></p>
 </div>
 <div class="section level2">
 <h2 id="other-packages">Other Packages<a class="anchor" aria-label="anchor" href="#other-packages"></a>
@@ -439,8 +442,7 @@ can specify an argument to <code>weights</code> in
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with the formula or data frame methods to assess
 balance using those weights, or they can use the default method of
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> to supply an object containing any of the objects
-required for balance assessment (output from <code>optweight</code> is
-particularly well suited for this).</p>
+required for balance assessment.</p>
 <p>Note that <code>CBPS</code> estimates and assesses balance on MSM
 weights differently from <code>twang</code> and <code>cobalt</code>. Its
 focus is on ensuring balance across all treatment history permutations,

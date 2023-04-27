@@ -140,11 +140,11 @@
 
 
 <dt>cluster</dt>
-<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p></dd>
+<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code> for details.</p></dd>
 
 
 <dt>imp</dt>
-<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
+<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">class-bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
 
 
 <dt>pairwise</dt>
@@ -178,16 +178,16 @@
 <p>For point treatments, if clusters and imputations are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the specified treatment and covariates. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
 
 
-<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p>
+<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code> for details.</p>
 
 
-<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details.</p>
+<p>If imputations are specified, an object of class <code>"bal.tab.imp"</code> containing balance summaries for each imputation and a summary of balance across imputations, just as with clusters. See <code><a href="class-bal.tab.imp.html">class-bal.tab.imp</a></code> for details.</p>
 
 
 <p>If multi-category treatments are used, an object of class <code>"bal.tab.multi"</code> containing balance summaries for each pairwise treatment comparison and a summary of balance across pairwise comparisons. See <code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for details.</p>
 
 
-<p>If longitudinal treatments are used, an object of class <code>"bal.tab.msm"</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code><a href="class-bal.tab.msm.html">bal.tab.msm()</a></code> for more details.</p>
+<p>If longitudinal treatments are used, an object of class <code>"bal.tab.msm"</code> containing balance summaries at each time point. Each balance summary is its own <code>bal.tab</code> object. See <code><a href="class-bal.tab.msm.html">class-bal.tab.msm</a></code> for more details.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -250,8 +250,8 @@
     <div class="dont-index">
 <ul><li><p><code><a href="bal.tab.formula.html">bal.tab.formula()</a></code> and <code><a href="bal.tab.time.list.html">bal.tab.time.list()</a></code> for additional arguments to be supplied.</p></li>
 <li><p><code><a href="bal.tab.html">bal.tab()</a></code> for output and details of calculations.</p></li>
-<li><p><code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for more information on clustered data.</p></li>
-<li><p><code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for more information on multiply imputed data.</p></li>
+<li><p><code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code> for more information on clustered data.</p></li>
+<li><p><code><a href="class-bal.tab.imp.html">class-bal.tab.imp</a></code> for more information on multiply imputed data.</p></li>
 <li><p><code><a href="class-bal.tab.multi.html">bal.tab.multi()</a></code> for more information on multi-category treatments.</p></li>
 </ul></div>
     </div>

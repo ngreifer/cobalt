@@ -141,11 +141,11 @@
 
 
 <dt>cluster</dt>
-<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p></dd>
+<dd><p>either a vector containing cluster membership for each unit or a string containing the name of the cluster membership variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code> for details.</p></dd>
 
 
 <dt>imp</dt>
-<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">bal.tab.imp()</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
+<dd><p>either a vector containing imputation indices for each unit or a string containing the name of the imputation index variable in <code>data</code> or the input object. See <code><a href="class-bal.tab.imp.html">class-bal.tab.imp</a></code> for details. Not necessary if <code>data</code> is a <code>mids</code> object.</p></dd>
 
 
 <dt>pairwise</dt>
@@ -169,7 +169,7 @@
 
 
 <dt>method</dt>
-<dd><p>a character vector containing the method of adjustment. Ignored unless subclassification was used in the original call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>. If <code>"weighting"</code>, the subclassification weights will be used and subclasses will be ignored. If <code>"subclassification"</code>, balance will be assessed using the subclasses (see <code><a href="class-bal.tab.subclass.html">bal.tab.subclass()</a></code> for details). Abbreviations allowed.</p></dd>
+<dd><p>a character vector containing the method of adjustment. Ignored unless subclassification was used in the original call to <code><a href="https://kosukeimai.github.io/MatchIt/reference/matchit.html" class="external-link">matchit()</a></code>. If <code>"weighting"</code>, the subclassification weights will be used and subclasses will be ignored. If <code>"subclassification"</code>, balance will be assessed using the subclasses (see <code><a href="class-bal.tab.subclass.html">class-bal.tab.subclass</a></code> for details). Abbreviations allowed.</p></dd>
 
 
 <dt>...</dt>
@@ -180,17 +180,17 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>If subclassification is used and <code>method</code> is set to <code>"subclassification"</code>, an object of class <code>"bal.tab.subclass"</code> containing balance summaries within and across subclasses. See <code><a href="class-bal.tab.subclass.html">bal.tab.subclass()</a></code> for details.</p>
+<p>If subclassification is used and <code>method</code> is set to <code>"subclassification"</code>, an object of class <code>"bal.tab.subclass"</code> containing balance summaries within and across subclasses. See <code><a href="class-bal.tab.subclass.html">class-bal.tab.subclass</a></code> for details.</p>
 
 
 <p>If matching is used and clusters are not specified, an object of class <code>"bal.tab"</code> containing balance summaries for the <code>matchit</code> object. See <code><a href="bal.tab.html">bal.tab()</a></code> for details.</p>
 
 
-<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">bal.tab.cluster()</a></code> for details.</p>
+<p>If clusters are specified, an object of class <code>"bal.tab.cluster"</code> containing balance summaries within each cluster and a summary of balance across clusters. See <code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code> for details.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>bal.tab.matchit()</code> generates a list of balance summaries for the <code>matchit</code> object given, and functions similarly to <code><a href="https://kosukeimai.github.io/MatchIt/reference/summary.matchit.html" class="external-link">MatchIt::summary.matchit()</a></code>. <code><a href="bal.tab.html">bal.tab()</a></code> behaves differently depending on whether subclasses are used in conditioning or not. If they are used, <code><a href="bal.tab.html">bal.tab()</a></code> creates balance statistics for each subclass and for the sample in aggregate; see <code><a href="class-bal.tab.subclass.html">bal.tab.subclass()</a></code> for more information.</p>
+    <p><code>bal.tab.matchit()</code> generates a list of balance summaries for the <code>matchit</code> object given, and functions similarly to <code><a href="https://kosukeimai.github.io/MatchIt/reference/summary.matchit.html" class="external-link">MatchIt::summary.matchit()</a></code>. <code><a href="bal.tab.html">bal.tab()</a></code> behaves differently depending on whether subclasses are used in conditioning or not. If they are used, <code><a href="bal.tab.html">bal.tab()</a></code> creates balance statistics for each subclass and for the sample in aggregate; see <code><a href="class-bal.tab.subclass.html">class-bal.tab.subclass</a></code> for more information.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
