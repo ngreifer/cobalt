@@ -88,7 +88,7 @@ bal.tab.formula <-    function(x, data = NULL,
     
     args[names(args) %in% names(X)] <- NULL
     
-    X <- assign.X.class(X)
+    X <- .assign_X_class(X)
     
     do.call("base.bal.tab", c(list(X), args),
             quote = TRUE)
@@ -111,7 +111,7 @@ bal.tab.data.frame <- function(x, treat,
     
     args[names(args) %in% names(X)] <- NULL
     
-    X <- assign.X.class(X)
+    X <- .assign_X_class(X)
     
     do.call("base.bal.tab", c(list(X), args),
             quote = TRUE)

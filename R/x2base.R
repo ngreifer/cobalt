@@ -12,7 +12,7 @@ x2base.matchit <- function(m, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data)) {
@@ -23,7 +23,7 @@ x2base.matchit <- function(m, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, m.data), 
@@ -144,23 +144,23 @@ x2base.matchit <- function(m, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], m[["s.weights"]]))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, m.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, m.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -218,7 +218,7 @@ x2base.matchit <- function(m, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand,
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand,
                                        weights = weights, treat = treat, focal = focal)
         }
     }
@@ -282,7 +282,7 @@ x2base.ps <- function(ps, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -294,7 +294,7 @@ x2base.ps <- function(ps, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, ps.data), 
@@ -356,23 +356,23 @@ x2base.ps <- function(ps, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], ps[["sampw"]]))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, ps.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, ps.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -427,7 +427,7 @@ x2base.ps <- function(ps, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -492,7 +492,7 @@ x2base.mnps <- function(mnps, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -504,7 +504,7 @@ x2base.mnps <- function(mnps, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, mnps.data), 
@@ -551,23 +551,23 @@ x2base.mnps <- function(mnps, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], mnps[["sampw"]]))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, mnps.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, mnps.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -622,7 +622,7 @@ x2base.mnps <- function(mnps, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -657,7 +657,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -669,7 +669,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, ps.data), 
@@ -716,23 +716,23 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], ps.cont[["sampw"]]))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, ps.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, ps.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -787,7 +787,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
         
         #Get s.d.denom
         if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
     
@@ -824,7 +824,7 @@ x2base.Match <- function(Match, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -836,7 +836,7 @@ x2base.Match <- function(Match, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data), 
@@ -845,7 +845,7 @@ x2base.Match <- function(Match, ...) {
     }
     
     #Process treat
-    t.c <- use.tc.fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
+    t.c <- .use_tc_fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
     treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
     #Process covs
@@ -900,13 +900,13 @@ x2base.Match <- function(Match, ...) {
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -963,7 +963,7 @@ x2base.Match <- function(Match, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -1007,7 +1007,7 @@ x2base.data.frame <- function(covs, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -1019,7 +1019,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data), 
@@ -1198,7 +1198,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process subclass
     if (is_not_null(subclass <- A[["subclass"]])) {
-        subclass <- vector.process(subclass, 
+        subclass <- .process_vector(subclass, 
                                    datalist = list(data),
                                    name = "subclass", 
                                    which = "subclass membership",
@@ -1209,7 +1209,7 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process match.strata
     else if (is_not_null(match.strata <- A[["match.strata"]])) {
-        match.strata <- vector.process(match.strata, 
+        match.strata <- .process_vector(match.strata, 
                                        datalist = list(data),
                                        name = "match.strata", 
                                        which = "matching strata membership",
@@ -1230,23 +1230,23 @@ x2base.data.frame <- function(covs, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1301,12 +1301,12 @@ x2base.data.frame <- function(covs, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, 
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, 
                                        weights = weights, subclass = subclass, 
                                        treat = treat, focal = focal)
         }
         else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
     
@@ -1340,7 +1340,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -1352,7 +1352,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, c.data), 
@@ -1415,24 +1415,24 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["sampw"]])) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, c.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
         weights <- weights/s.weights #Because CBPS weights contain s.weights in them
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, c.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1487,11 +1487,11 @@ x2base.CBPS <- function(cbps.fit, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal,
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal,
                                        quietly = TRUE)
         }
         else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
     
@@ -1524,7 +1524,7 @@ x2base.ebalance <- function(ebalance, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -1536,7 +1536,7 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data), 
@@ -1545,7 +1545,7 @@ x2base.ebalance <- function(ebalance, ...) {
     }
     
     #Process treat
-    t.c <- use.tc.fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
+    t.c <- .use_tc_fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
     treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
     #Process covs
@@ -1595,23 +1595,23 @@ x2base.ebalance <- function(ebalance, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["sampw"]])) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1666,7 +1666,7 @@ x2base.ebalance <- function(ebalance, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -1702,7 +1702,7 @@ x2base.optmatch <- function(optmatch, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -1714,7 +1714,7 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data), 
@@ -1723,7 +1723,7 @@ x2base.optmatch <- function(optmatch, ...) {
     }
     
     #Process treat
-    t.c <- use.tc.fd(A[["formula"]], data = data, covs = A[["covs"]],
+    t.c <- .use_tc_fd(A[["formula"]], data = data, covs = A[["covs"]],
                      treat = if_null_then(A[["treat"]], as.numeric(attr(optmatch, "contrast.group"))))
     treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
@@ -1780,13 +1780,13 @@ x2base.optmatch <- function(optmatch, ...) {
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1841,7 +1841,7 @@ x2base.optmatch <- function(optmatch, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -1884,7 +1884,7 @@ x2base.cem.match <- function(cem.match, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -1899,7 +1899,7 @@ x2base.cem.match <- function(cem.match, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data), 
@@ -1911,7 +1911,7 @@ x2base.cem.match <- function(cem.match, ...) {
     }
     
     #Process treat
-    t.c <- use.tc.fd(data = data, treat = cem.match[["groups"]], 
+    t.c <- .use_tc_fd(data = data, treat = cem.match[["groups"]], 
                      covs = cem.match[["vars"]])
     treat <- process_treat(t.c[["treat"]], datalist = list(data))
     
@@ -1960,13 +1960,13 @@ x2base.cem.match <- function(cem.match, ...) {
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2021,7 +2021,7 @@ x2base.cem.match <- function(cem.match, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -2060,7 +2060,7 @@ x2base.weightit <- function(weightit, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -2071,7 +2071,7 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, weightit.data), 
@@ -2125,24 +2125,24 @@ x2base.weightit <- function(weightit, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], weightit[["s.weights"]]))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, weightit.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, weightit.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2198,10 +2198,10 @@ x2base.weightit <- function(weightit, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
         else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
     
@@ -2237,7 +2237,7 @@ x2base.designmatch <- function(dm, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -2249,7 +2249,7 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data), 
@@ -2258,7 +2258,7 @@ x2base.designmatch <- function(dm, ...) {
     }
     
     #Process treat
-    t.c <- use.tc.fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
+    t.c <- .use_tc_fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
     treat <- process_treat(t.c[["treat"]], datalist = list(data))
     if (is.unsorted(rev(treat))) .wrn("designmatch requires the input data to be sorted by treatment; the data supplied to bal.tab() was not, indicating a possible coding error")
     
@@ -2314,13 +2314,13 @@ x2base.designmatch <- function(dm, ...) {
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2375,7 +2375,7 @@ x2base.designmatch <- function(dm, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -2411,18 +2411,18 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process data and get imp
     if (old_version) {
-        if (inherits(mimids[["original.datasets"]], "mids")) m.data <- imp.complete(mimids[["original.datasets"]])
-        else m.data <- imp.complete(mimids[["others"]][["source"]])
+        if (inherits(mimids[["original.datasets"]], "mids")) m.data <- .mids_complete(mimids[["original.datasets"]])
+        else m.data <- .mids_complete(mimids[["others"]][["source"]])
     }
     else {
-        m.data <- imp.complete(mimids[["object"]])
+        m.data <- .mids_complete(mimids[["object"]])
     }
     
     imp <- m.data[[".imp"]]
     
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -2434,7 +2434,7 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, m.data), 
@@ -2500,23 +2500,23 @@ x2base.mimids <- function(mimids, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], unlist(grab(models, "s.weights"))))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, m.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, m.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2572,7 +2572,7 @@ x2base.mimids <- function(mimids, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -2608,18 +2608,18 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process data and get imp
     if (old_version) {
-        if (inherits(wimids[["original.datasets"]], "mids")) w.data <- imp.complete(wimids[["original.datasets"]])
-        else w.data <- imp.complete(wimids[["others"]][["source"]])
+        if (inherits(wimids[["original.datasets"]], "mids")) w.data <- .mids_complete(wimids[["original.datasets"]])
+        else w.data <- .mids_complete(wimids[["others"]][["source"]])
     }
     else {
-        w.data <- imp.complete(wimids[["object"]])
+        w.data <- .mids_complete(wimids[["object"]])
     }
     
     imp <- w.data[[".imp"]]
     
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -2631,7 +2631,7 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, w.data), 
@@ -2688,23 +2688,23 @@ x2base.wimids <- function(wimids, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], unlist(grab(models, "s.weights"))))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, w.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, w.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2760,10 +2760,10 @@ x2base.wimids <- function(wimids, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
         else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
     
@@ -2800,7 +2800,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -2812,7 +2812,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, 
+        imp <- .process_vector(imp, 
                               name = "imp", 
                               which = "imputation identifiers", 
                               datalist = list(data, sbw.data), 
@@ -2871,23 +2871,23 @@ x2base.sbwcau <- function(sbwcau, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["sampw"]])) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, sbw.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, sbw.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat)
+        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2942,7 +2942,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
         }
     }
     
@@ -3008,7 +3008,7 @@ x2base.iptw <- function(iptw, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -3020,7 +3020,7 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
+        imp <- .process_vector(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
@@ -3043,7 +3043,7 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process distance
     # ntimes <- iptw[["nFits"]]
-    # distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
+    # distance.list <- .process_list("distance.list", A[["distance.list"]], ntimes, 
     #                               "the original call to iptw()",
     #                               treat.list,
     #                               covs.list,
@@ -3099,23 +3099,23 @@ x2base.iptw <- function(iptw, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], iptw[["psList"]][[1]][["sampw"]]))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, ps.data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, ps.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat.list)
+        .cluster_check(cluster, treat.list)
     }
     
     #Process subset
@@ -3171,7 +3171,7 @@ x2base.iptw <- function(iptw, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
     }
     
@@ -3204,7 +3204,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -3216,7 +3216,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
+        imp <- .process_vector(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
@@ -3334,23 +3334,23 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- A[["s.weights"]])) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat.list)
+        .cluster_check(cluster, treat.list)
     }
     
     #Process subset
@@ -3405,10 +3405,10 @@ x2base.data.frame.list <- function(covs.list, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+            s.d.denom <- .get_s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
         else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
     
@@ -3462,7 +3462,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -3474,7 +3474,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
+        imp <- .process_vector(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
@@ -3544,13 +3544,13 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, cbmsm.data),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat.list)
+        .cluster_check(cluster, treat.list)
     }
     
     #Process subset
@@ -3606,10 +3606,10 @@ x2base.CBMSM <- function(cbmsm, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+            s.d.denom <- .get_s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
         else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
     
@@ -3647,7 +3647,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     imp <- A[["imp"]]
     if (is_not_null(data <- A[["data"]])) {
         if (inherits(data, "mids")) {
-            data <- imp.complete(data)
+            data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
         else if (!is.data.frame(data))
@@ -3659,7 +3659,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process imp
     if (is_not_null(imp)) {
-        imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
+        imp <- .process_vector(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
         imp <- factor(imp)
     }
     
@@ -3683,7 +3683,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process distance
     # ntimes <- length(covs.list)
-    # distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
+    # distance.list <- .process_list("distance.list", A[["distance.list"]], ntimes, 
     #                               "the original call to weightitMSM()",
     #                               treat.list,
     #                               covs.list,
@@ -3720,23 +3720,23 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     
     #Process s.weights
     if (is_not_null(s.weights <- if_null_then(A[["s.weights"]], weightitMSM[["s.weights"]]))) {
-        s.weights <- vector.process(s.weights, 
+        s.weights <- .process_vector(s.weights, 
                                     datalist = list(data, weightitMSM.data, weightitMSM.data2),
                                     name = "s.weights", 
                                     which = "sampling weights",
                                     missing.okay = FALSE)
-        weight.check(s.weights)
+        .weight_check(s.weights)
     }
     
     #Process cluster
     if (is_not_null(cluster <- A[["cluster"]])) {
-        cluster <- vector.process(cluster, 
+        cluster <- .process_vector(cluster, 
                                   datalist = list(data, weightitMSM.data, weightitMSM.data2),
                                   name = "cluster", 
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        cluster.check(cluster, treat.list)
+        .cluster_check(cluster, treat.list)
     }
     
     #Process subset
@@ -3792,10 +3792,10 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         
         #Get s.d.denom
         if ("mean.diffs" %in% stats) {
-            s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+            s.d.denom <- .get_s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
         }
         else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
         }
     }
     
@@ -3922,7 +3922,7 @@ x2base.default <- function(obj, ...) {
     #data
     if (is_not_null(A[["data"]])) {
         if (inherits(A[["data"]], "mids")) {
-            A[["data"]] <- imp.complete(A[["data"]])
+            A[["data"]] <- .mids_complete(A[["data"]])
             if ("imp" %nin% names(A)) A[["imp"]] <- A[["data"]][[".imp"]]
         }
         A[["data"]] <- as.data.frame(A[["data"]])
@@ -4001,7 +4001,7 @@ x2base.default <- function(obj, ...) {
         imp <- A[["imp"]]
         if (is_not_null(data <- A[["data"]])) {
             if (inherits(data, "mids")) {
-                data <- imp.complete(data)
+                data <- .mids_complete(data)
                 if (is_null(imp)) imp <- data[[".imp"]]
             }
             else if (!is.data.frame(data))
@@ -4013,7 +4013,7 @@ x2base.default <- function(obj, ...) {
         
         #Process imp
         if (is_not_null(imp)) {
-            imp <- vector.process(imp, 
+            imp <- .process_vector(imp, 
                                   name = "imp", 
                                   which = "imputation identifiers", 
                                   datalist = list(data), 
@@ -4022,7 +4022,7 @@ x2base.default <- function(obj, ...) {
         }
         
         #Process treat
-        t.c <- use.tc.fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
+        t.c <- .use_tc_fd(A[["formula"]], data, A[["treat"]], A[["covs"]])
         treat <- process_treat(t.c[["treat"]], datalist = list(data))
         
         #Process covs
@@ -4165,7 +4165,7 @@ x2base.default <- function(obj, ...) {
         
         #Process subclass
         if (is_not_null(subclass <- A[["subclass"]])) {
-            subclass <- vector.process(subclass, 
+            subclass <- .process_vector(subclass, 
                                        datalist = list(data),
                                        name = "subclass", 
                                        which = "subclass membership",
@@ -4175,7 +4175,7 @@ x2base.default <- function(obj, ...) {
         
         #Process match.strata
         else if (is_not_null(match.strata <- A[["match.strata"]])) {
-            match.strata <- vector.process(match.strata, 
+            match.strata <- .process_vector(match.strata, 
                                            datalist = list(data),
                                            name = "match.strata", 
                                            which = "matching strata membership",
@@ -4197,23 +4197,23 @@ x2base.default <- function(obj, ...) {
         
         #Process s.weights
         if (is_not_null(s.weights <- A[["s.weights"]])) {
-            s.weights <- vector.process(s.weights, 
+            s.weights <- .process_vector(s.weights, 
                                         datalist = list(data),
                                         name = "s.weights", 
                                         which = "sampling weights",
                                         missing.okay = FALSE)
-            weight.check(s.weights)
+            .weight_check(s.weights)
         }
         
         #Process cluster
         if (is_not_null(cluster <- A[["cluster"]])) {
-            cluster <- vector.process(cluster, 
+            cluster <- .process_vector(cluster, 
                                       datalist = list(data),
                                       name = "cluster", 
                                       which = "cluster membership",
                                       missing.okay = FALSE)
             cluster <- factor(cluster)
-            cluster.check(cluster, treat)
+            .cluster_check(cluster, treat)
         }
         
         #Process subset
@@ -4281,12 +4281,12 @@ x2base.default <- function(obj, ...) {
             
             #Get s.d.denom
             if ("mean.diffs" %in% stats) {
-                s.d.denom <- get.s.d.denom(A[["s.d.denom"]], estimand = estimand, 
+                s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, 
                                            weights = weights, subclass = subclass, 
                                            treat = treat, focal = focal)
             }
             else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-                s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+                s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
             }
         }
         
@@ -4323,7 +4323,7 @@ x2base.default <- function(obj, ...) {
         imp <- A[["imp"]]
         if (is_not_null(data <- A[["data"]])) {
             if (inherits(data, "mids")) {
-                data <- imp.complete(data)
+                data <- .mids_complete(data)
                 if (is_null(imp)) imp <- data[[".imp"]]
             }
             else if (!is.data.frame(data))
@@ -4335,13 +4335,13 @@ x2base.default <- function(obj, ...) {
         
         #Process imp
         if (is_not_null(imp)) {
-            imp <- vector.process(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
+            imp <- .process_vector(imp, "imp", "imputation identifiers", datalist = list(data), missing.okay = FALSE)
             imp <- factor(imp)
         }
         
         #Process treat.list
         for (i in seq_len(ntimes.guess)) {
-            t.c <- use.tc.fd(A[["formula.list"]][[i]], data, A[["treat.list"]][[i]], A[["covs.list"]][[i]])
+            t.c <- .use_tc_fd(A[["formula.list"]][[i]], data, A[["treat.list"]][[i]], A[["covs.list"]][[i]])
             
             A[["treat.list"]][[i]] <- t.c[["treat"]]
             A[["covs.list"]][[i]]  <- t.c[["covs"]]
@@ -4430,7 +4430,7 @@ x2base.default <- function(obj, ...) {
         
         #Process distance
         # ntimes <- length(covs.list)
-        # distance.list <- list.process("distance.list", A[["distance.list"]], ntimes, 
+        # distance.list <- .process_list("distance.list", A[["distance.list"]], ntimes, 
         #                               "covs.list",
         #                               treat.list,
         #                               covs.list,
@@ -4460,7 +4460,7 @@ x2base.default <- function(obj, ...) {
         
         #Process s.weights
         if (is_not_null(s.weights <- A[["s.weights"]])) {
-            s.weights <- vector.process(s.weights, 
+            s.weights <- .process_vector(s.weights, 
                                         datalist = list(data),
                                         name = "s.weights", 
                                         which = "sampling weights",
@@ -4469,13 +4469,13 @@ x2base.default <- function(obj, ...) {
         
         #Process cluster
         if (is_not_null(cluster <- A[["cluster"]])) {
-            cluster <- vector.process(cluster, 
+            cluster <- .process_vector(cluster, 
                                       datalist = list(data),
                                       name = "cluster", 
                                       which = "cluster membership",
                                       missing.okay = FALSE)
             cluster <- factor(cluster)
-            cluster.check(cluster, treat.list)
+            .cluster_check(cluster, treat.list)
         }
         
         #Process subset
@@ -4527,10 +4527,10 @@ x2base.default <- function(obj, ...) {
             
             #Get s.d.denom
             if ("mean.diffs" %in% stats) {
-                s.d.denom <- get.s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
+                s.d.denom <- .get_s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
             }
             else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-                s.d.denom <- get.s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
+                s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
             }
         }
         

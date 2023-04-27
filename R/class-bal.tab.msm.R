@@ -80,7 +80,7 @@ base.bal.tab.msm <- function(X,
         ))
         X_ti[c("covs.list", "treat.list", "addl.list", "distance.list")] <- NULL
         X_ti$call <- NULL
-        X_ti <- assign.X.class(X_ti)
+        X_ti <- .assign_X_class(X_ti)
         
         do.call("base.bal.tab", c(list(X_ti), A[names(A) %nin% names(X_ti)]), quote = TRUE)
     })

@@ -106,7 +106,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     
     if (is_null(X$covs.list)) {
         #Point treatment
-        X$covs <- get.C2(X$covs, addl = X$addl, distance = X$distance, cluster = X$cluster, treat = X$treat,
+        X$covs <- .get_C2(X$covs, addl = X$addl, distance = X$distance, cluster = X$cluster, treat = X$treat,
                          drop = FALSE)
         co.names <- attr(X$covs, "co.names")
         if (missing(var.name)) {
@@ -146,7 +146,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     else {
         #Longitudinal
         X$covs.list <- lapply(seq_along(X$covs.list), function(i) {
-            get.C2(X$covs.list[[i]], addl = X$addl.list[[i]], distance = X$distance.list[[i]], cluster = X$cluster,
+            .get_C2(X$covs.list[[i]], addl = X$addl.list[[i]], distance = X$distance.list[[i]], cluster = X$cluster,
                    treat = X$treat.list[[i]], drop = FALSE)
         })
         co.names.list <- lapply(X$covs.list, attr, "co.names")

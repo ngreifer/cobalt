@@ -483,17 +483,13 @@ col.w.r <- function(mat, y, w = NULL, s.weights = NULL, bin.vars = NULL, na.rm =
     
     cov/den
 }
-coef.of.var <- function(x, pop = TRUE) {
-    if (pop) sqrt(mean_fast((x-mean_fast(x, TRUE))^2, TRUE))/mean_fast(x, TRUE)
-    else sd(x)/mean_fast(x, TRUE)
-}
-mean.abs.dev <- function(x) {
+.mean_abs_dev <- function(x) {
     mean_fast(abs(x - mean_fast(x, TRUE)), TRUE)
 }
 rms <- function(x) {
     sqrt(mean_fast(x^2))
 }
-geom.mean <- function(y) {
+.geam_mean <- function(y) {
     exp(mean_fast(log(y[is.finite(log(y))]), TRUE))
 }
 mat_div <- function(mat, vec) {

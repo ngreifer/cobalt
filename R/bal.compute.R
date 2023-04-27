@@ -346,9 +346,9 @@ init_smd <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
         pairwise <- TRUE
     }
     
-    s.d.denom <- get.s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
+    s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
     
-    denoms <- compute_s.d.denom(x, treat = treat,
+    denoms <- .compute_s.d.denom(x, treat = treat,
                                 s.d.denom = s.d.denom, s.weights = s.weights,
                                 bin.vars = bin.vars)
     
@@ -583,7 +583,7 @@ init_mahalanobis <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
     focal <- f.e[["focal"]]
     estimand <- f.e[["estimand"]]
     
-    s.d.denom <- get.s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
+    s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
     
     if (any(!bin.vars)) x[,!bin.vars] <- scale(x[,!bin.vars])
     
@@ -772,9 +772,9 @@ init_p <- function(x, treat, s.weights = NULL, ...) {
         .err("`treat` must be a continuous (numeric) variable")
     }
     
-    s.d.denom <- get.s.d.denom.cont(quietly = TRUE)
+    s.d.denom <- .get_s.d.denom.cont(quietly = TRUE)
     
-    denoms <- compute_s.d.denom(x, treat = treat,
+    denoms <- .compute_s.d.denom(x, treat = treat,
                                 s.d.denom = s.d.denom, s.weights = s.weights,
                                 bin.vars = bin.vars)
     
@@ -809,9 +809,9 @@ init_s <- function(x, treat, s.weights = NULL, ...) {
     }
     treat <- rank(treat, na.last = "keep")
     
-    s.d.denom <- get.s.d.denom.cont(quietly = TRUE)
+    s.d.denom <- .get_s.d.denom.cont(quietly = TRUE)
     
-    denoms <- compute_s.d.denom(x, treat = treat,
+    denoms <- .compute_s.d.denom(x, treat = treat,
                                 s.d.denom = s.d.denom, s.weights = s.weights,
                                 bin.vars = bin.vars)
     
@@ -847,7 +847,7 @@ init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
     
     if (treat.type == "binary") treat <- as.numeric(treat == treat[1])
     
-    x <- cbind(`(Intercept)` = 1, x, int.poly.f2(x, poly = poly, int = int))
+    x <- cbind(`(Intercept)` = 1, x, .int_poly_f2(x, poly = poly, int = int))
     
     out <- list(treat = treat,
                 x = x,

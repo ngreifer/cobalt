@@ -58,7 +58,7 @@ bal.tab.matchit <- function(x,
     
     args[names(args) %in% names(X)] <- NULL
     
-    X <- assign.X.class(X)
+    X <- .assign_X_class(X)
     
     do.call("base.bal.tab", c(list(X), args),
                    quote = TRUE)

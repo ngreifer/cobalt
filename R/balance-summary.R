@@ -196,7 +196,7 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     zeros <- check_if_zero(diffs)
     
     if (any(to.sd <- std & !is.na(zeros) & !zeros)) {
-        denoms <- compute_s.d.denom(mat, treat = treat, 
+        denoms <- .compute_s.d.denom(mat, treat = treat, 
                                     s.d.denom = s.d.denom, s.weights = s.weights, 
                                     bin.vars = bin.vars, subset = subset, to.sd = to.sd,
                                     weighted.weights = weighted.weights, na.rm = na.rm)
@@ -507,7 +507,7 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     
     if (any(to.sd <- std & !is.na(zeros) & !zeros)) {
         
-        denoms <- compute_s.d.denom(mat, treat = treat, 
+        denoms <- .compute_s.d.denom(mat, treat = treat, 
                                     s.d.denom = s.d.denom, s.weights = s.weights, 
                                     bin.vars = bin.vars, subset = subset, to.sd = to.sd,
                                     weighted.weights = weighted.weights, na.rm = na.rm)

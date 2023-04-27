@@ -66,7 +66,7 @@ base.bal.tab.imp <- function(X,
     agg.fun <- tolower(as.character(if_null_then(imp.fun, A[["agg.fun"]], all.agg.funs)))
     agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
     
-    X$covs <- do.call("get.C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
+    X$covs <- do.call(".get_C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
     
     #Setup output object
     out.names <- c("Imputation.Balance", 
@@ -78,7 +78,7 @@ base.bal.tab.imp <- function(X,
     #Get list of bal.tabs for each imputation
     
     out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) {
-        X_i <- assign.X.class(subset_X(X, imp == i)) 
+        X_i <- .assign_X_class(subset_X(X, imp == i)) 
         X_i$call <- NULL
         tryCatch({
             do.call("base.bal.tab", c(list(X_i), A[names(A) %nin% names(X_i)]), quote = TRUE)

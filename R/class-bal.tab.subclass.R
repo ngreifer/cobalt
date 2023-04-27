@@ -92,7 +92,7 @@ base.bal.tab.subclass <- function(X,
     
     out <- list()
     
-    C <- do.call("get.C2", c(X, A[names(A) %nin% names(X)], list(int = int, poly = poly)), quote = TRUE)
+    C <- do.call(".get_C2", c(X, A[names(A) %nin% names(X)], list(int = int, poly = poly)), quote = TRUE)
     co.names <- attr(C, "co.names")
     
     out[["Subclass.Balance"]] <- do.call("balance.table.subclass", 
@@ -163,10 +163,10 @@ base.bal.tab.subclass <- function(X,
     
     for (s in compute) {
         if (is_not_null(thresholds[[s]])) {
-            out[[paste.("Balanced", s, "Subclass")]] <- setNames(do.call("data.frame", lapply(out[["Subclass.Balance"]], function(x) baltal(x[[STATS[[s]]$Threshold]]))),
+            out[[paste.("Balanced", s, "Subclass")]] <- setNames(do.call("data.frame", lapply(out[["Subclass.Balance"]], function(x) .baltal(x[[STATS[[s]]$Threshold]]))),
                                                                  paste("Subclass", levels(X$subclass)))
             max.imbal.list <- lapply(out[["Subclass.Balance"]], function(x) {
-                max.imbal(x[x[["Type"]] != "Distance", , drop = FALSE], 
+                .max_imbal(x[x[["Type"]] != "Distance", , drop = FALSE], 
                           col.name = paste.(STATS[[s]]$bal.tab_column_prefix, "Adj"), 
                           thresh.col.name = STATS[[s]]$Threshold, 
                           abs_stat = STATS[[s]]$abs)
