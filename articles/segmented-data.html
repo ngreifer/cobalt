@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.1.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2023-04-27</h4>
+            <h4 data-toc-skip class="date">2023-07-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/segmented-data.Rmd" class="external-link"><code>vignettes/segmented-data.Rmd</code></a></small>
       <div class="d-none name"><code>segmented-data.Rmd</code></div>
@@ -216,65 +216,65 @@ examine balance on our data within each <code>race</code> group.</p>
 <span><span class="co">##  - - - <span style="font-style: italic;">Cluster: black</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
-<span><span class="co">## distance    Distance   0.0832</span></span>
+<span><span class="co">## distance    Distance   0.0150</span></span>
 <span><span class="co">## race_black    Binary   0.0000</span></span>
 <span><span class="co">## race_hispan   Binary   0.0000</span></span>
 <span><span class="co">## race_white    Binary   0.0000</span></span>
-<span><span class="co">## age          Contin.  -0.0523</span></span>
-<span><span class="co">## educ         Contin.   0.0498</span></span>
-<span><span class="co">## married       Binary   0.0096</span></span>
-<span><span class="co">## nodegree      Binary   0.0096</span></span>
-<span><span class="co">## re74         Contin.  -0.1800</span></span>
-<span><span class="co">## re75         Contin.  -0.0869</span></span>
+<span><span class="co">## age          Contin.  -0.1001</span></span>
+<span><span class="co">## educ         Contin.   0.0794</span></span>
+<span><span class="co">## married       Binary   0.0288</span></span>
+<span><span class="co">## nodegree      Binary  -0.0032</span></span>
+<span><span class="co">## re74         Contin.  -0.1501</span></span>
+<span><span class="co">## re75         Contin.  -0.1406</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##                          0   1</span></span>
 <span><span class="co">## All                  87.   156</span></span>
-<span><span class="co">## Matched (ESS)        42.66 156</span></span>
-<span><span class="co">## Matched (Unweighted) 70.   156</span></span>
-<span><span class="co">## Unmatched            17.     0</span></span>
+<span><span class="co">## Matched (ESS)        41.53 156</span></span>
+<span><span class="co">## Matched (Unweighted) 76.   156</span></span>
+<span><span class="co">## Unmatched            11.     0</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">Cluster: hispan</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
-<span><span class="co">## distance    Distance   0.2095</span></span>
+<span><span class="co">## distance    Distance   0.0947</span></span>
 <span><span class="co">## race_black    Binary   0.0000</span></span>
 <span><span class="co">## race_hispan   Binary   0.0000</span></span>
 <span><span class="co">## race_white    Binary   0.0000</span></span>
-<span><span class="co">## age          Contin.   0.0000</span></span>
-<span><span class="co">## educ         Contin.  -0.3520</span></span>
+<span><span class="co">## age          Contin.   0.1914</span></span>
+<span><span class="co">## educ         Contin.  -0.4159</span></span>
 <span><span class="co">## married       Binary   0.1364</span></span>
 <span><span class="co">## nodegree      Binary   0.2273</span></span>
-<span><span class="co">## re74         Contin.  -0.0205</span></span>
-<span><span class="co">## re75         Contin.  -0.0261</span></span>
+<span><span class="co">## re74         Contin.   0.1161</span></span>
+<span><span class="co">## re75         Contin.   0.0683</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
-<span><span class="co">##                       0  1</span></span>
-<span><span class="co">## All                  61 11</span></span>
-<span><span class="co">## Matched (ESS)        11 11</span></span>
-<span><span class="co">## Matched (Unweighted) 15 11</span></span>
-<span><span class="co">## Unmatched            46  0</span></span>
+<span><span class="co">##                          0  1</span></span>
+<span><span class="co">## All                  61.   11</span></span>
+<span><span class="co">## Matched (ESS)        15.12 11</span></span>
+<span><span class="co">## Matched (Unweighted) 18.   11</span></span>
+<span><span class="co">## Unmatched            43.    0</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">Cluster: white</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
-<span><span class="co">## distance    Distance   0.0597</span></span>
+<span><span class="co">## distance    Distance   0.0216</span></span>
 <span><span class="co">## race_black    Binary   0.0000</span></span>
 <span><span class="co">## race_hispan   Binary   0.0000</span></span>
 <span><span class="co">## race_white    Binary   0.0000</span></span>
-<span><span class="co">## age          Contin.  -0.0157</span></span>
-<span><span class="co">## educ         Contin.  -0.2805</span></span>
-<span><span class="co">## married       Binary   0.0278</span></span>
-<span><span class="co">## nodegree      Binary   0.1667</span></span>
-<span><span class="co">## re74         Contin.  -0.2120</span></span>
-<span><span class="co">## re75         Contin.   0.1093</span></span>
+<span><span class="co">## age          Contin.  -0.4201</span></span>
+<span><span class="co">## educ         Contin.  -0.1403</span></span>
+<span><span class="co">## married       Binary  -0.0556</span></span>
+<span><span class="co">## nodegree      Binary   0.1111</span></span>
+<span><span class="co">## re74         Contin.  -0.0417</span></span>
+<span><span class="co">## re75         Contin.   0.0298</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##                           0  1</span></span>
 <span><span class="co">## All                  281.   18</span></span>
-<span><span class="co">## Matched (ESS)         23.14 18</span></span>
-<span><span class="co">## Matched (Unweighted)  28.   18</span></span>
-<span><span class="co">## Unmatched            253.    0</span></span>
+<span><span class="co">## Matched (ESS)         25.92 18</span></span>
+<span><span class="co">## Matched (Unweighted)  31.   18</span></span>
+<span><span class="co">## Unmatched            250.    0</span></span>
 <span><span class="co">##  - - - - - - - - - - - - - -</span></span></code></pre>
 <p>Here we see balance tables for each cluster. These are the same
 output we would see if we use <code><a href="../reference/bal.tab.html">bal.tab()</a></code> for each cluster
@@ -289,23 +289,23 @@ clusters and hide the individual clusters by setting
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, cluster <span class="op">=</span> <span class="st">"race"</span>, which.cluster <span class="op">=</span> <span class="va">.none</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all clusters</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## distance    Distance       0.0597        0.1174       0.2095</span></span>
+<span><span class="co">## distance    Distance       0.0150        0.0438       0.0947</span></span>
 <span><span class="co">## race_black    Binary       0.0000        0.0000       0.0000</span></span>
 <span><span class="co">## race_hispan   Binary       0.0000        0.0000       0.0000</span></span>
 <span><span class="co">## race_white    Binary       0.0000        0.0000       0.0000</span></span>
-<span><span class="co">## age          Contin.      -0.0523       -0.0227       0.0000</span></span>
-<span><span class="co">## educ         Contin.      -0.3520       -0.1942       0.0498</span></span>
-<span><span class="co">## married       Binary       0.0096        0.0579       0.1364</span></span>
-<span><span class="co">## nodegree      Binary       0.0096        0.1345       0.2273</span></span>
-<span><span class="co">## re74         Contin.      -0.2120       -0.1375      -0.0205</span></span>
-<span><span class="co">## re75         Contin.      -0.0869       -0.0012       0.1093</span></span>
+<span><span class="co">## age          Contin.      -0.4201       -0.1096       0.1914</span></span>
+<span><span class="co">## educ         Contin.      -0.4159       -0.1590       0.0794</span></span>
+<span><span class="co">## married       Binary      -0.0556        0.0366       0.1364</span></span>
+<span><span class="co">## nodegree      Binary      -0.0032        0.1117       0.2273</span></span>
+<span><span class="co">## re74         Contin.      -0.1501       -0.0252       0.1161</span></span>
+<span><span class="co">## re75         Contin.      -0.1406       -0.0142       0.0683</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Total sample sizes across clusters</span></span></span>
-<span><span class="co">##                          0   1</span></span>
-<span><span class="co">## All                  429.  185</span></span>
-<span><span class="co">## Matched (ESS)         76.8 185</span></span>
-<span><span class="co">## Matched (Unweighted) 113.  185</span></span>
-<span><span class="co">## Unmatched            316.    0</span></span></code></pre>
+<span><span class="co">##                           0   1</span></span>
+<span><span class="co">## All                  429.   185</span></span>
+<span><span class="co">## Matched (ESS)         82.57 185</span></span>
+<span><span class="co">## Matched (Unweighted) 125.   185</span></span>
+<span><span class="co">## Unmatched            304.     0</span></span></code></pre>
 <p>This table presents the minimum, mean, and maximum balance statistics
 for each variable across clusters. Setting <code>un = TRUE</code> will
 also display the same values for the adjusted data set. With binary
@@ -342,23 +342,23 @@ to change <code><a href="../reference/bal.tab.html">bal.tab()</a></code> output.
 <span><span class="co">##  - - - <span style="font-style: italic;">Cluster: black</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
-<span><span class="co">## distance    Distance   0.0832</span></span>
+<span><span class="co">## distance    Distance   0.0150</span></span>
 <span><span class="co">## race_black    Binary   0.0000</span></span>
 <span><span class="co">## race_hispan   Binary   0.0000</span></span>
 <span><span class="co">## race_white    Binary   0.0000</span></span>
-<span><span class="co">## age          Contin.  -0.0523</span></span>
-<span><span class="co">## educ         Contin.   0.0498</span></span>
-<span><span class="co">## married       Binary   0.0096</span></span>
-<span><span class="co">## nodegree      Binary   0.0096</span></span>
-<span><span class="co">## re74         Contin.  -0.1800</span></span>
-<span><span class="co">## re75         Contin.  -0.0869</span></span>
+<span><span class="co">## age          Contin.  -0.1001</span></span>
+<span><span class="co">## educ         Contin.   0.0794</span></span>
+<span><span class="co">## married       Binary   0.0288</span></span>
+<span><span class="co">## nodegree      Binary  -0.0032</span></span>
+<span><span class="co">## re74         Contin.  -0.1501</span></span>
+<span><span class="co">## re75         Contin.  -0.1406</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##                          0   1</span></span>
 <span><span class="co">## All                  87.   156</span></span>
-<span><span class="co">## Matched (ESS)        42.66 156</span></span>
-<span><span class="co">## Matched (Unweighted) 70.   156</span></span>
-<span><span class="co">## Unmatched            17.     0</span></span>
+<span><span class="co">## Matched (ESS)        41.53 156</span></span>
+<span><span class="co">## Matched (Unweighted) 76.   156</span></span>
+<span><span class="co">## Unmatched            11.     0</span></span>
 <span><span class="co">##  - - - - - - - - - - - - - -</span></span></code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Just the balance summary across clusters with only the mean</span></span>
@@ -366,23 +366,23 @@ to change <code><a href="../reference/bal.tab.html">bal.tab()</a></code> output.
 <span>        cluster.fun <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all clusters</span></span></span>
 <span><span class="co">##                 Type Mean.Diff.Adj</span></span>
-<span><span class="co">## distance    Distance        0.1174</span></span>
+<span><span class="co">## distance    Distance        0.0438</span></span>
 <span><span class="co">## race_black    Binary        0.0000</span></span>
 <span><span class="co">## race_hispan   Binary        0.0000</span></span>
 <span><span class="co">## race_white    Binary        0.0000</span></span>
-<span><span class="co">## age          Contin.       -0.0227</span></span>
-<span><span class="co">## educ         Contin.       -0.1942</span></span>
-<span><span class="co">## married       Binary        0.0579</span></span>
-<span><span class="co">## nodegree      Binary        0.1345</span></span>
-<span><span class="co">## re74         Contin.       -0.1375</span></span>
-<span><span class="co">## re75         Contin.       -0.0012</span></span>
+<span><span class="co">## age          Contin.       -0.1096</span></span>
+<span><span class="co">## educ         Contin.       -0.1590</span></span>
+<span><span class="co">## married       Binary        0.0366</span></span>
+<span><span class="co">## nodegree      Binary        0.1117</span></span>
+<span><span class="co">## re74         Contin.       -0.0252</span></span>
+<span><span class="co">## re75         Contin.       -0.0142</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Total sample sizes across clusters</span></span></span>
-<span><span class="co">##                          0   1</span></span>
-<span><span class="co">## All                  429.  185</span></span>
-<span><span class="co">## Matched (ESS)         76.8 185</span></span>
-<span><span class="co">## Matched (Unweighted) 113.  185</span></span>
-<span><span class="co">## Unmatched            316.    0</span></span></code></pre>
+<span><span class="co">##                           0   1</span></span>
+<span><span class="co">## All                  429.   185</span></span>
+<span><span class="co">## Matched (ESS)         82.57 185</span></span>
+<span><span class="co">## Matched (Unweighted) 125.   185</span></span>
+<span><span class="co">## Unmatched            304.     0</span></span></code></pre>
 <p>These can also be set as global options by using, for example,
 <code>set.cobalt.options(cluster.fun = "mean")</code>, which allows
 users not to type a non-default option every time they call

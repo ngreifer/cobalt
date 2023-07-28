@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.1.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2023-04-27</h4>
+            <h4 data-toc-skip class="date">2023-07-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="d-none name"><code>cobalt.Rmd</code></div>
@@ -184,7 +184,7 @@ treatments.</p>
 the conditioning package used. The full APA reference for
 <code>cobalt</code> is the following:</p>
 <p>Greifer, N. (2023). cobalt: Covariate Balance Tables and Plots. R
-package version 4.5.1.</p>
+package version 4.5.1.9000.</p>
 <p>For example, if you use <code>Matching</code> for propensity score
 estimation and matching and <code>cobalt</code> for balance assessment
 and/or reporting, a possible citation might go as follows:</p>
@@ -921,21 +921,21 @@ use:</p>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
-<span><span class="co">## distance    Distance   0.0145</span></span>
-<span><span class="co">## age          Contin.  -0.3173</span></span>
-<span><span class="co">## educ         Contin.   0.0108</span></span>
+<span><span class="co">## distance    Distance  -0.0010</span></span>
+<span><span class="co">## age          Contin.   0.1964</span></span>
+<span><span class="co">## educ         Contin.  -0.0726</span></span>
 <span><span class="co">## race_black    Binary   0.0108</span></span>
-<span><span class="co">## race_hispan   Binary  -0.0162</span></span>
-<span><span class="co">## race_white    Binary   0.0054</span></span>
-<span><span class="co">## re74         Contin.   0.0418</span></span>
-<span><span class="co">## re75         Contin.   0.1145</span></span>
+<span><span class="co">## race_hispan   Binary  -0.0054</span></span>
+<span><span class="co">## race_white    Binary  -0.0054</span></span>
+<span><span class="co">## re74         Contin.   0.0667</span></span>
+<span><span class="co">## re75         Contin.   0.0936</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##                      Control Treated</span></span>
-<span><span class="co">## All                    429.      185</span></span>
-<span><span class="co">## Matched (ESS)           28.5     185</span></span>
-<span><span class="co">## Matched (Unweighted)    78.      185</span></span>
-<span><span class="co">## Unmatched              351.        0</span></span></code></pre>
+<span><span class="co">## All                   429.       185</span></span>
+<span><span class="co">## Matched (ESS)          38.33     185</span></span>
+<span><span class="co">## Matched (Unweighted)   79.       185</span></span>
+<span><span class="co">## Unmatched             350.         0</span></span></code></pre>
 <p>The output looks very similar to <code>MatchIt</code>’s
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function: first is the balance table, and second
 is a summary of the sample size before and after adjustment.</p>
@@ -1548,20 +1548,20 @@ the ATT using the following code and the output generated above.</p>
 <span>        disp.v.ratio <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type Diff.Matched V.Ratio.Matched Diff.IPW V.Ratio.IPW</span></span>
-<span><span class="co">## age         Contin.       0.3452          0.5805   0.1112      0.5086</span></span>
-<span><span class="co">## educ        Contin.       0.0000          0.6702  -0.0641      0.6018</span></span>
-<span><span class="co">## married      Binary       0.0486               .  -0.0938           .</span></span>
+<span><span class="co">## age         Contin.       0.2395          0.5565   0.1112      0.5086</span></span>
+<span><span class="co">## educ        Contin.      -0.0161          0.5773  -0.0641      0.6018</span></span>
+<span><span class="co">## married      Binary       0.0595               .  -0.0938           .</span></span>
 <span><span class="co">## race_black   Binary       0.0054               .  -0.0044           .</span></span>
-<span><span class="co">## race_hispan  Binary       0.0162               .   0.0016           .</span></span>
-<span><span class="co">## race_white   Binary      -0.0216               .   0.0028           .</span></span>
-<span><span class="co">## nodegree     Binary       0.0108               .   0.1151           .</span></span>
-<span><span class="co">## re74        Contin.      -0.0084          1.1239  -0.0039      1.4821</span></span>
-<span><span class="co">## re75        Contin.      -0.0738          1.7110  -0.0428      1.1712</span></span>
+<span><span class="co">## race_hispan  Binary      -0.0054               .   0.0016           .</span></span>
+<span><span class="co">## race_white   Binary       0.0000               .   0.0028           .</span></span>
+<span><span class="co">## nodegree     Binary       0.0054               .   0.1151           .</span></span>
+<span><span class="co">## re74        Contin.      -0.0493          1.0363  -0.0039      1.4821</span></span>
+<span><span class="co">## re75        Contin.       0.0087          2.1294  -0.0428      1.1712</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##         Control Treated</span></span>
 <span><span class="co">## All      429.       185</span></span>
-<span><span class="co">## Matched   37.16     185</span></span>
+<span><span class="co">## Matched   46.31     185</span></span>
 <span><span class="co">## IPW      108.2      185</span></span></code></pre>
 <p>To use <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, the same syntax can be used:</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
@@ -1630,24 +1630,24 @@ Below is an example of how to do so after a call to
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">m.out</span>, distance <span class="op">=</span> <span class="va">lalonde</span><span class="op">[</span><span class="st">"prog.score"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
-<span><span class="co">## prog.score  Distance  -0.0507</span></span>
-<span><span class="co">## distance    Distance   0.0260</span></span>
-<span><span class="co">## age          Contin.   0.3452</span></span>
-<span><span class="co">## educ         Contin.   0.0000</span></span>
-<span><span class="co">## married       Binary   0.0486</span></span>
+<span><span class="co">## prog.score  Distance  -0.0485</span></span>
+<span><span class="co">## distance    Distance   0.0044</span></span>
+<span><span class="co">## age          Contin.   0.2395</span></span>
+<span><span class="co">## educ         Contin.  -0.0161</span></span>
+<span><span class="co">## married       Binary   0.0595</span></span>
 <span><span class="co">## race_black    Binary   0.0054</span></span>
-<span><span class="co">## race_hispan   Binary   0.0162</span></span>
-<span><span class="co">## race_white    Binary  -0.0216</span></span>
-<span><span class="co">## nodegree      Binary   0.0108</span></span>
-<span><span class="co">## re74         Contin.  -0.0084</span></span>
-<span><span class="co">## re75         Contin.  -0.0738</span></span>
+<span><span class="co">## race_hispan   Binary  -0.0054</span></span>
+<span><span class="co">## race_white    Binary   0.0000</span></span>
+<span><span class="co">## nodegree      Binary   0.0054</span></span>
+<span><span class="co">## re74         Contin.  -0.0493</span></span>
+<span><span class="co">## re75         Contin.   0.0087</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Sample sizes</span></span></span>
 <span><span class="co">##                      Control Treated</span></span>
 <span><span class="co">## All                   429.       185</span></span>
-<span><span class="co">## Matched (ESS)          37.16     185</span></span>
-<span><span class="co">## Matched (Unweighted)   73.       185</span></span>
-<span><span class="co">## Unmatched             356.         0</span></span></code></pre>
+<span><span class="co">## Matched (ESS)          46.31     185</span></span>
+<span><span class="co">## Matched (Unweighted)   82.       185</span></span>
+<span><span class="co">## Unmatched             347.         0</span></span></code></pre>
 <p>Although the prognostic score is sensitive to the outcome estimation
 model used, a defensible prognostic score model can yield valid
 prognostic scores, which can then be used in balance assessment. In the
