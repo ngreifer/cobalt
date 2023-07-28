@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Fixed a bug when using `bal.compute()` with a treatment variable with levels named "treated" and "control".
+
 # cobalt 4.5.1
 
 * Added a new function `available.stats()` which lists the available balance statistics for use with `bal.init()` and `bal.compute()`.

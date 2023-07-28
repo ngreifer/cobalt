@@ -755,9 +755,14 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
             s.d.denom <- .get_s.d.denom.cont(as.character(s.d.denom), weights = weighted.weights[subset])
         }
         else {
-            unique.treats <- if (inherits(treat, "processed.treat") && all(subset)) as.character(treat_vals(treat)) else as.character(unique(treat[subset]))
+            unique.treats <- {
+                if (inherits(treat, "processed.treat") && all(subset)) as.character(treat_vals(treat))
+                else as.character(unique(treat[subset]))
+            }
             s.d.denom <- .get_s.d.denom(as.character(s.d.denom), weights = weighted.weights[subset], treat = treat[subset])
-            if (s.d.denom %in% c("treated", "control")) s.d.denom <- treat_vals(treat)[treat_names(treat)[s.d.denom]]
+            if (s.d.denom %in% c("treated", "control") && s.d.denom %nin% unique.treats) {
+                s.d.denom <- treat_vals(treat)[treat_names(treat)[s.d.denom]]
+            }
             treat <- as.character(treat)
         }
         
@@ -768,7 +773,6 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                              w = s.weights[treat == s.d.denom],
                              bin.vars = bin.vars, na.rm = na.rm))
             }
-        
         else if (s.d.denom == "pooled")
             denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars,
                                   unique.treats, na.rm) {
@@ -790,10 +794,11 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
         else if (s.d.denom == "hedges")
             denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars,
                                   unique.treats, na.rm) {
-                (1 - 3/(4*length(treat) - 9))^-1 * sqrt(Reduce("+", lapply(unique.treats,
-                                                                           function(t) (sum(treat == t) - 1) * col.w.v(mat[treat == t, , drop = FALSE],
-                                                                                                                       w = s.weights[treat == t],
-                                                                                                                       bin.vars = bin.vars, na.rm = na.rm))) / (length(treat) - 2))
+                (1 - 3/(4*length(treat) - 9))^-1 *
+                    sqrt(Reduce("+", lapply(unique.treats,
+                                            function(t) (sum(treat == t) - 1) * col.w.v(mat[treat == t, , drop = FALSE],
+                                                                                        w = s.weights[treat == t],
+                                                                                        bin.vars = bin.vars, na.rm = na.rm))) / (length(treat) - 2))
             }
         else .err("`s.d.denom` is not an allowed value")
         
