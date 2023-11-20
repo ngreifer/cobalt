@@ -52,7 +52,7 @@ bal.tab.ps <- function(x, stop.method,
     args[vapply(args, is_null, logical(1L)) & names(args) %nin% names(match.call())[-1]] <- NULL
     
     #Initializing variables
-    X <- do.call("x2base.ps", c(list(x), args), quote = TRUE)
+    X <- do.call("x2base", c(list(x), args), quote = TRUE)
     
     args[names(args) %in% names(X)] <- NULL
     
