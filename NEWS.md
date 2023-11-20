@@ -7,6 +7,10 @@
 
 * Fixed a bug when using `bal.tab()` with `mnps` objects from `twang`. Thanks to @sherwinkuah. (#74)
 
+* Fixed a bug when using `addl` without a dataset supplied. (#71)
+
+* Fixed a bug when using `subset` to remove clusters lack full representation in all treatment groups when `cluster` is specified. (#70)
+
 # cobalt 4.5.1
 
 * Added a new function `available.stats()` which lists the available balance statistics for use with `bal.init()` and `bal.compute()`.

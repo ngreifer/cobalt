@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.5.1.9001
+Version: 4.5.1.9003
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",

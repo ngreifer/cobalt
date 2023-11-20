@@ -91,14 +91,12 @@ x2base.matchit <- function(m, ...) {
     }
     
     #Get method
-    if (inherits(m, "matchit.subclass")) {
-        if (is_not_null(method <- A[["method"]]) && rlang::is_string(method)) {
-            method <- match_arg(method, c("weighting", "subclassification"))
+    method <- {
+        if (!inherits(m, "matchit.subclass")) "matching"
+        else if (is_not_null(method <- A[["method"]]) && rlang::is_string(method)) {
+            match_arg(method, c("weighting", "subclassification"))
         }
-        else method <- "subclassification"
-    }
-    else {
-        method <- "matching"
+        else "subclassification"
     }
     
     #Process addl 
@@ -160,7 +158,6 @@ x2base.matchit <- function(m, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        # .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -285,8 +282,7 @@ x2base.ps <- function(ps, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -326,7 +322,8 @@ x2base.ps <- function(ps, ...) {
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
         .err("`focal` is not allowed with ps objects")
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    }
+    if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -372,7 +369,6 @@ x2base.ps <- function(ps, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -495,8 +491,7 @@ x2base.mnps <- function(mnps, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -567,7 +562,6 @@ x2base.mnps <- function(mnps, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -660,8 +654,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -732,7 +725,6 @@ x2base.ps.cont <- function(ps.cont, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -827,8 +819,7 @@ x2base.Match <- function(Match, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -866,7 +857,8 @@ x2base.Match <- function(Match, ...) {
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
         .err("`focal` is not allowed with Match objects")
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    }
+    if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -906,7 +898,6 @@ x2base.Match <- function(Match, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1010,8 +1001,7 @@ x2base.data.frame <- function(covs, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -1160,10 +1150,10 @@ x2base.data.frame <- function(covs, ...) {
         if (any(specified.method == "subclassification") || specified["subclass"]) {
             .err("Subclassification cannot be specified along with other methods")
         }
-        else if (specified["match.strata"]) {
+        if (specified["match.strata"]) {
             .err("Only weights can be specified with multiple methods")
         }
-        else if (!specified["weights"]) {
+        if (!specified["weights"]) {
             .wrn("Multiple methods were specified, but no weights were provided. Providing unadjusted data only")
             method <- "matching"
         }
@@ -1246,7 +1236,6 @@ x2base.data.frame <- function(covs, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1343,8 +1332,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -1385,7 +1373,8 @@ x2base.CBPS <- function(cbps.fit, ...) {
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
         .err("`focal` is not allowed with CBPS objects")
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    }
+    if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -1432,7 +1421,6 @@ x2base.CBPS <- function(cbps.fit, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1527,8 +1515,7 @@ x2base.ebalance <- function(ebalance, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -1566,7 +1553,8 @@ x2base.ebalance <- function(ebalance, ...) {
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
         .err("`focal` is not allowed with ebalance objects")
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    }
+    if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -1611,7 +1599,6 @@ x2base.ebalance <- function(ebalance, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1705,8 +1692,7 @@ x2base.optmatch <- function(optmatch, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -1786,7 +1772,6 @@ x2base.optmatch <- function(optmatch, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -1887,8 +1872,7 @@ x2base.cem.match <- function(cem.match, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -1966,7 +1950,6 @@ x2base.cem.match <- function(cem.match, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2063,8 +2046,7 @@ x2base.weightit <- function(weightit, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             data <- NULL
         }
     }
@@ -2141,8 +2123,6 @@ x2base.weightit <- function(weightit, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2240,8 +2220,7 @@ x2base.designmatch <- function(dm, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -2280,7 +2259,8 @@ x2base.designmatch <- function(dm, ...) {
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
         .err("`focal` is not allowed with designmatch objects")
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    }
+    if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -2320,7 +2300,6 @@ x2base.designmatch <- function(dm, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2425,8 +2404,7 @@ x2base.mimids <- function(mimids, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -2516,7 +2494,6 @@ x2base.mimids <- function(mimids, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2622,8 +2599,7 @@ x2base.wimids <- function(wimids, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -2704,7 +2680,6 @@ x2base.wimids <- function(wimids, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -2803,8 +2778,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -2842,7 +2816,8 @@ x2base.sbwcau <- function(sbwcau, ...) {
     #Process focal
     if (is_not_null(focal <- A[["focal"]])) {
         .err("`focal` is not allowed with sbwcau objects")
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    }
+    if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -2887,7 +2862,6 @@ x2base.sbwcau <- function(sbwcau, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
     }
     
     #Process subset
@@ -3011,8 +2985,7 @@ x2base.iptw <- function(iptw, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -3207,8 +3180,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -3465,8 +3437,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -3650,8 +3621,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
             data <- .mids_complete(data)
             if (is_null(imp)) imp <- data[[".imp"]]
         }
-        else if (!is.data.frame(data))
-        {
+        else if (!is.data.frame(data)) {
             # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
             data <- NULL
         }
@@ -4004,8 +3974,7 @@ x2base.default <- function(obj, ...) {
                 data <- .mids_complete(data)
                 if (is_null(imp)) imp <- data[[".imp"]]
             }
-            else if (!is.data.frame(data))
-            {
+            else if (!is.data.frame(data)) {
                 # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
                 data <- NULL
             }
@@ -4143,10 +4112,12 @@ x2base.default <- function(obj, ...) {
             if (any(specified.method == "subclassification") || specified["subclass"]) {
                 .err("Subclassification cannot be specified along with other methods")
             }
-            else if (specified["match.strata"]) {
+            
+            if (specified["match.strata"]) {
                 .err("Only weights can be specified with multiple methods")
             }
-            else if (!specified["weights"]) {
+            
+            if (!specified["weights"]) {
                 .wrn("Multiple methods were specified, but no weights were provided. Providing unadjusted data only")
                 method <- "matching"
             }
@@ -4213,7 +4184,6 @@ x2base.default <- function(obj, ...) {
                                       which = "cluster membership",
                                       missing.okay = FALSE)
             cluster <- factor(cluster)
-            .cluster_check(cluster, treat)
         }
         
         #Process subset
@@ -4326,8 +4296,7 @@ x2base.default <- function(obj, ...) {
                 data <- .mids_complete(data)
                 if (is_null(imp)) imp <- data[[".imp"]]
             }
-            else if (!is.data.frame(data))
-            {
+            else if (!is.data.frame(data)) {
                 # .wrn("The argument to data is not a data.frame and will be ignored. If the argument to treat is not a vector, the execution will halt")
                 data <- NULL
             }
