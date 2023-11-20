@@ -2047,6 +2047,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     #ex=names of variables to exclude in interactions and polynomials; a subset of df
     #int=whether to include interactions or not; currently only 2-way are supported
     #poly=degree of polynomials to include; will also include all below poly. If 1, no polynomial will be included
+    #orth=use orthogonal polynomials
     #nunder=number of underscores between variables
     
     cn <- is_not_null(co.names)

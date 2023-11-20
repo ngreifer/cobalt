@@ -65,11 +65,11 @@ set.cobalt.options <- function(..., default = FALSE) {
         opts <- opts[names(opts) %in% names(acceptable.options())]
     }
     
+    return.to.default <- NULL
     if (default) {
         return.to.default <- setdiff(names(acceptable.options()), names(opts))
     }
-    else return.to.default <- NULL
-    
+
     multiple.opts <- NULL
     bad.opts <- NULL
     for (i in names(opts)) {
@@ -80,8 +80,11 @@ set.cobalt.options <- function(..., default = FALSE) {
         else {
             if (length(opts[[i]]) > 1 && i %nin% multiple.allowed) multiple.opts <- c(multiple.opts, i)
             if (mode(opts[[i]]) != mode(acceptable.options()[[i]]) || 
-                (!(is.character(opts[[i]]) && is.character(acceptable.options()[[i]]) && (i %in% any.string.allowed || !anyNA(pmatch(opts[[i]], acceptable.options()[[i]])))) &&
-                 !all(opts[[i]] %in% acceptable.options()[[i]]))) bad.opts <- c(bad.opts, i)
+                (!(is.character(opts[[i]]) && is.character(acceptable.options()[[i]]) &&
+                   (i %in% any.string.allowed || !anyNA(pmatch(opts[[i]], acceptable.options()[[i]])))) &&
+                 !all(opts[[i]] %in% acceptable.options()[[i]]))) {
+                bad.opts <- c(bad.opts, i)
+            }
         }
     }
     
@@ -167,6 +170,7 @@ acceptable.options <- function() {
          int_sep = " * ",
          factor_sep = "_",
          center = TF,
+         orth = TF,
          remove_perfect_col = TF,
          disp.call = TF)
 }

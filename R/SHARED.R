@@ -691,22 +691,24 @@ make_df <- function(ncol, nrow = 0, types = "numeric") {
             stop("'types' must be an acceptable type. For factors, use NA.")
         }
         if (length(types) == 1) types <- rep(types, ncol)
-        for (i in seq_len(ncol)) if (!is.na(types)[i] && types[i] != "numeric") df[[i]] <- get(types[i])(nrow)
+        for (i in seq_len(ncol)) if (!is.na(types)[i] && types[i] != "numeric") {
+            df[[i]] <- get(types[i])(nrow)
+        }
     }
     
     df
 }
 ifelse_ <- function(...) {
     dotlen <- ...length()
-    if (dotlen %% 2 == 0) stop("ifelse_ must have an odd number of arguments: pairs of test/yes, and one no.")
+    if (dotlen %% 2 == 0) stop("`ifelse_()` must have an odd number of arguments: pairs of test/yes, and one no.")
     out <- ...elt(dotlen)
     
     if (dotlen <= 1) {
-        if (!is.atomic(out)) stop("The first entry to ifelse_ must be atomic.")
+        if (!is.atomic(out)) stop("The first entry to `ifelse_()` must be atomic.")
     }
     
     if (!is.atomic(out)) {
-        stop("The last entry to ifelse_ must be atomic.")
+        stop("The last entry to `ifelse_()` must be atomic.")
     }
     
     if (length(out) == 1) out <- rep(out, length(..1))
@@ -716,8 +718,8 @@ ifelse_ <- function(...) {
         yes <- ...elt(2*i)
         if (length(yes) == 1) yes <- rep(yes, n)
         if (length(yes) != n || length(test) != n) stop("All entries must have the same length.")
-        if (!is.logical(test)) stop(paste("The", ordinal(2*i - 1), "entry to ifelse_ must be logical."))
-        if (!is.atomic(yes)) stop(paste("The", ordinal(2*i), "entry to ifelse_ must be atomic."))
+        if (!is.logical(test)) stop(paste("The", ordinal(2*i - 1), "entry to `ifelse_()` must be logical."))
+        if (!is.atomic(yes)) stop(paste("The", ordinal(2*i), "entry to `ifelse_()` must be atomic."))
         pos <- which(test)
         out[pos] <- yes[pos]
     }
