@@ -160,7 +160,7 @@ x2base.matchit <- function(m, ...) {
                                   which = "cluster membership",
                                   missing.okay = FALSE)
         cluster <- factor(cluster)
-        .cluster_check(cluster, treat)
+        # .cluster_check(cluster, treat)
     }
     
     #Process subset

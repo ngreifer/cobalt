@@ -52,6 +52,8 @@ base.bal.tab.cluster <- function(X,
     
     X$cluster <- factor(X$cluster)
     
+    .cluster_check(X$cluster, X$treat)
+    
     #Process cluster.summary
     if (missing(which.cluster)) {
         which.cluster <- NULL

@@ -930,7 +930,10 @@ subset_X <- function(X, subset = NULL) {
                 
                 out
             }
-            X[names(X) %in% subsettable()] <- lapply(X[names(X) %in% subsettable()], subset_X_internal, subset)
+            
+            for (i in which(names(X) %in% subsettable())) {
+                X[[i]] <- subset_X_internal(X[[i]], subset)
+            }
         }
     }
     
@@ -1886,11 +1889,13 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         covs <- cbind(covs, addl)
         co.names <- c(co.names, addl.co.names)
     } 
-    
+ 
     #Drop single_value or colinear with cluster
     if (drop) {
         test.treat <- is_not_null(treat) && get.treat.type(treat) != "continuous"
+        
         # test.cluster <- is_not_null(cluster) && !all_the_same(cluster, na.rm = FALSE)
+        
         drop_vars <- vapply(seq_len(ncol(covs)), 
                             function(i) {
                                 # if (all_the_same(covs[,i], na.rm = FALSE)) return(TRUE)
@@ -1984,6 +1989,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     #Remove duplicate & redundant variables
     if (drop) {
         for (x in setdiff(names(C_list), "distance")) {
+            # browser()
             #Remove self-redundant variables
             if (getOption("cobalt_remove_perfect_col", ncol(C_list[[x]]) <= 900)) {
                 redundant.var.indices <- find_perfect_col(C_list[[x]])
@@ -2197,6 +2203,7 @@ df_clean <- function(df) {
     }, character(1))
 }
 find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
+    
     #Finds indices of redundant vars in C1.
     C1.no.miss <- C1[,colnames(C1) %nin% attr(C1, "missing.ind"), drop = FALSE]
     if (is_null(C2)) {
@@ -2343,9 +2350,11 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
     
     #B=Balance frame
     Bnames <- c("Type", 
-                expand.grid_string(c(if (type == "bin") expand.grid_string(c("M"["means" %in% compute], "SD"["sds" %in% compute]), c("0", "1"), collapse = ".")
+                expand.grid_string(c(if (type == "bin") expand.grid_string(c("M"["means" %in% compute],
+                                                                             "SD"["sds" %in% compute]),
+                                                                           c("0", "1"), collapse = ".")
                                      else if (type == "cont") c("M"["means" %in% compute], "SD"["sds" %in% compute]), 
-                                     unlist(lapply(compute[compute %in% all_STATS(type)[!get_from_STATS("adj_only")[get_from_STATS("type") == type]]], function(s) {
+                                     unlist(lapply(intersect(compute, all_STATS(type)[!get_from_STATS("adj_only")[get_from_STATS("type") == type]]), function(s) {
                                          c(STATS[[s]]$bal.tab_column_prefix,
                                            if (no.adj && is_not_null(thresholds[[s]])) STATS[[s]]$Threshold)
                                      }))
@@ -2353,7 +2362,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                 "Un", collapse = "."),
                 expand.grid_string(c(if (type == "bin") expand.grid_string(c("M"["means" %in% compute], "SD"["sds" %in% compute]), c("0", "1"), collapse = ".")
                                      else if (type == "cont") c("M"["means" %in% compute], "SD"["sds" %in% compute]), 
-                                     unlist(lapply(compute[compute %in% all_STATS(type)], function(s) {
+                                     unlist(lapply(intersect(compute, all_STATS(type)), function(s) {
                                          c(STATS[[s]]$bal.tab_column_prefix,
                                            if (!no.adj && is_not_null(thresholds[[s]])) STATS[[s]]$Threshold)
                                      }))
