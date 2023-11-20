@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.5.2
 
 * Fixed a bug when using `bal.compute()` with a treatment variable with levels named "treated" and "control".
 
