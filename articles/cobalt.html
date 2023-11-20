@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.1.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2023-07-28</h4>
+            <h4 data-toc-skip class="date">2023-11-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="d-none name"><code>cobalt.Rmd</code></div>
@@ -184,7 +184,7 @@ treatments.</p>
 the conditioning package used. The full APA reference for
 <code>cobalt</code> is the following:</p>
 <p>Greifer, N. (2023). cobalt: Covariate Balance Tables and Plots. R
-package version 4.5.1.9000.</p>
+package version 4.5.1.9001.</p>
 <p>For example, if you use <code>Matching</code> for propensity score
 estimation and matching and <code>cobalt</code> for balance assessment
 and/or reporting, a possible citation might go as follows:</p>
@@ -1314,21 +1314,21 @@ to <code>stats</code> along with <code>"c"</code> (for
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.c</span>, stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>, <span class="st">"k"</span><span class="op">)</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>        thresholds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>cor <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span>, poly <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
-<span><span class="co">##                Type Corr.Un Corr.Adj    R.Threshold KS.Adj</span></span>
-<span><span class="co">## age         Contin.  0.1400   0.0067 Balanced, &lt;0.1 0.0213</span></span>
-<span><span class="co">## educ        Contin.  0.0183   0.0043 Balanced, &lt;0.1 0.0054</span></span>
-<span><span class="co">## race_black   Binary -0.1405  -0.0023 Balanced, &lt;0.1 0.0030</span></span>
-<span><span class="co">## race_hispan  Binary  0.0616   0.0127 Balanced, &lt;0.1 0.0016</span></span>
-<span><span class="co">## race_white   Binary  0.0978  -0.0059 Balanced, &lt;0.1 0.0014</span></span>
-<span><span class="co">## married      Binary  0.3541   0.0224 Balanced, &lt;0.1 0.0033</span></span>
-<span><span class="co">## nodegree     Binary -0.0705  -0.0086 Balanced, &lt;0.1 0.0025</span></span>
-<span><span class="co">## re74        Contin.  0.5520   0.0372 Balanced, &lt;0.1 0.0685</span></span>
-<span><span class="co">## age²        Contin.  0.0998  -0.0028 Balanced, &lt;0.1 0.0213</span></span>
-<span><span class="co">## educ²       Contin.  0.0312   0.0083 Balanced, &lt;0.1 0.0054</span></span>
-<span><span class="co">## re74²       Contin.  0.4607  -0.0068 Balanced, &lt;0.1 0.0685</span></span>
-<span><span class="co">## age³        Contin.  0.0627  -0.0108 Balanced, &lt;0.1 0.0213</span></span>
-<span><span class="co">## educ³       Contin.  0.0361   0.0078 Balanced, &lt;0.1 0.0054</span></span>
-<span><span class="co">## re74³       Contin.  0.3790  -0.0184 Balanced, &lt;0.1 0.0685</span></span>
+<span><span class="co">##                Type Corr.Un Corr.Adj    R.Threshold KS.Target.Adj</span></span>
+<span><span class="co">## age         Contin.  0.1400   0.0067 Balanced, &lt;0.1        0.0213</span></span>
+<span><span class="co">## educ        Contin.  0.0183   0.0043 Balanced, &lt;0.1        0.0054</span></span>
+<span><span class="co">## race_black   Binary -0.1405  -0.0023 Balanced, &lt;0.1        0.0030</span></span>
+<span><span class="co">## race_hispan  Binary  0.0616   0.0127 Balanced, &lt;0.1        0.0016</span></span>
+<span><span class="co">## race_white   Binary  0.0978  -0.0059 Balanced, &lt;0.1        0.0014</span></span>
+<span><span class="co">## married      Binary  0.3541   0.0224 Balanced, &lt;0.1        0.0033</span></span>
+<span><span class="co">## nodegree     Binary -0.0705  -0.0086 Balanced, &lt;0.1        0.0025</span></span>
+<span><span class="co">## re74        Contin.  0.5520   0.0372 Balanced, &lt;0.1        0.0685</span></span>
+<span><span class="co">## age²        Contin.  0.0998  -0.0028 Balanced, &lt;0.1        0.0213</span></span>
+<span><span class="co">## educ²       Contin.  0.0312   0.0083 Balanced, &lt;0.1        0.0054</span></span>
+<span><span class="co">## re74²       Contin.  0.4607  -0.0068 Balanced, &lt;0.1        0.0685</span></span>
+<span><span class="co">## age³        Contin.  0.0627  -0.0108 Balanced, &lt;0.1        0.0213</span></span>
+<span><span class="co">## educ³       Contin.  0.0361   0.0078 Balanced, &lt;0.1        0.0054</span></span>
+<span><span class="co">## re74³       Contin.  0.3790  -0.0184 Balanced, &lt;0.1        0.0685</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance tally for treatment correlations</span></span></span>
 <span><span class="co">##                    count</span></span>
