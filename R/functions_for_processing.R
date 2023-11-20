@@ -309,8 +309,8 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     
     if (is_not_null(covs)) {
-        covs_c <- try({
-            if (is_mat_like(covs)) get_covs_from_formula(data = covs)
+        covs_c <- {
+            if (is_mat_like(covs)) try(get_covs_from_formula(data = covs), silent = TRUE)
             else if (is.character(covs)) {
                 if (!is_mat_like(data)) {
                     .err("if `covs` is a character vector, `data` must be specified as a data.frame")
@@ -319,11 +319,11 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                 if (!all(covs %in% colnames(data))) {
                     .err("all entries in `covs` must be names of variables in `data`")
                 }
-                get_covs_from_formula(f.build(covs), data = as.data.frame(data))
+                try(get_covs_from_formula(f.build(covs), data = as.data.frame(data)), silent = TRUE)
                 
             }
             else .err("`covs` must be a data.frame of covariates")
-        }, silent = TRUE) 
+        }
     }
     
     if (is_not_null(treat)) {
@@ -334,49 +334,37 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
         }, silent = TRUE)
     }
     
-    covs_to_use <- treat_to_use <- ""
+    covs_to_use <- treat_to_use <- "c"
     if (is_error(covs_c)) {
-        if (null_or_error(covs_f) && needs.covs) {
+        if (is_error(covs_f)) {
             .err(attr(covs_c, "condition")$message, tidy = FALSE)
         }
-        else {
-            covs_to_use <- "f"
-        }
+        covs_to_use <- "f"
     }
     else if (is_null(covs_c)) {
-        if (is_error(covs_f) && needs.covs) {
+        if (is_error(covs_f)) {
             .err(attr(covs_f, "condition")$message, tidy = FALSE)
         }
-        else if (is_null(covs_f) && needs.covs) {
+        if (is_null(covs_f) && needs.covs) {
             .err("no covariates were specified")
         }
-        else {
-            covs_to_use <- "f"
-        }
-    }
-    else {
-        covs_to_use <- "c"
+        covs_to_use <- "f"
     }
     
     if (is_error(treat_c)) {
-        if (null_or_error(treat_f) && needs.treat) {
+        if (is_error(treat_f)) {
             .err(attr(treat_c, "condition")$message, tidy = FALSE)
         }
         treat_to_use <- "f"
     }
     else if (is_null(treat_c)) {
-        if (is_error(treat_f) && needs.treat) {
+        if (is_error(treat_f)) {
             .err(attr(treat_f, "condition")$message, tidy = FALSE)
         }
-        else if (is_null(treat_f) && needs.treat) {
+        if (is_null(treat_f) && needs.treat) {
             .err("no treatment variable was specified")
         }
-        else {
-            treat_to_use <- "f"
-        }
-    }
-    else {
-        treat_to_use <- "c"
+        treat_to_use <- "f"
     }
     
     t.c <- list(treat = switch(treat_to_use, "f" = treat_f, "c" = treat_c), 
@@ -1240,6 +1228,7 @@ process_disp <- function(disp = NULL, ...) {
     disp
 }
 process_addl <- function(addl = NULL, datalist = list()) {
+    
     data <- do.call("data.frame", unname(clear_null(datalist)))
     if (is.atomic(addl) && 
         (!is.character(addl) || is_null(datalist) ||
@@ -1250,8 +1239,20 @@ process_addl <- function(addl = NULL, datalist = list()) {
         addl <- reformulate(addl)
     }
     
-    addl_t.c <- .use_tc_fd(formula = addl, data = data, covs = addl, 
-                           needs.treat = FALSE, needs.covs = FALSE)
+    if (!rlang::is_formula(addl) && !is.data.frame(addl) && !is.atomic(addl)) {
+        .err("`addl` must be a one-sided formula, data.frame, atomic vector, or string. See `?bal.tab()` for allowable options")
+    }
+    
+    addl_t.c <- {
+        if (is.data.frame(addl)) {
+            .use_tc_fd(data = data, covs = addl, 
+                       needs.treat = FALSE, needs.covs = FALSE)
+        }
+        else {
+            .use_tc_fd(formula = addl, data = data, 
+                       needs.treat = FALSE, needs.covs = FALSE)
+        }
+    }
     
     addl_t.c[["covs"]]
 }
@@ -1663,9 +1664,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
             if (null_or_error(evaled.var)) {
                 .err(conditionMessage(attr(evaled.var, "condition")))
             }
-            else {
-                rownames(ttfactors)[i] <- add_quotes(rownames(ttfactors)[i], "`")
-            }
+            rownames(ttfactors)[i] <- add_quotes(rownames(ttfactors)[i], "`")
         }
         
         if (is.function(evaled.var)) {
@@ -1815,8 +1814,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
             base <- gsub("`", "", names(x)[i], fixed = TRUE)
             if (base %in% na_vars) {
                 base <- substr(base, 1, nchar(base) - 5)
-                return(list(component = c(base, ":<NA>"),
-                            type = c("base", "na")))
+                list(component = c(base, ":<NA>"),
+                            type = c("base", "na"))
             }
             out <- list(component = base,
                         type = "base")
@@ -1889,7 +1888,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         covs <- cbind(covs, addl)
         co.names <- c(co.names, addl.co.names)
     } 
- 
+    
     #Drop single_value or colinear with cluster
     if (drop) {
         test.treat <- is_not_null(treat) && get.treat.type(treat) != "continuous"
@@ -1989,7 +1988,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     #Remove duplicate & redundant variables
     if (drop) {
         for (x in setdiff(names(C_list), "distance")) {
-            # browser()
+            
             #Remove self-redundant variables
             if (getOption("cobalt_remove_perfect_col", ncol(C_list[[x]]) <= 900)) {
                 redundant.var.indices <- find_perfect_col(C_list[[x]])
