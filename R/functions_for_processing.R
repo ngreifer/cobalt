@@ -1228,8 +1228,13 @@ process_disp <- function(disp = NULL, ...) {
     disp
 }
 process_addl <- function(addl = NULL, datalist = list()) {
+    if (is_not_null(addl) && !is.atomic(addl) && !rlang::is_formula(addl) &&
+        !is.matrix(addl) && !is.data.frame(addl)) {
+        .err("`addl` must be a formula or variable containing the distance values")
+    }
     
     data <- do.call("data.frame", unname(clear_null(datalist)))
+    
     if (is.atomic(addl) && 
         (!is.character(addl) || is_null(datalist) ||
          length(addl) == nrow(data))) {
@@ -1238,11 +1243,7 @@ process_addl <- function(addl = NULL, datalist = list()) {
     else if (is.character(addl)) {
         addl <- reformulate(addl)
     }
-    
-    if (!rlang::is_formula(addl) && !is.data.frame(addl) && !is.atomic(addl)) {
-        .err("`addl` must be a one-sided formula, data.frame, atomic vector, or string. See `?bal.tab()` for allowable options")
-    }
-    
+
     addl_t.c <- {
         if (is.data.frame(addl)) {
             .use_tc_fd(data = data, covs = addl, 
@@ -1272,11 +1273,14 @@ process_addl.list <- function(addl.list = NULL, datalist = list(), covs.list = l
 }
 process_distance <- function(distance = NULL, datalist = list(), obj.distance = NULL,
                              obj.distance.name = "distance") {
-    data <- do.call("data.frame", unname(clear_null(datalist)))
+    
     if (is_not_null(distance) && !is.atomic(distance) && !rlang::is_formula(distance) &&
         !is.matrix(distance) && !is.data.frame(distance)) {
         .err("`distance` must be a formula or variable containing the distance values")
     }
+    
+    data <- do.call("data.frame", unname(clear_null(datalist)))
+    
     if (is.atomic(distance) && 
         (!is.character(distance) || is_null(datalist) ||
          length(distance) == nrow(data))) {
@@ -1286,9 +1290,17 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
         distance <- reformulate(distance)
     }
     
-    distance_t.c <- .use_tc_fd(formula = distance, data = data, covs = distance, 
-                               needs.treat = FALSE, needs.covs = FALSE)
-    
+    distance_t.c <- {
+        if (is.data.frame(distance)) {
+            .use_tc_fd(data = data, covs = distance, 
+                       needs.treat = FALSE, needs.covs = FALSE)
+        }
+        else {
+            .use_tc_fd(formula = distance, data = data, 
+                       needs.treat = FALSE, needs.covs = FALSE)
+        }
+    }
+
     distance <- distance_t.c[["covs"]]
     
     if (is_not_null(obj.distance) && !all(is.na(obj.distance))) {
