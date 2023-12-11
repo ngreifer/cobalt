@@ -1674,7 +1674,13 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         if (null_or_error(evaled.var)) {
             evaled.var <- try(eval(str2expression(add_quotes(rownames(ttfactors)[i], "`")), data, env), silent = TRUE)
             if (null_or_error(evaled.var)) {
-                .err(conditionMessage(attr(evaled.var, "condition")))
+                ee <- conditionMessage(attr(evaled.var, "condition"))
+                if (startsWith(ee, "object '") && endsWith(ee, "' not found")) {
+                    v <- sub("object '([^']+)' not found", "\\1", ee)
+                    .err(sprintf("the variable \"%s\" cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to `data`", v))
+                }
+                
+                .err(ee)
             }
             rownames(ttfactors)[i] <- add_quotes(rownames(ttfactors)[i], "`")
         }
@@ -1692,8 +1698,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
     }
     
-    tryCatch({tmpcovs <- stats::model.frame(tt.covs, data, na.action = "na.pass")},
-             error = function(e) {.err(conditionMessage(e))})
+    tryCatch({tmpcovs <- model.frame2(tt.covs, data)},
+             error = function(e) .err(conditionMessage(e)))
     
     for (i in ttvars) {
         if (is_binary(tmpcovs[[i]])) tmpcovs[[i]] <- factor(tmpcovs[[i]], nmax = 2)
@@ -1708,8 +1714,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     
     #Process NAs: make NA variables
     if (anyNA(tmpcovs)) {
-        has_NA <- anyNA_col(tmpcovs)
-        for (i in rev(colnames(tmpcovs)[has_NA])) {
+        vars_with_NA <- colnames(tmpcovs)[anyNA_col(tmpcovs)]
+        for (i in rev(vars_with_NA)) {
             #Find which of ttlabels i first appears, and put `i: <NA>` after it
             for (x in seq_along(colnames(ttfactors))) {
                 if (i %in% c(colnames(ttfactors)[x], all.vars(str2expression(colnames(ttfactors)[x])))) {
@@ -1729,10 +1735,10 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         ttfactors <- attr(tt.covs, "factors")
         ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
         
-        na_vars <- paste0(colnames(tmpcovs)[has_NA], ":<NA>")
+        na_vars <- paste0(vars_with_NA, ":<NA>")
         
-        tryCatch({tmpcovs <- stats::model.frame(tt.covs, tmpcovs, na.action = "na.pass")},
-                 error = function(e) {.err(conditionMessage(e))})
+        tryCatch({tmpcovs <- model.frame2(tt.covs, tmpcovs)},
+                 error = function(e) .err(conditionMessage(e)))
         
         for (i in setdiff(ttvars, na_vars)) {
             if (is_binary(tmpcovs[[i]])) tmpcovs[[i]] <- factor(tmpcovs[[i]], nmax = 2)
@@ -1774,8 +1780,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1]
     }
     
-    tmpcovs <- model.frame(tt.covs, data = tmpcovs, drop.unused.levels = TRUE,
-                           na.action = "na.pass")
+    tmpcovs <- model.frame2(tt.covs, data = tmpcovs, drop.unused.levels = TRUE)
     
     #Check for infinite values
     covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
@@ -1827,15 +1832,16 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
             if (base %in% na_vars) {
                 base <- substr(base, 1, nchar(base) - 5)
                 list(component = c(base, ":<NA>"),
-                            type = c("base", "na"))
+                     type = c("base", "na"))
             }
-            out <- list(component = base,
-                        type = "base")
-            if (is_not_null(x[[i]])) {
-                out[["component"]] <- c(out[["component"]], factor_sep, x[[i]])
-                out[["type"]] <- c(out[["type"]], "fsep", "level")
+            else if (is_null(x[[i]])) {
+                list(component = base,
+                     type = "base")
             }
-            out
+            else {
+                list(component = c(base, factor_sep, x[[i]]),
+                     type = c("base", "fsep", "level"))
+            }
         }))
     })
     
@@ -2231,6 +2237,27 @@ find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
     }
     
     which(colSums(s) > 0)
+}
+
+model.frame2 <- function(formula, data = NULL, na.action = "na.pass", ...) {
+    withCallingHandlers(force(data),
+                        error = function(e) .err(conditionMessage(e)),
+                        warning = function(w) .wrn(conditionMessage(w)))
+    
+    tryCatch({
+        mf  <- stats::model.frame(formula, data = data, na.action = na.action, ...)
+    },
+    error = function(e) {
+        ee <- conditionMessage(e)
+        if (startsWith(ee, "object '") && endsWith(ee, "' not found")) {
+            v <- sub("object '([^']+)' not found", "\\1", ee)
+            .err(sprintf("the variable \"%s\" cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to `data`", v))
+        }
+        
+        .err(ee)
+    })
+    
+    mf
 }
 
 #base.bal.tab
