@@ -1,5 +1,15 @@
 base.bal.tab <- function(X, ...) {
-    UseMethod("base.bal.tab")
+    fun <- switch(attr(X, "X.class"),
+                  "binary" = base.bal.tab.binary,
+                  "cont" = base.bal.tab.cont,
+                  "subclass.binary" = base.bal.tab.subclass.binary,
+                  "subclass.cont" = base.bal.tab.subclass.cont,
+                  "cluster" = base.bal.tab.cluster,
+                  "msm" = base.bal.tab.msm,
+                  "multi" = base.bal.tab.multi,
+                  "imp" = base.bal.tab.imp)
+    
+    fun(X, ...)
 }
 
 base.bal.tab.binary <- function(X, ...) {

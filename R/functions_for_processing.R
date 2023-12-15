@@ -845,7 +845,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     else if (get.treat.type(X[["treat"]]) == "continuous") X.class <- "cont"
     else probably.a.bug()
     
-    class(X) <- X.class
+    attr(X, "X.class") <- X.class
     
     X
 }
