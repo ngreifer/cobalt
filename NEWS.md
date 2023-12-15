@@ -1,6 +1,12 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Fixed a bug when missing values were present in continuous covariates. Thanks to @vnusinfo. (#76)
+
+* Fixed a bug when using `bal.tab()` with the `cluster` argument supplied with the `caret` package loaded. Thanks to @BorgeJorge. (#77)
+
 # cobalt 4.5.2
 
 * Fixed a bug when using `bal.compute()` with a treatment variable with levels named "treated" and "control".
@@ -9,7 +15,7 @@
 
 * Fixed a bug when using `addl` without a dataset supplied. (#71)
 
-* Fixed a bug when using `subset` to remove clusters lack full representation in all treatment groups when `cluster` is specified. (#70)
+* Fixed a bug when using `subset` to remove clusters lacking full representation in all treatment groups when `cluster` is specified. (#70)
 
 # cobalt 4.5.1
 
