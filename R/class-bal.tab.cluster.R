@@ -109,10 +109,12 @@ base.bal.tab.cluster <- function(X,
     
     
     out[["call"]] <- X$call
+    
     attr(out, "print.options") <- c(attr(out[["Cluster.Balance"]][[1]], "print.options"),
                                     list(which.cluster = which.cluster,
                                          cluster.summary = cluster.summary,
                                          cluster.fun = agg.fun))
+    
     class(out) <- c("bal.tab.cluster", "bal.tab")
     
     out
