@@ -1679,24 +1679,26 @@ a pooled estimate, calculated as the square root of the average of the
 group variances. In most applications, the standard deviation
 corresponding to the default for the method is the most appropriate.</p>
 <p>A key detail is that the standard deviation, no matter how it is
-computed, is always computed using the <em>unadjusted</em> sample<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Unless common support is used in &lt;code&gt;Matching&lt;/code&gt;,
+computed, is always computed using the <em>unadjusted</em> sample<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Unless common support is used in &lt;code&gt;Matching&lt;/code&gt;,
 in which case the standard deviation is computed using the remaining
-unadjusted sample.&lt;/p&gt;"><sup>4</sup></a>. This is
+unadjusted sample, or &lt;code&gt;s.d.enom&lt;/code&gt; is set to
+&lt;code&gt;"weighted"&lt;/code&gt;, which uses the standard deviation computed in
+the weighted (or matched) sample.&lt;/p&gt;'><sup>4</sup></a>. This is
 line with how <code>MatchIt</code> computes standardized mean
-differences, and is recommended by Stuart [-<span class="citation">Stuart (<a href="#ref-stuartDevelopingPracticalRecommendations2008" role="doc-biblioref">2008</a>)</span>; -<span class="citation">Stuart
-(<a href="#ref-stuartMatchingMethodsCausal2010" role="doc-biblioref">2010</a>)</span>]<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;It is important to note that both &lt;code&gt;twang&lt;/code&gt; and
+differences<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;It is important to note that both &lt;code&gt;twang&lt;/code&gt; and
 &lt;code&gt;Matching&lt;/code&gt; calculate standardized mean differences using the
 standard deviation of the sample in question, not the unadjusted sample,
 though &lt;code&gt;CBPS&lt;/code&gt; uses the standard deviation of the unadjusted
-sample.&lt;/p&gt;"><sup>5</sup></a>. One reason to favor
-the use of the standard deviation of the unadjusted sample is that it
-prevents the paradoxical situation that occurs when adjustment decreases
-both the mean difference and the spread of the sample, yielding a larger
-standardized mean difference than that prior to adjustment, even though
-the adjusted groups are now more similar. By using the same standard
-deviation before and after adjusting, the change in balance is isolated
-to the change in mean difference, rather than being conflated with an
-accompanying change in spread.</p>
+sample.&lt;/p&gt;"><sup>5</sup></a>, and is recommended by Stuart <span class="citation">(<a href="#ref-stuartDevelopingPracticalRecommendations2008" role="doc-biblioref">2008</a>, <a href="#ref-stuartMatchingMethodsCausal2010" role="doc-biblioref">2010</a>)</span>. One reason to favor the use of
+the standard deviation of the unadjusted sample is that it prevents the
+<a href="https://stats.stackexchange.com/a/565705/116195" class="external-link">paradoxical
+situation</a> that occurs when adjustment decreases both the mean
+difference and the spread of the sample, yielding a larger standardized
+mean difference than that prior to adjustment, even though the adjusted
+groups are now more similar. By using the same standard deviation before
+and after adjusting, the change in balance is isolated to the change in
+mean difference, rather than being conflated with an accompanying change
+in spread.</p>
 <p>The same logic applies to computing the standard deviations that
 appear in the denominator of the treatment-covariate correlations that
 are used to assess balance with continuous treatments. Given that the
