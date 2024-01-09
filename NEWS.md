@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.5.3
 
 * Fixed a bug when missing values were present in continuous covariates. Thanks to @vnusinfo. (#76)
 
