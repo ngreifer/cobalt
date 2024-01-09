@@ -327,7 +327,6 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
     }
     
     setNames(ks, colnames(mat))
-    
 }
 
 #' @rdname balance-summary

@@ -52,7 +52,9 @@
 #' 
 #' @rdname splitfactor
 #' @export 
-splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE, drop.singleton = FALSE, drop.na = TRUE, sep = "_", replace = TRUE, split.with = NULL, check = TRUE) {
+splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
+                        drop.singleton = FALSE, drop.na = TRUE, sep = "_",
+                        replace = TRUE, split.with = NULL, check = TRUE) {
     #Splits factor into multiple (0, 1) indicators, replacing original factor in dataset. 
     #Retains all categories unless only 2 levels, in which case only the second level is retained.
     #If variable only has one level, will delete.
@@ -435,11 +437,11 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
             .err("the variables in `data` selected based on `var.name` and `sep` do not seem to form a split variable based on the row sums")
         }
         
-        k.levels <- if (v.is.split) {
-            unlist(lapply(var.to.combine, function(x) attr(x, "level", TRUE))) 
-        }
-        else {
-            substr(names(var.to.combine), 1 + nchar(paste0(v, sep[v])), nchar(names(var.to.combine)))
+        k.levels <- {
+            if (v.is.split) 
+                unlist(lapply(var.to.combine, attr, "level", TRUE)) 
+            else 
+                substr(names(var.to.combine), 1 + nchar(paste0(v, sep[v])), nchar(names(var.to.combine)))
         }
         
         k <- rep(NA_character_, nrow(data))

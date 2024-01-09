@@ -336,11 +336,11 @@ init_smd <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
             focal <- treat.all
         }
         
-        if (is_null(focal) || pairwise) {
-            treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
-        }
-        else {
-            treatment.pairs <- lapply(setdiff(unique.treats, focal), c, focal)
+        treatment.pairs <- {
+            if (is_null(focal) || pairwise)
+                combn(unique.treats, 2, simplify = FALSE)
+            else 
+                lapply(setdiff(unique.treats, focal), c, focal)
         }
     }
     else {
@@ -348,7 +348,8 @@ init_smd <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
         pairwise <- TRUE
     }
     
-    s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
+    s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat,
+                                focal = focal, quietly = TRUE)
     
     denoms <- .compute_s.d.denom(x, treat = treat,
                                  s.d.denom = s.d.denom,
@@ -363,6 +364,7 @@ init_smd <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
                 focal = focal,
                 pairwise = pairwise,
                 treatment.pairs = treatment.pairs)
+    
     class(out) <- "init_smd"
     out
 }
@@ -405,11 +407,11 @@ init_ks <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, p
             focal <- treat.all
         }
         
-        if (is_null(focal) || pairwise) {
-            treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
-        }
-        else {
-            treatment.pairs <- lapply(setdiff(unique.treats, focal), c, focal)
+        treatment.pairs <- {
+            if (is_null(focal) || pairwise)
+                combn(unique.treats, 2, simplify = FALSE)
+            else 
+                lapply(setdiff(unique.treats, focal), c, focal)
         }
     }
     else {
@@ -469,11 +471,11 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
             focal <- treat.all
         }
         
-        if (is_null(focal) || pairwise) {
-            treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
-        }
-        else {
-            treatment.pairs <- lapply(setdiff(unique.treats, focal), c, focal)
+        treatment.pairs <- {
+            if (is_null(focal) || pairwise)
+                combn(unique.treats, 2, simplify = FALSE)
+            else 
+                lapply(setdiff(unique.treats, focal), c, focal)
         }
     }
     else {
@@ -489,6 +491,7 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
                 pairwise = pairwise,
                 treatment.pairs = treatment.pairs,
                 integrate = integrate)
+    
     class(out) <- "init_ovl"
     out
 }
@@ -534,11 +537,11 @@ init_ent <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
             focal <- treat.all
         }
         
-        if (is_null(focal) || pairwise) {
-            treatment.pairs <- combn(unique.treats, 2, simplify = FALSE)
-        }
-        else {
-            treatment.pairs <- lapply(setdiff(unique.treats, focal), c, focal)
+        treatment.pairs <- {
+            if (is_null(focal) || pairwise)
+                combn(unique.treats, 2, simplify = FALSE)
+            else 
+                lapply(setdiff(unique.treats, focal), c, focal)
         }
     }
     else {
@@ -554,6 +557,7 @@ init_ent <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
                 pairwise = pairwise,
                 treatment.pairs = treatment.pairs,
                 integrate = integrate)
+    
     class(out) <- "init_ent"
     out
 }
@@ -621,6 +625,7 @@ init_mahalanobis <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
                 s.weights = s.weights,
                 s.d.denom = s.d.denom,
                 sigma_inv = sigma_inv)
+    
     class(out) <- "init_mahalanobis"
     out
 }
@@ -709,6 +714,7 @@ init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
                 treat = treat,
                 unique.treats = unique.treats,
                 focal = focal)
+    
     class(out) <- "init_energy.dist"
     out
 }
@@ -754,6 +760,7 @@ init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
                 T_star = T_star,
                 s.weights = s.weights,
                 treat = treat)
+    
     class(out) <- "init_kernel.dist"
     out
 }
@@ -786,6 +793,7 @@ init_p <- function(x, treat, s.weights = NULL, ...) {
                 bin.vars = bin.vars,
                 s.weights = s.weights,
                 s.d.denom = denoms)
+    
     class(out) <- "init_p"
     out
 }
@@ -823,6 +831,7 @@ init_s <- function(x, treat, s.weights = NULL, ...) {
                 bin.vars = bin.vars,
                 s.weights = s.weights,
                 s.d.denom = denoms)
+    
     class(out) <- "init_s"
     out
 }
@@ -855,6 +864,7 @@ init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
     out <- list(treat = treat,
                 x = x,
                 s.weights = s.weights)
+    
     class(out) <- "init_r2"
     out
 }
@@ -901,6 +911,7 @@ init_distance.cov <- function(x, treat, s.weights = NULL, ...) {
     out <- list(P = P,
                 s.weights = s.weights,
                 treat = treat)
+    
     class(out) <- "init_distance.cov"
     out
 }
@@ -1032,6 +1043,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
                 treat = treat,
                 unique.treats = unique.treats,
                 focal = focal)
+    
     class(out) <- "init_l1.med"
     out
     

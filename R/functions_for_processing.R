@@ -2036,7 +2036,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         
         distance.co.names <- attr(distance, "co.names")
         
-        same.name <- names(distance.co.names) %in% do.call("c", lapply(co_list, names))
+        same.name <- names(distance.co.names) %in% unlist(lapply(co_list, names))
         if (any(same.name)) {
             distance <- distance[,!same.name, drop = FALSE]
             distance.co.names[same.name] <- NULL

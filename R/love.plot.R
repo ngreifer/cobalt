@@ -142,7 +142,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             
             if (any(names(m) %pin% "thresholds")) m["thresholds"] <- list(NULL)
             
-            return(m)
+            m
         }
         
         if (deparse1(.call[["x"]][[1]]) %in% c("bal.tab", "cobalt::bal.tab", methods("bal.tab"))) { #if x i bal.tab call
@@ -221,7 +221,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 }),
                 list(variable.names = row.names(x[["Balance.Across.Subclass"]]))))
         }
-        else subclass.names <- sub.B <- NULL
+        else {
+            subclass.names <- sub.B <- NULL
+        }
         
         attr(x, "print.options")$weight.names <- "Adj"
         subtitle <- "Across Subclasses"
@@ -246,9 +248,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             for (b in seq_along(B_list)) {
                 B_list[[b]][["variable.names"]] <- factor(rownames(B_list[[b]]), levels = rownames(B_list[[b]]))
                 for (i in facet) {
-                    if (i == "imp") B_list[[b]][[i]] <- factor(paste("Imputation:", facet_mat[b, i]),
-                                                               levels = paste("Imputation:", sort(unique(as.numeric(facet_mat[b, i])))))
-                    else B_list[[b]][[i]] <- facet_mat[b, i]
+                    B_list[[b]][[i]] <- {
+                        if (i == "imp") factor(paste("Imputation:", facet_mat[b, i]),
+                                               levels = paste("Imputation:", sort(unique(as.numeric(facet_mat[b, i])))))
+                        else facet_mat[b, i]
+                    }
                 }
             }
             
@@ -309,20 +313,26 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 B_list[[b]] <- B_list[[b]][cols.to.keep]
             }
             
-            B_stack <- do.call(rbind, c(B_list, list(make.row.names = FALSE)))
+            B_stack <- do.call("rbind", c(B_list, list(make.row.names = FALSE)))
             
             if (is_not_null(agg.over)) {
                 if (is_null(agg.fun)) {
-                    if (any(c("treat", "time") %in% agg.over)) agg.fun <- "max"
-                    else agg.fun <- "range"
+                    agg.fun <- {
+                        if (any(c("treat", "time") %in% agg.over)) "max"
+                        else "range"
+                    }
                 }
                 agg.fun <- tolower(agg.fun)
                 Agg.Fun <- firstup(agg.fun <- match_arg(agg.fun, c("range", "max", "mean")))
                 if (agg.fun == "max") abs <- TRUE
                 
-                if (abs) B_stack[stat.cols] <- lapply(stat.cols, function(sc) abs_(B_stack[[sc]], ratio = startsWith(sc, "V.Ratio")))
+                if (abs) {
+                    B_stack[stat.cols] <- lapply(stat.cols, function(sc) {
+                        abs_(B_stack[[sc]], ratio = startsWith(sc, "V.Ratio"))
+                    })
+                }
                 
-                facet <- setdiff(facet,  agg.over)
+                facet <- setdiff(facet, agg.over)
                 
                 aggregate_B <- function(FUN, B) {
                     B_agged <- aggregate(B[stat.cols], 
@@ -357,12 +367,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             }
             
             one.level.facet <- facet[vapply(B[facet], all_the_same, logical(1L))]
-            if (is_not_null(one.level.facet)) {
-                subtitle2 <- paste(vapply(one.level.facet, function(olf) {
-                    paste(firstup(olf), B[1,olf], sep = ": ")
+            subtitle2 <- {
+                if (is_null(one.level.facet)) NULL
+                else paste(vapply(one.level.facet, function(olf) {
+                    paste(firstup(olf), B[1, olf], sep = ": ")
                 }, character(1L)), collapse = ", ")
             }
-            else subtitle2 <- NULL
             
             B[names(B) %in% one.level.facet] <- NULL
             
@@ -439,16 +449,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             else .wrn("`var.names` is a vector, but its values are unnamed")
         }
         else if (is.list(var.names)) {
-            if (all(vapply(var.names, chk::vld_character_or_factor, logical(1L)))) {
-                if (is_not_null(names(var.names))) {
-                    new.labels <- unlist(var.names) #already a list
-                }
-                else {
-                    .wrn("`var.names` is a list, but its values are unnamed")
-                }
-            }
-            else {
+            if (!all(vapply(var.names, chk::vld_character_or_factor, logical(1L)))) {
                 .wrn("`var.names` is a list, but its values are not the new names of the variables")
+            }
+            else if (is_null(names(var.names))) {
+                .wrn("`var.names` is a list, but its values are unnamed")
+            }
+            else{
+                new.labels <- unlist(var.names) #already a list
             }
         }
         else {
@@ -493,6 +501,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     distance.names <- as.character(unique(B[["variable.names"]][B[["Type"]] == "Distance"], nmax = sum(B[["Type"]] == "Distance")))
+    
     if (drop.distance) {
         B <- B[B[["variable.names"]] %nin% distance.names, , drop = FALSE]
     }
@@ -537,12 +546,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     else sample.names <- NULL
     
-    if (is_not_null(sample.names)) {
-        if (length(sample.names) == ntypes - 1) {
-            sample.names <- c("Unadjusted", sample.names)
-        }
+    if (is_null(sample.names)) {
+        sample.names <- original.sample.names
     }
-    else sample.names <- original.sample.names
+    else if (length(sample.names) == ntypes - 1) {
+        sample.names <- c("Unadjusted", sample.names)
+    }
     names(sample.names) <- original.sample.names
     
     #Process limits
@@ -569,9 +578,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     #Setting up appearance
     
     #Alpha (transparency)
-    if (is.numeric(alpha[1]) && 
-        !anyNA(alpha[1]) && 
-        between(alpha[1], c(0,1))) alpha <- alpha[1]
+    if (is.numeric(alpha[1]) && !anyNA(alpha[1]) && 
+        between(alpha[1], c(0,1))) {
+        alpha <- alpha[1]
+    }
     else {
         .wrn("the argument to `alpha` must be a number between 0 and 1. Using 1 instead")
         alpha <- 1
@@ -581,13 +591,17 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     if (is_not_null(args[["colours"]])) colors <- args[["colours"]]
     
     if (is_null(colors)) {
-        if (shapes.ok(shapes, ntypes) && length(shapes) > 1 && length(shapes) == ntypes) {
-            colors <- rep("black", ntypes)
+        colors <- {
+            if (shapes.ok(shapes, ntypes) && length(shapes) > 1 && length(shapes) == ntypes) {
+                rep("black", ntypes)
+            }
+            else gg_color_hue(ntypes)
         }
-        else colors <- gg_color_hue(ntypes)
     }
     else {
-        if (length(colors) == 1) colors <- rep(colors, ntypes)
+        if (length(colors) == 1) {
+            colors <- rep(colors, ntypes)
+        }
         else if (length(colors) > ntypes) {
             colors <- colors[seq_len(ntypes)]
             .wrn(sprintf("only using first %s value%%s in `colors`", ntypes),
@@ -612,13 +626,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     if (is_null(shapes)) {
         shapes <- assign.shapes(colors)
     }
-    else {
-        #check shapes
-        if (!shapes.ok(shapes, ntypes)) {
-            .wrn(sprintf("the argument to `shape` must be %s valid shape%%s. See `?love.plot` for more information.\nUsing default shapes instead", ntypes), n = ntypes)
-            shapes <- assign.shapes(colors)
-        }
-        else if (length(shapes) == 1) shapes <- rep(shapes, ntypes)
+    else if (!shapes.ok(shapes, ntypes)) {
+        .wrn(sprintf("the argument to `shape` must be %s valid shape%%s. See `?love.plot` for more information.\nUsing default shapes instead", ntypes), n = ntypes)
+        shapes <- assign.shapes(colors)
+    }
+    else if (length(shapes) == 1) {
+        shapes <- rep(shapes, ntypes)
     }
     names(shapes) <- sample.names
     
@@ -638,11 +651,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     
     # stroke <- .8*size
     
-    if (is_not_null(facet)) {
-        if (is_not_null(var.order) && !inherits(var.order, "love.plot") && tolower(var.order) != "alphabetical") {
+    if (is_not_null(facet) && is_not_null(var.order) &&
+        !inherits(var.order, "love.plot") && tolower(var.order) != "alphabetical") {
             .wrn("`var.order` cannot be set with faceted plots (unless \"alphabetical\"). Ignoring `var.order`")
             var.order <- NULL
-        }
     }
     
     agg.range <- isTRUE(Agg.Fun == "Range")
@@ -661,6 +673,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         if (!is.vector(themes, "list")) {
             themes <- list(themes)
         }
+        
         if (any(vapply(themes, 
                        function(t) !inherits(t, "theme") || !inherits(t, "gg"), 
                        logical(1L)))) {
@@ -745,19 +758,20 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     if ("time" %in% facet) {
                         covnames0 <- make_list(length(unique(SS[["time"]])))
                         for (i in seq_along(covnames0)) {
-                            if (i == 1) {
-                                covnames0[[i]] <- sort(levels(SS[["var"]][SS[["time"]] == i]))
-                            }
-                            else {
-                                covnames0[[i]] <- sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]), unlist(covnames0[seq_along(covnames0) < i])))
+                            covnames0[[i]] <- {
+                                if (i == 1) sort(levels(SS[["var"]][SS[["time"]] == i]))
+                                else sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]),
+                                                  unlist(covnames0[seq_along(covnames0) < i])))
                             }
                         }
                         covnames <- unlist(covnames0)
                     }
-                    else covnames <- sort(levels(SS[["var"]]))
+                    else {
+                        covnames <- sort(levels(SS[["var"]]))
+                    }
+                    
                     SS[["var"]] <- factor(SS[["var"]], levels = c(rev(setdiff(covnames, distance.names)),
                                                                   sort(distance.names, decreasing = TRUE)))
-                    
                 }
                 else if (var.order %in% ua) {
                     if (var.order %in% gone) {
@@ -791,7 +805,6 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             SS[["stat"]] <- SS[["mean.stat"]]
         }
         else {
-            
             SS <- do.call("rbind", 
                           lapply(col.sample.names,
                                  function(w) data.frame(var = variable.names,
@@ -853,16 +866,18 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                     if ("time" %in% facet) {
                         covnames0 <- make_list(length(unique(SS[["time"]])))
                         for (i in seq_along(covnames0)) {
-                            if (i == 1) {
-                                covnames0[[i]] <- sort(levels(SS[["var"]][SS[["time"]] == i]))
-                            }
-                            else {
-                                covnames0[[i]] <- sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]), unlist(covnames0[seq_along(covnames0) < i])))
+                            covnames0[[i]] <- {
+                                if (i == 1) sort(levels(SS[["var"]][SS[["time"]] == i]))
+                                else sort(setdiff(levels(SS[["var"]][SS[["time"]] == i]),
+                                                  unlist(covnames0[seq_along(covnames0) < i])))
                             }
                         }
                         covnames <- unlist(covnames0)
                     }
-                    else covnames <- sort(levels(SS[["var"]]))
+                    else {
+                        covnames <- sort(levels(SS[["var"]]))
+                    }
+                    
                     SS.var.levels <- c(rev(setdiff(covnames, distance.names)), sort(distance.names, decreasing = TRUE))
                     
                 }
@@ -919,8 +934,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         
         #Make the plot
         baseline.xintercept <- STATS[[s]]$baseline.xintercept
-        if (is_not_null(thresholds[[s]])) threshold.xintercepts <- STATS[[s]]$threshold.xintercepts(thresholds[[s]], abs)
-        else threshold.xintercepts <- NULL
+        threshold.xintercepts <- {
+            if (is_null(thresholds[[s]])) NULL
+            else STATS[[s]]$threshold.xintercepts(thresholds[[s]], abs)
+        }
         xlab <- STATS[[s]]$love.plot_xlab(abs = abs, binary = attr(x, "print.options")$binary,
                                           continuous = attr(x, "print.options")$continuous,
                                           var_type = B[["Type"]],
@@ -947,7 +964,6 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             if (identical(scale_Statistics, ggplot2::scale_x_log10)) limits[[s]][limits[[s]] <= 1e-2] <- 1e-2
             
             if (agg.range) {
-                
                 if (any(SS[["mean.stat"]] < limits[[s]][1], na.rm = TRUE)) {
                     SS[["on.border"]][SS[["mean.stat"]] < limits[[s]][1]] <- TRUE
                     SS[["mean.stat"]][SS[["mean.stat"]] < limits[[s]][1]] <- limits[[s]][1]
@@ -1069,6 +1085,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             lp <- lp + ggplot2::geom_hline(linetype = 1, color = "black",
                                            yintercept = nunique(SS[["var"]]) - length(distance.names) + .5)
         }
+        
         if (apply.limits) {
             lp <- lp + scale_Statistics(limits = limits[[s]], expand = c(0, 0))
         }
@@ -1112,14 +1129,16 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         
         plots.to.combine <- plot.list
         for (i in seq_along(plots.to.combine)) {
-            if (i > 1) {
-                plots.to.combine[[i]] <- plots.to.combine[[i]] + 
-                    ggplot2::theme(axis.text.y=element_blank(),
-                                   axis.ticks.y=element_blank(),
-                                   legend.position = "none")
-            }
-            else {
-                plots.to.combine[[i]] <- plots.to.combine[[i]] + ggplot2::theme(legend.position = "none")
+            plots.to.combine[[i]] <- {
+                if (i > 1) {
+                    plots.to.combine[[i]] + 
+                        ggplot2::theme(axis.text.y=element_blank(),
+                                       axis.ticks.y=element_blank(),
+                                       legend.position = "none")
+                }
+                else {
+                    plots.to.combine[[i]] + ggplot2::theme(legend.position = "none")
+                }
             }
             
             if (is_not_null(labels)) {
@@ -1276,28 +1295,31 @@ ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
         left <- g[seq(min(tt), max(tt)), seq(1, min(ll) - 1)]
         right <- g[seq(min(tt), max(tt)), seq(max(ll) + 1, ncol(g))]
         fg <- grid::nullGrob()
-        if (length(left)) {
+        if (is_not_null(left)) {
             lg <- gtable::gtable_add_cols(left, grid::unit(1, "null"), 0)
             lg <- gtable::gtable_add_grob(lg, fg, 1, l = 1)
         }
         else {
             lg <- fg
         }
-        if (length(right)) {
+        
+        if (is_not_null(right)) {
             rg <- gtable::gtable_add_cols(right, grid::unit(1, "null"))
             rg <- gtable::gtable_add_grob(rg, fg, 1, l = ncol(rg))
         }
         else {
             rg <- fg
         }
-        if (length(top)) {
+        
+        if (is_not_null(top)) {
             tg <- gtable::gtable_add_rows(top, grid::unit(1, "null"), 0)
             tg <- gtable::gtable_add_grob(tg, fg, t = 1, l = 1)
         }
         else {
             tg <- fg
         }
-        if (length(bottom)) {
+        
+        if (is_not_null(bottom)) {
             bg <- gtable::gtable_add_rows(bottom, grid::unit(1, "null"), 
                                           -1)
             bg <- gtable::gtable_add_grob(bg, fg, t = nrow(bg), l = 1)
@@ -1305,6 +1327,7 @@ ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
         else {
             bg <- fg
         }
+        
         grobs <- list(fg, tg, fg, lg, core, rg, fg, bg, fg)
         widths <- grid::unit.c(sum(left$widths), width, sum(right$widths))
         heights <- grid::unit.c(sum(top$heights), height, sum(bottom$heights))
@@ -1381,20 +1404,20 @@ unpack_bal.tab <- function(b) {
             EName <- names(NList)[A]
             if (is.list(Element)) {
                 
-                if (A == 1) {
-                    Before <- NULL
-                } else {
-                    Before <- NList[1:(A - 1)]
+                Before <- {
+                    if (A == 1) NULL
+                    else NList[1:(A - 1)]
                 }
-                if (A == B) {
-                    After <- NULL
-                } else {
-                    After <- NList[(A + 1):B]
+                
+                After <- {
+                    if (A == B) NULL
+                    else NList[(A + 1):B]
                 }
                 
                 if (is.data.frame(Element)) {
                     Jump <- 1
-                } else {
+                }
+                else {
                     NList[[A]] <- NULL
                     
                     Element <- LinearizeNestedList(Element, NameSep)
@@ -1402,9 +1425,11 @@ unpack_bal.tab <- function(b) {
                     Jump <- length(Element)
                     NList <- c(Before, Element, After)
                 }
-            } else {
+            }
+            else {
                 Jump <- 1
             }
+            
             A <- A + Jump
             B <- length(NList)
         }
@@ -1412,7 +1437,7 @@ unpack_bal.tab <- function(b) {
         NList
     }
     
-    namesep <- paste(c("|", do.call(c, lapply(1:20, function(i) sample(LETTERS, 1))), "|"), collapse = "")
+    namesep <- paste(c("|", unlist(lapply(1:20, function(i) sample(LETTERS, 1))), "|"), collapse = "")
     
     out_ <- unpack_bal.tab_internal(b)
     out <- LinearizeNestedList(out_, NameSep = namesep)
