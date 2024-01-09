@@ -13,7 +13,7 @@
 #' There are three arguments for `bal.tab()` that relate to subclasses: `subclass`, `which.subclass`, and `subclass.summary`.
 #' 
 #' \describe{
-#'     \item{`subclass`}{For the `data.frame` and formula methods of `bal.tab()`, a vector of subclass membership or the name of the variable in `data` containing subclass membership. When using subclassification with a function compatible with \pkg{cobalt}, such as `matchit()` in \pkg{MatchIt}, this argument can be omitted because the subclass are in the output object.}
+#'     \item{`subclass`}{For the `data.frame` and formula methods of `bal.tab()`, a vector of subclass membership or the name of the variable in `data` containing subclass membership. When using subclassification with a function compatible with \pkg{cobalt}, such as `matchit()` in \pkg{MatchIt}, this argument can be omitted because the subclasses are in the output object.}
 #'     \item{`which.subclass`}{This is a display option that does not affect computation. If `.all`, all subclasses in `subclass` will be displayed. If `.none` (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.}
 #'     \item{`subclass.summary`}{This is a display option that does not affect computation. If `TRUE`, the balance summary across subclasses will be displayed. The default is `TRUE`, and if `which.subclass` is `.none`, it will automatically be set to `TRUE`.}
 #' }

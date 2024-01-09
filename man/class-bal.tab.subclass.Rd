@@ -16,7 +16,7 @@ The balance summary is, for each variable, like a weighted average of the balanc
 There are three arguments for \code{bal.tab()} that relate to subclasses: \code{subclass}, \code{which.subclass}, and \code{subclass.summary}.
 
 \describe{
-\item{\code{subclass}}{For the \code{data.frame} and formula methods of \code{bal.tab()}, a vector of subclass membership or the name of the variable in \code{data} containing subclass membership. When using subclassification with a function compatible with \pkg{cobalt}, such as \code{matchit()} in \pkg{MatchIt}, this argument can be omitted because the subclass are in the output object.}
+\item{\code{subclass}}{For the \code{data.frame} and formula methods of \code{bal.tab()}, a vector of subclass membership or the name of the variable in \code{data} containing subclass membership. When using subclassification with a function compatible with \pkg{cobalt}, such as \code{matchit()} in \pkg{MatchIt}, this argument can be omitted because the subclasses are in the output object.}
 \item{\code{which.subclass}}{This is a display option that does not affect computation. If \code{.all}, all subclasses in \code{subclass} will be displayed. If \code{.none} (the default), no subclasses will be displayed. Otherwise, can be a vector of subclass indices for which to display balance.}
 \item{\code{subclass.summary}}{This is a display option that does not affect computation. If \code{TRUE}, the balance summary across subclasses will be displayed. The default is \code{TRUE}, and if \code{which.subclass} is \code{.none}, it will automatically be set to \code{TRUE}.}
 }
