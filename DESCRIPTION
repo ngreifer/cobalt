@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.5.2.9000
+Version: 4.5.2.9001
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -41,6 +41,7 @@ Suggests:
     sbw (>= 1.1.5),
     gbm (>= 2.1.7),
     brglm2 (>= 0.9),
+    caret,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

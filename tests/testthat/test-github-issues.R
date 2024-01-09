@@ -49,7 +49,8 @@ test_that("(#76) bal.tab() doesn't produce an error with missing covariates", {
     )
     
     expect_identical(rownames(b$Balance),
-                     c("age", "educ", "race", "married", "married:<NA>", "nodegree",
+                     c("age", "educ", "race_black", "race_hispan", "race_white",
+                       "married", "married:<NA>", "nodegree",
                        "re74", "re74:<NA>", "re75", "re75:<NA>"))
 })
 
