@@ -1164,7 +1164,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             else legend.to.get <- 1
             
             legg <- ggplot2::ggplotGrob(plots.to.combine[[legend.to.get]] + ggplot2::theme(legend.position = position))
-            leg <- legg$grobs[[which(legg$layout$name == "guide-box")]]
+            if (any(legg$layout$name == "guide-box")) {
+                leg <- legg$grobs[[which(legg$layout$name == "guide-box")]]
+            } else if (any(legg$layout$name == paste0("guide-box-", position))) {
+                # ggplot2 >=3.5.0 can have multiple legends
+                leg <- legg$grobs[[which(legg$layout$name == paste0("guide-box-", position))]]
+            } else {
+                position <- "none"
+            }
             
             if (position == "left") {
                 p <- gridExtra::arrangeGrob(grobs = list(leg, g), nrow = 1, 
