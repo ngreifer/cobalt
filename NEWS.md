@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Minor update to accommodate `ggplot2` 3.5.0. Thanks to @teunbrand. (#80)
+
 # cobalt 4.5.3
 
 * Fixed a bug when missing values were present in continuous covariates. Thanks to @vnusinfo. (#76)
