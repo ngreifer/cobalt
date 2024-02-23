@@ -145,14 +145,14 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             m
         }
         
-        if (deparse1(.call[["x"]][[1]]) %in% c("bal.tab", "cobalt::bal.tab", methods("bal.tab"))) { #if x i bal.tab call
+        if (deparse1(.call[["x"]][[1]]) %in% c("bal.tab", "cobalt::bal.tab", utils::methods("bal.tab"))) { #if x i bal.tab call
             .call[["x"]] <- replace.args(.call[["x"]])
             x <- eval.parent(.call[["x"]])
             
         }
         else if (deparse1(.call[["x"]][[1]]) == "do.call") { #if x is do.call
             d <- match.call(eval(.call[["x"]][[1]]), .call[["x"]])
-            if (deparse1(d[["what"]]) %in% c("bal.tab", "cobalt::bal.tab", methods("bal.tab"))) {
+            if (deparse1(d[["what"]]) %in% c("bal.tab", "cobalt::bal.tab", utils::methods("bal.tab"))) {
                 d[["args"]] <- replace.args(d[["args"]])
                 x <- eval.parent(d)
             }
@@ -217,7 +217,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 lapply(subclass.names, function(s) {
                     sub <- x[["Subclass.Balance"]][[s]]
                     setNames(sub[endsWith(names(sub), ".Adj")],
-                                       gsub(".Adj", paste0(".", s), names(sub)[endsWith(names(sub), ".Adj")]))
+                             gsub(".Adj", paste0(".", s), names(sub)[endsWith(names(sub), ".Adj")]))
                 }),
                 list(variable.names = row.names(x[["Balance.Across.Subclass"]]))))
         }
@@ -484,7 +484,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                         var.is.base <- type[inds] == "base"
                         pasted.var <- paste(var, collapse = "")
                         if (pasted.var %in% names(new.labels)) return(new.labels[pasted.var])
-                       
+                        
                         paste(ifelse(var.is.base & var %in% names(new.labels) & !is.na(new.labels[var]),
                                      new.labels[var], var), collapse = "")
                     })
@@ -643,18 +643,20 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
     
     stroke <- rep(0, ntypes)
-    size0 <- size <- rep(size, ntypes)
+    size <- rep(size, ntypes)
+    names(stroke) <- names(size) <- sample.names
+    size0 <- size
     
     shapes.with.fill <- grepl("filled", shapes, fixed = TRUE)
-    stroke[shapes.with.fill] <- size[shapes.with.fill]/3
-    size[shapes.with.fill] <- size[shapes.with.fill]* .58
+    stroke[shapes.with.fill] <- size[shapes.with.fill] / 3
+    size[shapes.with.fill] <- size[shapes.with.fill] * .58
     
     # stroke <- .8*size
     
     if (is_not_null(facet) && is_not_null(var.order) &&
         !inherits(var.order, "love.plot") && tolower(var.order) != "alphabetical") {
-            .wrn("`var.order` cannot be set with faceted plots (unless \"alphabetical\"). Ignoring `var.order`")
-            var.order <- NULL
+        .wrn("`var.order` cannot be set with faceted plots (unless \"alphabetical\"). Ignoring `var.order`")
+        var.order <- NULL
     }
     
     agg.range <- isTRUE(Agg.Fun == "Range")
@@ -693,6 +695,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     variable.names <- as.character(B[["variable.names"]])
     
     plot.list <- make_list(stats)
+    
     for (s in stats) {
         adj_only <- get_from_STATS("adj_only")[s]
         col.sample.names <- c("Un"[!adj_only], attr(x, "print.options")$weight.names)
@@ -994,24 +997,12 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
             apply.limits <- TRUE
         }
         
-        lp <- ggplot2::ggplot(aes(y = .data$var, x = .data$stat, group = .data$Sample), data = SS) +
-            ggplot2::theme(panel.background = element_rect(fill = "white"),
-                           axis.text.x = element_text(color = "black"),
-                           axis.text.y = element_text(color = "black"),
-                           panel.border = element_rect(fill = NA, color = "black"),
-                           plot.background = element_blank(),
-                           legend.background = element_blank(),
-                           legend.key = element_blank()
-            ) +
-            ggplot2::scale_shape_manual(values = shapes) +
-            ggplot2::scale_size_manual(values = size) +
-            ggplot2::scale_discrete_manual(aesthetics = "stroke", values = stroke) +
-            ggplot2::scale_fill_manual(values = fill) +
-            ggplot2::scale_color_manual(values = colors) +
-            ggplot2::labs(y = NULL, x = wrap(xlab, wrap))
-        
-        lp <- lp + ggplot2::geom_vline(xintercept = baseline.xintercept,
-                                       linetype = 1, color = "gray5")
+        lp <- ggplot2::ggplot(data = SS,
+                              mapping = aes(y = .data$var,
+                                            x = .data$stat,
+                                            group = .data$Sample)) +
+            ggplot2::geom_vline(xintercept = baseline.xintercept,
+                                linetype = 1, color = "gray5")
         
         if (is_not_null(threshold.xintercepts)) {
             lp <- lp + ggplot2::geom_vline(xintercept = threshold.xintercepts,
@@ -1021,7 +1012,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         if (agg.range) {
             position.dodge <- ggplot2::position_dodge(.5*(size0[1]/3))
             if (line) { #Add line except to distance
-                f <- function(q) {q[["stat"]][q$type == "Distance"] <- NA; q}
+                f <- function(q) {is.na(q[["stat"]])[q$type == "Distance"] <- TRUE; q}
                 lp <- lp + ggplot2::layer(geom = "path", data = f, 
                                           position = position.dodge, 
                                           stat = "identity",
@@ -1057,6 +1048,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 SS <- SS[SS[["Sample"]] %nin% subclass.names,]
                 SS[["Sample"]] <- SS[["Sample"]][, drop = TRUE]
             }
+            
             if (isTRUE(line)) { #Add line except to distance
                 f <- function(q) {is.na(q[["stat"]])[q$type == "Distance"] <- TRUE; q}
                 lp <- lp + ggplot2::layer(geom = "path", data = f(SS),
@@ -1066,6 +1058,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                         na.rm = TRUE,
                                                         alpha = alpha))
             }
+            
             lp <- lp + ggplot2::geom_point(data = SS, aes(shape = .data$Sample,
                                                           size = .data$Sample,
                                                           stroke = .data$Sample,
@@ -1077,7 +1070,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                 #Add subclass label text
                 lp <- lp + ggplot2::geom_text(data = SS.sub,
                                               mapping = aes(label = .data$Sample),
-                                              size = 2.5*size0[1]/3, na.rm = TRUE)
+                                              size = 2.5 * size0[1] / 3, na.rm = TRUE)
             }
         }
         
@@ -1103,119 +1096,142 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }
         
         if (is_not_null(facet)) {
-            lp <- lp + ggplot2::facet_grid(reformulate(facet, "."), drop = FALSE) + ggplot2::labs(x = xlab)
+            lp <- lp +
+                ggplot2::facet_grid(reformulate(facet, "."), drop = FALSE) +
+                ggplot2::labs(x = xlab)
         }
+        
+        lp <- lp  +
+            ggplot2::theme(panel.background = element_rect(fill = "white"),
+                           axis.text.x = element_text(color = "black"),
+                           axis.text.y = element_text(color = "black"),
+                           panel.border = element_rect(fill = NA, color = "black"),
+                           plot.background = element_blank(),
+                           legend.background = element_blank(),
+                           legend.key = element_blank()
+            ) +
+            ggplot2::scale_shape_manual(values = shapes) +
+            ggplot2::scale_size_manual(values = size) +
+            ggplot2::scale_discrete_manual(aesthetics = "stroke", values = stroke) +
+            ggplot2::scale_color_manual(values = colors) +
+            ggplot2::labs(y = NULL, x = wrap(xlab, wrap)) 
         
         class(lp) <- c(class(lp), "love.plot")
         plot.list[[s]] <- lp
     }
     
-    if (length(stats) > 1 || isTRUE(args$use.grid)) {
+    # If just one stat (and use.grid not TRUE), return plot
+    if (length(stats) == 1 && !isTRUE(args$use.grid)) {
+        p <- plot.list[[1]] + 
+            ggplot2::labs(title = title, subtitle = subtitle) +
+            ggplot2::theme(plot.title = element_text(hjust = 0.5),
+                           plot.subtitle = element_text(hjust = 0.5),
+                           legend.position = position)
         
-        position <- {
-            if (!chk::vld_string(position)) NA_character_
-            else match_arg(position, 
-                           c("right", "left", "top", "bottom", "none"))
+        if (is_not_null(themes[[1]])) {
+            p <- p + themes[[1]]
         }
         
-        #Process labels
-        if (isTRUE(labels)) labels <- LETTERS[seq_along(plot.list)]
-        else if (is_null(labels) || isFALSE(labels)) labels <- NULL
-        else if (!is.atomic(labels) || length(labels) != length(plot.list)) {
-            .wrn("`labels` must be `TRUE` or a string with the same length as `stats`. Ignoring `labels`")
-            labels <- NULL
+        return(p)
+    }
+    
+    # Combine plots together
+    position <- {
+        if (!chk::vld_string(position)) NA_character_
+        else match_arg(position, 
+                       c("right", "left", "top", "bottom", "none"))
+    }
+    
+    #Process labels
+    if (isTRUE(labels)) labels <- LETTERS[seq_along(plot.list)]
+    else if (is_null(labels) || isFALSE(labels)) labels <- NULL
+    else if (!is.atomic(labels) || length(labels) != length(plot.list)) {
+        .wrn("`labels` must be `TRUE` or a string with the same length as `stats`. Ignoring `labels`")
+        labels <- NULL
+    }
+    else labels <- as.character(labels)
+    
+    plots.to.combine <- plot.list
+    for (i in seq_along(plots.to.combine)) {
+        plots.to.combine[[i]] <- {
+            if (i > 1) {
+                plots.to.combine[[i]] + 
+                    ggplot2::theme(axis.text.y=element_blank(),
+                                   axis.ticks.y=element_blank(),
+                                   legend.position = "none")
+            }
+            else {
+                plots.to.combine[[i]] + ggplot2::theme(legend.position = "none")
+            }
         }
-        else labels <- as.character(labels)
         
-        plots.to.combine <- plot.list
-        for (i in seq_along(plots.to.combine)) {
-            plots.to.combine[[i]] <- {
-                if (i > 1) {
-                    plots.to.combine[[i]] + 
-                        ggplot2::theme(axis.text.y=element_blank(),
-                                       axis.ticks.y=element_blank(),
-                                       legend.position = "none")
-                }
-                else {
-                    plots.to.combine[[i]] + ggplot2::theme(legend.position = "none")
-                }
-            }
-            
-            if (is_not_null(labels)) {
-                plots.to.combine[[i]] <- plots.to.combine[[i]] + ggplot2::labs(title = labels[i])
-            }
-            
-            if (is_not_null(themes[[stats[i]]])) {
-                plots.to.combine[[i]] <- plots.to.combine[[i]] + themes[[stats[i]]]
-            }
+        if (is_not_null(labels)) {
+            plots.to.combine[[i]] <- plots.to.combine[[i]] + ggplot2::labs(title = labels[i])
         }
         
-        g <- ggarrange_simple(plots = plots.to.combine, nrow = 1)
-        title.grob <- grid::textGrob(title, gp = grid::gpar(fontsize=13.2))
-        subtitle.grob <- grid::textGrob(subtitle, gp = grid::gpar(fontsize=13.2))
+        if (is_not_null(themes[[stats[i]]])) {
+            plots.to.combine[[i]] <- plots.to.combine[[i]] + themes[[stats[i]]]
+        }
+    }
+    
+    g <- ggarrange_simple(plots = plots.to.combine, nrow = 1)
+    title.grob <- grid::textGrob(title, gp = grid::gpar(fontsize = 13.2))
+    subtitle.grob <- grid::textGrob(subtitle, gp = grid::gpar(fontsize = 13.2))
+    
+    if (position == "none") {
+        p <- gridExtra::arrangeGrob(grobs = list(g), nrow = 1)
+    }
+    else {
+        legend.to.get <- {
+            if (all(get_from_STATS("adj_only")[stats])) 1
+            else which(!get_from_STATS("adj_only")[stats])[1]
+        }
         
-        if (position == "none") {
-            p <- gridExtra::arrangeGrob(grobs = list(g), nrow = 1)
+        legg <- ggplot2::ggplotGrob(plots.to.combine[[legend.to.get]] + ggplot2::theme(legend.position = position))
+        if (any(legg$layout$name == "guide-box")) {
+            leg <- legg$grobs[[which(legg$layout$name == "guide-box")]]
+        }
+        else if (any(legg$layout$name == paste0("guide-box-", position))) {
+            # ggplot2 >=3.5.0 can have multiple legends
+            leg <- legg$grobs[[which(legg$layout$name == paste0("guide-box-", position))]]
         }
         else {
-            if (any(!get_from_STATS("adj_only")[stats])) {
-                legend.to.get <- which(!get_from_STATS("adj_only")[stats])[1]
-            }
-            else legend.to.get <- 1
-            
-            legg <- ggplot2::ggplotGrob(plots.to.combine[[legend.to.get]] + ggplot2::theme(legend.position = position))
-            if (any(legg$layout$name == "guide-box")) {
-                leg <- legg$grobs[[which(legg$layout$name == "guide-box")]]
-            } else if (any(legg$layout$name == paste0("guide-box-", position))) {
-                # ggplot2 >=3.5.0 can have multiple legends
-                leg <- legg$grobs[[which(legg$layout$name == paste0("guide-box-", position))]]
-            } else {
-                position <- "none"
-            }
-            
-            if (position == "left") {
-                p <- gridExtra::arrangeGrob(grobs = list(leg, g), nrow = 1, 
-                                            widths = grid::unit.c(sum(leg$widths), grid::unit(1, "npc") - sum(leg$widths)))
-            }
-            else if (position == "right") {
-                p <- gridExtra::arrangeGrob(grobs = list(g, leg), nrow = 1, 
-                                            widths = grid::unit.c(grid::unit(1, "npc") - sum(leg$widths), sum(leg$widths)))
-            }
-            else if (position == "top") {
-                p <- gridExtra::arrangeGrob(grobs = list(leg, g), nrow = 2,
-                                            heights = grid::unit.c(sum(leg$heights), grid::unit(1, "npc") - sum(leg$heights)))
-            }
-            else if (position == "bottom") {
-                p <- gridExtra::arrangeGrob(grobs = list(g, leg), nrow = 2,
-                                            heights = grid::unit.c(grid::unit(1, "npc") - sum(leg$heights), sum(leg$heights)))
-            }
+            position <- "none"
         }
         
-        if (is_not_null(subtitle)) {
-            p <- gridExtra::arrangeGrob(p, top = subtitle.grob)
+        p <- {
+            if (position == "left") 
+                gridExtra::arrangeGrob(grobs = list(leg, g), nrow = 1, 
+                                       widths = grid::unit.c(sum(leg$widths),
+                                                             grid::unit(1, "npc") - sum(leg$widths)))
+            else if (position == "right")
+                gridExtra::arrangeGrob(grobs = list(g, leg), nrow = 1, 
+                                       widths = grid::unit.c(grid::unit(1, "npc") - sum(leg$widths),
+                                                             sum(leg$widths)))
+            else if (position == "top")
+                gridExtra::arrangeGrob(grobs = list(leg, g), nrow = 2,
+                                       heights = grid::unit.c(sum(leg$heights),
+                                                              grid::unit(1, "npc") - sum(leg$heights)))
+            else if (position == "bottom")
+                gridExtra::arrangeGrob(grobs = list(g, leg), nrow = 2,
+                                       heights = grid::unit.c(grid::unit(1, "npc") - sum(leg$heights),
+                                                              sum(leg$heights)))
         }
-        p <- gridExtra::arrangeGrob(p, top = title.grob)
-        
-        grid::grid.newpage()
-        grid::grid.draw(p)
-        
-        attr(p, "plots") <- plot.list
-        class(p) <- c(class(p), "love.plot")
-        
-        return(invisible(p))
     }
     
-    p <- plot.list[[1]] + 
-        ggplot2::labs(title = title, subtitle = subtitle) +
-        ggplot2::theme(plot.title = element_text(hjust = 0.5),
-                       plot.subtitle = element_text(hjust = 0.5),
-                       legend.position = position)
-    
-    if (is_not_null(themes[[1]])) {
-        p <- p + themes[[1]]
+    if (is_not_null(subtitle)) {
+        p <- gridExtra::arrangeGrob(p, top = subtitle.grob)
     }
     
-    p
+    p <- gridExtra::arrangeGrob(p, top = title.grob)
+    
+    grid::grid.newpage()
+    grid::grid.draw(p)
+    
+    attr(p, "plots") <- plot.list
+    class(p) <- c(class(p), "love.plot")
+    
+    invisible(p)
 }
 
 #' @exportS3Method autoplot bal.tab
@@ -1440,7 +1456,7 @@ unpack_bal.tab <- function(b) {
             A <- A + Jump
             B <- length(NList)
         }
-       
+        
         NList
     }
     
