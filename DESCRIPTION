@@ -1,6 +1,6 @@
 Package: cobalt
 Title: Covariate Balance Tables and Plots
-Version: 4.5.3.9000
+Version: 4.5.3.9001
 Authors@R: c(
     person("Noah", "Greifer", role=c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
@@ -54,4 +54,4 @@ URL: https://ngreifer.github.io/cobalt/,
 BugReports: https://github.com/ngreifer/cobalt/issues
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1

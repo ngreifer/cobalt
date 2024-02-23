@@ -57,6 +57,14 @@ ps.out.s <- ps(f.build("treat", covs), data = lalonde,
 bal.tab(ps.out.s, un = T)
 bal.tab(covs, lalonde$treat, weights = get.w(ps.out.s), s.weights = sampw,
         un = T, distance = ps.out.s$ps)
+
+mnps.out <- mnps(f.build("race", covs[-3]), data = lalonde, 
+             stop.method = c("ks.max", "es.max"), 
+             estimand = "ATT", treatATT = "white", 
+             verbose = FALSE, n.trees = 2000, bag.fraction = .6)
+
+bal.tab(mnps.out)
+
 #CBPS: binary
 library("CBPS")
 cbps.out <- CBPS(treat ~ log(age)*married + poly(educ,2) + rcs(age,3) + race + factor(nodegree) + re74 + re75, data = lalonde, ATT = F)

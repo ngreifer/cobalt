@@ -1,5 +1,5 @@
 #Tests for specific github issues
-
+skip_on_cran()
 test_that("(#71) `addl` argument not throwing correct error when variable not available", {
     #Note: actual error was something else, but addl should have thrown a more informative error
     skip_if_not_installed("MatchIt")
@@ -13,7 +13,7 @@ test_that("(#71) `addl` argument not throwing correct error when variable not av
                  fixed = TRUE)
     
     expect_no_condition(bal.tab(m, addl = "race", data = lalonde))
- })
+})
 
 test_that("(#74) bal.tab() works with mnps objects", {
     skip_if_not_installed("twang")
@@ -37,15 +37,18 @@ test_that("(#76) bal.tab() doesn't produce an error with missing covariates", {
     
     data("lalonde_mis")
     
-    expect_no_error(
-        b <- bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
-                     data = lalonde_mis)
-    )
     expect_warning(
         b <- bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
-                     data = lalonde_mis),
+                     data = lalonde_mis, s.d.denom = "pooled"),
         "Missing values exist in the covariates. Displayed values omit these observations.",
         fixed = TRUE
+    )
+    
+    expect_no_error(
+        suppressWarnings(
+            b <- bal.tab(treat ~ age + educ + race + married + nodegree + re74 + re75,
+                         data = lalonde_mis, s.d.denom = "pooled")
+        )
     )
     
     expect_identical(rownames(b$Balance),
@@ -63,4 +66,17 @@ test_that("(#77) no conflict with `cluster` argument to bal.tab() when {caret} i
     
     expect_no_condition(bal.tab(treat ~ age + educ + race, data = lalonde, cluster = "married",
                                 s.d.denom = "pooled"))
+})
+
+test_that("(#82) love.plot() doesn't throw any ggplo2-related warnings with multiple stats", {
+    skip_if_not_installed("MatchIt")
+    
+    data("lalonde")
+    
+    m.out <- MatchIt::matchit(treat ~ age + educ + race + married +
+                                  nodegree + re74 + re75,
+                              data = lalonde)
+    
+    expect_no_condition(love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
+                                  binary = "std"))
 })

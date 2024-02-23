@@ -8,11 +8,11 @@ test_that("bal.tab() works with data.frames", {
     sw <- runif(nrow(lalonde))
     dist <- runif(nrow(lalonde))
     
-    expect_s3_class(bal.tab(covs, treat = lalonde$treat), "bal.tab")
-    expect_s3_class(bal.tab(covs, treat = lalonde$treat, distance = dist,
+    expect_s3_class(bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled"), "bal.tab")
+    expect_s3_class(bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", distance = dist,
                             weights = w, s.weights = sw), "bal.tab")
-    expect_s3_class(bal.tab(covs, treat = lalonde$treat, distance = dist,
+    expect_s3_class(bal.tab(covs, treat = lalonde$treat, s.d.denom = "pooled", distance = dist,
                             weights = w, s.weights = sw, cluster = lalonde$race), "bal.tab.cluster")
-    expect_s3_class(bal.tab(covs, treat = lalonde$race, distance = dist,
+    expect_s3_class(bal.tab(covs, treat = lalonde$race, s.d.denom = "pooled", distance = dist,
                             weights = w, s.weights = sw), "bal.tab.multi")
 })
