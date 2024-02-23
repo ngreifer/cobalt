@@ -75,7 +75,7 @@ base.bal.tab.multi <- function(X,
     
     #Treat is a factor variable
     if (is_null(X$focal)) {
-        if (pairwise) treat.combinations <- combn(treat_names(X$treat), 2, simplify = FALSE)
+        if (pairwise) treat.combinations <- utils::combn(treat_names(X$treat), 2, simplify = FALSE)
         else treat.combinations <- lapply(treat_names(X$treat), function(x) c(x, "All"))
     }
     else {
@@ -90,7 +90,7 @@ base.bal.tab.multi <- function(X,
             .err("`focal` must be the name or index of the focal treatment group")
         }
         
-        if (pairwise) treat.combinations <- combn(treat_names(X$treat), 2, simplify = FALSE)
+        if (pairwise) treat.combinations <- utils::combn(treat_names(X$treat), 2, simplify = FALSE)
         else treat.combinations <- lapply(setdiff(treat_names(X$treat), X$focal), function(x) c(x, X$focal))
     }
     

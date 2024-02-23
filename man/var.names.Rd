@@ -11,7 +11,7 @@ var.names(b, type, file = NULL, minimal = FALSE)
 
 \item{type}{the type of output desired. Can either be \code{"df"} for a data.frame or \code{"vec"} for a named vector. See "Value". The default is \code{"vec"} unless \code{file} is not \code{NULL}.}
 
-\item{file}{optional; a file name to save the output if \code{type = "df"}. See \code{\link[=write.csv]{write.csv()}}, which \code{var.name()} calls. Must end in \code{.csv}.}
+\item{file}{optional; a file name to save the output if \code{type = "df"}. See \code{\link[utils:write.table]{utils::write.csv()}}, which \code{var.name()} calls. Must end in \code{.csv}.}
 
 \item{minimal}{whether the output should contain all variable names (i.e., all rows that appear the output of \code{bal.tab()}) or just the unique base variables. See "Details".}
 }

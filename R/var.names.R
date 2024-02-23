@@ -4,7 +4,7 @@
 #' 
 #' @param b a `bal.tab` object; the output of a call to [bal.tab()].
 #' @param type the type of output desired. Can either be `"df"` for a data.frame or `"vec"` for a named vector. See "Value". The default is `"vec"` unless `file` is not `NULL`.
-#' @param file optional; a file name to save the output if `type = "df"`. See [write.csv()], which `var.name()` calls. Must end in `.csv`.
+#' @param file optional; a file name to save the output if `type = "df"`. See [utils::write.csv()], which `var.name()` calls. Must end in `.csv`.
 #' @param minimal whether the output should contain all variable names (i.e., all rows that appear the output of `bal.tab()`) or just the unique base variables. See "Details".
 #' 
 #' @returns If `type = "vec"`, a character vector the the variable names both as the names and the entries.
@@ -84,7 +84,7 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
     }
     
     if (type == "df") {
-        write.csv(out, file = file, row.names = FALSE)
+        utils::write.csv(out, file = file, row.names = FALSE)
         return(invisible(out))
     }
     

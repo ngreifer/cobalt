@@ -338,7 +338,7 @@ init_smd <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
         
         treatment.pairs <- {
             if (is_null(focal) || pairwise)
-                combn(unique.treats, 2, simplify = FALSE)
+                utils::combn(unique.treats, 2, simplify = FALSE)
             else 
                 lapply(setdiff(unique.treats, focal), c, focal)
         }
@@ -409,7 +409,7 @@ init_ks <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, p
         
         treatment.pairs <- {
             if (is_null(focal) || pairwise)
-                combn(unique.treats, 2, simplify = FALSE)
+                utils::combn(unique.treats, 2, simplify = FALSE)
             else 
                 lapply(setdiff(unique.treats, focal), c, focal)
         }
@@ -473,7 +473,7 @@ init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
         
         treatment.pairs <- {
             if (is_null(focal) || pairwise)
-                combn(unique.treats, 2, simplify = FALSE)
+                utils::combn(unique.treats, 2, simplify = FALSE)
             else 
                 lapply(setdiff(unique.treats, focal), c, focal)
         }
@@ -539,7 +539,7 @@ init_ent <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, 
         
         treatment.pairs <- {
             if (is_null(focal) || pairwise)
-                combn(unique.treats, 2, simplify = FALSE)
+                utils::combn(unique.treats, 2, simplify = FALSE)
             else 
                 lapply(setdiff(unique.treats, focal), c, focal)
         }
@@ -678,7 +678,7 @@ init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
                               unique.treats)
     
     if (is_null(estimand)) {
-        all_pairs <- combn(unique.treats, 2, simplify = FALSE)
+        all_pairs <- utils::combn(unique.treats, 2, simplify = FALSE)
         P <- - d * Reduce("+", lapply(all_pairs, function(p) {
             tcrossprod(s.weights_n_t[[p[1]]] - s.weights_n_t[[p[2]]])
         }))
@@ -691,7 +691,7 @@ init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
         q <- ((s.weights * 2 / n) %*% d) * Reduce("+", s.weights_n_t)
         
         if (improved) {
-            all_pairs <- combn(unique.treats, 2, simplify = FALSE)
+            all_pairs <- utils::combn(unique.treats, 2, simplify = FALSE)
             P <- P - d * Reduce("+", lapply(all_pairs, function(p) {
                 tcrossprod(s.weights_n_t[[p[1]]] - s.weights_n_t[[p[2]]])
             }))

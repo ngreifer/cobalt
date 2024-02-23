@@ -2,6 +2,7 @@
 
 x2base <- function(...) UseMethod("x2base")
 
+#' @exportS3Method NULL
 x2base.matchit <- function(m, ...) {
     A <- list(...)
     
@@ -241,6 +242,8 @@ x2base.matchit <- function(m, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.ps <- function(ps, ...) {
     A <- list(...)
     
@@ -450,6 +453,8 @@ x2base.ps <- function(ps, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.mnps <- function(mnps, ...) {
     A <- list(...)
     
@@ -643,6 +648,8 @@ x2base.mnps <- function(mnps, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.ps.cont <- function(ps.cont, ...) {
     A <- list(...)
     
@@ -806,6 +813,8 @@ x2base.ps.cont <- function(ps.cont, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.Match <- function(Match, ...) {
     A <- list(...)
     
@@ -981,6 +990,8 @@ x2base.Match <- function(Match, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.formula <- function(formula, ...) {
     A <- list(...)
 
@@ -989,6 +1000,8 @@ x2base.formula <- function(formula, ...) {
 
     do.call(x2base.data.frame, c(list(covs = formula), A))
 }
+
+#' @exportS3Method NULL
 x2base.data.frame <- function(covs, ...) {
     A <- list(...)
     
@@ -1319,6 +1332,8 @@ x2base.data.frame <- function(covs, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.CBPS <- function(cbps.fit, ...) {
     A <- list(...)
     
@@ -1503,6 +1518,8 @@ x2base.CBPS <- function(cbps.fit, ...) {
     
     setNames(X[X.names], X.names)
 }
+
+#' @exportS3Method NULL
 x2base.ebalance <- function(ebalance, ...) {
     A <- list(...)
     
@@ -1679,6 +1696,8 @@ x2base.ebalance <- function(ebalance, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.optmatch <- function(optmatch, ...) {
     A <- list(...)
     
@@ -1853,6 +1872,8 @@ x2base.optmatch <- function(optmatch, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.cem.match <- function(cem.match, ...) {
     A <- list(...)
     
@@ -2030,6 +2051,8 @@ x2base.cem.match <- function(cem.match, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.weightit <- function(weightit, ...) {
     A <- list(...)
     
@@ -2205,6 +2228,8 @@ x2base.weightit <- function(weightit, ...) {
     
     setNames(X[X.names], X.names)
 }
+
+#' @exportS3Method NULL
 x2base.designmatch <- function(dm, ...) {
     A <- list(...)
     
@@ -2381,6 +2406,8 @@ x2base.designmatch <- function(dm, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.mimids <- function(mimids, ...) {
     A <- list(...)
     
@@ -2576,6 +2603,8 @@ x2base.mimids <- function(mimids, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.wimids <- function(wimids, ...) {
     A <- list(...)
     
@@ -2765,6 +2794,8 @@ x2base.wimids <- function(wimids, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.sbwcau <- function(sbwcau, ...) {
     A <- list(...)
     
@@ -2944,6 +2975,8 @@ x2base.sbwcau <- function(sbwcau, ...) {
 }
 
 #MSMs wth multiple time points
+
+#' @exportS3Method NULL
 x2base.iptw <- function(iptw, ...) {
     A <- list(...)
     
@@ -3168,6 +3201,8 @@ x2base.iptw <- function(iptw, ...) {
     
     setNames(X[X.names], X.names)
 }
+
+#' @exportS3Method NULL
 x2base.data.frame.list <- function(covs.list, ...) {
     A <- list(...)
     
@@ -3407,6 +3442,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
     
     X
 }
+
+#' @exportS3Method NULL
 x2base.formula.list <- function(formula.list, ...) {
     A <- list(...)
     A[["covs.list"]] <- NULL
@@ -3421,6 +3458,8 @@ x2base.formula.list <- function(formula.list, ...) {
     
     do.call("x2base.data.frame.list", c(list(covs.list, treat.list = treat.list), A))
 }
+
+#' @exportS3Method NULL
 x2base.CBMSM <- function(cbmsm, ...) {
     A <- list(...)
     
@@ -3604,6 +3643,8 @@ x2base.CBMSM <- function(cbmsm, ...) {
     
     setNames(X[X.names], X.names)
 }
+
+#' @exportS3Method NULL
 x2base.weightitMSM <- function(weightitMSM, ...) {
     A <- list(...)
     
@@ -3790,6 +3831,8 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
     setNames(X[X.names], X.names)
 }
 
+
+#' @exportS3Method NULL
 x2base.default <- function(obj, ...) {
     
     A <- list(...)

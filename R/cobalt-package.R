@@ -18,7 +18,6 @@
 
 ## usethis namespace: start
 #' @import stats
-#' @import utils
 #' @importFrom crayon italic
 #' @importFrom crayon underline
 #' @importFrom ggplot2 .data

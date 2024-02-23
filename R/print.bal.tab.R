@@ -102,6 +102,7 @@ print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
 bal.tab_print <- function(x, p.ops) {
     UseMethod("bal.tab_print")
 }
+#' @exportS3Method NULL
 bal.tab_print.bal.tab <- function(x, p.ops) {
     
     call <- if (p.ops$disp.call) x$call else NULL
@@ -146,19 +147,19 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
         cat(underline("Balance Measures") %+% "\n")
         if (is_null(keep.row)) cat(italic("No covariates to display.") %+% "\n")
         else if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-        else print.data.frame_(round_df_char(balance[keep.row, keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+        else .print_data_frame(round_df_char(balance[keep.row, keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
         cat("\n")
     }
     
     for (s in p.ops$compute) {
         if (is_not_null(baltal[[s]])) {
             cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
-            print.data.frame_(baltal[[s]])
+            .print_data_frame(baltal[[s]])
             cat("\n")
         }
         if (is_not_null(maximbal[[s]])) {
             cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-            print.data.frame_(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+            .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
             cat("\n")
         }
     }
@@ -186,11 +187,12 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
             nn <- setNames(cbind(nn, ess), c(names(nn), ""))
             print.warning <- TRUE
         }
-        print.data.frame_(round_df_char(nn, digits = min(2, p.ops$digits), pad = " "))
+        .print_data_frame(round_df_char(nn, digits = min(2, p.ops$digits), pad = " "))
         if (print.warning) cat(italic("* indicates effective sample size"))
     }
     invisible(x)
 }
+#' @exportS3Method NULL
 bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
     
     call <- if (p.ops$disp.call) x$call else NULL
@@ -238,19 +240,19 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
         
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all clusters") %+% "\n")
-            print.data.frame_(round_df_char(c.balance.summary[, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+            .print_data_frame(round_df_char(c.balance.summary[, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
             cat("\n")
         }
         
         for (s in p.ops$compute) {
             if (is_not_null(baltal[[s]])) {
                 cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
-                print.data.frame_(baltal[[s]])
+                .print_data_frame(baltal[[s]])
                 cat("\n")
             }
             if (is_not_null(maximbal[[s]])) {
                 cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-                print.data.frame_(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+                .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
                 cat("\n")
             }
         }
@@ -276,13 +278,14 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
                 nn <- setNames(cbind(nn, ess), c(names(nn), ""))
                 print.warning <- TRUE
             }
-            print.data.frame_(round_df_char(nn, digits = min(2, p.ops$digits), pad = " "))
+            .print_data_frame(round_df_char(nn, digits = min(2, p.ops$digits), pad = " "))
             if (print.warning) cat(italic("* indicates effective sample size"))
         }
     }
     
     invisible(x)
 }
+#' @exportS3Method NULL
 bal.tab_print.bal.tab.imp <- function(x, p.ops) {
     
     call <- if (p.ops$disp.call) x$call else NULL
@@ -330,19 +333,19 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
         
         if (p.ops$disp.bal.tab) {
             cat(underline("Balance summary across all imputations") %+% "\n")
-            print.data.frame_(round_df_char(i.balance.summary[, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+            .print_data_frame(round_df_char(i.balance.summary[, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
             cat("\n")
         }
         
         for (s in p.ops$compute) {
             if (is_not_null(baltal[[s]])) {
                 cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
-                print.data.frame_(baltal[[s]])
+                .print_data_frame(baltal[[s]])
                 cat("\n")
             }
             if (is_not_null(maximbal[[s]])) {
                 cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-                print.data.frame_(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+                .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
                 cat("\n")
             }
         }
@@ -368,7 +371,7 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
                 nn <- setNames(cbind(nn, ess), c(names(nn), ""))
                 print.warning <- TRUE
             }
-            print.data.frame_(round_df_char(nn, digits = min(2, p.ops$digits), pad = " "))
+            .print_data_frame(round_df_char(nn, digits = min(2, p.ops$digits), pad = " "))
             if (print.warning) cat(italic("* indicates effective sample size"))
         }
     }
@@ -376,6 +379,7 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
     invisible(x)
     
 }
+#' @exportS3Method NULL
 bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     
     call <- if (p.ops$disp.call) x$call else NULL
@@ -438,19 +442,19 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
             
             if (is_null(keep.row)) cat(italic("No covariates to display.") %+% "\n")
             else if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-            else print.data.frame_(round_df_char(m.balance.summary[keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+            else .print_data_frame(round_df_char(m.balance.summary[keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
             cat("\n")
         }
         
         for (s in p.ops$compute) {
             if (is_not_null(baltal[[s]])) {
                 cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
-                print.data.frame_(baltal[[s]])
+                .print_data_frame(baltal[[s]])
                 cat("\n")
             }
             if (is_not_null(maximbal[[s]])) {
                 cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-                print.data.frame_(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+                .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
                 cat("\n")
             }
         }
@@ -477,7 +481,7 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
                 nn <- setNames(cbind(nn, ess), c(names(nn), ""))
                 print.warning <- TRUE
             }
-            print.data.frame_(round_df_char(nn, digits = min(2, p.ops$digits), pad = " "))
+            .print_data_frame(round_df_char(nn, digits = min(2, p.ops$digits), pad = " "))
             if (print.warning) cat(italic("* indicates effective sample size"))
         }
     }
@@ -485,6 +489,7 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     invisible(x)
     
 }
+#' @exportS3Method NULL
 bal.tab_print.bal.tab.msm <- function(x, p.ops){
     
     call <- if (p.ops$disp.call) x$call else NULL
@@ -543,19 +548,19 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops){
             cat(underline("Balance summary across all time points") %+% "\n")
             if (is_null(keep.row)) cat(italic("No covariates to display.") %+% "\n")
             else if (all(!keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-            else print.data.frame_(round_df_char(msm.balance.summary[keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+            else .print_data_frame(round_df_char(msm.balance.summary[keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
             cat("\n")
         }
         
         for (s in p.ops$compute) {
             if (is_not_null(baltal[[s]])) {
                 cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
-                print.data.frame_(baltal[[s]])
+                .print_data_frame(baltal[[s]])
                 cat("\n")
             }
             if (is_not_null(maximbal[[s]])) {
                 cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
-                print.data.frame_(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+                .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
                 cat("\n")
             }
         }
@@ -584,7 +589,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops){
                     nn[[ti]] <- setNames(cbind(nn[[ti]], ess), c(names(nn[[ti]]), ""))
                     print.warning <- TRUE
                 }
-                print.data.frame_(round_df_char(nn[[ti]], digits = min(2, p.ops$digits), pad = " "))
+                .print_data_frame(round_df_char(nn[[ti]], digits = min(2, p.ops$digits), pad = " "))
             }
             
             if (print.warning) cat(italic("* indicates effective sample size"))
@@ -594,6 +599,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops){
     invisible(x)
 }
 
+#' @exportS3Method NULL
 bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
     
     call <- if (p.ops$disp.call) x$call else NULL
@@ -632,7 +638,7 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
                 cat("\n - - - " %+% italic("Subclass " %+% as.character(i)) %+% " - - - \n")
                 if (is_null(s.keep.row)) cat(italic("No covariates to display.") %+% "\n")
                 else if (all(!s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-                else print.data.frame_(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+                else .print_data_frame(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
             }
             cat("\n")
         }
@@ -670,26 +676,26 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
             cat(underline("Balance measures across subclasses") %+% "\n")
             if (is_null(a.s.keep.row)) cat(italic("No covariates to display.") %+% "\n")
             else if (all(!a.s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-            else print.data.frame_(round_df_char(b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+            else .print_data_frame(round_df_char(b.a.subclass[a.s.keep.row, a.s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
             cat("\n")
         }
         
         for (s in p.ops$compute) {
             if (is_not_null(baltal[[s]])) {
                 cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for, "across subclasses")) %+% "\n")
-                print.data.frame_(baltal[[s]])
+                .print_data_frame(baltal[[s]])
                 cat("\n")
             }
             if (is_not_null(maximbal[[s]])) {
                 cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest, "across subclasses")) %+% "\n")
-                print.data.frame_(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
+                .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
                 cat("\n")
             }
         }
         
         if (is_not_null(s.nn)) {
             cat(underline(attr(s.nn, "tag")) %+% "\n")
-            print.data.frame_(round_df_char(s.nn, digits = min(2, p.ops$digits), pad = " "))
+            .print_data_frame(round_df_char(s.nn, digits = min(2, p.ops$digits), pad = " "))
         }
     }
     
@@ -700,6 +706,7 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
 print_process <- function(x, ...) {
     UseMethod("print_process")
 }
+#' @exportS3Method NULL
 print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, cluster.fun, ...) {
     c.balance <- x$Cluster.Balance
     p.ops <- attr(x, "print.options")
@@ -762,6 +769,7 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
          which.cluster = which.cluster,
          computed.cluster.funs = computed.cluster.funs)
 }
+#' @exportS3Method NULL
 print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
     i.balance <- x[["Imputation.Balance"]]
     p.ops <- attr(x, "print.options")
@@ -817,6 +825,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
          which.imp = which.imp,
          computed.imp.funs = computed.imp.funs)
 }
+#' @exportS3Method NULL
 print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
     
     m.balance <- x[["Pair.Balance"]]
@@ -905,6 +914,7 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
          multi.summary = p.ops$multi.summary,
          pairwise = p.ops$pairwise)
 }
+#' @exportS3Method NULL
 print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
     
     A <- list(...)
@@ -956,7 +966,10 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
     list(msm.summary = p.ops$msm.summary,
          which.time = which.time)
 }
-print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats, disp.thresholds, disp, digits = max(3, getOption("digits") - 3), ...) {
+#' @exportS3Method NULL
+print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats,
+                                  disp.thresholds, disp, digits = max(3, getOption("digits") - 3),
+                                  ...) {
     
     A <- list(...)
     p.ops <- attr(x, "print.options")
@@ -1104,7 +1117,10 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
          nweights = p.ops$nweights,
          disp.call = p.ops$disp.call)
 }
-print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats, disp.thresholds, disp, digits = max(3, getOption("digits") - 3), which.subclass, subclass.summary, ...) {
+#' @exportS3Method NULL
+print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats,
+                                           disp.thresholds, disp, digits = max(3, getOption("digits") - 3),
+                                           which.subclass, subclass.summary, ...) {
     A <- list(...)
     
     s.balance <- x$Subclass.Balance
@@ -1288,7 +1304,7 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
 }
 
 #Alternative to print.data.frame() that only prints non-length 0 data.frames
-print.data.frame_ <- function(x, ...) {
+.print_data_frame <- function(x, ...) {
     if (is_not_null(x) && NROW(x) > 0 && NCOL(x) > 0) {
         print.data.frame(x, ...)
     }

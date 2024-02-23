@@ -219,6 +219,7 @@ strsplits <- function(x, splits, fixed = TRUE, ...) {
     
     x[x != ""] # Remove empty values
 }
+#' @exportS3Method NULL
 c.factor <- function(..., recursive=TRUE) {
     #c() for factors
     unlist(list(...), recursive=recursive)
@@ -875,6 +876,7 @@ has_method <- function(class, fun) {
     if (!is.character(fun) || length(fun) != 1) stop("'fun' must be a string of length 1.")
     if (!is.character(class)) stop("'class' must be a character vector.")
     
-    vapply(class, function(cl) is_not_null(getS3method(fun, cl, optional = TRUE, envir = asNamespace(packageName()))),
+    vapply(class, function(cl) is_not_null(utils::getS3method(fun, cl, optional = TRUE,
+                                                              envir = asNamespace(utils::packageName()))),
            logical(1L))
 }

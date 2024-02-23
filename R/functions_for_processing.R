@@ -2163,7 +2163,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     
     if (int && nd > 1) {
         int_terms <- int_co.names <- make_list(1)
-        ints_to_make <- combn(colnames(d)[!ex], 2, simplify = FALSE)
+        ints_to_make <- utils::combn(colnames(d)[!ex], 2, simplify = FALSE)
         
         #Don't make ints out of ints that already exist
         # ints_that_already_exist <- get_ints_from_co.names(co.names[interaction.vars])
