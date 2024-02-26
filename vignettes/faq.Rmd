@@ -217,7 +217,7 @@ b <- bal.tab(treat ~ age + educ + race + married + re74,
              data = lalonde, s.d.denom = "treated",
              disp = "means", stats = c("m", "v"))
 
-# View the structure of hte object
+# View the structure of the object
 str(b, give.attr = FALSE)
 
 b$Balance
