@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.3.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,7 @@
     <a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a>
     <a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a>
     <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
   </div>
 </li>
 <li class="nav-item">
@@ -197,33 +198,15 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># requireNamespace("cem", quietly = TRUE) &amp;&amp; FALSE</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Coarsened exact matching</span></span></span>
 <span class="r-in"><span><span class="va">cem.out</span> <span class="op">&lt;-</span> <span class="fu">cem</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/cem/man/cem.html" class="external-link">cem</a></span><span class="op">(</span><span class="st">"treat"</span>, data <span class="op">=</span> <span class="va">lalonde</span>, drop <span class="op">=</span> <span class="st">"re78"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Using 'treat'='1' as baseline group</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cem.out</span>, data <span class="op">=</span> <span class="va">lalonde</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
 <span class="r-in"><span>        stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"k"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                Type Diff.Un  KS.Un Diff.Adj KS.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age         Contin. -0.3094 0.1577   0.0512 0.1581</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ        Contin.  0.0550 0.1114  -0.0441 0.0445</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_black   Binary  0.6404 0.6404   0.0000 0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_hispan  Binary -0.0827 0.0827   0.0000 0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> race_white   Binary -0.5577 0.5577   0.0000 0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married      Binary -0.3236 0.3236   0.0000 0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree     Binary  0.1114 0.1114   0.0000 0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74        Contin. -0.7211 0.4470  -0.0341 0.2418</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75        Contin. -0.2903 0.2876  -0.0528 0.1162</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      Control Treated</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> All                   429.       185</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Matched (ESS)          36.29      68</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Matched (Unweighted)   78.        68</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unmatched             351.       117</span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

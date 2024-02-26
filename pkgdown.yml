@@ -3,12 +3,13 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   cobalt: cobalt.html
+  faq: faq.html
   longitudinal-treat: longitudinal-treat.html
   love.plot: love.plot.html
   optimizing-balance: optimizing-balance.html
   other-packages: other-packages.html
   segmented-data: segmented-data.html
-last_built: 2024-02-23T23:38Z
+last_built: 2024-02-26T22:02Z
 urls:
   reference: https://ngreifer.github.io/cobalt/reference
   article: https://ngreifer.github.io/cobalt/articles

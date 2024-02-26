@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.3.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,7 @@
     <a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a>
     <a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a>
     <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
   </div>
 </li>
 <li class="nav-item">
@@ -114,7 +115,7 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">b1</span> <span class="op">&lt;-</span> <span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">married</span>, data <span class="op">=</span> <span class="va">lalonde</span>,</span></span>
 <span class="r-in"><span>              int <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: `s.d.denom` not specified; assuming pooled.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: `s.d.denom` not specified; assuming "pooled".</span>
 <span class="r-in"><span><span class="va">v1</span> <span class="op">&lt;-</span> <span class="fu">var.names</span><span class="op">(</span><span class="va">b1</span>, type <span class="op">=</span> <span class="st">"vec"</span>, minimal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">v1</span><span class="op">[</span><span class="st">"age"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Age (Years)"</span></span></span>
 <span class="r-in"><span><span class="va">v1</span><span class="op">[</span><span class="st">"race"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Race/Eth"</span></span></span>

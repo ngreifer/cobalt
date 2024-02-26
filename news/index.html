@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.3.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,7 @@
     <a class="dropdown-item" href="../articles/longitudinal-treat.html">Using `cobalt` with Longitudinal Treatments</a>
     <a class="dropdown-item" href="../articles/love.plot.html">Using `love.plot()` To Generate Love Plots</a>
     <a class="dropdown-item" href="../articles/optimizing-balance.html">Optimizing Tuning Parameters for Balance</a>
+    <a class="dropdown-item" href="../articles/faq.html">Frequently Asked Questions</a>
   </div>
 </li>
 <li class="active nav-item">
@@ -58,8 +59,11 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="cobalt-development-version">cobalt (development version)<a class="anchor" aria-label="anchor" href="#cobalt-development-version"></a></h2>
-<ul><li>Minor update to accommodate <code>ggplot2</code> 3.5.0. Thanks to <a href="https://github.com/teunbrand" class="external-link">@teunbrand</a>. (<a href="https://github.com/ngreifer/cobalt/issues/80" class="external-link">#80</a>)</li>
+<h2 class="pkg-version" data-toc-text="4.5.4" id="cobalt-454">cobalt 4.5.4<a class="anchor" aria-label="anchor" href="#cobalt-454"></a></h2>
+<ul><li><p>Minor update to accommodate <code>ggplot2</code> 3.5.0. Thanks to <a href="https://github.com/teunbrand" class="external-link">@teunbrand</a>. (<a href="https://github.com/ngreifer/cobalt/issues/80" class="external-link">#80</a>)</p></li>
+<li><p><code><a href="../reference/bal.tab.html">bal.tab()</a></code> no longer throws a note about <code>s.d.denom</code> when <code>binary = "raw"</code> and <code>continuous = "raw"</code> (i.e., only raw mean differences are requested).</p></li>
+<li><p><code><a href="../reference/balance-summary.html">col_w_smd()</a></code> now correctly includes all data in computing the standardization factor for standardized mean differences when <code>subset</code> is supplied, consistent with the documentation. Previously, only the subsetted units were included in the standardization factor. This does not affect any results from <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or <code><a href="../reference/bal.compute.html">bal.compute()</a></code>, which already used the correct units.</p></li>
+<li><p>Added a new vignette for frequently asked questions, which describes in further detail why some choices were made. See <code><a href="../articles/faq.html">vignette("faq")</a></code>.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="4.5.3" id="cobalt-453">cobalt 4.5.3<a class="anchor" aria-label="anchor" href="#cobalt-453"></a></h2><p class="text-muted">CRAN release: 2024-01-10</p>
