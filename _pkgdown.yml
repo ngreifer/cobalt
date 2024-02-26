@@ -1,8 +1,6 @@
 template:
   bootstrap: 5
-
 remote_theme: wowchemy/starter-hugo-academic
-
 url: https://ngreifer.github.io/cobalt/
 reference:
 - title: Primary Balance Assessment Functions
@@ -30,7 +28,6 @@ reference:
   - var.names
 - title: Data
 - contents: lalonde
-
 articles:
 - title: ~
   navbar: ~
@@ -41,3 +38,4 @@ articles:
   - love.plot
   - optimizing-balance
   - faq
+
