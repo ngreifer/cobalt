@@ -138,6 +138,8 @@
 #' * [bal.tab.mimids()] for the method for objects returned by \pkg{MatchThem}.
 #' * [bal.tab.sbwcau()] for the method for objects returned by \pkg{sbw}.
 #' * [bal.tab.formula()] and [bal.tab.data.frame()] for the methods for `formula` and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see [bal.tab.time.list()].
+#' 
+#' See `vignette("faq")` for answers to frequently asked questions about `bal.tab()`.
 #'     
 #' @examples 
 #' ## See individual pages above for examples with

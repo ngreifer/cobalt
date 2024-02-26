@@ -542,7 +542,7 @@ Although the prognostic score is sensitive to the outcome estimation model used,
 
 ## Details on Calculations
 
-There are calculations in `cobalt` that may be opaque to users; this section explains them.
+There are calculations in `cobalt` that may be opaque to users; this section explains them. For even more details, see `vignette("faq")`.
 
 ### Variance in Standardized Mean Differences and Correlations
 
