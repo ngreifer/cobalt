@@ -57,13 +57,11 @@ Notice the original data set and the unsplit data set look identical. If the inp
 The next sections describe the use of `bal.tab()` with packages other than those described in the main vignette. Even if you are using `bal.tab()` with one of these packages, it may be useful to read the main vignette to understand `bal.tab()`'s main options, which are not detailed here.
 
 ### Using `bal.tab()` with `twang`
-```{r, include=FALSE}
-if (!requireNamespace("twang", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
+
 Generalized boosted modeling (GBM), as implemented in `twang`, can be an effective way to generate propensity scores and weights for use in propensity score weighting. `bal.tab()` functions similarly to the functions `bal.table()` and `summary()` when used with GBM in `twang`. Below is a simple example of its use:
 
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, eval = requireNamespace("twang", quietly = TRUE)}
 #GBM PS weighting for the ATT
 data("lalonde", package = "cobalt") ##If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
@@ -85,17 +83,13 @@ The other arguments to `bal.tab()` when using it with `twang` have the same form
 If sampling weights are used in the call to `ps()`, they will be automatically incorporated into the `bal.tab()` calculations for both the adjusted and unadjusted samples, just as `twang` does.
 
 `mnps` objects resulting from fitting models in `twang` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette. `ps.cont` objects resulting from using `ps.cont()` in `twangContinuous`, which implements GBM for continuous treatments, are also compatible. See the section "Using `cobalt` with continuous treatments" in the main vignette.
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
+
 ### Using `bal.tab()` with `Matching`
-```{r, include=FALSE}
-if (!requireNamespace("Matching", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
+
 The `Matching` package is used for propensity score matching, and was also the first package to implement genetic matching. `MatchIt` calls `Matching` to use genetic matching and can accomplish many of the matching methods `Matching` can, but `Matching` is still a widely used package with its own strengths. `bal.tab()` functions similarly to `Matching`'s `MatchBalance()` command, which yields a thorough presentation of balance. Below is a simple example of the use of `bal.tab()` with `Matching`:
 
 
-```{r}
+```{r, eval = requireNamespace("Matching", quietly = TRUE)}
 #1:1 NN PS matching w/ replacement
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
@@ -120,16 +114,12 @@ bal.tab(match.out, treat = lalonde$treat, covs = covs0,
 ```
 
 The other arguments to `bal.tab()` when using it with `Matching` have the same form and function as those given when using it without a conditioning package, except for `s.d.denom`. If the estimand of the original call to `Match()` is the ATT, `s.d.denom` will default to `"treated"` if not specified; if the estimand is the ATE, `s.d.denom` will default to `"pooled"`; if the estimand is the ATC, `s.d.denom` will default to `"control"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable. In addition, the use of the `addl` argument is unnecessary because the covariates are entered manually as arguments, so all covariates for which balance is to be assessed can be entered through the `formula` or `covs` argument. If the covariates are stored in two separate data frames, it may be useful to include one in `formula` or `covs` and the other in `addl`.
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
+
 ### Using `bal.tab()` with `optmatch`
-```{r, include=FALSE}
-if (!requireNamespace("optmatch", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
+
 The `optmatch` package is useful for performing optimal pairwise or full matching. Most functions in `optmatch` are subsumed in `MatchIt`, but `optmatch` sees use from those who want finer control of the matching process than `MatchIt` allows. The output of calls to functions in `optmatch` is an `optmatch` object, which contains matching stratum membership for each unit in the given data set. Units that are matched with each other are assigned the same matching stratum. The user guide for `optmatch` recommends using the `RItools` package for balance assessment, but below is an example of how to use `bal.tab()` for the same purpose. Note that some results will differ between `cobalt` and `RItools` because of differences in how balance is calculated in each.
 
-```{r}
+```{r, eval = requireNamespace("optmatch", quietly = TRUE)}
 #Optimal full matching on the propensity score
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
@@ -142,16 +132,12 @@ fm <- optmatch::fullmatch(treat ~ p.score, data = lalonde)
 bal.tab(fm, covs = covs0, distance = ~ p.score)
 ```
 Most details for the use of `bal.tab()` with `optmatch` are similar to those when using `bal.tab()` with `Matching`. Users can enter either a formula and a data set or a vector of treatment status and a set of covariates. Unlike with `Matching`, entering the treatment variable is optional as it is already stored in the `optmatch` object. `bal.tab()` is compatible with both `pairmatch()` and `fullmatch()` output.
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
+
 ### Using `bal.tab()` with `CBPS`
-```{r, include=FALSE}
-if (!requireNamespace("CBPS", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
+
 The `CBPS` (Covariate Balancing Propensity Score) package is a great tool for generating covariate balancing propensity scores, a class of propensity scores that are quite effective at balancing covariates among groups. `CBPS` includes functions for estimating propensity scores for binary, multi-category, and continuous treatments. `bal.tab()` functions similarly to `CBPS`'s `balance()` command. Below is a simple example of its use with a binary treatment:
 
-```{r}
+```{r, eval = requireNamespace("CBPS", quietly = TRUE)}
 #CBPS weighting
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78))
@@ -168,16 +154,12 @@ First is the original call to `CBPS()`. Next is the balance table containing mea
 The other arguments to `bal.tab()` when using it with `CBPS` have the same form and function as those given when using it without a conditioning package, except for `s.d.denom`. If the estimand of the original call to `CBPS()` is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable.
 
 `CBPSContinuous` objects resulting from fitting models in `CBPS` with continuous treatments are also compatible with `cobalt`. See the section "Using `cobalt` with continuous treatments" in the main vignette. `CBPS` objects resulting from fitting models in `CBPS` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `CBMSM` objects resulting from fitting models in `CBPS` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette.
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
+
 ### Using `bal.tab()` with `ebal`
-```{r, include=FALSE}
-if (!requireNamespace("ebal", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
+
 The `ebal` package implements entropy balancing, a method of weighting for the ATT that yields perfect balance on all desired moments of the covariate distributions between groups. Rather than estimate a propensity score, entropy balancing generates weights directly that satisfy a user-defined moment condition, specifying which moments are to be balanced. Note that all the functionality of `ebal` is contained within `Weightit`. `ebal` does not have its own balance assessment function; thus, `cobalt` is the only way to assess balance without programming, which the `ebal` documentation instructs. Below is a simple example of using `bal.tab()` with `ebal`:
 
-```{r}
+```{r, eval = requireNamespace("ebal", quietly = TRUE)}
 #Entropy balancing
 data("lalonde", package = "cobalt") #If not yet loaded
 covs0 <- subset(lalonde, select = -c(treat, re78, race))
@@ -192,16 +174,10 @@ First is the balance table containing mean differences for covariates included i
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `ebalance` object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
 
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
-
 ### Using `bal.tab()` with `designmatch`
-```{r, include=FALSE}
-if (!requireNamespace("designmatch", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
+
 The `designmatch` package implements various matching methods that use optimization to find matches that satisfy certain balance constraints. `bal.tab()` functions similarly to `designmatch`'s `meantab()` command but provides additional flexibility and convenience. Below is a simple example of using `bal.tab()` with `designmatch`:
-```{r}
+```{r, eval = requireNamespace("designmatch", quietly = TRUE)}
 #Mixed integer programming matching
 library("designmatch")
 data("lalonde", package = "cobalt") #If not yet loaded
@@ -212,7 +188,7 @@ dmout <- bmatch(lalonde$treat,
                 dist_mat = NULL,
                 subset_weight = NULL,
                 mom = list(covs = covs0,
-                           tols = absstddif(covs0, lalonde$treat, .005)),
+                           tols = absstddif(covs0, lalonde$treat, .05)),
                 n_controls = 1,
                 total_groups = 185)
 
@@ -221,16 +197,10 @@ bal.tab(dmout, treat = lalonde$treat, covs = covs0)
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `designmatch()` output object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates. The output is similar to that of `optmatch`.
 
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
-
 ### Using `bal.tab()` with `sbw`
-```{r, include=FALSE}
-if (!requireNamespace("sbw", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
+
 The `sbw` package implements optimization-based weighting to estimate weights that satisfy certain balance constraints and have minimal variance. `bal.tab()` functions similarly to `sbw`'s `summarize()` function but provides additional flexibility and convenience. Below is a simple example of using `bal.tab()` with `sbw`:
-```{r}
+```{r, eval = requireNamespace("sbw", quietly = TRUE)}
 #Optimization-based weighting
 data("lalonde", package = "cobalt") #If not yet loaded
 lalonde_split <- splitfactor(lalonde, drop.first = "if2")
@@ -248,16 +218,10 @@ bal.tab(sbw.out, un = TRUE, disp.means = TRUE)
 
 The output is similar to the output of a call to `summarize()`. Rather than stack several balance tables vertically, each with their own balance summary, here they are displayed horizontally. Note that due to differences in how `sbw` and `cobalt` compute the standardization factor in the standardized mean difference, values may not be identical between `bal.tab()` and `summarize()`. Also note that `bal.tab()`'s default is to display raw rather than standardized mean differences for binary variables. 
 
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
-
 ### Using `bal.tab()` with `MatchThem`
-```{r, include=FALSE}
-if (!requireNamespace("MatchThem", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
+
 The `MatchThem` package is essentially a wrapper for `matchit()` from `MatchIt` and `weightit()` from `WeightIt` but for use with multiply imputed data. Using `bal.tab()` on `mimids` or `wimids` objects from `MatchThem` activates the features that accompany multiply imputed data; balance is assessed within each imputed dataset and aggregated across imputations. See `?bal.tab.imp` or `vignette("segmented-data")` for more information about using `cobalt` with multiply imputed data. Below is a simple example of using `bal.tab()` with `MatchThem`:
-```{r}
+```{r, eval = requireNamespace("MatchThem", quietly = TRUE) && requireNamespace("mice", quietly = TRUE)}
 #PS weighting on multiply imputed data
 data("lalonde_mis", package = "cobalt")
 
@@ -288,16 +252,10 @@ bal.tab(wt.out)
 
 The input is similar to that for using `bal.tab()` with `MatchIt` or `WeightIt`.
 
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
-
 ### Using `bal.tab()` with `cem`
-```{r, include=FALSE}
-if (any(!sapply(c("cem", "mice"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
-```
+
 The `cem` package implements coarsened exact matching for binary and multi-category treatments. `bal.tab()` functions similarly to `cems`'s `imbalance()`. Below is a simple example of using `bal.tab()` with `cem`:
-```{r}
+```{r, eval = FALSE && requireNamespace("cem", quietly = TRUE)}
 #Coarsened exact matching
 data("lalonde", package = "cobalt") #If not yet loaded
 
@@ -311,7 +269,7 @@ The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`
 
 When using `cem()` with multiply imputed data (i.e., by supplying a list of data.frames to the `datalist` argument in `cem()`), an argument to `imp` should be specified to `bal.tab()` or a `mids` object from the `mice` package should be given as the argument to `data`. See `?bal.tab.imp` or `vignette("segmented-data")` for more information about using `cobalt` with multiply imputed data. Below is an example of using `cem` with multiply imputed data from `mice`:
 
-```{r, message = F}
+```{r, message = F, eval = FALSE && all(sapply(c("cem", "mice"), requireNamespace, quietly = TRUE))}
 #Coarsened exact matching on multiply imputed data
 data("lalonde_mis", package = "cobalt")
 
@@ -327,10 +285,6 @@ cem.out.imp <- cem::cem("treat", datalist = imp.data.list,
 bal.tab(cem.out.imp, data = imp.out)
 ```
 
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
-
 ### Using `bal.tab()` with other packages
 
 It is possible to use `bal.tab()` with objects that don't come from these packages using the `default` method. If an object that doesn't correspond to the output from one of the specifically supported packages is passed as the first argument to `bal.tab()`, `bal.tab()` will do its best to process that object as if it did come from a supported package. It will search through the components of the object for items with names like `"treat"`, `"covs"`, `"data"`, `"weights"`, etc., that have the correct object types. Any additional arguments can be specified by the user. 
@@ -339,10 +293,7 @@ The goal of the `default` method is to allow package authors to rely on `cobalt`
 
 Below, we demonstrate this capability with the output of `optweight`, which performs a version of propensity score weighting using optimization, similar to `sbw`. No `bal.tab` method has been written with `optweight` output in mind; rather, `optweight` was written to have output compatible with the `default` method of `bal.tab`.
 
-```{r, include=FALSE}
-if (!requireNamespace("optweight", quietly = TRUE)) knitr::opts_chunk$set(eval = FALSE)
-```
-```{r}
+```{r, eval = requireNamespace("optweight", quietly = TRUE)}
 #Optimization-based weighting
 data("lalonde", package = "cobalt")
 
@@ -358,7 +309,3 @@ bal.tab(ow.out)
 ```
 
 The output is treated as output from a specifically supported package. See `?bal.tab.default` for more details and another example.
-
-```{r, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(eval = TRUE)
-```
