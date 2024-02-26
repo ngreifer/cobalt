@@ -96,11 +96,24 @@ base.bal.tab.multi <- function(X,
     
     X$covs <- do.call(".get_C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
     
-    #Setup output object
-    out <- list()
+    var_types <- attr(X$covs, "var_types")
+
+    if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
+    if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
+
     
-    if ("mean.diffs" %in% X$stats) {
-        bin.vars <- is_binary_col(X$covs)
+    if ("mean.diffs" %in% X$stats &&
+        ((A$binary == "std" && any(var_types == "Binary")) ||
+         (A$continuous == "std" && any(var_types != "Binary")))) {
+        X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
+                                      estimand = X$estimand,
+                                      weights = X$weights, 
+                                      subclass = X$subclass,
+                                      treat = X$treat,
+                                      focal = X$focal)
+        
+        bin.vars <- var_types == "Binary"
+        
         if (is_null(X$weights)) {
             X$s.d.denom.list <- list(.compute_s.d.denom(X$covs, X$treat, s.d.denom = X$s.d.denom,
                                                        s.weights = X$s.weights, bin.vars = bin.vars))
@@ -114,13 +127,16 @@ base.bal.tab.multi <- function(X,
         }
     }
     
+    #Setup output object
+    out <- list()
+    
     if (pairwise || is_not_null(X$focal)) {
         balance.tables <- lapply(treat.combinations, function(t) {
             X_t <- subset_X(X, X$treat %in% treat_vals(X$treat)[t])
             # X_t$treat <- process_treat(X_t$treat)
             X_t <- .assign_X_class(X_t)
             X_t$call <- NULL
-            do.call("base.bal.tab", c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
+            do.call("base.bal.tab", c(list(X_t), A[setdiff(names(A), names(X_t))]), quote = TRUE)
         })
     }
     else {
@@ -139,7 +155,7 @@ base.bal.tab.multi <- function(X,
             if (is_not_null(X_t$weights)) X_t$weights[X_t$treat == "All",] <- 1 #Uncomment to compare each group to unweighted dist.
             
             X_t <- .assign_X_class(X_t)
-            do.call("base.bal.tab", c(list(X_t), A[names(A) %nin% names(X_t)]), quote = TRUE)
+            do.call("base.bal.tab", c(list(X_t), A[setdiff(names(A), names(X_t))]), quote = TRUE)
         })
     }
     

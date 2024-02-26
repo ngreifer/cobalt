@@ -196,10 +196,18 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
     zeros <- check_if_zero(diffs)
     
     if (any(to.sd <- std & !is.na(zeros) & !zeros)) {
-        denoms <- .compute_s.d.denom(mat, treat = treat, 
-                                    s.d.denom = s.d.denom, s.weights = s.weights, 
-                                    bin.vars = bin.vars, subset = subset, to.sd = to.sd,
-                                    weighted.weights = weighted.weights, na.rm = na.rm)
+        if (!is.numeric(s.d.denom) || length(s.d.denom) != ncol(mat)) {
+            s.d.denom <- .get_s.d.denom(s.d.denom, weights = list(weights), treat = treat,
+                                        quietly = TRUE)
+            
+            denoms <- .compute_s.d.denom(mat, treat = treat, 
+                                         s.d.denom = s.d.denom, s.weights = s.weights, 
+                                         bin.vars = bin.vars, subset = subset, to.sd = to.sd,
+                                         weighted.weights = weighted.weights, na.rm = na.rm)
+        }
+        else {
+            denoms <- s.d.denom
+        }
         
         diffs[to.sd] <- diffs[to.sd] / denoms[to.sd]
     }
@@ -505,13 +513,20 @@ col_w_cov <- function(mat, treat, weights = NULL, type = "pearson", std = FALSE,
     zeros <- check_if_zero(covars)
     
     if (any(to.sd <- std & !is.na(zeros) & !zeros)) {
+        if (!is.numeric(s.d.denom) || length(s.d.denom) != ncol(mat)) {
+            s.d.denom <- .get_s.d.denom.cont(s.d.denom, weights = list(weights),
+                                             quietly = TRUE)
+            
+            denoms <- .compute_s.d.denom(mat, treat = treat, 
+                                         s.d.denom = s.d.denom, s.weights = s.weights, 
+                                         bin.vars = bin.vars, subset = subset, to.sd = to.sd,
+                                         weighted.weights = weighted.weights, na.rm = na.rm)
+        }
+        else {
+            denoms <- s.d.denom
+        }
         
-        denoms <- .compute_s.d.denom(mat, treat = treat, 
-                                    s.d.denom = s.d.denom, s.weights = s.weights, 
-                                    bin.vars = bin.vars, subset = subset, to.sd = to.sd,
-                                    weighted.weights = weighted.weights, na.rm = na.rm)
-        
-        covars <- covars / denoms
+        covars[to.sd] <- covars[to.sd] / denoms[to.sd]
     }
     
     if (abs) covars <- abs(covars)

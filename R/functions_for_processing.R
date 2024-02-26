@@ -448,7 +448,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     if (!is.list(val) || is.data.frame(val)) {
         return(.process_val(val, i, treat, covs, addl.data = addl.data))
     }
-   
+    
     if (i == "weights") {
         #Use get.w() on inputs
         for (x in seq_along(val)) {
@@ -477,7 +477,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     
     setNames(do.call("cbind", val.list),
              unlist(lapply(val.list, names)))
-
+    
 }
 .process_list <- function(i, List, ntimes, call.phrase, treat.list = list(), covs.list = list(), addl.data = list(), ...) {
     if (is_null(List)) return(NULL)
@@ -574,28 +574,38 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     estimand.specified <- is_not_null(estimand)
     
     if (s.d.denom.specified) {
-        
-        treat <- process_treat(treat)
-        
-        unique.treats <- as.character(treat_vals(treat))
-        allowable.s.d.denoms <- c("pooled", "all", "weighted", "hedges")
-        if (length(treat_names(treat)) == 2 && all(c("treated", "control") %in% names(treat_names(treat))))
-            allowable.s.d.denoms <- c(allowable.s.d.denoms, "treated", "control")
-        if (is_not_null(focal)) allowable.s.d.denoms <- c(allowable.s.d.denoms, "focal")
+        if (isTRUE(attr(s.d.denom, "checked"))) return(s.d.denom)
         
         if (length(s.d.denom) > 1 && length(s.d.denom) != NCOL(weights)) {
             .err(sprintf("`s.d.denom` must have length 1 or equal to the number of valid sets of weights, which is %s",
                          NCOL(weights)))
         }
         
-        s.d.denom <- match_arg(s.d.denom, unique(c(unique.treats, allowable.s.d.denoms)), 
-                               several.ok = TRUE)
+        allowable.s.d.denoms <- c("pooled", "all", "weighted", "hedges")
         
-        if (any(s.d.denom %in% c("treated", "control")) && length(treat_names(treat) == 2)) {
-            s.d.denom[s.d.denom %in% c("treated", "control")] <- treat_vals(treat)[treat_names(treat)[s.d.denom[s.d.denom %in% c("treated", "control")]]]
+        if (!all(s.d.denom %in% allowable.s.d.denoms)) {
+            
+            if (!inherits(treat, "processed.treat"))
+                treat <- process_treat(treat)
+            
+            unique.treats <- as.character(treat_vals(treat))
+            
+            if (length(treat_names(treat)) == 2 && all(c("treated", "control") %in% names(treat_names(treat))))
+                allowable.s.d.denoms <- c(allowable.s.d.denoms, "treated", "control")
+            
+            if (is_not_null(focal))
+                allowable.s.d.denoms <- c(allowable.s.d.denoms, "focal")
+            
+            s.d.denom <- match_arg(s.d.denom, unique(c(unique.treats, allowable.s.d.denoms)), 
+                                   several.ok = length(weights) > 1)
+            
+            if (any(s.d.denom %in% c("treated", "control")) && length(treat_names(treat) == 2)) {
+                s.d.denom[s.d.denom %in% c("treated", "control")] <- treat_vals(treat)[treat_names(treat)[s.d.denom[s.d.denom %in% c("treated", "control")]]]
+            }
+            else if (any(s.d.denom %in% "focal")) {
+                check.focal <- TRUE
+            }
         }
-        else if (any(s.d.denom %in% "focal")) check.focal <- TRUE
-        
     }
     else {
         check.estimand <- TRUE
@@ -616,11 +626,11 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                 }
                 
                 s.d.denom <- vapply(try.estimand, switch, character(1L),
-                                         ATT = treat_vals(treat)[treat_names(treat)["treated"]], 
-                                         ATC = treat_vals(treat)[treat_names(treat)["control"]], 
-                                         ATO = "weighted",
-                                         ATM = "weighted",
-                                         "pooled")
+                                    ATT = treat_vals(treat)[treat_names(treat)["treated"]], 
+                                    ATC = treat_vals(treat)[treat_names(treat)["control"]], 
+                                    ATO = "weighted",
+                                    ATM = "weighted",
+                                    "pooled")
             }
         }
         else {
@@ -635,6 +645,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     if (check.weights) {
         if (!inherits(treat, "processed.treat")) treat <- process_treat(treat)
+        
         if (is_null(weights) && is_null(subclass)) {
             s.d.denom <- "pooled"
         }
@@ -654,14 +665,28 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                         return(tv)
                     }
                 }
-                NA_character_
+                "pooled"
             }, character(1L))
-            s.d.denom[is.na(s.d.denom)] <- "pooled"
         }
     }
-    if (is_not_null(weights) && length(s.d.denom) == 1) s.d.denom <- rep.int(s.d.denom, NCOL(weights))
     
-    if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
+    if (is_not_null(weights) && length(s.d.denom) == 1 && NCOL(weights) > 1) {
+        s.d.denom <- rep.int(s.d.denom, NCOL(weights))
+    }
+
+    if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
+        .err(sprintf("valid inputs to `s.d.denom` or `estimand` must have length 1 or equal to the number of valid sets of weights, which is %s",
+                     NCOL(weights)))
+    }
+    
+    if (is_not_null(weights)) {
+        names(s.d.denom) <- names(weights)
+    }
+    
+    if (s.d.denom.specified && any(s.d.denom %in% "weighted") && is_null(weights)) {
+        attr(s.d.denom, "note") <- "note: `s.d.denom` specified as \"weighted\", but no weights supplied; setting to \"all\""
+    }
+    else if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
         attr(s.d.denom, "note") <- sprintf("warning: `s.d.denom` should be one of %s.\n         Using %s instead",
                                            word_list(unique(c(unique.treats, allowable.s.d.denoms)), "or", quotes = 2),
                                            word_list(s.d.denom, quotes = 2))
@@ -672,7 +697,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
     else if ((check.focal || check.weights) && !all(s.d.denom %in% treat_vals(treat))) {
         attr(s.d.denom, "note") <- sprintf("note: `s.d.denom` not specified; assuming %s", 
-                                           if (all_the_same(s.d.denom)) s.d.denom[1] 
+                                           if (all_the_same(s.d.denom)) add_quotes(s.d.denom[1])
                                            else word_list(paste0(add_quotes(vapply(s.d.denom, function(s) {
                                                if (s %in% treat_vals(treat) && all(treat_vals(treat) %in% c("0", "1"))) {
                                                    names(treat_names(treat))[treat_names(treat) == names(treat_vals(treat))[treat_vals(treat) == s]]
@@ -681,12 +706,11 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                                            }, character(1L))), " for ", names(weights))))
     }
     
-    if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
-        .err(sprintf("Valid inputs to `s.d.denom` or `estimand` must have length 1 or equal to the number of valid sets of weights, which is %s",
-                     NCOL(weights)))
+    if (!quietly && is_not_null(attr(s.d.denom, "note"))) {
+        .msg(attr(s.d.denom, "note"))
     }
     
-    if (!quietly && is_not_null(attr(s.d.denom, "note"))) .msg(attr(s.d.denom, "note"))
+    attr(s.d.denom, "checked") <- TRUE
     
     s.d.denom
 }
@@ -694,38 +718,53 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     bad.s.d.denom <- FALSE
     s.d.denom.specified <- !missing(s.d.denom) && is_not_null(s.d.denom)
     
-    if (is_not_null(subclass)) {
-        s.d.denom <- "all"
-    }
-    else if (s.d.denom.specified) {
-        allowable.s.d.denoms <- c("all", "weighted")
+    if (s.d.denom.specified) {
+        if (isTRUE(attr(s.d.denom, "checked"))) return(s.d.denom)
         
         if (length(s.d.denom) > 1 && length(s.d.denom) != NCOL(weights)) {
             .err("`s.d.denom` must have length 1 or equal to the number of valid sets of weights")
         }
         
-        s.d.denom <- match_arg(s.d.denom, unique(allowable.s.d.denoms), 
-                               several.ok = TRUE)
+        allowable.s.d.denoms <- {
+            if (is_not_null(subclass)) "all"
+            else c("all", "weighted")
+        }
+        
+        if (!all(s.d.denom %in% allowable.s.d.denoms)) {
+            s.d.denom <- match_arg(s.d.denom, unique(allowable.s.d.denoms), 
+                                   several.ok = length(weights) > 1)
+        }
     }
     else {
         s.d.denom <- "all"
     }
     
-    if (is_not_null(weights) && NCOL(weights) > 1 && length(s.d.denom) == 1) s.d.denom <- rep.int(s.d.denom, NCOL(weights))
-    
-    if (!quietly) {
-        if (s.d.denom.specified && bad.s.d.denom) {
-            .msg(sprintf("warning: `s.d.denom` should be %s.\n         Using %s instead",
-                         word_list(unique(allowable.s.d.denoms), "or", quotes = 2),
-                         word_list(s.d.denom, quotes = 2)))
-        }
+    if (is_not_null(weights) && length(s.d.denom) == 1 && NCOL(weights) > 1) {
+        s.d.denom <- rep.int(s.d.denom, NCOL(weights))
     }
     
     if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
         .err("valid inputs to `s.d.denom` or `estimand` must have length 1 or equal to the number of valid sets of weights")
     }
     
-    if (is_not_null(weights)) names(s.d.denom) <- names(weights)
+    if (is_not_null(weights)) {
+        names(s.d.denom) <- names(weights)
+    }
+    
+    if (s.d.denom.specified && any(s.d.denom %in% "weighted") && is_null(weights)) {
+        attr(s.d.denom, "note") <- "note: `s.d.denom` specified as \"weighted\", but no weights supplied; setting to \"all\""
+    }
+    else if (s.d.denom.specified && bad.s.d.denom) {
+        attr(s.d.denom, "note") <- sprintf("warning: `s.d.denom` should be %s.\n         Using %s instead",
+                                           word_list(unique(allowable.s.d.denoms), "or", quotes = 2),
+                                           word_list(s.d.denom, quotes = 2))
+    }
+    
+    if (!quietly && is_not_null(attr(s.d.denom, "note"))) {
+        .msg(attr(s.d.denom, "note"))
+    }
+    
+    attr(s.d.denom, "checked") <- TRUE
     
     s.d.denom
 }
@@ -763,17 +802,17 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
         
         if (cont.treat) {
             unique.treats <- NULL
-            s.d.denom <- .get_s.d.denom.cont(as.character(s.d.denom), weights = weighted.weights[subset])
         }
         else {
             unique.treats <- {
-                if (inherits(treat, "processed.treat") && all(subset)) as.character(treat_vals(treat))
-                else as.character(unique(treat[subset]))
+                if (inherits(treat, "processed.treat")) as.character(treat_vals(treat))
+                else as.character(unique(treat))
             }
-            s.d.denom <- .get_s.d.denom(as.character(s.d.denom), weights = weighted.weights[subset], treat = treat[subset])
+            
             if (s.d.denom %in% c("treated", "control") && s.d.denom %nin% unique.treats) {
                 s.d.denom <- treat_vals(treat)[treat_names(treat)[s.d.denom]]
             }
+            
             treat <- as.character(treat)
         }
         
@@ -805,11 +844,12 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
         else if (s.d.denom == "hedges")
             denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars,
                                   unique.treats, na.rm) {
-                (1 - 3/(4*length(treat) - 9))^-1 *
+                df <- length(treat) - length(unique.treats)
+                (1 - 3/(4*df - 1))^-1 *
                     sqrt(Reduce("+", lapply(unique.treats,
                                             function(t) (sum(treat == t) - 1) * col.w.v(mat[treat == t, , drop = FALSE],
                                                                                         w = s.weights[treat == t],
-                                                                                        bin.vars = bin.vars, na.rm = na.rm))) / (length(treat) - 2))
+                                                                                        bin.vars = bin.vars, na.rm = na.rm))) / df)
             }
         else .err("`s.d.denom` is not an allowed value")
         
@@ -827,7 +867,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
             treat.sd <- denom.fun(mat = treat, s.weights = s.weights,
                                   weighted.weights = weighted.weights, bin.vars = FALSE,
                                   na.rm = na.rm)
-            denoms[to.sd] <- denoms[to.sd]*treat.sd
+            denoms[to.sd] <- denoms[to.sd] * treat.sd
         }
     }
     else if (is.numeric(s.d.denom)) {
@@ -899,13 +939,16 @@ subset_X <- function(X, subset = NULL) {
     if (is_not_null(subset) && any(names(X) %in% subsettable())) {
         n <- get_length_X(X)
         if (is.logical(subset)) {
-            if (length(subset) != n) .err("`subset` must have the same length as the other entries")
-            if (!any(subset)) .err("All `subset` set to FALSE")
+            if (length(subset) != n)
+                .err("`subset` must have the same length as the other entries")
+            if (!any(subset))
+                .err("all `subset` set to `FALSE`")
             to_be_subset <- !all(subset)
             subset <- which(subset)
         }
         else if (is.numeric(subset)) {
-            if (max(subset) > n) .err("Subset indices cannot be higher than the length of the other entries")
+            if (max(subset) > n)
+                .err("subset indices cannot be higher than the length of the other entries")
             to_be_subset <- TRUE
         }
         else .err("`subset` must be logical or numeric")
@@ -919,13 +962,15 @@ subset_X <- function(X, subset = NULL) {
                                               subset_X_internal, subset = subset)
                 }
                 
-                if (is_null(x)) out <- x
-                else if (inherits(x, "processed.treat")) out <- subset_processed.treat(x, subset)
-                else if ((is.matrix(x) || is.data.frame(x))) out <- x[subset, , drop = FALSE]
-                else if (is.factor(x)) out <- factor(x[subset], nmax = nlevels(x))
-                else if (is.atomic(x)) out <- x[subset]
-                else if (is.list(x)) out <- lapply(x, subset_X_internal, subset = subset)
-                else out <- x
+                out <- {
+                    if (is_null(x)) x
+                    else if (inherits(x, "processed.treat")) subset_processed.treat(x, subset)
+                    else if ((is.matrix(x) || is.data.frame(x))) x[subset, , drop = FALSE]
+                    else if (is.factor(x)) factor(x[subset], nmax = nlevels(x))
+                    else if (is.atomic(x)) x[subset]
+                    else if (is.list(x)) lapply(x, subset_X_internal, subset = subset)
+                    else x
+                }
                 
                 if (is_not_null(attrs)) {
                     if (inherits(x, "processed.treat")) {
@@ -2568,7 +2613,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                                                                                       abs = abs, s.weights = s.weights, bin.vars = bin.vars,
                                                                                       weighted.weights = weights[[1]], ...)
             }
-            
+
             if (!no.adj && (!quick || s %in%  disp)) {
                 for (i in weight.names) {
                     B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]] <- STATS[[s]]$fun(C, treat = treat, weights = weights[[i]],
@@ -2938,7 +2983,9 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
     
     #B=Balance frame
     Bnames <- c("Type", 
-                expand.grid_string(c(if (type == "bin") expand.grid_string(c("M"["means" %in% compute], "SD"["sds" %in% compute]), c("0", "1"), collapse = ".")
+                expand.grid_string(c(if (type == "bin") expand.grid_string(c("M"["means" %in% compute],
+                                                                             "SD"["sds" %in% compute]),
+                                                                           c("0", "1"), collapse = ".")
                                      else if (type == "cont") c("M"["means" %in% compute], "SD"["sds" %in% compute]), 
                                      unlist(lapply(compute[compute %in% all_STATS(type)], function(s) {
                                          c(STATS[[s]]$bal.tab_column_prefix,
@@ -2957,17 +3004,18 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
     binary <- match_arg(binary, c("raw", "std"))
     sd.computable <- if (binary == "std") rep(TRUE, nrow(B)) else !bin.vars
     
-    if (type == "bin") 
-        subclass_w_empty <- vapply(levels(subclass), function(i) {
-            any(vapply(treat_vals(treat), function(t) !any(treat == t & subclass == i), logical(1L)))
-        }, logical(1L))
-    else {
-        subclass_w_empty <- vapply(levels(subclass), function(i) !any(subclass == i), logical(1L))
+    subclass_w_empty <- {
+        if (type == "bin") 
+            vapply(levels(subclass), function(i) {
+                any(vapply(treat_vals(treat), function(t) !any(treat == t & subclass == i), logical(1L)))
+            }, logical(1L))
+        else
+            vapply(levels(subclass), function(i) !any(subclass == i), logical(1L))
     }
     
     for (i in levels(subclass)) {
         
-        in.subclass <- !is.na(subclass) & subclass==i
+        in.subclass <- !is.na(subclass) & subclass == i
         
         #Means for each group
         if ("means" %in% compute) {
@@ -2985,6 +3033,7 @@ balance.table.subclass <- function(C, type, weights = NULL, treat, subclass,
         #SDs for each group
         if ("sds" %in% compute) {
             if (type == "bin") {
+                tn01 <- setNames(treat_vals(treat)[treat_names(treat)[c("control", "treated")]], 0:1)
                 for (t in c("0", "1")) {
                     sds <- rep(NA_real_, NCOL(C))
                     sds[sd.computable] <- col_w_sd(C[, sd.computable, drop = FALSE], subset = treat == tn01[t] & in.subclass, s.weights = s.weights)

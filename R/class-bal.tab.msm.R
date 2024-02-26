@@ -66,41 +66,45 @@ base.bal.tab.msm <- function(X,
     #Setup output object
     out <- list()
     
-    out[["Time.Balance"]] <- make_list(length(X$covs.list))
-    
-    
     #Get list of bal.tabs for each time period
     out[["Time.Balance"]] <- lapply(seq_along(X$covs.list), function(ti) {
         X_ti <- X
-        X_ti <- c(X_ti, list(
-            covs = X_ti$covs.list[[ti]], 
-            treat = X_ti$treat.list[[ti]], 
-            addl = X_ti$addl.list[[ti]], 
-            distance = X_ti$distance.list[[ti]]
-        ))
-        X_ti[c("covs.list", "treat.list", "addl.list", "distance.list")] <- NULL
-        X_ti$call <- NULL
+
+        X_ti$covs <- X_ti$covs.list[[ti]]
+        X_ti$treat <- X_ti$treat.list[[ti]]
+        X_ti$addl <- X_ti$addl.list[[ti]]
+        X_ti$distance <- X_ti$distance.list[[ti]]
+        
+        X_ti[c("covs.list", "treat.list", "addl.list", "distance.list", "call")] <- NULL
+
         X_ti <- .assign_X_class(X_ti)
+        
+        X_ti$s.d.denom <- {
+            if (attr(X_ti, "X.class") == "cont") "all"
+            else "pooled"
+        }
         
         do.call("base.bal.tab", c(list(X_ti), A[names(A) %nin% names(X_ti)]), quote = TRUE)
     })
     
-    if (length(names(X$treat.list)) == length(X$treat.list)) {
-        names(out[["Time.Balance"]]) <- names(X$treat.list)
+    names(out[["Time.Balance"]]) <- {
+        if (length(names(X$treat.list)) == length(X$treat.list)) names(X$treat.list)
+        else seq_along(X$treat.list)
     }
-    else names(out[["Time.Balance"]]) <- seq_along(X$treat.list)
     
-    if (!(A$quick && !msm.summary) && all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X$imp)) {
+    if ((!A$quick || msm.summary) && is_null(X$imp) && all_the_same(treat.types) &&
+        !any(treat.types == "multinomial")) {
         out[["Balance.Across.Times"]] <- balance.summary(out[["Time.Balance"]],
                                                          agg.funs = "max",
                                                          include.times = TRUE)
         
-        out <- c(out, threshold.summary(compute = attr(out[["Time.Balance"]][[1]][["Balance"]], "compute"),
-                                        thresholds = attr(out[["Time.Balance"]][[1]][["Balance"]], "thresholds"),
-                                        no.adj = !attr(out[["Time.Balance"]][[1]], "print.options")$disp.adj,
-                                        balance.table = out[["Balance.Across.Times"]],
-                                        weight.names = attr(out[["Time.Balance"]][[1]], "print.options")$weight.names,
-                                        agg.fun = "max"))
+        out <- c(out,
+                 threshold.summary(compute = attr(out[["Time.Balance"]][[1]][["Balance"]], "compute"),
+                                   thresholds = attr(out[["Time.Balance"]][[1]][["Balance"]], "thresholds"),
+                                   no.adj = !attr(out[["Time.Balance"]][[1]], "print.options")$disp.adj,
+                                   balance.table = out[["Balance.Across.Times"]],
+                                   weight.names = attr(out[["Time.Balance"]][[1]], "print.options")$weight.names,
+                                   agg.fun = "max"))
         
         out[["Observations"]] <- grab(out[["Time.Balance"]], "Observations")
     }

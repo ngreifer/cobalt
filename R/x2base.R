@@ -215,10 +215,7 @@ x2base.matchit <- function(m, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand,
-                                       weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -425,9 +422,7 @@ x2base.ps <- function(ps, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -620,9 +615,7 @@ x2base.mnps <- function(mnps, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -785,9 +778,7 @@ x2base.ps.cont <- function(ps.cont, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -962,9 +953,7 @@ x2base.Match <- function(Match, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -1186,7 +1175,8 @@ x2base.data.frame <- function(covs, ...) {
     #Process focal
     if (is_not_null(focal <- A[["focal"]]) && get.treat.type(treat) != "continuous") {
         focal <- process_focal(focal, treat)
-    } else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
+    }
+    else if (get.treat.type(treat) == "binary" && is_not_null(estimand)) {
         focal <- switch(toupper(estimand), 
                         "ATT" = treat_vals(treat)[treat_names(treat)["treated"]], 
                         "ATC" = treat_vals(treat)[treat_names(treat)["control"]], 
@@ -1302,14 +1292,7 @@ x2base.data.frame <- function(covs, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, 
-                                       weights = weights, subclass = subclass, 
-                                       treat = treat, focal = focal)
-        }
-        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -1489,13 +1472,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal,
-                                       quietly = TRUE)
-        }
-        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -1669,9 +1646,7 @@ x2base.ebalance <- function(ebalance, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -1844,9 +1819,7 @@ x2base.optmatch <- function(optmatch, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -2024,9 +1997,7 @@ x2base.cem.match <- function(cem.match, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -2200,12 +2171,7 @@ x2base.weightit <- function(weightit, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
-        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -2378,9 +2344,7 @@ x2base.designmatch <- function(dm, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -2575,9 +2539,7 @@ x2base.mimids <- function(mimids, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -2763,12 +2725,7 @@ x2base.wimids <- function(wimids, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
-        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -2946,9 +2903,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
         stats <- process_stats(stats, treat = treat)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat, focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -3176,9 +3131,7 @@ x2base.iptw <- function(iptw, ...) {
         stats <- process_stats(stats, treat = treat.list)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -3249,7 +3202,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
     }
     
     #Get estimand
-    estimand <- NULL
+    estimand <- "ATE"
     
     #Get method
     specified <- setNames(rep(FALSE, 1), "weights")
@@ -3411,12 +3364,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
         stats <- process_stats(stats, treat = treat.list)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
-        }
-        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -3512,7 +3460,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
     }
     
     #Get estimand
-    estimand <- NULL
+    estimand <- "ATE"
     
     #Get method
     method <- "weighting"
@@ -3615,12 +3563,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
         stats <- process_stats(stats, treat = treat.list)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
-        }
-        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -3802,12 +3745,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
         stats <- process_stats(stats, treat = treat.list)
         
         #Get s.d.denom
-        if ("mean.diffs" %in% stats) {
-            s.d.denom <- .get_s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
-        }
-        else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-            s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-        }
+        s.d.denom <- A[["s.d.denom"]]
     }
     
     #Missing values warning
@@ -4293,14 +4231,7 @@ x2base.default <- function(obj, ...) {
             stats <- process_stats(stats, treat = treat)
             
             #Get s.d.denom
-            if ("mean.diffs" %in% stats) {
-                s.d.denom <- .get_s.d.denom(A[["s.d.denom"]], estimand = estimand, 
-                                           weights = weights, subclass = subclass, 
-                                           treat = treat, focal = focal)
-            }
-            else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-                s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-            }
+            s.d.denom <- A[["s.d.denom"]]
         }
         
         #Missing values warning
@@ -4376,7 +4307,7 @@ x2base.default <- function(obj, ...) {
         }
         
         #Get estimand
-        estimand <- NULL
+        estimand <- "ATE"
         
         #Get method
         specified <- setNames(rep(FALSE, 1), "weights")
@@ -4538,12 +4469,7 @@ x2base.default <- function(obj, ...) {
             stats <- process_stats(stats, treat = treat.list)
             
             #Get s.d.denom
-            if ("mean.diffs" %in% stats) {
-                s.d.denom <- .get_s.d.denom("pooled", estimand = estimand, weights = weights, treat = treat.list[[1]], focal = focal)
-            }
-            else if (any(c("correlations", "spearman.correlations") %in% stats)) {
-                s.d.denom <- .get_s.d.denom.cont(A[["s.d.denom"]], weights = weights, subclass = subclass)
-            }
+            s.d.denom <- A[["s.d.denom"]]
         }
         
         #Missing values warning

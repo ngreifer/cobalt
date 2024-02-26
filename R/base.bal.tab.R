@@ -23,8 +23,8 @@ base.bal.tab.base <- function(X,
                               type,
                               int = FALSE,
                               poly = 1,
-                              continuous,
-                              binary,
+                              continuous = NULL,
+                              binary = NULL,
                               imbalanced.only = getOption("cobalt_imbalanced.only", FALSE),
                               un = getOption("cobalt_un", FALSE),
                               disp = NULL,
@@ -41,12 +41,12 @@ base.bal.tab.base <- function(X,
         if (get.treat.type(X$treat) != "binary") {
             .err("the treatment must be a binary variable")
         }
-        if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
-        if (missing(binary)) binary <- getOption("cobalt_binary", "raw")
+        if (is_null(continuous)) continuous <- getOption("cobalt_continuous", "std")
+        if (is_null(binary)) binary <- getOption("cobalt_binary", "raw")
     }
-    else if (type == "cont"){
-        if (missing(continuous)) continuous <- getOption("cobalt_continuous", "std")
-        if (missing(binary)) binary <- getOption("cobalt_binary", "std")
+    else if (type == "cont") {
+        if (is_null(continuous)) continuous <- getOption("cobalt_continuous", "std")
+        if (is_null(binary)) binary <- getOption("cobalt_binary", "std")
     }
     
     if (is_null(X$weights)) {
@@ -74,6 +74,31 @@ base.bal.tab.base <- function(X,
     
     co.names <- attr(C, "co.names")
     
+    var_types <- attr(C, "var_types")
+    
+    if (is_not_null(X$s.d.denom.list)) {
+        X$s.d.denom <- NULL
+    }
+    else if (get.treat.type(X$treat) != "continuous" &&
+        "mean.diffs" %in% X$stats &&
+        ((binary == "std" && any(var_types == "Binary")) ||
+         (continuous == "std" && any(var_types != "Binary")))) {
+        X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
+                                      estimand = X$estimand,
+                                      weights = X$weights, 
+                                      subclass = X$subclass,
+                                      treat = X$treat,
+                                      focal = X$focal)
+    }
+    else if (get.treat.type(X$treat) == "continuous" &&
+             any(c("correlations", "spearman.correlations") %in% X$stats) &&
+             ((binary == "std" && any(var_types == "Binary")) ||
+              (continuous == "std" && any(var_types != "Binary")))) {
+        X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
+                                           weights = X$weights,
+                                           subclass = X$subclass)
+    }
+    
     out[["Balance"]] <- do.call("balance.table", c(list(C, type = type, weights = X$weights, treat = X$treat, 
                                                         s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
                                                         continuous = continuous, binary = binary, 
@@ -81,7 +106,7 @@ base.bal.tab.base <- function(X,
                                                         un = un, disp = disp, 
                                                         stats = X$stats, abs = abs, 
                                                         no.adj = no.adj, quick = quick, 
-                                                        var_types = attr(C, "var_types"),
+                                                        var_types = var_types,
                                                         s.d.denom.list = X$s.d.denom.list), A), quote = TRUE)
     
     #Reassign disp... and ...threshold based on balance table output
@@ -102,7 +127,7 @@ base.bal.tab.base <- function(X,
     out[["call"]] <- X$call
     attr(out, "print.options") <- list(thresholds = thresholds,
                                        imbalanced.only = imbalanced.only,
-                                       un=un, 
+                                       un = un, 
                                        compute = compute, 
                                        disp = disp,
                                        disp.adj=!no.adj,

@@ -68,6 +68,37 @@ base.bal.tab.imp <- function(X,
     
     X$covs <- do.call(".get_C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
     
+    var_types <- attr(X$covs, "var_types")
+    
+    if (get.treat.type(X$treat) != "continuous") {
+        if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
+        if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
+    }
+    else {
+        if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
+        if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "std")
+    }
+    
+    if (get.treat.type(X$treat) != "continuous" &&
+        "mean.diffs" %in% X$stats &&
+        ((A$binary == "std" && any(var_types == "Binary")) ||
+         (A$continuous == "std" && any(var_types != "Binary")))) {
+        X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
+                                      estimand = X$estimand,
+                                      weights = X$weights, 
+                                      subclass = X$subclass,
+                                      treat = X$treat,
+                                      focal = X$focal)
+    }
+    else if (get.treat.type(X$treat) == "continuous" &&
+             any(c("correlations", "spearman.correlations") %in% X$stats) &&
+             ((A$binary == "std" && any(var_types == "Binary")) ||
+              (A$continuous == "std" && any(var_types != "Binary")))) {
+        X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
+                                           weights = X$weights,
+                                           subclass = X$subclass)
+    }
+    
     #Setup output object
     out.names <- c("Imputation.Balance", 
                    "Balance.Across.Imputations", 
