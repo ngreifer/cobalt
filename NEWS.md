@@ -1,9 +1,15 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.5.4
 
 * Minor update to accommodate `ggplot2` 3.5.0. Thanks to @teunbrand. (#80)
+
+* `bal.tab()` no longer throws a note about `s.d.denom` when `binary = "raw"` and `continuous = "raw"` (i.e., only raw mean differences are requested).
+
+* `col_w_smd()` now correctly includes all data in computing the standardization factor for standardized mean differences when `subset` is supplied, consistent with the documentation. Previously, only the subsetted units were included in the standardization factor. This does not affect any results from `bal.tab()` or `bal.compute()`, which already used the correct units.
+
+* Added a new vignette for frequently asked questions, which describes in further detail why some choices were made. See `vignette("faq")`.
 
 # cobalt 4.5.3
 
