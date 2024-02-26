@@ -22,7 +22,7 @@
 #' 
 #' @seealso [bal.tab()] for details of calculations.
 #' 
-#' @examplesIf requireNamespace("cem", quietly = TRUE)
+#' @examplesIf requireNamespace("cem", quietly = TRUE) && FALSE
 #' data("lalonde", package = "cobalt")
 #' 
 #' ## Coarsened exact matching

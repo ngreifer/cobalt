@@ -173,4 +173,6 @@ For information on the use of \code{bal.tab()} with specific types of objects, u
 \item \code{\link[=bal.tab.sbwcau]{bal.tab.sbwcau()}} for the method for objects returned by \pkg{sbw}.
 \item \code{\link[=bal.tab.formula]{bal.tab.formula()}} and \code{\link[=bal.tab.data.frame]{bal.tab.data.frame()}} for the methods for \code{formula} and data frame interfaces when the user has covariate values and weights (including matching weights) or subclasses or wants to evaluate balance on an unconditioned data set. For data that corresponds to a longitudinal treatment (i.e., to be analyzed with a marginal structural model), see \code{\link[=bal.tab.time.list]{bal.tab.time.list()}}.
 }
+
+See \code{vignette("faq")} for answers to frequently asked questions about \code{bal.tab()}.
 }

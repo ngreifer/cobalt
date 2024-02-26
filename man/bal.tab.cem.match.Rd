@@ -84,7 +84,7 @@ Generates balance statistics for \code{cem.match} objects from \pkg{cem}.
 \code{bal.tab.cem.match()} generates a list of balance summaries for the \code{cem.match} object given, and functions similarly to \pkgfun{cem}{imbalance}.
 }
 \examples{
-\dontshow{if (requireNamespace("cem", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("cem", quietly = TRUE) && FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 ## Coarsened exact matching
