@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Minor updates to `bal.plot()` to prevent warnings due to `ggplot2` 3.5.0.
+
 # cobalt 4.5.4
 
 * Minor update to accommodate `ggplot2` 3.5.0. Thanks to @teunbrand. (#80)

@@ -119,10 +119,10 @@ bal.plot(m.out, "distance", which = "both", mirror = TRUE,
          type = "histogram", colors = c("white", "black"))
 \dontshow{\}) # examplesIf}
 \dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-#PS weighting with a continuous treatment
+#Entropy balancing with a continuous treatment
 w.out <- WeightIt::weightit(re75 ~ age + I(age^2) + educ + 
                                 race + married + nodegree,
-                            data = lalonde)
+                            data = lalonde, method = "ebal")
 
 bal.plot(w.out, "age", which = "both")
 bal.plot(w.out, "married", which = "both")
