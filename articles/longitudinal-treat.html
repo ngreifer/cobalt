@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2024-02-26</h4>
+            <h4 data-toc-skip class="date">2024-03-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/longitudinal-treat.Rmd" class="external-link"><code>vignettes/longitudinal-treat.Rmd</code></a></small>
       <div class="d-none name"><code>longitudinal-treat.Rmd</code></div>
@@ -107,11 +107,12 @@ balancing weights. The goal of applying weights is to simulate a
 sequential randomization design, where the probability of being assigned
 to treatment at each time point is independent of each unit’s prior
 covariate and treatment history. For introduction to MSMs in general,
-see <span class="citation">Thoemmes and Ong (<a href="#ref-thoemmesPrimerInverseProbability2016" role="doc-biblioref">2016</a>)</span>, <span class="citation">VanderWeele, Jackson, and Li (<a href="#ref-vanderweeleCausalInferenceLongitudinal2016" role="doc-biblioref">2016</a>)</span>, <span class="citation">Cole and
-Hernán (<a href="#ref-coleConstructingInverseProbability2008" role="doc-biblioref">2008</a>)</span>, or <span class="citation">Robins,
-Hernán, and Brumback (<a href="#ref-robinsMarginalStructuralModels2000" role="doc-biblioref">2000</a>)</span>. The key issue addressed by this
-guide and <code>cobalt</code> in general is assessing balance before
-each treatment period to ensure the removal of confounding.</p>
+see <span class="citation">Thoemmes and Ong (<a href="#ref-thoemmesPrimerInverseProbability2016">2016</a>)</span>, <span class="citation">VanderWeele, Jackson, and Li (<a href="#ref-vanderweeleCausalInferenceLongitudinal2016">2016</a>)</span>,
+<span class="citation">Cole and Hernán (<a href="#ref-coleConstructingInverseProbability2008">2008</a>)</span>, or
+<span class="citation">Robins, Hernán, and Brumback (<a href="#ref-robinsMarginalStructuralModels2000">2000</a>)</span>. The key
+issue addressed by this guide and <code>cobalt</code> in general is
+assessing balance before each treatment period to ensure the removal of
+confounding.</p>
 <p>In preprocessing for MSMs, three types of variables are relevant:
 baseline covariates, treatments, and intermediate outcomes/time-varying
 covariates. The goal of balance assessment is to assess whether after
@@ -166,8 +167,9 @@ following:</p>
 </li>
 </ol>
 <p>Note these conditions are different from and weaker than those
-described by <span class="citation">Jackson (<a href="#ref-jacksonDiagnosticsConfoundingTimevarying2016" role="doc-biblioref">2016</a>)</span>. See his <code>confoundr</code>
-package for implementing the diagnostics he describes.</p>
+described by <span class="citation">Jackson (<a href="#ref-jacksonDiagnosticsConfoundingTimevarying2016">2016</a>)</span>.
+See his <code>confoundr</code> package for implementing the diagnostics
+he describes.</p>
 </div>
 <div class="section level2">
 <h2 id="bal-tab">
@@ -455,7 +457,7 @@ by the two packages.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-coleConstructingInverseProbability2008" class="csl-entry">
 Cole, Stephen R., and Miguel A Hernán. 2008. <span>“Constructing
 <span>Inverse Probability Weights</span> for <span>Marginal Structural

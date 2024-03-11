@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -294,13 +294,14 @@ assessment. As a tool, it should reflect imbalance accurately (i.e.,
 without incorporating extraneous information), but there is no
 statistical “truth” about the nature of the standardization factor. I
 use the same standardization factor before and after adjustment as
-recommended by <span class="citation">Stuart (<a href="#ref-stuartDevelopingPracticalRecommendations2008" role="doc-biblioref">2008</a>)</span>. The rationale is that by
-isolating the SMD to reflect changes in the difference in means, why can
-more accurately assess improvement in balance rather than combining
-information about the difference in means with information about the
-variability of the covariate, which may change in a variety of ways
-after adjustment. I describe a specific example of how allowing the
-standardization factor to change can cause problems <a href="https://stats.stackexchange.com/a/565705/116195" class="external-link">here</a>.</p>
+recommended by <span class="citation">Stuart (<a href="#ref-stuartDevelopingPracticalRecommendations2008">2008</a>)</span>.
+The rationale is that by isolating the SMD to reflect changes in the
+difference in means, why can more accurately assess improvement in
+balance rather than combining information about the difference in means
+with information about the variability of the covariate, which may
+change in a variety of ways after adjustment. I describe a specific
+example of how allowing the standardization factor to change can cause
+problems <a href="https://stats.stackexchange.com/a/565705/116195" class="external-link">here</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="how-do-i-extract-the-balance-tables-from-the-bal-tab-object">How do I extract the balance tables from the <code>bal.tab()</code>
@@ -548,12 +549,12 @@ described previously (and implemented in <code><a href="../reference/balance-sum
 values will differ by small amounts when the weights are not
 constant.</li>
 <li>For multi-category covariates, <code>tableone</code> uses a single
-statistic described by <span class="citation">Yang and Dalton (<a href="#ref-yangUnifiedApproachMeasuring2012" role="doc-biblioref">2012</a>)</span> to summarize balance, whereas
-<code>cobalt</code> provides a balance statistic for each level of the
-covariate. There is no reason to prefer the statistic used by
-<code>tableone</code>; it does not have any relationship to the bias of
-the estimate and can mask large differences in some categories when
-there are many categories. See <a href="https://stats.stackexchange.com/a/496608/116195" class="external-link">here</a> for a
+statistic described by <span class="citation">Yang and Dalton (<a href="#ref-yangUnifiedApproachMeasuring2012">2012</a>)</span> to
+summarize balance, whereas <code>cobalt</code> provides a balance
+statistic for each level of the covariate. There is no reason to prefer
+the statistic used by <code>tableone</code>; it does not have any
+relationship to the bias of the estimate and can mask large differences
+in some categories when there are many categories. See <a href="https://stats.stackexchange.com/a/496608/116195" class="external-link">here</a> for a
 more detailed answer.</li>
 </ul>
 <p>In practice, these differences will be small. Obviously, I recommend
@@ -566,7 +567,7 @@ beautiful tables.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-stuartDevelopingPracticalRecommendations2008" class="csl-entry">
 Stuart, Elizabeth A. 2008. <span>“Developing Practical Recommendations
 for the Use of Propensity Scores: Discussion of <span>‘<span>A</span>

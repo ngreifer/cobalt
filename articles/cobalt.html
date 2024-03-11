@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2024-02-26</h4>
+            <h4 data-toc-skip class="date">2024-03-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="d-none name"><code>cobalt.Rmd</code></div>
@@ -108,34 +108,33 @@ missing. Such issues should be fixed soon.&lt;/p&gt;"><sup>1</sup></a></p>
 </h2>
 <p>Preprocessing data through matching, weighting, or subclassification
 can be an effective way to reduce model dependence and improve
-efficiency when estimating the causal effect of a treatment <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007" role="doc-biblioref">Ho et al. 2007</a>)</span>. Propensity scores and
-other related methods (e.g., coarsened exact matching, Mahalanobis
-distance matching, genetic matching) have become popular in the social
-and health sciences as tools for this purpose. Two excellent
-introductions to propensity scores and other preprocessing methods are
-<span class="citation">Stuart (<a href="#ref-stuartMatchingMethodsCausal2010" role="doc-biblioref">2010</a>)</span> and <span class="citation">Austin
-(<a href="#ref-austinIntroductionPropensityScore2011" role="doc-biblioref">2011</a>)</span>, which describe them simply and
-clearly and point to other sources of knowledge. The logic and theory
-behind preprocessing will not be discussed here, and reader’s knowledge
-of the causal assumption of strong ignorability is assumed.</p>
+efficiency when estimating the causal effect of a treatment <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007">Ho et al.
+2007</a>)</span>. Propensity scores and other related methods (e.g.,
+coarsened exact matching, Mahalanobis distance matching, genetic
+matching) have become popular in the social and health sciences as tools
+for this purpose. Two excellent introductions to propensity scores and
+other preprocessing methods are <span class="citation">Stuart (<a href="#ref-stuartMatchingMethodsCausal2010">2010</a>)</span> and <span class="citation">Austin (<a href="#ref-austinIntroductionPropensityScore2011">2011</a>)</span>,
+which describe them simply and clearly and point to other sources of
+knowledge. The logic and theory behind preprocessing will not be
+discussed here, and reader’s knowledge of the causal assumption of
+strong ignorability is assumed.</p>
 <p>Several packages in R exist to perform preprocessing and causal
-effect estimation, and some were reviewed by <span class="citation">Keller and Tipton (<a href="#ref-kellerPropensityScoreAnalysis2016" role="doc-biblioref">2016</a>)</span>. These include
-<code>MatchIt</code> <span class="citation">(<a href="#ref-JSSv042i08" role="doc-biblioref">Ho et al. 2011</a>)</span>, <code>twang</code>
-<span class="citation">(<a href="#ref-ridgewayToolkitWeightingAnalysis2016" role="doc-biblioref">Ridgeway et al. 2016</a>)</span>,
-<code>Matching</code> <span class="citation">(<a href="#ref-sekhonMultivariatePropensityScore2011" role="doc-biblioref">Sekhon 2011</a>)</span>, <code>optmatch</code>
-<span class="citation">(<a href="#ref-hansenOptimalFullMatching2006" role="doc-biblioref">Hansen and Klopfer 2006</a>)</span>,
-<code>CBPS</code> <span class="citation">(<a href="#ref-fongCBPSCovariateBalancing2019" role="doc-biblioref">Fong et
-al. 2019</a>)</span>, <code>ebal</code> <span class="citation">(<a href="#ref-hainmuellerEbalEntropyReweighting2014" role="doc-biblioref">Hainmueller 2014</a>)</span>, <code>sbw</code>
-<span class="citation">(<a href="#ref-zubizarretaSbwStableBalancing2021" role="doc-biblioref">Zubizarreta, Li, and Kim 2021</a>)</span>,
-<code>designmatch</code> <span class="citation">(<a href="#ref-zubizarretaDesignmatchMatchedSamples2018" role="doc-biblioref">Zubizarreta, Kilcioglu, and Vielma
-2018</a>)</span>, <code>WeightIt</code> <span class="citation">(<a href="#ref-greiferWeightItWeightingCovariate2021" role="doc-biblioref">Greifer 2021</a>)</span>, <code>MatchThem</code>
-<span class="citation">(<a href="#ref-pishgarMatchThemMatchingWeighting2021" role="doc-biblioref">Pishgar et al. 2021</a>)</span>, and
-<code>cem</code> <span class="citation">(<a href="#ref-iacusCemSoftwareCoarsened2009" role="doc-biblioref">Iacus,
-King, and Porro 2009</a>)</span>; these together provide a near complete
-set of preprocessing tools in R to date.</p>
+effect estimation, and some were reviewed by <span class="citation">Keller and Tipton (<a href="#ref-kellerPropensityScoreAnalysis2016">2016</a>)</span>. These
+include <code>MatchIt</code> <span class="citation">(<a href="#ref-JSSv042i08">Ho et al. 2011</a>)</span>, <code>twang</code>
+<span class="citation">(<a href="#ref-ridgewayToolkitWeightingAnalysis2016">Ridgeway et al.
+2016</a>)</span>, <code>Matching</code> <span class="citation">(<a href="#ref-sekhonMultivariatePropensityScore2011">Sekhon
+2011</a>)</span>, <code>optmatch</code> <span class="citation">(<a href="#ref-hansenOptimalFullMatching2006">Hansen and Klopfer
+2006</a>)</span>, <code>CBPS</code> <span class="citation">(<a href="#ref-fongCBPSCovariateBalancing2019">Fong et al. 2019</a>)</span>,
+<code>ebal</code> <span class="citation">(<a href="#ref-hainmuellerEbalEntropyReweighting2014">Hainmueller
+2014</a>)</span>, <code>sbw</code> <span class="citation">(<a href="#ref-zubizarretaSbwStableBalancing2021">Zubizarreta, Li, and Kim
+2021</a>)</span>, <code>designmatch</code> <span class="citation">(<a href="#ref-zubizarretaDesignmatchMatchedSamples2018">Zubizarreta,
+Kilcioglu, and Vielma 2018</a>)</span>, <code>WeightIt</code> <span class="citation">(<a href="#ref-greiferWeightItWeightingCovariate2021">Greifer
+2021</a>)</span>, <code>MatchThem</code> <span class="citation">(<a href="#ref-pishgarMatchThemMatchingWeighting2021">Pishgar et al.
+2021</a>)</span>, and <code>cem</code> <span class="citation">(<a href="#ref-iacusCemSoftwareCoarsened2009">Iacus, King, and Porro
+2009</a>)</span>; these together provide a near complete set of
+preprocessing tools in R to date.</p>
 <p>The following are the basic steps in performing a causal analysis
-using data preprocessing <span class="citation">(<a href="#ref-stuartMatchingMethodsCausal2010" role="doc-biblioref">Stuart
-2010</a>)</span>:</p>
+using data preprocessing <span class="citation">(<a href="#ref-stuartMatchingMethodsCausal2010">Stuart 2010</a>)</span>:</p>
 <ol style="list-style-type: decimal">
 <li>Decide on covariates for which balance must be achieved</li>
 <li>Estimate the distance measure (e.g., propensity score)</li>
@@ -148,21 +147,23 @@ or subclassification)</li>
 <p>Steps 2, 3, and 4 are accomplished by all of the packages mentioned
 above. However, Step 4, assessing balance, is often overlooked in
 propensity score applications, with researchers failing to report the
-degree of covariate balance achieved by their conditioning <span class="citation">(<a href="#ref-thoemmesSystematicReviewPropensity2011" role="doc-biblioref">Thoemmes and Kim 2011</a>)</span>. Achieving
-balance is the very purpose of preprocessing because covariate balance
-is what justifies ignorability on the observed covariates, allowing for
-the potential for a valid causal inference after effect estimation <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007" role="doc-biblioref">Ho et al. 2007</a>)</span>.</p>
+degree of covariate balance achieved by their conditioning <span class="citation">(<a href="#ref-thoemmesSystematicReviewPropensity2011">Thoemmes and Kim
+2011</a>)</span>. Achieving balance is the very purpose of preprocessing
+because covariate balance is what justifies ignorability on the observed
+covariates, allowing for the potential for a valid causal inference
+after effect estimation <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007">Ho et al.
+2007</a>)</span>.</p>
 <p>In addition to simply achieving balance, researchers must also report
 balance to convince readers that their analysis was performed adequately
-and that their causal conclusions are valid <span class="citation">(<a href="#ref-thoemmesSystematicReviewPropensity2011" role="doc-biblioref">Thoemmes and Kim 2011</a>)</span>. Covariate
-balance is typically assessed and reported by using statistical
-measures, including standardized mean differences, variance ratios, and
-t-test or Kolmogorov-Smirnov-test p-values. Balance can be reported in
-an article by means of balance tables or plots displaying the balance
-measures before and after conditioning. If a defensible measure of
-balance is used and presented, readers are empowered to judge for
-themselves whether the causal claim made is valid or not based on the
-methods used and covariates chosen.</p>
+and that their causal conclusions are valid <span class="citation">(<a href="#ref-thoemmesSystematicReviewPropensity2011">Thoemmes and Kim
+2011</a>)</span>. Covariate balance is typically assessed and reported
+by using statistical measures, including standardized mean differences,
+variance ratios, and t-test or Kolmogorov-Smirnov-test p-values. Balance
+can be reported in an article by means of balance tables or plots
+displaying the balance measures before and after conditioning. If a
+defensible measure of balance is used and presented, readers are
+empowered to judge for themselves whether the causal claim made is valid
+or not based on the methods used and covariates chosen.</p>
 <p><code>cobalt</code> is meant to supplement or replace the balance
 assessment tools in the above packages and allow researchers to assess
 and report balance on covariates simply, clearly, and flexibly before
@@ -185,14 +186,14 @@ treatments.</p>
 the conditioning package used. The full APA reference for
 <code>cobalt</code> is the following:</p>
 <p>Greifer, N. (2024). cobalt: Covariate Balance Tables and Plots. R
-package version 4.5.4.</p>
+package version 4.5.4.9000.</p>
 <p>For example, if you use <code>Matching</code> for propensity score
 estimation and matching and <code>cobalt</code> for balance assessment
 and/or reporting, a possible citation might go as follows:</p>
 <blockquote>
 <p>Matching was performed using the Matching package (Sekhon, 2011), and
 covariate balance was assessed using cobalt (Greifer, 2024), both in R
-(R Core Team, 2023).</p>
+(R Core Team, 2024).</p>
 </blockquote>
 </div>
 </div>
@@ -240,7 +241,8 @@ order terms to examine. These summaries include the proportion of
 covariates that have met a user-specified threshold for balance and the
 covariate with the highest degree of imbalance, two values that have
 been shown to be effective in diagnosing imbalance and potential bias
-<span class="citation">(<a href="#ref-stuartPrognosticScorebasedBalance2013" role="doc-biblioref">Stuart, Lee, and Leacy 2013</a>)</span>.</p>
+<span class="citation">(<a href="#ref-stuartPrognosticScorebasedBalance2013">Stuart, Lee, and Leacy
+2013</a>)</span>.</p>
 </div>
 <div class="section level4">
 <h4 id="one-tool-to-rule-them-all">One tool to rule them all<a class="anchor" aria-label="anchor" href="#one-tool-to-rule-them-all"></a>
@@ -595,12 +597,11 @@ the denominator is the standard deviation of the treated group
 standard deviation of the control group (<code>"control"</code>), most
 appropriate when computing the ATC; the pooled standard deviation
 (<code>"pooled"</code>), computed as in <span class="citation">Austin
-(<a href="#ref-austin2009" role="doc-biblioref">2009</a>)</span>, most
-appropriate when computing the ATE; or another value (see
-<code><a href="../reference/balance-summary.html">?col_w_smd</a></code> for more options). <code><a href="../reference/bal.tab.html">bal.tab()</a></code> can
-generally determine if the ATT or ATC are being estimated and will
-supply <code>s.d.denom</code> accordingly. Otherwise, the default is
-<code>"pooled"</code>.</p>
+(<a href="#ref-austin2009">2009</a>)</span>, most appropriate when
+computing the ATE; or another value (see <code><a href="../reference/balance-summary.html">?col_w_smd</a></code> for
+more options). <code><a href="../reference/bal.tab.html">bal.tab()</a></code> can generally determine if the ATT
+or ATC are being estimated and will supply <code>s.d.denom</code>
+accordingly. Otherwise, the default is <code>"pooled"</code>.</p>
 <p>The next options only affect display, not the calculation of any
 statistics. First is <code>disp</code>, which controls whether sample
 statistics for each covariate in each group are displayed. Options
@@ -620,27 +621,28 @@ standardized mean differences are displayed. Variance ratios are another
 important tool for assessing balance beyond mean differences because
 they pertain to the shape of the covariate distributions beyond their
 centers. Variance ratios close to 1 (i.e., equal variances in both
-groups) are indicative of group balance <span class="citation">(<a href="#ref-austin2009" role="doc-biblioref">Austin 2009</a>)</span>. KS
-statistics measure the greatest distance between the empirical
-cumulative distribution functions (eCDFs) for each variable between two
-groups. The statistic is bounded at 0 and 1, with 0 indicting perfectly
-identical distributions and 1 indicating perfect separation between the
-distributions (i.e., no overlap at all); values close to 0 are thus
-indicative of balance. The use of the KS statistic to formally assess
-balance is debated. <span class="citation">Austin and Stuart (<a href="#ref-austinMovingBestPractice2015" role="doc-biblioref">2015</a>)</span> recommend its use, and it or a
-variant appears as a default balance statistic in <code>MatchIt</code>,
-<code>twang</code>, and <code>Matching</code>. On the other hand, <span class="citation">Belitser et al. (<a href="#ref-belitserMeasuringBalanceModel2011" role="doc-biblioref">2011</a>)</span>, <span class="citation">Stuart,
-Lee, and Leacy (<a href="#ref-stuartPrognosticScorebasedBalance2013" role="doc-biblioref">2013</a>)</span>, and <span class="citation">Ali et
-al. (<a href="#ref-aliPropensityScoreBalance2014" role="doc-biblioref">2014</a>)</span> all found that global balance
-assessments using the KS statistic performed uniformly worse than
-standardized mean differences, especially at sample sizes less than 1000
-in their simulations. The overlapping coefficient measures the amount of
-overlap in the covariate distributions between two groups. As in <span class="citation">Franklin et al. (<a href="#ref-franklinMetricsCovariateBalance2014" role="doc-biblioref">2014</a>)</span>, the complement is used so that 0
-indicates perfectly overlapping distributions and 1 indicates perfectly
-non-overlapping distributions. The overlapping coefficient complement
-functions similarly to the KS statistic in that it summarizes imbalance
-across the whole distribution of the covariate, not just its mean or
-variance, but avoids some of the weaknesses of the KS statistic.</p>
+groups) are indicative of group balance <span class="citation">(<a href="#ref-austin2009">Austin 2009</a>)</span>. KS statistics measure
+the greatest distance between the empirical cumulative distribution
+functions (eCDFs) for each variable between two groups. The statistic is
+bounded at 0 and 1, with 0 indicting perfectly identical distributions
+and 1 indicating perfect separation between the distributions (i.e., no
+overlap at all); values close to 0 are thus indicative of balance. The
+use of the KS statistic to formally assess balance is debated. <span class="citation">Austin and Stuart (<a href="#ref-austinMovingBestPractice2015">2015</a>)</span> recommend its
+use, and it or a variant appears as a default balance statistic in
+<code>MatchIt</code>, <code>twang</code>, and <code>Matching</code>. On
+the other hand, <span class="citation">Belitser et al. (<a href="#ref-belitserMeasuringBalanceModel2011">2011</a>)</span>, <span class="citation">Stuart, Lee, and Leacy (<a href="#ref-stuartPrognosticScorebasedBalance2013">2013</a>)</span>, and
+<span class="citation">Ali et al. (<a href="#ref-aliPropensityScoreBalance2014">2014</a>)</span> all found
+that global balance assessments using the KS statistic performed
+uniformly worse than standardized mean differences, especially at sample
+sizes less than 1000 in their simulations. The overlapping coefficient
+measures the amount of overlap in the covariate distributions between
+two groups. As in <span class="citation">Franklin et al. (<a href="#ref-franklinMetricsCovariateBalance2014">2014</a>)</span>, the
+complement is used so that 0 indicates perfectly overlapping
+distributions and 1 indicates perfectly non-overlapping distributions.
+The overlapping coefficient complement functions similarly to the KS
+statistic in that it summarizes imbalance across the whole distribution
+of the covariate, not just its mean or variance, but avoids some of the
+weaknesses of the KS statistic.</p>
 <p>Next is <code>un</code>, which controls whether the statistics to be
 displayed should be displayed for the unadjusted group as well. This can
 be useful the first time balance is assessed to see the initial group
@@ -683,14 +685,14 @@ options. They can also be set as global options by using
 using the <code>threshold</code> argument. Thresholds can be useful in
 determining whether satisfactory balance has been achieved. For
 standardized mean differences, thresholds of .1 and .25 have been
-proposed, but <span class="citation">Stuart, Lee, and Leacy (<a href="#ref-stuartPrognosticScorebasedBalance2013" role="doc-biblioref">2013</a>)</span> found that a threshold of .1 was
-more effective at assessing imbalance that would lead to biased effect
-estimation. In general, standardized mean differences should be as close
-to 0 as possible, but a conservative upper limit such as .1 can be a
-valuable heuristic in selecting models and defending the conditioning
-choice. The What Works Clearinghouse Standards Handbook recommends
-standardized mean differences of less than .05 (What Works
-Clearinghouse, 2020).</p>
+proposed, but <span class="citation">Stuart, Lee, and Leacy (<a href="#ref-stuartPrognosticScorebasedBalance2013">2013</a>)</span> found
+that a threshold of .1 was more effective at assessing imbalance that
+would lead to biased effect estimation. In general, standardized mean
+differences should be as close to 0 as possible, but a conservative
+upper limit such as .1 can be a valuable heuristic in selecting models
+and defending the conditioning choice. The What Works Clearinghouse
+Standards Handbook recommends standardized mean differences of less than
+.05 (What Works Clearinghouse, 2020).</p>
 <p>When thresholds are requested, a few components are added to the
 balance output: an extra column in the balance table stating whether
 each covariate is or is not balanced according to the threshold, an
@@ -889,11 +891,12 @@ creating the subclasses), as specified by the user. See
 <span><span class="co">## Total   387 62 55 54 56 614</span></span></code></pre>
 <p>When using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with continuous treatments, the
 default balance statistic presented is the (weighted) Pearson
-correlation between each covariate and treatment. <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015" role="doc-biblioref">2015</a>)</span> recommend that absolute
-correlations should be no greater than 0.1, but correlations should
-ideally be as close to zero as possible. Spearman correlations can also
-be requested. See the section “Using <code>cobalt</code> with continuous
-treatments” and <code>?balance.stats</code> for more details.</p>
+correlation between each covariate and treatment. <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span>
+recommend that absolute correlations should be no greater than 0.1, but
+correlations should ideally be as close to zero as possible. Spearman
+correlations can also be requested. See the section “Using
+<code>cobalt</code> with continuous treatments” and
+<code>?balance.stats</code> for more details.</p>
 <p>The next two sections describe the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 the <code>MatchIt</code> and <code>WeightIt</code>. As stated above, the
 arguments controlling calculations and display are largely the same
@@ -1003,11 +1006,11 @@ distributional balance is a more thorough method to assess balance
 between groups. Although there are statistics such as the
 Kolmogorov-Smirnov statistic and the overlapping coefficient complement
 that attempt to summarize distributional balance beyond the first few
-moments <span class="citation">(<a href="#ref-austinMovingBestPractice2015" role="doc-biblioref">Austin and
-Stuart 2015</a>; <a href="#ref-aliReportingCovariateSelection2015" role="doc-biblioref">Ali et al. 2015</a>)</span>, complimenting
-statistics with a visual examination of the distributional densities can
-be an effective way of assessing distributional similarity between the
-groups <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007" role="doc-biblioref">Ho et al. 2007</a>)</span>.</p>
+moments <span class="citation">(<a href="#ref-austinMovingBestPractice2015">Austin and Stuart 2015</a>; <a href="#ref-aliReportingCovariateSelection2015">Ali et al.
+2015</a>)</span>, complimenting statistics with a visual examination of
+the distributional densities can be an effective way of assessing
+distributional similarity between the groups <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007">Ho et al.
+2007</a>)</span>.</p>
 <p><code><a href="../reference/bal.plot.html">bal.plot()</a></code> allows users to do so by displaying density
 plots, histograms, empirical CDF plots, bar graphs, and scatterplots so
 that users can visually assess independence between treatment and
@@ -1078,9 +1081,9 @@ with binary treatments.</p>
 overlap of the distance measure distributions after adjustment, as most
 conditioning methods will yield good distributional overlap on the
 distance measure whether or not balance is achieved on the covariates
-<span class="citation">(<a href="#ref-stuartPrognosticScorebasedBalance2013" role="doc-biblioref">Stuart, Lee, and Leacy 2013</a>)</span>. However,
-it may be useful to see the new range of the distance measure if
-calipers or common support pruning are used.</p>
+<span class="citation">(<a href="#ref-stuartPrognosticScorebasedBalance2013">Stuart, Lee, and Leacy
+2013</a>)</span>. However, it may be useful to see the new range of the
+distance measure if calipers or common support pruning are used.</p>
 <p>The output plot is made using <code>ggplot2</code>, which means that
 users familiar with <code>ggplot2</code> can adjust the plot with
 <code>ggplot2</code> commands.</p>
@@ -1109,9 +1112,10 @@ and an example.</p>
 conditioning popularized by Dr. Thomas E. Love. In a visually appealing
 and clear way, balance can be presented to demonstrate to readers that
 balance has been met within a threshold, and that balance has improved
-after conditioning [which is not always the case; cf. <span class="citation">King and Nielsen (<a href="#ref-kingWhyPropensityScores2019" role="doc-biblioref">2019</a>)</span>]. <code><a href="../reference/love.plot.html">love.plot()</a></code> does
-just this, providing the user with several options to customize their
-plot for presentation. Below is an example of its use:</p>
+after conditioning [which is not always the case; cf. <span class="citation">King and Nielsen (<a href="#ref-kingWhyPropensityScores2019">2019</a>)</span>].
+<code><a href="../reference/love.plot.html">love.plot()</a></code> does just this, providing the user with several
+options to customize their plot for presentation. Below is an example of
+its use:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
@@ -1235,25 +1239,31 @@ more of <code><a href="../reference/love.plot.html">love.plot()</a></code>’s f
 <p>Although the most common use of propensity scores is in the context
 of binary treatments, it is also possible to use propensity scores with
 continuous treatment to estimate dose-response functions while
-controlling for background variables <span class="citation">(<a href="#ref-hiranoPropensityScoreContinuous2005" role="doc-biblioref">Hirano and Imbens 2005</a>)</span>. As in the
-binary case, the goal of propensity score adjustment in the continuous
-case is to arrive at a scenario in which, conditional on the propensity
-score, treatment is independent of background covariates. When this is
-true (and there are no unmeasured confounders), treatment is also
-independent of potential outcomes, thereby meeting the strong
-ignorability requirement for causal inference.</p>
-<p><span class="citation">Bia and Mattei (<a href="#ref-biaStataPackageEstimation2008" role="doc-biblioref">2008</a>)</span> describe the use of the
-<code>gpscore</code> function in Stata, which appears to be effective
-for estimating and assessing dose-response functions for continuous
-treatments. In R, there are not many ways to estimate and condition on
-the propensity score in these contexts. It is possible, using the
-formulas described by <span class="citation">Hirano and Imbens (<a href="#ref-hiranoPropensityScoreContinuous2005" role="doc-biblioref">2005</a>)</span>, to generate the propensity scores
-manually and perform weighting, subclassification, or covariate
-adjustment on them. The <code>WeightIt</code> package supports
-continuous treatments with a variety of options, including the CBPS
-method implemented in the <code>CBPS</code> package and described by
-<span class="citation">Fong, Hazlett, and Imai (<a href="#ref-fongCovariateBalancingPropensity2018" role="doc-biblioref">2018</a>)</span>, GBM as described by <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015" role="doc-biblioref">2015</a>)</span>, and entropy balancing as
-described by <span class="citation">Vegetabile et al. (<a href="#ref-vegetabileNonparametricEstimationPopulation2020" role="doc-biblioref">2021</a>)</span>, among others.</p>
+controlling for background variables <span class="citation">(<a href="#ref-hiranoPropensityScoreContinuous2005">Hirano and Imbens
+2005</a>)</span>. As in the binary case, the goal of propensity score
+adjustment in the continuous case is to arrive at a scenario in which,
+conditional on the propensity score, treatment is independent of
+background covariates. When this is true (and there are no unmeasured
+confounders), treatment is also independent of potential outcomes,
+thereby meeting the strong ignorability requirement for causal
+inference.</p>
+<p><span class="citation">Bia and Mattei (<a href="#ref-biaStataPackageEstimation2008">2008</a>)</span> describe the
+use of the <code>gpscore</code> function in Stata, which appears to be
+effective for estimating and assessing dose-response functions for
+continuous treatments. In R, there are not many ways to estimate and
+condition on the propensity score in these contexts. It is possible,
+using the formulas described by <span class="citation">Hirano and Imbens
+(<a href="#ref-hiranoPropensityScoreContinuous2005">2005</a>)</span>, to
+generate the propensity scores manually and perform weighting,
+subclassification, or covariate adjustment on them. The
+<code>WeightIt</code> package supports continuous treatments with a
+variety of options, including the CBPS method implemented in the
+<code>CBPS</code> package and described by <span class="citation">Fong,
+Hazlett, and Imai (<a href="#ref-fongCovariateBalancingPropensity2018">2018</a>)</span>, GBM
+as described by <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span>, and
+entropy balancing as described by <span class="citation">Vegetabile et
+al. (<a href="#ref-vegetabileNonparametricEstimationPopulation2020">2021</a>)</span>,
+among others.</p>
 <p>In <code>cobalt</code>, users can assess and present balance for
 continuous treatments using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, just as with
@@ -1262,14 +1272,15 @@ regardless of the type of treatment variable considered, but there are a
 few differences and specifics worth noting. The approach
 <code>cobalt</code> takes to assessing balance is to display
 correlations between each covariate and the treatment variable, which is
-the approach used in <code>CBPS</code> and described in <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015" role="doc-biblioref">2015</a>)</span> and <span class="citation">Austin
-(<a href="#ref-austinAssessingCovariateBalance2019" role="doc-biblioref">2019</a>)</span>, but not that described in <span class="citation">Hirano and Imbens (<a href="#ref-hiranoPropensityScoreContinuous2005" role="doc-biblioref">2005</a>)</span> or implemented in
-<code>gpscore</code> <span class="citation">(<a href="#ref-biaStataPackageEstimation2008" role="doc-biblioref">Bia and
-Mattei 2008</a>)</span>, which involves stratifying on both the
-treatment variable and the propensity score and calculating mean
-differences. Note that the weighted correlations use the unweighted
-standard deviations of the treatment variable and covariate in the
-denominator, so correlations above 1 may be observed in rare cases.</p>
+the approach used in <code>CBPS</code> and described in <span class="citation">Zhu, Coffman, and Ghosh (<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span> and
+<span class="citation">Austin (<a href="#ref-austinAssessingCovariateBalance2019">2019</a>)</span>, but
+not that described in <span class="citation">Hirano and Imbens (<a href="#ref-hiranoPropensityScoreContinuous2005">2005</a>)</span> or
+implemented in <code>gpscore</code> <span class="citation">(<a href="#ref-biaStataPackageEstimation2008">Bia and Mattei
+2008</a>)</span>, which involves stratifying on both the treatment
+variable and the propensity score and calculating mean differences. Note
+that the weighted correlations use the unweighted standard deviations of
+the treatment variable and covariate in the denominator, so correlations
+above 1 may be observed in rare cases.</p>
 <p>In addition to assessing the treatment-covariate correlations, it is
 important to assess the degree to which the adjusted sample is
 representative of the original target population. If the weighted sample
@@ -1298,17 +1309,17 @@ treatment, though substantively this analysis makes little sense.</p>
 correlation between each covariate and the treatment variable. A
 threshold for balance on correlations can be specified using
 <code>thresholds</code>; <span class="citation">Zhu, Coffman, and Ghosh
-(<a href="#ref-zhuBoostingAlgorithmEstimating2015" role="doc-biblioref">2015</a>)</span> recommend using .1 as indicating
-balance, but in general lower is better. Because the goal is complete
-independence between treatment and covariates, not simply the absence of
-a linear correlation between treatment and covariates, including
-interactions and polynomial terms through the use of arguments to
-<code>int</code> and <code>poly</code> is recommended (we just display
-the use of <code>poly</code> here for brevity). In addition to
-treatment-covariate correlations, we request standardized mean
-difference between the weighted and unweighted samples by include
-<code>"m"</code> (for <code>"mean.diffs.target"</code>) in the argument
-to <code>stats</code> along with <code>"c"</code> (for
+(<a href="#ref-zhuBoostingAlgorithmEstimating2015">2015</a>)</span>
+recommend using .1 as indicating balance, but in general lower is
+better. Because the goal is complete independence between treatment and
+covariates, not simply the absence of a linear correlation between
+treatment and covariates, including interactions and polynomial terms
+through the use of arguments to <code>int</code> and <code>poly</code>
+is recommended (we just display the use of <code>poly</code> here for
+brevity). In addition to treatment-covariate correlations, we request
+standardized mean difference between the weighted and unweighted samples
+by include <code>"m"</code> (for <code>"mean.diffs.target"</code>) in
+the argument to <code>stats</code> along with <code>"c"</code> (for
 <code>"correlations"</code>).</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance numerically</span></span>
@@ -1386,19 +1397,19 @@ present balance improvements in a Love plot using the
 </h3>
 <p>When multiple categorical treatment groups are to be compared with
 each other, it is possible to create balance across the treatment groups
-using preprocessing methods. <span class="citation">Lopez and Gutman (<a href="#ref-lopezEstimationCausalEffects2017" role="doc-biblioref">2017</a>)</span> compare methods used to create
-balance with multi-category treatments and briefly describe balance
-assessment for these scenarios. An important note is the choice of
-estimand to be examined. The ATE represents the causal effect of moving
-from one treatment group to another for all units in the population; the
-ATT represents the causal effect of moving from one treatment group to
-another “focal” treatment group for just the units that would have been
-in the focal treatment group. The way balance is assessed in these
-scenarios differs. For the ATE, all possible treatment pairs must be
-assessed for balance because all possible comparisons are potentially
-meaningful, but for the ATT, only treatment pairs that include the focal
-treatment group can be meaningfully compared, so balance needs only to
-be assessed in these pairs.</p>
+using preprocessing methods. <span class="citation">Lopez and Gutman (<a href="#ref-lopezEstimationCausalEffects2017">2017</a>)</span> compare
+methods used to create balance with multi-category treatments and
+briefly describe balance assessment for these scenarios. An important
+note is the choice of estimand to be examined. The ATE represents the
+causal effect of moving from one treatment group to another for all
+units in the population; the ATT represents the causal effect of moving
+from one treatment group to another “focal” treatment group for just the
+units that would have been in the focal treatment group. The way balance
+is assessed in these scenarios differs. For the ATE, all possible
+treatment pairs must be assessed for balance because all possible
+comparisons are potentially meaningful, but for the ATT, only treatment
+pairs that include the focal treatment group can be meaningfully
+compared, so balance needs only to be assessed in these pairs.</p>
 <p>In <code>cobalt</code>, users can assess and present balance for
 multi-category treatments using <code><a href="../reference/bal.tab.html">bal.tab()</a></code>,
 <code><a href="../reference/bal.plot.html">bal.plot()</a></code>, and <code><a href="../reference/love.plot.html">love.plot()</a></code>, just as with
@@ -1408,14 +1419,15 @@ clusters. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> compute
 pairwise comparisons between treatment groups and a table containing the
 worst balance for each covariate across pairwise comparisons. For mean
 differences, this is described in <span class="citation">Lopez and
-Gutman (<a href="#ref-lopezEstimationCausalEffects2017" role="doc-biblioref">2017</a>)</span> as “Max2SB,” or the maximum
-pairwise standardized bias. In <code>cobalt</code>, this has been
-extended to variance ratios and KS statistics as well. If the worst
-imbalance is not too great, then imbalance for all pairwise comparisons
-will not be too great either. When the ATT is desired, a focal group
-must be specified (unless done so automatically for some methods), and
-only the treatment group comparisons that involve that focal group will
-be computed and displayed.</p>
+Gutman (<a href="#ref-lopezEstimationCausalEffects2017">2017</a>)</span>
+as “Max2SB,” or the maximum pairwise standardized bias. In
+<code>cobalt</code>, this has been extended to variance ratios and KS
+statistics as well. If the worst imbalance is not too great, then
+imbalance for all pairwise comparisons will not be too great either.
+When the ATT is desired, a focal group must be specified (unless done so
+automatically for some methods), and only the treatment group
+comparisons that involve that focal group will be computed and
+displayed.</p>
 <p><code><a href="../reference/love.plot.html">love.plot()</a></code> allows for the display of each pairwise
 treatment or the range of balance across treatment pairs for each
 covariate. <code><a href="../reference/bal.plot.html">bal.plot()</a></code> displays distributional balance for
@@ -1454,9 +1466,9 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## re75     Contin.      0.3442       0.0059</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
-<span><span class="co">##            black hispan  white</span></span>
-<span><span class="co">## Unadjusted 243.   72.   299.  </span></span>
-<span><span class="co">## Adjusted   111.8  44.85 132.52</span></span></code></pre>
+<span><span class="co">##             black hispan  white</span></span>
+<span><span class="co">## Unadjusted 243.    72.   299.  </span></span>
+<span><span class="co">## Adjusted   111.79  44.85 132.47</span></span></code></pre>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Assessing balance for each pair of treatments</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">W.out.mn</span>, un <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -1471,13 +1483,13 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## educ     Contin.   10.2346    9.0139 -0.4515   10.2241   10.1105  -0.0420</span></span>
 <span><span class="co">## married   Binary    0.2222    0.4444  0.2222    0.4022    0.4070   0.0048</span></span>
 <span><span class="co">## nodegree  Binary    0.6955    0.7639  0.0684    0.6374    0.6416   0.0042</span></span>
-<span><span class="co">## re74     Contin. 2499.4492 4431.6260  0.3183 4439.0951 4461.4396   0.0037</span></span>
-<span><span class="co">## re75     Contin. 1613.7752 2741.3920  0.3442 2184.3421 2165.0158  -0.0059</span></span>
+<span><span class="co">## re74     Contin. 2499.4492 4431.6260  0.3183 4439.0938 4461.4373   0.0037</span></span>
+<span><span class="co">## re75     Contin. 1613.7752 2741.3920  0.3442 2184.3417 2165.0153  -0.0059</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
-<span><span class="co">##            black hispan</span></span>
-<span><span class="co">## Unadjusted 243.   72.  </span></span>
-<span><span class="co">## Adjusted   111.8  44.85</span></span>
+<span><span class="co">##             black hispan</span></span>
+<span><span class="co">## Unadjusted 243.    72.  </span></span>
+<span><span class="co">## Adjusted   111.79  44.85</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">black (0) vs. white (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
@@ -1486,13 +1498,13 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## educ     Contin.   10.2346   10.5987  0.1347   10.2241   10.2147  -0.0035</span></span>
 <span><span class="co">## married   Binary    0.2222    0.5652  0.3430    0.4022    0.4101   0.0079</span></span>
 <span><span class="co">## nodegree  Binary    0.6955    0.5452 -0.1503    0.6374    0.6346  -0.0028</span></span>
-<span><span class="co">## re74     Contin. 2499.4492 6260.5029  0.6196 4439.0951 4498.4859   0.0098</span></span>
-<span><span class="co">## re75     Contin. 1613.7752 2515.1320  0.2752 2184.3421 2167.8258  -0.0050</span></span>
+<span><span class="co">## re74     Contin. 2499.4492 6260.5029  0.6196 4439.0938 4498.4830   0.0098</span></span>
+<span><span class="co">## re75     Contin. 1613.7752 2515.1320  0.2752 2184.3417 2167.8252  -0.0050</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
-<span><span class="co">##            black  white</span></span>
-<span><span class="co">## Unadjusted 243.  299.  </span></span>
-<span><span class="co">## Adjusted   111.8 132.52</span></span>
+<span><span class="co">##             black  white</span></span>
+<span><span class="co">## Unadjusted 243.   299.  </span></span>
+<span><span class="co">## Adjusted   111.79 132.47</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">##  - - - <span style="font-style: italic;">hispan (0) vs. white (1)</span> - - - </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
@@ -1501,13 +1513,13 @@ all of which can be requested with <code>which.treat = .all</code>. See
 <span><span class="co">## educ     Contin.    9.0139   10.5987  0.5861   10.1105   10.2147   0.0385</span></span>
 <span><span class="co">## married   Binary    0.4444    0.5652  0.1208    0.4070    0.4101   0.0031</span></span>
 <span><span class="co">## nodegree  Binary    0.7639    0.5452 -0.2187    0.6416    0.6346  -0.0070</span></span>
-<span><span class="co">## re74     Contin. 4431.6260 6260.5029  0.3013 4461.4396 4498.4859   0.0061</span></span>
-<span><span class="co">## re75     Contin. 2741.3920 2515.1320 -0.0691 2165.0158 2167.8258   0.0009</span></span>
+<span><span class="co">## re74     Contin. 4431.6260 6260.5029  0.3013 4461.4373 4498.4830   0.0061</span></span>
+<span><span class="co">## re75     Contin. 2741.3920 2515.1320 -0.0691 2165.0153 2167.8252   0.0009</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Effective sample sizes</span></span></span>
 <span><span class="co">##            hispan  white</span></span>
 <span><span class="co">## Unadjusted  72.   299.  </span></span>
-<span><span class="co">## Adjusted    44.85 132.52</span></span>
+<span><span class="co">## Adjusted    44.85 132.47</span></span>
 <span><span class="co">##  - - - - - - - - - - - - - - - - - - - - - - - -</span></span></code></pre>
 <p>We can also assess balance graphically. The same guidelines apply for
 multi-category treatments as do for binary treatments. Ideally,
@@ -1597,15 +1609,16 @@ to the <code>weights</code> argument; see below for an example:</p>
 <h3 id="using-the-prognostic-score-for-balance-assessment">Using the prognostic score for balance assessment<a class="anchor" aria-label="anchor" href="#using-the-prognostic-score-for-balance-assessment"></a>
 </h3>
 <p>The prognostic score is the model-predicted outcome for an
-individual, excluding the treatment variable in the model <span class="citation">(<a href="#ref-hansenPrognosticAnaloguePropensity2008" role="doc-biblioref">Hansen 2008</a>)</span>. <span class="citation">Stuart, Lee, and Leacy (<a href="#ref-stuartPrognosticScorebasedBalance2013" role="doc-biblioref">2013</a>)</span> found that prognostic scores can
-be an extremely effective tool for assessing balance, greatly
-outperforming mean differences on covariates and significance tests.
-This is true even if the prognostic score model is slightly
-misspecified. Although the use of prognostic scores appears to violate
-the spirit of preprocessing in that users observe the outcome variable
-prior to treatment effect estimation, typically the prognostic score
-model is estimated in just the control group, so that the outcome of the
-treated group (which may contain treatment effect information) is
+individual, excluding the treatment variable in the model <span class="citation">(<a href="#ref-hansenPrognosticAnaloguePropensity2008">Hansen
+2008</a>)</span>. <span class="citation">Stuart, Lee, and Leacy (<a href="#ref-stuartPrognosticScorebasedBalance2013">2013</a>)</span> found
+that prognostic scores can be an extremely effective tool for assessing
+balance, greatly outperforming mean differences on covariates and
+significance tests. This is true even if the prognostic score model is
+slightly misspecified. Although the use of prognostic scores appears to
+violate the spirit of preprocessing in that users observe the outcome
+variable prior to treatment effect estimation, typically the prognostic
+score model is estimated in just the control group, so that the outcome
+of the treated group (which may contain treatment effect information) is
 excluded from analysis.</p>
 <p>Assessing balance on the prognostic score is simple in
 <code>cobalt</code>, and highly recommended when available. The steps
@@ -1691,9 +1704,9 @@ differences<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs
 &lt;code&gt;Matching&lt;/code&gt; calculate standardized mean differences using the
 standard deviation of the sample in question, not the unadjusted sample,
 though &lt;code&gt;CBPS&lt;/code&gt; uses the standard deviation of the unadjusted
-sample.&lt;/p&gt;"><sup>5</sup></a>, and is recommended by Stuart <span class="citation">(<a href="#ref-stuartDevelopingPracticalRecommendations2008" role="doc-biblioref">2008</a>, <a href="#ref-stuartMatchingMethodsCausal2010" role="doc-biblioref">2010</a>)</span>. One reason to favor the use of
-the standard deviation of the unadjusted sample is that it prevents the
-<a href="https://stats.stackexchange.com/a/565705/116195" class="external-link">paradoxical
+sample.&lt;/p&gt;"><sup>5</sup></a>, and is recommended by Stuart <span class="citation">(<a href="#ref-stuartDevelopingPracticalRecommendations2008">2008</a>, <a href="#ref-stuartMatchingMethodsCausal2010">2010</a>)</span>. One reason
+to favor the use of the standard deviation of the unadjusted sample is
+that it prevents the <a href="https://stats.stackexchange.com/a/565705/116195" class="external-link">paradoxical
 situation</a> that occurs when adjustment decreases both the mean
 difference and the spread of the sample, yielding a larger standardized
 mean difference than that prior to adjustment, even though the adjusted
@@ -1738,15 +1751,15 @@ weights”, while the weights in the second formula are often called
 normalized or “reliability weights”. <code>MatchIt</code>,
 <code>twang</code>, and <code>Matching</code> all use the first formula
 when calculating any weighted variance (<code>CBPS</code> does not
-compute a weighted variance). However, <span class="citation">Austin (<a href="#ref-austinAssessingBalanceMeasured2008" role="doc-biblioref">2008b</a>)</span> and <span class="citation">Austin
-and Stuart (<a href="#ref-austinMovingBestPractice2015" role="doc-biblioref">2015</a>)</span> recommend the second formula when
-considering matching weights for k:1 matching or weights for propensity
-score weighting. In <code>cobalt</code>, as of version 2.0.0, the second
-formula is used to remain in line with recommended practice. For some
-applications (e.g., when all weights are either 0 or 1, as in 1:1
-matching), the two formulas yield the same variance estimate. In other
-cases, the estimates are nearly the same. For binary variables, the
-weighted variance is computed as <span class="math inline">\(\bar{x}_{w}(1-\bar{x}_{w})\)</span> where <span class="math inline">\(\bar{x}_{w}\)</span> is the weighted proportion of
+compute a weighted variance). However, <span class="citation">Austin (<a href="#ref-austinAssessingBalanceMeasured2008">2008b</a>)</span> and
+<span class="citation">Austin and Stuart (<a href="#ref-austinMovingBestPractice2015">2015</a>)</span> recommend the
+second formula when considering matching weights for k:1 matching or
+weights for propensity score weighting. In <code>cobalt</code>, as of
+version 2.0.0, the second formula is used to remain in line with
+recommended practice. For some applications (e.g., when all weights are
+either 0 or 1, as in 1:1 matching), the two formulas yield the same
+variance estimate. In other cases, the estimates are nearly the same.
+For binary variables, the weighted variance is computed as <span class="math inline">\(\bar{x}_{w}(1-\bar{x}_{w})\)</span> where <span class="math inline">\(\bar{x}_{w}\)</span> is the weighted proportion of
 1s in the sample.</p>
 </div>
 <div class="section level3">
@@ -1763,11 +1776,12 @@ straightforward because the purpose of weighting is to down- and
 up-weight observations to create two similar samples. The “effective
 sample size” (ESS) is a measure of the sample size a non-weighted sample
 would have to have to achieve the same level of precision as the
-weighted sample <span class="citation">(<a href="#ref-ridgewayAssessingEffectRace2006" role="doc-biblioref">Ridgeway 2006</a>)</span>. This measure is
-implemented in <code>twang</code> using the following formula: <span class="math display">\[ESS = \frac{(\sum_{i=1}^{n}
-w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}\]</span><span class="citation">Shook-Sa and Hudgens (<a href="#ref-shook-saPowerSampleSize2020b" role="doc-biblioref">2020</a>)</span> derived the specific relationship
-between the ESS and the standard error of a propensity score-weighted
-mean.</p>
+weighted sample <span class="citation">(<a href="#ref-ridgewayAssessingEffectRace2006">Ridgeway 2006</a>)</span>.
+This measure is implemented in <code>twang</code> using the following
+formula: <span class="math display">\[ESS = \frac{(\sum_{i=1}^{n}
+w_{i})^2}{\sum_{i=1}^{n} w_{i}^2}\]</span><span class="citation">Shook-Sa and Hudgens (<a href="#ref-shook-saPowerSampleSize2020b">2020</a>)</span> derived the
+specific relationship between the ESS and the standard error of a
+propensity score-weighted mean.</p>
 </div>
 </div>
 <div class="section level2">
@@ -1789,16 +1803,19 @@ balance assessment.</p>
 <p>Some of the early literature on propensity score matching included
 measures for balance assessment that relied on hypothesis tests for the
 independence of treatment assignment and covariates after adjustment
-<span class="citation">(e.g., <a href="#ref-hansenFullMatchingObservational2004" role="doc-biblioref">Hansen 2004</a>; <a href="#ref-rosenbaumConstructingControlGroup1985" role="doc-biblioref">Rosenbaum and Rubin 1985</a>)</span>. In a review
-of propensity score applications in the social sciences, <span class="citation">Thoemmes and Kim (<a href="#ref-thoemmesSystematicReviewPropensity2011" role="doc-biblioref">2011</a>)</span> found that over 66% of studies
-used significance tests to assess balance. Likewise, <span class="citation">Austin (<a href="#ref-austinCriticalAppraisalPropensityscore2008" role="doc-biblioref">2008a</a>)</span> found that over 70% of studies
-using propensity scores in the medical literature used significance
-tests to assess balance, a finding replicated by <span class="citation">Ali et al. (<a href="#ref-aliReportingCovariateSelection2015" role="doc-biblioref">2015</a>)</span>. These hypothesis tests can come
-in many forms: t-tests for the difference in means between groups,
-chi-square tests for the difference in proportion between groups,
-Kolmogorov-Smirnov tests for the difference in cumulative density
-between groups, or F-tests for the difference in means between groups
-across subclasses.</p>
+<span class="citation">(e.g., <a href="#ref-hansenFullMatchingObservational2004">Hansen 2004</a>; <a href="#ref-rosenbaumConstructingControlGroup1985">Rosenbaum and Rubin
+1985</a>)</span>. In a review of propensity score applications in the
+social sciences, <span class="citation">Thoemmes and Kim (<a href="#ref-thoemmesSystematicReviewPropensity2011">2011</a>)</span>
+found that over 66% of studies used significance tests to assess
+balance. Likewise, <span class="citation">Austin (<a href="#ref-austinCriticalAppraisalPropensityscore2008">2008a</a>)</span>
+found that over 70% of studies using propensity scores in the medical
+literature used significance tests to assess balance, a finding
+replicated by <span class="citation">Ali et al. (<a href="#ref-aliReportingCovariateSelection2015">2015</a>)</span>. These
+hypothesis tests can come in many forms: t-tests for the difference in
+means between groups, chi-square tests for the difference in proportion
+between groups, Kolmogorov-Smirnov tests for the difference in
+cumulative density between groups, or F-tests for the difference in
+means between groups across subclasses.</p>
 <p>The use of hypothesis tests appears natural here: if balance is
 achieved, we would not expect extreme values for the test statistics,
 and we can quantify the probability of observing imbalance as extreme as
@@ -1806,18 +1823,18 @@ the one observed if no imbalance is present as a way to assess whether
 there is balance, as we can do with standard hypothesis testing. But
 this view is not shared by the methodological community: many
 contemporary propensity score methodologists recommend against using
-hypothesis tests for balance assessment <span class="citation">(e.g., <a href="#ref-hoMatchingNonparametricPreprocessing2007" role="doc-biblioref">Ho et al. 2007</a>; <a href="#ref-imaiMisunderstandingsExperimentalistsObservationalists2008" role="doc-biblioref">Imai, King, and Stuart 2008</a>; <a href="#ref-austinIntroductionPropensityScore2011" role="doc-biblioref">Austin 2011</a>, <a href="#ref-austin2009" role="doc-biblioref">2009</a>; <a href="#ref-stuartMatchingMethodsCausal2010" role="doc-biblioref">Stuart
-2010</a>; <a href="#ref-thoemmesSystematicReviewPropensity2011" role="doc-biblioref">Thoemmes and Kim 2011</a>; <a href="#ref-aliReportingCovariateSelection2015" role="doc-biblioref">Ali
-et al. 2015</a>)</span>. There are logical reasons for this preference
-against hypothesis tests, noted clearly in <span class="citation">Ali et
-al. (<a href="#ref-aliReportingCovariateSelection2015" role="doc-biblioref">2015</a>)</span> and <span class="citation">Linden
-(<a href="#ref-linden2014" role="doc-biblioref">2014</a>)</span>: they
-are influenced by sample size, which fluctuates during adjustment, and
-the theory behind them is inappropriate because balance is a quality
-solely of the sample in question, not in relation to a population. The
-relevant information in a hypothesis test for group differences is the
-standardized magnitude of the group difference, and so such a measure is
-preferred.</p>
+hypothesis tests for balance assessment <span class="citation">(e.g., <a href="#ref-hoMatchingNonparametricPreprocessing2007">Ho et al. 2007</a>;
+<a href="#ref-imaiMisunderstandingsExperimentalistsObservationalists2008">Imai,
+King, and Stuart 2008</a>; <a href="#ref-austinIntroductionPropensityScore2011">Austin 2011</a>, <a href="#ref-austin2009">2009</a>; <a href="#ref-stuartMatchingMethodsCausal2010">Stuart 2010</a>; <a href="#ref-thoemmesSystematicReviewPropensity2011">Thoemmes and Kim
+2011</a>; <a href="#ref-aliReportingCovariateSelection2015">Ali et al.
+2015</a>)</span>. There are logical reasons for this preference against
+hypothesis tests, noted clearly in <span class="citation">Ali et al. (<a href="#ref-aliReportingCovariateSelection2015">2015</a>)</span> and
+<span class="citation">Linden (<a href="#ref-linden2014">2014</a>)</span>: they are influenced by sample
+size, which fluctuates during adjustment, and the theory behind them is
+inappropriate because balance is a quality solely of the sample in
+question, not in relation to a population. The relevant information in a
+hypothesis test for group differences is the standardized magnitude of
+the group difference, and so such a measure is preferred.</p>
 <p>Because hypothesis tests can be misleading and their use is
 discouraged by leading methodologists, they have been completely
 excluded in <code>cobalt</code> in favor of summary statistics. This
@@ -1829,16 +1846,17 @@ their balance output.</p>
 <h3 id="q-q-plots-and-summaries">Q-Q Plots and Summaries<a class="anchor" aria-label="anchor" href="#q-q-plots-and-summaries"></a>
 </h3>
 <p>Q-Q plots have been recommended as tools to assess distributional
-balance of covariates between groups <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007" role="doc-biblioref">Ho et al. 2007</a>)</span>, and are implemented in
-<code>MatchIt</code> and <code>Matching</code> (<code>twang</code>
-implements them but for a different purpose). Statistics summarizing the
-degree of imbalance in Q-Q plots are also reported in both
-<code>MatchIt</code> and <code>Matching</code>. <code>MatchIt</code>’s
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> command reports “eQQ Mean” and “eQQ Max” for each
-covariate before and after adjustment. These are the mean and maximum
-distance between the treated and control group empirical Q-Q plots on
-the scale of the covariate. Values close to 0 indicate good balance
-between groups for the given covariate.</p>
+balance of covariates between groups <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007">Ho et al.
+2007</a>)</span>, and are implemented in <code>MatchIt</code> and
+<code>Matching</code> (<code>twang</code> implements them but for a
+different purpose). Statistics summarizing the degree of imbalance in
+Q-Q plots are also reported in both <code>MatchIt</code> and
+<code>Matching</code>. <code>MatchIt</code>’s <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+command reports “eQQ Mean” and “eQQ Max” for each covariate before and
+after adjustment. These are the mean and maximum distance between the
+treated and control group empirical Q-Q plots on the scale of the
+covariate. Values close to 0 indicate good balance between groups for
+the given covariate.</p>
 <p>A weakness of empirical Q-Q plots is that they don’t reveal much
 about the differences in the shapes of the distributions between the
 groups, which is a key aspect of distributional balance. A density plot
@@ -1847,9 +1865,10 @@ intuitive. Although the assessment of balance using an empirical Q-Q
 plot is straightforward (i.e., deviations from the 45-degree line
 indicate imbalances), density plots present the information in a way
 more in line with the actual goals of conditioning, in particular, that
-the distributions of treated and control units are similar <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007" role="doc-biblioref">Ho et al. 2007</a>)</span>. Empirical Q-Q plot
-summary statistics may be useful in quantifying imbalance, but currently
-there are few recommendations for their use.</p>
+the distributions of treated and control units are similar <span class="citation">(<a href="#ref-hoMatchingNonparametricPreprocessing2007">Ho et al.
+2007</a>)</span>. Empirical Q-Q plot summary statistics may be useful in
+quantifying imbalance, but currently there are few recommendations for
+their use.</p>
 </div>
 </div>
 <div class="section level2">
@@ -1871,24 +1890,24 @@ the groups for given covariates. Though there are no obvious heuristics
 for deciding how much dissimilarity is too much dissimilarity, density
 plots do avoid the sometimes confusing logic of empirical Q-Q plots in
 favor of simplicity and interpretability. <span class="citation">Austin
-(<a href="#ref-austin2009" role="doc-biblioref">2009</a>)</span> and
-<span class="citation">Linden (<a href="#ref-linden2014" role="doc-biblioref">2014</a>)</span> consider density plots as a
-compliment to empirical Q-Q plots to more finely examine balance after
-adjusting.</p>
+(<a href="#ref-austin2009">2009</a>)</span> and <span class="citation">Linden (<a href="#ref-linden2014">2014</a>)</span>
+consider density plots as a compliment to empirical Q-Q plots to more
+finely examine balance after adjusting.</p>
 </div>
 <div class="section level3">
 <h3 id="variance-ratios">Variance Ratios<a class="anchor" aria-label="anchor" href="#variance-ratios"></a>
 </h3>
 <p>Although mean differences (including t-tests and chi-square tests)
-are the most reported balance statistic <span class="citation">(<a href="#ref-thoemmesSystematicReviewPropensity2011" role="doc-biblioref">Thoemmes and Kim 2011</a>)</span>, variance ratios
-have been recommended in the literature as a means to further examine
-balance between groups <span class="citation">(<a href="#ref-austin2009" role="doc-biblioref">Austin 2009</a>; <a href="#ref-hoMatchingNonparametricPreprocessing2007" role="doc-biblioref">Ho et al. 2007</a>; <a href="#ref-imaiMisunderstandingsExperimentalistsObservationalists2008" role="doc-biblioref">Imai, King, and Stuart 2008</a>)</span>. When group
-variances are similar, the variance ratio will be close to 1. Common
-thresholds for the variance ratio for balanced groups are .5 and 2 <span class="citation">(<a href="#ref-stuartMatchingMethodsCausal2010" role="doc-biblioref">Stuart 2010</a>; <a href="#ref-rubinUsingPropensityScores2001" role="doc-biblioref">Rubin
-2001</a>)</span>, though ratios closer to 1 are preferred. Although
-<code><a href="../reference/bal.tab.html">bal.tab()</a></code> in <code>cobalt</code> does not display variance
-ratios by default, they can be easily requested and have thresholds
-set.</p>
+are the most reported balance statistic <span class="citation">(<a href="#ref-thoemmesSystematicReviewPropensity2011">Thoemmes and Kim
+2011</a>)</span>, variance ratios have been recommended in the
+literature as a means to further examine balance between groups <span class="citation">(<a href="#ref-austin2009">Austin 2009</a>; <a href="#ref-hoMatchingNonparametricPreprocessing2007">Ho et al. 2007</a>;
+<a href="#ref-imaiMisunderstandingsExperimentalistsObservationalists2008">Imai,
+King, and Stuart 2008</a>)</span>. When group variances are similar, the
+variance ratio will be close to 1. Common thresholds for the variance
+ratio for balanced groups are .5 and 2 <span class="citation">(<a href="#ref-stuartMatchingMethodsCausal2010">Stuart 2010</a>; <a href="#ref-rubinUsingPropensityScores2001">Rubin 2001</a>)</span>,
+though ratios closer to 1 are preferred. Although <code><a href="../reference/bal.tab.html">bal.tab()</a></code>
+in <code>cobalt</code> does not display variance ratios by default, they
+can be easily requested and have thresholds set.</p>
 </div>
 <div class="section level3">
 <h3 id="distinguishing-continuous-and-binary-covariates">Distinguishing Continuous and Binary Covariates<a class="anchor" aria-label="anchor" href="#distinguishing-continuous-and-binary-covariates"></a>
@@ -1908,15 +1927,17 @@ variables are already on the same scale (i.e., a proportion), and the
 scale is easily interpretable. In addition, the details of standardizing
 the proportion difference of a binary variable involve dividing the
 proportion difference by a variance, but the variance of a binary
-variable is a function of its proportion <span class="citation">(<a href="#ref-austin2009" role="doc-biblioref">Austin 2009</a>)</span>.
-Standardizing the proportion difference of a binary variable can yield
-the following counterintuitive result: if <span class="math inline">\(X_{T} = .2\)</span> and <span class="math inline">\(X_{C} = .3\)</span>, the standardized difference
-in proportion would be different from that if <span class="math inline">\(X_{T} = .5\)</span> and <span class="math inline">\(X_{C} = .6\)</span>, even though the expectation
+variable is a function of its proportion <span class="citation">(<a href="#ref-austin2009">Austin 2009</a>)</span>. Standardizing the
+proportion difference of a binary variable can yield the following
+counterintuitive result: if <span class="math inline">\(X_{T} =
+.2\)</span> and <span class="math inline">\(X_{C} = .3\)</span>, the
+standardized difference in proportion would be different from that if
+<span class="math inline">\(X_{T} = .5\)</span> and <span class="math inline">\(X_{C} = .6\)</span>, even though the expectation
 is that the balance statistic should be the same for both scenarios
 because both would yield the same degree of bias in the effect estimate.
-In addition, <span class="citation">Ali et al. (<a href="#ref-aliPropensityScoreBalance2014" role="doc-biblioref">2014</a>)</span> found that the raw difference in
-proportion was a better predictor of bias than the standardized mean
-difference for binary variables<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Ali et al. (2014) compared the KS statistic to
+In addition, <span class="citation">Ali et al. (<a href="#ref-aliPropensityScoreBalance2014">2014</a>)</span> found that
+the raw difference in proportion was a better predictor of bias than the
+standardized mean difference for binary variables<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;Ali et al. (2014) compared the KS statistic to
 standardized mean differences, but the KS statistic is equivalent to the
 raw difference in proportion for binary variables.&lt;/p&gt;"><sup>6</sup></a>.</p>
 <p><code>MatchIt</code> allows users to view either standardized mean
@@ -2065,14 +2086,14 @@ These include <code><a href="../reference/balance-summary.html">col_w_smd()</a><
 differences, <code><a href="../reference/balance-summary.html">col_w_vr()</a></code> for computing variance ratios,
 <code><a href="../reference/balance-summary.html">col_w_ks()</a></code> for computing KS statistics,
 <code><a href="../reference/balance-summary.html">col_w_ovl()</a></code> for computing the complement of the overlapping
-statistics <span class="citation">(<a href="#ref-franklinMetricsCovariateBalance2014" role="doc-biblioref">Franklin et al. 2014</a>)</span>, and
-<code><a href="../reference/balance-summary.html">col_w_corr()</a></code> for computing treatment-covariate
-correlations. These all run fairly quickly but are still quite flexible,
-so they can be used to quickly and simply compute balance statistics in
-other packages. They are used internally in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>, and
-they might be able to be used internally in other functions (e.g., to
-choose a tuning parameter based on a measure of balance). See
-<code><a href="../reference/balance-summary.html">help("balance-summary")</a></code> for details.</p>
+statistics <span class="citation">(<a href="#ref-franklinMetricsCovariateBalance2014">Franklin et al.
+2014</a>)</span>, and <code><a href="../reference/balance-summary.html">col_w_corr()</a></code> for computing
+treatment-covariate correlations. These all run fairly quickly but are
+still quite flexible, so they can be used to quickly and simply compute
+balance statistics in other packages. They are used internally in
+<code><a href="../reference/bal.tab.html">bal.tab()</a></code>, and they might be able to be used internally in
+other functions (e.g., to choose a tuning parameter based on a measure
+of balance). See <code><a href="../reference/balance-summary.html">help("balance-summary")</a></code> for details.</p>
 <p>The functions <code><a href="../reference/bal.compute.html">bal.init()</a></code> and <code><a href="../reference/bal.compute.html">bal.compute()</a></code>
 can be used to compute scalar balance statistics efficiently, which can
 be useful in tuning a parameter to achieve balance or quickly
@@ -2090,7 +2111,7 @@ Brian Barkley for their advice on developing an R package.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-aliReportingCovariateSelection2015" class="csl-entry">
 Ali, M. Sanni, Rolf H. H. Groenwold, Svetlana V. Belitser, Wiebe R.
 Pestman, Arno W. Hoes, Kit C. B. Roes, Anthonius de Boer, and Olaf H.
@@ -2161,8 +2182,8 @@ Applied Statistics</em> 12 (1): 156–77. <a href="https://doi.org/10.1214/17-AO
 </div>
 <div id="ref-fongCBPSCovariateBalancing2019" class="csl-entry">
 Fong, Christian, Marc Ratkovic, Chad Hazlett, Xiaolin Yang, and Kosuke
-Imai. 2019. <em><span>CBPS</span>: Covariate <span>Balancing Propensity
-Score</span></em>.
+Imai. 2019. <span>“<span>CBPS</span>: Covariate <span>Balancing
+Propensity Score</span>.”</span>
 </div>
 <div id="ref-franklinMetricsCovariateBalance2014" class="csl-entry">
 Franklin, Jessica M., Jeremy A. Rassen, Diana Ackermann, Dorothee B.
