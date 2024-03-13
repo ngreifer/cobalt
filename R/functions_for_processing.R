@@ -673,7 +673,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     if (is_not_null(weights) && length(s.d.denom) == 1 && NCOL(weights) > 1) {
         s.d.denom <- rep.int(s.d.denom, NCOL(weights))
     }
-
+    
     if (is_not_null(weights) && length(s.d.denom) != NCOL(weights)) {
         .err(sprintf("valid inputs to `s.d.denom` or `estimand` must have length 1 or equal to the number of valid sets of weights, which is %s",
                      NCOL(weights)))
@@ -2074,7 +2074,9 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         }
     }
     
-    names(co_list[["C"]]) <- vapply(co_list[["C"]], function(x) paste0(x[["component"]], collapse = ""), character(1L))
+    if (is_not_null(co_list[["C"]])) {
+        names(co_list[["C"]]) <- vapply(co_list[["C"]], function(x) paste0(x[["component"]], collapse = ""), character(1L))
+    }
     
     if (is_not_null(distance)) {
         if (anyNA(distance, recursive = TRUE)) .err("missing values are not allowed in the distance measure")
@@ -2130,25 +2132,36 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }
     
     C <- do.call("cbind", clear_null(C_list[c("distance", "C", "int.poly")]))
-    co.names <- do.call("c", co_list[c("distance", "C", "int.poly")])
     
-    for (i in seq_along(co.names)) {
-        co.names[[i]]$component[co.names[[i]]$type == "fsep"] <- factor_sep
-        co.names[[i]]$component[co.names[[i]]$type == "isep"] <- int_sep
+    
+    if (is_null(C)) {
+        C <- matrix(0, nrow = length(treat), ncol = 0,
+                    dimnames = list(rownames(covs), NULL))
     }
-    seps["factor"] <- factor_sep
-    seps["int"] <- int_sep
+    else {
+        co.names <- do.call("c", co_list[c("distance", "C", "int.poly")])
+        
+        for (i in seq_along(co.names)) {
+            co.names[[i]]$component[co.names[[i]]$type == "fsep"] <- factor_sep
+            co.names[[i]]$component[co.names[[i]]$type == "isep"] <- int_sep
+        }
+        
+        seps["factor"] <- factor_sep
+        seps["int"] <- int_sep
+        
+        colnames(C) <- names(co.names) <- vapply(co.names, function(x) paste0(x[["component"]], collapse = ""), character(1L))
+        
+        
+        attr(co.names, "seps") <- seps
+        
+        attr(C, "co.names") <- co.names
+        
+        attr(C, "missing.ind") <- colnames(C)[vapply(co.names, function(x) "na" %in% x[["type"]], logical(1L))]
+        if ("distance" %in% names(C_list)) attr(C, "distance.names") <- names(co_list[["distance"]])
+        
+        attr(C, "var_types") <- .get_types(C)
+    }
     
-    colnames(C) <- names(co.names) <- vapply(co.names, function(x) paste0(x[["component"]], collapse = ""), character(1L))
-    
-    attr(co.names, "seps") <- seps
-    
-    attr(C, "co.names") <- co.names
-    
-    attr(C, "missing.ind") <- colnames(C)[vapply(co.names, function(x) "na" %in% x[["type"]], logical(1L))]
-    if ("distance" %in% names(C_list)) attr(C, "distance.names") <- names(co_list[["distance"]])
-    
-    attr(C, "var_types") <- .get_types(C)
     class(C) <- c(class(C), "processed_C")
     
     C
@@ -2613,7 +2626,7 @@ balance.table <- function(C, type, weights = NULL, treat, continuous, binary, s.
                                                                                       abs = abs, s.weights = s.weights, bin.vars = bin.vars,
                                                                                       weighted.weights = weights[[1]], ...)
             }
-
+            
             if (!no.adj && (!quick || s %in%  disp)) {
                 for (i in weight.names) {
                     B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]] <- STATS[[s]]$fun(C, treat = treat, weights = weights[[i]],

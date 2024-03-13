@@ -2059,8 +2059,9 @@ x2base.weightit <- function(weightit, ...) {
     treat <- process_treat(weightit[["treat"]], datalist = list(data, weightit.data))
     
     #Process covs
-    if (is_null(covs <- weightit[["covs"]])) .err("No covariates were specified in the weightit object")
-    covs <- get_covs_from_formula(data = covs)
+    if (is_not_null(covs <- weightit[["covs"]])) {
+        covs <- get_covs_from_formula(data = covs)
+    }
     
     #Get estimand
     estimand <- weightit[["estimand"]]
