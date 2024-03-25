@@ -110,41 +110,49 @@ Generates balance statistics for data coming from a longitudinal treatment scena
 Multiple sets of weights can be supplied simultaneously by including entering a data frame or a character vector containing the names of weight variables found in \code{data} or a list thereof. When only one set of weights is supplied, the output for the adjusted group will simply be called \code{"Adj"}, but otherwise will be named after each corresponding set of weights. Specifying multiple sets of weights will also add components to other outputs of \code{bal.tab()}.
 }
 \examples{
-\dontshow{if (requireNamespace("twang", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-data("iptwExWide", package = "twang")
-library("cobalt")
+\dontshow{if (requireNamespace("WeightIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+data("msmdata", package = "WeightIt")
 
 ## Estimating longitudinal propensity scores and weights
-ps1 <- glm(tx1 ~ age + gender + use0,
-           data = iptwExWide, 
+ps1 <- glm(A_1 ~ X1_0 + X2_0,
+           data = msmdata, 
            family = "binomial")$fitted.values
-w1 <- ifelse(iptwExWide$tx1 == 1, 1/ps1, 1/(1-ps1))
-ps2 <- glm(tx2 ~ age + gender + use0 + tx1 + use1,
-           data = iptwExWide, 
-           family = "binomial")$fitted.values
-w2 <- ifelse(iptwExWide$tx2 == 1, 1/ps2, 1/(1-ps2))
-ps3 <- glm(tx3 ~ age + gender + use0 + tx1 + use1 + tx2 + use2,
-           data = iptwExWide, 
-           family = "binomial")$fitted.values
-w3 <- ifelse(iptwExWide$tx3 == 1, 1/ps3, 1/(1-ps3))
+w1 <- ifelse(msmdata$A_1 == 1, 1 / ps1, 1 / (1 - ps1))
 
-w <- w1*w2*w3
+ps2 <- glm(A_2 ~ X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0,
+           data = msmdata, 
+           family = "binomial")$fitted.values
+w2 <- ifelse(msmdata$A_2 == 1, 1 / ps2, 1 / (1 - ps2))
+
+ps3 <- glm(A_3 ~ X1_2 + X2_2 +
+               A_2 + X1_1 + X2_1 +
+               A_1 + X1_0 + X2_0,
+           data = msmdata, 
+           family = "binomial")$fitted.values
+w3 <- ifelse(msmdata$A_3 == 1, 1 / ps3, 1 / (1 - ps3))
+
+w <- w1 * w2 * w3
 
 # Formula interface plus addl:
-bal.tab(list(tx1 ~ use0 + gender,
-             tx2 ~ use0 + gender + use1 + tx1,
-             tx3 ~ use0 + gender + use1 + tx1 + use2 + tx2),
-        data = iptwExWide, 
+bal.tab(list(A_1 ~ X1_0 + X2_0,
+             A_2 ~ X1_1 + X2_1 +
+                 A_1 + X1_0 + X2_0,
+             A_3 ~ X1_2 + X2_2 +
+                 A_2 + X1_1 + X2_1 +
+                 A_1 + X1_0 + X2_0),
+        data = msmdata, 
         weights = w,
         distance = list(~ps1, ~ps2, ~ps3),
-        addl = ~age*gender,
+        addl = ~X1_0 * X2_0,
         un = TRUE)
 
 # data frame interface:
-bal.tab(list(iptwExWide[c("use0", "gender")],
-             iptwExWide[c("use0", "gender", "use1", "tx1")],
-             iptwExWide[c("use0", "gender", "use1", "tx1", "use2", "tx2")]),
-        treat.list = iptwExWide[c("tx1", "tx2", "tx3")], 
+bal.tab(list(msmdata[c("X1_0", "X2_0")],
+             msmdata[c("X1_1", "X2_1", "A_1", "X1_0", "X2_0")],
+             msmdata[c("X1_2", "X2_2", "A_2", "X1_1", "X2_1",
+                       "A_1", "X1_0", "X2_0")]),
+        treat.list = msmdata[c("A_1", "A_2", "A_3")], 
         weights = w,
         distance = list(~ps1, ~ps2, ~ps3),
         un = TRUE)

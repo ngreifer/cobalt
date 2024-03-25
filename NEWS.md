@@ -7,6 +7,8 @@
 
 * Improved processing when no covariates are specified.
 
+* Documentation updates
+
 # cobalt 4.5.4
 
 * Minor update to accommodate `ggplot2` 3.5.0. Thanks to @teunbrand. (#80)

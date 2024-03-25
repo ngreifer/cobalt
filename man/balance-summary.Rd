@@ -192,7 +192,7 @@ covs <- subset(lalonde, select = -c(treat, re78))
 covs0 <- splitfactor(covs, drop.first = "if2")
 bin.vars <- c(FALSE, FALSE, TRUE, TRUE, TRUE,
               TRUE, TRUE, FALSE, FALSE)
-W <- WeightIt::weightit(treat ~ covs, method = "ps", 
+W <- WeightIt::weightit(treat ~ covs, method = "glm", 
                         estimand = "ATE")
 weights <- W$weights
 

@@ -47,21 +47,29 @@ covs <- subset(lalonde, select = -c(treat, race, re78))
 
 # Initialize the object with the balance statistic,
 # treatment, and covariates
-smd.init <- bal.init(covs, treat = lalonde$treat,
-                     stat = "smd.max")
+smd.init <- bal.init(covs,
+                     treat = lalonde$treat,
+                     stat = "smd.max",
+                     estimand = "ATT")
 
 # Compute balance with no weights
 bal.compute(smd.init)
 
 # Can also compute the statistic directly using bal.compute():
-bal.compute(covs, treat = lalonde$treat,
-            stat = "smd.max")
+bal.compute(covs,
+            treat = lalonde$treat,
+            stat = "smd.max",
+            estimand = "ATT")
 ```
 
-The largest absolute standardized mean difference with no weights is 0.72, which we can verify and investigate further using `bal.tab()`:
+The largest absolute standardized mean difference with no weights is `r round(bal.compute(covs, treat = lalonde$treat, stat = "smd.max", estimand = "ATT"), 4)`, which we can verify and investigate further using `bal.tab()`:
 
 ```{r}
-bal.tab(covs, treat = lalonde$treat, binary = "std")
+bal.tab(covs,
+        treat = lalonde$treat,
+        binary = "std",
+        estimand = "ATT",
+        thresholds = .05)
 ```
 
 We can see that the largest value corresponds to the covariate `married`.
@@ -72,19 +80,19 @@ Now, lets estimate weights using probit regression propensity scores in `WeightI
 library("WeightIt")
 w.out <- weightit(treat ~ age + educ + married + nodegree +
                       re74 + re75, data = lalonde,
-                  method = "ps", estimand = "ATE",
+                  method = "glm", estimand = "ATT",
                   link = "probit")
 
 # Compute the balance statistic on the estimated weights
 bal.compute(smd.init, get.w(w.out))
 ```
 
-After weighting, our balance statistic is 0.68, indicating a modest improvement (though still with significant imbalance remaining). Let's try again with logistic regression:
+After weighting, our balance statistic is `r round(bal.compute(smd.init, get.w(w.out)), 4)`, indicating a significant improvement. Let's try again with logistic regression:
 
 ```{r, eval = weightit.ok}
 w.out <- weightit(treat ~ age + educ + married + nodegree +
                       re74 + re75, data = lalonde,
-                  method = "ps", estimand = "ATE",
+                  method = "glm", estimand = "ATT",
                   link = "logit")
 
 # Compute the balance statistic on the estimated weights
@@ -96,7 +104,7 @@ This is better, but we can do even better with bias-reduced logistic regression 
 ```{r, eval = weightit.ok && br.ok}
 w.out <- weightit(treat ~ age + educ + married + nodegree +
                       re74 + re75, data = lalonde,
-                  method = "ps", estimand = "ATE",
+                  method = "glm", estimand = "ATT",
                   link = "br.logit")
 
 # Compute the balance statistic on the estimated weights
@@ -107,19 +115,21 @@ Instead of writing each complete call one at a time, we can do a little programm
 
 ```{r, eval = weightit.ok && br.ok}
 # Initialize object to compute the largest SMD
-smd.init <- bal.init(covs, treat = lalonde$treat,
-                     stat = "smd.max")
+smd.init <- bal.init(covs,
+                     treat = lalonde$treat,
+                     stat = "smd.max",
+                     estimand = "ATT")
 
 # Create vector of tuning parameters
-links <- c("probit", "logit", "br.probit", "br.logit",
-           "cloglog", "br.cloglog")
+links <- c("probit", "logit", "cloglog",
+           "br.probit", "br.logit", "br.cloglog")
 
 # Apply each link to estimate weights
 # Can replace sapply() with purrr::map()
 weights.list <- sapply(links, function(link) {
     w.out <- weightit(treat ~ age + educ + married + nodegree +
                       re74 + re75, data = lalonde,
-                  method = "ps", estimand = "ATE",
+                  method = "glm", estimand = "ATT",
                   link = link)
     get.w(w.out)
 }, simplify = FALSE)
@@ -134,14 +144,16 @@ stats
 stats[which.min(stats)]
 ```
 
-Interestingly, bias-reduced complimentary log-log regression produced weights with the smallest maximum absolute standardized mean difference. We can use `bal.tab()` to examine balance more finely on the chosen weights:
+Interestingly, bias-reduced complimentary log-log regression produced weights with the smallest maximum absolute standardized mean difference. We can use `bal.tab()` to more finely examine balance on the chosen weights:
 
 ```{r, eval = weightit.ok && br.ok}
-bal.tab(covs, treat = lalonde$treat, binary = "std",
+bal.tab(covs,
+        treat = lalonde$treat,
+        binary = "std",
         weights = weights.list[["br.cloglog"]])
 ```
 
-If balance is acceptable (in this case, it is not), you would move forward with these weights in estimating the treatment effect. Otherwise, you might try other values of the tuning parameters, other specifications of the model, or other weighting methods to try to achieve excellent balance.
+If balance is acceptable, you would move forward with these weights in estimating the treatment effect. Otherwise, you might try other values of the tuning parameters, other specifications of the model, or other weighting methods to try to achieve excellent balance.
 
 ## Balance statistics
 
@@ -191,7 +203,7 @@ The mean, maximum, or root-mean-squared absolute Spearman correlation between th
 
 #### `distance.cov`
 
-The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. See @hulingIndependenceWeightsCausal2021 for details. Can only be used with continuous treatments.
+The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. See @hulingIndependenceWeightsCausal2023a for details. Can only be used with continuous treatments.
 
 ### Choosing a balance statistic
 
@@ -212,8 +224,10 @@ data("lalonde")
 
 # Initialize balance
 covs <- subset(lalonde, select = -c(treat, re78))
-ks.init <- bal.init(covs, treat = lalonde$treat,
-                    stat = "ks.max", estimand = "ATT")
+ks.init <- bal.init(covs,
+                    treat = lalonde$treat,
+                    stat = "ks.max",
+                    estimand = "ATT")
 
 # Fit a GBM model using `WeightIt` and `twang` defaults
 fit <- gbm::gbm(treat ~ age + educ + married + race +
@@ -223,7 +237,7 @@ fit <- gbm::gbm(treat ~ age + educ + married + race +
                 n.trees = 4000, interaction.depth = 3,
                 shrinkage = .01, bag.fraction = 1)
 
-trees_to_test <- seq(0, 4000)
+trees_to_test <- seq(1, 4000)
 
 p.mat <- predict(fit, type = "response",
                  n.trees = trees_to_test)
@@ -238,7 +252,7 @@ stats <- apply(p.mat, 2, function(p) {
 stats[which.min(stats)]
 ```
 
-From these results, we see that using 1408 trees gives us the lowest maximum KS statistic of .096. Out of interest, we can plot the relationship between the number of trees and our balance statistic to see what it looks like:
+From these results, we see that using `r which.min(stats)` trees gives us the lowest maximum KS statistic of `r round(stats[which.min(stats)], 4)`. Out of interest, we can plot the relationship between the number of trees and our balance statistic to see what it looks like:
 
 ```{r, fig.width=7, fig.height=3, eval = gbm.ok}
 library("ggplot2")
@@ -265,6 +279,6 @@ w.out$info$best.tree
 bal.compute(ks.init, weights = get.w(w.out))
 ```
 
-We can see that `weightit()` also selects 1408 trees as the optimum and the resulting maximum KS statistic computed using the returned weights is equal to the one we computed manually. Using `twang` also produces the same results.
+We can see that `weightit()` also selects `r w.out$info$best.tree` trees as the optimum and the resulting maximum KS statistic computed using the returned weights is equal to the one we computed manually. Using `twang` also produces the same results.
 
 ## References

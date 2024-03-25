@@ -432,7 +432,7 @@ In `cobalt`, users can assess and present balance for multi-category treatments 
 
 `love.plot()` allows for the display of each pairwise treatment or the range of balance across treatment pairs for each covariate. `bal.plot()` displays distributional balance for the requested covariate across all treatment groups.
 
-Below is an example of using `cobalt` with multi-category treatments. For this example, `race` will be the "treatment"; this type of analysis is not meant to be causal, but rather represents a method to examine disparities among groups accounting for covariates that might otherwise explain differences among groups. We will use `WeightIt` to generate balanced groups by estimating energy balancing weights.
+Below is an example of using `cobalt` with multi-category treatments. For this example, `race` will be the "treatment"; this type of analysis is not meant to be causal, but rather represents a method to examine disparities among groups accounting for covariates that might otherwise explain differences among groups. We will use `WeightIt` to generate balanced groups by estimating generalized propensity score weights using multinomial logistic regression.
 
 ```{r}
 data("lalonde", package = "cobalt")
@@ -442,8 +442,7 @@ data("lalonde", package = "cobalt")
 W.out.mn <- WeightIt::weightit(race ~ age + educ + married +
                                    nodegree + re74 + re75,
                                data = lalonde,
-                               method = "energy",
-                               use.mlogit = FALSE)
+                               method = "glm")
 ```
 
 First, we can examine balance numerically using `bal.tab()`. There are three possible pairwise comparisons, all of which can be requested with `which.treat = .all`. See `?bal.tab.multi` for more details.
