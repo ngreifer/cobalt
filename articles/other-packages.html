@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2024-03-13</h4>
+            <h4 data-toc-skip class="date">2024-03-25</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/HEAD/vignettes/other-packages.Rmd" class="external-link"><code>vignettes/other-packages.Rmd</code></a></small>
       <div class="d-none name"><code>other-packages.Rmd</code></div>
@@ -687,15 +687,15 @@ example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> 
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">mt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## distance    Distance       0.9480        0.9541       0.9570</span></span>
-<span><span class="co">## age          Contin.      -0.0778        0.0050       0.0423</span></span>
-<span><span class="co">## educ         Contin.      -0.1855       -0.1473      -0.1129</span></span>
-<span><span class="co">## married       Binary      -0.0270       -0.0070       0.0108</span></span>
+<span><span class="co">## distance    Distance       0.9478        0.9565       0.9710</span></span>
+<span><span class="co">## age          Contin.      -0.0302        0.0102       0.0468</span></span>
+<span><span class="co">## educ         Contin.      -0.2097       -0.1635      -0.0995</span></span>
+<span><span class="co">## married       Binary      -0.0270       -0.0103       0.0054</span></span>
 <span><span class="co">## race_black    Binary       0.3730        0.3730       0.3730</span></span>
-<span><span class="co">## race_hispan   Binary      -0.1892       -0.1751      -0.1622</span></span>
-<span><span class="co">## race_white    Binary      -0.2108       -0.1978      -0.1838</span></span>
-<span><span class="co">## re74         Contin.      -0.0950       -0.0540      -0.0263</span></span>
-<span><span class="co">## re75         Contin.      -0.0855       -0.0644      -0.0453</span></span>
+<span><span class="co">## race_hispan   Binary      -0.1838       -0.1751      -0.1568</span></span>
+<span><span class="co">## race_white    Binary      -0.2162       -0.1978      -0.1892</span></span>
+<span><span class="co">## re74         Contin.      -0.0928       -0.0598      -0.0386</span></span>
+<span><span class="co">## re75         Contin.      -0.0962       -0.0671      -0.0363</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average sample sizes across imputations</span></span></span>
 <span><span class="co">##             0   1</span></span>
@@ -708,26 +708,26 @@ example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> 
 <span>                                    <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
 <span>                                datasets <span class="op">=</span> <span class="va">imp.out</span>,</span>
 <span>                                approach <span class="op">=</span> <span class="st">"within"</span>, </span>
-<span>                                method <span class="op">=</span> <span class="st">"ps"</span>,</span>
+<span>                                method <span class="op">=</span> <span class="st">"glm"</span>,</span>
 <span>                                estimand <span class="op">=</span> <span class="st">"ATE"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wt.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance summary across all imputations</span></span></span>
 <span><span class="co">##                 Type Min.Diff.Adj Mean.Diff.Adj Max.Diff.Adj</span></span>
-<span><span class="co">## prop.score  Distance       0.1381        0.1535       0.1670</span></span>
-<span><span class="co">## age          Contin.      -0.1919       -0.1868      -0.1829</span></span>
-<span><span class="co">## educ         Contin.       0.0781        0.0820       0.0875</span></span>
-<span><span class="co">## married       Binary      -0.1193       -0.1020      -0.0864</span></span>
-<span><span class="co">## race_black    Binary       0.0489        0.0551       0.0605</span></span>
-<span><span class="co">## race_hispan   Binary       0.0068        0.0093       0.0115</span></span>
-<span><span class="co">## race_white    Binary      -0.0696       -0.0645      -0.0578</span></span>
-<span><span class="co">## re74         Contin.      -0.3055       -0.2905      -0.2742</span></span>
-<span><span class="co">## re75         Contin.      -0.1730       -0.1604      -0.1489</span></span>
+<span><span class="co">## prop.score  Distance       0.1392        0.1504       0.1593</span></span>
+<span><span class="co">## age          Contin.      -0.1915       -0.1868      -0.1808</span></span>
+<span><span class="co">## educ         Contin.       0.0779        0.0847       0.0952</span></span>
+<span><span class="co">## married       Binary      -0.1075       -0.0974      -0.0889</span></span>
+<span><span class="co">## race_black    Binary       0.0489        0.0544       0.0578</span></span>
+<span><span class="co">## race_hispan   Binary       0.0060        0.0100       0.0129</span></span>
+<span><span class="co">## race_white    Binary      -0.0699       -0.0645      -0.0579</span></span>
+<span><span class="co">## re74         Contin.      -0.3142       -0.2844      -0.2630</span></span>
+<span><span class="co">## re75         Contin.      -0.1742       -0.1600      -0.1454</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## <span style="text-decoration: underline;">Average effective sample sizes across imputations</span></span></span>
-<span><span class="co">##              0      1</span></span>
-<span><span class="co">## Unadjusted 429 185.  </span></span>
-<span><span class="co">## Adjusted   332  67.24</span></span></code></pre>
+<span><span class="co">##                 0      1</span></span>
+<span><span class="co">## Unadjusted 429.   185.  </span></span>
+<span><span class="co">## Adjusted   331.66  65.96</span></span></code></pre>
 <p>The input is similar to that for using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 <code>MatchIt</code> or <code>WeightIt</code>.</p>
 </div>

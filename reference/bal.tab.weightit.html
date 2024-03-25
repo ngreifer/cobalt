@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.4.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -209,7 +209,7 @@
 <span class="r-in"><span><span class="co">## Basic propensity score weighting</span></span></span>
 <span class="r-in"><span><span class="va">w.out1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> </span></span>
 <span class="r-in"><span>                       <span class="va">married</span> <span class="op">+</span> <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span></span>
-<span class="r-in"><span>                   data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"ps"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                   data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"glm"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out1</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, m.threshold <span class="op">=</span> <span class="fl">.1</span>, </span></span>
 <span class="r-in"><span>        v.threshold <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance Measures</span></span>
@@ -262,68 +262,74 @@
 <span class="r-in"><span><span class="co">## Weighting with a multi-category treatment</span></span></span>
 <span class="r-in"><span><span class="va">w.out2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightit.html" class="external-link">weightit</a></span><span class="op">(</span><span class="va">race</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span> </span></span>
 <span class="r-in"><span>                       <span class="va">nodegree</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span></span>
-<span class="r-in"><span>                   data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"ps"</span>,</span></span>
-<span class="r-in"><span>                   estimand <span class="op">=</span> <span class="st">"ATE"</span>, use.mlogit <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                   data <span class="op">=</span> <span class="va">lalonde</span>, method <span class="op">=</span> <span class="st">"glm"</span>,</span></span>
+<span class="r-in"><span>                   estimand <span class="op">=</span> <span class="st">"ATE"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out2</span>, un <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Type Max.Diff.Un Max.Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.      0.3065       0.0504</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ     Contin.      0.5861       0.1046</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married   Binary      0.3430       0.0355</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree  Binary      0.2187       0.0438</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74     Contin.      0.6196       0.1445</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75     Contin.      0.3442       0.1462</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.      0.3065       0.0557</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ     Contin.      0.5861       0.1140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married   Binary      0.3430       0.0297</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree  Binary      0.2187       0.0546</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74     Contin.      0.6196       0.1527</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75     Contin.      0.3442       0.1491</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            black hispan  white</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 243.   72.   299.  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   140.5  54.32 259.28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             black hispan  white</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 243.    72.   299.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   138.38  54.99 259.59</span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">w.out2</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, pairwise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all treatment pairs</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Type Max.Diff.Un Max.Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.      0.1532       0.0777</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> educ     Contin.      0.4641       0.0847</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> married   Binary      0.1931       0.0372</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree  Binary      0.1336       0.0305</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re74     Contin.      0.3390       0.1466</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> re75     Contin.      0.1744       0.1434</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> age      Contin.      0.1532       0.0792</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> educ     Contin.      0.4641       0.0868</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> married   Binary      0.1931       0.0313</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nodegree  Binary      0.1336       0.0298</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re74     Contin.      0.3390       0.1531</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> re75     Contin.      0.1744       0.1468</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            black hispan  white</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 243.   72.   299.  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   140.5  54.32 259.28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             black hispan  white</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 243.    72.   299.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   138.38  54.99 259.59</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## IPW for longitudinal treatments</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"iptwExWide"</span>, package <span class="op">=</span> <span class="st">"twang"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">wmsm.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">tx1</span> <span class="op">~</span> <span class="va">use0</span> <span class="op">+</span> <span class="va">gender</span>,</span></span>
-<span class="r-in"><span>                             <span class="va">tx2</span> <span class="op">~</span> <span class="va">use0</span> <span class="op">+</span> <span class="va">gender</span> <span class="op">+</span> <span class="va">use1</span> <span class="op">+</span> <span class="va">tx1</span>,</span></span>
-<span class="r-in"><span>                             <span class="va">tx3</span> <span class="op">~</span> <span class="va">use0</span> <span class="op">+</span> <span class="va">gender</span> <span class="op">+</span> <span class="va">use1</span> <span class="op">+</span> <span class="va">tx1</span> <span class="op">+</span> <span class="va">use2</span> <span class="op">+</span> <span class="va">tx2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                        data <span class="op">=</span> <span class="va">iptwExWide</span>,</span></span>
-<span class="r-in"><span>                        stabilize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"msmdata"</span>, package <span class="op">=</span> <span class="st">"WeightIt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">wmsm.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ngreifer.github.io/WeightIt/reference/weightitMSM.html" class="external-link">weightitMSM</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">A_1</span> <span class="op">~</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span></span>
+<span class="r-in"><span>                        <span class="va">A_2</span> <span class="op">~</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>                            <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span>,</span></span>
+<span class="r-in"><span>                        <span class="va">A_3</span> <span class="op">~</span> <span class="va">X1_2</span> <span class="op">+</span> <span class="va">X2_2</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>                            <span class="va">A_2</span> <span class="op">+</span> <span class="va">X1_1</span> <span class="op">+</span> <span class="va">X2_1</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>                            <span class="va">A_1</span> <span class="op">+</span> <span class="va">X1_0</span> <span class="op">+</span> <span class="va">X2_0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   data <span class="op">=</span> <span class="va">msmdata</span>,</span></span>
+<span class="r-in"><span>                   method <span class="op">=</span> <span class="st">"glm"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">wmsm.out</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Balance summary across all time points</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              Times     Type Max.Diff.Adj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> prop.score 1, 2, 3 Distance       0.3978</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> use0       1, 2, 3  Contin.       0.0672</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> gender     1, 2, 3   Binary       0.0102</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> use1          2, 3  Contin.       0.0286</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> tx1           2, 3   Binary       0.1602</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> use2             3  Contin.       0.0709</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> tx2              3   Binary       0.2345</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> prop.score 1, 2, 3 Distance       0.0773</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X1_0       1, 2, 3  Contin.       0.0342</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X2_0       1, 2, 3   Binary       0.0299</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X1_1          2, 3  Contin.       0.0657</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X2_1          2, 3   Binary       0.0299</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A_1           2, 3   Binary       0.0262</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X1_2             3  Contin.       0.0643</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> X2_2             3   Binary       0.0096</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> A_2              3   Binary       0.0054</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="text-decoration: underline;">Effective sample sizes</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 1</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted  294.    706.  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    223.43  644.59</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 3306.    4194. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    845.79   899.4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted  492.    508.  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    417.01  446.82</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 3701.   3799.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    912.87  829.87</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - <span style="font-style: italic;">Time 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Control Treated</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted  415.    585.  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted    350.64  513.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Unadjusted 4886.   2614.  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Adjusted   1900.26  600.12</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
