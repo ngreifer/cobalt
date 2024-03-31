@@ -98,6 +98,9 @@ base.bal.tab.base <- function(X,
                                            weights = X$weights,
                                            subclass = X$subclass)
     }
+    else {
+        X$s.d.denom <- NULL
+    }
     
     out[["Balance"]] <- do.call("balance.table", c(list(C, type = type, weights = X$weights, treat = X$treat, 
                                                         s.d.denom = X$s.d.denom, s.weights = X$s.weights, 

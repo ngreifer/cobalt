@@ -7,6 +7,8 @@
 
 * Improved processing when no covariates are specified.
 
+* Fixed a bug when multiple weights are specified, `s.d.denom` is specified, and either all variables are continuous and `continuous = "raw"`, all variables are binary and `binary = "raw"`, or both `continuous = "raw"` and `binary = "raw"`.
+
 * Documentation updates
 
 # cobalt 4.5.4
