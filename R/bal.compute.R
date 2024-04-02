@@ -673,39 +673,45 @@ init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
     
     treat_t <- vapply(unique.treats, function(t) treat == t, logical(n))
     n_t <- colSums(treat_t)
-    
-    s.weights_n_t <- setNames(lapply(unique.treats, function(t) treat_t[,t] * s.weights / n_t[t]),
-                              unique.treats)
+
+    s.weights_n_t <- vapply(unique.treats, function(t) treat_t[,t] * s.weights / n_t[t],
+                            numeric(n))
     
     if (is_null(estimand)) {
+        .col_diff <- function(x) x[,1] - x[,2]
         all_pairs <- utils::combn(unique.treats, 2, simplify = FALSE)
-        P <- - d * Reduce("+", lapply(all_pairs, function(p) {
-            tcrossprod(s.weights_n_t[[p[1]]] - s.weights_n_t[[p[2]]])
-        }))
+        nn <- tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
+                                numeric(n)))
+        
+        P <- -d * nn
+        
         q <- rep(0, n)
     }
     else if (is_null(focal)) {
         
-        P <- -d * Reduce("+", lapply(s.weights_n_t, tcrossprod))
-        
-        q <- ((s.weights * 2 / n) %*% d) * Reduce("+", s.weights_n_t)
+        nn <- tcrossprod(s.weights_n_t)
         
         if (improved) {
+            .col_diff <- function(x) x[,1] - x[,2]
             all_pairs <- utils::combn(unique.treats, 2, simplify = FALSE)
-            P <- P - d * Reduce("+", lapply(all_pairs, function(p) {
-                tcrossprod(s.weights_n_t[[p[1]]] - s.weights_n_t[[p[2]]])
-            }))
+            nn <- nn + tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
+                                         numeric(n)))
         }
+        
+        P <- -d * nn
+        
+        q <- ((s.weights * 2 / n) %*% d) * rowSums(s.weights_n_t)
     }
     else {
         non_focal <- setdiff(unique.treats, focal)
         in_focal <- treat == focal
+ 
+        nn <- tcrossprod(s.weights_n_t[!in_focal, non_focal, drop = FALSE])
         
-        P <- -d[!in_focal, !in_focal] *
-            Reduce("+", lapply(s.weights_n_t[non_focal], function(s) tcrossprod(s[!in_focal])))
+        P <- -d[!in_focal, !in_focal] * nn
         
-        q <- 2 * (s.weights_n_t[[focal]][in_focal] %*% d[in_focal, !in_focal]) *
-            Reduce("+", lapply(s.weights_n_t[non_focal], function(s) s[!in_focal]))
+        q <- 2 * (s.weights_n_t[in_focal, focal] %*% d[in_focal, !in_focal]) *
+            rowSums(s.weights_n_t[!in_focal, non_focal, drop = FALSE])
     }
     
     out <- list(q = q,
