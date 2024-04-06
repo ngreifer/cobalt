@@ -214,7 +214,8 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
         cat(underline("Balance by cluster") %+% "\n")
         for (i in p.ops$which.cluster) {
             cat("\n - - - " %+% italic("Cluster: " %+% names(c.balance)[i]) %+% " - - - \n")
-            bal.tab_print(c.balance[[i]], p.ops)
+            print(c.balance[[i]])
+            # bal.tab_print(c.balance[[i]], p.ops)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Cluster: ", names(c.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -307,7 +308,8 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
         cat(underline("Balance by imputation") %+% "\n")
         for (i in p.ops$which.imp) {
             cat("\n - - - " %+% italic("Imputation " %+% names(i.balance)[i]) %+% " - - - \n")
-            bal.tab_print(i.balance[[i]], p.ops)
+            print(i.balance[[i]])
+            # bal.tab_print(i.balance[[i]], p.ops)
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Imputation: ", names(i.balance)[i], " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -381,7 +383,7 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
 }
 #' @exportS3Method NULL
 bal.tab_print.bal.tab.multi <- function(x, p.ops) {
-    
+
     call <- if (p.ops$disp.call) x$call else NULL
     m.balance <- x[["Pair.Balance"]]
     m.balance.summary <- x[["Balance.Across.Pairs"]]
@@ -405,7 +407,8 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
             headings[i] <- "\n - - - " %+% italic(attr(m.balance[[i]], "print.options")$treat_names[1] %+% " (0) vs. " %+%
                                                       attr(m.balance[[i]], "print.options")$treat_names[2] %+% " (1)") %+% " - - - \n"
             cat(headings[i])
-            bal.tab_print(m.balance[[i]], p.ops)
+            print(m.balance[[i]])
+            # bal.tab_print(m.balance[[i]], p.ops)
         }
         cat(paste0(paste(rep(" -", round(max(nchar(headings))/2)), collapse = ""), " \n"))
         cat("\n")
@@ -490,7 +493,7 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     
 }
 #' @exportS3Method NULL
-bal.tab_print.bal.tab.msm <- function(x, p.ops){
+bal.tab_print.bal.tab.msm <- function(x, p.ops) {
     
     call <- if (p.ops$disp.call) x$call else NULL
     msm.balance <- x[["Time.Balance"]]
@@ -511,7 +514,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops){
         cat(underline("Balance by Time Point") %+% "\n")
         for (i in p.ops$which.time) {
             cat("\n - - - " %+% italic("Time: " %+% as.character(i)) %+% " - - - \n")
-            bal.tab_print(msm.balance[[i]], p.ops)
+            print(msm.balance[[i]])
         }
         cat(paste0(paste(rep(" -", round(nchar(paste0("\n - - - Time: ", i, " - - - "))/2)), collapse = ""), " \n"))
         cat("\n")

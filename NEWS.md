@@ -1,6 +1,10 @@
 `cobalt` News and Updates
 ======
 
+# cobalt (development version)
+
+* Fixed a bug when printing balance tables with longitudinal treatments that are of different types.
+
 # cobalt 4.5.5
 
 * Minor updates to `bal.plot()` to prevent warnings due to `ggplot2` 3.5.0.
