@@ -20,13 +20,16 @@
 #'     
 #' ## Continuous Treatments
 #' \describe{
-#'             \item{`"correlations"`}{Pearson correlations as computed by [col_w_cov()]. Can be abbreviated as `"cor"`. Setting the arguments `continuous` and `binary` to either `"std"` or `"raw"` will determine whether correlations or covariances are calculated for continuous and categorical variables, respectively (they are both `"std"` by default). When correlations are requested, the `s.d.denom` argument controls how the standardization occurs. When `abs = TRUE`, negative values become positive. Pearson correlations are requested by default when no entry to `stats` is provided.}
+#' \item{`"correlations"`}{Pearson correlations as computed by [col_w_cov()]. Can be abbreviated as `"cor"`. Setting the arguments `continuous` and `binary` to either `"std"` or `"raw"` will determine whether correlations or covariances are calculated for continuous and categorical variables, respectively (they are both `"std"` by default). When correlations are requested, the `s.d.denom` argument controls how the standardization occurs. When `abs = TRUE`, negative values become positive. Pearson correlations are requested by default when no entry to `stats` is provided.}
 #'             
 #' \item{`"spearman.correlations"`}{Spearman correlations as computed by [col_w_cov()]. Can be abbreviated as `"sp"`. All arguments are the same as those for `"correlations"`. When `abs = TRUE`, negative values become positive.}
+#' 
+#' \item{`"distance.correlations"`}{Distance correlations as computed by [col_w_dcov()]. Can be abbreviated as `"dis"`. Setting the arguments `continuous` and `binary` to either `"std"` or `"raw"` will determine whether distance correlations or distance covariances are calculated for continuous and categorical variables, respectively (they are both `"std"` by default). When distance correlations are requested, the `s.d.denom` argument controls how the standardization occurs.}
 #'             
 #' \item{`"mean.diffs.target"`}{Mean differences computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as `"m"`. Setting the arguments `continuous` and `binary` to either `"std"` or `"raw"` will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. The standardization factor will be computed in the unweighted sample. When `abs = TRUE`, negative values become positive. This statistic is only computed for the adjusted samples.}
 #'             
-#' \item{`"ks.statistics.target"`}{KS-statistics computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as `"ks"`. This statistic is only computed for the adjusted samples.}
+#' \item{`"ks.statistics.target"`}{KS statistics computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as `"ks"`. This statistic is only computed for the adjusted samples.}
+#' \item{`"ovl.coefficients.target"`}{Overlapping coefficients computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as `"ovl"`. This statistic is only computed for the adjusted samples.}
 #' }
 #'     
 #' If a statistic is requested in `thresholds`, it will automatically be placed in `stats`. For example, `bal.tab(..., stats = "m", thresholds = c(v = 2))` will display both mean differences and variance ratios, and the variance ratios will have a balance threshold set to 2.
@@ -68,12 +71,11 @@ STATS[["mean.diffs"]] <- {list(
     balance_tally_for = "mean differences",
     variable_with_the_greatest = "mean difference", #also which.stat2 in love.plot
     love.plot_xlab = function(...) {
-        A <- list(...)
-        binary <- A$binary #attr(x, "print.options")$binary
-        continuous <- A$continuous #attr(x, "print.options")$continuous
-        abs <- A$abs
-        var_type <- A$var_type #B[["type"]]
-        stars <- A$stars
+        binary <- ...get("binary") #attr(x, "print.options")$binary
+        continuous <- ...get("continuous") #attr(x, "print.options")$continuous
+        abs <- ...get("abs")
+        var_type <- ...get("var_type") #B[["type"]]
+        stars <- ...get("stars")
         
         #All std, no std, some std
         if ((binary == "std" || !any(var_type == "Binary")) && 
@@ -97,15 +99,15 @@ STATS[["mean.diffs"]] <- {list(
             }
         }
         
-        if (abs) paste("Absolute", xlab.diff) else xlab.diff
+        if (abs) sprintf("Absolute %s", xlab.diff)
+        else xlab.diff
     },
     love.plot_add_stars = function(SS.var, variable.names, ...) {
-        A <- list(...)
-        binary <- A$binary #attr(x, "print.options")$binary
-        continuous <- A$continuous #attr(x, "print.options")$continuous
-        var_type <- A$var_type #B[["Type"]]
-        stars <- A$stars
-        star_char = A$star_char #args$star_char
+        binary <- ...get("binary") #attr(x, "print.options")$binary
+        continuous <- ...get("continuous") #attr(x, "print.options")$continuous
+        var_type <- ...get("var_type") #B[["Type"]]
+        stars <- ...get("stars")
+        star_char = ...get("star_char") #args$star_char
         
         #All std, no std, some std
         if (!((binary == "std" || sum(var_type == "Binary") == 0) && 
@@ -116,12 +118,13 @@ STATS[["mean.diffs"]] <- {list(
             
             stars <- match_arg(stars, c("none", "std", "raw"))
             if (stars == "none") {
-                .wrn("standardized mean differences and raw mean differences are present in the same plot. \nUse the `stars` argument to distinguish between them and appropriately label the x-axis")
+                .wrn("standardized mean differences and raw mean differences are present in the same plot. Use the `stars` argument to distinguish between them and appropriately label the x-axis")
             }
             else {
                 if (!chk::vld_string(star_char)) star_char <- "*"
                 
                 vars_to_star <- setNames(rep(FALSE, length(variable.names)), variable.names)
+                
                 if (stars == "std") {
                     if (binary == "std") vars_to_star[variable.names[var_type == "Binary"]] <- TRUE
                     if (continuous == "std") vars_to_star[variable.names[var_type != "Binary"]] <- TRUE
@@ -178,7 +181,7 @@ STATS[["variance.ratios"]] <- {list(
     love.plot_axis_scale = ggplot2::scale_x_log10,
     fun = function(C, treat, weights, abs, s.weights, bin.vars, subset = NULL, ...) {
         vrs <- rep(NA_real_, ncol(C))
-        if (any(!bin.vars)) {
+        if (!all(bin.vars)) {
             vrs[!bin.vars] <- col_w_vr(C[, !bin.vars, drop = FALSE], treat = treat, 
                                        weights = weights, abs = abs, 
                                        s.weights = s.weights, bin.vars = bin.vars[!bin.vars],
@@ -211,9 +214,8 @@ STATS[["ks.statistics"]] <- {list(
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
     fun = function(C, treat, weights, s.weights, bin.vars, subset = NULL, ...) {
-        A <- list(...)
-        do.call("col_w_ks", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
-                                   subset = subset), A))
+      col_w_ks(mat = C, treat = treat, weights = weights, s.weights = s.weights,
+               bin.vars = bin.vars, subset = subset, ...)
     }
 )}
 
@@ -240,9 +242,8 @@ STATS[["ovl.coefficients"]] <- {list(
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
     fun = function(C, treat, weights, s.weights, bin.vars, integrate = FALSE, subset = NULL, ...) {
-        A <- list(...)
-        do.call("col_w_ovl", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
-                                    subset = subset, integrate = integrate), A))
+        col_w_ovl(mat = C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
+                  subset = subset, integrate = integrate, ...)
     }
 )}
 
@@ -258,8 +259,7 @@ STATS[["correlations"]] <- {list(
     balance_tally_for = "treatment correlations",
     variable_with_the_greatest = "treatment correlation", #also which.stat2 in love.plot
     love.plot_xlab = function(...) {
-        A <- list(...)
-        if (isTRUE(A$abs)) "Absolute Treatment-Covariate Correlations"
+        if (isTRUE(...get("abs"))) "Absolute Treatment-Covariate Correlations"
         else "Treatment-Covariate Correlations"
     },
     love.plot_add_stars = function(SS.var, variable.names, ...) {
@@ -292,8 +292,7 @@ STATS[["spearman.correlations"]] <- {list(
     balance_tally_for = "treatment Spearman correlations",
     variable_with_the_greatest = "treatment Spearman correlation", #also which.stat2 in love.plot
     love.plot_xlab = function(...) {
-        A <- list(...)
-        if (A$abs) "Absolute Treatment-Covariate Spearman Correlations"
+        if (...get("abs")) "Absolute Treatment-Covariate Spearman Correlations"
         else "Treatment-Covariate Spearman Correlations"
     },
     love.plot_add_stars = function(SS.var, variable.names, ...) {
@@ -314,6 +313,37 @@ STATS[["spearman.correlations"]] <- {list(
     }
 )}
 
+STATS[["distance.correlations"]] <- {list(
+  type = "cont",
+  threshold = "dc.threshold",
+  Threshold = "DC.Threshold",
+  disp_stat = "disp.dcorr",
+  adj_only = FALSE,
+  abs = function(x) x,
+  bal.tab_column_prefix = "D.Corr", #Also which.stat in love.plot
+  threshold_range = c(0, 1),
+  balance_tally_for = "treatment distance correlations",
+  variable_with_the_greatest = "treatment distance correlation", #also which.stat2 in love.plot
+  love.plot_xlab = function(...) {
+    "Treatment-Covariate Distance Correlations"
+  },
+  love.plot_add_stars = function(SS.var, variable.names, ...) {
+    SS.var
+  },
+  baseline.xintercept = 0,
+  threshold.xintercepts = function(threshold, abs) {
+    c(lower = base::abs(threshold))
+  },
+  love.plot_axis_scale = ggplot2::scale_x_continuous,
+  fun = function(C, treat, weights, s.weights, std, s.d.denom, weighted.weights = weights, subset = NULL, ...) {
+    col_w_dcov(C, treat = treat, weights = weights, s.weights = s.weights, 
+              std = std,
+              s.d.denom = s.d.denom,
+              weighted.weights = weighted.weights, na.rm = TRUE,
+              subset = subset)
+  }
+)}
+
 STATS[["mean.diffs.target"]] <- {list(
     type = "cont",
     threshold = "m.threshold",
@@ -326,12 +356,11 @@ STATS[["mean.diffs.target"]] <- {list(
     balance_tally_for = "target mean differences",
     variable_with_the_greatest = "target mean difference", #also which.stat2 in love.plot
     love.plot_xlab = function(...) {
-        A <- list(...)
-        binary <- A$binary #attr(x, "print.options")$binary
-        continuous <- A$continuous #attr(x, "print.options")$continuous
-        abs <- A$abs
-        var_type <- A$var_type #B[["type"]]
-        stars <- A$stars
+        binary <- ...get("binary") #attr(x, "print.options")$binary
+        continuous <- ...get("continuous") #attr(x, "print.options")$continuous
+        abs <- ...get("abs")
+        var_type <- ...get("var_type") #B[["type"]]
+        stars <- ...get("stars")
         
         #All std, no std, some std
         if ((binary == "std" || !any(var_type == "Binary")) && 
@@ -355,15 +384,15 @@ STATS[["mean.diffs.target"]] <- {list(
             }
         }
         
-        if (abs) paste("Absolute", xlab.diff) else xlab.diff
+        if (abs) sprintf("Absolute %s", xlab.diff)
+        else xlab.diff
     },
     love.plot_add_stars = function(SS.var, variable.names, ...) {
-        A <- list(...)
-        binary <- A$binary #attr(x, "print.options")$binary
-        continuous <- A$continuous #attr(x, "print.options")$continuous
-        var_type <- A$var_type #B[["Type"]]
-        stars <- A$stars
-        star_char = A$star_char #args$star_char
+        binary <- ...get("binary") #attr(x, "print.options")$binary
+        continuous <- ...get("continuous") #attr(x, "print.options")$continuous
+        var_type <- ...get("var_type") #B[["Type"]]
+        stars <- ...get("stars")
+        star_char <- ...get("star_char") #args$star_char
         
         #All std, no std, some std
         if (!((binary == "std" || sum(var_type == "Binary") == 0) && 
@@ -374,7 +403,7 @@ STATS[["mean.diffs.target"]] <- {list(
             
             stars <- match_arg(stars, c("none", "std", "raw"))
             if (stars == "none") {
-                .wrn("standardized mean differences and raw mean differences are present in the same plot. \nUse the `stars` argument to distinguish between them and appropriately label the x-axis")
+                .wrn("standardized mean differences and raw mean differences are present in the same plot. Use the `stars` argument to distinguish between them and appropriately label the x-axis")
             }
             else {
                 if (!chk::vld_string(star_char)) star_char <- "*"
@@ -445,25 +474,60 @@ STATS[["ks.statistics.target"]] <- {list(
     },
     love.plot_axis_scale = ggplot2::scale_x_continuous,
     fun = function(C, treat, weights, s.weights, bin.vars, subset = NULL, ...) {
-        A <- list(...)
-        
         n <- nrow(C)
         C <- rbind(C, C)
-        treat <- rep(c(0,1), each = n)
-        if (is_not_null(weights)) weights <- c(weights, rep(1, n))
+        treat <- rep(c(0, 1), each = n)
+        if (is_not_null(weights)) weights <- c(weights, rep.int(1, n))
         if (is_not_null(s.weights)) s.weights <- c(s.weights, s.weights)
         if (is_not_null(subset)) subset <- c(subset, subset)
         
-        do.call("col_w_ks", c(list(C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
-                                   subset = subset), A))
+        col_w_ks(mat = C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
+                 subset = subset, ...)
     }
 )}
 
+STATS[["ovl.coefficients.target"]] <- {list(
+  type = "cont",
+  threshold = "ovl.threshold",
+  Threshold = "OVL.Threshold",
+  disp_stat = "disp.ovl",
+  adj_only = TRUE,
+  abs = function(x) abs_(x),
+  bal.tab_column_prefix = "OVL.Target", #Also which.stat in love.plot
+  threshold_range = c(0, 1),
+  balance_tally_for = "target overlapping coefficients",
+  variable_with_the_greatest = "target overlapping coefficient", #also which.stat2 in love.plot
+  love.plot_xlab = function(...) {
+    "Target Overlapping Coefficients"
+  },
+  love.plot_add_stars = function(SS.var, variable.names, ...) {
+    SS.var
+  },
+  baseline.xintercept = 0,
+  threshold.xintercepts = function(threshold, abs) {
+    c(lower = base::abs(threshold))
+  },
+  love.plot_axis_scale = ggplot2::scale_x_continuous,
+  fun = function(C, treat, weights, s.weights, bin.vars, integrate = FALSE, subset = NULL, ...) {
+    n <- nrow(C)
+    C <- rbind(C, C)
+    treat <- rep(c(0, 1), each = n)
+    if (is_not_null(weights)) weights <- c(weights, rep.int(1, n))
+    if (is_not_null(s.weights)) s.weights <- c(s.weights, s.weights)
+    if (is_not_null(subset)) subset <- c(subset, subset)
+    
+    col_w_ovl(mat = C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
+              subset = subset, integrate = integrate, ...)
+  }
+)}
+
 all_STATS <- function(type) {
-    if (missing(type)) return(unique(names(STATS)))
+    if (missing(type)) {
+      return(unique(names(STATS)))
+    }
     
     type <- match_arg(type, c("bin", "cont"))
-    out <- names(STATS)[get_from_STATS("type") == type]
+    out <- names(STATS)[vapply(get_from_STATS("type"), function(i) type %in% i, logical(1L))]
     
     unique(out)
 }
