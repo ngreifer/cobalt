@@ -9,7 +9,9 @@
 
 * Fixed a bug when printing balance tables with longitudinal treatments that are of different types.
 
-* The legend title of `love.plot()` can be now be changed more easily. See `?love.plot` for details.
+* The legend title of `love.plot()` can be now be changed more easily. See `?love.plot` for details. (#92)
+
+* Fixed a bug where supplying `var.names` to `love.plot()` with a modified `bal.tab` input would throw an error. (#89)
 
 * Code cleaning and refactoring to improve performance.
 

@@ -81,3 +81,25 @@ test_that("(#82) love.plot() doesn't throw any ggplo2-related warnings with mult
               binary = "std")
   })
 })
+
+test_that("(#89) love.plot() doesn't throw any error when manually removing rows from bal.tab() while supplying var.names", {
+  data("lalonde_mis")
+  
+  v <- data.frame(old = c("age", "educ", "race_black", "race_hispan", 
+                          "race_white", "married", "nodegree", "re74", "re75", "distance"),
+                  new = c("Age", "Years of Education", "Black", 
+                          "Hispanic", "White", "Married", "No Degree Earned", 
+                          "Earnings 1974", "Earnings 1975", "Propensity Score"))
+  
+  covs <- subset(lalonde_mis, select = -c(treat, re78, nodegree, married))
+  
+  expect_warning({
+  b <- bal.tab(treat ~ covs, data = lalonde_mis, binary = "std")
+  }, .w("Missing values exist in the covariates. Displayed values omit these observations"))
+  
+  b$Balance <- b$Balance[!endsWith(rownames(b$Balance), "<NA>"),]
+  
+  expect_no_condition({
+    love.plot(b, var.names = v)
+  })
+})
