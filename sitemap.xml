@@ -1,144 +1,50 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/404.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/cobalt.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/faq.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/longitudinal-treat.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/love.plot.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/optimizing-balance.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/other-packages.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/articles/segmented-data.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.compute.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.plot.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.CBPS.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.Match.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.cem.match.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.default.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.designmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.ebalance.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.formula.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.matchit.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.mimids.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.optmatch.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.ps.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.sbwcau.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.time.list.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/bal.tab.weightit.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/balance-statistics.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/balance-summary.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.cluster.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.imp.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.msm.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.multi.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.subclass.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/cobalt-package.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/display-options.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/f.build.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/get.w.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/lalonde.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/love.plot.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/print.bal.tab.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/set.cobalt.options.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/splitfactor.html</loc>
-  </url>
-  <url>
-    <loc>https://ngreifer.github.io/cobalt/reference/var.names.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://ngreifer.github.io/cobalt/404.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/articles/cobalt.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/articles/faq.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/articles/index.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/articles/longitudinal-treat.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/articles/love.plot.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/articles/optimizing-balance.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/articles/other-packages.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/articles/segmented-data.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/authors.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/index.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/news/index.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.compute.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.plot.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.CBPS.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.Match.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.cem.match.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.default.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.designmatch.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.ebalance.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.formula.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.matchit.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.mimids.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.optmatch.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.ps.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.sbwcau.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.time.list.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/bal.tab.weightit.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/balance-statistics.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/balance-summary.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.cluster.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.imp.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.msm.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.multi.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/class-bal.tab.subclass.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/cobalt-package.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/display-options.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/f.build.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/get.w.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/index.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/lalonde.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/love.plot.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/print.bal.tab.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/set.cobalt.options.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/splitfactor.html</loc></url>
+<url><loc>https://ngreifer.github.io/cobalt/reference/var.names.html</loc></url>
 </urlset>
+
