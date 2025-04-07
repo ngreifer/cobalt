@@ -3,7 +3,15 @@
 
 # cobalt (development version)
 
+* Target OVL coefficients can be requested for continuous treatments by setting `stats = "ovl"`.
+
+* Added two new functions, `col_w_dcov()` and `col_w_dcorr()` for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates. 
+
 * Fixed a bug when printing balance tables with longitudinal treatments that are of different types.
+
+* The legend title of `love.plot()` can be now be changed more easily. See `?love.plot` for details.
+
+* Code cleaning and refactoring to improve performance.
 
 # cobalt 4.5.5
 

@@ -1,4 +1,5 @@
 Version: 1.0
+ProjectId: 92c101ad-66a4-4585-b0f2-cd476c5e31f6
 
 RestoreWorkspace: Default
 SaveWorkspace: Default
@@ -6,7 +7,7 @@ AlwaysSaveHistory: Default
 
 EnableCodeIndexing: Yes
 UseSpacesForTab: Yes
-NumSpacesForTab: 4
+NumSpacesForTab: 2
 Encoding: UTF-8
 
 RnwWeave: Sweave
