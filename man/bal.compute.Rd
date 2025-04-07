@@ -73,7 +73,7 @@ The mean, maximum, or root-mean-squared absolute Pearson correlation between the
 The mean, maximum, or root-mean-squared absolute Spearman correlation between the treatment and covariates, computed using \code{\link[=col_w_corr]{col_w_corr()}}. Can only be used with continuous treatments.
 }
 \item{\code{distance.cov}}{
-The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.
+The squared distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.
 }
 }
 

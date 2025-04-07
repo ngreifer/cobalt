@@ -29,9 +29,12 @@ Below, each allowable entry to \code{stats} and \code{thresholds} are described,
 
 \item{\code{"spearman.correlations"}}{Spearman correlations as computed by \code{\link[=col_w_cov]{col_w_cov()}}. Can be abbreviated as \code{"sp"}. All arguments are the same as those for \code{"correlations"}. When \code{abs = TRUE}, negative values become positive.}
 
+\item{\code{"distance.correlations"}}{Distance correlations as computed by \code{\link[=col_w_dcov]{col_w_dcov()}}. Can be abbreviated as \code{"dis"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether distance correlations or distance covariances are calculated for continuous and categorical variables, respectively (they are both \code{"std"} by default). When distance correlations are requested, the \code{s.d.denom} argument controls how the standardization occurs.}
+
 \item{\code{"mean.diffs.target"}}{Mean differences computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"m"}. Setting the arguments \code{continuous} and \code{binary} to either \code{"std"} or \code{"raw"} will determine whether standardized mean differences or raw mean differences are calculated for continuous and categorical variables, respectively. The standardization factor will be computed in the unweighted sample. When \code{abs = TRUE}, negative values become positive. This statistic is only computed for the adjusted samples.}
 
-\item{\code{"ks.statistics.target"}}{KS-statistics computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"ks"}. This statistic is only computed for the adjusted samples.}
+\item{\code{"ks.statistics.target"}}{KS statistics computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"ks"}. This statistic is only computed for the adjusted samples.}
+\item{\code{"ovl.coefficients.target"}}{Overlapping coefficients computed between the weighted and unweighted sample to ensure the weighted sample is representative of the original population. Can be abbreviated as \code{"ovl"}. This statistic is only computed for the adjusted samples.}
 }
 
 If a statistic is requested in \code{thresholds}, it will automatically be placed in \code{stats}. For example, \code{bal.tab(..., stats = "m", thresholds = c(v = 2))} will display both mean differences and variance ratios, and the variance ratios will have a balance threshold set to 2.

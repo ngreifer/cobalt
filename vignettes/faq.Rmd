@@ -6,7 +6,7 @@ output:
 vignette: >
   %\VignetteIndexEntry{Frequently Asked Questions}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
 editor_options: 
   chunk_output_type: console
   markdown: 

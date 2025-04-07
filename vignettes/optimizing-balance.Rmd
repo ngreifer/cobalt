@@ -7,7 +7,7 @@ output:
 vignette: >
   %\VignetteIndexEntry{Optimizing Tuning Parameters for Balance}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
 editor_options: 
   chunk_output_type: console
 bibliography: references.bib

@@ -9,7 +9,7 @@ output:
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Using `love.plot()` To Generate Love Plots}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
 editor_options: 
   chunk_output_type: console
 bibliography: references.bib

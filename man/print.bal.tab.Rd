@@ -25,7 +25,7 @@
   which.cluster,
   cluster.summary,
   cluster.fun,
-  digits = max(3, getOption("digits") - 3),
+  digits = max(3L, getOption("digits") - 3),
   ...
 )
 }

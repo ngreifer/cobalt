@@ -9,7 +9,7 @@ output:
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Covariate Balance Tables and Plots: A Guide to the `cobalt` Package}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
 editor_options: 
   chunk_output_type: console
 bibliography: references.bib
@@ -207,7 +207,7 @@ It is possible to view balance for more than one set of weights at a time. The i
 lalonde$p.score2 <- glm(treat ~ age + I(age^2) + race + educ + re74, 
                         data = lalonde,
                         family = "binomial")$fitted.values
-lalonde$att.weights2 <- with(lalonde, treat + (1-treat)*p.score2/(1-p.score2))
+lalonde$att.weights2 <- with(lalonde, treat + (1 - treat) * p.score2 / (1 - p.score2))
 
 bal.tab(treat ~ covs, data = lalonde,
         weights = c("att.weights", "att.weights2"),
@@ -236,7 +236,7 @@ bal.tab(treat ~ covs, data = lalonde,
         subclass.summary = TRUE)
 ```
 
-When using `bal.tab()` with continuous treatments, the default balance statistic presented is the (weighted) Pearson correlation between each covariate and treatment. @zhuBoostingAlgorithmEstimating2015 recommend that absolute correlations should be no greater than 0.1, but correlations should ideally be as close to zero as possible. Spearman correlations can also be requested. See the section "Using `cobalt` with continuous treatments" and `?balance.stats` for more details.
+When using `bal.tab()` with continuous treatments, the default balance statistic presented is the (weighted) Pearson correlation between each covariate and treatment. @zhuBoostingAlgorithmEstimating2015 recommend that absolute correlations should be no greater than 0.1, but correlations should ideally be as close to zero as possible. Spearman correlations and distance correlations can also be requested. See the section "Using `cobalt` with continuous treatments" and `?balance.stats` for more details.
 
 The next two sections describe the use of `bal.tab()` with the `MatchIt` and `WeightIt`. As stated above, the arguments controlling calculations and display are largely the same across inputs types, so they will not be described again except when their use differs from that described in the present section.
 
@@ -250,7 +250,7 @@ data("lalonde", package = "cobalt")
 # Nearest neighbor 2:1 matching with replacement
 m.out <- MatchIt::matchit(treat ~ age + educ + race + re74 + re75, 
                           data = lalonde, method = "nearest", 
-                          ratio = 1,  replace = TRUE)
+                          ratio = 1, replace = TRUE)
 
 bal.tab(m.out)
 ```
@@ -381,7 +381,7 @@ Although the most common use of propensity scores is in the context of binary tr
 
 @biaStataPackageEstimation2008 describe the use of the `gpscore` function in Stata, which appears to be effective for estimating and assessing dose-response functions for continuous treatments. In R, there are not many ways to estimate and condition on the propensity score in these contexts. It is possible, using the formulas described by @hiranoPropensityScoreContinuous2005, to generate the propensity scores manually and perform weighting, subclassification, or covariate adjustment on them. The `WeightIt` package supports continuous treatments with a variety of options, including the CBPS method implemented in the `CBPS` package and described by @fongCovariateBalancingPropensity2018, GBM as described by @zhuBoostingAlgorithmEstimating2015, and entropy balancing as described by @vegetabileNonparametricEstimationPopulation2020, among others.
 
-In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in @zhuBoostingAlgorithmEstimating2015 and @austinAssessingCovariateBalance2019, but not that described in @hiranoPropensityScoreContinuous2005 or implemented in `gpscore` [@biaStataPackageEstimation2008], which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator, so correlations above 1 may be observed in rare cases.
+In `cobalt`, users can assess and present balance for continuous treatments using `bal.tab()`, `bal.plot()`, and `love.plot()`, just as with binary treatments. The syntax is almost identical in both cases regardless of the type of treatment variable considered, but there are a few differences and specifics worth noting. The approach `cobalt` takes to assessing balance is to display correlations between each covariate and the treatment variable, which is the approach used in `CBPS` and described in @zhuBoostingAlgorithmEstimating2015 and @austinAssessingCovariateBalance2019, but not that described in @hiranoPropensityScoreContinuous2005 or implemented in `gpscore` [@biaStataPackageEstimation2008], which involves stratifying on both the treatment variable and the propensity score and calculating mean differences. Note that the weighted correlations use the unweighted standard deviations of the treatment variable and covariate in the denominator, so correlations above 1 may be observed in rare cases. Correlations can be computed as Pearson correlations, Spearman correlations (Pearson correlations on the ranks), or distance correlations.
 
 In addition to assessing the treatment-covariate correlations, it is important to assess the degree to which the adjusted sample is representative of the original target population. If the weighted sample differs greatly from the original sample, the estimated effect may be biased for the target population of interest, even if the covariates are independent from treatment. `cobalt` offers methods to compare the weighted sample to the unweighted sample in the context of continuous treatments, such as computing the standardized mean difference or KS statistic between the weighted and unweighted sample for each covariate.
 
@@ -397,7 +397,7 @@ W.out.c <- WeightIt::weightit(re75 ~ age + educ + race + married +
                               method = "energy")
 ```
 
-First, we can assess balance numerically using `bal.tab()`. The main balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using `thresholds`; @zhuBoostingAlgorithmEstimating2015 recommend using .1 as indicating balance, but in general lower is better. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and polynomial terms through the use of arguments to `int` and `poly` is recommended (we just display the use of `poly` here for brevity). In addition to treatment-covariate correlations, we request standardized mean difference between the weighted and unweighted samples by include `"m"` (for `"mean.diffs.target"`) in the argument to `stats` along with `"c"` (for `"correlations"`).
+First, we can assess balance numerically using `bal.tab()`. The default balance statistic used is the Pearson correlation between each covariate and the treatment variable. A threshold for balance on correlations can be specified using `thresholds`; @zhuBoostingAlgorithmEstimating2015 recommend using .1 as indicating balance, but in general lower is better. Because the goal is complete independence between treatment and covariates, not simply the absence of a linear correlation between treatment and covariates, including interactions and polynomial terms through the use of arguments to `int` and `poly` is recommended (we just display the use of `poly` here for brevity). Requesting the distance correlation can also be useful for assessing independence because they are 0 only when the treatment and covariate are completley independent, not just uncorrelated. In addition to treatment-covariate correlations, we request KS statistics between the weighted and unweighted samples by include `"ks"` (for `"ks.statistics.target"`) in the argument to `stats` along with `"c"` (for `"correlations"`).
 
 ```{r}
 #Assessing balance numerically

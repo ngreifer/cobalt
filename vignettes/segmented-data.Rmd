@@ -9,14 +9,16 @@ output:
 
 vignette: >
   %\VignetteIndexEntry{Using `cobalt` with Clustered, Multiply Imputed, and Other Segmented Data}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
 link-citations: true
 ---
 ```{r, include = FALSE}
   knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.width = 5)
-  if (any(!sapply(c("MatchIt", "MatchThem", "mice"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
+  if (!all(sapply(c("MatchIt", "MatchThem", "mice"), requireNamespace, quietly = TRUE))) {
+    knitr::opts_chunk$set(eval = FALSE)
+  }
 ```
 This is a guide for the use of `cobalt` with more complicated data than is typical in studies using propensity scores and similar methods. In particular, this guide will explain `cobalt`'s features for handling multilevel or grouped data and data arising from multiple imputation. The features described here set `cobalt` apart from other packages that assess balance because they exist only in `cobalt`. It will be assumed that the basic functions of `cobalt` are understood; this guide will only address issues that are unique to these data scenarios.
 
@@ -107,7 +109,9 @@ These plots function like those from using `love.plot()` with non-clustered data
 Second, balance can be displayed summarizing across clusters by plotting an aggregate function (i.e., the mean or maximum) of the balance statistic for each covariate across clusters. To do this, `which.cluster` in the `love.plot` command must be set to `.none`. To change which aggregate function is displayed, use the argument to `agg.fun`, which may be "mean" or "max". Below is an example:
 
 ```{r}
-love.plot(m.out, cluster = "race", which.cluster = .none, agg.fun = "mean")
+love.plot(m.out, cluster = "race",
+          which.cluster = .none,
+          agg.fun = "mean")
 ```
 
 A third option is to set `agg.fun = "range"` (the default), which produces a similar plot as above except that the minimum and maximum values of the balance statistics for each covariate are displayed as well. See below for an example:

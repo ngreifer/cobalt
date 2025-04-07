@@ -9,7 +9,7 @@ output:
 
 vignette: >
   %\VignetteIndexEntry{Using `cobalt` with Other Preprocessing Packages}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown_notangle}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
 link-citations: true
@@ -18,9 +18,10 @@ link-citations: true
 ```{r, include = FALSE}
 knitr::opts_chunk$set(message = FALSE)
 library("cobalt")
+data("lalonde", package = "cobalt")
 ```
 
-This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A Guide to the cobalt Package". It contains descriptions and demonstrations of several utility functions in `cobalt` and the use of `bal.tab()` with `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, `sbw`, `MatchThem`, and `cem`. Note that `MatchIt` can perform most of the functions that `Matching`, `optmatch`, and `cem` can, and `WeightIt` can perform most of the functions that  `twang`, `CBPS`, `ebal`, and `sbw` can. Because `cobalt` has been optimized to work with `MatchIt` and `WeightIt`, it is recommended to use those packages to simplify preprocessing and balance assessment, but we recognize users may prefer to use the packages described in this vignette.
+This is an appendix to the main vignette, "Covariate Balance Tables and Plots: A Guide to the cobalt Package", accessible  at `vignette("cobalt")`. It contains descriptions and demonstrations of several utility functions in `cobalt` and the use of `bal.tab()` with `twang`, `Matching`, `optmatch`, `CBPS`, `ebal`, `designmatch`, `sbw`, `MatchThem`, and `cem`. Note that `MatchIt` can perform most of the functions that `Matching`, `optmatch`, and `cem` can, and `WeightIt` can perform most of the functions that `twang`, `CBPS`, `ebal`, and `sbw` can. Because `cobalt` has been optimized to work with `MatchIt` and `WeightIt`, it is recommended to use those packages to simplify preprocessing and balance assessment, but we recognize users may prefer to use the packages described in this vignette.
 
 ## Utilities
 
@@ -54,12 +55,11 @@ Notice the original data set and the unsplit data set look identical. If the inp
 
 ## `bal.tab()`
 
-The next sections describe the use of `bal.tab()` with packages other than those described in the main vignette. Even if you are using `bal.tab()` with one of these packages, it may be useful to read the main vignette to understand `bal.tab()`'s main options, which are not detailed here.
+The next sections describe the use of `bal.tab()` with packages other than those described in the main vignette. Even if you are using `bal.tab()` with one of these packages, it may be useful to read the main vignette at `vignette("cobalt")` to understand `bal.tab()`'s main options, which are not detailed here.
 
 ### Using `bal.tab()` with `twang`
 
 Generalized boosted modeling (GBM), as implemented in `twang`, can be an effective way to generate propensity scores and weights for use in propensity score weighting. `bal.tab()` functions similarly to the functions `bal.table()` and `summary()` when used with GBM in `twang`. Below is a simple example of its use:
-
 
 ```{r, warning = FALSE, eval = requireNamespace("twang", quietly = TRUE)}
 #GBM PS weighting for the ATT
@@ -74,7 +74,7 @@ ps.out <- twang::ps(f, data = lalonde,
 bal.tab(ps.out, stop.method = "es.mean")
 ```
 
-The output looks a bit different from `twang`'s `bal.table()` output. First is the original call to `ps()`. Next is the balance table containing mean differences for the covariates included in the input to `ps()`. Last is a table displaying sample size information, similar to what would be generated using `twang`'s `summary()` function. The "effective" sample size is displayed when weighting is used; it is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" in the main vignette for details on this calculation.
+The output looks a bit different from `twang`'s `bal.table()` output. First is the original call to `ps()`. Next is the balance table containing mean differences for the covariates included in the input to `ps()`. Last is a table displaying sample size information, similar to what would be generated using `twang`'s `summary()` function. The "effective" sample size is displayed when weighting is used; it is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" at `vignette("cobalt")` for details on this calculation.
 
 When using `bal.tab()` with `twang`, the user must specify the `ps` object, the output of a call to `ps()`, as the first argument. The second argument, `stop.method`, is the name of the stop method(s) for which balance is to be assessed, since a `ps` object may contain more than one if so specified. `bal.tab()` can  display the balance for more than one stop method at a time by specifying a vector of stop method names. If this argument is left empty or if the argument to `stop.method` does not correspond to any of the stop methods in the `ps` object, `bal.tab()` will default to displaying balance for all stop methods available. Abbreviations are allowed for the stop method, which is not case sensitive.
 
@@ -82,7 +82,7 @@ The other arguments to `bal.tab()` when using it with `twang` have the same form
 
 If sampling weights are used in the call to `ps()`, they will be automatically incorporated into the `bal.tab()` calculations for both the adjusted and unadjusted samples, just as `twang` does.
 
-`mnps` objects resulting from fitting models in `twang` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `iptw` objects resulting from fitting models in `twang` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette. `ps.cont` objects resulting from using `ps.cont()` in `twangContinuous`, which implements GBM for continuous treatments, are also compatible. See the section "Using `cobalt` with continuous treatments" in the main vignette.
+`mnps` objects resulting from fitting models in `twang` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" at `vignette("cobalt")`. `iptw` objects resulting from fitting models in `twang` with longitudinal treatments are also compatible with `cobalt`. See `vignette("longitudinal-treat")`. `ps.cont` objects resulting from using `ps.cont()` in `twangContinuous`, which implements GBM for continuous treatments, are also compatible. See the section "Using `cobalt` with continuous treatments" at `vignette("cobalt")`.
 
 ### Using `bal.tab()` with `Matching`
 
@@ -149,11 +149,11 @@ cbps.out <- CBPS::CBPS(f, data = lalonde)
 bal.tab(cbps.out)
 ```
 
-First is the original call to `CBPS()`. Next is the balance table containing mean differences for the covariates included in the input to `CBPS()`. Last is a table displaying sample size information. The "effective" sample size is displayed when weighting (rather than matching or subclassification) is used; it is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" in the main vignette for details on this calculation.
+First is the original call to `CBPS()`. Next is the balance table containing mean differences for the covariates included in the input to `CBPS()`. Last is a table displaying sample size information. The "effective" sample size is displayed when weighting (rather than matching or subclassification) is used; it is calculated as is done in `twang`. See the `twang` documentation, `?bal.tab`, or "Details on Calculations" at `vignette("cobalt")` for details on this calculation.
 
 The other arguments to `bal.tab()` when using it with `CBPS` have the same form and function as those given when using it without a conditioning package, except for `s.d.denom`. If the estimand of the original call to `CBPS()` is the ATT, `s.d.denom` will default to `"treated"` if not specified, and if the estimand is the ATE, `s.d.denom` will default to `"pooled"`. The user can specify their own argument to `s.d.denom`, but using the defaults is advisable.
 
-`CBPSContinuous` objects resulting from fitting models in `CBPS` with continuous treatments are also compatible with `cobalt`. See the section "Using `cobalt` with continuous treatments" in the main vignette. `CBPS` objects resulting from fitting models in `CBPS` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" in the main vignette. `CBMSM` objects resulting from fitting models in `CBPS` with longitudinal treatments are also compatible with `cobalt`. See the Appendix 3 vignette.
+`CBPSContinuous` objects resulting from fitting models in `CBPS` with continuous treatments are also compatible with `cobalt`. See the section "Using `cobalt` with continuous treatments" at `vignette("cobalt")`. `CBPS` objects resulting from fitting models in `CBPS` with multi-category treatments are also compatible with `cobalt`. See the section "Using `cobalt` with multi-category treatments" at `vignette("cobalt")`. `CBMSM` objects resulting from fitting models in `CBPS` with longitudinal treatments are also compatible with `cobalt`. See `vignette("longitudinal-treat")`.
 
 ### Using `bal.tab()` with `ebal`
 
@@ -170,7 +170,7 @@ e.out <- ebal::ebalance(lalonde$treat, covs0)
 bal.tab(e.out, treat = lalonde$treat, covs = covs0)
 ```
 
-First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. See `?bal.tab` or "Details on Calculations" in the main vignette for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure.
+First is the balance table containing mean differences for covariates included in the original call to `ebalance`. In general, these will all be very close to 0. Next is a table displaying effective sample size information. See `?bal.tab` or "Details on Calculations" at `vignette("cobalt")` for details on this calculation. A common issue when using entropy balancing is small effective sample size, which can yield low precision in effect estimation when using weighted regression, so it is important that users pay attention to this measure.
 
 The input is similar to that for using `bal.tab()` with `Matching` or `optmatch`. In addition to the `ebalance` object, one must specify either both a formula and a data set or both a treatment vector and a data frame of covariates.
 
