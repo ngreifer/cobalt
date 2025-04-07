@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cobalt</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.5.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">4.5.5.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,8 @@
 <ul><li><p>Target OVL coefficients can be requested for continuous treatments by setting <code>stats = "ovl"</code>.</p></li>
 <li><p>Added two new functions, <code><a href="../reference/balance-summary.html">col_w_dcov()</a></code> and <code><a href="../reference/balance-summary.html">col_w_dcorr()</a></code> for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates.</p></li>
 <li><p>Fixed a bug when printing balance tables with longitudinal treatments that are of different types.</p></li>
-<li><p>The legend title of <code><a href="../reference/love.plot.html">love.plot()</a></code> can be now be changed more easily. See <code><a href="../reference/love.plot.html">?love.plot</a></code> for details.</p></li>
+<li><p>The legend title of <code><a href="../reference/love.plot.html">love.plot()</a></code> can be now be changed more easily. See <code><a href="../reference/love.plot.html">?love.plot</a></code> for details. (<a href="https://github.com/ngreifer/cobalt/issues/92" class="external-link">#92</a>)</p></li>
+<li><p>Fixed a bug where supplying <code>var.names</code> to <code><a href="../reference/love.plot.html">love.plot()</a></code> with a modified <code>bal.tab</code> input would throw an error. (<a href="https://github.com/ngreifer/cobalt/issues/89" class="external-link">#89</a>)</p></li>
 <li><p>Code cleaning and refactoring to improve performance.</p></li>
 </ul></div>
     <div class="section level2">
