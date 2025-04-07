@@ -635,7 +635,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   colors_specified <- is_not_null(colors)
   if (colors_specified) {
     if (length(colors) == 1L) {
-      colors <- rep(colors, ntypes)
+      colors <- rep.int(colors, ntypes)
     }
     else if (length(colors) > ntypes) {
       colors <- colors[seq_len(ntypes)]
@@ -655,7 +655,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   else {
     colors <- {
       if (length(shapes) > 1L && length(shapes) == ntypes && shapes.ok(shapes, ntypes))
-        rep("black", ntypes)
+        rep.int("black", ntypes)
       else
         gg_color_hue(ntypes)
     }
@@ -1142,11 +1142,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         ggplot2::layer(
           geom = "point",
           mapping = aes(y = .data$var, 
-              x = .data$mean.stat, 
-              shape = if (shape_aes) .data$Sample,
-              color = if (color_aes) .data$Sample,
-              size = .data$Sample,
-              stroke = .data$Sample),
+                        x = .data$mean.stat, 
+                        shape = if (shape_aes) .data$Sample,
+                        color = if (color_aes) .data$Sample,
+                        size = .data$Sample,
+                        stroke = .data$Sample),
           stat = "identity",
           position = position.dodge,
           params = clear_null(point_params))
@@ -1360,7 +1360,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   grid::grid.draw(p)
   
   attr(p, "plots") <- plot.list
-
+  
   invisible(set_class(p, "love.plot"))
 }
 
@@ -1385,9 +1385,10 @@ f.recode <- function(f, ...) {
   f <- factor(f)
   new_levels <- unlist(list(...), use.names = TRUE)
   old_levels <- levels(f)
-  idx <- match(new_levels, old_levels)
   
-  old_levels[idx] <- names(new_levels)
+  idx <- match(old_levels, new_levels)
+  
+  old_levels[!is.na(idx)] <- names(new_levels)[na.rem(idx)]
   
   levels(f) <- old_levels
   
