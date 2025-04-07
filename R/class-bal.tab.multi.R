@@ -54,142 +54,142 @@ base.bal.tab.multi <- function(X,
                                which.treat,
                                multi.summary = getOption("cobalt_multi.summary"),
                                ...) {
-    A <- list(...)
-    
-    #Preparations
-    
-    if (is_not_null(X$weights))  {
-        check_if_zero_weights(X$weights, X$treat)
-        if (ncol(X$weights) == 1) names(X$weights) <- "Adj"
-    }
-    if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
-    
-    if (missing(which.treat)) {
-        if (is_null(X$imp)) which.treat <- NA
-        else which.treat <- NULL
-    }
-    
-    if (is_null(multi.summary)) {
-        multi.summary <- is_not_null(which.treat) && anyNA(which.treat)
-    }
-    
-    #Treat is a factor variable
-    if (is_null(X$focal)) {
-        if (pairwise) treat.combinations <- utils::combn(treat_names(X$treat), 2, simplify = FALSE)
-        else treat.combinations <- lapply(treat_names(X$treat), function(x) c(x, "All"))
-    }
-    else {
-        if (length(X$focal) > 1) {
-            .err("`focal` must be a vector of length 1 containing the name or index of the focal treatment group")
-        }
-        
-        if (is.numeric(X$focal)) {
-            X$focal <- levels(X$treat)[X$focal]
-        }
-        if (!is.character(X$focal)) {
-            .err("`focal` must be the name or index of the focal treatment group")
-        }
-        
-        if (pairwise) treat.combinations <- utils::combn(treat_names(X$treat), 2, simplify = FALSE)
-        else treat.combinations <- lapply(setdiff(treat_names(X$treat), X$focal), function(x) c(x, X$focal))
+  A <- list(...)
+  
+  #Preparations
+  if (is_not_null(X$weights))  {
+    check_if_zero_weights(X$weights, X$treat)
+    if (ncol(X$weights) == 1L) names(X$weights) <- "Adj"
+  }
+  if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+  
+  if (missing(which.treat)) {
+    if (is_null(X$imp)) which.treat <- NA
+    else which.treat <- NULL
+  }
+  
+  if (is_null(multi.summary)) {
+    multi.summary <- is_not_null(which.treat) && anyNA(which.treat)
+  }
+  
+  #Treat is a factor variable
+  if (is_null(X$focal)) {
+    if (pairwise) treat.combinations <- utils::combn(treat_names(X$treat), 2L, simplify = FALSE)
+    else treat.combinations <- lapply(treat_names(X$treat), function(x) c(x, "All"))
+  }
+  else {
+    if (length(X$focal) > 1L) {
+      .err("`focal` must be a vector of length 1 containing the name or index of the focal treatment group")
     }
     
-    X$covs <- do.call(".get_C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
-    
-    var_types <- attr(X$covs, "var_types")
-
-    if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-    if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
-
-    
-    if ("mean.diffs" %in% X$stats &&
-        ((A$binary == "std" && any(var_types == "Binary")) ||
-         (A$continuous == "std" && any(var_types != "Binary")))) {
-        X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
-                                      estimand = X$estimand,
-                                      weights = X$weights, 
-                                      subclass = X$subclass,
-                                      treat = X$treat,
-                                      focal = X$focal)
-        
-        bin.vars <- var_types == "Binary"
-        
-        if (is_null(X$weights)) {
-            X$s.d.denom.list <- list(.compute_s.d.denom(X$covs, X$treat, s.d.denom = X$s.d.denom,
-                                                       s.weights = X$s.weights, bin.vars = bin.vars))
-        }
-        else {
-            X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom),
-                                                function(i) .compute_s.d.denom(X$covs, X$treat,
-                                                                              s.d.denom = X$s.d.denom[i], s.weights = X$s.weights, 
-                                                                              bin.vars = bin.vars, weighted.weights = X$weights[[i]])),
-                                         names(X$s.d.denom))
-        }
+    if (is.numeric(X$focal)) {
+      X$focal <- levels(X$treat)[X$focal]
     }
     
-    #Setup output object
-    out <- list()
+    if (!is.character(X$focal)) {
+      .err("`focal` must be the name or index of the focal treatment group")
+    }
     
-    if (pairwise || is_not_null(X$focal)) {
-        balance.tables <- lapply(treat.combinations, function(t) {
-            X_t <- subset_X(X, X$treat %in% treat_vals(X$treat)[t])
-            # X_t$treat <- process_treat(X_t$treat)
-            X_t <- .assign_X_class(X_t)
-            X_t$call <- NULL
-            do.call("base.bal.tab", c(list(X_t), A[setdiff(names(A), names(X_t))]), quote = TRUE)
-        })
+    treat.combinations <- {
+      if (pairwise) utils::combn(treat_names(X$treat), 2L, simplify = FALSE)
+      else lapply(setdiff(treat_names(X$treat), X$focal), function(x) c(x, X$focal))
+    }
+  }
+  
+  X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
+  
+  var_types <- attr(X$covs, "var_types")
+  
+  if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
+  if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
+  
+  
+  if ("mean.diffs" %in% X$stats &&
+      ((A$binary == "std" && any(var_types == "Binary")) ||
+       (A$continuous == "std" && !all(var_types == "Binary")))) {
+    X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
+                                  estimand = X$estimand,
+                                  weights = X$weights, 
+                                  subclass = X$subclass,
+                                  treat = X$treat,
+                                  focal = X$focal)
+    
+    bin.vars <- var_types == "Binary"
+    
+    if (is_null(X$weights)) {
+      X$s.d.denom.list <- list(.compute_s.d.denom(X$covs, X$treat, s.d.denom = X$s.d.denom,
+                                                  s.weights = X$s.weights, bin.vars = bin.vars))
     }
     else {
-        if (any(treat_vals(X$treat) == "All")) {
-            .err("\"All\" cannot be the name of a treatment level. Please rename your treatments")
-        }
-        balance.tables <- lapply(treat.combinations, function(t) {
-            n <- length(X$treat)
-            X_t <- X
-            X_t$call <- NULL
-            X_t <- subset_X(X_t, c(seq_len(n), which(X$treat == treat_vals(X$treat)[t[1]])))
-            X_t$treat <- factor(rep(0:1, times = c(n, sum(X$treat == treat_vals(X$treat)[t[1]]))),
-                                levels = c(0, 1), labels = c("All", t[1]))
-            X_t$treat <- process_treat(X_t$treat)
-            
-            if (is_not_null(X_t$weights)) X_t$weights[X_t$treat == "All",] <- 1 #Uncomment to compare each group to unweighted dist.
-            
-            X_t <- .assign_X_class(X_t)
-            do.call("base.bal.tab", c(list(X_t), A[setdiff(names(A), names(X_t))]), quote = TRUE)
-        })
+      X$s.d.denom.list <- setNames(lapply(seq_along(X$s.d.denom),
+                                          function(i) .compute_s.d.denom(X$covs, X$treat,
+                                                                         s.d.denom = X$s.d.denom[i], s.weights = X$s.weights, 
+                                                                         bin.vars = bin.vars, weighted.weights = X$weights[[i]])),
+                                   names(X$s.d.denom))
     }
-    
-    for (i in seq_along(balance.tables)) {
-        names(balance.tables)[i] <- paste(rev(treat.combinations[[i]]), collapse = " vs. ")
+  }
+  
+  #Setup output object
+  out <- list()
+  
+  if (pairwise || is_not_null(X$focal)) {
+    balance.tables <- lapply(treat.combinations, function(t) {
+      X_t <- subset_X(X, X$treat %in% treat_vals(X$treat)[t])
+      # X_t$treat <- process_treat(X_t$treat)
+      X_t <- .assign_X_class(X_t)
+      X_t$call <- NULL
+      do.call("base.bal.tab", c(list(X_t), A[setdiff(names(A), names(X_t))]), quote = TRUE)
+    })
+  }
+  else {
+    if (any(treat_vals(X$treat) == "All")) {
+      .err("\"All\" cannot be the name of a treatment level. Please rename your treatments")
     }
+    balance.tables <- lapply(treat.combinations, function(t) {
+      n <- length(X$treat)
+      X_t <- X
+      X_t$call <- NULL
+      X_t <- subset_X(X_t, c(seq_len(n), which(X$treat == treat_vals(X$treat)[t[1L]])))
+      X_t$treat <- factor(rep(0:1, times = c(n, sum(X$treat == treat_vals(X$treat)[t[1L]]))),
+                          levels = c(0, 1), labels = c("All", t[1L]))
+      X_t$treat <- process_treat(X_t$treat)
+      
+      if (is_not_null(X_t$weights)) X_t$weights[X_t$treat == "All",] <- 1 #Uncomment to compare each group to unweighted dist.
+      
+      X_t <- .assign_X_class(X_t)
+      do.call("base.bal.tab", c(list(X_t), A[setdiff(names(A), names(X_t))]), quote = TRUE)
+    })
+  }
+  
+  for (i in seq_along(balance.tables)) {
+    names(balance.tables)[i] <- paste(rev(treat.combinations[[i]]), collapse = " vs. ")
+  }
+  
+  out[["Pair.Balance"]] <- balance.tables
+  
+  if ((multi.summary || !A$quick) && is_null(X$imp)) {
+    out[["Balance.Across.Pairs"]] <- balance_summary(balance.tables, 
+                                                     agg.funs = "max")
     
-    out[["Pair.Balance"]] <- balance.tables
+    out <- c(out, threshold_summary(compute = attr(out[["Pair.Balance"]][[1L]][["Balance"]], "compute"),
+                                    thresholds = attr(out[["Pair.Balance"]][[1L]][["Balance"]], "thresholds"),
+                                    no.adj = !attr(out[["Pair.Balance"]][[1L]], "print.options")$disp.adj,
+                                    balance.table = out[["Balance.Across.Pairs"]],
+                                    weight.names = attr(out[["Pair.Balance"]][[1L]], "print.options")$weight.names,
+                                    agg.fun = "max"))
     
-    if ((multi.summary || !A$quick) && is_null(X$imp)) {
-        out[["Balance.Across.Pairs"]] <- balance.summary(balance.tables, 
-                                                         agg.funs = "max")
-        
-        out <- c(out, threshold.summary(compute = attr(out[["Pair.Balance"]][[1]][["Balance"]], "compute"),
-                                        thresholds = attr(out[["Pair.Balance"]][[1]][["Balance"]], "thresholds"),
-                                        no.adj = !attr(out[["Pair.Balance"]][[1]], "print.options")$disp.adj,
-                                        balance.table = out[["Balance.Across.Pairs"]],
-                                        weight.names = attr(out[["Pair.Balance"]][[1]], "print.options")$weight.names,
-                                        agg.fun = "max"))
-        
-        out[["Observations"]] <- samplesize.multi(balance.tables, treat_names(X$treat), X$focal)
-    }
-    
-    out[["call"]] <- X$call
-    
-    attr(out, "print.options") <- c(attr(out[["Pair.Balance"]][[1]], "print.options"),
-                                    list(treat_vals_multi = treat_vals(X$treat),
-                                         which.treat = which.treat,
-                                         multi.summary = multi.summary,
-                                         pairwise = pairwise))
-    
-    attr(out, "print.options")[["treat_names"]] <- NULL
-    
-    class(out) <- c("bal.tab.multi", "bal.tab")
-    
-    out
+    out[["Observations"]] <- samplesize_multi(balance.tables, treat_names(X$treat), X$focal)
+  }
+  
+  out[["call"]] <- X$call
+  
+  attr(out, "print.options") <- c(attr(out[["Pair.Balance"]][[1L]], "print.options"),
+                                  list(treat_vals_multi = treat_vals(X$treat),
+                                       which.treat = which.treat,
+                                       multi.summary = multi.summary,
+                                       pairwise = pairwise))
+  
+  attr(out, "print.options")[["treat_names"]] <- NULL
+
+  set_class(out, c("bal.tab.multi", "bal.tab"))
 }

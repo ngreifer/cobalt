@@ -7,31 +7,51 @@
 # package that the user called. It gets a list of functions and methods exported
 # by this package, moves along the call stack, and returns the call of the
 # highest level function that is in this package.
-pkg_caller_call <- function(start = 1) {
-    package.funs <- c(getNamespaceExports(utils::packageName()),
-                      .getNamespaceInfo(asNamespace(utils::packageName()), "S3methods")[, 3])
-    e_max <- start
+pkg_caller_call <- function() {
+  pn <- utils::packageName()
+  package.funs <- c(getNamespaceExports(pn),
+                    .getNamespaceInfo(asNamespace(pn), "S3methods")[, 3L])
+  
+  for (i in seq_len(sys.nframe())) {
+    e <- sys.call(i)
     
-    for (k in start:length(sys.calls())) {
-        e <- rlang::caller_call(k)
-        if (!is.null(e) &&
-            !is.null(n <- rlang::call_name(e)) &&
-            n %in% package.funs) e_max <- k
+    n <- rlang::call_name(e)
+    
+    if (is_null(n)) {
+      next
     }
-    rlang::caller_call(e_max)
+    
+    if (n %in% package.funs) {
+      return(e)
+    }
+  }
+  
+  NULL
 }
 
 # .err() is a version of chk::err() that uses pkg_caller_call() to get the correct function
 # call since chk::err() has a default that doesn't always work. .wrn() and .msg()
 # just call chk::wrn() and chk::msg() but make the syntax consistent.
-.err <- function(...) {
-    chk::err(..., call = pkg_caller_call(start = 2))
+.err <- function(..., n = NULL, tidy = TRUE) {
+  m <- chk::message_chk(..., n = n, tidy = tidy)
+  rlang::abort(paste(strwrap(m), collapse = "\n"),
+               call = pkg_caller_call())
 }
-.wrn <- function(...) {
-    chk::wrn(...)
+.wrn <- function(..., n = NULL, tidy = TRUE, immediate = TRUE) {
+  m <- chk::message_chk(..., n = n, tidy = tidy)
+  
+  if (immediate && isTRUE(all.equal(0, getOption("warn")))) {
+    rlang::with_options({
+      rlang::warn(paste(strwrap(m), collapse = "\n"))
+    }, warn = 1)
+  }
+  else {
+    rlang::warn(paste(strwrap(m), collapse = "\n"))
+  }
 }
-.msg <- function(...) {
-    chk::msg(...)
+.msg <- function(..., n = NULL, tidy = TRUE) {
+  m <- chk::message_chk(..., n = n, tidy = tidy)
+  rlang::inform(paste(strwrap(m), collapse = "\n"), tidy = FALSE)
 }
 
 # Kind of insane loop to create (at build time) version of all .chk_*

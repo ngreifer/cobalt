@@ -17,34 +17,37 @@
 #' @rdname f.build
 #' @export 
 f.build <- function(y = NULL, rhs = NULL) {
-    if (is_null(rhs)) {
-        if (is_null(y)) {
-            return(formula("~ 1"))
-            # .err("the right hand side argument to `f.build()` must be a vector of variable names or a data set with named variables")
-        }
-        rhs <- y
-        y <- ""
+  if (is_null(rhs)) {
+    if (is_null(y)) {
+      return(formula("~ 1"))
     }
-    
-    tryCatch(force(y), error = function(e) .err(conditionMessage(e), tidy = FALSE))
-    tryCatch(force(rhs), error = function(e) .err(conditionMessage(e), tidy = FALSE))
-    
-    if (is_mat_like(rhs) && is_not_null(colnames(rhs))) {
-        vars <- add_quotes(gsub("`", "", colnames(rhs)), "`")
-    }
-    else if (is.character(rhs)) {
-        vars <- add_quotes(gsub("`", "", rhs), "`")
-    }
-    else .err("the right hand side argument to `f.build()` must be a vector of variable names or a data set with named variables")
-    
-    if (is_null(y) || identical(y, "")) y <- NULL
-    else if (!is.atomic(y)) {
-        .err("the response argument to `f.build()` must be a string containing the response variable")
-    }
-    
-    f <- formula(paste(
-        paste(as.character(y), collapse = " + ") , "~", paste(vars, collapse = " + ")
-    ))
-    # f <- reformulate(vars, y)
-    f
+    rhs <- y
+    y <- ""
+  }
+  
+  tryCatch(force(y), error = function(e) .err(conditionMessage(e), tidy = FALSE))
+  tryCatch(force(rhs), error = function(e) .err(conditionMessage(e), tidy = FALSE))
+  
+  if (is_mat_like(rhs) && is_not_null(colnames(rhs))) {
+    vars <- add_quotes(gsub("`", "", colnames(rhs)), "`")
+  }
+  else if (is.character(rhs)) {
+    vars <- add_quotes(gsub("`", "", rhs), "`")
+  }
+  else {
+    .err("the right hand side argument to `f.build()` must be a vector of variable names or a data set with named variables")
+  }
+  
+  if (is_null(y) || identical(y, "")) {
+    y <- NULL
+  }
+  else if (!is.atomic(y)) {
+    .err("the response argument to `f.build()` must be a string containing the response variable")
+  }
+  
+  f <- formula(paste(
+    paste(as.character(y), collapse = " + ") , "~", paste(vars, collapse = " + ")
+  ))
+  # f <- reformulate(vars, y)
+  f
 }

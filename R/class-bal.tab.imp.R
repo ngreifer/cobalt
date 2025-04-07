@@ -44,109 +44,108 @@ base.bal.tab.imp <- function(X,
                              imp.summary = getOption("cobalt_imp.summary"),
                              imp.fun = getOption("cobalt_imp.fun", NULL),
                              ...) {
-    A <- list(...)
-    
-    #Preparations
-    
-    if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
-    
-    imp <- factor(X$imp)
-    
-    if (missing(which.imp)) {
-        which.imp <- NA
-    }
-    
-    if (is_null(imp.summary)) {
-        imp.summary <- is_not_null(which.imp) && 
-            (anyNA(which.imp) || !is.numeric(which.imp) || 
-                 (is.numeric(which.imp) && !any(which.imp %in% seq_len(nlevels(imp)))))
-    }
-    
-    all.agg.funs <- c("min", "mean", "max")
-    agg.fun <- tolower(as.character(if_null_then(imp.fun, A[["agg.fun"]], all.agg.funs)))
-    agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
-    
-    X$covs <- do.call(".get_C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
-    
-    var_types <- attr(X$covs, "var_types")
-    
-    if (get.treat.type(X$treat) != "continuous") {
-        if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-        if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
-    }
-    else {
-        if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-        if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "std")
-    }
-    
-    if (get.treat.type(X$treat) != "continuous" &&
-        "mean.diffs" %in% X$stats &&
-        ((A$binary == "std" && any(var_types == "Binary")) ||
-         (A$continuous == "std" && any(var_types != "Binary")))) {
-        X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
-                                      estimand = X$estimand,
-                                      weights = X$weights, 
-                                      subclass = X$subclass,
-                                      treat = X$treat,
-                                      focal = X$focal)
-    }
-    else if (get.treat.type(X$treat) == "continuous" &&
-             any(c("correlations", "spearman.correlations") %in% X$stats) &&
-             ((A$binary == "std" && any(var_types == "Binary")) ||
-              (A$continuous == "std" && any(var_types != "Binary")))) {
-        X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
-                                           weights = X$weights,
-                                           subclass = X$subclass)
-    }
-    
-    #Setup output object
-    out.names <- c("Imputation.Balance", 
-                   "Balance.Across.Imputations", 
-                   "Observations", 
-                   "call")
-    out <- make_list(out.names)
-    
-    #Get list of bal.tabs for each imputation
-    
-    out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) {
-        X_i <- .assign_X_class(subset_X(X, imp == i)) 
-        X_i$call <- NULL
-        tryCatch({
-            do.call("base.bal.tab", c(list(X_i), A[names(A) %nin% names(X_i)]), quote = TRUE)
-        },
-        error = function(e) {
-            .err(sprintf("in imputation %s: %s", i, conditionMessage(e)))
-        })
+  A <- list(...)
+  
+  #Preparations
+  
+  if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+  
+  imp <- factor(X$imp)
+  
+  if (missing(which.imp)) {
+    which.imp <- NA
+  }
+  
+  if (is_null(imp.summary)) {
+    imp.summary <- is_not_null(which.imp) && 
+      (anyNA(which.imp) || !is.numeric(which.imp) || 
+         (is.numeric(which.imp) && !any(which.imp %in% seq_len(nlevels(imp)))))
+  }
+  
+  all.agg.funs <- c("min", "mean", "max")
+  agg.fun <- tolower(as.character(if_null_then(imp.fun, A[["agg.fun"]], all.agg.funs)))
+  agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
+  
+  X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
+  
+  var_types <- attr(X$covs, "var_types")
+  
+  if (is_null(A$continuous)) {
+    A$continuous <- getOption("cobalt_continuous", "std")
+  }
+  
+  if (is_null(A$binary)) {
+    A$binary <- getOption("cobalt_binary", switch(get.treat.type(X$treat),
+                                                  continuous = "std", "raw"))
+  }
+  
+  if (get.treat.type(X$treat) != "continuous" &&
+      "mean.diffs" %in% X$stats &&
+      ((A$binary == "std" && any(var_types == "Binary")) ||
+       (A$continuous == "std" && !all(var_types == "Binary")))) {
+    X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
+                                  estimand = X$estimand,
+                                  weights = X$weights, 
+                                  subclass = X$subclass,
+                                  treat = X$treat,
+                                  focal = X$focal)
+  }
+  else if (get.treat.type(X$treat) == "continuous" &&
+           any(c("correlations", "spearman.correlations", "distance.correlations") %in% X$stats) &&
+           ((A$binary == "std" && any(var_types == "Binary")) ||
+            (A$continuous == "std" && !all(var_types == "Binary")))) {
+    X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
+                                       weights = X$weights,
+                                       subclass = X$subclass)
+  }
+  
+  #Setup output object
+  out.names <- c("Imputation.Balance", 
+                 "Balance.Across.Imputations", 
+                 "Observations", 
+                 "call")
+  out <- make_list(out.names)
+  
+  #Get list of bal.tabs for each imputation
+  
+  out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) {
+    X_i <- .assign_X_class(subset_X(X, imp == i)) 
+    X_i$call <- NULL
+    tryCatch({
+      do.call("base.bal.tab", c(list(X_i), A[setdiff(names(A), names(X))]), quote = TRUE)
+    },
+    error = function(e) {
+      .err(sprintf("in imputation %s: %s", i, conditionMessage(e)))
     })
+  })
+  
+  names(out[["Imputation.Balance"]]) <- levels(imp)
+  
+  #Create summary of lists
+  
+  if (imp.summary || !A$quick) {
+    out[["Balance.Across.Imputations"]] <- balance_summary(out[["Imputation.Balance"]], 
+                                                           agg.funs = agg.fun)
     
-    names(out[["Imputation.Balance"]]) <- levels(imp)
-    
-    #Create summary of lists
-    
-    if (imp.summary || !A$quick) {
-        out[["Balance.Across.Imputations"]] <- balance.summary(out[["Imputation.Balance"]], 
-                                                               agg.funs = agg.fun)
-        
-        if (length(agg.fun) == 1) {
-            out <- c(out, threshold.summary(compute = attr(out[["Imputation.Balance"]][[1]][["Balance"]], "compute"),
-                                            thresholds = attr(out[["Imputation.Balance"]][[1]][["Balance"]], "thresholds"),
-                                            no.adj = !attr(out[["Imputation.Balance"]][[1]], "print.options")$disp.adj,
-                                            balance.table = out[["Balance.Across.Imputations"]],
-                                            weight.names = attr(out[["Imputation.Balance"]][[1]], "print.options")$weight.names,
-                                            agg.fun = agg.fun))
-        }
-        
-        observations <- grab(out[["Imputation.Balance"]], "Observations")
-        
-        out[["Observations"]] <- samplesize.across.imps(observations)
+    if (length(agg.fun) == 1L) {
+      out <- c(out, threshold_summary(compute = attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "compute"),
+                                      thresholds = attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "thresholds"),
+                                      no.adj = !attr(out[["Imputation.Balance"]][[1L]], "print.options")$disp.adj,
+                                      balance.table = out[["Balance.Across.Imputations"]],
+                                      weight.names = attr(out[["Imputation.Balance"]][[1L]], "print.options")$weight.names,
+                                      agg.fun = agg.fun))
     }
     
-    out[["call"]] <- X$call
-    attr(out, "print.options") <- c(attr(out[["Imputation.Balance"]][[1]], "print.options"),
-                                    list(which.imp = which.imp,
-                                         imp.summary = imp.summary,
-                                         imp.fun = agg.fun))
-    class(out) <- c("bal.tab.imp", "bal.tab")
+    observations <- grab(out[["Imputation.Balance"]], "Observations")
     
-    out
+    out[["Observations"]] <- samplesize_across_imps(observations)
+  }
+  
+  out[["call"]] <- X$call
+  attr(out, "print.options") <- c(attr(out[["Imputation.Balance"]][[1L]], "print.options"),
+                                  list(which.imp = which.imp,
+                                       imp.summary = imp.summary,
+                                       imp.fun = agg.fun))
+  
+  set_class(out, c("bal.tab.imp", "bal.tab"))
 }

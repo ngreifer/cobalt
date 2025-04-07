@@ -47,7 +47,7 @@
 #'         The mean, maximum, or root-mean-squared absolute Spearman correlation between the treatment and covariates, computed using [col_w_corr()]. Can only be used with continuous treatments.
 #'     }
 #'     \item{`distance.cov`}{
-#'         The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.
+#'         The squared distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.
 #'     }
 #' }
 #' 
@@ -108,7 +108,7 @@
 
 #' @export
 bal.compute <- function(x, ...) {
-    UseMethod("bal.compute")
+  UseMethod("bal.compute")
 }
 
 #' @rdname bal.compute
@@ -116,9 +116,9 @@ bal.compute <- function(x, ...) {
 bal.compute.bal.init <- function(x,
                                  weights = NULL,
                                  ...) {
-    fun <- attr(x, "fun")
-    
-    fun(init = x, weights = weights)
+  fun <- attr(x, "fun")
+  
+  fun(init = x, weights = weights)
 }
 
 #' @rdname bal.compute
@@ -129,9 +129,9 @@ bal.compute.default <- function(x,
                                 s.weights = NULL,
                                 weights = NULL,
                                 ...) {
-    init <- bal.init(x = x, treat = treat, stat = stat, s.weights = s.weights, ...)
-    
-    bal.compute.bal.init(init, weights = weights)
+  init <- bal.init(x = x, treat = treat, stat = stat, s.weights = s.weights, ...)
+  
+  bal.compute.bal.init(init, weights = weights)
 }
 
 #' @rdname bal.compute
@@ -141,1491 +141,1491 @@ bal.init <- function(x,
                      stat,
                      s.weights = NULL,
                      ...) {
-    .chk_not_missing(x, "`x`")
-    .chk_not_missing(treat, "`treat`")
-    .chk_not_missing(stat, "`stat`")
-    
-    .chk_string(stat)
-    .chk_vector(treat)
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    stat <- match_arg(stat, available.stats(treat.type))
-    
-    .chk_null_or(s.weights, chk = .chk_numeric)
-    
-    init <- bal_criterion(treat.type, stat)
-    
-    out <- init$init(x = x, treat = treat, s.weights = s.weights, ...)
-    
-    attr(out, "fun") <- init$fun
-    attr(out, "treat.type") <- treat.type
-    attr(out, "stat") <- stat
-    
-    class(out) <- c("bal.init", class(out))
-    
-    out
+  .chk_not_missing(x, "`x`")
+  .chk_not_missing(treat, "`treat`")
+  .chk_not_missing(stat, "`stat`")
+  
+  .chk_string(stat)
+  .chk_vector(treat)
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  stat <- match_arg(stat, available.stats(treat.type))
+  
+  .chk_null_or(s.weights, chk = .chk_numeric)
+  
+  init <- bal_criterion(treat.type, stat)
+  
+  out <- init$init(x = x, treat = treat, s.weights = s.weights, ...)
+  
+  attr(out, "fun") <- init$fun
+  attr(out, "treat.type") <- treat.type
+  attr(out, "stat") <- stat
+  
+  set_class(out, "bal.init", .replace = FALSE, .last = FALSE)
 }
 
 #' @rdname bal.compute
 #' @export
 available.stats <- function(treat.type = "binary") {
-    .chk_string(treat.type)
-    treat.type <- match_arg(treat.type, c("binary", "multinomial", "continuous"))
-    
-    criteria <- switch(
-        treat.type,
-        binary = c(
-            "smd.mean",
-            "smd.max",
-            "smd.rms",
-            "ks.mean",
-            "ks.max",
-            "ks.rms",
-            "ovl.mean",
-            "ovl.max",
-            "ovl.rms",
-            "mahalanobis",
-            "energy.dist",
-            "kernel.dist",
-            "l1.med",
-            "r2",
-            "r2.2",
-            "r2.3"
-        ),
-        multinomial = c(
-            "smd.mean",
-            "smd.max",
-            "smd.rms",
-            "ks.mean",
-            "ks.max",
-            "ks.rms",
-            "ovl.mean",
-            "ovl.max",
-            "ovl.rms",
-            "energy.dist",
-            "l1.med"
-        ),
-        continuous = c(
-            "p.mean",
-            "p.max",
-            "p.rms",
-            "s.mean",
-            "s.max",
-            "s.rms",
-            "r2",
-            "r2.2",
-            "r2.3",
-            "distance.cov"
-        )
+  .chk_string(treat.type)
+  treat.type <- match_arg(treat.type, c("binary", "multinomial", "continuous"))
+  
+  criteria <- switch(
+    treat.type,
+    binary = c(
+      "smd.mean",
+      "smd.max",
+      "smd.rms",
+      "ks.mean",
+      "ks.max",
+      "ks.rms",
+      "ovl.mean",
+      "ovl.max",
+      "ovl.rms",
+      "mahalanobis",
+      "energy.dist",
+      "kernel.dist",
+      "l1.med",
+      "r2",
+      "r2.2",
+      "r2.3"
+    ),
+    multinomial = c(
+      "smd.mean",
+      "smd.max",
+      "smd.rms",
+      "ks.mean",
+      "ks.max",
+      "ks.rms",
+      "ovl.mean",
+      "ovl.max",
+      "ovl.rms",
+      "energy.dist",
+      "l1.med"
+    ),
+    continuous = c(
+      "p.mean",
+      "p.max",
+      "p.rms",
+      "s.mean",
+      "s.max",
+      "s.rms",
+      "r2",
+      "r2.2",
+      "r2.3",
+      "distance.cov"
     )
-    
-    criteria
+  )
+  
+  criteria
 }
 
 #' @exportS3Method print bal.init
 print.bal.init <- function(x, ...) {
-    cat("A `bal.init` object\n")
-    cat(sprintf("  treatment type: %s\n", attr(x, "treat.type")))
-    cat(sprintf("  statistic: %s (%s)\n", attr(x, "stat"), bal_stat.to.phrase(attr(x, "stat"))))
-    cat("Use `bal.compute()` to compute the balance statistic.\n")
-    invisible(x)
+  cat("A `bal.init` object\n")
+  cat(sprintf("  treatment type: %s\n", attr(x, "treat.type")))
+  cat(sprintf("  statistic: %s (%s)\n", attr(x, "stat"), bal_stat.to.phrase(attr(x, "stat"))))
+  cat("Use `bal.compute()` to compute the balance statistic.\n")
+  invisible(x)
 }
 
 bal_stat.to.phrase <- function(stat) {
-    phrase <- switch(stat,
-                     "smd.mean" = "average absolute standardized mean difference",
-                     "smd.max" = "maximum absolute standardized mean difference",
-                     "smd.rms" = "root-mean-square absolute standardized mean difference",
-                     "ks.mean" = "average Kolmogorov-Smirnov statistic",
-                     "ks.max" = "maximum Kolmogorov-Smirnov statistic",
-                     "ks.rms" = "root-mean-square Kolmogorov-Smirnov statistic",
-                     "ovl.mean" = "average overlapping coefficient complement",
-                     "ovl.max" = "maximum overlapping coefficient complement",
-                     "ovl.rms" = "root-mean-square overlapping coefficient complement",
-                     "mahalanobis" = "sample Mahalanobis distance",
-                     "energy.dist" = "energy distance",
-                     "kernel.dist" = "kernel distance",
-                     "l1.med" = "L1 median",
-                     "r2" = "post-weighting treatment R-squared",
-                     "p.mean" = "average Pearson correlation",
-                     "p.max" = "maximum Pearson correlation",
-                     "p.rms" = "root-mean-square Pearson correlation",
-                     "s.mean" = "average Spearman correlation",
-                     "s.max" = "maximum Spearman correlation",
-                     "s.rms" = "root-mean-square Spearman correlation",
-                     "distance.cov" = "distance covariance",
-                     NA_character_
-    )
-    
-    if (anyNA(phrase)) {
-        .err(sprintf("%s is not an allowed statistic", add_quotes(stat, 2)))
-    }
-    
-    phrase
+  phrase <- switch(stat,
+                   "smd.mean" = "average absolute standardized mean difference",
+                   "smd.max" = "maximum absolute standardized mean difference",
+                   "smd.rms" = "root-mean-square absolute standardized mean difference",
+                   "ks.mean" = "average Kolmogorov-Smirnov statistic",
+                   "ks.max" = "maximum Kolmogorov-Smirnov statistic",
+                   "ks.rms" = "root-mean-square Kolmogorov-Smirnov statistic",
+                   "ovl.mean" = "average overlapping coefficient complement",
+                   "ovl.max" = "maximum overlapping coefficient complement",
+                   "ovl.rms" = "root-mean-square overlapping coefficient complement",
+                   "mahalanobis" = "sample Mahalanobis distance",
+                   "energy.dist" = "energy distance",
+                   "kernel.dist" = "kernel distance",
+                   "l1.med" = "L1 median",
+                   "r2" = "post-weighting treatment R-squared",
+                   "p.mean" = "average Pearson correlation",
+                   "p.max" = "maximum Pearson correlation",
+                   "p.rms" = "root-mean-square Pearson correlation",
+                   "s.mean" = "average Spearman correlation",
+                   "s.max" = "maximum Spearman correlation",
+                   "s.rms" = "root-mean-square Spearman correlation",
+                   "distance.cov" = "distance covariance",
+                   NA_character_
+  )
+  
+  if (anyNA(phrase)) {
+    .err(sprintf("%s is not an allowed statistic", add_quotes(stat, 2L)))
+  }
+  
+  phrase
 }
 
 process_init_covs <- function(covs) {
-    nm <- deparse1(substitute(covs))
-    needs.splitting <- FALSE
-    if (!is.matrix(covs)) {
-        if (is.data.frame(covs)) {
-            if (any(to.split <- vapply(covs, is_, logical(1L), types = c("factor", "character")))) {
-                needs.splitting <- TRUE
-            }
-            else covs <- as.matrix(covs)
-        }
-        else if (is.numeric(covs)) covs <- matrix(covs, ncol = 1)
-        else .err(sprintf("`%s` must be a data.frame or numeric matrix", nm))
+  nm <- deparse1(substitute(covs))
+  
+  if ((!is.numeric(covs) && !is.data.frame(covs)) || length(dim(covs)) > 2L) {
+    .err(sprintf("`%s` must be a data.frame or numeric matrix", nm))
+  }
+  
+  needs.splitting <- FALSE
+  
+  if (is.data.frame(covs)) {
+    to.split <- vapply(covs, chk::vld_character_or_factor, logical(1L))
+    
+    if (any(to.split)) {
+      needs.splitting <- TRUE
     }
-    else if (!is.numeric(covs)) .err(sprintf("`%s` must be a data.frame or numeric matrix", nm))
-    
-    bin.vars <- {
-        if (is_null(attr(covs, "bin"))) process.bin.vars(mat = covs)
-        else attr(covs, "bin")
+    else {
+      covs <- as.matrix(covs)
     }
-    
-    if (needs.splitting) {
-        bin.vars[to.split] <- TRUE
-        covs <- do.call("splitfactor", list(covs, drop.first ="if2",
-                                            split.with = bin.vars))
-        bin.vars <- attr(covs, "split.with")[[1]]
-    }
-    
-    covs <- as.matrix(covs)
-    
-    attr(covs, "bin") <- bin.vars
-    covs
+  }
+  else if (!is.matrix(covs)) {
+    covs <- matrix(covs, ncol = 1L)
+  }
+  
+  bin.vars <- if_null_then(attr(covs, "bin"), .process_bin_vars(mat = covs))
+  
+  if (needs.splitting) {
+    bin.vars[to.split] <- TRUE
+    covs <- splitfactor(covs, drop.first ="if2", split.with = bin.vars)
+    bin.vars <- attr(covs, "split.with")[[1L]]
+  }
+  
+  covs <- as.matrix(covs)
+  
+  attr(covs, "bin") <- bin.vars
+  
+  covs
 }
 
 #init functions
 init_smd <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, ...) {
-    .chk_flag(pairwise)
-    
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("binary", "multinomial")) {
-        .err("`treat` must be a binary or multi-category variable")
+  .chk_flag(pairwise)
+  
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary", "multinomial")) {
+    .err("`treat` must be a binary or multi-category variable")
+  }
+  
+  .chk_null_or(estimand, .chk_string)
+  if (is_null(estimand)) estimand <- "ATE"
+  
+  f.e <- process_focal_and_estimand(focal, estimand, treat)
+  focal <- f.e[["focal"]]
+  estimand <- f.e[["estimand"]]
+  
+  unique.treats <- unique(treat)
+  
+  if (treat.type == "multinomial") {
+    if (is_null(focal) && !pairwise) {
+      treat.all <- last(make.unique(unique.treats, "All"))
+      treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
+                      levels = c(unique.treats, treat.all))
+      x <- x[rep(seq_row(x), 2L), ,]
+      s.weights <- rep.int(s.weights, 2L)
+      focal <- treat.all
     }
     
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
-    
-    f.e <- process_focal_and_estimand(focal, estimand, treat)
-    focal <- f.e[["focal"]]
-    estimand <- f.e[["estimand"]]
-    
-    unique.treats <- unique(treat)
-    
-    if (treat.type == "multinomial") {
-        if (is_null(focal) && !pairwise) {
-            treat.all <- last(make.unique(unique.treats, "All"))
-            treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
-                            levels = c(unique.treats, treat.all))
-            x <- rbind(x, x)
-            s.weights <- rep(s.weights, 2)
-            focal <- treat.all
-        }
-        
-        treatment.pairs <- {
-            if (is_null(focal) || pairwise)
-                utils::combn(unique.treats, 2, simplify = FALSE)
-            else 
-                lapply(setdiff(unique.treats, focal), c, focal)
-        }
+    treatment.pairs <- {
+      if (is_null(focal) || pairwise)
+        utils::combn(unique.treats, 2L, simplify = FALSE)
+      else 
+        lapply(setdiff(unique.treats, focal), c, focal)
     }
-    else {
-        treatment.pairs <- list(unique.treats)
-        pairwise <- TRUE
-    }
-    
-    s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat,
-                                focal = focal, quietly = TRUE)
-    
-    denoms <- .compute_s.d.denom(x, treat = treat,
-                                 s.d.denom = s.d.denom,
-                                 s.weights = s.weights,
-                                 bin.vars = bin.vars)
-    
-    out <- list(treat = treat,
-                covs = x,
-                bin.vars = bin.vars,
-                s.weights = s.weights,
-                s.d.denom = denoms,
-                focal = focal,
-                pairwise = pairwise,
-                treatment.pairs = treatment.pairs)
-    
-    class(out) <- "init_smd"
-    out
+  }
+  else {
+    treatment.pairs <- list(unique.treats)
+    pairwise <- TRUE
+  }
+  
+  s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat,
+                              focal = focal, quietly = TRUE)
+  
+  denoms <- .compute_s.d.denom(x, treat = treat,
+                               s.d.denom = s.d.denom,
+                               s.weights = s.weights,
+                               bin.vars = bin.vars)
+  
+  out <- list(treat = treat,
+              covs = x,
+              bin.vars = bin.vars,
+              s.weights = s.weights,
+              s.d.denom = denoms,
+              focal = focal,
+              pairwise = pairwise,
+              treatment.pairs = treatment.pairs)
+  
+  set_class(out, "init_smd")
 }
 init_ks <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, ...) {
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    .chk_flag(pairwise)
-    
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("binary", "multinomial")) {
-        .err("`treat` must be a binary or multi-category variable")
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  .chk_flag(pairwise)
+  
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary", "multinomial")) {
+    .err("`treat` must be a binary or multi-category variable")
+  }
+  
+  .chk_null_or(estimand, .chk_string)
+  if (is_null(estimand)) estimand <- "ATE"
+  
+  f.e <- process_focal_and_estimand(focal, estimand, treat)
+  focal <- f.e[["focal"]]
+  estimand <- f.e[["estimand"]]
+  
+  unique.treats <- unique(treat)
+  
+  if (treat.type == "multinomial") {
+    if (is_null(focal) && !pairwise) {
+      treat.all <- last(make.unique(unique.treats, "All"))
+      treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
+                      levels = c(unique.treats, treat.all))
+      x <- x[rep(seq_row(x), 2L), ,]
+      s.weights <- rep.int(s.weights, 2L)
+      focal <- treat.all
     }
     
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
-    
-    f.e <- process_focal_and_estimand(focal, estimand, treat)
-    focal <- f.e[["focal"]]
-    estimand <- f.e[["estimand"]]
-    
-    unique.treats <- unique(treat)
-    
-    if (treat.type == "multinomial") {
-        if (is_null(focal) && !pairwise) {
-            treat.all <- last(make.unique(unique.treats, "All"))
-            treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
-                            levels = c(unique.treats, treat.all))
-            x <- rbind(x, x)
-            s.weights <- rep(s.weights, 2)
-            focal <- treat.all
-        }
-        
-        treatment.pairs <- {
-            if (is_null(focal) || pairwise)
-                utils::combn(unique.treats, 2, simplify = FALSE)
-            else 
-                lapply(setdiff(unique.treats, focal), c, focal)
-        }
+    treatment.pairs <- {
+      if (is_null(focal) || pairwise)
+        utils::combn(unique.treats, 2L, simplify = FALSE)
+      else 
+        lapply(setdiff(unique.treats, focal), c, focal)
     }
-    else {
-        treatment.pairs <- list(unique.treats)
-        pairwise <- TRUE
-    }
-    
-    out <- list(treat = treat,
-                covs = x,
-                bin.vars = bin.vars,
-                s.weights = s.weights,
-                focal = focal,
-                pairwise = pairwise,
-                treatment.pairs = treatment.pairs)
-    class(out) <- "init_ks"
-    out
+  }
+  else {
+    treatment.pairs <- list(unique.treats)
+    pairwise <- TRUE
+  }
+  
+  out <- list(treat = treat,
+              covs = x,
+              bin.vars = bin.vars,
+              s.weights = s.weights,
+              focal = focal,
+              pairwise = pairwise,
+              treatment.pairs = treatment.pairs)
+  
+  set_class(out, "init_ks")
 }
 init_ovl <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE,
                      integrate = FALSE, ...) {
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    .chk_flag(pairwise)
-    
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    .chk_flag(integrate)
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("binary", "multinomial")) {
-        .err("`treat` must be a binary or multi-category variable")
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  .chk_flag(pairwise)
+  
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  .chk_flag(integrate)
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary", "multinomial")) {
+    .err("`treat` must be a binary or multi-category variable")
+  }
+  
+  .chk_null_or(estimand, .chk_string)
+  if (is_null(estimand)) estimand <- "ATE"
+  
+  f.e <- process_focal_and_estimand(focal, estimand, treat)
+  focal <- f.e[["focal"]]
+  estimand <- f.e[["estimand"]]
+  
+  unique.treats <- unique(treat)
+  
+  if (treat.type == "multinomial") {
+    if (is_null(focal) && !pairwise) {
+      treat.all <- last(make.unique(unique.treats, "All"))
+      treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
+                      levels = c(unique.treats, treat.all))
+      x <- x[rep(seq_row(x), 2L), ,]
+      s.weights <- rep.int(s.weights, 2L)
+      focal <- treat.all
     }
     
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
-    
-    f.e <- process_focal_and_estimand(focal, estimand, treat)
-    focal <- f.e[["focal"]]
-    estimand <- f.e[["estimand"]]
-    
-    unique.treats <- unique(treat)
-    
-    if (treat.type == "multinomial") {
-        if (is_null(focal) && !pairwise) {
-            treat.all <- last(make.unique(unique.treats, "All"))
-            treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
-                            levels = c(unique.treats, treat.all))
-            x <- rbind(x, x)
-            s.weights <- rep(s.weights, 2)
-            focal <- treat.all
-        }
-        
-        treatment.pairs <- {
-            if (is_null(focal) || pairwise)
-                utils::combn(unique.treats, 2, simplify = FALSE)
-            else 
-                lapply(setdiff(unique.treats, focal), c, focal)
-        }
+    treatment.pairs <- {
+      if (is_null(focal) || pairwise)
+        utils::combn(unique.treats, 2L, simplify = FALSE)
+      else 
+        lapply(setdiff(unique.treats, focal), c, focal)
     }
-    else {
-        treatment.pairs <- list(unique.treats)
-        pairwise <- TRUE
-    }
-    
-    out <- list(treat = treat,
-                covs = x,
-                bin.vars = bin.vars,
-                s.weights = s.weights,
-                focal = focal,
-                pairwise = pairwise,
-                treatment.pairs = treatment.pairs,
-                integrate = integrate)
-    
-    class(out) <- "init_ovl"
-    out
+  }
+  else {
+    treatment.pairs <- list(unique.treats)
+    pairwise <- TRUE
+  }
+  
+  out <- list(treat = treat,
+              covs = x,
+              bin.vars = bin.vars,
+              s.weights = s.weights,
+              focal = focal,
+              pairwise = pairwise,
+              treatment.pairs = treatment.pairs,
+              integrate = integrate)
+  
+  set_class(out, "init_ovl")
 }
 init_ent <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE,
                      integrate = FALSE, ...) {
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    .chk_flag(pairwise)
-    
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    .chk_flag(integrate)
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("binary", "multinomial")) {
-        .err("`treat` must be a binary or multi-category variable")
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  .chk_flag(pairwise)
+  
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  .chk_flag(integrate)
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary", "multinomial")) {
+    .err("`treat` must be a binary or multi-category variable")
+  }
+  
+  .chk_null_or(estimand, .chk_string)
+  if (is_null(estimand)) estimand <- "ATE"
+  
+  f.e <- process_focal_and_estimand(focal, estimand, treat)
+  focal <- f.e[["focal"]]
+  estimand <- f.e[["estimand"]]
+  
+  unique.treats <- unique(treat)
+  
+  if (treat.type == "multinomial") {
+    if (is_null(focal) && !pairwise) {
+      treat.all <- last(make.unique(unique.treats, "All"))
+      treat <- factor(c(as.character(treat), rep.int(treat.all, length(treat))),
+                      levels = c(unique.treats, treat.all))
+      x <- x[rep(seq_row(x), 2L), ,]
+      s.weights <- rep.int(s.weights, 2L)
+      focal <- treat.all
     }
     
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
-    
-    f.e <- process_focal_and_estimand(focal, estimand, treat)
-    focal <- f.e[["focal"]]
-    estimand <- f.e[["estimand"]]
-    
-    unique.treats <- unique(treat)
-    
-    if (treat.type == "multinomial") {
-        if (is_null(focal) && !pairwise) {
-            treat.all <- last(make.unique(unique.treats, "All"))
-            treat <- factor(c(as.character(treat), rep(treat.all, length(treat))),
-                            levels = c(unique.treats, treat.all))
-            x <- rbind(x, x)
-            s.weights <- rep(s.weights, 2)
-            focal <- treat.all
-        }
-        
-        treatment.pairs <- {
-            if (is_null(focal) || pairwise)
-                utils::combn(unique.treats, 2, simplify = FALSE)
-            else 
-                lapply(setdiff(unique.treats, focal), c, focal)
-        }
+    treatment.pairs <- {
+      if (is_null(focal) || pairwise)
+        utils::combn(unique.treats, 2L, simplify = FALSE)
+      else 
+        lapply(setdiff(unique.treats, focal), c, focal)
     }
-    else {
-        treatment.pairs <- list(unique.treats)
-        pairwise <- TRUE
-    }
-    
-    out <- list(treat = treat,
-                covs = x,
-                bin.vars = bin.vars,
-                s.weights = s.weights,
-                focal = focal,
-                pairwise = pairwise,
-                treatment.pairs = treatment.pairs,
-                integrate = integrate)
-    
-    class(out) <- "init_ent"
-    out
+  }
+  else {
+    treatment.pairs <- list(unique.treats)
+    pairwise <- TRUE
+  }
+  
+  out <- list(treat = treat,
+              covs = x,
+              bin.vars = bin.vars,
+              s.weights = s.weights,
+              focal = focal,
+              pairwise = pairwise,
+              treatment.pairs = treatment.pairs,
+              integrate = integrate)
+  
+  set_class(out, "init_ent")
 }
 init_mahalanobis <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, ...) {
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    if (anyNA(x)) {
-        .err('"mahalanobis" cannot be used when there are missing values in the covariates')
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  if (anyNA(x)) {
+    .err('"mahalanobis" cannot be used when there are missing values in the covariates')
+  }
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary", "multinomial")) {
+    .err("`treat` must be a binary or multi-category variable")
+  }
+  
+  .chk_null_or(estimand, .chk_string)
+  if (is_null(estimand)) estimand <- "ATE"
+  
+  f.e <- process_focal_and_estimand(focal, estimand, treat)
+  focal <- f.e[["focal"]]
+  estimand <- f.e[["estimand"]]
+  
+  s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
+  
+  if (!all(bin.vars)) {
+    x[, !bin.vars] <- scale(x[, !bin.vars])
+  }
+  
+  if (s.d.denom %in% as.character(treat)) {
+    sigma <- cov.wt(x[treat == s.d.denom,,drop = FALSE], s.weights[treat == s.d.denom])$cov
+    zeros <- diag(sigma) == 0
+    if (any(zeros)) {
+      sigma_all <- cov.wt(x, s.weights)$cov
+      sigma[zeros,] <- sigma_all[zeros,]
+      sigma[,zeros] <- sigma_all[,zeros]
+      
     }
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("binary", "multinomial")) {
-        .err("`treat` must be a binary or multi-category variable")
-    }
-    
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
-    
+  }
+  else if (s.d.denom == "pooled") {
+    sigma <- .5 * (cov.wt(x[treat == treat[1L],,drop = FALSE], s.weights[treat == treat[1L]])$cov +
+                     cov.wt(x[treat != treat[1L],,drop = FALSE], s.weights[treat != treat[1L]])$cov)
+  }
+  else {
+    sigma <- cov.wt(x, s.weights)$cov
+  }
+  
+  zeros <- diag(sigma) == 0
+  if (any(zeros)) diag(sigma)[zeros]  <- 1
+  
+  #MASS::ginv
+  sigmasvd <- svd(sigma)
+  pos <- sigmasvd$d > max(1e-8 * sigmasvd$d[1L], 0)
+  sigma_inv <- sigmasvd$v[, pos, drop = FALSE] %*% ((1 / sigmasvd$d[pos]) * t(sigmasvd$u[, pos, drop = FALSE]))
+  
+  out <- list(treat = treat,
+              covs = x,
+              bin.vars = bin.vars,
+              s.weights = s.weights,
+              s.d.denom = s.d.denom,
+              sigma_inv = sigma_inv)
+  
+  set_class(out, "init_mahalanobis")
+}
+init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, ...) {
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  if (anyNA(x)) {
+    .err('"energy.dist" cannot be used when there are missing values in the covariates')
+  }
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary", "multinomial")) {
+    .err("`treat` must be a binary or multi-category variable")
+  }
+  
+  treat <- factor(treat)
+  
+  if (is_not_null(estimand)) {
+    .chk_string(estimand)
     f.e <- process_focal_and_estimand(focal, estimand, treat)
     focal <- f.e[["focal"]]
     estimand <- f.e[["estimand"]]
+  }
+  
+  dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
+  
+  d <- unname(as.matrix(dist(dist.covs)))
+  
+  n <- length(treat)
+  unique.treats <- levels(treat)
+  
+  for (t in unique.treats) {
+    s.weights[treat == t] <- s.weights[treat == t]/mean_fast(s.weights[treat == t])
+  }
+  
+  treat_t <- vapply(unique.treats, function(t) treat == t, logical(n))
+  n_t <- colSums(treat_t)
+  
+  s.weights_n_t <- vapply(unique.treats, function(t) treat_t[,t] * s.weights / n_t[t],
+                          numeric(n))
+  
+  if (is_null(estimand)) {
+    .col_diff <- function(x) x[,1] - x[,2]
+    all_pairs <- utils::combn(unique.treats, 2L, simplify = FALSE)
+    nn <- tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
+                            numeric(n)))
     
-    s.d.denom <- .get_s.d.denom(estimand = estimand, treat = treat, focal = focal, quietly = TRUE)
+    P <- -d * nn
     
-    if (any(!bin.vars)) x[,!bin.vars] <- scale(x[,!bin.vars])
+    q <- rep.int(0, n)
+  }
+  else if (is_null(focal)) {
     
-    if (s.d.denom %in% as.character(treat)) {
-        sigma <- cov.wt(x[treat == s.d.denom,,drop = FALSE], s.weights[treat == s.d.denom])$cov
-        if (any(zeros <- diag(sigma) == 0)) {
-            sigma_all <- cov.wt(x, s.weights)$cov
-            sigma[zeros,] <- sigma_all[zeros,]
-            sigma[,zeros] <- sigma_all[,zeros]
-            if (any(zeros <- diag(sigma) == 0)) diag(sigma)[zeros]  <- 1
-        }
-    }
-    else if (s.d.denom == "pooled") {
-        sigma <- .5 * (cov.wt(x[treat == treat[1],,drop = FALSE], s.weights[treat == treat[1]])$cov +
-                           cov.wt(x[treat != treat[1],,drop = FALSE], s.weights[treat != treat[1]])$cov)
-        if (any(zeros <- diag(sigma) == 0)) diag(sigma)[zeros] <- 1
-    }
-    else {
-        sigma <- cov.wt(x, s.weights)$cov
-        if (any(zeros <- diag(sigma) == 0)) diag(sigma)[zeros] <- 1
-    }
+    nn <- tcrossprod(s.weights_n_t)
     
-    #MASS::ginv
-    sigmasvd <- svd(sigma)
-    pos <- sigmasvd$d > max(1e-8 * sigmasvd$d[1L], 0)
-    sigma_inv <- sigmasvd$v[, pos, drop = FALSE] %*% ((1/sigmasvd$d[pos]) *
-                                                          t(sigmasvd$u[, pos, drop = FALSE]))
-    
-    out <- list(treat = treat,
-                covs = x,
-                bin.vars = bin.vars,
-                s.weights = s.weights,
-                s.d.denom = s.d.denom,
-                sigma_inv = sigma_inv)
-    
-    class(out) <- "init_mahalanobis"
-    out
-}
-init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, ...) {
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    if (anyNA(x)) {
-        .err('"energy.dist" cannot be used when there are missing values in the covariates')
+    if (improved) {
+      .col_diff <- function(x) x[,1] - x[,2]
+      all_pairs <- utils::combn(unique.treats, 2L, simplify = FALSE)
+      nn <- nn + tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
+                                   numeric(n)))
     }
     
-    check_arg_lengths(x, treat, s.weights)
+    P <- -d * nn
     
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
+    q <- ((s.weights * 2 / n) %*% d) * rowSums(s.weights_n_t)
+  }
+  else {
+    non_focal <- setdiff(unique.treats, focal)
+    in_focal <- treat == focal
     
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
+    nn <- tcrossprod(s.weights_n_t[!in_focal, non_focal, drop = FALSE])
     
-    if (treat.type %nin% c("binary", "multinomial")) {
-        .err("`treat` must be a binary or multi-category variable")
-    }
+    P <- -d[!in_focal, !in_focal] * nn
     
-    treat <- factor(treat)
-    
-    if (is_not_null(estimand)) {
-        .chk_string(estimand)
-        f.e <- process_focal_and_estimand(focal, estimand, treat)
-        focal <- f.e[["focal"]]
-        estimand <- f.e[["estimand"]]
-    }
-    
-    dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
-    
-    d <- unname(as.matrix(dist(dist.covs)))
-    
-    n <- length(treat)
-    unique.treats <- levels(treat)
-    
-    for (t in unique.treats) {
-        s.weights[treat == t] <- s.weights[treat == t]/mean_fast(s.weights[treat == t])
-    }
-    
-    treat_t <- vapply(unique.treats, function(t) treat == t, logical(n))
-    n_t <- colSums(treat_t)
-
-    s.weights_n_t <- vapply(unique.treats, function(t) treat_t[,t] * s.weights / n_t[t],
-                            numeric(n))
-    
-    if (is_null(estimand)) {
-        .col_diff <- function(x) x[,1] - x[,2]
-        all_pairs <- utils::combn(unique.treats, 2, simplify = FALSE)
-        nn <- tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
-                                numeric(n)))
-        
-        P <- -d * nn
-        
-        q <- rep(0, n)
-    }
-    else if (is_null(focal)) {
-        
-        nn <- tcrossprod(s.weights_n_t)
-        
-        if (improved) {
-            .col_diff <- function(x) x[,1] - x[,2]
-            all_pairs <- utils::combn(unique.treats, 2, simplify = FALSE)
-            nn <- nn + tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
-                                         numeric(n)))
-        }
-        
-        P <- -d * nn
-        
-        q <- ((s.weights * 2 / n) %*% d) * rowSums(s.weights_n_t)
-    }
-    else {
-        non_focal <- setdiff(unique.treats, focal)
-        in_focal <- treat == focal
- 
-        nn <- tcrossprod(s.weights_n_t[!in_focal, non_focal, drop = FALSE])
-        
-        P <- -d[!in_focal, !in_focal] * nn
-        
-        q <- 2 * (s.weights_n_t[in_focal, focal] %*% d[in_focal, !in_focal]) *
-            rowSums(s.weights_n_t[!in_focal, non_focal, drop = FALSE])
-    }
-    
-    out <- list(q = q,
-                P = P,
-                s.weights = s.weights,
-                treat = treat,
-                unique.treats = unique.treats,
-                focal = focal)
-    
-    class(out) <- "init_energy.dist"
-    out
+    q <- 2 * (s.weights_n_t[in_focal, focal] %*% d[in_focal, !in_focal]) *
+      rowSums(s.weights_n_t[!in_focal, non_focal, drop = FALSE])
+  }
+  
+  out <- list(q = q,
+              P = P,
+              s.weights = s.weights,
+              treat = treat,
+              unique.treats = unique.treats,
+              focal = focal)
+  
+  set_class(out, "init_energy.dist")
 }
 init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL, ...) {
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    if (anyNA(x)) {
-        .err('"kernel.dist" cannot be used when there are missing values in the covariates')
-    }
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("binary")) {
-        .err("`treat` must be a binary variable")
-    }
-    
-    treat <- as.numeric(treat == treat[1])
-    
-    for (t in 0:1) {
-        s.weights[treat == t] <- s.weights[treat == t]/mean_fast(s.weights[treat == t])
-    }
-    
-    dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
-    
-    d <- unname(as.matrix(dist(dist.covs)))
-    
-    K <- exp(-(d^2)/median(d))
-    
-    T_star <- numeric(length(treat))
-    T_star[treat == 1] <- 1/sum(treat == 1)
-    T_star[treat == 0] <- -1/sum(treat == 0)
-    
-    out <- list(K = K,
-                T_star = T_star,
-                s.weights = s.weights,
-                treat = treat)
-    
-    class(out) <- "init_kernel.dist"
-    out
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  if (anyNA(x)) {
+    .err('"kernel.dist" cannot be used when there are missing values in the covariates')
+  }
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary")) {
+    .err("`treat` must be a binary variable")
+  }
+  
+  treat <- as.numeric(treat == treat[1L])
+  
+  for (t in 0:1) {
+    s.weights[treat == t] <- s.weights[treat == t]/mean_fast(s.weights[treat == t])
+  }
+  
+  dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
+  
+  d <- unname(as.matrix(dist(dist.covs)))
+  
+  K <- exp(-(d^2)/median(d))
+  
+  T_star <- numeric(length(treat))
+  T_star[treat == 1] <- 1/sum(treat == 1)
+  T_star[treat == 0] <- -1/sum(treat == 0)
+  
+  out <- list(K = K,
+              T_star = T_star,
+              s.weights = s.weights,
+              treat = treat)
+  
+  set_class(out, "init_kernel.dist")
 }
 init_p <- function(x, treat, s.weights = NULL, ...) {
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("continuous")) {
-        .err("`treat` must be a continuous (numeric) variable")
-    }
-    
-    s.d.denom <- .get_s.d.denom.cont(quietly = TRUE)
-    
-    denoms <- .compute_s.d.denom(x, treat = treat,
-                                 s.d.denom = s.d.denom, s.weights = s.weights,
-                                 bin.vars = bin.vars)
-    
-    out <- list(treat = treat,
-                covs = x,
-                bin.vars = bin.vars,
-                s.weights = s.weights,
-                s.d.denom = denoms)
-    
-    class(out) <- "init_p"
-    out
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("continuous")) {
+    .err("`treat` must be a continuous (numeric) variable")
+  }
+  
+  s.d.denom <- .get_s.d.denom.cont(quietly = TRUE)
+  
+  denoms <- .compute_s.d.denom(x, treat = treat,
+                               s.d.denom = s.d.denom, s.weights = s.weights,
+                               bin.vars = bin.vars)
+  
+  out <- list(treat = treat,
+              covs = x,
+              bin.vars = bin.vars,
+              s.weights = s.weights,
+              s.d.denom = denoms)
+  
+  set_class(out, "init_p")
 }
 init_s <- function(x, treat, s.weights = NULL, ...) {
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("continuous")) {
-        .err("`treat` must be a continuous (numeric) variable")
-    }
-    
-    for (i in seq_len(ncol(x))[!bin.vars[i]]) {
-        x[,i] <- rank(x[,i], na.last = "keep")
-    }
-    treat <- rank(treat, na.last = "keep")
-    
-    s.d.denom <- .get_s.d.denom.cont(quietly = TRUE)
-    
-    denoms <- .compute_s.d.denom(x, treat = treat,
-                                 s.d.denom = s.d.denom, s.weights = s.weights,
-                                 bin.vars = bin.vars)
-    
-    out <- list(treat = treat,
-                covs = x,
-                bin.vars = bin.vars,
-                s.weights = s.weights,
-                s.d.denom = denoms)
-    
-    class(out) <- "init_s"
-    out
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("continuous")) {
+    .err("`treat` must be a continuous (numeric) variable")
+  }
+  
+  for (i in seq_col(x)[!bin.vars[i]]) {
+    x[,i] <- rank(x[,i], na.last = "keep")
+  }
+  treat <- rank(treat, na.last = "keep")
+  
+  s.d.denom <- .get_s.d.denom.cont(quietly = TRUE)
+  
+  denoms <- .compute_s.d.denom(x, treat = treat,
+                               s.d.denom = s.d.denom, s.weights = s.weights,
+                               bin.vars = bin.vars)
+  
+  out <- list(treat = treat,
+              covs = x,
+              bin.vars = bin.vars,
+              s.weights = s.weights,
+              s.d.denom = denoms)
+  
+  set_class(out, "init_s")
 }
 init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    if (anyNA(x)) {
-        .err('"r2" cannot be used when there are missing values in the covariates')
-    }
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("binary", "continuous")) {
-        .err("`treat` must be a binary or continuous (numeric) variable")
-    }
-    
-    if (treat.type == "binary") treat <- as.numeric(treat == treat[1])
-    
-    x <- cbind(`(Intercept)` = 1, x, .int_poly_f2(x, poly = poly, int = int))
-    
-    out <- list(treat = treat,
-                x = x,
-                s.weights = s.weights)
-    
-    class(out) <- "init_r2"
-    out
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  if (anyNA(x)) {
+    .err('"r2" cannot be used when there are missing values in the covariates')
+  }
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary", "continuous")) {
+    .err("`treat` must be a binary or continuous (numeric) variable")
+  }
+  
+  if (treat.type == "binary") treat <- as.numeric(treat == treat[1L])
+  
+  x <- cbind(`(Intercept)` = 1, x, .int_poly_f2(x, poly = poly, int = int))
+  
+  out <- list(treat = treat,
+              x = x,
+              s.weights = s.weights)
+  
+  set_class(out, "init_r2")
 }
 init_distance.cov <- function(x, treat, s.weights = NULL, ...) {
-    x <- process_init_covs(x)
-    bin.vars <- attr(x, "bin")
-    
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    if (anyNA(x)) {
-        .err('"distance.cov" cannot be used when there are missing values in the covariates')
-    }
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("continuous")) {
-        .err("`treat` must be a continuous (numeric) variable")
-    }
-    
-    dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
-    
-    Xdist <- unname(as.matrix(dist(dist.covs)))
-    
-    n <- length(treat)
-    
-    Adist <- unname(as.matrix(dist(treat/sqrt(col.w.v(treat, s.weights)))))
-    
-    Xmeans <- colMeans(Xdist)
-    Xgrand_mean <- mean(Xmeans)
-    XA <- Xdist + Xgrand_mean - outer(Xmeans, Xmeans, "+")
-    
-    Ameans <- colMeans(Adist)
-    Agrand_mean <- mean(Ameans)
-    AA <- Adist + Agrand_mean - outer(Ameans, Ameans, "+")
-    
-    P <- XA * AA/n^2
-    
-    out <- list(P = P,
-                s.weights = s.weights,
-                treat = treat)
-    
-    class(out) <- "init_distance.cov"
-    out
+  x <- process_init_covs(x)
+  bin.vars <- attr(x, "bin")
+  
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  if (anyNA(x)) {
+    .err('"distance.cov" cannot be used when there are missing values in the covariates')
+  }
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("continuous")) {
+    .err("`treat` must be a continuous (numeric) variable")
+  }
+  
+  dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
+  
+  Xdist <- unname(as.matrix(dist(dist.covs)))
+  
+  n <- length(treat)
+  
+  Adist <- unname(as.matrix(dist(treat/sqrt(col.w.v(treat, s.weights)))))
+  
+  Xmeans <- colMeans(Xdist)
+  Xgrand_mean <- mean(Xmeans)
+  XA <- Xdist + Xgrand_mean - outer(Xmeans, Xmeans, "+")
+  
+  Ameans <- colMeans(Adist)
+  Agrand_mean <- mean(Ameans)
+  AA <- Adist + Agrand_mean - outer(Ameans, Ameans, "+")
+  
+  P <- XA * AA / n^2
+  
+  out <- list(P = P,
+              s.weights = s.weights,
+              treat = treat)
+  
+  set_class(out, "init_distance.cov")
 }
 init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NULL,
                         .covs = NULL, l1.min.bin = 2, l1.max.bin = 12, l1.n = 101, ...) {
-    
-    if (is_not_null(.covs)) x <- .covs
-    if (!is.data.frame(x)) {
-        if (is.atomic(x) && is_null(dim(x))) x <- data.frame(x)
-        else if (!is.matrix(x)) .err("`x` must be a data.frame or matrix.")
+  
+  if (is_not_null(.covs)) x <- .covs
+  if (!is.data.frame(x)) {
+    if (is.atomic(x) && is_null(dim(x))) x <- data.frame(x)
+    else if (!is.matrix(x)) {
+      .err("`x` must be a data.frame or matrix")
     }
-    x <- as.data.frame(x)
-    
-    .chk_not_missing(treat, "`treat`")
-    .chk_atomic(treat)
-    
-    if (anyNA(x)) {
-        .err('"l1.med" cannot be used when there are missing values in the covariates')
-    }
-    
-    check_arg_lengths(x, treat, s.weights)
-    
-    if (is_null(s.weights)) s.weights <- rep(1, NROW(x))
-    
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    treat.type <- get.treat.type(treat)
-    
-    if (treat.type %nin% c("binary", "multinomial")) {
-        .err("`treat` must be a binary or multi-category variable")
-    }
-    
-    coarsen <- function(covs, cutpoints = NULL, grouping = NULL) {
-        is.numeric.cov <- setNames(vapply(covs, is.numeric, logical(1L)), names(covs))
-        for (i in names(cutpoints)) {
-            if (cutpoints[[i]] == 0) is.numeric.cov[i] <- FALSE #Will not be binned
-        }
-        
-        #Process grouping
-        if (!is.null(grouping) && !is.null(names(grouping))) {
-            covs[names(grouping)] <- lapply(names(grouping), function(g) {
-                x <- covs[[g]]
-                groups <- grouping[[g]]
-                
-                for (i in seq_along(groups)) {
-                    x[x %in% groups[[i]]] <- groups[[i]][1]
-                }
-                x
-            })
-            cutpoints[names(cutpoints) %in% names(grouping)] <- NULL
-        }
-        
-        #Create bins for numeric variables
-        for (i in names(covs)[is.numeric.cov]) {
-            bins <- cutpoints[[i]]
-            
-            #cutpoints is number of bins, unlike in cem
-            breaks <- seq(min(covs[[i]]), max(covs[[i]]), length = bins + 1)
-            breaks[c(1, bins + 1)] <- c(-Inf, Inf)
-            
-            covs[[i]] <- findInterval(covs[[i]], breaks)
-        }
-        
-        #Reduce to strata
-        factor(do.call("paste", c(covs, sep = " | ")))
+  }
+  x <- as.data.frame(x)
+  
+  .chk_not_missing(treat, "`treat`")
+  .chk_atomic(treat)
+  
+  if (anyNA(x)) {
+    .err('"l1.med" cannot be used when there are missing values in the covariates')
+  }
+  
+  check_arg_lengths(x, treat, s.weights)
+  
+  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  
+  if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+  treat.type <- get.treat.type(treat)
+  
+  if (treat.type %nin% c("binary", "multinomial")) {
+    .err("`treat` must be a binary or multi-category variable")
+  }
+  
+  coarsen <- function(covs, cutpoints = NULL, grouping = NULL) {
+    is.numeric.cov <- setNames(vapply(covs, is.numeric, logical(1L)), names(covs))
+    for (i in names(cutpoints)) {
+      if (cutpoints[[i]] == 0) is.numeric.cov[i] <- FALSE #Will not be binned
     }
     
-    .chk_null_or(estimand, .chk_string)
-    if (is_null(estimand)) estimand <- "ATE"
-    
-    f.e <- process_focal_and_estimand(focal, estimand, treat)
-    focal <- f.e[["focal"]]
-    estimand <- f.e[["estimand"]]
-    
-    unique.treats <- unique(treat)
-    for (t in unique.treats) s.weights[treat == t] <- s.weights[treat == t]/sum(s.weights[treat == t])
-    
-    is.numeric.cov <- setNames(vapply(x, is.numeric, logical(1L)), names(x))
-    nunique.covs <- vapply(x, nunique, integer(1L))
-    
-    coarsenings <- lapply(1:l1.n, function(i) {
-        cutpoints <- setNames(lapply(nunique.covs[is.numeric.cov], function(nu) {
-            sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1)
-        }), names(x)[is.numeric.cov])
-        grouping <- setNames(lapply(seq_along(x)[!is.numeric.cov], function(i) {
-            nu <- nunique.covs[i]
-            u <- unique(x[[i]], nmax = nu)
-            
-            #Randomly select number of bins
-            nbins <- sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1)
-            
-            #Randomly assign bin numbers to levels of covariate
-            bin.assignments <- sample(seq_len(nbins), nu, replace = TRUE)
-            
-            #Group levels with same bin number
-            lapply(unique(bin.assignments, nmax = nbins),
-                   function(b) u[bin.assignments == b])
-            
-        }), names(x)[!is.numeric.cov])
-        list(cutpoints = cutpoints, grouping = grouping, treat_cutpoints = NULL)
-    })
-    
-    l1s <- unlist(lapply(coarsenings, function(co) {
-        x <- coarsen(x, cutpoints = co[["cutpoints"]], grouping = co[["grouping"]])
+    #Process grouping
+    if (is_not_null(grouping) && is_not_null(names(grouping))) {
+      covs[names(grouping)] <- lapply(names(grouping), function(g) {
+        x <- covs[[g]]
+        groups <- grouping[[g]]
         
-        if (treat.type == "binary" || is_null(focal)) {
-            sum(vapply(levels(x), function(l) {
-                in_l <- which(x == l)
-                abs(diff(range(vapply(unique.treats, function(t) sum(s.weights[in_l][treat[in_l] == t]), numeric(1L)))))
-            }, numeric(1L))) / length(unique.treats)
+        for (i in seq_along(groups)) {
+          x[x %in% groups[[i]]] <- groups[[i]][1L]
         }
-        else {
-            sum(vapply(levels(x), function(l) {
-                in_l <- which(x == l)
-                sum.s.weights.focal <- sum(s.weights[in_l][treat[in_l] == focal])
-                max(abs(vapply(unique.treats[unique.treats != focal],
-                               function(t) sum(s.weights[in_l][treat[in_l] == t]) - sum.s.weights.focal, numeric(1L))))
-            }, numeric(1L))) / length(unique.treats)
-        }
-    }))
+        x
+      })
+      cutpoints[names(cutpoints) %in% names(grouping)] <- NULL
+    }
     
-    l1.med <- sort(l1s, partial = ceiling(l1.n/2))[ceiling(l1.n/2)]
+    #Create bins for numeric variables
+    for (i in names(covs)[is.numeric.cov]) {
+      bins <- cutpoints[[i]]
+      
+      #cutpoints is number of bins, unlike in cem
+      breaks <- seq(min(covs[[i]]), max(covs[[i]]), length.out = bins + 1L)
+      breaks[c(1L, bins + 1L)] <- c(-Inf, Inf)
+      
+      covs[[i]] <- findInterval(covs[[i]], breaks)
+    }
     
-    l1.med.coarsening <- coarsenings[[which(l1s == l1.med)[1]]]
+    #Reduce to strata
+    factor(do.call("paste", c(covs, sep = " | ")))
+  }
+  
+  .chk_null_or(estimand, .chk_string)
+  if (is_null(estimand)) estimand <- "ATE"
+  
+  f.e <- process_focal_and_estimand(focal, estimand, treat)
+  focal <- f.e[["focal"]]
+  estimand <- f.e[["estimand"]]
+  
+  unique.treats <- unique(treat)
+  for (t in unique.treats) s.weights[treat == t] <- s.weights[treat == t]/sum(s.weights[treat == t])
+  
+  is.numeric.cov <- setNames(vapply(x, is.numeric, logical(1L)), names(x))
+  nunique.covs <- vapply(x, nunique, integer(1L))
+  
+  coarsenings <- lapply(seq_len(l1.n), function(i) {
+    cutpoints <- setNames(lapply(nunique.covs[is.numeric.cov], function(nu) {
+      sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1L)
+    }), names(x)[is.numeric.cov])
+    grouping <- setNames(lapply(seq_along(x)[!is.numeric.cov], function(i) {
+      nu <- nunique.covs[i]
+      u <- unique(x[[i]], nmax = nu)
+      
+      #Randomly select number of bins
+      nbins <- sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1L)
+      
+      #Randomly assign bin numbers to levels of covariate
+      bin.assignments <- sample(seq_len(nbins), nu, replace = TRUE)
+      
+      #Group levels with same bin number
+      lapply(unique(bin.assignments, nmax = nbins),
+             function(b) u[bin.assignments == b])
+      
+    }), names(x)[!is.numeric.cov])
+    list(cutpoints = cutpoints, grouping = grouping, treat_cutpoints = NULL)
+  })
+  
+  l1s <- unlist(lapply(coarsenings, function(co) {
+    x <- coarsen(x, cutpoints = co[["cutpoints"]], grouping = co[["grouping"]])
     
-    out <- list(coarsened.covs = coarsen(x,
-                                         cutpoints = l1.med.coarsening[["cutpoints"]],
-                                         grouping = l1.med.coarsening[["grouping"]]),
-                s.weights = s.weights,
-                treat = treat,
-                unique.treats = unique.treats,
-                focal = focal)
-    
-    class(out) <- "init_l1.med"
-    out
-    
+    if (treat.type == "binary" || is_null(focal)) {
+      sum(vapply(levels(x), function(l) {
+        in_l <- which(x == l)
+        abs(diff(range(vapply(unique.treats, function(t) sum(s.weights[in_l][treat[in_l] == t]),
+                              numeric(1L)))))
+      }, numeric(1L))) / length(unique.treats)
+    }
+    else {
+      sum(vapply(levels(x), function(l) {
+        in_l <- which(x == l)
+        sum.s.weights.focal <- sum(s.weights[in_l][treat[in_l] == focal])
+        max(abs(vapply(unique.treats[unique.treats != focal],
+                       function(t) sum(s.weights[in_l][treat[in_l] == t]) - sum.s.weights.focal,
+                       numeric(1L))))
+      }, numeric(1L))) / length(unique.treats)
+    }
+  }))
+  
+  l1.med <- sort(l1s, partial = ceiling(l1.n / 2))[ceiling(l1.n / 2)]
+  
+  l1.med.coarsening <- coarsenings[[which(l1s == l1.med)[1L]]]
+  
+  out <- list(coarsened.covs = coarsen(x,
+                                       cutpoints = l1.med.coarsening[["cutpoints"]],
+                                       grouping = l1.med.coarsening[["grouping"]]),
+              s.weights = s.weights,
+              treat = treat,
+              unique.treats = unique.treats,
+              focal = focal)
+
+  set_class(out, "init_l1.med")
 }
 
 #Statistics
 smd.binary <- function(init, weights = NULL) {
-    check_init(init, "init_smd")
-    col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
-              bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
+  check_init(init, "init_smd")
+  col_w_smd(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
+            bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE)
 }
 ks.binary <- function(init, weights = NULL) {
-    check_init(init, "init_ks")
-    col_w_ks(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
-             bin.vars = init$bin.vars)
+  check_init(init, "init_ks")
+  col_w_ks(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
+           bin.vars = init$bin.vars)
 }
 ovl.binary <- function(init, weights = NULL) {
-    check_init(init, "init_ovl")
-    col_w_ovl(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
-              bin.vars = init$bin.vars, integrate = init$integrate)
+  check_init(init, "init_ovl")
+  col_w_ovl(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
+            bin.vars = init$bin.vars, integrate = init$integrate)
 }
 mahalanobis.binary <- function(init, weights = NULL) {
-    check_init(init, "init_mahalanobis")
-    mean.diffs <- col_w_smd(init$covs, init$treat, weights, s.weights = init$s.weights,
-                            bin.vars = init$bin.vars, std = FALSE)
-    drop(sqrt(t(mean.diffs) %*% init$sigma_inv %*% mean.diffs))
+  check_init(init, "init_mahalanobis")
+  mean.diffs <- col_w_smd(init$covs, init$treat, weights, s.weights = init$s.weights,
+                          bin.vars = init$bin.vars, std = FALSE)
+  drop(sqrt(t(mean.diffs) %*% init$sigma_inv %*% mean.diffs))
 }
 energy.dist.binary <- function(init, weights = NULL) {
-    check_init(init, "init_energy.dist")
-    
-    if (is_null(weights)) weights <- init[["s.weights"]]
-    else weights <- weights * init[["s.weights"]]
-    
-    for (t in init[["unique.treats"]]) {
-        weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/mean_fast(weights[init[["treat"]] == t])
-    }
-    
-    if (is_not_null(init[["focal"]])) {
-        weights <- weights[init[["treat"]] != init[["focal"]]]
-    }
-    
-    drop(weights %*% init[["P"]] %*% weights + init[["q"]] %*% weights)
+  check_init(init, "init_energy.dist")
+  
+  if (is_null(weights)) weights <- init[["s.weights"]]
+  else weights <- weights * init[["s.weights"]]
+  
+  for (t in init[["unique.treats"]]) {
+    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/mean_fast(weights[init[["treat"]] == t])
+  }
+  
+  if (is_not_null(init[["focal"]])) {
+    weights <- weights[init[["treat"]] != init[["focal"]]]
+  }
+  
+  drop(weights %*% init[["P"]] %*% weights + init[["q"]] %*% weights)
 }
 kernel.dist.binary <- function(init, weights = NULL) {
-    check_init(init, "init_kernel.dist")
-    
-    if (is_null(weights)) weights <- init[["s.weights"]]
-    else weights <- weights * init[["s.weights"]]
-    
-    for (t in 0:1) {
-        weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/mean_fast(weights[init[["treat"]] == t])
-    }
-    
-    T_weights <- init[["T_star"]] * weights
-    
-    drop(sqrt(T_weights %*% init[["K"]] %*% T_weights))
+  check_init(init, "init_kernel.dist")
+  
+  if (is_null(weights)) weights <- init[["s.weights"]]
+  else weights <- weights * init[["s.weights"]]
+  
+  for (t in 0:1) {
+    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/mean_fast(weights[init[["treat"]] == t])
+  }
+  
+  T_weights <- init[["T_star"]] * weights
+  
+  drop(sqrt(T_weights %*% init[["K"]] %*% T_weights))
 }
 r2.binary <- function(init, weights = NULL) {
-    check_init(init, "init_r2")
-    
-    if (is_null(weights)) weights <- init[["s.weights"]]
-    else weights <- weights * init[["s.weights"]]
-    
-    fit <- glm.fit(init$x, init$treat, weights, family = quasibinomial())
-    
-    wmtreat <- sum(weights*fit$linear.predictors)/sum(weights)
-    
-    SSmodel <- sum(weights * (fit$linear.predictors - wmtreat)^2)
-    
-    SSmodel / (sum(weights) * pi^2/3 + SSmodel)
+  check_init(init, "init_r2")
+  
+  if (is_null(weights)) weights <- init[["s.weights"]]
+  else weights <- weights * init[["s.weights"]]
+  
+  fit <- glm.fit(init$x, init$treat, weights, family = quasibinomial())
+  
+  wmtreat <- sum(weights*fit$linear.predictors)/sum(weights)
+  
+  SSmodel <- sum(weights * (fit$linear.predictors - wmtreat)^2)
+  
+  SSmodel / (sum(weights) * pi^2/3 + SSmodel)
 }
 l1.med.binary <- function(init, weights = NULL) {
-    check_init(init, "init_l1.med")
-    
-    if (is_null(weights)) weights <- init[["s.weights"]]
-    else weights <- weights * init[["s.weights"]]
-    
-    for (t in init[["unique.treats"]]) {
-        weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/sum(weights[init[["treat"]] == t])
-    }
-    
-    x <- init[["coarsened.covs"]]
-    
-    sum(vapply(levels(x), function(l) {
-        in_l <- which(x == l)
-        abs(diff(vapply(init[["unique.treats"]], function(t) sum(weights[in_l][init[["treat"]][in_l] == t]), numeric(1L))))
-    }, numeric(1L))) / 2
-    
+  check_init(init, "init_l1.med")
+  
+  if (is_null(weights)) weights <- init[["s.weights"]]
+  else weights <- weights * init[["s.weights"]]
+  
+  for (t in init[["unique.treats"]]) {
+    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/sum(weights[init[["treat"]] == t])
+  }
+  
+  x <- init[["coarsened.covs"]]
+  
+  sum(vapply(levels(x), function(l) {
+    in_l <- which(x == l)
+    abs(diff(vapply(init[["unique.treats"]],
+                    function(t) sum(weights[in_l][init[["treat"]][in_l] == t]),
+                    numeric(1L))))
+  }, numeric(1L))) / 2
+  
 }
 smd.multinomial <- function(init, weights = NULL) {
-    check_init(init, "init_smd")
-    
-    if (!init$pairwise) {
-        weights <- c(weights, rep(1, length(weights)))
-    }
-    
-    unlist(lapply(init$treatment.pairs, function(x) {
-        col_w_smd(init$covs[init$treat %in% x,,drop = FALSE],
-                  treat = init$treat[init$treat %in% x],
-                  weights = weights[init$treat %in% x],
-                  s.weights = init$s.weights[init$treat %in% x],
-                  bin.vars = init$bin.vars,
-                  s.d.denom = init$s.d.denom, abs = TRUE)
-    }))
+  check_init(init, "init_smd")
+  
+  if (!init$pairwise) {
+    weights <- c(weights, rep.int(1, length(weights)))
+  }
+  
+  unlist(lapply(init$treatment.pairs, function(x) {
+    col_w_smd(init$covs[init$treat %in% x,,drop = FALSE],
+              treat = init$treat[init$treat %in% x],
+              weights = weights[init$treat %in% x],
+              s.weights = init$s.weights[init$treat %in% x],
+              bin.vars = init$bin.vars,
+              s.d.denom = init$s.d.denom, abs = TRUE)
+  }))
 }
 ks.multinomial <- function(init, weights = NULL) {
-    check_init(init, "init_ks")
-    
-    if (!init$pairwise) {
-        weights <- c(weights, rep(1, length(weights)))
-    }
-    
-    unlist(lapply(init$treatment.pairs, function(x) {
-        col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
-                 treat = init$treat[init$treat %in% x],
-                 weights = weights[init$treat %in% x],
-                 s.weights = init$s.weights[init$treat %in% x],
-                 bin.vars = init$bin.vars)
-    }))
+  check_init(init, "init_ks")
+  
+  if (!init$pairwise) {
+    weights <- c(weights, rep.int(1, length(weights)))
+  }
+  
+  unlist(lapply(init$treatment.pairs, function(x) {
+    col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
+             treat = init$treat[init$treat %in% x],
+             weights = weights[init$treat %in% x],
+             s.weights = init$s.weights[init$treat %in% x],
+             bin.vars = init$bin.vars)
+  }))
 }
 ovl.multinomial <- function(init, weights = NULL) {
-    check_init(init, "init_ovl")
-    
-    if (!init$pairwise) {
-        weights <- c(weights, rep(1, length(weights)))
-    }
-    
-    unlist(lapply(init$treatment.pairs, function(x) {
-        col_w_ovl(init$covs[init$treat %in% x,,drop = FALSE],
-                  treat = init$treat[init$treat %in% x],
-                  weights = weights[init$treat %in% x],
-                  s.weights = init$s.weights[init$treat %in% x],
-                  bin.vars = init$bin.vars,
-                  integrate = init$integrate)
-    }))
+  check_init(init, "init_ovl")
+  
+  if (!init$pairwise) {
+    weights <- c(weights, rep.int(1, length(weights)))
+  }
+  
+  unlist(lapply(init$treatment.pairs, function(x) {
+    col_w_ovl(init$covs[init$treat %in% x,,drop = FALSE],
+              treat = init$treat[init$treat %in% x],
+              weights = weights[init$treat %in% x],
+              s.weights = init$s.weights[init$treat %in% x],
+              bin.vars = init$bin.vars,
+              integrate = init$integrate)
+  }))
 }
 energy.dist.multinomial <- function(init, weights = NULL) {
-    energy.dist.binary(init, weights)
+  energy.dist.binary(init, weights)
 }
 l1.med.multinomial <- function(init, weights = NULL) {
-    check_init(init, "init_l1.med")
-    
-    if (is_null(weights)) weights <- init[["s.weights"]]
-    else weights <- weights * init[["s.weights"]]
-    
-    for (t in init[["unique.treats"]]) {
-        weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / sum(weights[init[["treat"]] == t])
-    }
-    
-    x <- init[["coarsened.covs"]]
-    
-    if (is_null(init[["focal"]])) {
-        sum(vapply(levels(x), function(l) {
-            in_l <- which(x == l)
-            abs(diff(range(vapply(init[["unique.treats"]], function(t) {
-                sum(weights[in_l][init[["treat"]][in_l] == t])
-            }, numeric(1L)))))
-        }, numeric(1L))) / length(init[["unique.treats"]])
-    }
-    else {
-        sum(vapply(levels(x), function(l) {
-            in_l <- which(x == l)
-            sum.weights.focal <- sum(weights[in_l][init[["treat"]][in_l] == init[["focal"]]])
-            max(abs(vapply(init[["unique.treats"]][init[["unique.treats"]] != init[["focal"]]],
-                           function(t) {
-                               sum(weights[in_l][init[["treat"]][in_l] == t]) - sum.weights.focal
-                           }, numeric(1L))))
-        }, numeric(1L))) / length(init[["unique.treats"]])
-    }
-    
+  check_init(init, "init_l1.med")
+  
+  if (is_null(weights)) weights <- init[["s.weights"]]
+  else weights <- weights * init[["s.weights"]]
+  
+  for (t in init[["unique.treats"]]) {
+    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / sum(weights[init[["treat"]] == t])
+  }
+  
+  x <- init[["coarsened.covs"]]
+  
+  if (is_null(init[["focal"]])) {
+    sum(vapply(levels(x), function(l) {
+      in_l <- which(x == l)
+      abs(diff(range(vapply(init[["unique.treats"]], function(t) {
+        sum(weights[in_l][init[["treat"]][in_l] == t])
+      }, numeric(1L)))))
+    }, numeric(1L))) / length(init[["unique.treats"]])
+  }
+  else {
+    sum(vapply(levels(x), function(l) {
+      in_l <- which(x == l)
+      sum.weights.focal <- sum(weights[in_l][init[["treat"]][in_l] == init[["focal"]]])
+      max(abs(vapply(init[["unique.treats"]][init[["unique.treats"]] != init[["focal"]]],
+                     function(t) {
+                       sum(weights[in_l][init[["treat"]][in_l] == t]) - sum.weights.focal
+                     }, numeric(1L))))
+    }, numeric(1L))) / length(init[["unique.treats"]])
+  }
+  
 }
 pearson.corr.continuous <- function(init, weights = NULL) {
-    check_init(init, "init_p")
-    col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
-              bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-              std = TRUE)
+  check_init(init, "init_p")
+  col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
+            bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
+            std = TRUE)
 }
 spearman.corr.continuous <- function(init, weights = NULL) {
-    check_init(init, "init_s")
-    col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
-              bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
-              std = TRUE)
+  check_init(init, "init_s")
+  col_w_cov(init$covs, treat = init$treat, weights = weights, s.weights = init$s.weights,
+            bin.vars = init$bin.vars, s.d.denom = init$s.d.denom, abs = TRUE,
+            std = TRUE)
 }
 r2.continuous <- function(init, weights = NULL) {
-    check_init(init, "init_r2")
-    
-    if (is_null(weights)) weights <- init[["s.weights"]]
-    else weights <- weights * init[["s.weights"]]
-    
-    fit <- lm.wfit(init$x, init$treat, weights)
-    
-    SSresid <- sum(weights * (fit$residuals - w.m(fit$residuals, weights))^2)
-    SStreat <- sum(weights * (init$treat - w.m(init$treat, weights))^2)
-    
-    1 - SSresid/SStreat
+  check_init(init, "init_r2")
+  
+  if (is_null(weights)) weights <- init[["s.weights"]]
+  else weights <- weights * init[["s.weights"]]
+  
+  fit <- lm.wfit(init$x, init$treat, weights)
+  
+  SSresid <- sum(weights * (fit$residuals - w.m(fit$residuals, weights))^2)
+  SStreat <- sum(weights * (init$treat - w.m(init$treat, weights))^2)
+  
+  1 - SSresid/SStreat
 }
 distance.cov.continuous <- function(init, weights = NULL) {
-    check_init(init, "init_distance.cov")
-    
-    if (is_null(weights)) weights <- init[["s.weights"]]
-    else weights <- weights * init[["s.weights"]]
-    
-    weights <- weights/mean_fast(weights)
-    
-    drop(t(weights) %*% init[["P"]] %*% weights)
+  check_init(init, "init_distance.cov")
+  
+  if (is_null(weights)) weights <- init[["s.weights"]]
+  else weights <- weights * init[["s.weights"]]
+  
+  weights <- weights/mean_fast(weights)
+  
+  drop(t(weights) %*% init[["P"]] %*% weights)
 }
 
 bal_criterion <- function(treat.type, criterion) {
-    .chk_not_missing(criterion, "`criterion`")
-    .chk_not_missing(treat.type, "`treat.type`")
+  .chk_not_missing(criterion, "`criterion`")
+  .chk_not_missing(treat.type, "`treat.type`")
+  
+  bal.obj <- switch(
+    treat.type,
+    binary = switch(criterion,
+                    smd.mean = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_smd(covs, treat, s.weights, estimand)
+                        }
+                        mean_fast(smd.binary(init, weights))
+                      },
+                      init = init_smd
+                    ),
+                    smd.max = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_smd(covs, treat, s.weights, estimand)
+                        }
+                        max(smd.binary(init, weights))
+                      },
+                      init = init_smd
+                    ),
+                    smd.rms = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_smd(covs, treat, s.weights, estimand)
+                        }
+                        rms(smd.binary(init, weights))
+                      },
+                      init = init_smd
+                    ),
+                    ks.mean = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_ks(covs, treat, s.weights)
+                        }
+                        mean_fast(ks.binary(init, weights))
+                      },
+                      init = init_ks
+                    ),
+                    ks.max = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_ks(covs, treat, s.weights)
+                        }
+                        max(ks.binary(init, weights))
+                      },
+                      init = init_ks
+                    ),
+                    ks.rms = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_ks(covs, treat, s.weights)
+                        }
+                        rms(ks.binary(init, weights))
+                      },
+                      init = init_ks
+                    ),
+                    ovl.mean = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                                     init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_ovl(covs, treat, s.weights, integrate = integrate)
+                        }
+                        mean_fast(ovl.binary(init, weights))
+                      },
+                      init = init_ovl
+                    ),
+                    ovl.max = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                                     init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_ovl(covs, treat, s.weights, integrate = integrate)
+                        }
+                        max(ovl.binary(init, weights))
+                      },
+                      init = init_ovl
+                    ),
+                    ovl.rms = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
+                                     init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_ovl(covs, treat, s.weights, integrate = integrate)
+                        }
+                        rms(ovl.binary(init, weights))
+                      },
+                      init = init_ovl
+                    ),
+                    mahalanobis = list(
+                      fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_mahalanobis(covs, treat, s.weights, estimand)
+                        }
+                        mahalanobis.binary(init, weights)
+                      },
+                      init = init_mahalanobis
+                    ),
+                    energy.dist = list(
+                      fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, init = NULL, ...) {
+                        
+                        if (is_null(init)) {
+                          init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
+                        }
+                        energy.dist.binary(init, weights)
+                      },
+                      init = init_energy.dist
+                    ),
+                    kernel.dist = list(
+                      fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
+                        
+                        if (is_null(init)) {
+                          init <- init_kernel.dist(covs, treat, s.weights, estimand, focal)
+                        }
+                        kernel.dist.binary(init, weights)
+                      },
+                      init = init_kernel.dist
+                    ),
+                    l1.med = list(
+                      fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_l1.med(covs, treat, s.weights, estimand, focal, ...)
+                        }
+                        l1.med.binary(init, weights)
+                      },
+                      init = init_l1.med
+                    ),
+                    r2 = list(
+                      fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_r2(covs, treat, s.weights)
+                        }
+                        r2.binary(init, weights)
+                      },
+                      init = init_r2
+                    ),
+                    r2.2 = list(
+                      fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_r2(covs, treat, s.weights, poly = 2)
+                        }
+                        r2.binary(init, weights)
+                      },
+                      init = function(...) init_r2(..., poly = 2)
+                    ),
+                    r2.3 = list(
+                      fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
+                        if (is_null(init)) {
+                          init <- init_r2(covs, treat, s.weights, poly = 3)
+                        }
+                        r2.binary(init, weights)
+                      },
+                      init = function(...) init_r2(..., poly = 3)
+                    )
+    ),
+    multinomial = switch(criterion,
+                         smd.mean = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
+                             }
+                             mean_fast(smd.multinomial(init, weights))
+                           },
+                           init = init_smd
+                         ),
+                         smd.max = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
+                             }
+                             max(smd.multinomial(init, weights))
+                           },
+                           init = init_smd
+                         ),
+                         smd.rms = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
+                             }
+                             rms(smd.multinomial(init, weights))
+                           },
+                           init = init_smd
+                         ),
+                         ks.mean = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                                          pairwise = TRUE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                             }
+                             mean_fast(ks.multinomial(init, weights))
+                           },
+                           init = init_ks
+                         ),
+                         ks.max = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                                          pairwise = TRUE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                             }
+                             max(ks.multinomial(init, weights))
+                           },
+                           init = init_ks
+                         ),
+                         ks.rms = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                                          pairwise = TRUE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
+                             }
+                             rms(ks.multinomial(init, weights))
+                           },
+                           init = init_ks
+                         ),
+                         ovl.mean = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                                          pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                                integrate = integrate)
+                             }
+                             mean_fast(ovl.multinomial(init, weights))
+                           },
+                           init = init_ovl
+                         ),
+                         ovl.max = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                                          pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                                integrate = integrate)
+                             }
+                             max(ovl.multinomial(init, weights))
+                           },
+                           init = init_ovl
+                         ),
+                         ovl.rms = list(
+                           fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
+                                          pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
+                                                integrate = integrate)
+                             }
+                             rms(ovl.multinomial(init, weights))
+                           },
+                           init = init_ovl
+                         ),
+                         energy.dist = list(
+                           fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, init = NULL, ...) {
+                             
+                             if (is_null(init)) {
+                               init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
+                             }
+                             energy.dist.multinomial(init, weights)
+                           },
+                           init = init_energy.dist
+                         ),
+                         l1.med = list(
+                           fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
+                             if (is_null(init)) {
+                               init <- init_l1.med(covs, treat, s.weights, estimand, focal, ...)
+                             }
+                             l1.med.multinomial(init, weights)
+                           },
+                           init = init_l1.med
+                         )
+    ),
     
-    bal.obj <- switch(
-        treat.type,
-        binary = switch(criterion,
-                        smd.mean = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_smd(covs, treat, s.weights, estimand)
-                                }
-                                mean_fast(smd.binary(init, weights))
-                            },
-                            init = init_smd
+    continuous = switch(criterion,
+                        p.mean = list(
+                          fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_p(covs, treat, s.weights)
+                            }
+                            mean_fast(pearson.corr.continuous(init, weights))
+                          },
+                          init = init_p
                         ),
-                        smd.max = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_smd(covs, treat, s.weights, estimand)
-                                }
-                                max(smd.binary(init, weights))
-                            },
-                            init = init_smd
+                        p.max = list(
+                          fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_p(covs, treat, s.weights)
+                            }
+                            max(pearson.corr.continuous(init, weights))
+                          },
+                          init = init_p
                         ),
-                        smd.rms = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_smd(covs, treat, s.weights, estimand)
-                                }
-                                rms(smd.binary(init, weights))
-                            },
-                            init = init_smd
+                        p.rms = list(
+                          fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_p(covs, treat, s.weights)
+                            }
+                            rms(pearson.corr.continuous(init, weights))
+                          },
+                          init = init_p
                         ),
-                        ks.mean = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_ks(covs, treat, s.weights)
-                                }
-                                mean_fast(ks.binary(init, weights))
-                            },
-                            init = init_ks
+                        s.mean = list(
+                          fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_s(covs, treat, s.weights)
+                            }
+                            mean_fast(spearman.corr.continuous(init, weights))
+                          },
+                          init = init_s
                         ),
-                        ks.max = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_ks(covs, treat, s.weights)
-                                }
-                                max(ks.binary(init, weights))
-                            },
-                            init = init_ks
+                        s.max = list(
+                          fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_s(covs, treat, s.weights)
+                            }
+                            max(spearman.corr.continuous(init, weights))
+                          },
+                          init = init_s
                         ),
-                        ks.rms = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_ks(covs, treat, s.weights)
-                                }
-                                rms(ks.binary(init, weights))
-                            },
-                            init = init_ks
-                        ),
-                        ovl.mean = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
-                                           init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_ovl(covs, treat, s.weights, integrate = integrate)
-                                }
-                                mean_fast(ovl.binary(init, weights))
-                            },
-                            init = init_ovl
-                        ),
-                        ovl.max = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
-                                           init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_ovl(covs, treat, s.weights, integrate = integrate)
-                                }
-                                max(ovl.binary(init, weights))
-                            },
-                            init = init_ovl
-                        ),
-                        ovl.rms = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, integrate = FALSE,
-                                           init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_ovl(covs, treat, s.weights, integrate = integrate)
-                                }
-                                rms(ovl.binary(init, weights))
-                            },
-                            init = init_ovl
-                        ),
-                        mahalanobis = list(
-                            fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_mahalanobis(covs, treat, s.weights, estimand)
-                                }
-                                mahalanobis.binary(init, weights)
-                            },
-                            init = init_mahalanobis
-                        ),
-                        energy.dist = list(
-                            fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, init = NULL, ...) {
-                                
-                                if (is_null(init)) {
-                                    init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
-                                }
-                                energy.dist.binary(init, weights)
-                            },
-                            init = init_energy.dist
-                        ),
-                        kernel.dist = list(
-                            fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
-                                
-                                if (is_null(init)) {
-                                    init <- init_kernel.dist(covs, treat, s.weights, estimand, focal)
-                                }
-                                kernel.dist.binary(init, weights)
-                            },
-                            init = init_kernel.dist
-                        ),
-                        l1.med = list(
-                            fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_l1.med(covs, treat, s.weights, estimand, focal, ...)
-                                }
-                                l1.med.binary(init, weights)
-                            },
-                            init = init_l1.med
+                        s.rms = list(
+                          fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_s(covs, treat, s.weights)
+                            }
+                            rms(spearman.corr.continuous(init, weights))
+                          },
+                          init = init_s
                         ),
                         r2 = list(
-                            fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_r2(covs, treat, s.weights)
-                                }
-                                r2.binary(init, weights)
-                            },
-                            init = init_r2
+                          fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_r2(covs, treat, s.weights)
+                            }
+                            r2.continuous(init, weights)
+                          },
+                          init = init_r2
                         ),
                         r2.2 = list(
-                            fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_r2(covs, treat, s.weights, poly = 2)
-                                }
-                                r2.binary(init, weights)
-                            },
-                            init = function(...) init_r2(..., poly = 2)
+                          fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_r2(covs, treat, s.weights, poly = 2)
+                            }
+                            r2.continuous(init, weights)
+                          },
+                          init = function(...) init_r2(..., poly = 2)
                         ),
                         r2.3 = list(
-                            fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
-                                if (is_null(init)) {
-                                    init <- init_r2(covs, treat, s.weights, poly = 3)
-                                }
-                                r2.binary(init, weights)
-                            },
-                            init = function(...) init_r2(..., poly = 3)
+                          fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_r2(covs, treat, s.weights, poly = 3)
+                            }
+                            r2.continuous(init, weights)
+                          },
+                          init = function(...) init_r2(..., poly = 3)
+                        ),
+                        distance.cov = list(
+                          fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_distance.cov(covs, treat, s.weights)
+                            }
+                            distance.cov.continuous(init, weights)
+                          },
+                          init = init_distance.cov
                         )
-        ),
-        multinomial = switch(criterion,
-                             smd.mean = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
-                                     }
-                                     mean_fast(smd.multinomial(init, weights))
-                                 },
-                                 init = init_smd
-                             ),
-                             smd.max = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
-                                     }
-                                     max(smd.multinomial(init, weights))
-                                 },
-                                 init = init_smd
-                             ),
-                             smd.rms = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, estimand = NULL, focal = NULL, pairwise = TRUE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_smd(covs, treat, s.weights, estimand = estimand, focal = focal, pairwise = pairwise)
-                                     }
-                                     rms(smd.multinomial(init, weights))
-                                 },
-                                 init = init_smd
-                             ),
-                             ks.mean = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
-                                                pairwise = TRUE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
-                                     }
-                                     mean_fast(ks.multinomial(init, weights))
-                                 },
-                                 init = init_ks
-                             ),
-                             ks.max = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
-                                                pairwise = TRUE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
-                                     }
-                                     max(ks.multinomial(init, weights))
-                                 },
-                                 init = init_ks
-                             ),
-                             ks.rms = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
-                                                pairwise = TRUE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_ks(covs, treat, s.weights, focal = focal, pairwise = pairwise)
-                                     }
-                                     rms(ks.multinomial(init, weights))
-                                 },
-                                 init = init_ks
-                             ),
-                             ovl.mean = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
-                                                pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
-                                                          integrate = integrate)
-                                     }
-                                     mean_fast(ovl.multinomial(init, weights))
-                                 },
-                                 init = init_ovl
-                             ),
-                             ovl.max = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
-                                                pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
-                                                          integrate = integrate)
-                                     }
-                                     max(ovl.multinomial(init, weights))
-                                 },
-                                 init = init_ovl
-                             ),
-                             ovl.rms = list(
-                                 fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, focal = NULL,
-                                                pairwise = TRUE, integrate = FALSE, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_ovl(covs, treat, s.weights, focal = focal, pairwise = pairwise,
-                                                          integrate = integrate)
-                                     }
-                                     rms(ovl.multinomial(init, weights))
-                                 },
-                                 init = init_ovl
-                             ),
-                             energy.dist = list(
-                                 fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, improved = TRUE, init = NULL, ...) {
-                                     
-                                     if (is_null(init)) {
-                                         init <- init_energy.dist(covs, treat, s.weights, estimand, focal, improved)
-                                     }
-                                     energy.dist.multinomial(init, weights)
-                                 },
-                                 init = init_energy.dist
-                             ),
-                             l1.med = list(
-                                 fun = function(covs, treat, weights = NULL, s.weights = NULL, estimand = NULL, focal = NULL, init = NULL, ...) {
-                                     if (is_null(init)) {
-                                         init <- init_l1.med(covs, treat, s.weights, estimand, focal, ...)
-                                     }
-                                     l1.med.multinomial(init, weights)
-                                 },
-                                 init = init_l1.med
-                             )
-        ),
-        
-        continuous = switch(criterion,
-                            p.mean = list(
-                                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_p(covs, treat, s.weights)
-                                    }
-                                    mean_fast(pearson.corr.continuous(init, weights))
-                                },
-                                init = init_p
-                            ),
-                            p.max = list(
-                                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_p(covs, treat, s.weights)
-                                    }
-                                    max(pearson.corr.continuous(init, weights))
-                                },
-                                init = init_p
-                            ),
-                            p.rms = list(
-                                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_p(covs, treat, s.weights)
-                                    }
-                                    rms(pearson.corr.continuous(init, weights))
-                                },
-                                init = init_p
-                            ),
-                            s.mean = list(
-                                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_s(covs, treat, s.weights)
-                                    }
-                                    mean_fast(spearman.corr.continuous(init, weights))
-                                },
-                                init = init_s
-                            ),
-                            s.max = list(
-                                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_s(covs, treat, s.weights)
-                                    }
-                                    max(spearman.corr.continuous(init, weights))
-                                },
-                                init = init_s
-                            ),
-                            s.rms = list(
-                                fun = function(covs, treat, weights = NULL, bin.vars, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_s(covs, treat, s.weights)
-                                    }
-                                    rms(spearman.corr.continuous(init, weights))
-                                },
-                                init = init_s
-                            ),
-                            r2 = list(
-                                fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_r2(covs, treat, s.weights)
-                                    }
-                                    r2.continuous(init, weights)
-                                },
-                                init = init_r2
-                            ),
-                            r2.2 = list(
-                                fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_r2(covs, treat, s.weights, poly = 2)
-                                    }
-                                    r2.continuous(init, weights)
-                                },
-                                init = function(...) init_r2(..., poly = 2)
-                            ),
-                            r2.3 = list(
-                                fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_r2(covs, treat, s.weights, poly = 3)
-                                    }
-                                    r2.continuous(init, weights)
-                                },
-                                init = function(...) init_r2(..., poly = 3)
-                            ),
-                            distance.cov = list(
-                                fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
-                                    if (is_null(init)) {
-                                        init <- init_distance.cov(covs, treat, s.weights)
-                                    }
-                                    distance.cov.continuous(init, weights)
-                                },
-                                init = init_distance.cov
-                            )
-        )
     )
-    
-    bal.obj
+  )
+  
+  bal.obj
 }
 
 check_init <- function(init, init_class) {
-    .chk_not_missing(init, "`init`")
-    .chk_not_missing(init_class, "`init_class`")
-    .chk_is(init, init_class)
+  .chk_not_missing(init, "`init`")
+  .chk_not_missing(init_class, "`init_class`")
+  .chk_is(init, init_class)
 }
 

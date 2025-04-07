@@ -43,79 +43,80 @@ base.bal.tab.msm <- function(X,
                              which.time,
                              msm.summary = getOption("cobalt_msm.summary"),
                              ...) {
-    A <- list(...)
+  A <- list(...)
+  
+  #Preparations
+  
+  if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+  
+  treat.types <- vapply(X$treat.list, get.treat.type, character(1L))
+  
+  if (missing(which.time)) {
+    which.time <- {
+      if (all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X$imp)) NA
+      else NULL
+    }
+  }
+  
+  if (is_null(msm.summary)) {
+    msm.summary <- is_not_null(which.time) &&
+      (anyNA(which.time) ||
+         !(is.character(which.time) || is.numeric(which.time)) ||
+         (is.numeric(which.time) && !any(which.time %in% seq_along(X$treat.list))) ||
+         (is.character(which.time) && !any(which.time %in% names(X$treat.list))))
+  }
+  
+  #Setup output object
+  out <- list()
+  
+  #Get list of bal.tabs for each time period
+  out[["Time.Balance"]] <- lapply(seq_along(X$covs.list), function(ti) {
+    X_ti <- X
     
-    #Preparations
+    X_ti$covs <- X_ti$covs.list[[ti]]
+    X_ti$treat <- X_ti$treat.list[[ti]]
+    X_ti$addl <- X_ti$addl.list[[ti]]
+    X_ti$distance <- X_ti$distance.list[[ti]]
     
-    if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+    X_ti[c("covs.list", "treat.list", "addl.list", "distance.list", "call")] <- NULL
     
-    treat.types <- vapply(X$treat.list, get.treat.type, character(1L))
+    X_ti <- .assign_X_class(X_ti)
     
-    if (missing(which.time)) {
-        if (all_the_same(treat.types) && "multinomial" %nin% treat.types && is_null(X$imp)) which.time <- NA
-        else which.time <- NULL
+    X_ti$s.d.denom <- {
+      if (attr(X_ti, "X.class") == "cont") "all"
+      else "pooled"
     }
     
-    if (is_null(msm.summary)) {
-        msm.summary <- is_not_null(which.time) && (anyNA(which.time) ||
-                                                       !(is.character(which.time) || is.numeric(which.time)) ||
-                                                       (is.numeric(which.time) && !any(which.time %in% seq_along(X$treat.list))) ||
-                                                       (is.character(which.time) && !any(which.time %in% names(X$treat.list))))
-    }
+    do.call("base.bal.tab", c(list(X_ti), A[setdiff(names(A), names(X_ti))]), quote = TRUE)
+  })
+  
+  names(out[["Time.Balance"]]) <- {
+    if (length(names(X$treat.list)) == length(X$treat.list)) names(X$treat.list)
+    else seq_along(X$treat.list)
+  }
+  
+  if ((!A$quick || msm.summary) && is_null(X$imp) && all_the_same(treat.types) &&
+      !any(treat.types == "multinomial")) {
+    out[["Balance.Across.Times"]] <- balance_summary(out[["Time.Balance"]],
+                                                     agg.funs = "max",
+                                                     include.times = TRUE)
     
-    #Setup output object
-    out <- list()
+    out <- c(out,
+             threshold_summary(compute = attr(out[["Time.Balance"]][[1L]][["Balance"]], "compute"),
+                               thresholds = attr(out[["Time.Balance"]][[1L]][["Balance"]], "thresholds"),
+                               no.adj = !attr(out[["Time.Balance"]][[1L]], "print.options")$disp.adj,
+                               balance.table = out[["Balance.Across.Times"]],
+                               weight.names = attr(out[["Time.Balance"]][[1L]], "print.options")$weight.names,
+                               agg.fun = "max"))
     
-    #Get list of bal.tabs for each time period
-    out[["Time.Balance"]] <- lapply(seq_along(X$covs.list), function(ti) {
-        X_ti <- X
+    out[["Observations"]] <- grab(out[["Time.Balance"]], "Observations")
+  }
+  
+  out[["call"]] <- X$call
+  
+  attr(out, "print.options") <- c(attr(out[["Time.Balance"]][[1L]], "print.options"),
+                                  list(which.time = which.time,
+                                       msm.summary = msm.summary))
 
-        X_ti$covs <- X_ti$covs.list[[ti]]
-        X_ti$treat <- X_ti$treat.list[[ti]]
-        X_ti$addl <- X_ti$addl.list[[ti]]
-        X_ti$distance <- X_ti$distance.list[[ti]]
-        
-        X_ti[c("covs.list", "treat.list", "addl.list", "distance.list", "call")] <- NULL
-
-        X_ti <- .assign_X_class(X_ti)
-        
-        X_ti$s.d.denom <- {
-            if (attr(X_ti, "X.class") == "cont") "all"
-            else "pooled"
-        }
-        
-        do.call("base.bal.tab", c(list(X_ti), A[names(A) %nin% names(X_ti)]), quote = TRUE)
-    })
-    
-    names(out[["Time.Balance"]]) <- {
-        if (length(names(X$treat.list)) == length(X$treat.list)) names(X$treat.list)
-        else seq_along(X$treat.list)
-    }
-    
-    if ((!A$quick || msm.summary) && is_null(X$imp) && all_the_same(treat.types) &&
-        !any(treat.types == "multinomial")) {
-        out[["Balance.Across.Times"]] <- balance.summary(out[["Time.Balance"]],
-                                                         agg.funs = "max",
-                                                         include.times = TRUE)
-        
-        out <- c(out,
-                 threshold.summary(compute = attr(out[["Time.Balance"]][[1]][["Balance"]], "compute"),
-                                   thresholds = attr(out[["Time.Balance"]][[1]][["Balance"]], "thresholds"),
-                                   no.adj = !attr(out[["Time.Balance"]][[1]], "print.options")$disp.adj,
-                                   balance.table = out[["Balance.Across.Times"]],
-                                   weight.names = attr(out[["Time.Balance"]][[1]], "print.options")$weight.names,
-                                   agg.fun = "max"))
-        
-        out[["Observations"]] <- grab(out[["Time.Balance"]], "Observations")
-    }
-    
-    out[["call"]] <- X$call
-    
-    attr(out, "print.options") <- c(attr(out[["Time.Balance"]][[1]], "print.options"),
-                                    list(which.time = which.time,
-                                         msm.summary = msm.summary))
-    
-    class(out) <- c("bal.tab.msm", "bal.tab")
-    
-    out
+  set_class(out, c("bal.tab.msm", "bal.tab"))
 }

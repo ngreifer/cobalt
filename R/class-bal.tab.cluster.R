@@ -43,110 +43,108 @@ base.bal.tab.cluster <- function(X,
                                  cluster.summary = getOption("cobalt_cluster.summary"),
                                  cluster.fun = getOption("cobalt_cluster.fun", NULL),
                                  ...) {
-    A <- list(...)
+  A <- list(...)
+  
+  #Preparations
+  
+  if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
+  if (is_null(A[["abs"]])) A[["abs"]] <- FALSE
+  
+  X$cluster <- factor(X$cluster)
+  
+  .cluster_check(X$cluster, X$treat)
+  
+  #Process cluster.summary
+  if (missing(which.cluster)) {
+    which.cluster <- NULL
+  }
+  
+  if (is_null(cluster.summary)) {
+    cluster.summary <- is_not_null(which.cluster) && anyNA(which.cluster)
+  }
+  
+  all.agg.funs <- c("min", "mean", "max")
+  agg.fun <- tolower(as.character(if_null_then(cluster.fun, A[["agg.fun"]], all.agg.funs)))
+  agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
+  
+  X$covs <- do.call(".get_C2", c(X, A[setdiff(names(A), names(X))]), quote = TRUE)
+  
+  var_types <- attr(X$covs, "var_types")
+  
+  if (get.treat.type(X$treat) != "continuous") {
+    if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
+    if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
+  }
+  else {
+    if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
+    if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "std")
+  }
+  
+  if (get.treat.type(X$treat) != "continuous" &&
+      "mean.diffs" %in% X$stats &&
+      ((A$binary == "std" && any(var_types == "Binary")) ||
+       (A$continuous == "std" && !all(var_types == "Binary")))) {
+    X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
+                                  estimand = X$estimand,
+                                  weights = X$weights, 
+                                  subclass = X$subclass,
+                                  treat = X$treat,
+                                  focal = X$focal)
+  }
+  else if (get.treat.type(X$treat) == "continuous" &&
+           any(c("correlations", "spearman.correlations", "distance.correlations") %in% X$stats) &&
+           ((A$binary == "std" && any(var_types == "Binary")) ||
+            (A$continuous == "std" && !all(var_types == "Binary")))) {
+    X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
+                                       weights = X$weights,
+                                       subclass = X$subclass)
+  }
+  
+  #Setup output object
+  out <- list()
+  
+  #Get list of bal.tabs for each imputation
+  out[["Cluster.Balance"]] <- lapply(levels(X$cluster), function(cl) {
+    X_cl <- .assign_X_class(subset_X(X, X$cluster == cl)) 
+    X_cl$call <- NULL
     
-    #Preparations
-    
-    if (is_null(A[["quick"]])) A[["quick"]] <- TRUE
-    if (is_null(A[["abs"]])) A[["abs"]] <- FALSE
-    
-    X$cluster <- factor(X$cluster)
-    
-    .cluster_check(X$cluster, X$treat)
-    
-    #Process cluster.summary
-    if (missing(which.cluster)) {
-        which.cluster <- NULL
-    }
-    
-    if (is_null(cluster.summary)) {
-        cluster.summary <- is_not_null(which.cluster) && anyNA(which.cluster)
-    }
-    
-    all.agg.funs <- c("min", "mean", "max")
-    agg.fun <- tolower(as.character(if_null_then(cluster.fun, A[["agg.fun"]], all.agg.funs)))
-    agg.fun <- match_arg(agg.fun, all.agg.funs, several.ok = TRUE)
-    
-    X$covs <- do.call(".get_C2", c(X, A[names(A) %nin% names(X)]), quote = TRUE)
-    
-    var_types <- attr(X$covs, "var_types")
-    
-    if (get.treat.type(X$treat) != "continuous") {
-        if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-        if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "raw")
-    }
-    else {
-        if (is_null(A$continuous)) A$continuous <- getOption("cobalt_continuous", "std")
-        if (is_null(A$binary)) A$binary <- getOption("cobalt_binary", "std")
-    }
-    
-    if (get.treat.type(X$treat) != "continuous" &&
-        "mean.diffs" %in% X$stats &&
-        ((A$binary == "std" && any(var_types == "Binary")) ||
-         (A$continuous == "std" && any(var_types != "Binary")))) {
-        X$s.d.denom <- .get_s.d.denom(X$s.d.denom,
-                                      estimand = X$estimand,
-                                      weights = X$weights, 
-                                      subclass = X$subclass,
-                                      treat = X$treat,
-                                      focal = X$focal)
-    }
-    else if (get.treat.type(X$treat) == "continuous" &&
-             any(c("correlations", "spearman.correlations") %in% X$stats) &&
-             ((A$binary == "std" && any(var_types == "Binary")) ||
-              (A$continuous == "std" && any(var_types != "Binary")))) {
-        X$s.d.denom <- .get_s.d.denom.cont(X$s.d.denom,
-                                           weights = X$weights,
-                                           subclass = X$subclass)
-    }
-    
-    #Setup output object
-    out <- list()
-    
-    #Get list of bal.tabs for each imputation
-    out[["Cluster.Balance"]] <- lapply(levels(X$cluster), function(cl) {
-        X_cl <- .assign_X_class(subset_X(X, X$cluster == cl)) 
-        X_cl$call <- NULL
-        
-        tryCatch({
-            do.call("base.bal.tab", c(list(X_cl), A[setdiff(names(A), names(X_cl))]), quote = TRUE)
-        },
-        error = function(e) {
-            .err(sprintf("in cluster %s: %s", add_quotes(cl), conditionMessage(e)))
-        })
+    tryCatch({
+      do.call("base.bal.tab", c(list(X_cl), A[setdiff(names(A), names(X_cl))]), quote = TRUE)
+    },
+    error = function(e) {
+      .err(sprintf("in cluster %s: %s", add_quotes(cl), conditionMessage(e)))
     })
+  })
+  
+  names(out[["Cluster.Balance"]]) <- levels(X$cluster)
+  
+  #Create summary of lists
+  
+  if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
+    out[["Balance.Across.Clusters"]] <- balance_summary(out[["Cluster.Balance"]], 
+                                                        agg.funs = if_null_then(agg.fun, c("min", "mean", "max")))
     
-    names(out[["Cluster.Balance"]]) <- levels(X$cluster)
-    
-    #Create summary of lists
-    
-    if ((cluster.summary || !A$quick) && is_null(X$covs.list) && get.treat.type(X$treat) != "multinomial" && is_null(X$imp)) {
-        out[["Balance.Across.Clusters"]] <- balance.summary(out[["Cluster.Balance"]], 
-                                                            agg.funs = if_null_then(agg.fun, c("min", "mean", "max")))
-        
-        if (length(agg.fun) == 1) {
-            out <- c(out, threshold.summary(compute = attr(out[["Cluster.Balance"]][[1]][["Balance"]], "compute"),
-                                            thresholds = attr(out[["Cluster.Balance"]][[1]][["Balance"]], "thresholds"),
-                                            no.adj = !attr(out[["Cluster.Balance"]][[1]], "print.options")$disp.adj,
-                                            balance.table = out[["Balance.Across.Clusters"]],
-                                            weight.names = attr(out[["Cluster.Balance"]][[1]], "print.options")$weight.names,
-                                            agg.fun = agg.fun))
-        }
-        
-        observations <- grab(out[["Cluster.Balance"]], "Observations")
-        
-        out[["Observations"]] <- samplesize.across.clusters(observations)
+    if (length(agg.fun) == 1L) {
+      out <- c(out, threshold_summary(compute = attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "compute"),
+                                      thresholds = attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "thresholds"),
+                                      no.adj = !attr(out[["Cluster.Balance"]][[1L]], "print.options")$disp.adj,
+                                      balance.table = out[["Balance.Across.Clusters"]],
+                                      weight.names = attr(out[["Cluster.Balance"]][[1L]], "print.options")$weight.names,
+                                      agg.fun = agg.fun))
     }
     
+    observations <- grab(out[["Cluster.Balance"]], "Observations")
     
-    out[["call"]] <- X$call
-    
-    attr(out, "print.options") <- c(attr(out[["Cluster.Balance"]][[1]], "print.options"),
-                                    list(which.cluster = which.cluster,
-                                         cluster.summary = cluster.summary,
-                                         cluster.fun = agg.fun))
-    
-    class(out) <- c("bal.tab.cluster", "bal.tab")
-    
-    out
+    out[["Observations"]] <- samplesize_across_clusters(observations)
+  }
+  
+  
+  out[["call"]] <- X$call
+  
+  attr(out, "print.options") <- c(attr(out[["Cluster.Balance"]][[1L]], "print.options"),
+                                  list(which.cluster = which.cluster,
+                                       cluster.summary = cluster.summary,
+                                       cluster.fun = agg.fun))
+  
+  set_class(out, c("bal.tab.cluster", "bal.tab"))
 }
