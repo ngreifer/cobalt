@@ -1049,7 +1049,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
               treat = treat,
               unique.treats = unique.treats,
               focal = focal)
-
+  
   set_class(out, "init_l1.med")
 }
 

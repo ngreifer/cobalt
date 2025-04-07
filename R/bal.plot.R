@@ -569,7 +569,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       D$s.weights <- X$s.weights
       D2$treat <- X$treat
       D2$var <- X$var
-      D2$subclass <- rep("Unadjusted Sample", length(X$treat))
+      D2$subclass <- rep.int("Unadjusted Sample", length(X$treat))
       D <- rbind(D2, D, stringsAsFactors = TRUE)
       D$subclass <- relevel(factor(D$subclass), "Unadjusted Sample")
     }
@@ -599,7 +599,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       n <- ...get("n", 512)
       
       D$var <- factor(D$var)
-      cat.sizes <- tapply(rep(1, NROW(D)), D$var, sum)
+      cat.sizes <- tapply(rep.int(1, NROW(D)), D$var, sum)
       smallest.cat <- names(cat.sizes)[which.min(cat.sizes)]
       
       if (is.character(bw)) {

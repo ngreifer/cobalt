@@ -351,7 +351,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
       names(sep) <- var.name
     }
   }
-
+  
   if (is_null(dropped.level)) {
     dropped.level <- NULL
   }
@@ -481,7 +481,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
         substr(names(var.to.combine), 1L + nchar(v_sep), nchar(names(var.to.combine)))
     }
     
-    k <- rep(NA_character_, nrow(data))
+    k <- rep.int(NA_character_, nrow(data))
     for (i in seq_along(k.levels)) {
       k[var.to.combine[[i]] == 1] <- k.levels[i]
     }

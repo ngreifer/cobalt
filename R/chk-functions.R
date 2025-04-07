@@ -59,65 +59,65 @@ pkg_caller_call <- function() {
 # .chk_* function now have a version like .chk_*, e.g., .chk_flag(),
 # that can be used in package code instead of the chk version.
 for (i in getNamespaceExports("chk")) {
-    if (!startsWith(i, "chk_")) next
-    assign(paste0(".", i), eval(str2expression(sprintf(
-        "function(...) {
+  if (!startsWith(i, "chk_")) next
+  assign(paste0(".", i), eval(str2expression(sprintf(
+    "function(...) {
             tryCatch(chk::%s(...),
                      error = function(e) .err(conditionMessage(e)))
         }", i
-    ))))
+  ))))
 }
 
 # Version of .chk_null_or() that isn't bugged.
 .chk_null_or <- function(x, chk, ..., x_name = NULL) {
-    if (is.null(x_name)) {
-        x_name <- deparse1(substitute(x))
-    }
-    
-    x_name <- add_quotes(x_name, "`")
-    
-    if (is.null(x)) {
-        return(invisible(x))
-    }
-    
-    tryCatch(chk(x, ..., x_name = x_name),
-             error = function(e) {
-                 msg <- sub("[.]$", " or `NULL`.",
-                            conditionMessage(e))
-                 .err(msg, .subclass = "chk_error")
-             })
+  if (is.null(x_name)) {
+    x_name <- deparse1(substitute(x))
+  }
+  
+  x_name <- add_quotes(x_name, "`")
+  
+  if (is.null(x)) {
+    return(invisible(x))
+  }
+  
+  tryCatch(chk(x, ..., x_name = x_name),
+           error = function(e) {
+             msg <- sub("[.]$", " or `NULL`.",
+                        conditionMessage(e))
+             .err(msg, .subclass = "chk_error")
+           })
 }
 
 .chk_formula <- function(x, sides = NULL, x_name = NULL) {
-    if (is.null(sides)) {
-        if (rlang::is_formula(x)) {
-            return(invisible(x))
-        }
-        if (is.null(x_name)) {
-            x_name <- chk::deparse_backtick_chk(substitute(x))
-        }
-        .err(x_name, " must be a formula",
-             x = x)
+  if (is.null(sides)) {
+    if (rlang::is_formula(x)) {
+      return(invisible(x))
     }
-    else if (sides == 1) {
-        if (rlang::is_formula(x, lhs = FALSE)) {
-            return(invisible(x))
-        }
-        if (is.null(x_name)) {
-            x_name <- chk::deparse_backtick_chk(substitute(x))
-        }
-        .err(x_name, " must be a formula with no left-hand side",
-             x = x)
+    if (is.null(x_name)) {
+      x_name <- chk::deparse_backtick_chk(substitute(x))
     }
-    else if (sides == 2) {
-        if (rlang::is_formula(x, lhs = TRUE)) {
-            return(invisible(x))
-        }
-        if (is.null(x_name)) {
-            x_name <- chk::deparse_backtick_chk(substitute(x))
-        }
-        .err(x_name, " must be a formula with a left-hand side",
-                       x = x)
+    .err(x_name, " must be a formula",
+         x = x)
+  }
+  else if (sides == 1) {
+    if (rlang::is_formula(x, lhs = FALSE)) {
+      return(invisible(x))
     }
-    else stop("`sides` must be NULL, 1, or 2")
+    if (is.null(x_name)) {
+      x_name <- chk::deparse_backtick_chk(substitute(x))
+    }
+    .err(x_name, " must be a formula with no left-hand side",
+         x = x)
+  }
+  else if (sides == 2) {
+    if (rlang::is_formula(x, lhs = TRUE)) {
+      return(invisible(x))
+    }
+    if (is.null(x_name)) {
+      x_name <- chk::deparse_backtick_chk(substitute(x))
+    }
+    .err(x_name, " must be a formula with a left-hand side",
+         x = x)
+  }
+  else stop("`sides` must be NULL, 1, or 2")
 }

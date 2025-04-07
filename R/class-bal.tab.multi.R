@@ -190,6 +190,6 @@ base.bal.tab.multi <- function(X,
                                        pairwise = pairwise))
   
   attr(out, "print.options")[["treat_names"]] <- NULL
-
+  
   set_class(out, c("bal.tab.multi", "bal.tab"))
 }

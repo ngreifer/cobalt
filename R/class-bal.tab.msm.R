@@ -117,6 +117,6 @@ base.bal.tab.msm <- function(X,
   attr(out, "print.options") <- c(attr(out[["Time.Balance"]][[1L]], "print.options"),
                                   list(which.time = which.time,
                                        msm.summary = msm.summary))
-
+  
   set_class(out, c("bal.tab.msm", "bal.tab"))
 }

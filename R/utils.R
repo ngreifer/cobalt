@@ -361,9 +361,9 @@ min_ <- function(..., na.rm = TRUE) {
 }
 check_if_int <- function(x) {
   #Checks if integer-like
-  if (is.integer(x)) rep(TRUE, length(x))
+  if (is.integer(x)) rep.int(TRUE, length(x))
   else if (is.numeric(x)) check_if_zero(x - round(x))
-  else rep(FALSE, length(x))
+  else rep.int(FALSE, length(x))
 }
 
 #Statistics
@@ -485,7 +485,7 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
   }
   
   if (is_null(bin.vars)) {
-    bin.vars <- rep(FALSE, ncol(mat))
+    bin.vars <- rep.int(FALSE, ncol(mat))
   }
   else if (length(bin.vars) != ncol(mat) || anyNA(as.logical(bin.vars))) {
     stop("'bin.vars' must be a logical vector with length equal to the number of columns of 'mat'.", call. = FALSE)
@@ -761,7 +761,7 @@ get_treated_level <- function(treat, estimand = NULL, focal = NULL) {
   if (length(c_match) == 1L) {
     return(setdiff(unique.vals, unique.vals[c_match]))
   }
-
+  
   unique.vals[2L]
 }
 
@@ -912,12 +912,16 @@ ifelse_ <- function(...) {
     stop("The last entry to `ifelse_()` must be atomic.")
   }
   
-  if (length(out) == 1) out <- rep(out, length(..1))
+  if (length(out) == 1L) {
+    out <- rep.int(out, length(..1))
+  }
+  
   n <- length(out)
+  
   for (i in seq_len((dotlen - 1)/2)) {
     test <- ...elt(2 * i - 1)
     yes <- ...elt(2 * i)
-    if (length(yes) == 1) yes <- rep(yes, n)
+    if (length(yes) == 1) yes <- rep.int(yes, n)
     if (length(yes) != n || length(test) != n) stop("All entries must have the same length.")
     if (!is.logical(test)) stop(paste("The", ordinal(2*i - 1), "entry to `ifelse_()` must be logical."))
     if (!is.atomic(yes)) stop(paste("The", ordinal(2*i), "entry to `ifelse_()` must be atomic."))

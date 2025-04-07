@@ -148,24 +148,24 @@
 #' @rdname bal.tab
 #' @export 
 bal.tab <- function(x, ...) {
+  
+  .call <- match.call()
+  
+  tryCatch(force(x), error = function(e) .err(conditionMessage(e)))
+  
+  #Replace .all and .none with NULL and NA respectively
+  if (!inherits(x, "cobalt.processed.obj")) {
     
-    .call <- match.call()
-    
-    tryCatch(force(x), error = function(e) .err(conditionMessage(e)))
-    
-    #Replace .all and .none with NULL and NA respectively
-    if (!inherits(x, "cobalt.processed.obj")) {
-        
-        .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
-        .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
-        if (any(c(.alls, .nones))) {
-            .call[.alls] <- expression(NULL)
-            .call[.nones] <- expression(NA)
-        }
-        .call[["x"]] <- process_obj(x)
-        
-        return(eval.parent(.call))
+    .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
+    .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
+    if (any(c(.alls, .nones))) {
+      .call[.alls] <- expression(NULL)
+      .call[.nones] <- expression(NA)
     }
-
-    UseMethod("bal.tab")
+    .call[["x"]] <- process_obj(x)
+    
+    return(eval.parent(.call))
+  }
+  
+  UseMethod("bal.tab")
 }

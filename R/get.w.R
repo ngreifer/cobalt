@@ -91,13 +91,21 @@ get.w.ps <- function(x, stop.method = NULL, estimand, s.weights = FALSE, ...) {
   criterion <- substr(tolower(s), 1L, nchar(s) - 4L)
   allowable.estimands <- c("ATT", "ATE", "ATC")
   
-  if (is_null(estimand)) estimand <- setNames(substr(toupper(s), nchar(s) - 2L, nchar(s)), s)
+  if (is_null(estimand)) {
+    estimand <- setNames(substr(toupper(s), nchar(s) - 2L, nchar(s)), s)
+  }
   else if (!all(toupper(estimand) %in% allowable.estimands)) {
     .err(sprintf("`estimand` must be %s", word_list(allowable.estimands, "or", quotes = 1L)))
   }
-  else if (length(estimand) == 1L) estimand <- setNames(toupper(rep(estimand, length(s))), s)
-  else if (length(estimand) >= length(s)) estimand <- setNames(toupper(estimand[seq_along(s)]), s)
-  else .err("`estimand` must be the same length as the number of sets of weights requested")
+  else if (length(estimand) == 1L) {
+    estimand <- setNames(toupper(rep.int(estimand, length(s))), s)
+  }
+  else if (length(estimand) >= length(s)) {
+    estimand <- setNames(toupper(estimand[seq_along(s)]), s)
+  }
+  else {
+    .err("`estimand` must be the same length as the number of sets of weights requested")
+  }
   
   w <- make_df(s, nrow(x$ps))
   w[] <- 1

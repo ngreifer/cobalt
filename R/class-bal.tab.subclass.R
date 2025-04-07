@@ -227,7 +227,7 @@ base.bal.tab.subclass <- function(X,
                                      treat_names = treat_vals(X$treat),
                                      type = type,
                                      co.names = co.names)
-
+  
   set_class(out, c("bal.tab.subclass", "bal.tab"))
 }
 

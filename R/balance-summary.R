@@ -472,10 +472,10 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
       
       min.c <- min(x) - 4 * A[["bw"]]
       max.c <- max(x) + 4 * A[["bw"]]
-
+      
       A[["x"]] <- x[t == tval1]
       A[["weights"]] <- w[t == tval1] / sum(w[t == tval1])
-
+      
       f1_ <- approxfun(do.call(density_neg_w_safe, A))
       
       f1 <- function(z) {

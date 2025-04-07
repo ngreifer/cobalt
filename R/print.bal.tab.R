@@ -126,7 +126,7 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
         rowSums(apply(balance[grepl(".Threshold", names(balance), fixed = TRUE)], 2L,
                       function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
       else
-        rep(TRUE, nrow(balance))
+        rep.int(TRUE, nrow(balance))
     }
     
     keep.col <- setNames(as.logical(c(TRUE, 
@@ -437,7 +437,7 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
         rowSums(apply(m.balance.summary[grepl(".Threshold", names(m.balance.summary), fixed = TRUE)], 2L,
                       function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
       else
-        rep(TRUE, nrow(m.balance.summary))
+        rep.int(TRUE, nrow(m.balance.summary))
     }
     
     computed.agg.funs <- "max"
@@ -549,7 +549,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
         rowSums(apply(msm.balance.summary[grepl(".Threshold", names(msm.balance.summary), fixed = TRUE)], 2L,
                       function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
       else
-        rep(TRUE, nrow(msm.balance.summary))
+        rep.int(TRUE, nrow(msm.balance.summary))
     }
     
     computed.agg.funs <- "max"
@@ -667,7 +667,7 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
             rowSums(apply(s.balance[[i]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2L,
                           function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
           else
-            rep(TRUE, nrow(s.balance[[i]]))
+            rep.int(TRUE, nrow(s.balance[[i]]))
         }
         
         cat("\n - - - " %+% italic("Subclass " %+% as.character(i)) %+% " - - - \n")
@@ -689,7 +689,7 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
           rowSums(apply(b.a.subclass[grepl(".Threshold", names(b.a.subclass), fixed = TRUE)], 2L,
                         function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
         else
-          rep(TRUE, nrow(b.a.subclass))
+          rep.int(TRUE, nrow(b.a.subclass))
       }
       
       a.s.keep.col <- setNames(as.logical(c(TRUE, 
@@ -1343,7 +1343,7 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
       }
       
       if (length(disp.thresholds) == 1L) {
-        disp.thresholds <- rep(disp.thresholds, length(p.ops[["thresholds"]]))
+        disp.thresholds <- rep.int(disp.thresholds, length(p.ops[["thresholds"]]))
       }
       
       names(disp.thresholds) <- names(p.ops[["thresholds"]])[seq_along(disp.thresholds)]

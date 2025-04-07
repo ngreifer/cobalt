@@ -603,7 +603,7 @@ x2base.mnps <- function(mnps, ...) {
   
   X <- subset_X(X, subset)
   X <- setNames(X[X.names], X.names)
-
+  
   set_class(X, "multi")
 }
 
@@ -2399,7 +2399,7 @@ x2base.mimids <- function(mimids, ...) {
   
   X <- subset_X(X, subset)
   X <- setNames(X[X.names], X.names)
-
+  
   set_class(X, "imp")
 }
 
@@ -2721,7 +2721,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
   
   X <- subset_X(X, subset)
   X <- setNames(X[X.names], X.names)
- 
+  
   set_class(X, "binary")
 }
 
@@ -2799,7 +2799,7 @@ x2base.iptw <- function(iptw, ...) {
   estimand <- substr(toupper(s), nchar(s) - 2L, nchar(s))
   
   #Get method
-  method <- rep("weighting", length(s))
+  method <- rep.int("weighting", length(s))
   
   #Process addl.list 
   addl.list <- process_addl.list(if_null_then(...get("addl.list"), ...get("addl")),
