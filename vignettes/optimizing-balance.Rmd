@@ -179,7 +179,7 @@ $$ where $\mathbf{\bar{x}}_1$ and $\mathbf{\bar{x}}_0$ are the vectors of covari
 
 #### `energy.dist`
 
-The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. See @hulingEnergyBalancingCovariate2022 for details. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `improved` to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default `TRUE`). Can be used with binary and multi-category treatments.
+The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. See @hulingEnergyBalancingCovariate2024 for details. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `improved` to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default `TRUE`). Can be used with binary and multi-category treatments.
 
 #### `kernel.dist`
 

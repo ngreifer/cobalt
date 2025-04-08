@@ -17,7 +17,7 @@ balance assessment tools found in other R packages. To examine how
 `bal.tab()` integrates with these packages and others, see the help file
 for `bal.tab()` with `?bal.tab`, which links to the methods used for
 each package. Each page has examples of how `bal.tab()` is used with the
-package. There are also five vignettes detailing the use of `cobalt`,
+package. There are also several vignettes detailing the use of `cobalt`,
 which can be accessed at `vignette("cobalt")`: one for basic uses of
 `cobalt`, one for the use of `cobalt` with additional packages, one for
 the use of `cobalt` with multiply imputed and/or clustered data, one for
@@ -138,7 +138,7 @@ love.plot(m.out, stats = c("mean.diffs", "variance.ratios"),
 Please remember to cite this package when using it to analyze data. For
 example, in a manuscript, you could write: “Matching was performed using
 the *Matching* package (Sekhon, 2011), and covariate balance was
-assessed using *cobalt* (Greifer, 2024), both in R (R Core Team, 2023).”
+assessed using *cobalt* (Greifer, 2025), both in R (R Core Team, 2025).”
 Use `citation("cobalt")` to generate a bibliographic reference for the
 `cobalt` package.
 
@@ -148,5 +148,5 @@ install the latest development version of `cobalt`, which may have
 removed a bug you’re experiencing, use the following code:
 
 ``` r
-devtools::install_github("ngreifer/cobalt")
+remotes::install_github("ngreifer/cobalt")
 ```

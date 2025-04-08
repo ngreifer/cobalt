@@ -8,6 +8,8 @@
 #'     
 #' The across-imputation balance summary pools information across the within-imputation balance summaries to simplify balance assessment. It provides the average, smallest, and largest balance statistic for each covariate across all imputations. This allows you to see how bad the worst imbalance is and what balance looks like on average across the imputations. The summary behaves differently depending on whether `abs` is specified as `TRUE` or `FALSE`. When `abs = TRUE`, the across-imputation balance summary will display the mean absolute balance statistics and the maximum absolute balance statistics. When `abs = FALSE`, the across-imputation balance summary will display the minimum, mean, and maximum of the balance statistic in its original form.
 #' 
+#' In order to use the `thresholds` argument with `bal.tab()` with multiply imputed data and the balance summary across imputations displayed, `imp.fun` must be supplied and set to a single string, which is not the default. See `vignette("segmented-data")` for details.
+#' 
 #' @section Allowable arguments:
 #' 
 #' There are four arguments for each `bal.tab()` method that can handle multiply imputed data: `imp`, `which.imp`, `imp.summary`, and `imp.fun`.
@@ -16,7 +18,7 @@
 #'     \item{`imp`}{A vector of imputation membership. This can be factor, character, or numeric vector. This argument is required to let `bal.tab()` know that the data is multiply imputed unless \pkg{MatchThem} objects are used. If a `data` argument is specified, this can also be the name of a variable in `data` that contains imputation membership. If the `data` argument is a `mids` object, the output of a call to `mice()`, `imp` does not need to be specified and will automatically be extracted from the `mids` object.}
 #'     \item{`which.imp`}{This is a display option that does not affect computation. If `.all`, all imputations in `imp` will be displayed. If `.none` (the default), no imputations will be displayed. Otherwise, can be a vector of imputation indices for which to display balance.}
 #'     \item{`imp.summary`}{This is a display option that does not affect computation. If `TRUE`, the balance summary across imputations will be displayed. The default is `TRUE`, and if `which.imp` is `.none`, it will automatically be set to `TRUE`.}
-#'     \item{`imp.fun`}{This is a display option that does not affect computation. Can be "min", "mean", or "max" and corresponds to which function is used in the across-imputation summary to combine results across imputations. For example, if `imp.fun = "mean"` the mean balance statistic across imputations will be displayed. The default when `abs = FALSE` in the `bal.tab()` call is to display all three. The default when `abs = FALSE` in the `bal.tab()` call is to display just the mean and max balance statistic.
+#'     \item{`imp.fun`}{This is a display option that does not affect computation. Can be "min", "mean", or "max" and corresponds to which function is used in the across-imputation summary to combine results across imputations. For example, if `imp.fun = "mean"` the mean balance statistic across imputations will be displayed. The default when `abs = FALSE` in the `bal.tab()` call is to display all three. The default when `abs = TRUE` in the `bal.tab()` call is to display just the mean and maximum absolute balance statistic.
 #'     }
 #' }
 #' 

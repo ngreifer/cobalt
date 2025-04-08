@@ -21,7 +21,7 @@ knitr::opts_chunk$set(message = FALSE)
 if (any(!sapply(c("WeightIt", "MatchIt"), requireNamespace, quietly = TRUE))) knitr::opts_chunk$set(eval = FALSE)
 ```
 
-This is an introductory guide for the use of `cobalt` in most common scenarios. Three appendices are available for its use with more complicated data scenarios and packages not demonstrated here.[^1]
+This is an introductory guide for the use of `cobalt` in most common scenarios. Several appendices are available for its use with more complicated data scenarios and packages not demonstrated here.[^1]
 
 [^1]: If none of the examples are working, this may be because `MatchIt`, `twang`, or `WeightIt` are missing. Such issues should be fixed soon.
 
@@ -104,7 +104,7 @@ library("cobalt")
 
 ### Utilities
 
-In addition to its main functions, `cobalt` contains several utility functions, which include `f.build()`, `splitfactor()` and `unsplitfactor()`, `get.w()`, and `bal.init()` and `bal.compute()`. These are meant to reduce the typing and programming burden that often accompany the use of R with a diverse set of packages. To simplify this vignette, descriptions of these functions are in `vignette("other-packages")`. To understand the code in this vignette, you should be aware of `f.build()`, which creates a formula from its inputs, and `get.w()` which extracts weights from its input.
+In addition to its main functions, `cobalt` contains several utility functions, which include `f.build()`, `splitfactor()` and `unsplitfactor()`, `get.w()`, and `bal.init()` and `bal.compute()`. These are meant to reduce the typing and programming burden that often accompany the use of R with a diverse set of packages. To simplify this vignette, descriptions of these functions are in `vignette("other-packages")`.
 
 ### `bal.tab()`
 
@@ -126,7 +126,7 @@ covs <- subset(lalonde, select = -c(treat, re78, nodegree, married))
 lalonde$p.score <- glm(treat ~ age + educ + race + re74 + re75,
                        data = lalonde,
                        family = "binomial")$fitted.values
-lalonde$att.weights <- with(lalonde, treat + (1-treat)*p.score/(1-p.score))
+lalonde$att.weights <- with(lalonde, treat + (1 - treat) * p.score / (1 - p.score))
 
 bal.tab(covs, treat = lalonde$treat, weights = lalonde$att.weights)
 

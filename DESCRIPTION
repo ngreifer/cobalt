@@ -2,9 +2,9 @@ Package: cobalt
 Title: Covariate Balance Tables and Plots
 Version: 4.5.5.9002
 Authors@R: c(
-    person("Noah", "Greifer", role=c("aut", "cre"), 
+    person("Noah", "Greifer", role = c("aut", "cre"), 
            email = "noah.greifer@gmail.com",
-	       comment=c(ORCID="0000-0003-3067-7154"))
+	         comment = c(ORCID = "0000-0003-3067-7154"))
     )
 Description: Generate balance tables and plots for covariates of groups preprocessed through 
              matching, weighting or subclassification, for example, using propensity scores. Includes 
@@ -14,16 +14,16 @@ Description: Generate balance tables and plots for covariates of groups preproce
              the above packages. Also included are methods for assessing balance in clustered or 
              multiply imputed data sets or data sets with multi-category, continuous, or longitudinal treatments.
 Depends:
-    R (>= 3.3.0)
+    R (>= 4.0)
 Imports:
     stats, utils, grid, grDevices,
     ggplot2 (>= 3.5.0),
-    gtable (>= 0.3.0),
+    gtable (>= 0.3.6),
     gridExtra (>= 2.3),
-    chk (>= 0.8.1),
-    rlang (>= 0.4.0),
-    crayon,
-    backports (>= 1.1.9)
+    chk (>= 0.10.0),
+    rlang (>= 1.1.5),
+    crayon (>= 1.5.3),
+    backports (>= 1.5.0)
 Suggests:
     MatchIt (>= 4.0.0),
     WeightIt (>= 1.0.0),

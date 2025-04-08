@@ -68,7 +68,7 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \item{\code{cluster.summary}}{\code{logical}; whether to display the balance summary across clusters. Default is \code{TRUE} when \code{which.cluster} is \code{.none} and \code{FALSE} otherwise (note the default for \code{which.cluster} is \code{.all}). See \code{\link{class-bal.tab.cluster}}.
 }
 
-\item{\code{cluster.fun}}{Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if \code{cluster.fun = "mean"} the mean balance statistic across clusters will be displayed. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display all three. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display just the mean and max balance statistic. See \code{\link{class-bal.tab.cluster}}.
+\item{\code{cluster.fun}}{Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if \code{cluster.fun = "mean"} the mean balance statistic across clusters will be displayed. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display all three. The default when \code{abs = TRUE} in the \code{bal.tab()} call is to display just the mean and maximum absolute balance statistic. See \code{\link{class-bal.tab.cluster}}.
 }
 }
 }
@@ -82,7 +82,7 @@ When calling \code{bal.tab()} using \code{\link[=do.call]{do.call()}}, if you ar
 \item{\code{imp.summary}}{\code{logical}; whether to display the balance summary across imputations. Default is \code{TRUE} when \code{which.imp} is \code{.none} and \code{FALSE} otherwise. See \code{\link{class-bal.tab.imp}}.
 }
 
-\item{\code{imp.fun}}{Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if \code{imp.fun = "mean"} the mean balance statistic across imputations will be displayed. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display all three. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display just the mean and max balance statistic. See \code{\link{class-bal.tab.imp}}.
+\item{\code{imp.fun}}{Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if \code{imp.fun = "mean"} the mean balance statistic across imputations will be displayed. The default when \code{abs = FALSE} in the \code{bal.tab()} call is to display all three. The default when \code{abs = TRUE} in the \code{bal.tab()} call is to display just the mean and maximum absolute balance statistic. See \code{\link{class-bal.tab.imp}}.
 }
 }
 }
