@@ -129,7 +129,7 @@
 
 
 <dt><code>cluster.fun</code></dt>
-<dd><p>Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if <code>cluster.fun = "mean"</code> the mean balance statistic across clusters will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic. See <code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code>.</p></dd>
+<dd><p>Which function is used in the across-cluster summary to combine results across clusters. Can be "min", "mean", or "max". For example, if <code>cluster.fun = "mean"</code> the mean balance statistic across clusters will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = TRUE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and maximum absolute balance statistic. See <code><a href="class-bal.tab.cluster.html">class-bal.tab.cluster</a></code>.</p></dd>
 
 
 </dl></div>
@@ -147,7 +147,7 @@
 
 
 <dt><code>imp.fun</code></dt>
-<dd><p>Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if <code>imp.fun = "mean"</code> the mean balance statistic across imputations will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and max balance statistic. See <code><a href="class-bal.tab.imp.html">class-bal.tab.imp</a></code>.</p></dd>
+<dd><p>Which function is used in the across-imputation summary to combine results across imputations. Can be "min", "mean", or "max". For example, if <code>imp.fun = "mean"</code> the mean balance statistic across imputations will be displayed. The default when <code>abs = FALSE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display all three. The default when <code>abs = TRUE</code> in the <code><a href="bal.tab.html">bal.tab()</a></code> call is to display just the mean and maximum absolute balance statistic. See <code><a href="class-bal.tab.imp.html">class-bal.tab.imp</a></code>.</p></dd>
 
 
 </dl></div>

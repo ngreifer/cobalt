@@ -117,7 +117,7 @@ detail in a question below why this is the case.</p>
 argument to <code>s.d.denom</code> supplied to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or
 <code><a href="../reference/love.plot.html">love.plot()</a></code>. When <code>s.d.denom</code> is not supplied,
 this is determined by the argument supplied to <code>estimand</code>,
-and when that is not supplied, the estimand is guess based on the form
+and when that is not supplied, the estimand is guessed based on the form
 of the weights, if any. By default, with no weights supplied and no
 argument to <code>s.d.denom</code> or <code>estimand</code>,
 <code>s.d.denom</code> is set to <code>"pooled"</code>, and a note will
@@ -196,7 +196,7 @@ standardization factor are computed incorporating the sampling weights.
 When <code>s.d.denom = "weighted"</code>, the standardization factor is
 computed using the weights used to balance the sample (i.e., the
 matching or weighting weights), even for the unadjusted sample.
-Remember, the standardization is ALWAYS the same before and after
+Remember, the standardization factor is ALWAYS the same before and after
 adjustment.</p>
 <p>I know some of these formulas seem overly complicated for such simple
 statistics, but they are required to keep things consistent and not
@@ -250,8 +250,8 @@ contribute to the bias in the estimate to the same extent.</p>
 <p>But if we standardized the mean differences, not only do we move away
 from an actually interpretable statistic (i.e., what does it mean to
 divide by the standard deviation of a binary variable?), we see that the
-standardized mean difference vary by a huge amount, with <code>X1</code>
-having twice the imbalance of <code>X2</code>.</p>
+standardized mean differences vary by a huge amount, with
+<code>X1</code> having twice the imbalance of <code>X2</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">X1</span> <span class="op">+</span> <span class="va">X2</span>,</span>
 <span>        binary <span class="op">=</span> <span class="st">"std"</span>,</span>
@@ -273,8 +273,8 @@ is the mean of the variable). That means information about the mean of
 the variable, which is unrelated to imbalance, contaminates the
 standardized mean difference, which is supposed to measure imbalance. In
 this case, standardizing the mean difference only adds confusion and
-reduces interpretability. That is why, by default, mean differences for
-binary variables are unstandardized by default.</p>
+reduces interpretability. That is why mean differences for binary
+variables are unstandardized by default.</p>
 <p>You can always change this by setting <code>binary = "std"</code> in
 the call to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or setting
 <code>set.cobalt.options(binary = "std")</code> to change the option for
@@ -566,6 +566,28 @@ recommend reporting the balance statistics <code>cobalt</code> produces.
 That said, if you understand what <code>tableone</code> is doing and are
 okay with the choices it makes, there is no denying that it can produce
 beautiful tables.</p>
+</div>
+<div class="section level3">
+<h3 id="why-doesnt-thresholds-work-with-bal-tab-with-multiply-imputed-or-clustered-data">Why doesn’t <code>thresholds</code> work with <code>bal.tab()</code>
+with multiply imputed or clustered data?<a class="anchor" aria-label="anchor" href="#why-doesnt-thresholds-work-with-bal-tab-with-multiply-imputed-or-clustered-data"></a>
+</h3>
+<p>This question was asked <a href="https://github.com/ngreifer/cobalt/issues/90" class="external-link">here</a> and <a href="https://stackoverflow.com/q/79562364/6348551" class="external-link">here</a>. With
+multiply imputed data, the default output of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> is
+the balance summary across imputations, which contains, for each balance
+statistic and for each covariate, the minimum, mean, and maximum value
+of that balance statistic for that covariate across imputations. When
+you request a balance threshold using <code>thresholds</code>, it isn’t
+clear to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> which of those summaries the threshold
+is to be applied to. To get thresholds to appear, supply an argument to
+<code>imp.fun</code> to request just one summary, e.g.,
+<code>imp.fun = "mean"</code>, and the thresholds will be applied to
+that summary.</p>
+<p>For clustered data, the same is true, but the across-cluster balance
+summary is not displayed by default. To request a single summary, use
+<code>cluster.fun</code>.</p>
+<p>Note this does not apply to <code><a href="../reference/love.plot.html">love.plot()</a></code>, which will
+produce thresholds even when the default <code>agg.fun</code>
+(<code>"range"</code> for multiply imputed data) is requested.</p>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

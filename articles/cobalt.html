@@ -65,7 +65,7 @@
                         <h4 data-toc-skip class="author">Noah
 Greifer</h4>
             
-            <h4 data-toc-skip class="date">2025-04-07</h4>
+            <h4 data-toc-skip class="date">2025-04-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/ngreifer/cobalt/blob/master/vignettes/cobalt.Rmd" class="external-link"><code>vignettes/cobalt.Rmd</code></a></small>
       <div class="d-none name"><code>cobalt.Rmd</code></div>
@@ -74,7 +74,7 @@ Greifer</h4>
     
     
 <p>This is an introductory guide for the use of <code>cobalt</code> in
-most common scenarios. Three appendices are available for its use with
+most common scenarios. Several appendices are available for its use with
 more complicated data scenarios and packages not demonstrated here.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;If none of the examples are working, this may be because
 &lt;code&gt;MatchIt&lt;/code&gt;, &lt;code&gt;twang&lt;/code&gt;, or &lt;code&gt;WeightIt&lt;/code&gt; are
 missing. Such issues should be fixed soon.&lt;/p&gt;"><sup>1</sup></a></p>
@@ -316,10 +316,7 @@ several utility functions, which include <code><a href="../reference/f.build.htm
 <code><a href="../reference/bal.compute.html">bal.compute()</a></code>. These are meant to reduce the typing and
 programming burden that often accompany the use of R with a diverse set
 of packages. To simplify this vignette, descriptions of these functions
-are in <code><a href="../articles/other-packages.html">vignette("other-packages")</a></code>. To understand the code
-in this vignette, you should be aware of <code><a href="../reference/f.build.html">f.build()</a></code>, which
-creates a formula from its inputs, and <code><a href="../reference/get.w.html">get.w()</a></code> which
-extracts weights from its input.</p>
+are in <code><a href="../articles/other-packages.html">vignette("other-packages")</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="bal-tab">
@@ -375,7 +372,7 @@ analysis:</p>
 <span><span class="va">lalonde</span><span class="op">$</span><span class="va">p.score</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>,</span>
 <span>                       data <span class="op">=</span> <span class="va">lalonde</span>,</span>
 <span>                       family <span class="op">=</span> <span class="st">"binomial"</span><span class="op">)</span><span class="op">$</span><span class="va">fitted.values</span></span>
-<span><span class="va">lalonde</span><span class="op">$</span><span class="va">att.weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">treat</span><span class="op">)</span><span class="op">*</span><span class="va">p.score</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">p.score</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">lalonde</span><span class="op">$</span><span class="va">att.weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="va">treat</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">treat</span><span class="op">)</span> <span class="op">*</span> <span class="va">p.score</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p.score</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">covs</span>, treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, weights <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">att.weights</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
