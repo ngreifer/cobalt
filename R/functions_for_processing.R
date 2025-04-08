@@ -668,7 +668,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       s.d.denom <- match_arg(s.d.denom, unique(c(unique.treats, allowable.s.d.denoms)), 
                              several.ok = length(weights) > 1L)
       
-      if (any(s.d.denom %in% c("treated", "control")) && length(treat_names(treat) == 2L)) {
+      if (any(s.d.denom %in% c("treated", "control")) && length(treat_names(treat)) == 2L) {
         s.d.denom[s.d.denom %in% c("treated", "control")] <- treat_vals(treat)[treat_names(treat)[s.d.denom[s.d.denom %in% c("treated", "control")]]]
       }
       else if (any(s.d.denom == "focal")) {
@@ -930,7 +930,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       denom.fun <- function(mat, treat, s.weights, weighted.weights, bin.vars,
                             unique.treats, na.rm) {
         df <- length(treat) - length(unique.treats)
-        (1 - 3/(4 * df - 1))^-1 *
+        (1 - 3 / (4 * df - 1))^-1 *
           sqrt(Reduce("+", lapply(unique.treats,
                                   function(t) (sum(treat == t) - 1) * col.w.v(mat[treat == t, , drop = FALSE],
                                                                               w = s.weights[treat == t],
@@ -1170,7 +1170,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
       for (i in vectors) {
         if (lengths[i] > 0L && lengths[i] != length(imp)) { 
           if (!all_the_same(imp.lengths)) {
-            .err("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation")
+            .err("the number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation")
           }
           
           if (lengths[i] == imp.lengths[1L]) {
@@ -1190,9 +1190,9 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
       }
       
       for (i in data.frames) {
-        if (lengths[i] > 0 && lengths[i] != length(imp)) {
+        if (lengths[i] > 0L && lengths[i] != length(imp)) {
           if (!all_the_same(imp.lengths)) {
-            .err("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation")
+            .err("the number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation")
           }
           
           if (lengths[i] == imp.lengths[1L]) {
@@ -1211,7 +1211,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
         }
       }
       for (i in lists) {
-        if (lengths[i] > 0 && lengths[i] != length(imp)) {
+        if (lengths[i] > 0L && lengths[i] != length(imp)) {
           if (!all_the_same(imp.lengths)) {
             .err("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation")
           }
@@ -1219,7 +1219,7 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
           if (lengths[i] == imp.lengths[1L]) {
             assign(i, lapply(get(i, envir = env, inherits = FALSE), function(j) {
               if (!is.factor(j) && !is_mat_like(j)) {
-                .err(sprintf("% can only contain vectors or data frames",
+                .err(sprintf("%s can only contain vectors or data frames",
                              add_quotes(i, "`")))
               }
               
@@ -1761,8 +1761,8 @@ get_ints_from_co.names <- function(co.names) {
       co[["type"]] <- c(co[["type"]], "isep")
       which_isep <- which(co[["type"]] == "isep")
       vapply(seq_along(which_isep), function(x) {
-        if (x == 1L) paste0(co[["component"]][1:(which_isep[1L] - 1)], collapse = "")
-        else paste0(co[["component"]][(which_isep[x-1]+1):(which_isep[x]-1)], collapse = "")
+        if (x == 1L) paste(co[["component"]][1:(which_isep[1L] - 1L)], collapse = "")
+        else paste(co[["component"]][(which_isep[x - 1L] + 1L):(which_isep[x] - 1L)], collapse = "")
       }, character(1L))
     }
     else NULL
@@ -1794,21 +1794,19 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
     data.specified <- FALSE
   }
   
-  tt <- tryCatch(terms(f, data = data),
-                 error = function(e) {
-                   .err(conditionMessage(e))
-                 })
+  tt <- try_chk(terms(f, data = data))
   
   if (rlang::is_formula(tt, lhs = TRUE)) {
-    resp.vars.mentioned <- as.character(tt)[2L]
+    resp.vars.mentioned <- as.character(rlang::f_lhs(tt))
     resp.vars.failed <- vapply(resp.vars.mentioned, function(v) {
       test <- tryCatch(eval(str2expression(v), data, env), error = function(e) e)
+      
       if (inherits(test, "simpleError")) {
-        if (conditionMessage(test) == sprintf("object '%s' not found", v)) {
-          return(TRUE)
+        if (!identical(conditionMessage(test), sprintf("object '%s' not found", v))) {
+          .err(conditionMessage(test), tidy = FALSE)
         }
         
-        .err(conditionMessage(test), tidy = FALSE)
+        return(TRUE)
       }
       
       if (is.function(test)) {
@@ -1819,9 +1817,11 @@ get_treat_from_formula <- function(f, data = NULL, treat = NULL) {
     }, logical(1L))
     
     if (any(resp.vars.failed)) {
-      if (is_null(treat)) .err(sprintf("the given response variable, %s, is not a variable in %s",
-                                       add_quotes(as.character(tt)[2L]),
-                                       word_list(c("`data`", "the global environment")[c(data.specified, TRUE)], "or")))
+      if (is_null(treat)) {
+        .err(sprintf("the given response variable, %s, is not a variable in %s",
+                     add_quotes(resp.vars.mentioned),
+                     word_list(c("`data`", "the global environment")[c(data.specified, TRUE)], "or")))
+      }
       tt <- delete.response(tt)
     }
   }
@@ -1852,7 +1852,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }
     
     as.formula(paste("~ 0 +", paste(vapply(seq_col(ttfactors), 
-                                           function(x) paste0(rownames(ttfactors)[ttfactors[, x] > 0], collapse = ":"),
+                                           function(x) paste(rownames(ttfactors)[ttfactors[, x] > 0], collapse = ":"),
                                            character(1L)), 
                                     collapse = "+")))
   }
@@ -1940,7 +1940,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     
     addl.dfs <- setNames(lapply(ttvars[rhs.df], function(v) {
       df <- switch(rhs.df.type[v],
-                   "lit"= eval(str2expression(add_quotes(v, "`")), data, env),
+                   "lit" = eval(str2expression(add_quotes(v, "`")), data, env),
                    eval(str2expression(v), data, env))
       
       if (inherits(df, "rms")) {
@@ -2033,7 +2033,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }
     
     if (is.function(evaled.var)) {
-      .err(sprintf("invalid type (function) for variable '%s'", rownames(ttfactors)[i]))
+      .err(sprintf("invalid type (function) for variable '%s'",
+                   rownames(ttfactors)[i]))
     }
   }
   
@@ -2045,23 +2046,22 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
   }
   
-  tmpcovs <- tryCatch(model.frame2(tt.covs, data),
-                      error = function(e) .err(conditionMessage(e)))
+  tmpcovs <- try_chk(model.frame2(tt.covs, data))
   
   for (i in ttvars) {
     if (is_binary(tmpcovs[[i]])) {
       tmpcovs[[i]] <- factor(tmpcovs[[i]], nmax = 2L)
+      next
     }
-    else {
-      if (is.character(tmpcovs[[i]])) {
-        tmpcovs[[i]] <- factor(tmpcovs[[i]])
-      }
-      
-      if (is.factor(tmpcovs[[i]])) {
-        tmpcovs[[i]] <- {
-          if (nlevels(tmpcovs[[i]]) == 1L) factor(tmpcovs[[i]], levels = c(paste0(".", levels(tmpcovs[[i]])), levels(tmpcovs[[i]])))
-          else factor(tmpcovs[[i]], nmax = nlevels(tmpcovs[[i]]))
-        }
+    
+    if (is.character(tmpcovs[[i]])) {
+      tmpcovs[[i]] <- factor(tmpcovs[[i]])
+    }
+    
+    if (is.factor(tmpcovs[[i]])) {
+      tmpcovs[[i]] <- {
+        if (nlevels(tmpcovs[[i]]) == 1L) factor(tmpcovs[[i]], levels = c(paste0(".", levels(tmpcovs[[i]])), levels(tmpcovs[[i]])))
+        else factor(tmpcovs[[i]], nmax = nlevels(tmpcovs[[i]]))
       }
     }
   }
@@ -2069,8 +2069,10 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   #Process NAs: make NA variables
   if (anyNA(tmpcovs)) {
     vars_with_NA <- colnames(tmpcovs)[anyNA_col(tmpcovs)]
+    
     for (i in rev(vars_with_NA)) {
       #Find which of ttlabels i first appears, and put `i: <NA>` after it
+      ind <- 1L
       for (x in seq_along(colnames(ttfactors))) {
         if (i %in% c(colnames(ttfactors)[x], all.vars(str2expression(colnames(ttfactors)[x])))) {
           ind <- x
@@ -2078,11 +2080,12 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         }
       }
       ttfactors <- append.ttfactor(ttfactors, 
-                                   paste0("`", i, ":<NA>`"),
+                                   sprintf("`%s:<NA>`", i),
                                    ind)
       
-      tmpcovs[[paste0(i, ":<NA>")]] <- as.numeric(is.na(tmpcovs[[i]]))
+      tmpcovs[[sprintf("%s:<NA>", i)]] <- as.numeric(is.na(tmpcovs[[i]]))
     }
+    
     new.form <- rebuild_f(ttfactors, tics = TRUE)
     
     tt.covs <- terms(new.form, data = tmpcovs)
@@ -2091,23 +2094,22 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     
     na_vars <- paste0(vars_with_NA, ":<NA>")
     
-    tmpcovs <- tryCatch(model.frame2(tt.covs, tmpcovs),
-                        error = function(e) .err(conditionMessage(e)))
+    tmpcovs <- try_chk(model.frame2(tt.covs, tmpcovs))
     
     for (i in setdiff(ttvars, na_vars)) {
       if (is_binary(tmpcovs[[i]])) {
         tmpcovs[[i]] <- factor(tmpcovs[[i]], nmax = 2L)
+        next
       }
-      else {
-        if (is.character(tmpcovs[[i]])) {
-          tmpcovs[[i]] <- factor(tmpcovs[[i]])
-        }
-        
-        if (is.factor(tmpcovs[[i]])) {
-          tmpcovs[[i]] <- {
-            if (nlevels(tmpcovs[[i]]) == 1L) factor(tmpcovs[[i]], levels = c(paste0(".", levels(tmpcovs[[i]])), levels(tmpcovs[[i]])))
-            else factor(tmpcovs[[i]], nmax = nlevels(tmpcovs[[i]]))
-          }
+      
+      if (is.character(tmpcovs[[i]])) {
+        tmpcovs[[i]] <- factor(tmpcovs[[i]])
+      }
+      
+      if (is.factor(tmpcovs[[i]])) {
+        tmpcovs[[i]] <- {
+          if (nlevels(tmpcovs[[i]]) == 1L) factor(tmpcovs[[i]], levels = c(paste0(".", levels(tmpcovs[[i]])), levels(tmpcovs[[i]])))
+          else factor(tmpcovs[[i]], nmax = nlevels(tmpcovs[[i]]))
         }
       }
     }
@@ -2146,10 +2148,10 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   #Check for infinite values
   covs.with.inf <- vapply(tmpcovs, function(x) is.numeric(x) && any(!is.na(x) & !is.finite(x)), logical(1L))
   if (any(covs.with.inf)) {
-    s <- if (sum(covs.with.inf) == 1) c("", "s") else c("s", "")
+    s <- if (sum(covs.with.inf) == 1L) c("", "s") else c("s", "")
     .err(sprintf("the variable%s %s contain%s non-finite values, which are not allowed",
                  s[1L],
-                 word_list(names(tmpcovs)[covs.with.inf], quotes = 1),
+                 word_list(names(tmpcovs)[covs.with.inf], quotes = 1L),
                  s[2L]))
   }
   
@@ -2167,19 +2169,21 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   vars_in_each_term <- setNames(lapply(colnames(ttfactors), function(x) {
     rownames(ttfactors)[ttfactors[,x] != 0]
   }), colnames(ttfactors))
+  
   all_factor_levels <- lapply(vars_in_each_term, function(v) {
     do.call("expand.grid", c(clear_null(setNames(lapply(v, function(fa) colnames(attr(mm, "contrasts")[[fa]])), v)),
                              list(stringsAsFactors = FALSE)))
   })
+  
   expanded <- setNames(lapply(seq_along(mmassign2), function(x) {
-    terms <- vars_in_each_term[[mmassign2[x]]]
+    .terms <- vars_in_each_term[[mmassign2[x]]]
     k <- sum(seq_along(mmassign2) <= x & mmassign2 == mmassign2[x])
-    setNames(lapply(terms, function(t) {
+    setNames(lapply(.terms, function(t) {
       if (t %in% names(all_factor_levels[[mmassign2[x]]])) {
         all_factor_levels[[mmassign2[x]]][[t]][k]
       }
       else character()
-    }), terms)
+    }), .terms)
   }), names(mmassign2))
   
   #component types: base, fsep, isep, power, na, level
@@ -2206,7 +2210,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     }))
   })
   
-  names(co.names) <- vapply(co.names, function(x) paste0(x[["component"]], collapse = ""), character(1L))
+  names(co.names) <- vapply(co.names, function(x) paste(x[["component"]], collapse = ""), character(1L))
   covs <- clear_attr(mm)[, -1L, drop = FALSE] #drop the intercept
   
   attr(co.names, "seps") <- c(factor = factor_sep, int = int_sep)
@@ -2220,8 +2224,13 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
                     treat = NULL, cluster = NULL, drop = TRUE, factor_sep = "_",
                     int_sep = " * ", ...) {
   #gets C data.frame, which contains all variables for which balance is to be assessed. Used in balance.table.
-  if (inherits(covs, "processed_C")) return(covs)
-  if (is_null(covs)) drop <- FALSE
+  if (inherits(covs, "processed_C")) {
+    return(covs)
+  }
+  
+  if (is_null(covs)) {
+    drop <- FALSE
+  }
   
   .chk_string(factor_sep)
   .chk_string(int_sep)
@@ -2232,14 +2241,19 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   poly <- round(poly)
   
   if (is.numeric(int)) {
-    if (!chk::vld_whole_number(int) ||
-        !chk::vld_gt(int, 1)) {
+    if (!chk::vld_whole_number(int) || !chk::vld_gt(int, 1)) {
       .err("`int` must be TRUE, FALSE, or a numeric (integer) value greater than 1")
     }
-    if (int > poly) poly <- int
+    
+    if (int > poly) {
+      poly <- int
+    }
+    
     int <- TRUE
   }
-  .chk_flag(int)
+  else {
+    .chk_flag(int)
+  }
   
   center <- ...get("center", getOption("cobalt_center", default = FALSE))
   .chk_flag(center)
@@ -2278,9 +2292,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     drop_vars <- vapply(seq_col(covs), 
                         function(i) {
                           # if (all_the_same(covs[,i], na.rm = FALSE)) return(TRUE)
-                          if (anyNA(covs[,i])) return(FALSE)
-                          if (test.treat && equivalent.factors2(covs[,i], treat)) return(TRUE)
-                          FALSE
+                          test.treat && !anyNA(covs[,i]) && equivalent.factors2(covs[,i], treat)
                         }, logical(1L))
     
     if (any(drop_vars)) {
@@ -2294,10 +2306,12 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   rm(co.names)
   
   if (int || (poly > 1)) {
-    nsep <- 1
+    nsep <- 1L
     
     #Exclude NA and ints from interactions and poly
-    exclude <- vapply(co_list[["C"]], function(x) any(c("na", "isep") %in% x[["type"]]), logical(1L))
+    exclude <- vapply(co_list[["C"]],
+                      function(x) any(c("na", "isep") %in% x[["type"]]),
+                      logical(1L))
     
     new <- .int_poly_f2(C_list[["C"]], ex = exclude, int = int, poly = poly, center = center, 
                         orth = orth, sep = rep.int(seps["int"], nsep), co.names = co_list[["C"]])
@@ -2305,7 +2319,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
     C_list[["int.poly"]] <- new
     co_list[["int.poly"]] <- attr(new, "co.names")
     names(co_list[["int.poly"]]) <- vapply(co_list[["int.poly"]], 
-                                           function(x) paste(x[["component"]], collapse = ""), character(1L))
+                                           function(x) paste(x[["component"]], collapse = ""),
+                                           character(1L))
   }
   
   #Drop 0 category of 0/1 variables and rename 1 category
@@ -2349,8 +2364,13 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
         next
       }
       
-      buddy_is_0 <- vapply(buddies, function(x) x[["component"]][x[["type"]] == "level"] %in% c("0", "FALSE"), logical(1L))
-      buddy_is_1 <- vapply(buddies, function(x) x[["component"]][x[["type"]] == "level"] %in% c("1", "TRUE"), logical(1L))
+      buddy_is_0 <- vapply(buddies,
+                           function(x) x[["component"]][x[["type"]] == "level"] %in% c("0", "FALSE"),
+                           logical(1L))
+      
+      buddy_is_1 <- vapply(buddies,
+                           function(x) x[["component"]][x[["type"]] == "level"] %in% c("1", "TRUE"),
+                           logical(1L))
       
       if (!all(buddy_is_0 | buddy_is_1)) {
         drop_0_1[which_are_buddies] <- c(TRUE, FALSE)
@@ -2588,20 +2608,22 @@ co.cbind <- function(..., deparse.level = 1) {
   
   attr(out, "co.names") <- do.call("c", co.names.list)
   attr(attr(out, "co.names"), "seps") <- seps
-  colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
+  colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste(x[["component"]], collapse = ""), character(1L))
   
   out
 }
 co.rbind <- function(..., deparse.level = 1) {
   args <- clear_null(list(...))
-  if (length(args) <= 1) return(args[[1L]])
+  if (length(args) <= 1) {
+    return(args[[1L]])
+  }
   
   co.names <- attr(args[[1L]], "co.names")
   
   out <- do.call("rbind", args)
   
   attr(out, "co.names") <- co.names
-  colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
+  colnames(out) <- names(attr(out, "co.names")) <- vapply(attr(out, "co.names"), function(x) paste(x[["component"]], collapse = ""), character(1L))
   
   out
 }
@@ -2618,14 +2640,14 @@ find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
   #Finds indices of redundant vars in C1.
   C1.no.miss <- C1[,colnames(C1) %nin% attr(C1, "missing.ind"), drop = FALSE]
   if (is_null(C2)) {
-    use <- if (anyNA(C1)) "pairwise.complete.obs" else "everything"
-    C.cor <- suppressWarnings(fun(C1.no.miss, use = use))
+    .use <- if (anyNA(C1)) "pairwise.complete.obs" else "everything"
+    C.cor <- suppressWarnings(fun(C1.no.miss, use = .use))
     s <- !lower.tri(C.cor, diag = TRUE) & !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
   }
   else {
     C2.no.miss <- C2[,colnames(C2) %nin% attr(C2, "missing.ind"), drop = FALSE]
-    use <- if (anyNA(C1) || anyNA(C2)) "pairwise.complete.obs" else "everything"
-    C.cor <- suppressWarnings(fun(C2.no.miss, y = C1.no.miss, use = use))
+    .use <- if (anyNA(C1) || anyNA(C2)) "pairwise.complete.obs" else "everything"
+    C.cor <- suppressWarnings(fun(C2.no.miss, y = C1.no.miss, use = .use))
     s <- !is.na(C.cor) & check_if_zero(1 - abs(C.cor))
   }
   
@@ -2894,6 +2916,7 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
         }
       }
     }
+    
     if (all_apply(B[startsWith(names(B), "SD.")], function(x) !any(is.finite(x)))) {
       disp <- disp[disp != "sds"]
     }
@@ -2933,7 +2956,7 @@ balance_table <- function(C, type, weights = NULL, treat, continuous, binary, s.
         }
         else if (!no.adj) {
           for (i in weight.names) {
-            B[[paste.(STATS[[s]]$Threshold, i)]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]]), "", 
+            B[[paste.(STATS[[s]]$Threshold, i)]] <- ifelse_(B[["Type"]] == "Distance" | !is.finite(B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]]), "", 
                                                             STATS[[s]]$abs(B[[paste.(STATS[[s]]$bal.tab_column_prefix, i)]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3L)),
                                                             paste0("Not Balanced, >", round(thresholds[[s]], 3L)))
           }
@@ -2978,9 +3001,11 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
       
       matched <- !is.na(subclass)
       for (k in levels(subclass)) {
-        qt <- treat[matched & subclass == k]
-        nn[[k]] <- c(vapply(treat_vals(treat), function(tn) sum(qt == tn), numeric(1L)), length(qt))
+        tk <- treat[matched & subclass == k]
+        nn[[k]] <- c(vapply(treat_vals(treat), function(tn) sum(tk == tn), numeric(1L)),
+                     length(tk))
       }
+      
       for (tnn in names(treat_names(treat))) {
         small.subclass <- nn[treat_names(treat)[tnn], levels(subclass)] <= 1L
         if (any(small.subclass))
@@ -3001,18 +3026,17 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
         else {
           attr(nn, "ss.type") <- c("ss")
         }
-        
       }
       else if (NCOL(weights) == 1L) {
         if (method == "matching") {
           nn <- make_df(treat_names(treat), c("All (ESS)", "All (Unweighted)", "Matched (ESS)",
                                               "Matched (Unweighted)", "Unmatched", "Discarded"))
-          nn["All (ESS)", ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat==tn]), numeric(1L))
-          nn["All (Unweighted)", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & s.weights > 0), numeric(1L))
-          nn["Matched (ESS)", ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat==tn, 1]*s.weights[treat==tn]), numeric(1L))
-          nn["Matched (Unweighted)", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & weights[,1] > 0 & s.weights > 0), numeric(1L))
-          nn["Unmatched", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & weights[,1]==0 & !discarded), numeric(1L))
-          nn["Discarded", ] <- vapply(treat_vals(treat), function(tn) sum(treat==tn & discarded), numeric(1L))
+          nn["All (ESS)", ] <- vapply(treat_vals(treat), function(tn) ESS(s.weights[treat == tn]), numeric(1L))
+          nn["All (Unweighted)", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & s.weights > 0), numeric(1L))
+          nn["Matched (ESS)", ] <- vapply(treat_vals(treat), function(tn) ESS(weights[treat == tn, 1L] * s.weights[treat == tn]), numeric(1L))
+          nn["Matched (Unweighted)", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & weights[,1L] > 0 & s.weights > 0), numeric(1L))
+          nn["Unmatched", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & weights[,1L] == 0 & !discarded), numeric(1L))
+          nn["Discarded", ] <- vapply(treat_vals(treat), function(tn) sum(treat == tn & discarded), numeric(1L))
           
           attr(nn, "ss.type") <- rep.int("ss", NROW(nn))
           
@@ -3121,7 +3145,7 @@ samplesize <- function(treat, type, weights = NULL, subclass = NULL, s.weights =
         for (i in seq_col(weights)) {
           nn[1L + i,] <- switch(method[i],
                                 "matching" = ESS(weights[!discarded, i]),
-                                "weighting"= ESS(weights[!discarded, i] * s.weights[!discarded]))
+                                "weighting" = ESS(weights[!discarded, i] * s.weights[!discarded]))
           
         }
         
@@ -3157,7 +3181,9 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
   Agg.Funs <- firstup(if (quick) agg.funs else c("min", "mean", "max"))
   Agg.Funs.Given <- firstup(agg.funs)
   
-  if (length(Agg.Funs) == 1L && Agg.Funs == "Max") abs <- TRUE
+  if (length(Agg.Funs) == 1L && Agg.Funs == "Max") {
+    abs <- TRUE
+  }
   
   Bcolnames <- c("Times", "Type", 
                  paste.(c(unlist(lapply(compute[compute %in% all_STATS(type)[!get_from_STATS("adj_only")[get_from_STATS("type") == type]]], function(s) {
@@ -3208,7 +3234,7 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
     for (s in compute[compute %in% all_STATS(type)]) {
       if (is_not_null(thresholds[[s]])) {
         if (!get_from_STATS("adj_only")[s] && no.adj) {
-          B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]]=="Distance" | !is.finite(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]]), "", 
+          B[[paste.(STATS[[s]]$Threshold, "Un")]] <- ifelse_(B[["Type"]] == "Distance" | !is.finite(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]]), "", 
                                                              STATS[[s]]$abs(B[[paste.(Agg.Funs.Given, STATS[[s]]$bal.tab_column_prefix, "Un")]]) < thresholds[[s]], paste0("Balanced, <", round(thresholds[[s]], 3L)),
                                                              paste0("Not Balanced, >", round(thresholds[[s]], 3)))
         }
@@ -3235,7 +3261,7 @@ balance_summary <- function(bal.tab.list, agg.funs, include.times = FALSE) {
 samplesize_across_imps <- function(obs.list) {
   obs.list <- clear_null(obs.list)
   
-  obs <- Reduce("+", obs.list)/length(obs.list)
+  obs <- Reduce("+", obs.list) / length(obs.list)
   attr(obs, "tag") <- sprintf("Average %s across imputations",
                               tolower(attr(obs.list[[1L]], "tag")))
   obs
@@ -3364,7 +3390,7 @@ balance_table_subclass <- function(C, type, weights = NULL, treat, subclass,
         
         if (is_not_null(thresholds[[s]])) {
           
-          SB[[i]][[paste.(STATS[[s]]$Threshold, "Adj")]] <- ifelse(SB[[i]][["Type"]]!="Distance" & is.finite(SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]]), 
+          SB[[i]][[paste.(STATS[[s]]$Threshold, "Adj")]] <- ifelse(SB[[i]][["Type"]] != "Distance" & is.finite(SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]]), 
                                                                    paste0(ifelse(abs_(SB[[i]][[paste.(STATS[[s]]$bal.tab_column_prefix, "Adj")]]) < thresholds[[s]], "Balanced, <", "Not Balanced, >"), round(thresholds[[s]], 3L)), "")
         }
         names(SB[[i]])[names(SB[[i]]) == paste.(STATS[[s]]$Threshold, "Adj")] <- STATS[[s]]$Threshold
@@ -3391,22 +3417,24 @@ balance_table_across_subclass_cont <- function(balance.table, balance.table.subc
   
   B.A <- balance.table.subclass.list[[1L]][names(balance.table.subclass.list[[1L]]) %in% c("M.Adj", "SD.Adj", "Corr.Adj")]
   
-  for(i in rownames(B.A)) {
-    for(j in colnames(B.A)) {
-      if (startsWith(j, "SD.")) {
-        B.A[[i, j]] <- sqrt(sum(vapply(seq_along(balance.table.subclass.list),
-                                       function(s) subclass.obs[[s]] / sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]^2),
-                                       numeric(1L))))
-      }
-      else {
-        B.A[[i, j]] <- sum(vapply(seq_along(balance.table.subclass.list),
-                                  function(s) subclass.obs[[s]] / sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]),
-                                  numeric(1L)))
+  for (i in rownames(B.A)) {
+    for (j in colnames(B.A)) {
+      B.A[[i, j]] <- {
+        if (startsWith(j, "SD."))
+          sqrt(sum(vapply(seq_along(balance.table.subclass.list),
+                          function(s) subclass.obs[[s]] / sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]^2),
+                          numeric(1L))))
+        else
+          sum(vapply(seq_along(balance.table.subclass.list),
+                     function(s) subclass.obs[[s]] / sum(subclass.obs) * (balance.table.subclass.list[[s]][[i, j]]),
+                     numeric(1L)))
       }
     }
   }
+  
   B.A.df <- cbind(balance.table[c("Type", "M.Un", "SD.Un", "Corr.Un", "R.Threshold.Un")], 
                   B.A, R.Threshold = NA_character_)
+  
   if (is_not_null(r.threshold)) {
     B.A.df[["R.Threshold"]] <- ifelse(B.A.df[["Type"]] == "Distance", "", paste0(ifelse(is.finite(B.A.df[["Corr.Adj"]]) & abs_(B.A.df[["Corr.Adj"]]) < r.threshold, "Balanced, <", "Not Balanced, >"), r.threshold))
   }
@@ -3423,10 +3451,10 @@ balance_table_across_subclass_cont <- function(balance.table, balance.table.subc
 check_arg_lengths <- function(...) {
   dots_names <- vapply(match.call(expand.dots = FALSE)$..., deparse1,
                        character(1L))
-  lengths <- setNames(vapply(seq_len(...length()), function(i) len(...elt(i)), integer(1L)),
-                      dots_names)
-  supplied <- lengths > 0L
-  if (!all_the_same(lengths[supplied])) {
+  lens <- setNames(vapply(seq_len(...length()), function(i) len(...elt(i)), integer(1L)),
+                   dots_names)
+  supplied <- lens > 0L
+  if (!all_the_same(lens[supplied])) {
     .err(sprintf("%s must have the same number of units",
                  word_list(dots_names[supplied], quotes = "`")))
   }

@@ -74,8 +74,10 @@ base.bal.tab.multi <- function(X,
   
   #Treat is a factor variable
   if (is_null(X$focal)) {
-    if (pairwise) treat.combinations <- utils::combn(treat_names(X$treat), 2L, simplify = FALSE)
-    else treat.combinations <- lapply(treat_names(X$treat), function(x) c(x, "All"))
+    treat.combinations <- {
+      if (pairwise) utils::combn(treat_names(X$treat), 2L, simplify = FALSE)
+      else lapply(treat_names(X$treat), function(x) c(x, "All"))
+    }
   }
   else {
     if (length(X$focal) > 1L) {

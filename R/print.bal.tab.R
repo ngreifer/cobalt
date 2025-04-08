@@ -64,19 +64,20 @@ print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
   
   #Replace .all and .none with NULL and NA respectively
   .call <- match.call(expand.dots = TRUE)
-  if (any_apply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all") || identical(as.character(.call[[x]]), ".none"))) {
-    .call[vapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".all"), logical(1L))] <- expression(NULL)
-    .call[vapply(seq_along(.call), function(x) identical(as.character(.call[[x]]), ".none"), logical(1L))] <- expression(NA)
+  .alls <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.all)), logical(1L))
+  .nones <- vapply(seq_along(.call), function(z) identical(.call[[z]], quote(.none)), logical(1L))
+  if (any(c(.alls, .nones))) {
+    .call[.alls] <- expression(NULL)
+    .call[.nones] <- expression(NA)
     return(eval.parent(.call))
   }
   
-  args <- tryCatch(c(as.list(environment()), list(...))[-1L],
-                   error = function(e) .err(conditionMessage(e)))
+  A <- try_chk(c(as.list(environment()), list(...))[-1L])
   
-  args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
+  A[vapply(A, rlang::is_missing, logical(1L))] <- NULL
   
   unpack_p.ops <- function(b) {
-    out <- do.call("print_process", c(list(b), args), quote = TRUE)
+    out <- do.call("print_process", c(list(b), A), quote = TRUE)
     
     if (inherits(b, c("bal.tab.bin", "bal.tab.cont"))) {
       return(out)
@@ -93,11 +94,9 @@ print.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.call,
   p.ops <- unpack_p.ops(x)
   
   #Prevent exponential notation printing
-  op <- options(scipen = getOption("scipen"))
-  options(scipen = 999)
-  on.exit(options(op))
-  
-  bal.tab_print(x, p.ops)
+  rlang::with_options({
+    bal.tab_print(x, p.ops)
+  }, scipen = 999)
 }
 
 bal.tab_print <- function(x, p.ops) {
@@ -611,7 +610,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
         }
         if (all(c("Matched (ESS)", "Matched (Unweighted)") %in% rownames(nn[[ti]])) && 
             all(check_if_zero(nn[[ti]]["Matched (ESS)",] - nn[[ti]]["Matched (Unweighted)",]))) {
-          nn[[ti]] <- nn[[ti]][rownames(nn[[ti]])!="Matched (Unweighted)", , drop = FALSE]
+          nn[[ti]] <- nn[[ti]][rownames(nn[[ti]]) != "Matched (Unweighted)", , drop = FALSE]
           rownames(nn[[ti]])[rownames(nn[[ti]]) == "Matched (ESS)"] <- "Matched"
         }
         if (length(ss.type) > 1L && nunique.gt(ss.type[-1L], 1L)) {
@@ -891,8 +890,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
 print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
   
   m.balance <- x[["Pair.Balance"]]
-  m.balance.summary <- x[["Balance.Across.Pairs"]]
-  
+
   p.ops <- attr(x, "print.options")
   
   if (!missing(multi.summary)) {
@@ -984,10 +982,7 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
 }
 #' @exportS3Method NULL
 print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
-  
-  A <- list(...)
-  A <- clear_null(A[!vapply(A, function(x) identical(x, quote(expr =)), logical(1L))])
-  
+
   msm.balance <- x[["Time.Balance"]]
   
   p.ops <- attr(x, "print.options")
@@ -1069,23 +1064,23 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
                              quotes = 2L, is.are = TRUE)))
     }
     
-    if (!all(disp %in% p.ops$compute)) {
-      p.ops$disp <- disp
-    }
-    else {
+    if (all(disp %in% p.ops$compute)) {
       .wrn(sprintf("`disp` cannot include %s if `quick = TRUE` in the original call to `bal.tab()`",
                    word_list(setdiff(disp, p.ops$compute), and.or = "or", quotes = 2L)))
+    }
+    else{
+      p.ops$disp <- disp
     }
   }
   
   if (is_not_null(...get("disp.means"))) {
     .chk_flag(...get("disp.means"), "disp.means")
     
-    if ("means" %nin% p.ops$compute && ...get("disp.means")) {
-      .wrn("`disp.means` cannot be set to `TRUE` if `quick = TRUE` in the original call to `bal.tab()`")
+    if ("means" %in% p.ops$compute || !...get("disp.means")) {
+      p.ops$disp <- unique(c(p.ops$disp, "means"[...get("disp.means")]))
     }
     else {
-      p.ops$disp <- unique(c(p.ops$disp, "means"[...get("disp.means")]))
+      .wrn("`disp.means` cannot be set to `TRUE` if `quick = TRUE` in the original call to `bal.tab()`")
     }
   }
   
@@ -1227,8 +1222,6 @@ print_process.bal.tab <- function(x, imbalanced.only, un, disp.bal.tab, disp.cal
 print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab, disp.call, stats,
                                            disp.thresholds, disp, digits = max(3, getOption("digits") - 3),
                                            which.subclass, subclass.summary, ...) {
-  A <- list(...)
-  
   s.balance <- x$Subclass.Balance
   p.ops <- attr(x, "print.options")
   
@@ -1450,5 +1443,8 @@ print_process.bal.tab.subclass <- function(x, imbalanced.only, un, disp.bal.tab,
 .print_data_frame <- function(x, ...) {
   if (is_not_null(x) && NROW(x) > 0L && NCOL(x) > 0L) {
     print.data.frame(x, ...)
+  }
+  else {
+    invisible(x)
   }
 }

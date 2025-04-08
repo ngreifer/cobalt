@@ -121,3 +121,20 @@ for (i in getNamespaceExports("chk")) {
   }
   else stop("`sides` must be NULL, 1, or 2")
 }
+
+try_chk <- function(expr, tidy = FALSE, warn = TRUE) {
+  .e <- function(e) {
+    .err(conditionMessage(e), tidy = tidy)
+  }
+  
+  .w <- function(w) {
+    .wrn(conditionMessage(w), tidy = tidy)
+  }
+  
+  if (warn) {
+    tryCatch(expr, error = .e, warning = .w)
+  }
+  else {
+    tryCatch(expr, error = .e)
+  }
+}

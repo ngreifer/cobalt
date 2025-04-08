@@ -76,7 +76,7 @@ bal.tab.formula <-    function(x, data = NULL,
                                stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
                                subclass = NULL, match.strata = NULL, method, estimand = NULL, focal = NULL, ...) {
   
-  args <- tryCatch(c(as.list(environment()), list(...))[-1L], error = function(e) .err(conditionMessage(e)))
+  args <- try_chk(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
   
@@ -84,7 +84,7 @@ bal.tab.formula <-    function(x, data = NULL,
   args[lengths(args) == 0L & names(args) %nin% names(match.call())[-1L]] <- NULL
   
   #Initializing variables
-  X <- do.call("x2base.formula", c(list(formula = x), args), quote = TRUE)
+  X <- do.call("x2base.formula", c(list(x = x), args), quote = TRUE)
   
   args[names(args) %in% names(X)] <- NULL
   
@@ -99,7 +99,7 @@ bal.tab.data.frame <- function(x, treat,
                                stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
                                subclass = NULL, match.strata = NULL, method, estimand = NULL, focal = NULL, ...) {
   
-  args <- tryCatch(c(as.list(environment()), list(...))[-1L], error = function(e) .err(conditionMessage(e)))
+  args <- try_chk(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
   
@@ -107,7 +107,7 @@ bal.tab.data.frame <- function(x, treat,
   args[lengths(args) == 0L & names(args) %nin% names(match.call())[-1L]] <- NULL
   
   #Initializing variables
-  X <- do.call("x2base.data.frame", c(covs = list(x), args), quote = TRUE)
+  X <- do.call("x2base.data.frame", c(x = list(x), args), quote = TRUE)
   
   args[names(args) %in% names(X)] <- NULL
   

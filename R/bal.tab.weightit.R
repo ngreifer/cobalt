@@ -63,7 +63,7 @@ bal.tab.weightit <- function(x,
                              stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
                              ...) {
   
-  args <- tryCatch(c(as.list(environment()), list(...))[-1L], error = function(e) .err(conditionMessage(e)))
+  args <- try_chk(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
   

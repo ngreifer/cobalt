@@ -129,7 +129,7 @@ col_w_mean <- function(mat, weights = NULL, s.weights = NULL, subset = NULL, na.
   
   weights <- weights * s.weights
   
-  if (sum(weights != 0) < 1L) {
+  if (all(weights == 0)) {
     .err("at least 1 unit must have a nonzero weight to compute weighted means")
   }
   
@@ -200,8 +200,8 @@ col_w_smd <- function(mat, treat, weights = NULL, std = TRUE, s.d.denom = "poole
   
   tval1_0 <- treat[1L]
   
-  if (sum(weights[treat == tval1_0] != 0) < 1L || 
-      sum(weights[treat != tval1_0] != 0) < 1L) {
+  if (all(weights[treat == tval1_0] == 0) || 
+      all(weights[treat != tval1_0] == 0)) {
     .err("at least 1 unit in each level of `treat` must have a nonzero weight to compute weighted SMDs")
   }
   
@@ -341,8 +341,8 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
   tval1 <- treat[1L]
   ks <- rep.int(NA_real_, NCOL(mat))
   
-  if (sum(weights[treat == tval1] != 0) < 1L || 
-      sum(weights[treat != tval1] != 0) < 1L) {
+  if (all(weights[treat == tval1] == 0) || 
+      all(weights[treat != tval1] == 0)) {
     .err("at least 1 unit in each level of `treat` must have a nonzero weight to compute weighted KS statistics")
   }
   
@@ -408,8 +408,8 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
   
   .chk_gte(weights, 0)
   
-  if (sum(weights[treat == tval1] != 0) == 0 || 
-      sum(weights[treat != tval1] != 0) == 0) {
+  if (all(weights[treat == tval1] == 0) || 
+      all(weights[treat != tval1] == 0)) {
     .err("at least 1 unit in each level of `treat` must have a nonzero weight to compute weighted OVL statistics")
   }
   
@@ -646,8 +646,6 @@ col_w_dcov <- function(mat, treat, weights = NULL, std = FALSE, s.d.denom = "all
   
   .chk_null_or(subset, .chk_logical)
   if (is_null(subset)) subset <- rep.int(TRUE, NROW(mat))
-  
-  n <- length(treat)
   
   weights <- weights * s.weights
   

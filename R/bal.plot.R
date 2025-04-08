@@ -84,7 +84,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
                      position = "right", facet.formula = NULL, disp.means = getOption("cobalt_disp.means", FALSE), 
                      alpha.weight = TRUE) {
   
-  x <- tryCatch(force(x), error = function(e) .err(conditionMessage(e)))
+  x <- try_chk(force(x), warn = TRUE)
   
   #Replace .all and .none with NULL and NA respectively
   .call <- match.call(expand.dots = TRUE)

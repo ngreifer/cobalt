@@ -25,14 +25,14 @@ f.build <- function(y = NULL, rhs = NULL) {
     y <- ""
   }
   
-  tryCatch(force(y), error = function(e) .err(conditionMessage(e), tidy = FALSE))
-  tryCatch(force(rhs), error = function(e) .err(conditionMessage(e), tidy = FALSE))
-  
+  y <- try_chk(force(y))
+  rhs <- try_chk(force(rhs))
+
   if (is_mat_like(rhs) && is_not_null(colnames(rhs))) {
-    vars <- add_quotes(gsub("`", "", colnames(rhs)), "`")
+    vars <- add_quotes(gsub("`", "", colnames(rhs), fixed = TRUE), "`")
   }
   else if (is.character(rhs)) {
-    vars <- add_quotes(gsub("`", "", rhs), "`")
+    vars <- add_quotes(gsub("`", "", rhs, fixed = TRUE), "`")
   }
   else {
     .err("the right hand side argument to `f.build()` must be a vector of variable names or a data set with named variables")

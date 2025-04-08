@@ -1,15 +1,15 @@
 #Functions to convert object to base.bal.tab input
 
-x2base <- function(...) {
+x2base <- function(x, ...) {
   UseMethod("x2base")
 }
 
 #' @exportS3Method NULL
-x2base.matchit <- function(m, ...) {
+x2base.matchit <- function(x, ...) {
   #Process matchit
   
   #Process data and get imp
-  m.data <- if (NROW(m[["model"]][["data"]]) == length(m[["treat"]])) m[["model"]][["data"]] else NULL 
+  m.data <- if (NROW(x[["model"]][["data"]]) == length(x[["treat"]])) x[["model"]][["data"]] else NULL 
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {
@@ -26,65 +26,65 @@ x2base.matchit <- function(m, ...) {
   imp <- process_imp(imp, data, m.data)
   
   #Process treat
-  treat <- process_treat(m[["treat"]], data, m.data)
+  treat <- process_treat(x[["treat"]], data, m.data)
   
   #Process covs
-  if (is.data.frame(m[["X"]])) {
-    covs <- get_covs_from_formula(data = m[["X"]])
+  if (is.data.frame(x[["X"]])) {
+    covs <- get_covs_from_formula(data = x[["X"]])
   }
-  else if (is_not_null(m[["model"]][["model"]])) {
-    if (nrow(m[["model"]][["model"]]) == length(treat)) {
-      covs <- get_covs_from_formula(m[["formula"]], data = m[["model"]][["model"]])
+  else if (is_not_null(x[["model"]][["model"]])) {
+    if (nrow(x[["model"]][["model"]]) == length(treat)) {
+      covs <- get_covs_from_formula(x[["formula"]], data = x[["model"]][["model"]])
     }
     else {
-      #Recreating covs from model object and m[["X"]]. Have to do this because when 
+      #Recreating covs from model object and x[["X"]]. Have to do this because when 
       #discard != NULL and reestimate = TRUE, cases are lost. This recovers them.
       
       # if (is_not_null(data)) {
-      #     covs <- get_covs_from_formula(m[["formula"]], data = m[["model"]][["model"]])
+      #     covs <- get_covs_from_formula(x[["formula"]], data = x[["model"]][["model"]])
       # }
       # else {
-      order <- setNames(attr(m[["model"]][["terms"]], "order"),
-                        attr(m[["model"]][["terms"]], "term.labels"))
-      assign <- setNames(attr(m[["X"]], "assign"), colnames(m[["X"]]))
+      order <- setNames(attr(x[["model"]][["terms"]], "order"),
+                        attr(x[["model"]][["terms"]], "term.labels"))
+      assign <- setNames(attr(x[["X"]], "assign"), colnames(x[["X"]]))
       assign1 <- assign[assign %in% which(order == 1)] #Just main effects
       
-      dataClasses <- attr(m[["model"]][["terms"]], "dataClasses")
+      dataClasses <- attr(x[["model"]][["terms"]], "dataClasses")
       factors.to.unsplit <- names(dataClasses)[dataClasses %in% c("factor", "character", "logical")]
       f0 <- setNames(lapply(factors.to.unsplit, 
-                            function(x) {
-                              if (dataClasses[x] == "factor")
-                                list(levels = levels(m[["model"]][["model"]][[x]]),
-                                     faclev = paste0(x, levels(m[["model"]][["model"]][[x]])))
+                            function(z) {
+                              if (dataClasses[z] == "factor")
+                                list(levels = levels(x[["model"]][["model"]][[z]]),
+                                     faclev = paste0(z, levels(x[["model"]][["model"]][[z]])))
                               else 
-                                list(levels = unique(m[["model"]][["model"]][[x]]),
-                                     faclev = paste0(x, unique(m[["model"]][["model"]][[x]])))
+                                list(levels = unique(x[["model"]][["model"]][[z]]),
+                                     faclev = paste0(z, unique(x[["model"]][["model"]][[z]])))
                             }),
                      factors.to.unsplit)
-      covs <- as.data.frame(m[["X"]][, names(assign1)])
+      covs <- as.data.frame(x[["X"]][, names(assign1)])
       for (i in factors.to.unsplit) {
         covs <- unsplitfactor(covs, i, sep = "",
-                              dropped.level = f0[[i]][["levels"]][f0[[i]][["faclev"]] %nin% colnames(m[["X"]])])
+                              dropped.level = f0[[i]][["levels"]][f0[[i]][["faclev"]] %nin% colnames(x[["X"]])])
         if (dataClasses[i] == "logical") {
           covs[[i]] <- as.logical(covs[[i]])
         }
       }
-      covs <- get_covs_from_formula(m[["formula"]], data = covs)
+      covs <- get_covs_from_formula(x[["formula"]], data = covs)
       # }
     }
   }
-  else if (is_not_null(m[["formula"]]) && is_not_null(data)) {
-    covs <- get_covs_from_formula(m[["formula"]], data = data)
+  else if (is_not_null(x[["formula"]]) && is_not_null(data)) {
+    covs <- get_covs_from_formula(x[["formula"]], data = data)
   }
   else {
-    covs <- get_covs_from_formula(data = m[["X"]])
+    covs <- get_covs_from_formula(data = x[["X"]])
   }
   
   #Get estimand
-  estimand <- ...get("estimand", m[["estimand"]])
+  estimand <- ...get("estimand", x[["estimand"]])
   
   #Get method
-  if (inherits(m, "matchit.subclass")) {
+  if (inherits(x, "matchit.subclass")) {
     method <- ...get("method")
     
     method <- {
@@ -101,11 +101,11 @@ x2base.matchit <- function(m, ...) {
   
   #Process distance
   distance <- process_distance(...get("distance"), datalist = list(data, m.data, covs),
-                               obj.distance = m[["distance"]], 
+                               obj.distance = x[["distance"]], 
                                obj.distance.name = "distance")
   
   #Process focal
-  focal <- m[["focal"]]
+  focal <- x[["focal"]]
   if (get.treat.type(treat) == "binary") {
     if (is_not_null(estimand)) {
       focal <- switch(toupper(estimand), 
@@ -122,7 +122,7 @@ x2base.matchit <- function(m, ...) {
   
   #Process subclass
   subclass <- switch(method,
-                     "subclassification" = as.factor(m[["subclass"]]),
+                     "subclassification" = as.factor(x[["subclass"]]),
                      NULL)
   
   #Process match.strata
@@ -131,13 +131,13 @@ x2base.matchit <- function(m, ...) {
   }
   
   #Process weights
-  if (is_not_null(m[["weights"]]) && !all_the_same(m[["weights"]])) {
-    weights <- process_weights(m, list(...), treat, covs, method, addl.data = list(data, m.data))
+  if (is_not_null(x[["weights"]]) && !all_the_same(x[["weights"]])) {
+    weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, m.data))
     method <- attr(weights, "method")
   }
   
   #Process s.weights
-  s.weights <- process_s.weights(...get("s.weights", m[["s.weights"]]),
+  s.weights <- process_s.weights(...get("s.weights", x[["s.weights"]]),
                                  data, m.data)
   
   #Process cluster
@@ -147,7 +147,7 @@ x2base.matchit <- function(m, ...) {
   subset <- process_subset(...get("subset"), length(treat))
   
   #Process discarded
-  discarded <- m[["discarded"]]
+  discarded <- x[["discarded"]]
   
   #Process imp and length
   length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
@@ -206,7 +206,7 @@ x2base.matchit <- function(m, ...) {
   }
   
   #Get call
-  call <- m[["call"]]
+  call <- x[["call"]]
   
   #Process output
   X <- initialize_X()
@@ -223,7 +223,7 @@ x2base.matchit <- function(m, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.ps <- function(ps, ...) {
+x2base.ps <- function(x, ...) {
   #Process ps
   stop.method <- ...get("stop.method")
   if (is_null(stop.method) && ...length() > 0L && !nzchar(...names()[1L])) {
@@ -234,12 +234,12 @@ x2base.ps <- function(ps, ...) {
     stop.method <- ...get("full.stop.method")
   }
   
-  available.stop.methods <- names(ps[["w"]])
+  available.stop.methods <- names(x[["w"]])
   
   if (is_not_null(stop.method)) {
     if (is.character(stop.method)) {
       rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
-                                             function(x) any(startsWith(x, tolower(stop.method))), logical(1L))]
+                                             function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
       if (is_null(rule1)) {
         .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
                      word_list(available.stop.methods, and.or = "or", quotes = 2L)))
@@ -267,7 +267,7 @@ x2base.ps <- function(ps, ...) {
   s <- available.stop.methods[match(tolower(rule1), tolower(available.stop.methods))]
   
   #Process data and get imp
-  ps.data <- ps[["data"]]
+  ps.data <- x[["data"]]
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {
@@ -284,14 +284,14 @@ x2base.ps <- function(ps, ...) {
   imp <- process_imp(imp, ps.data)
   
   #Process treat
-  treat <- process_treat(ps[["treat"]], data, ps.data)
+  treat <- process_treat(x[["treat"]], data, ps.data)
   
   #Process covs
-  f <- reformulate(ps[["gbm.obj"]][["var.names"]])
+  f <- reformulate(x[["gbm.obj"]][["var.names"]])
   covs <- get_covs_from_formula(f, data = ps.data)
   
   #Get estimand
-  estimand <- ps[["estimand"]]
+  estimand <- x[["estimand"]]
   
   #Get method
   method <- rep.int("weighting", length(s))
@@ -301,7 +301,7 @@ x2base.ps <- function(ps, ...) {
   
   #Process distance
   distance <- process_distance(...get("distance"), datalist = list(data, ps.data, covs),
-                               obj.distance = ps[["ps"]][s], 
+                               obj.distance = x[["ps"]][s], 
                                obj.distance.name = if (length(s) > 1L) paste.("prop.score", substr(s, 1L, nchar(s) - 4)) else "prop.score")
   
   #Process focal
@@ -335,12 +335,12 @@ x2base.ps <- function(ps, ...) {
   }
   
   #Process weights
-  weights <- process_weights(ps, list(...), treat, covs, method, addl.data = list(data, ps.data), 
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, ps.data), 
                              stop.method = s, estimand = estimand)
   method <- attr(weights, "method")
   
   #Process s.weights
-  s.weights <- process_s.weights(...get("s.weights", ps[["sampw"]]),
+  s.weights <- process_s.weights(...get("s.weights", x[["sampw"]]),
                                  data, ps.data)
   
   #Process cluster
@@ -425,7 +425,7 @@ x2base.ps <- function(ps, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.mnps <- function(mnps, ...) {
+x2base.mnps <- function(x, ...) {
   #Process mnps
   stop.method <- ...get("stop.method")
   if (is_null(stop.method) && ...length() > 0L && !nzchar(...names()[1L])) {
@@ -436,12 +436,12 @@ x2base.mnps <- function(mnps, ...) {
     stop.method <- ...get("full.stop.method")
   }
   
-  available.stop.methods <- mnps[["stopMethods"]]
+  available.stop.methods <- x[["stopMethods"]]
   
   if (is_not_null(stop.method)) {
     if (is.character(stop.method)) {
       rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
-                                             function(x) any(startsWith(x, tolower(stop.method))), logical(1L))]
+                                             function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
       if (is_null(rule1)) {
         .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
                      word_list(available.stop.methods, and.or = "or", quotes = 2L)))
@@ -469,7 +469,7 @@ x2base.mnps <- function(mnps, ...) {
   s <- available.stop.methods[match(tolower(rule1), tolower(available.stop.methods))]
   
   #Process data and get imp
-  mnps.data <- mnps[["data"]]
+  mnps.data <- x[["data"]]
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {
@@ -486,14 +486,14 @@ x2base.mnps <- function(mnps, ...) {
   imp <- process_imp(imp, data, mnps.data)
   
   #Process treat
-  treat <- process_treat(mnps[["treatVar"]], data, mnps.data)
+  treat <- process_treat(x[["treatVar"]], data, mnps.data)
   
   #Process covs
-  f <- reformulate(mnps[["psList"]][[1L]][["gbm.obj"]][["var.names"]])
+  f <- reformulate(x[["psList"]][[1L]][["gbm.obj"]][["var.names"]])
   covs <- get_covs_from_formula(f, mnps.data)
   
   #Get estimand
-  estimand <- mnps[["estimand"]]
+  estimand <- x[["estimand"]]
   
   #Get method
   method <- rep.int("weighting", length(s))
@@ -505,7 +505,7 @@ x2base.mnps <- function(mnps, ...) {
   distance <- process_distance(...get("distance"), datalist = list(data, mnps.data))
   
   #Process focal
-  focal <- mnps[["treatATT"]]
+  focal <- x[["treatATT"]]
   
   #Process subclass
   if (is_not_null(...get("subclass"))) {
@@ -518,12 +518,12 @@ x2base.mnps <- function(mnps, ...) {
   }
   
   #Process weights
-  weights <- process_weights(mnps, list(...), treat, covs, method, addl.data = list(data, mnps.data), 
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, mnps.data), 
                              stop.method = s)
   method <- attr(weights, "method")
   
   #Process s.weights
-  s.weights <- process_s.weights(...get("s.weights", mnps[["sampw"]]),
+  s.weights <- process_s.weights(...get("s.weights", x[["sampw"]]),
                                  data, mnps.data)
   
   #Process cluster
@@ -608,9 +608,9 @@ x2base.mnps <- function(mnps, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.ps.cont <- function(ps.cont, ...) {
+x2base.ps.cont <- function(x, ...) {
   #Process data and get imp
-  ps.data <- ps.cont[["data"]]
+  ps.data <- x[["data"]]
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {
@@ -627,10 +627,10 @@ x2base.ps.cont <- function(ps.cont, ...) {
   imp <- process_imp(imp, data, ps.data)
   
   #Process treat
-  treat <- process_treat(ps.cont[["treat"]], data, ps.data)
+  treat <- process_treat(x[["treat"]], data, ps.data)
   
   #Process covs
-  f <- reformulate(ps.cont[["gbm.obj"]][["var.names"]])
+  f <- reformulate(x[["gbm.obj"]][["var.names"]])
   covs <- get_covs_from_formula(f, ps.data)
   
   #Get estimand
@@ -661,11 +661,11 @@ x2base.ps.cont <- function(ps.cont, ...) {
   }
   
   #Process weights
-  weights <- process_weights(ps.cont, list(...), treat, covs, method, addl.data = list(data, ps.data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, ps.data))
   method <- attr(weights, "method")
   
   #Process s.weights
-  s.weights <- process_s.weights(...get("s.weights", ps.cont[["sampw"]]),
+  s.weights <- process_s.weights(...get("s.weights", x[["sampw"]]),
                                  data, ps.data)
   
   #Process cluster
@@ -750,9 +750,9 @@ x2base.ps.cont <- function(ps.cont, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.Match <- function(Match, ...) {
+x2base.Match <- function(x, ...) {
   #Process Match
-  if (is_not_null(Match) && !is.list(Match)) {
+  if (is_not_null(x) && !is.list(x)) {
     .err("the supplied Match object contains no valid matches")
   }
   
@@ -780,7 +780,7 @@ x2base.Match <- function(Match, ...) {
   covs <- t.c[["covs"]]
   
   #Get estimand
-  estimand <- Match[["estimand"]]
+  estimand <- x[["estimand"]]
   
   #Get method
   method <- "matching"
@@ -822,7 +822,7 @@ x2base.Match <- function(Match, ...) {
   }
   
   #Process weights
-  weights <- process_weights(Match, list(...), treat, covs, method, addl.data = list(data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
   method <- attr(weights, "method")
   
   #Process s.weights
@@ -836,8 +836,8 @@ x2base.Match <- function(Match, ...) {
   
   #Process discarded
   discarded <- rep.int(FALSE, length(treat))
-  if (is_not_null(Match[["index.dropped"]])) {
-    discarded[Match[["index.dropped"]]] <- TRUE
+  if (is_not_null(x[["index.dropped"]])) {
+    discarded[x[["index.dropped"]]] <- TRUE
   }
   
   #Process imp and length
@@ -914,21 +914,12 @@ x2base.Match <- function(Match, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.formula <- function(formula, ...) {
-  if ("covs" %in% ...names()) {
-    A <- list(...)
-    
-    #Pass to x2base.data.frame, which processes covs as a formula
-    A[["covs"]] <- formula
-    
-    return(do.call(x2base.data.frame, A))
-  }
-  
-  x2base.data.frame(covs = formula, ...)
+x2base.formula <- function(x, ...) {
+  x2base.data.frame(x = x, ...)
 }
 
 #' @exportS3Method NULL
-x2base.data.frame <- function(covs, ...) {
+x2base.data.frame <- function(x, ...) {
   #Process data.frame
   
   #Process data and get imp
@@ -949,14 +940,15 @@ x2base.data.frame <- function(covs, ...) {
   
   #Process treat
   treat <- {
-    if (rlang::is_formula(covs))
-      get_treat_from_formula(covs, data, treat = ...get("treat"))
+    if (rlang::is_formula(x))
+      get_treat_from_formula(x, data, treat = ...get("treat"))
     else
       ...get("treat")
   }
   treat <- process_treat(treat, data)
   
   #Process covs
+  covs <- x
   if (is.null(covs)) {
     .err("`covs` data.frame must be specified")
   }
@@ -1109,6 +1101,7 @@ x2base.data.frame <- function(covs, ...) {
     }
   }
   
+  .m <- NULL
   if (is_not_null(.using)) {
     if (is_not_null(.specified_args) && is_not_null(.ignoring)) {
       if (is_not_null(.assuming)) {
@@ -1132,6 +1125,10 @@ x2base.data.frame <- function(covs, ...) {
                     add_quotes(.assuming),
                     word_list(.using, and.or = "and", quotes = "`"))
     }
+  }
+  
+  if (is_not_null(.m)) {
+    .msg(.m)
   }
   
   #Process addl 
@@ -1272,11 +1269,11 @@ x2base.data.frame <- function(covs, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.CBPS <- function(cbps.fit, ...) {
+x2base.CBPS <- function(x, ...) {
   #Process CBPS
   
   #Process data and get imp
-  c.data <- cbps.fit[["data"]]
+  c.data <- x[["data"]]
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {
@@ -1293,11 +1290,11 @@ x2base.CBPS <- function(cbps.fit, ...) {
   imp <- process_imp(imp, data, c.data)
   
   #Process treat
-  treat <- get_treat_from_formula(cbps.fit[["formula"]], c.data)
+  treat <- get_treat_from_formula(x[["formula"]], c.data)
   treat <- process_treat(treat, data, c.data)
   
   #Process covs
-  covs <- get_covs_from_formula(cbps.fit[["formula"]], c.data)
+  covs <- get_covs_from_formula(x[["formula"]], c.data)
   
   #Get estimand
   estimand <- ...get("estimand")
@@ -1313,7 +1310,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
   
   #Process distance
   distance <- process_distance(...get("distance"), datalist = list(data, c.data),
-                               obj.distance = if (get.treat.type(treat) == "binary") cbps.fit[["fitted.values"]], 
+                               obj.distance = if (get.treat.type(treat) == "binary") x[["fitted.values"]], 
                                obj.distance.name = "prop.score")
   #Process focal
   focal <- ...get("focal")
@@ -1346,7 +1343,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
   }
   
   #Process weights
-  weights <- process_weights(cbps.fit, list(...), treat, covs, method, addl.data = list(data, c.data), 
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, c.data), 
                              use.weights = ...get("use.weights"))
   method <- attr(weights, "method")
   
@@ -1422,7 +1419,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
   }
   
   #Get call
-  call <- cbps.fit[["call"]]
+  call <- x[["call"]]
   
   #Process output
   X <- initialize_X()
@@ -1438,7 +1435,7 @@ x2base.CBPS <- function(cbps.fit, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.ebalance <- function(ebalance, ...) {
+x2base.ebalance <- function(x, ...) {
   #Process ebalance
   
   #Process data and get imp
@@ -1498,7 +1495,7 @@ x2base.ebalance <- function(ebalance, ...) {
   }
   
   #Process weights
-  weights <- process_weights(ebalance, list(...), treat, covs, method, addl.data = list(data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
   method <- attr(weights, "method")
   
   #Process s.weights
@@ -1585,9 +1582,9 @@ x2base.ebalance <- function(ebalance, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.optmatch <- function(optmatch, ...) {
+x2base.optmatch <- function(x, ...) {
   #Process optmatch
-  if (all(is.na(optmatch))) {
+  if (all(is.na(x))) {
     .err("the supplied optmatch abject contains no valid matches")
   }
   
@@ -1609,7 +1606,7 @@ x2base.optmatch <- function(optmatch, ...) {
   
   #Process treat
   t.c <- .use_tc_fd(...get("formula"), data = data, covs = ...get("covs"),
-                    treat = ...get("treat", as.numeric(attr(optmatch, "contrast.group"))))
+                    treat = ...get("treat", as.numeric(attr(x, "contrast.group"))))
   treat <- process_treat(t.c[["treat"]], data)
   
   #Process covs
@@ -1658,7 +1655,7 @@ x2base.optmatch <- function(optmatch, ...) {
   }
   
   #Process weights
-  weights <- process_weights(optmatch, list(...), treat, covs, method, addl.data = list(data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
   method <- attr(weights, "method")
   
   #Process s.weights
@@ -1676,7 +1673,7 @@ x2base.optmatch <- function(optmatch, ...) {
   length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
                      data.frames = c("covs", "weights", "distance", "addl"),
                      imp = imp,
-                     original.call.to = paste0(deparse1(attr(optmatch, "call")[[1L]]), "()"))
+                     original.call.to = paste0(deparse1(attr(x, "call")[[1L]]), "()"))
   
   #Process stats and thresholds
   if (!check_if_call_from_fun(bal.plot)) {
@@ -1729,7 +1726,7 @@ x2base.optmatch <- function(optmatch, ...) {
   }
   
   #Get call
-  call <- attr(optmatch, "call")
+  call <- attr(x, "call")
   
   #Process output
   X <- initialize_X()
@@ -1746,15 +1743,18 @@ x2base.optmatch <- function(optmatch, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.cem.match <- function(cem.match, ...) {
+x2base.cem.match <- function(x, ...) {
   #Process cem.match
-  if (inherits(cem.match, "cem.match.list")) {
-    cem.match[["vars"]] <- cem.match[[1L]][["vars"]]
-    cem.match[["baseline.group"]] <- cem.match[[1L]][["baseline.group"]]
-    cem.match[["groups"]] <- unlist(grab(cem.match[vapply(cem.match, inherits, logical(1L), "cem.match")], "groups"))
-    cem.match[["w"]] <- get.w.cem.match(cem.match)
+  if (inherits(x, "cem.match.list")) {
+    x[["vars"]] <- x[[1L]][["vars"]]
+    x[["baseline.group"]] <- x[[1L]][["baseline.group"]]
+    x[["groups"]] <- unlist(grab(x[vapply(x, inherits, logical(1L), "cem.match")], "groups"))
+    x[["w"]] <- get.w.cem.match(x)
   }
-  if (all(check_if_zero(cem.match[["w"]]))) .err("the supplied cem.match object contains no valid matches")
+  
+  if (all(check_if_zero(x[["w"]]))) {
+    .err("the supplied cem.match object contains no valid matches")
+  }
   
   #Process data and get imp
   imp <- ...get("imp")
@@ -1776,14 +1776,14 @@ x2base.cem.match <- function(cem.match, ...) {
   #Process imp
   imp <- process_imp(imp, data)
   
-  if (is_null(imp) && inherits(cem.match, "cem.match.list") &&
-      sum(vapply(cem.match, is_, logical(1L), "cem.match")) != 1L) {
+  if (is_null(imp) && inherits(x, "cem.match.list") &&
+      sum(vapply(x, is_, logical(1L), "cem.match")) != 1L) {
     .err("an argument to `imp` must be specified or the argument to data must be a mids object")
   }
   
   #Process treat
-  t.c <- .use_tc_fd(data = data, treat = cem.match[["groups"]], 
-                    covs = cem.match[["vars"]])
+  t.c <- .use_tc_fd(data = data, treat = x[["groups"]], 
+                    covs = x[["vars"]])
   treat <- process_treat(t.c[["treat"]], data)
   
   #Process covs
@@ -1807,7 +1807,7 @@ x2base.cem.match <- function(cem.match, ...) {
   }
   
   #Process focal
-  focal <- cem.match[["baseline.group"]]
+  focal <- x[["baseline.group"]]
   
   #Process pairwise
   if (get.treat.type(treat) == "binary") {
@@ -1823,7 +1823,7 @@ x2base.cem.match <- function(cem.match, ...) {
   }
   
   #Process weights
-  weights <- process_weights(cem.match, list(...), treat, covs, method, addl.data = list(data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
   method <- attr(weights, "method")
   
   #Process s.weights
@@ -1910,12 +1910,12 @@ x2base.cem.match <- function(cem.match, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.weightit <- function(weightit, ...) {
+x2base.weightit <- function(x, ...) {
   #Process weightit
   
   #Process data and get imp
-  d.e.in.w <- vapply(c("covs", "exact", "by", "moderator"), function(x) is_not_null(weightit[[x]]), logical(1L))
-  if (any(d.e.in.w)) weightit.data <- do.call("data.frame", unname(weightit[c("covs", "exact", "by", "moderator")[d.e.in.w]]))
+  d.e.in.w <- vapply(c("covs", "exact", "by", "moderator"), function(z) is_not_null(x[[z]]), logical(1L))
+  if (any(d.e.in.w)) weightit.data <- do.call("data.frame", unname(x[c("covs", "exact", "by", "moderator")[d.e.in.w]]))
   else weightit.data <- NULL
   
   imp <- ...get("imp")
@@ -1934,15 +1934,16 @@ x2base.weightit <- function(weightit, ...) {
   imp <- process_imp(imp, data, weightit.data)
   
   #Process treat
-  treat <- process_treat(weightit[["treat"]], data, weightit.data)
+  treat <- process_treat(x[["treat"]], data, weightit.data)
   
   #Process covs
-  if (is_not_null(covs <- weightit[["covs"]])) {
+  covs <- x[["covs"]]
+  if (is_not_null(covs)) {
     covs <- get_covs_from_formula(data = covs)
   }
   
   #Get estimand
-  estimand <- weightit[["estimand"]]
+  estimand <- x[["estimand"]]
   
   #Get method
   method <- "weighting"
@@ -1952,11 +1953,11 @@ x2base.weightit <- function(weightit, ...) {
   
   #Process distance
   distance <- process_distance(...get("distance"), datalist = list(data, weightit.data),
-                               obj.distance = if (get.treat.type(treat) == "binary") weightit[["ps"]], 
+                               obj.distance = if (get.treat.type(treat) == "binary") x[["ps"]], 
                                obj.distance.name = "prop.score")
   
   #Process focal
-  focal <- weightit[["focal"]]
+  focal <- x[["focal"]]
   
   #Process pairwise
   if (get.treat.type(treat) == "binary") {
@@ -1976,11 +1977,11 @@ x2base.weightit <- function(weightit, ...) {
   }
   
   #Process weights
-  weights <- process_weights(weightit, list(...), treat, covs, method, addl.data = list(data, weightit.data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, weightit.data))
   method <- attr(weights, "method")
   
   #Process s.weights
-  s.weights <- process_s.weights(...get("s.weights", weightit[["s.weights"]]),
+  s.weights <- process_s.weights(...get("s.weights", x[["s.weights"]]),
                                  data, weightit.data)
   
   #Process cluster
@@ -1990,7 +1991,7 @@ x2base.weightit <- function(weightit, ...) {
   subset <- process_subset(...get("subset"), length(treat))
   
   #Process discarded
-  discarded <- weightit[["discarded"]]
+  discarded <- x[["discarded"]]
   
   #Process imp and length
   length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
@@ -2049,7 +2050,7 @@ x2base.weightit <- function(weightit, ...) {
   }
   
   #Get call
-  call <- weightit[["call"]]
+  call <- x[["call"]]
   
   #Process output
   X <- initialize_X()
@@ -2065,9 +2066,9 @@ x2base.weightit <- function(weightit, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.designmatch <- function(dm, ...) {
+x2base.designmatch <- function(x, ...) {
   #Process designmatch
-  if (all(c("id_1", "id_2") %in% names(dm))) {
+  if (all(c("id_1", "id_2") %in% names(x))) {
     .err("Balance cannot currently be checked on a nonbipartite match")
   }
   
@@ -2140,7 +2141,7 @@ x2base.designmatch <- function(dm, ...) {
   }
   
   #Process weights
-  weights <- process_weights(dm, list(...), treat, covs, method, addl.data = list(data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data))
   method <- attr(weights, "method")
   
   #Process s.weights
@@ -2228,23 +2229,25 @@ x2base.designmatch <- function(dm, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.mimids <- function(mimids, ...) {
+x2base.mimids <- function(x, ...) {
   #Process mimids
-  old_version <- !all(c("object", "models", "approach") %in% names(mimids))
-  models <- if (old_version) mimids[["models"]][-1L] else mimids[["models"]]
+  old_version <- !all(c("object", "models", "approach") %in% names(x))
+  models <- if (old_version) x[["models"]][-1L] else x[["models"]]
   
   #Process data and get imp
   if (old_version) {
-    if (inherits(mimids[["original.datasets"]], "mids")) m.data <- .mids_complete(mimids[["original.datasets"]])
-    else m.data <- .mids_complete(mimids[["others"]][["source"]])
+    m.data <- {
+      if (inherits(x[["original.datasets"]], "mids")) .mids_complete(x[["original.datasets"]])
+      else .mids_complete(x[["others"]][["source"]])
+    }
   }
   else {
-    m.data <- .mids_complete(mimids[["object"]])
+    m.data <- .mids_complete(x[["object"]])
   }
   
   imp <- m.data[[".imp"]]
-  
-  if (is_not_null(data <- ...get("data"))) {
+  data <- ...get("data")
+  if (is_not_null(data)) {
     if (inherits(data, "mids")) {
       data <- .mids_complete(data)
       if (is_null(imp)) imp <- data[[".imp"]]
@@ -2304,17 +2307,17 @@ x2base.mimids <- function(mimids, ...) {
   }
   
   #Process subclass
-  if (is_not_null(subclass <- ...get("subclass"))) {
+  if (is_not_null(...get("subclass"))) {
     .err("subclasses are not allowed with mimids objects")
   }
   
   #Process match.strata
-  if (is_not_null(match.strata <- ...get("match.strata"))) {
+  if (is_not_null(...get("match.strata"))) {
     .err("matching strata are not allowed with mimids objects")
   }
   
   #Process weights
-  weights <- process_weights(mimids, list(...), treat, covs, method, addl.data = list(data, m.data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, m.data))
   method <- attr(weights, "method")
   
   #Process s.weights
@@ -2404,23 +2407,26 @@ x2base.mimids <- function(mimids, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.wimids <- function(wimids, ...) {
+x2base.wimids <- function(x, ...) {
   #Process wimids
-  old_version <- !all(c("object", "models", "approach") %in% names(wimids))
-  models <- if (old_version) wimids[["models"]][-1L] else wimids[["models"]]
+  old_version <- !all(c("object", "models", "approach") %in% names(x))
+  models <- if (old_version) x[["models"]][-1L] else x[["models"]]
   
   #Process data and get imp
   if (old_version) {
-    if (inherits(wimids[["original.datasets"]], "mids")) w.data <- .mids_complete(wimids[["original.datasets"]])
-    else w.data <- .mids_complete(wimids[["others"]][["source"]])
+    w.data <- {
+      if (inherits(x[["original.datasets"]], "mids")) .mids_complete(x[["original.datasets"]])
+      else .mids_complete(x[["others"]][["source"]])
+    }
   }
   else {
-    w.data <- .mids_complete(wimids[["object"]])
+    w.data <- .mids_complete(x[["object"]])
   }
   
   imp <- w.data[[".imp"]]
+  data <- ...get("data")
   
-  if (is_not_null(data <- ...get("data"))) {
+  if (is_not_null(data)) {
     if (inherits(data, "mids")) {
       data <- .mids_complete(data)
       if (is_null(imp)) imp <- data[[".imp"]]
@@ -2479,7 +2485,7 @@ x2base.wimids <- function(wimids, ...) {
   }
   
   #Process weights
-  weights <- process_weights(wimids, list(...), treat, covs, method, addl.data = list(data, w.data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, w.data))
   method <- attr(weights, "method")
   
   #Process s.weights
@@ -2569,11 +2575,11 @@ x2base.wimids <- function(wimids, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.sbwcau <- function(sbwcau, ...) {
+x2base.sbwcau <- function(x, ...) {
   #Process sbwcau
   
   #Process data and get imp
-  sbw.data <- sbwcau[["dat_weights"]][names(sbwcau[["dat_weights"]]) != "weights"]
+  sbw.data <- x[["dat_weights"]][names(x[["dat_weights"]]) != "weights"]
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {
@@ -2590,14 +2596,14 @@ x2base.sbwcau <- function(sbwcau, ...) {
   imp <- process_imp(imp, data, sbw.data)
   
   #Process treat
-  treat <- process_treat(sbwcau[["ind"]], data, sbw.data)
+  treat <- process_treat(x[["ind"]], data, sbw.data)
   
   #Process covs
-  f <- reformulate(sbwcau[["bal"]][["bal_cov"]])
+  f <- reformulate(x[["bal"]][["bal_cov"]])
   covs <- get_covs_from_formula(f, data = sbw.data)
   
   #Get estimand
-  estimand <- sbwcau[["par"]][["par_est"]]
+  estimand <- x[["par"]][["par_est"]]
   
   #Get method
   method <- "weighting"
@@ -2639,7 +2645,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
   }
   
   #Process weights
-  weights <- process_weights(sbwcau, list(...), treat, covs, method, addl.data = list(data, sbw.data))
+  weights <- process_weights(x, list(...), treat, covs, method, addl.data = list(data, sbw.data))
   method <- attr(weights, "method")
   
   #Process s.weights
@@ -2728,7 +2734,7 @@ x2base.sbwcau <- function(sbwcau, ...) {
 #MSMs wth multiple time points
 
 #' @exportS3Method NULL
-x2base.iptw <- function(iptw, ...) {
+x2base.iptw <- function(x, ...) {
   #Process iptw
   stop.method <- ...get("stop.method")
   if (is_null(stop.method) && ...length() > 0L && !nzchar(...names()[1L])) {
@@ -2739,12 +2745,12 @@ x2base.iptw <- function(iptw, ...) {
     stop.method <- ...get("full.stop.method")
   }
   
-  available.stop.methods <- names(iptw[["psList"]][[1L]][["ps"]])
+  available.stop.methods <- names(x[["psList"]][[1L]][["ps"]])
   
   if (is_not_null(stop.method)) {
     if (is.character(stop.method)) {
       rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
-                                             function(x) any(startsWith(x, tolower(stop.method))), logical(1L))]
+                                             function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
       if (is_null(rule1)) {
         .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
                      word_list(available.stop.methods, and.or = "or", quotes = 2L)))
@@ -2772,7 +2778,7 @@ x2base.iptw <- function(iptw, ...) {
   s <- available.stop.methods[match(tolower(rule1), tolower(available.stop.methods))]
   
   #Process data and get imp
-  ps.data <- iptw[["psList"]][[1L]][["data"]]
+  ps.data <- x[["psList"]][[1L]][["data"]]
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {
@@ -2789,11 +2795,11 @@ x2base.iptw <- function(iptw, ...) {
   imp <- process_imp(imp, data, ps.data)
   
   #Process treat.list
-  treat.list <- process_treat.list(grab(iptw[["psList"]], "treat"), data, ps.data)
+  treat.list <- process_treat.list(grab(x[["psList"]], "treat"), data, ps.data)
   
   #Process covs.list
-  covs.list <- lapply(iptw[["psList"]], function(x) get_covs_from_formula(reformulate(x[["gbm.obj"]][["var.names"]]),
-                                                                          data = x[["data"]]))
+  covs.list <- lapply(x[["psList"]], function(z) get_covs_from_formula(reformulate(z[["gbm.obj"]][["var.names"]]),
+                                                                       data = z[["data"]]))
   
   #Get estimand
   estimand <- substr(toupper(s), nchar(s) - 2L, nchar(s))
@@ -2835,11 +2841,11 @@ x2base.iptw <- function(iptw, ...) {
   #         }
   #     }
   # }
-  # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+  # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(z) get_covs_from_formula(~z))
   # 
   distance.list <- process_distance.list(if_null_then(...get("distance.list"), ...get("distance")),
                                          datalist = list(data, ps.data),
-                                         covs.list = covs.list, obj.distance = lapply(iptw[["psList"]], function(x) x[["ps"]][,s,drop = FALSE]),
+                                         covs.list = covs.list, obj.distance = lapply(x[["psList"]], function(z) z[["ps"]][,s,drop = FALSE]),
                                          obj.distance.name = if (length(s) > 1) paste.("prop.score", substr(s, 1, nchar(s) - 4)) else "prop.score")
   
   #Process focal
@@ -2859,13 +2865,13 @@ x2base.iptw <- function(iptw, ...) {
   }
   
   #Process weights
-  weights <- process_weights(iptw, list(...), treat.list[[1L]], covs.list[[1L]],
+  weights <- process_weights(x, list(...), treat.list[[1L]], covs.list[[1L]],
                              method, addl.data = list(data, ps.data), 
                              stop.method = s)
   method <- attr(weights, "method")
   
   #Process s.weights
-  s.weights <- process_s.weights(...get("s.weights", iptw[["psList"]][[1L]][["sampw"]]),
+  s.weights <- process_s.weights(...get("s.weights", x[["psList"]][[1L]][["sampw"]]),
                                  data, ps.data)
   
   #Process cluster
@@ -2951,7 +2957,7 @@ x2base.iptw <- function(iptw, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.data.frame.list <- function(covs.list, ...) {
+x2base.data.frame.list <- function(x, ...) {
   #Process data and get imp
   imp <- ...get("imp")
   data <- ...get("data")
@@ -2972,6 +2978,7 @@ x2base.data.frame.list <- function(covs.list, ...) {
   treat.list <- process_treat.list(...get("treat.list"), data)
   
   #Process covs.list
+  covs.list <- x
   if (is_null(covs.list)) {
     .err("`covs.list` must be specified")
   }
@@ -2984,8 +2991,8 @@ x2base.data.frame.list <- function(covs.list, ...) {
     .err("each item in `covs.list` must be a data frame")
   }
   
-  if (any_apply(covs.list, function(x) is_null(attr(x, "co.names")))) {
-    covs.list <- lapply(covs.list, function(x) get_covs_from_formula(data = x))
+  if (any_apply(covs.list, function(z) is_null(attr(z, "co.names")))) {
+    covs.list <- lapply(covs.list, function(z) get_covs_from_formula(data = z))
   }
   
   if (length(treat.list) != length(covs.list)) {
@@ -3161,20 +3168,20 @@ x2base.data.frame.list <- function(covs.list, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.formula.list <- function(formula.list, ...) {
+x2base.formula.list <- function(x, ...) {
   
-  treat.list <- covs.list <- make_list(length(formula.list))
+  treat.list <- covs.list <- make_list(length(x))
   
-  for (i in seq_along(formula.list)) {
-    treat.list[[i]] <- get_treat_from_formula(formula.list[[i]], data = ...get("data"))
-    covs.list[[i]] <- get_covs_from_formula(formula.list[[i]], data = ...get("data"))
+  for (i in seq_along(x)) {
+    treat.list[[i]] <- get_treat_from_formula(x[[i]], data = ...get("data"))
+    covs.list[[i]] <- get_covs_from_formula(x[[i]], data = ...get("data"))
     names(treat.list)[i] <- attr(treat.list[[i]], "treat.name")
   }
   
-  if (any(c("covs.list", "treat.list") %in% ...names())) {
+  if ("treat.list" %in% ...names()) {
     A <- list(...)
     
-    A[["covs.list"]] <- covs.list
+    A[["x"]] <- covs.list
     A[["treat.list"]] <- treat.list
     
     return(do.call("x2base.data.frame.list", A))
@@ -3184,14 +3191,14 @@ x2base.formula.list <- function(formula.list, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.CBMSM <- function(cbmsm, ...) {
+x2base.CBMSM <- function(x, ...) {
   #Process CBMSM
-  ID <- sort(unique(cbmsm[["id"]]))
-  times <- sort(unique(cbmsm[["time"]]))
-  cbmsm[["data"]] <- cbmsm[["data"]][order(cbmsm[["id"]], cbmsm[["time"]]), ,drop = FALSE]
+  ID <- sort(unique(x[["id"]]))
+  times <- sort(unique(x[["time"]]))
+  x[["data"]] <- x[["data"]][order(x[["id"]], x[["time"]]), ,drop = FALSE]
   
   #Process data and get imp
-  cbmsm.data <- cbmsm[["data"]][cbmsm[["time"]] == 1, , drop = FALSE]
+  cbmsm.data <- x[["data"]][x[["time"]] == 1, , drop = FALSE]
   imp <- ...get("imp")
   data <- ...get("data")
   if (is_not_null(data)) {
@@ -3208,19 +3215,19 @@ x2base.CBMSM <- function(cbmsm, ...) {
   imp <- process_imp(imp, data)
   
   #Process treat.list
-  treat.list <- process_treat.list(lapply(times, function(x) cbmsm[["treat.hist"]][ID, x]), 
+  treat.list <- process_treat.list(lapply(times, function(z) x[["treat.hist"]][ID, z]), 
                                    data, cbmsm.data)
   
   #Process covs.list
   covs.list <- make_list(times)
   for (i in seq_along(times)) {
     ti <- times[i]
-    cov_i <- get_covs_from_formula(cbmsm[["formula"]], data = cbmsm[["data"]][cbmsm[["time"]] == ti, , drop = FALSE])
+    cov_i <- get_covs_from_formula(x[["formula"]], data = x[["data"]][x[["time"]] == ti, , drop = FALSE])
     for (co in seq_along(attr(cov_i, "co.names"))) {
       attr(cov_i, "co.names")[[co]][["component"]][attr(cov_i, "co.names")[[co]][["type"]] == "base"] <-
         paste0(attr(cov_i, "co.names")[[co]][["component"]][attr(cov_i, "co.names")[[co]][["type"]] == "base"], "_T", ti)
     }
-    names(attr(cov_i, "co.names")) <- vapply(attr(cov_i, "co.names"), function(x) paste0(x[["component"]], collapse = ""), character(1L))
+    names(attr(cov_i, "co.names")) <- vapply(attr(cov_i, "co.names"), function(z) paste(z[["component"]], collapse = ""), character(1L))
     colnames(cov_i) <- names(attr(cov_i, "co.names"))
     covs.list[[i]] <- {
       if (i == 1L) cov_i
@@ -3242,7 +3249,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
   #Process distance
   distance.list <- process_distance.list(if_null_then(...get("distance.list"), ...get("distance")),
                                          datalist = list(data, cbmsm.data),
-                                         covs.list = covs.list, obj.distance = cbmsm[["fitted.values"]],
+                                         covs.list = covs.list, obj.distance = x[["fitted.values"]],
                                          obj.distance.name = "prop.score")
   
   #Process focal
@@ -3262,7 +3269,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
   }
   
   #Process weights
-  weights <- process_weights(cbmsm, list(...), treat.list[[1L]], covs.list[[1L]], method,
+  weights <- process_weights(x, list(...), treat.list[[1L]], covs.list[[1L]], method,
                              addl.data = list(data, cbmsm.data))
   method <- attr(weights, "method")
   
@@ -3338,7 +3345,7 @@ x2base.CBMSM <- function(cbmsm, ...) {
   }
   
   #Get call
-  call <- cbmsm[["call"]]
+  call <- x[["call"]]
   
   #Process output
   X <- initialize_X_msm()
@@ -3354,15 +3361,15 @@ x2base.CBMSM <- function(cbmsm, ...) {
 }
 
 #' @exportS3Method NULL
-x2base.weightitMSM <- function(weightitMSM, ...) {
+x2base.weightitMSM <- function(x, ...) {
   #Process weightitMSM
   
   #Process data and get imp
-  weightitMSM.data <- weightitMSM[["data"]]
+  weightitMSM.data <- x[["data"]]
   
-  d.e.in.w <- vapply(c("exact", "by", "moderator"), function(x) is_not_null(weightitMSM[[x]]), logical(1L))
+  d.e.in.w <- vapply(c("exact", "by", "moderator"), function(z) is_not_null(x[[z]]), logical(1L))
   weightitMSM.data2 <- {
-    if (any(d.e.in.w)) do.call("data.frame", unname(weightitMSM[c("exact", "by", "moderator")[d.e.in.w]]))
+    if (any(d.e.in.w)) do.call("data.frame", unname(x[c("exact", "by", "moderator")[d.e.in.w]]))
     else NULL
   }
   
@@ -3382,13 +3389,13 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
   imp <- process_imp(imp, data, weightitMSM.data, weightitMSM.data2)
   
   #Process treat.list
-  treat.list <- process_treat.list(weightitMSM[["treat.list"]],
+  treat.list <- process_treat.list(x[["treat.list"]],
                                    data, weightitMSM.data, weightitMSM.data2)
   #Process covs.list
-  covs.list <- lapply(weightitMSM[["covs.list"]], function(x) get_covs_from_formula(data = x))
+  covs.list <- lapply(x[["covs.list"]], function(z) get_covs_from_formula(data = z))
   
   #Get estimand
-  estimand <- weightitMSM[["estimand"]]
+  estimand <- x[["estimand"]]
   
   #Get method
   method <- "weighting"
@@ -3407,13 +3414,13 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
   #                               covs.list,
   #                               list(data, weightitMSM.data,
   #                                    weightitMSM.data2))
-  # if (is_not_null(distance.list)) distance.list <- lapply(seq_along(distance.list), function(x) data.frame(distance.list[[x]], prop.score = weightitMSM[["ps.list"]][[x]]))
-  # else if (is_not_null(weightitMSM[["ps.list"]])) distance.list <- lapply(seq_along(weightitMSM[["ps.list"]]), function(x) data.frame(prop.score = weightitMSM[["ps.list"]][[x]]))
+  # if (is_not_null(distance.list)) distance.list <- lapply(seq_along(distance.list), function(z) data.frame(distance.list[[z]], prop.score = weightitMSM[["ps.list"]][[z]]))
+  # else if (is_not_null(weightitMSM[["ps.list"]])) distance.list <- lapply(seq_along(weightitMSM[["ps.list"]]), function(z) data.frame(prop.score = weightitMSM[["ps.list"]][[z]]))
   # else distance.list <- NULL
-  # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(x) get_covs_from_formula(~x))
+  # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(z) get_covs_from_formula(~z))
   distance.list <- process_distance.list(if_null_then(...get("distance.list"), ...get("distance")),
                                          datalist = list(data, weightitMSM.data, weightitMSM.data2),
-                                         covs.list = covs.list, obj.distance = weightitMSM[["ps.list"]],
+                                         covs.list = covs.list, obj.distance = x[["ps.list"]],
                                          obj.distance.name = "prop.score")
   
   #Process focal
@@ -3433,12 +3440,12 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
   }
   
   #Process weights
-  weights <- process_weights(weightitMSM, list(...), treat.list[[1L]], covs.list[[1L]], method, 
+  weights <- process_weights(x, list(...), treat.list[[1L]], covs.list[[1L]], method, 
                              addl.data = list(data, weightitMSM.data, weightitMSM.data2))
   method <- attr(weights, "method")
   
   #Process s.weights
-  s.weights <- process_s.weights(...get("s.weights", weightitMSM[["s.weights"]]),
+  s.weights <- process_s.weights(...get("s.weights", x[["s.weights"]]),
                                  data, weightitMSM.data, weightitMSM.data2)
   
   #Process cluster
@@ -3508,7 +3515,7 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
   }
   
   #Get call
-  call <- weightitMSM[["call"]]
+  call <- x[["call"]]
   
   #Process output
   X <- initialize_X_msm()
@@ -3525,9 +3532,9 @@ x2base.weightitMSM <- function(weightitMSM, ...) {
 
 
 #' @exportS3Method NULL
-x2base.default <- function(obj, ...) {
+x2base.default <- function(x, ...) {
   
-  if (!is.list(obj)) {
+  if (!is.list(x)) {
     .err("the input object must be an appropriate list, data.frame, formula, or the output of one of the supported packages")
   }
   
@@ -3567,16 +3574,16 @@ x2base.default <- function(obj, ...) {
                         type = c("call")))
   
   P <- make_list(names(Q))
-  names(obj) <- tolower(names(obj))
+  names(x) <- tolower(names(x))
   
   #Make a new list, P, containing the extracted components of obj; P acts as
   #new object for future steps.
   for (i in setdiff(names(Q), ...names())) {
     for (j in Q[[i]][["name"]]) {
-      if (is_null(P[[i]]) && is_not_null(obj[[j]])) {
-        which.type <- vapply(Q[[i]][["type"]], function(x) is_(obj[[j]], x), logical(1L))
+      if (is_null(P[[i]]) && is_not_null(x[[j]])) {
+        which.type <- vapply(Q[[i]][["type"]], function(z) is_(x[[j]], z), logical(1L))
         if (any(which.type)) {
-          P[[i]] <- obj[[j]]
+          P[[i]] <- x[[j]]
           attr(P[[i]], "name") <- j
           attr(P[[i]], "type") <- Q[[i]][["type"]][which.type]
         }
@@ -3588,8 +3595,8 @@ x2base.default <- function(obj, ...) {
   
   #treat.list
   if (is_not_null(P[["treat.list"]]) &&
-      !all_apply(P[["treat.list"]], function(x) any_apply(Q[["treat"]][["type"]],
-                                                          function(c) is_(x, c)))) {
+      !all_apply(P[["treat.list"]], function(z) any_apply(Q[["treat"]][["type"]],
+                                                          function(c) is_(z, c)))) {
     P[["treat.list"]] <- NULL
   }
   
@@ -3600,8 +3607,8 @@ x2base.default <- function(obj, ...) {
   
   #covs.list
   if (is_not_null(P[["covs.list"]]) &&
-      !all_apply(P[["covs.list"]], function(x) any_apply(Q[["covs"]][["type"]],
-                                                         function(c) is_(x, c)))) {
+      !all_apply(P[["covs.list"]], function(z) any_apply(Q[["covs"]][["type"]],
+                                                         function(c) is_(z, c)))) {
     P[["covs.list"]] <- NULL
   }
   
@@ -3609,15 +3616,15 @@ x2base.default <- function(obj, ...) {
   
   #formula.list
   if (is_not_null(P[["formula.list"]]) &&
-      !all_apply(P[["formula.list"]], function(x) any_apply(Q[["formula"]][["type"]],
-                                                            function(c) is_(x, c)))) {
+      !all_apply(P[["formula.list"]], function(z) any_apply(Q[["formula"]][["type"]],
+                                                            function(c) is_(z, c)))) {
     P[["formula.list"]] <- NULL
   }
   
   #data
   #model (only to extract data)
-  if (is_null(P[["data"]]) && is_not_null(obj[["model"]]) && utils::hasName(obj[["model"]], "data")) {
-    P[["data"]] <- obj[["model"]][["data"]]
+  if (is_null(P[["data"]]) && is_not_null(x[["model"]]) && utils::hasName(x[["model"]], "data")) {
+    P[["data"]] <- x[["model"]][["data"]]
   }
   
   #weights
@@ -3625,8 +3632,8 @@ x2base.default <- function(obj, ...) {
   #distance
   if (is_not_null(P[["distance"]])) {
     if (is.list(P[["distance"]]) && !is.data.frame(P[["distance"]])) {
-      if (!all_apply(P[["distance"]], function(x) any_apply(Q[["distance"]][["type"]],
-                                                            function(c) is_(x, c)))) {
+      if (!all_apply(P[["distance"]], function(z) any_apply(Q[["distance"]][["type"]],
+                                                            function(c) is_(z, c)))) {
         P[["distance"]] <- NULL
       }
     }
@@ -3641,8 +3648,8 @@ x2base.default <- function(obj, ...) {
   
   #distance.list
   if (is_not_null(P[["distance.list"]]) &&
-      !all_apply(P[["distance.list"]], function(x) any_apply(Q[["distance"]][["type"]],
-                                                             function(c) is_(x, c)))) {
+      !all_apply(P[["distance.list"]], function(z) any_apply(Q[["distance"]][["type"]],
+                                                             function(c) is_(z, c)))) {
     P[["distance.list"]] <- NULL
   }
   
@@ -3660,19 +3667,25 @@ x2base.default <- function(obj, ...) {
   if (is_not_null(P[["estimand"]])) {
     estimand.name <- attr(P[["estimand"]], "name", TRUE)
     
-    if (is_not_null(estimand.name) && toupper(estimand.name) == "ATT") {
-      if (as.numeric(P[["estimand"]]) == 0) P[["estimand"]] <- "ATE"
-      else P[["estimand"]] <- "ATT"
-    }
-    else if (is_not_null(estimand.name) && toupper(estimand.name) == "ATE") {
-      if (as.numeric(P[["estimand"]]) == 0) P[["estimand"]] <- "ATT"
-      else P[["estimand"]] <- "ATE"
-    }
-    else {
-      if (tolower(P[["estimand"]]) %in% c("att", "treat", "treated", "tr", "t", "atet")) P[["estimand"]] <- "ATT"
-      else if (tolower(P[["estimand"]]) %in% c("ate", "all")) P[["estimand"]] <- "ATE"
-      else if (tolower(P[["estimand"]]) %in% c("atc", "control", "untreated", "u", "c", "ctrl", "atu", "atec", "ateu")) P[["estimand"]] <- "ATC"
-      else P[["estimand"]] <- NULL
+    P[["estimand"]] <- {
+      if (is_not_null(estimand.name) && toupper(estimand.name) == "ATT") {
+        if (as.numeric(P[["estimand"]]) == 0) "ATE" else "ATT"
+      }
+      else if (is_not_null(estimand.name) && toupper(estimand.name) == "ATE") {
+        if (as.numeric(P[["estimand"]]) == 0) "ATT" else "ATE"
+      }
+      else if (tolower(P[["estimand"]]) %in% c("att", "treat", "treated", "tr", "t", "atet")) {
+        "ATT"
+      }
+      else if (tolower(P[["estimand"]]) %in% c("ate", "all")) {
+        "ATE"
+      }
+      else if (tolower(P[["estimand"]]) %in% c("atc", "control", "untreated", "u", "c", "ctrl", "atu", "atec", "ateu")) {
+        "ATC"
+      }
+      else {
+        NULL
+      }
     }
   }
   
@@ -3902,6 +3915,7 @@ x2base.default <- function(obj, ...) {
     }
   }
   
+  .m <- NULL
   if (is_not_null(.using)) {
     if (is_not_null(.specified_args) && is_not_null(.ignoring)) {
       if (is_not_null(.assuming)) {
@@ -3925,6 +3939,10 @@ x2base.default <- function(obj, ...) {
                     add_quotes(.assuming),
                     word_list(.using, and.or = "and", quotes = "`"))
     }
+  }
+  
+  if (is_not_null(.m)) {
+    .msg(.m)
   }
   
   #Process addl 
@@ -4163,8 +4181,8 @@ x2base.default <- function(obj, ...) {
     .err("each item in `covs.list` must be a data frame")
   }
   
-  if (any_apply(covs.list, function(x) is_null(attr(x, "co.names")))) {
-    covs.list <- lapply(covs.list, function(x) get_covs_from_formula(data = x))
+  if (any_apply(covs.list, function(z) is_null(attr(z, "co.names")))) {
+    covs.list <- lapply(covs.list, function(z) get_covs_from_formula(data = z))
   }
   
   if (length(treat.list) != length(covs.list)) {

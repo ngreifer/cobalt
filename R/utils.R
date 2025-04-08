@@ -291,7 +291,7 @@ trim_string <- function(x, char = " ", symmetrical = TRUE, recursive = TRUE) {
       return(x)
     }
     
-    x[sw & ew] <- gsub('^.|.$', '', x[sw & ew])
+    x[sw & ew] <- gsub("^.|.$", "", x[sw & ew])
   }
   else {
     asw <- any(sw)
@@ -300,8 +300,8 @@ trim_string <- function(x, char = " ", symmetrical = TRUE, recursive = TRUE) {
       return(x)
     }
     
-    if (asw) x[sw] <- gsub('^.', '', x[sw])
-    if (aew) x[ew] <- gsub('.$', '', x[ew])
+    if (asw) x[sw] <- gsub("^.", "", x[sw])
+    if (aew) x[ew] <- gsub(".$", "", x[ew])
   }
   
   if (!recursive) {
@@ -351,14 +351,7 @@ between <- function(x, range, inclusive = TRUE, na.action = FALSE) {
   
   out
 }
-max_ <- function(..., na.rm = TRUE) {
-  if (!any(is.finite(unlist(list(...))))) NA_real_
-  else max(..., na.rm = na.rm)
-}
-min_ <- function(..., na.rm = TRUE) {
-  if (!any(is.finite(unlist(list(...))))) NA_real_
-  else min(..., na.rm = na.rm)
-}
+
 check_if_int <- function(x) {
   #Checks if integer-like
   if (is.integer(x)) rep.int(TRUE, length(x))
@@ -456,7 +449,7 @@ w.m <- function(x, w = NULL, na.rm = TRUE) {
   if (is_null(w)) w <- rep.int(1, length(x))
   if (anyNA(x)) is.na(w)[is.na(x)] <- TRUE
   
-  sum(x * w, na.rm = na.rm)/sum(w, na.rm = na.rm)
+  sum(x * w, na.rm = na.rm) / sum(w, na.rm = na.rm)
 }
 col.w.m <- function(mat, w = NULL, na.rm = TRUE) {
   if (is_null(w)) w <- rep.int(1, nrow(mat))
@@ -498,7 +491,7 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
   if (is_null(w)) {
     if (non.bin.vars.present) {
       den <- colSums(!is.na(mat[, !bin.vars, drop = FALSE])) - 1
-      var[!bin.vars] <- colSums(center(mat[, !bin.vars, drop = FALSE])^2, na.rm = na.rm)/den
+      var[!bin.vars] <- colSums(center(mat[, !bin.vars, drop = FALSE])^2, na.rm = na.rm) / den
     }
     if (bin.var.present) {
       means <- colMeans(mat[, bin.vars, drop = FALSE], na.rm = na.rm)
@@ -514,7 +507,7 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
     if (non.bin.vars.present) {
       x <- center(mat[, !bin.vars, drop = FALSE],
                   at = colSums(w[, !bin.vars, drop = FALSE] * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
-      var[!bin.vars] <- colSums(w[, !bin.vars, drop = FALSE]*x*x, na.rm = na.rm)/(1 - colSums(w[, !bin.vars, drop = FALSE]^2, na.rm = na.rm))
+      var[!bin.vars] <- colSums(w[, !bin.vars, drop = FALSE] * x * x, na.rm = na.rm) / (1 - colSums(w[, !bin.vars, drop = FALSE]^2, na.rm = na.rm))
     }
     if (bin.var.present) {
       means <- colSums(w[, bin.vars, drop = FALSE] * mat[, bin.vars, drop = FALSE], na.rm = na.rm)
@@ -527,7 +520,7 @@ col.w.v <- function(mat, w = NULL, bin.vars = NULL, na.rm = TRUE) {
     if (non.bin.vars.present) {
       x <- center(mat[, !bin.vars, drop = FALSE],
                   at = colSums(w * mat[, !bin.vars, drop = FALSE], na.rm = na.rm))
-      var[!bin.vars] <- colSums(w * x * x, na.rm = na.rm)/(1 - sum(w^2))
+      var[!bin.vars] <- colSums(w * x * x, na.rm = na.rm) / (1 - sum(w^2))
     }
     if (bin.var.present) {
       means <- colSums(w * mat[, bin.vars, drop = FALSE], na.rm = na.rm)
@@ -550,22 +543,20 @@ col.w.cov <- function(mat, y, w = NULL, na.rm = TRUE) {
     if (anyNA(mat)) is.na(y)[is.na(mat)] <- TRUE
     if (anyNA(y)) is.na(mat)[is.na(y)] <- TRUE
     den <- colSums(!is.na(mat * y)) - 1
-    cov <- colSums(center(mat, na.rm = na.rm) * center(y, na.rm = na.rm), na.rm = na.rm)/den
+    cov <- colSums(center(mat, na.rm = na.rm) * center(y, na.rm = na.rm), na.rm = na.rm) / den
   }
   else if (na.rm && anyNA(mat)) {
-    n <- nrow(mat)
     w <- array(w, dim = dim(mat))
     is.na(w)[is.na(mat)] <- TRUE
     s <- colSums(w, na.rm = na.rm)
     w <- mat_div(w, s)
     x <- w * center(mat, at = colSums(w * mat, na.rm = na.rm))
-    cov <- colSums(x*y, na.rm = na.rm)/(1 - colSums(w^2, na.rm = na.rm))
+    cov <- colSums(x * y, na.rm = na.rm) / (1 - colSums(w^2, na.rm = na.rm))
   }
   else {
-    n <- nrow(mat)
-    w <- w/sum(w)
+    w <- w / sum(w)
     x <- w * center(mat, at = colSums(w * mat, na.rm = na.rm))
-    cov <- colSums(x*y, na.rm = na.rm)/(1 - sum(w^2))
+    cov <- colSums(x * y, na.rm = na.rm) / (1 - sum(w^2))
   }
   
   cov
@@ -798,11 +789,12 @@ nunique.gt <- function(x, n, na.rm = TRUE) {
     return(!all_the_same(x, na.rm))
   }
   
-  if (length(x) < 2000) {
+  if (length(x) < 2000L) {
     return(nunique(x, na.rm = na.rm) > n)
   }
   
-  tryCatch(nunique(x, nmax = n, na.rm = na.rm) > n, error = function(e) TRUE)
+  tryCatch(nunique(x, nmax = n, na.rm = na.rm) > n,
+           error = function(e) TRUE)
 }
 all_the_same <- function(x, na.rm = TRUE) {
   if (anyNA(x)) {
@@ -847,7 +839,9 @@ make_list <- function(n) {
   }
 }
 make_df <- function(ncol, nrow = 0L, types = "numeric") {
-  if (is_null(ncol)) ncol <- 0L
+  if (missing(ncol) || is_null(ncol)) {
+    ncol <- 0L
+  }
   
   if (length(ncol) == 1L && is.numeric(ncol)) {
     col_names <- NULL
@@ -858,7 +852,9 @@ make_df <- function(ncol, nrow = 0L, types = "numeric") {
     ncol <- length(ncol)
   }
   
-  if (is_null(nrow)) nrow <- 0L
+  if (is_null(nrow)) {
+    nrow <- 0L
+  }
   
   if (length(nrow) == 1L && is.numeric(nrow)) {
     row_names <- NULL
@@ -901,11 +897,14 @@ make_df <- function(ncol, nrow = 0L, types = "numeric") {
 }
 ifelse_ <- function(...) {
   dotlen <- ...length()
-  if (dotlen %% 2 == 0) stop("`ifelse_()` must have an odd number of arguments: pairs of test/yes, and one no.")
+  if (dotlen %% 2 == 0) {
+    stop("`ifelse_()` must have an odd number of arguments: pairs of test/yes, and one no.")
+  }
+  
   out <- ...elt(dotlen)
   
-  if (dotlen <= 1) {
-    if (!is.atomic(out)) stop("The first entry to `ifelse_()` must be atomic.")
+  if (dotlen <= 1 && !is.atomic(out)) {
+    stop("The first entry to `ifelse_()` must be atomic.")
   }
   
   if (!is.atomic(out)) {
@@ -918,13 +917,13 @@ ifelse_ <- function(...) {
   
   n <- length(out)
   
-  for (i in seq_len((dotlen - 1)/2)) {
+  for (i in seq_len((dotlen - 1) / 2)) {
     test <- ...elt(2 * i - 1)
     yes <- ...elt(2 * i)
     if (length(yes) == 1) yes <- rep.int(yes, n)
     if (length(yes) != n || length(test) != n) stop("All entries must have the same length.")
-    if (!is.logical(test)) stop(paste("The", ordinal(2*i - 1), "entry to `ifelse_()` must be logical."))
-    if (!is.atomic(yes)) stop(paste("The", ordinal(2*i), "entry to `ifelse_()` must be atomic."))
+    if (!is.logical(test)) stop(paste("The", ordinal(2 * i - 1), "entry to `ifelse_()` must be logical."))
+    if (!is.atomic(yes)) stop(paste("The", ordinal(2 * i), "entry to `ifelse_()` must be atomic."))
     pos <- which(test)
     out[pos] <- yes[pos]
   }
@@ -1062,24 +1061,31 @@ null_or_error <- function(x) {is_null(x) || is_error(x)}
 match_arg <- function(arg, choices, several.ok = FALSE) {
   #Replaces match.arg() but gives cleaner error message and processing
   #of arg.
-  if (missing(arg))
+  if (missing(arg)) {
     stop("No argument was supplied to match_arg.")
+  }
+  
   arg.name <- deparse1(substitute(arg), width.cutoff = 500L)
   
   if (missing(choices)) {
-    formal.args <- formals(sys.function(sysP <- sys.parent()))
+    sysP <- sys.parent()
+    formal.args <- formals(sys.function(sysP))
     choices <- eval(formal.args[[as.character(substitute(arg))]],
                     envir = sys.frame(sysP))
   }
   
-  if (is_null(arg)) return(choices[1L])
+  if (is_null(arg)) {
+    return(choices[1L])
+  }
   
   if (several.ok) {
     chk::chk_character(arg, x_name = add_quotes(arg.name, "`"))
   }
   else {
     chk::chk_string(arg, x_name = add_quotes(arg.name, "`"))
-    if (identical(arg, choices)) return(arg[1L])
+    if (identical(arg, choices)) {
+      return(arg[1L])
+    }
   }
   
   i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
@@ -1087,7 +1093,7 @@ match_arg <- function(arg, choices, several.ok = FALSE) {
     .err(sprintf("the argument to `%s` should be %s%s",
                  arg.name,
                  ngettext(length(choices), "", if (several.ok) "at least one of " else "one of "),
-                 word_list(choices, and.or = "or", quotes = 2)))
+                 word_list(choices, and.or = "or", quotes = 2L)))
   i <- i[i > 0L]
   
   choices[i]

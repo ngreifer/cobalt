@@ -421,7 +421,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
                      add_quotes(NA.column)))
       }
       
-      var.to.combine[var.to.combine[[NA.column]] == 1L,] <- NA_integer_
+      is.na(var.to.combine[var.to.combine[[NA.column]] == 1L, ]) <- TRUE
       var.to.combine[[NA.column]] <- NULL
     }
     

@@ -291,7 +291,7 @@ process_init_covs <- function(covs) {
   
   if (needs.splitting) {
     bin.vars[to.split] <- TRUE
-    covs <- splitfactor(covs, drop.first ="if2", split.with = bin.vars)
+    covs <- splitfactor(covs, drop.first = "if2", split.with = bin.vars)
     bin.vars <- attr(covs, "split.with")[[1L]]
   }
   
@@ -694,7 +694,7 @@ init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
     nn <- tcrossprod(s.weights_n_t)
     
     if (improved) {
-      .col_diff <- function(x) x[,1] - x[,2]
+      .col_diff <- function(x) x[,1L] - x[,2L]
       all_pairs <- utils::combn(unique.treats, 2L, simplify = FALSE)
       nn <- nn + tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
                                    numeric(n)))
@@ -750,18 +750,18 @@ init_kernel.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
   treat <- as.numeric(treat == treat[1L])
   
   for (t in 0:1) {
-    s.weights[treat == t] <- s.weights[treat == t]/mean_fast(s.weights[treat == t])
+    s.weights[treat == t] <- s.weights[treat == t] / mean_fast(s.weights[treat == t])
   }
   
   dist.covs <- scale(x, scale = sqrt(col.w.v(x, s.weights, bin.vars)))
   
   d <- unname(as.matrix(dist(dist.covs)))
   
-  K <- exp(-(d^2)/median(d))
+  K <- exp(-(d^2) / median(d))
   
   T_star <- numeric(length(treat))
-  T_star[treat == 1] <- 1/sum(treat == 1)
-  T_star[treat == 0] <- -1/sum(treat == 0)
+  T_star[treat == 1] <- 1 / sum(treat == 1)
+  T_star[treat == 0] <- -1 / sum(treat == 0)
   
   out <- list(K = K,
               T_star = T_star,
@@ -899,7 +899,7 @@ init_distance.cov <- function(x, treat, s.weights = NULL, ...) {
   
   n <- length(treat)
   
-  Adist <- unname(as.matrix(dist(treat/sqrt(col.w.v(treat, s.weights)))))
+  Adist <- unname(as.matrix(dist(treat / sqrt(col.w.v(treat, s.weights)))))
   
   Xmeans <- colMeans(Xdist)
   Xgrand_mean <- mean(Xmeans)
@@ -990,7 +990,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
   estimand <- f.e[["estimand"]]
   
   unique.treats <- unique(treat)
-  for (t in unique.treats) s.weights[treat == t] <- s.weights[treat == t]/sum(s.weights[treat == t])
+  for (t in unique.treats) s.weights[treat == t] <- s.weights[treat == t] / sum(s.weights[treat == t])
   
   is.numeric.cov <- setNames(vapply(x, is.numeric, logical(1L)), names(x))
   nunique.covs <- vapply(x, nunique, integer(1L))
@@ -1082,7 +1082,7 @@ energy.dist.binary <- function(init, weights = NULL) {
   else weights <- weights * init[["s.weights"]]
   
   for (t in init[["unique.treats"]]) {
-    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/mean_fast(weights[init[["treat"]] == t])
+    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / mean_fast(weights[init[["treat"]] == t])
   }
   
   if (is_not_null(init[["focal"]])) {
@@ -1098,7 +1098,7 @@ kernel.dist.binary <- function(init, weights = NULL) {
   else weights <- weights * init[["s.weights"]]
   
   for (t in 0:1) {
-    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/mean_fast(weights[init[["treat"]] == t])
+    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / mean_fast(weights[init[["treat"]] == t])
   }
   
   T_weights <- init[["T_star"]] * weights
@@ -1113,11 +1113,11 @@ r2.binary <- function(init, weights = NULL) {
   
   fit <- glm.fit(init$x, init$treat, weights, family = quasibinomial())
   
-  wmtreat <- sum(weights*fit$linear.predictors)/sum(weights)
+  wmtreat <- sum(weights * fit$linear.predictors) / sum(weights)
   
   SSmodel <- sum(weights * (fit$linear.predictors - wmtreat)^2)
   
-  SSmodel / (sum(weights) * pi^2/3 + SSmodel)
+  SSmodel / (sum(weights) * pi^2 / 3 + SSmodel)
 }
 l1.med.binary <- function(init, weights = NULL) {
   check_init(init, "init_l1.med")
@@ -1126,7 +1126,7 @@ l1.med.binary <- function(init, weights = NULL) {
   else weights <- weights * init[["s.weights"]]
   
   for (t in init[["unique.treats"]]) {
-    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t]/sum(weights[init[["treat"]] == t])
+    weights[init[["treat"]] == t] <- weights[init[["treat"]] == t] / sum(weights[init[["treat"]] == t])
   }
   
   x <- init[["coarsened.covs"]]
@@ -1244,7 +1244,7 @@ r2.continuous <- function(init, weights = NULL) {
   SSresid <- sum(weights * (fit$residuals - w.m(fit$residuals, weights))^2)
   SStreat <- sum(weights * (init$treat - w.m(init$treat, weights))^2)
   
-  1 - SSresid/SStreat
+  1 - SSresid / SStreat
 }
 distance.cov.continuous <- function(init, weights = NULL) {
   check_init(init, "init_distance.cov")
@@ -1252,7 +1252,7 @@ distance.cov.continuous <- function(init, weights = NULL) {
   if (is_null(weights)) weights <- init[["s.weights"]]
   else weights <- weights * init[["s.weights"]]
   
-  weights <- weights/mean_fast(weights)
+  weights <- weights / mean_fast(weights)
   
   drop(t(weights) %*% init[["P"]] %*% weights)
 }

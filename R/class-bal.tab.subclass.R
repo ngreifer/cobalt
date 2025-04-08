@@ -194,7 +194,7 @@ base.bal.tab.subclass <- function(X,
                    col.name = paste.(STATS[[s]]$bal.tab_column_prefix, "Adj"), 
                    thresh.col.name = STATS[[s]]$Threshold, 
                    abs_stat = STATS[[s]]$abs)
-      } )
+      })
       out[[paste.("Max.Imbalance", s, "Subclass")]] <- as.data.frame(do.call("rbind", max.imbal.list), 
                                                                      row.names = paste("Subclass", levels(X$subclass)))
     }

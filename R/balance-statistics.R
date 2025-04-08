@@ -79,24 +79,20 @@ STATS[["mean.diffs"]] <- {list(
     
     #All std, no std, some std
     if ((binary == "std" || !any(var_type == "Binary")) && 
-        (continuous == "std" || !any(var_type == "Contin."))) {
+        (continuous == "std" || all(var_type == "Binary"))) {
       xlab.diff <- "Standardized Mean Differences"
     } 
     else if ((binary == "raw" || !any(var_type == "Binary")) && 
-             (continuous == "raw" || !any(var_type == "Contin."))) {
+             (continuous == "raw" || all(var_type == "Binary"))) {
       xlab.diff <- "Mean Differences"
     }
     else {
       stars <- match_arg(stars, c("none", "std", "raw"))
-      if (stars == "none") {
-        xlab.diff <- "Mean Differences"
-      }
-      else if (stars == "std") {
-        xlab.diff <- "Mean Differences"
-      }
-      else if (stars == "raw") {
-        xlab.diff <- "Standardized Mean Differences"
-      }
+      
+      xlab.diff <- switch(stars,
+                          "none" = "Mean Differences",
+                          "std" = "Mean Differences",
+                          "raw" = "Standardized Mean Differences")
     }
     
     if (abs) sprintf("Absolute %s", xlab.diff)
@@ -107,14 +103,14 @@ STATS[["mean.diffs"]] <- {list(
     continuous <- ...get("continuous") #attr(x, "print.options")$continuous
     var_type <- ...get("var_type") #B[["Type"]]
     stars <- ...get("stars")
-    star_char = ...get("star_char") #args$star_char
+    star_char <- ...get("star_char") #args$star_char
     
     #All std, no std, some std
-    if (!((binary == "std" || sum(var_type == "Binary") == 0) && 
-          (continuous == "std" || sum(var_type != "Binary") == 0)) 
+    if (!((binary == "std" || !any(var_type == "Binary")) && 
+          (continuous == "std" || all(var_type == "Binary"))) 
         &&
-        !((binary == "raw" || sum(var_type == "Binary") == 0) && 
-          (continuous == "raw" || sum(var_type != "Binary") == 0))) {
+        !((binary == "raw" || !any(var_type == "Binary")) && 
+          (continuous == "raw" || all(var_type == "Binary")))) {
       
       stars <- match_arg(stars, c("none", "std", "raw"))
       if (stars == "none") {
@@ -375,15 +371,12 @@ STATS[["mean.diffs.target"]] <- {list(
     }
     else {
       stars <- match_arg(stars, c("none", "std", "raw"))
-      if (stars == "none") {
-        xlab.diff <- "Target Mean Differences"
-      }
-      else if (stars == "std") {
-        xlab.diff <- "Target Mean Differences"
-      }
-      else if (stars == "raw") {
-        xlab.diff <- "Standardized Target Mean Differences"
-      }
+      
+      xlab.diff <- switch(stars,
+        "none" = "Target Mean Differences",
+        "std" = "Target Mean Differences",
+        "raw" = "Standardized Target Mean Differences"
+      )
     }
     
     if (abs) sprintf("Absolute %s", xlab.diff)
@@ -397,11 +390,11 @@ STATS[["mean.diffs.target"]] <- {list(
     star_char <- ...get("star_char") #args$star_char
     
     #All std, no std, some std
-    if (!((binary == "std" || sum(var_type == "Binary") == 0) && 
-          (continuous == "std" || sum(var_type != "Binary") == 0)) 
+    if (!((binary == "std" || !any(var_type == "Binary")) && 
+          (continuous == "std" || all(var_type == "Binary"))) 
         &&
-        !((binary == "raw" || sum(var_type == "Binary") == 0) && 
-          (continuous == "raw" || sum(var_type != "Binary") == 0))) {
+        !((binary == "raw" || !any(var_type == "Binary")) && 
+          (continuous == "raw" || all(var_type == "Binary")))) {
       
       stars <- match_arg(stars, c("none", "std", "raw"))
       if (stars == "none") {

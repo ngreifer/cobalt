@@ -78,14 +78,14 @@ bal.tab.formula.list <- function(x,
                                  stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
                                  ...) {
   
-  args <- tryCatch(c(as.list(environment()), list(...))[-1L], error = function(e) .err(conditionMessage(e)))
+  args <- try_chk(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
   
   args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
   args[lengths(args) == 0L & names(args) %nin% names(match.call())[-1L]] <- NULL
   
-  X <- do.call("x2base.formula.list", c(list(formula.list = x), args), quote = TRUE)
+  X <- do.call("x2base.formula.list", c(list(x = x), args), quote = TRUE)
   
   args[names(args) %in% names(X)] <- NULL
   
@@ -101,14 +101,14 @@ bal.tab.data.frame.list <- function(x, treat.list,
                                     stats, int = FALSE, poly = 1, distance = NULL, addl = NULL, data = NULL, continuous, binary, s.d.denom, thresholds = NULL, weights = NULL, cluster = NULL, imp = NULL, pairwise = TRUE, s.weights = NULL, abs = FALSE, subset = NULL, quick = TRUE,
                                     ...) {
   
-  args <- tryCatch(c(as.list(environment()), list(...))[-1L], error = function(e) .err(conditionMessage(e)))
+  args <- try_chk(c(as.list(environment()), list(...))[-1L])
   
   #Adjustments to arguments
   
   args[vapply(args, rlang::is_missing, logical(1L))] <- NULL
   args[lengths(args) == 0L & names(args) %nin% names(match.call())[-1L]] <- NULL
   
-  X <- do.call("x2base.data.frame.list", c(list(covs.list = x), args), quote = TRUE)
+  X <- do.call("x2base.data.frame.list", c(list(x = x), args), quote = TRUE)
   
   args[names(args) %in% names(X)] <- NULL
   

@@ -158,7 +158,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
     }
   }
   
-  tryCatch(force(x), error = function(e) .err(conditionMessage(e)))
+  x <- try_chk(force(x))
   
   if (!inherits(x, "bal.tab")) {
     #Use bal.tab on inputs first, then love.plot on that
@@ -212,9 +212,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       subclass.names <- names(x[["Subclass.Balance"]])
       sub.B <- do.call("cbind", c(
         lapply(subclass.names, function(s) {
-          sub <- x[["Subclass.Balance"]][[s]]
-          setNames(sub[endsWith(names(sub), ".Adj")],
-                   gsub(".Adj", paste0(".", s), names(sub)[endsWith(names(sub), ".Adj")]))
+          .sub <- x[["Subclass.Balance"]][[s]]
+          setNames(.sub[endsWith(names(.sub), ".Adj")],
+                   gsub(".Adj", paste0(".", s), names(.sub)[endsWith(names(.sub), ".Adj")]))
         }),
         list(variable.names = row.names(x[["Balance.Across.Subclass"]]))))
     }
@@ -754,8 +754,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                   min.stat = B[[paste.("Min", STATS[[s]]$bal.tab_column_prefix, w)]],
                                                   max.stat = B[[paste.("Max", STATS[[s]]$bal.tab_column_prefix, w)]],
                                                   mean.stat = B[[paste.("Mean", STATS[[s]]$bal.tab_column_prefix, w)]],
-                                                  Sample = switch(w, "Un"= "Unadjusted", 
-                                                                  "Adj" = "Adjusted", w),
+                                                  Sample = switch(w,
+                                                                  "Un" = "Unadjusted", 
+                                                                  "Adj" = "Adjusted",
+                                                                  w),
                                                   B[facet],
                                                   row.names = NULL,
                                                   stringsAsFactors = TRUE)))
@@ -871,7 +873,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
                                                   stat = B[[ifelse(is_null(Agg.Fun), paste.(STATS[[s]]$bal.tab_column_prefix, w),
                                                                    paste.(Agg.Fun, STATS[[s]]$bal.tab_column_prefix, w))]],
                                                   Sample = switch(w,
-                                                                  "Un"= "Unadjusted",
+                                                                  "Un" = "Unadjusted",
                                                                   "Adj" = "Adjusted",
                                                                   w),
                                                   B[facet],
@@ -1105,7 +1107,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         color = if (!color_aes) colors[1L]
       )
       
-      f <- function(q) {is.na(q[["stat"]])[q$type == "Distance"] <- TRUE; q}
+      f <- function(q) {
+        is.na(q[["stat"]])[q$type == "Distance"] <- TRUE
+        q
+      }
     }
     
     if (agg.range) {
@@ -1264,9 +1269,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   
   # Combine plots together
   position <- {
-    if (!chk::vld_string(position)) NA_character_
-    else match_arg(position, 
-                   c("right", "left", "top", "bottom", "none"))
+    if (chk::vld_string(position))
+      match_arg(position, c("right", "left", "top", "bottom", "none"))
+    else
+      NA_character_
   }
   
   #Process labels
@@ -1436,16 +1442,14 @@ gg_color_hue <- function(n) {
 ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
   #A thin version of egg:ggarrange
   
-  gtable_frame <- function (g, width = grid::unit(1, "null"), height = grid::unit(1, "null")) {
-    panels <- g[["layout"]][grepl("panel", g[["layout"]][["name"]]),]
-    pargins <- g[["layout"]][grepl("panel", g[["layout"]][["name"]]),]
+  gtable_frame <- function(g, width = grid::unit(1, "null"), height = grid::unit(1, "null")) {
+    panels <- g[["layout"]][grepl("panel", g[["layout"]][["name"]], fixed = TRUE),]
     ll <- unique(panels$l)
-    margins <- if (length(ll) == 1L) grid::unit(0, "pt") else g$widths[ll[-length(ll)] + 2L]
     tt <- unique(panels$t)
     fixed_ar <- g$respect
     if (fixed_ar) {
-      ar <- as.numeric(g$heights[tt[1L]])/as.numeric(g$widths[ll[1L]])
-      height <- width * (ar/length(ll))
+      ar <- as.numeric(g$heights[tt[1L]]) / as.numeric(g$widths[ll[1L]])
+      height <- width * (ar / length(ll))
       g$respect <- FALSE
     }
     core <- g[seq(min(tt), max(tt)), seq(min(ll), max(ll))]
