@@ -13,3 +13,4 @@
 ^\.github$
 ^\.DS_Store$
 ^CRAN-SUBMISSION$
+^\.lintr$

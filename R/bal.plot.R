@@ -263,15 +263,13 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       }
     }
   }
+  else if (is_null(X$weights) && is_null(X$subclass)) {
+    which <- "unadjusted"
+  }
   else {
-    if (is_null(X$weights) && is_null(X$subclass)) {
-      which <- "unadjusted"
-    }
-    else {
-      which <- tolower(which)
-      which <- match_arg(which, unique(c("adjusted", "unadjusted", "both", weight.names)),
-                         several.ok = TRUE)
-    }
+    which <- tolower(which)
+    which <- match_arg(which, unique(c("adjusted", "unadjusted", "both", weight.names)),
+                       several.ok = TRUE)
   }
   
   if (is_not_null(...get("size.weight"))) {
@@ -406,53 +404,51 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
       if (is_null(which.time) || all(is.na(which.time))) {
         in.time <- !is.na(X$time)
       }
-      else {
-        if (is.numeric(which.time)) {
-          if (!all(which.time %in% seq_along(X$covs.list))) {
-            .err(paste0("The following inputs to `which.time` do not correspond to given time periods:\n\t",
-                        word_list(setdiff(which.time, seq_along(X$covs.list)))),
-                 tidy = FALSE)
-          }
-          
-          if (all(which.time %in% which(appears.in.time))) {
-            #nothing; which.time is good
-          }
-          else if (any(which.time %in% which(appears.in.time))) {
-            .wrn(sprintf("%s does not appear in time period %s",
-                         add_quotes(var.name),
-                         word_list(setdiff(which.time, which(appears.in.time)), "or")))
-            which.time <- intersect(which.time, which(appears.in.time))
-          }
-          else {
-            .err(sprintf("%s does not appear in time period %s",
-                         add_quotes(var.name), word_list(which.time, "or")))
-          }
-          in.time <- !is.na(X$time) & X$time %in% which.time
+      else if (is.numeric(which.time)) {
+        if (!all(which.time %in% seq_along(X$covs.list))) {
+          .err(paste0("The following inputs to `which.time` do not correspond to given time periods:\n\t",
+                      word_list(setdiff(which.time, seq_along(X$covs.list)))),
+               tidy = FALSE)
         }
-        else if (is.character(which.time)) {
-          if (!all(which.time %in% treat.names)) {
-            .err(sprintf("The following inputs to `which.time` do not correspond to given time periods:\n\t%s",
-                         word_list(setdiff(which.time, treat.names))), tidy = FALSE)
-          }
-          
-          if (!all(which.time %in% treat.names[appears.in.time])) {
-            if (any(which.time %in% treat.names[appears.in.time])) {
-              time.periods <- word_list(setdiff(which.time, treat.names[appears.in.time]), "and")
-              .wrn(sprintf("%s does not appear in the time period%%s corresponding to treatment%%s %s",
-                           add_quotes(var.name), time.periods), n = sum(!which.time %in% treat.names[appears.in.time]))
-              which.time <- intersect(which.time, treat.names[appears.in.time])
-            }
-            else {
-              time.periods <- word_list(which.time, "and")
-              .err(sprintf("%s does not appear in the time period%%s corresponding to treatment%%s %s",
-                           add_quotes(var.name), time.periods), n = length(which.time))
-            }
-          }
-          in.time <- !is.na(X$time) & treat.names[X$time] %in% which.time
+        
+        if (all(which.time %in% which(appears.in.time))) {
+          #nothing; which.time is good
+        }
+        else if (any(which.time %in% which(appears.in.time))) {
+          .wrn(sprintf("%s does not appear in time period %s",
+                       add_quotes(var.name),
+                       word_list(setdiff(which.time, which(appears.in.time)), "or")))
+          which.time <- intersect(which.time, which(appears.in.time))
         }
         else {
-          .err("the argument to `which.time` must be the names or indices corresponding to the time periods for which distributions are to be displayed")
+          .err(sprintf("%s does not appear in time period %s",
+                       add_quotes(var.name), word_list(which.time, "or")))
         }
+        in.time <- !is.na(X$time) & X$time %in% which.time
+      }
+      else if (is.character(which.time)) {
+        if (!all(which.time %in% treat.names)) {
+          .err(sprintf("The following inputs to `which.time` do not correspond to given time periods:\n\t%s",
+                       word_list(setdiff(which.time, treat.names))), tidy = FALSE)
+        }
+        
+        if (!all(which.time %in% treat.names[appears.in.time])) {
+          if (any(which.time %in% treat.names[appears.in.time])) {
+            time.periods <- word_list(setdiff(which.time, treat.names[appears.in.time]), "and")
+            .wrn(sprintf("%s does not appear in the time period%%s corresponding to treatment%%s %s",
+                         add_quotes(var.name), time.periods), n = sum(!which.time %in% treat.names[appears.in.time]))
+            which.time <- intersect(which.time, treat.names[appears.in.time])
+          }
+          else {
+            time.periods <- word_list(which.time, "and")
+            .err(sprintf("%s does not appear in the time period%%s corresponding to treatment%%s %s",
+                         add_quotes(var.name), time.periods), n = length(which.time))
+          }
+        }
+        in.time <- !is.na(X$time) & treat.names[X$time] %in% which.time
+      }
+      else {
+        .err("the argument to `which.time` must be the names or indices corresponding to the time periods for which distributions are to be displayed")
       }
       facet <- c("time", facet)
     }
@@ -462,7 +458,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     
     nobs <- sum(in.imp & in.cluster & in.time)
     
-    if (nobs == 0) {
+    if (nobs == 0L) {
       .err("no observations to display")
     }
     
@@ -634,7 +630,6 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
           .wrn("the argument to `colors` contains at least one value that is not a recognized color. Using default colors instead")
           colors <- gg_color_hue(ntypes)
         }
-        
       }
       
       D$weights <- ave(D[["weights"]] * D[["s.weights"]], 
@@ -675,7 +670,7 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         ggplot2::geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "firebrick2",
                              alpha = .4, linewidth = 1.5) + 
         {
-          if (nrow(D) <= 1000)
+          if (nrow(D) <= 1000L)
             ggplot2::geom_smooth(method = "loess", formula = y ~ x, se = FALSE, color = "royalblue1",
                                  alpha = .1, linewidth = 1.5) 
           else
@@ -861,13 +856,13 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
         n <- ...get("n", 512)
         
         if (is.character(bw)) {
-          t.sizes <- tapply(rep.int(1, NROW(D)), D$treat, sum)
-          smallest.t <- names(t.sizes)[which.min(t.sizes)]
           bw_fun <- get0(paste.("bw", bw))
           if (!is.function(bw_fun)) {
             .err(sprintf("%s is not an acceptable entry to `bw`. See `?stats::density` for allowable options",
                          add_quotes(bw, "`")))
           }
+          t.sizes <- tapply(rep.int(1, NROW(D)), D$treat, sum)
+          smallest.t <- names(t.sizes)[which.min(t.sizes)]
           bw <- bw_fun(D$var[D$treat == smallest.t])
         }
         
@@ -902,7 +897,9 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
           ggplot2::scale_fill_manual(values = colors)
       }
       
-      if (isTRUE(mirror)) bp <- bp + ggplot2::geom_hline(yintercept = 0)
+      if (isTRUE(mirror)) {
+        bp <- bp + ggplot2::geom_hline(yintercept = 0)
+      }
       
       bp <- bp + 
         ggplot2::labs(x = var.name, y = ylab, title = title, subtitle = subtitle,

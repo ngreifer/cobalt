@@ -670,7 +670,7 @@ init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
   unique.treats <- levels(treat)
   
   for (t in unique.treats) {
-    s.weights[treat == t] <- s.weights[treat == t]/mean_fast(s.weights[treat == t])
+    s.weights[treat == t] <- s.weights[treat == t] / mean_fast(s.weights[treat == t])
   }
   
   treat_t <- vapply(unique.treats, function(t) treat == t, logical(n))
@@ -680,7 +680,7 @@ init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
                           numeric(n))
   
   if (is_null(estimand)) {
-    .col_diff <- function(x) x[,1] - x[,2]
+    .col_diff <- function(x) x[, 1L] - x[, 2L]
     all_pairs <- utils::combn(unique.treats, 2L, simplify = FALSE)
     nn <- tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
                             numeric(n)))
@@ -694,7 +694,7 @@ init_energy.dist <- function(x, treat, s.weights = NULL, estimand = NULL, focal 
     nn <- tcrossprod(s.weights_n_t)
     
     if (improved) {
-      .col_diff <- function(x) x[,1L] - x[,2L]
+      .col_diff <- function(x) x[, 1L] - x[, 2L]
       all_pairs <- utils::combn(unique.treats, 2L, simplify = FALSE)
       nn <- nn + tcrossprod(vapply(all_pairs, function(p) .col_diff(s.weights_n_t[, p, drop = FALSE]),
                                    numeric(n)))
@@ -861,7 +861,9 @@ init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
     .err("`treat` must be a binary or continuous (numeric) variable")
   }
   
-  if (treat.type == "binary") treat <- as.numeric(treat == treat[1L])
+  if (treat.type == "binary") {
+    treat <- as.numeric(treat == treat[1L])
+  }
   
   x <- cbind(`(Intercept)` = 1, x, .int_poly_f2(x, poly = poly, int = int))
   
@@ -990,7 +992,9 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
   estimand <- f.e[["estimand"]]
   
   unique.treats <- unique(treat)
-  for (t in unique.treats) s.weights[treat == t] <- s.weights[treat == t] / sum(s.weights[treat == t])
+  for (t in unique.treats) {
+    s.weights[treat == t] <- s.weights[treat == t] / sum(s.weights[treat == t])
+  }
   
   is.numeric.cov <- setNames(vapply(x, is.numeric, logical(1L)), names(x))
   nunique.covs <- vapply(x, nunique, integer(1L))
@@ -999,6 +1003,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
     cutpoints <- setNames(lapply(nunique.covs[is.numeric.cov], function(nu) {
       sample(seq(min(l1.min.bin, nu), min(l1.max.bin, nu)), 1L)
     }), names(x)[is.numeric.cov])
+    
     grouping <- setNames(lapply(seq_along(x)[!is.numeric.cov], function(i) {
       nu <- nunique.covs[i]
       u <- unique(x[[i]], nmax = nu)
@@ -1014,6 +1019,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
              function(b) u[bin.assignments == b])
       
     }), names(x)[!is.numeric.cov])
+    
     list(cutpoints = cutpoints, grouping = grouping, treat_cutpoints = NULL)
   })
   
@@ -1111,7 +1117,8 @@ r2.binary <- function(init, weights = NULL) {
   if (is_null(weights)) weights <- init[["s.weights"]]
   else weights <- weights * init[["s.weights"]]
   
-  fit <- glm.fit(init$x, init$treat, weights, family = quasibinomial())
+  fit <- glm.fit(x = init$x, y = init$treat, weights = weights,
+                 family = quasibinomial())
   
   wmtreat <- sum(weights * fit$linear.predictors) / sum(weights)
   
@@ -1147,10 +1154,12 @@ smd.multinomial <- function(init, weights = NULL) {
   }
   
   unlist(lapply(init$treatment.pairs, function(x) {
-    col_w_smd(init$covs[init$treat %in% x,,drop = FALSE],
-              treat = init$treat[init$treat %in% x],
-              weights = weights[init$treat %in% x],
-              s.weights = init$s.weights[init$treat %in% x],
+    t_in_x <- which(init$treat %in% x)
+    
+    col_w_smd(init$covs[t_in_x, , drop = FALSE],
+              treat = init$treat[t_in_x],
+              weights = weights[t_in_x],
+              s.weights = init$s.weights[t_in_x],
               bin.vars = init$bin.vars,
               s.d.denom = init$s.d.denom, abs = TRUE)
   }))
@@ -1163,10 +1172,12 @@ ks.multinomial <- function(init, weights = NULL) {
   }
   
   unlist(lapply(init$treatment.pairs, function(x) {
-    col_w_ks(init$covs[init$treat %in% x,,drop = FALSE],
-             treat = init$treat[init$treat %in% x],
-             weights = weights[init$treat %in% x],
-             s.weights = init$s.weights[init$treat %in% x],
+    t_in_x <- which(init$treat %in% x)
+    
+    col_w_ks(init$covs[t_in_x, , drop = FALSE],
+             treat = init$treat[t_in_x],
+             weights = weights[t_in_x],
+             s.weights = init$s.weights[t_in_x],
              bin.vars = init$bin.vars)
   }))
 }
@@ -1178,10 +1189,12 @@ ovl.multinomial <- function(init, weights = NULL) {
   }
   
   unlist(lapply(init$treatment.pairs, function(x) {
-    col_w_ovl(init$covs[init$treat %in% x,,drop = FALSE],
-              treat = init$treat[init$treat %in% x],
-              weights = weights[init$treat %in% x],
-              s.weights = init$s.weights[init$treat %in% x],
+    t_in_x <- which(init$treat %in% x)
+    
+    col_w_ovl(init$covs[t_in_x, , drop = FALSE],
+              treat = init$treat[t_in_x],
+              weights = weights[t_in_x],
+              s.weights = init$s.weights[t_in_x],
               bin.vars = init$bin.vars,
               integrate = init$integrate)
   }))
@@ -1239,7 +1252,7 @@ r2.continuous <- function(init, weights = NULL) {
   if (is_null(weights)) weights <- init[["s.weights"]]
   else weights <- weights * init[["s.weights"]]
   
-  fit <- lm.wfit(init$x, init$treat, weights)
+  fit <- lm.wfit(x = init$x, y = init$treat, w = weights)
   
   SSresid <- sum(weights * (fit$residuals - w.m(fit$residuals, weights))^2)
   SStreat <- sum(weights * (init$treat - w.m(init$treat, weights))^2)
@@ -1628,4 +1641,3 @@ check_init <- function(init, init_class) {
   .chk_not_missing(init_class, "`init_class`")
   .chk_is(init, init_class)
 }
-

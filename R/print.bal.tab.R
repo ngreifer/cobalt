@@ -647,36 +647,34 @@ bal.tab_print.bal.tab.subclass <- function(x, p.ops) {
   }
   
   #Print subclass balance
-  if (p.ops$disp.bal.tab) {
-    if (is_not_null(p.ops$which.subclass)) {
-      s.keep.col <- setNames(c(TRUE,
-                               rep(unlist(lapply(p.ops$compute[p.ops$compute %nin% all_STATS()], function(s) {
-                                 s %in% p.ops$disp
-                               })), switch(p.ops$type, bin = 2L, cont = 1L)),
-                               unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
-                                 c(s %in% p.ops$disp,
-                                   if (is_not_null(p.ops$thresholds[[s]])) s %in% thresholds)
-                               }))),
-                             names(s.balance[[1L]]))
-      
-      cat(underline("Balance by subclass"))
-      for (i in p.ops$which.subclass) {
-        s.keep.row <- {
-          if (p.ops$imbalanced.only)
-            rowSums(apply(s.balance[[i]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2L,
-                          function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
-          else
-            rep.int(TRUE, nrow(s.balance[[i]]))
-        }
-        
-        cat("\n - - - " %+% italic("Subclass " %+% as.character(i)) %+% " - - - \n")
-        
-        if (is_null(s.keep.row)) cat(italic("No covariates to display.") %+% "\n")
-        else if (!any(s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
-        else .print_data_frame(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+  if (p.ops$disp.bal.tab && is_not_null(p.ops$which.subclass)) {
+    s.keep.col <- setNames(c(TRUE,
+                             rep(unlist(lapply(p.ops$compute[p.ops$compute %nin% all_STATS()], function(s) {
+                               s %in% p.ops$disp
+                             })), switch(p.ops$type, bin = 2L, cont = 1L)),
+                             unlist(lapply(p.ops$compute[p.ops$compute %in% all_STATS()], function(s) {
+                               c(s %in% p.ops$disp,
+                                 if (is_not_null(p.ops$thresholds[[s]])) s %in% thresholds)
+                             }))),
+                           names(s.balance[[1L]]))
+    
+    cat(underline("Balance by subclass"))
+    for (i in p.ops$which.subclass) {
+      s.keep.row <- {
+        if (p.ops$imbalanced.only)
+          rowSums(apply(s.balance[[i]][grepl(".Threshold", names(s.balance), fixed = TRUE)], 2L,
+                        function(x) !is.na(x) & startsWith(x, "Not Balanced"))) > 0
+        else
+          rep.int(TRUE, nrow(s.balance[[i]]))
       }
-      cat("\n")
+      
+      cat("\n - - - " %+% italic("Subclass " %+% as.character(i)) %+% " - - - \n")
+      
+      if (is_null(s.keep.row)) cat(italic("No covariates to display.") %+% "\n")
+      else if (!any(s.keep.row)) cat(italic("All covariates are balanced.") %+% "\n")
+      else .print_data_frame(round_df_char(s.balance[[i]][s.keep.row, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
     }
+    cat("\n")
   }
   
   #Print balance across subclasses
@@ -890,7 +888,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
 print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
   
   m.balance <- x[["Pair.Balance"]]
-
+  
   p.ops <- attr(x, "print.options")
   
   if (!missing(multi.summary)) {
@@ -982,7 +980,7 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
 }
 #' @exportS3Method NULL
 print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
-
+  
   msm.balance <- x[["Time.Balance"]]
   
   p.ops <- attr(x, "print.options")

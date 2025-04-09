@@ -520,14 +520,12 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     .err(sprintf("all entries in `%s` must have names", i))
   }
   
-  if (!all_the_same(vapply(val.list, nrow, numeric(1L)))) {
+  if (!all_the_same(vapply(val.list, NROW, numeric(1L)))) {
     .err(sprintf("not all items in `%s` have the same length", i))
   }
   
-  for (x in seq_along(val.list)) {
-    if (NCOL(val.list[[x]]) == 1L) {
-      names(val.list[[x]]) <- names(val.list)[x]
-    }
+  for (j in which(vapply(val.list, NCOL, numeric(1L)) == 1L)) {
+    names(val.list[[j]]) <- names(val.list)[j]
   }
   
   setNames(do.call("cbind", val.list),
@@ -561,14 +559,12 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       val.list <- lapply(val, .process_val, strsplit(i, ".list", fixed = TRUE)[[1L]],
                          treat.list[[ti]], covs.list[[ti]], addl.data = addl.data)
       
-      if (!all_the_same(vapply(val.list, nrow, numeric(1L)))) {
+      if (!all_the_same(vapply(val.list, NROW, numeric(1L)))) {
         .err(sprintf("not all items in `%s` have the same length", i))
       }
       
-      for (x in seq_along(val.list)) {
-        if (NCOL(val.list[[x]]) == 1L) {
-          names(val.list[[x]]) <- names(val.list)[x]
-        }
+      for (j in which(vapply(val.list, NCOL, numeric(1L)) == 1L)) {
+        names(val.list[[j]]) <- names(val.list)[j]
       }
       
       val.df <- setNames(do.call("cbind", val.list),
@@ -613,10 +609,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       }
     }
   }
-  else if (is.atomic(vec) && length(vec) > 1L) {
-    vec <- vec
-  }
-  else {
+  else if (!is.atomic(vec) || length(vec) <= 1L) {
     bad.vec <- TRUE
   }
   
@@ -667,9 +660,10 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       
       s.d.denom <- match_arg(s.d.denom, unique(c(unique.treats, allowable.s.d.denoms)), 
                              several.ok = length(weights) > 1L)
+      s.d.t.c <- s.d.denom %in% c("treated", "control")
       
-      if (any(s.d.denom %in% c("treated", "control")) && length(treat_names(treat)) == 2L) {
-        s.d.denom[s.d.denom %in% c("treated", "control")] <- treat_vals(treat)[treat_names(treat)[s.d.denom[s.d.denom %in% c("treated", "control")]]]
+      if (any(s.d.t.c) && length(treat_names(treat)) == 2L) {
+        s.d.denom[s.d.t.c] <- treat_vals(treat)[treat_names(treat)[s.d.denom[s.d.t.c]]]
       }
       else if (any(s.d.denom == "focal")) {
         check.focal <- TRUE
@@ -761,7 +755,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     names(s.d.denom) <- names(weights)
   }
   
-  if (s.d.denom.specified && any(s.d.denom %in% "weighted") && is_null(weights)) {
+  if (s.d.denom.specified && is_null(weights) && "weighted" %in% s.d.denom) {
     attr(s.d.denom, "note") <- 'note: `s.d.denom` specified as "weighted", but no weights supplied; setting to "all"'
   }
   else if (s.d.denom.specified && bad.s.d.denom && (!estimand.specified || bad.estimand)) {
@@ -1167,83 +1161,64 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
     
     if (all_the_same(imp.lengths)) { #all the same
       unsorted.imp <- is.unsorted(imp)
-      for (i in vectors) {
-        if (lengths[i] > 0L && lengths[i] != length(imp)) { 
-          if (!all_the_same(imp.lengths)) {
-            .err("the number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation")
-          }
-          
-          if (lengths[i] == imp.lengths[1L]) {
-            i_obj <- get(i, envir = env, inherits = FALSE)
-            new_i <- i_obj[rep(seq_along(i_obj), length(imp.lengths))]
-            
-            if (unsorted.imp) {
-              for (i_ in levels(imp)) new_i[imp == i_] <- i_obj
-            }
-            
-            assign(i, new_i, pos = env)
-          }
-          else {
-            problematic[i] <- TRUE
-          }
-        }
-      }
       
-      for (i in data.frames) {
-        if (lengths[i] > 0L && lengths[i] != length(imp)) {
-          if (!all_the_same(imp.lengths)) {
-            .err("the number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation")
-          }
+      for (i in all.objects[lengths > 0 & lengths != length(imp)]) {
+        if (lengths[i] != imp.lengths[1L]) {
+          problematic[i] <- TRUE
+          next
+        }
+        
+        i_obj <- get(i, envir = env, inherits = FALSE)
+        
+        if (i %in% vectors) {
+          new_i <- i_obj[rep(seq_along(i_obj), length(imp.lengths))]
           
-          if (lengths[i] == imp.lengths[1L]) {
-            i_obj <- get(i, envir = env, inherits = FALSE)
-            new_i <- i_obj[rep(seq_row(i_obj), length(imp.lengths)), , drop = FALSE]
-            
-            if (unsorted.imp) {
-              for (i_ in levels(imp)) new_i[imp == i_,] <- i_obj
+          if (unsorted.imp) {
+            for (i_ in levels(imp)) {
+              new_i[imp == i_] <- i_obj
+            }
+          }
+        }
+        else if (i %in% data.frames) {
+          new_i <- i_obj[rep(seq_row(i_obj), length(imp.lengths)), , drop = FALSE]
+          
+          if (unsorted.imp) {
+            for (i_ in levels(imp)) {
+              new_i[imp == i_,] <- i_obj
+            }
+          }
+        }
+        else if (i %in% lists) {
+          new_i <- lapply(i_obj, function(j) {
+            if (!is.factor(j) && !is_mat_like(j)) {
+              .err(sprintf("%s can only contain vectors or data frames",
+                           add_quotes(i, "`")))
             }
             
-            assign(i, new_i, pos = env)
-          }
-          else {
-            problematic[i] <- TRUE
-          }
-        }
-      }
-      for (i in lists) {
-        if (lengths[i] > 0L && lengths[i] != length(imp)) {
-          if (!all_the_same(imp.lengths)) {
-            .err("The number of units in each imputation must be the same unless other inputs provide an observation for each unit in each imputation")
-          }
-          
-          if (lengths[i] == imp.lengths[1L]) {
-            assign(i, lapply(get(i, envir = env, inherits = FALSE), function(j) {
-              if (!is.factor(j) && !is_mat_like(j)) {
-                .err(sprintf("%s can only contain vectors or data frames",
-                             add_quotes(i, "`")))
-              }
-              
-              if (is.factor(j)) {
-                newj <- j[rep(seq_along(j), length(imp.lengths))]
-                if (unsorted.imp) {
-                  for (i_ in levels(imp)) newj[imp == i_] <- j
-                }
-                
-                return(newj)
-              }
-              
-              newj <- j[rep(seq_row(j), length(imp.lengths)), , drop = FALSE]
+            if (is.factor(j)) {
+              newj <- j[rep(seq_along(j), length(imp.lengths))]
               if (unsorted.imp) {
-                for (i_ in levels(imp)) newj[imp == i_,] <- j
+                for (i_ in levels(imp)) {
+                  newj[imp == i_] <- j
+                }
               }
               
-              newj
-            }), pos = env)
-          }
-          else {
-            problematic[i] <- TRUE
-          }
+              return(newj)
+            }
+            
+            newj <- j[rep(seq_row(j), length(imp.lengths)), , drop = FALSE]
+            if (unsorted.imp) {
+              for (i_ in levels(imp)) {
+                newj[imp == i_,] <- j
+              }
+            }
+            
+            newj
+          })
         }
+        
+        assign(i, new_i, pos = env)
+        
       }
     }
     else {
@@ -1273,7 +1248,8 @@ length_imp_process <- function(vectors = NULL, data.frames = NULL, lists = NULL,
   
   if (any(problematic)) {
     if (is_not_null(original.call.to)) {
-      anchor <- paste("in the original call to", add_quotes(original.call.to, "`"))
+      anchor <- sprintf("in the original call to %s",
+                        add_quotes(original.call.to, "`"))
     }
     
     .err("%s must have the same number of observations as %s",
@@ -1641,12 +1617,14 @@ process_distance.list <- function(distance.list = NULL, datalist = list(),
     
     distance.list.out <- lapply(seq_along(distance.list), function(x) {
       process_distance(distance.list[[x]], datalist = datalist, 
-                       obj.distance = obj.distance[[x]], obj.distance.name = obj.distance.name)})
+                       obj.distance = obj.distance[[x]],
+                       obj.distance.name = obj.distance.name)})
   }
   else {
     distance.list.out <- lapply(seq_along(covs.list), function(x) {
       process_distance(distance.list, datalist = datalist, 
-                       obj.distance = obj.distance[[x]], obj.distance.name = obj.distance.name)})
+                       obj.distance = obj.distance[[x]],
+                       obj.distance.name = obj.distance.name)})
   }
   
   distance.list.out
@@ -1667,7 +1645,7 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
   if (treat.type == "multinomial") {
     
     if (estimand %nin% c("ATT", "ATC") && is_not_null(focal)) {
-      .wrn(sprintf("%s is not compatible with `focal`. Setting `estimand` to \"ATT\"",
+      .wrn(sprintf('%s is not compatible with `focal`. Setting `estimand` to "ATT"',
                    add_quotes(estimand)))
       reported.estimand <- estimand <- "ATT"
     }
@@ -1692,41 +1670,7 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
       reported.estimand <- estimand <- "ATT"
     }
     
-    if (is_null(treated) || treated %nin% unique.treat) {
-      if (is_null(focal)) {
-        if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
-          treated <- unique.treat[unique.treat.bin == 1]
-        }
-        else {
-          if (is.factor(treat)) treated <- levels(treat)[2L]
-          else treated <- unique.treat[unique.treat.bin == 1]
-          
-          if (estimand == "ATT") {
-            .msg(sprintf("assuming %s the treated level. If not, supply an argument to `focal`",
-                         word_list(treated, quotes = !is.numeric(treat), is.are = TRUE)))
-            
-          }
-          else if (estimand == "ATC") {
-            .msg(sprintf("assuming %s the control level. If not, supply an argument to `focal`",
-                         word_list(setdiff(unique.treat, treated),
-                                   quotes = !is.numeric(treat), is.are = TRUE)))
-          }
-          
-        }
-        
-        if (estimand == "ATT")
-          focal <- treated
-        else if (estimand == "ATC")
-          focal <- setdiff(unique.treat, treated)
-      }
-      else {
-        if (estimand == "ATT")
-          treated <- focal
-        else if (estimand == "ATC")
-          treated <- setdiff(unique.treat, focal)
-      }
-    }
-    else {
+    if (is_not_null(treated) && treated %in% unique.treat) {
       if (is_null(focal)) {
         if (estimand == "ATT")
           focal <- treated
@@ -1737,6 +1681,37 @@ process_focal_and_estimand <- function(focal, estimand, treat, treated = NULL) {
       if (estimand == "ATC") {
         estimand <- "ATT"
       }
+    }
+    else if (is_null(focal)) {
+      if (all(as.character(unique.treat.bin) == as.character(unique.treat))) {
+        treated <- unique.treat[unique.treat.bin == 1]
+      }
+      else {
+        if (is.factor(treat)) treated <- levels(treat)[2L]
+        else treated <- unique.treat[unique.treat.bin == 1]
+        
+        if (estimand == "ATT") {
+          .msg(sprintf("assuming %s the treated level. If not, supply an argument to `focal`",
+                       word_list(treated, quotes = !is.numeric(treat), is.are = TRUE)))
+          
+        }
+        else if (estimand == "ATC") {
+          .msg(sprintf("assuming %s the control level. If not, supply an argument to `focal`",
+                       word_list(setdiff(unique.treat, treated),
+                                 quotes = !is.numeric(treat), is.are = TRUE)))
+        }
+      }
+      
+      if (estimand == "ATT")
+        focal <- treated
+      else if (estimand == "ATC")
+        focal <- setdiff(unique.treat, treated)
+    }
+    else if (estimand == "ATT") {
+      treated <- focal
+    }
+    else if (estimand == "ATC") {
+      treated <- setdiff(unique.treat, focal)
     }
     
     if (estimand == "ATC") {
@@ -1934,7 +1909,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   if (any(rhs.df)) {
     term_is_interaction <- colSums(ttfactors != 0) > 1L
     
-    if (any_apply(seq_along(ttvars)[rhs.df], function(x) any(ttfactors[x,] != 0 & term_is_interaction))) {
+    if (any_apply(which(rhs.df), function(x) any(ttfactors[x,] != 0 & term_is_interaction))) {
       .err("interactions with data.frames are not allowed in the input formula")
     }
     
@@ -1984,7 +1959,7 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       ind <- which(colnames(ttfactors) == i)
       ttfactors <- append.ttfactor(ttfactors,
                                    add_quotes(names(addl.dfs[[ttvars[i]]]), "`"),
-                                   ind)[,-ind, drop = FALSE]
+                                   ind)[, -ind, drop = FALSE]
     }
     
     if (data.specified) {
@@ -2595,8 +2570,16 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   out
 }
 co.cbind <- function(..., deparse.level = 1) {
+  if (...length() == 0L) {
+    return(NULL)
+  }
+  
+  if (...length() == 1L) {
+    return(...elt(1L))
+  }
+  
   args <- clear_null(list(...))
-  if (length(args) <= 1) {
+  if (length(args) <= 1L) {
     return(args[[1L]])
   }
   
@@ -2613,8 +2596,16 @@ co.cbind <- function(..., deparse.level = 1) {
   out
 }
 co.rbind <- function(..., deparse.level = 1) {
+  if (...length() == 0L) {
+    return(NULL)
+  }
+  
+  if (...length() == 1L) {
+    return(...elt(1L))
+  }
+  
   args <- clear_null(list(...))
-  if (length(args) <= 1) {
+  if (length(args) <= 1L) {
     return(args[[1L]])
   }
   
@@ -2655,9 +2646,9 @@ find_perfect_col <- function(C1, C2 = NULL, fun = stats::cor) {
 }
 
 model.frame2 <- function(formula, data = NULL, na.action = "na.pass", ...) {
-  withCallingHandlers(force(data),
-                      error = function(e) .err(conditionMessage(e)),
-                      warning = function(w) .wrn(conditionMessage(w)))
+  data <- withCallingHandlers(force(data),
+                              error = function(e) .err(conditionMessage(e)),
+                              warning = function(w) .wrn(conditionMessage(w)))
   
   mf  <- tryCatch({
     stats::model.frame(formula, data = data, na.action = na.action, ...)
@@ -2666,7 +2657,8 @@ model.frame2 <- function(formula, data = NULL, na.action = "na.pass", ...) {
     ee <- conditionMessage(e)
     if (startsWith(ee, "object '") && endsWith(ee, "' not found")) {
       v <- sub("object '([^']+)' not found", "\\1", ee)
-      .err(sprintf("the variable \"%s\" cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to `data`", v))
+      .err(sprintf("the variable %s cannot be found. Be sure it is entered correctly or supply a dataset that contains this varialble to `data`",
+                   add_quotes(v, 2L)))
     }
     
     .err(ee)
@@ -2683,7 +2675,10 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
                            treat_vals = treat_vals(treat), 
                            stringsAsFactors = FALSE)
     if (NROW(w.t.mat) > 0L) {
-      problems <- vapply(seq_row(w.t.mat), function(x) all(check_if_zero(weights.df[treat == w.t.mat[x, "treat_vals"], w.t.mat[x, "weight_names"]])), logical(1L))
+      problems <- vapply(seq_row(w.t.mat),
+                         function(x) all(check_if_zero(weights.df[treat == w.t.mat[x, "treat_vals"], w.t.mat[x, "weight_names"]])),
+                         logical(1L))
+      
       if (any(problems)) {
         prob.w.t.mat <- w.t.mat[problems,]
         if (NCOL(weights.df) == 1L) {
@@ -2705,7 +2700,10 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
     }
   }
   else if (is_not_null(colnames(weights.df))) {
-    problems <- vapply(colnames(weights.df), function(wn) all(check_if_zero(weights.df[, wn])), logical(1L))
+    problems <- vapply(colnames(weights.df),
+                       function(wn) all(check_if_zero(weights.df[, wn])),
+                       logical(1L))
+    
     if (any(problems)) {
       prob.wts <- colnames(weights.df)[problems]
       if (NCOL(weights.df) == 1L) {
@@ -2730,7 +2728,9 @@ check_if_zero_weights <- function(weights.df, treat = NULL) {
   
   b <- data.frame(count = c(sum(threshold == sprintf("Balanced, <%s", thresh.val)), 
                             sum(threshold == sprintf("Not Balanced, >%s", thresh.val))))
-  rownames(b) <- c(sprintf("Balanced, <%s", thresh.val), sprintf("Not Balanced, >%s", thresh.val))
+  
+  rownames(b) <- c(sprintf("Balanced, <%s", thresh.val),
+                   sprintf("Not Balanced, >%s", thresh.val))
   
   b
 }
@@ -3451,8 +3451,12 @@ balance_table_across_subclass_cont <- function(balance.table, balance.table.subc
 check_arg_lengths <- function(...) {
   dots_names <- vapply(match.call(expand.dots = FALSE)$..., deparse1,
                        character(1L))
-  lens <- setNames(vapply(seq_len(...length()), function(i) len(...elt(i)), integer(1L)),
-                   dots_names)
+  
+  lens <- setNames(integer(...length()), dots_names)
+  for (i in seq_along(lens)) {
+    lens[i] <- len(...elt(i))
+  }
+  
   supplied <- lens > 0L
   if (!all_the_same(lens[supplied])) {
     .err(sprintf("%s must have the same number of units",

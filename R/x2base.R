@@ -1810,11 +1810,8 @@ x2base.cem.match <- function(x, ...) {
   focal <- x[["baseline.group"]]
   
   #Process pairwise
-  if (get.treat.type(treat) == "binary") {
-    #Process pairwise
-    if (is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
-      attr(treat, "treat.type") <- "multinomial"
-    }
+  if (get.treat.type(treat) == "binary" && is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
+    attr(treat, "treat.type") <- "multinomial"
   }
   
   #Process match.strata
@@ -1960,10 +1957,8 @@ x2base.weightit <- function(x, ...) {
   focal <- x[["focal"]]
   
   #Process pairwise
-  if (get.treat.type(treat) == "binary") {
-    if (is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
-      attr(treat, "treat.type") <- "multinomial"
-    }
+  if (get.treat.type(treat) == "binary" && is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
+    attr(treat, "treat.type") <- "multinomial"
   }
   
   #Process subclass
@@ -2235,14 +2230,10 @@ x2base.mimids <- function(x, ...) {
   models <- if (old_version) x[["models"]][-1L] else x[["models"]]
   
   #Process data and get imp
-  if (old_version) {
-    m.data <- {
-      if (inherits(x[["original.datasets"]], "mids")) .mids_complete(x[["original.datasets"]])
-      else .mids_complete(x[["others"]][["source"]])
-    }
-  }
-  else {
-    m.data <- .mids_complete(x[["object"]])
+  m.data <- {
+    if (!old_version) .mids_complete(x[["object"]])
+    else if (inherits(x[["original.datasets"]], "mids")) .mids_complete(x[["original.datasets"]])
+    else .mids_complete(x[["others"]][["source"]])
   }
   
   imp <- m.data[[".imp"]]
@@ -2413,14 +2404,10 @@ x2base.wimids <- function(x, ...) {
   models <- if (old_version) x[["models"]][-1L] else x[["models"]]
   
   #Process data and get imp
-  if (old_version) {
-    w.data <- {
-      if (inherits(x[["original.datasets"]], "mids")) .mids_complete(x[["original.datasets"]])
-      else .mids_complete(x[["others"]][["source"]])
-    }
-  }
-  else {
-    w.data <- .mids_complete(x[["object"]])
+  w.data <- {
+    if (!old_version) .mids_complete(x[["object"]])
+    else if (inherits(x[["original.datasets"]], "mids")) .mids_complete(x[["original.datasets"]])
+    else .mids_complete(x[["others"]][["source"]])
   }
   
   imp <- w.data[[".imp"]]
@@ -2468,10 +2455,8 @@ x2base.wimids <- function(x, ...) {
   focal <- unique(unlist(grab(models, "focal")))
   
   #Process pairwise
-  if (get.treat.type(treat) == "binary") {
-    if (is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
-      attr(treat, "treat.type") <- "multinomial"
-    }
+  if (get.treat.type(treat) == "binary" && is_null(focal) && isFALSE(...get("pairwise", TRUE))) {
+    attr(treat, "treat.type") <- "multinomial"
   }
   
   #Process subclass

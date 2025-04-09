@@ -1573,42 +1573,37 @@ unpack_bal.tab <- function(b) {
     while (A <= B) {
       Element <- NList[[A]]
       EName <- names(NList)[A]
-      if (is.list(Element)) {
-        
-        Before <- {
-          if (A == 1L) NULL
-          else NList[seq_len(A - 1L)]
-        }
-        
-        After <- {
-          if (A == B) NULL
-          else NList[(A + 1L):B]
-        }
-        
-        if (is.data.frame(Element)) {
-          Jump <- 1L
-        }
-        else {
-          NList[[A]] <- NULL
-          
-          Element <- LinearizeNestedList(Element, NameSep)
-          names(Element) <- paste(EName, names(Element), sep = NameSep)
-          Jump <- length(Element)
-          NList <- c(Before, Element, After)
-        }
-      }
-      else {
-        Jump <- 1L
+      
+      if (!is.list(Element) || is.data.frame(Element)) {
+        A <- A + 1L
+        next
       }
       
-      A <- A + Jump
+      Before <- {
+        if (A == 1L) NULL
+        else NList[seq_len(A - 1L)]
+      }
+      
+      After <- {
+        if (A == B) NULL
+        else NList[(A + 1L):B]
+      }
+      
+      NList[[A]] <- NULL
+      
+      Element <- LinearizeNestedList(Element, NameSep)
+      names(Element) <- paste(EName, names(Element), sep = NameSep)
+      
+      NList <- c(Before, Element, After)
+      
+      A <- A + length(Element)
       B <- length(NList)
     }
     
     NList
   }
   
-  namesep <- paste(c("|", unlist(lapply(1:20, function(i) sample(LETTERS, 1L))), "|"), collapse = "")
+  namesep <- paste(c("|", sample(LETTERS, 20L, replace = TRUE), "|"), collapse = "")
   
   out_ <- unpack_bal.tab_internal(b)
   out <- LinearizeNestedList(out_, NameSep = namesep)
