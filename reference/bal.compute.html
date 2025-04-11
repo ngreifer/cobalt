@@ -129,8 +129,8 @@
 <dt><code>s.mean</code>, <code>s.max</code>, <code>s.rms</code></dt>
 <dd><p>The mean, maximum, or root-mean-squared absolute Spearman correlation between the treatment and covariates, computed using <code><a href="balance-summary.html">col_w_corr()</a></code>. Can only be used with continuous treatments.</p></dd>
 
-<dt><code>distance.cov</code></dt>
-<dd><p>The squared distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.</p></dd>
+<dt><code>distance.cov</code>, <code>distance.cor</code></dt>
+<dd><p>The distance covariance or distance correlation, respectively, between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. The distance correlation is scale-free and ranges from 0 (completely independent) to 1 (perfectly associated). Can only be used with continuous treatments.</p></dd>
 
 
 </dl><p>Although statistics can be computed directly using <code>bal.compute()</code> alone, the intended workflow is to use <code>bal.init()</code> to initialize a <code>bal.init</code> object, which can then be passed to <code>bal.compute()</code> many times with different sets of weights, thereby minimizing the processing that <code>bal.init()</code> does because it is only done once. In contrast, using <code>bal.compute()</code> on covariates directly (i.e., using the default method) calls <code>bal.init()</code> internally each time, which can slow down evaluation. When speed isn't of interest or to calculate a balance statistic outside the context of balance optimization, the default method of <code>bal.compute()</code> can be a quick shortcut to avoid having to create a <code>bal.init</code> object first.</p>

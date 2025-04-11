@@ -44,10 +44,13 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="4.5.6" id="cobalt-456">cobalt 4.5.6<a class="anchor" aria-label="anchor" href="#cobalt-456"></a></h2>
 <ul><li><p>Added two new functions, <code><a href="../reference/balance-summary.html">col_w_dcov()</a></code> and <code><a href="../reference/balance-summary.html">col_w_dcorr()</a></code> for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates.</p></li>
-<li><p>Target OVL coefficients can be requested for continuous treatments by setting <code>stats = "ovl"</code>.</p></li>
+<li><p>In <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code>, <code>"distance.cor"</code> can be requested as an argument to <code>stat</code> to compute the weighted distance correlation between the treatment and the full covariate distribution.</p></li>
+<li><p>In <code><a href="../reference/bal.compute.html">bal.compute()</a></code> and <code><a href="../reference/bal.compute.html">bal.init()</a></code>, <code>"distance.cov"</code> now returns the distance covariance; previously it returned the squared distance covariance. This should not affect the relative ordering of any sets of weights evaluated on this measure.</p></li>
+<li><p>Target OVL coefficients can be requested for continuous treatments by setting <code>stats = "ovl"</code> in <code><a href="../reference/bal.tab.html">bal.tab()</a></code>.</p></li>
 <li><p>Fixed a bug when printing balance tables with longitudinal treatments that are of different types.</p></li>
 <li><p>The legend title of <code><a href="../reference/love.plot.html">love.plot()</a></code> can be now be changed more easily. See <code><a href="../reference/love.plot.html">?love.plot</a></code> for details. (<a href="https://github.com/ngreifer/cobalt/issues/92" class="external-link">#92</a>)</p></li>
 <li><p>Fixed a bug where supplying <code>var.names</code> to <code><a href="../reference/love.plot.html">love.plot()</a></code> with a modified <code>bal.tab</code> input would throw an error. (<a href="https://github.com/ngreifer/cobalt/issues/89" class="external-link">#89</a>)</p></li>
+<li><p>Added support for <code>ps</code> and <code>iptw</code> objects from <code>twang</code> when <code>version = "xgboost"</code> in the call to <code><a href="https://rdrr.io/pkg/twang/man/ps.html" class="external-link">ps()</a></code> or <code><a href="https://rdrr.io/pkg/twang/man/iptw.html" class="external-link">iptw()</a></code>.</p></li>
 <li><p>Code cleaning and refactoring to improve performance.</p></li>
 </ul></div>
     <div class="section level2">
