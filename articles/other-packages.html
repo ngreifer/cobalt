@@ -129,13 +129,13 @@ eliminating the reference category (<code>"black"</code>):</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lalonde.split</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splitfactor.html">splitfactor</a></span><span class="op">(</span><span class="va">lalonde</span>, <span class="st">"race"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lalonde.split</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##   treat age educ   race married nodegree re74 re75       re78</span></span>
-<span><span class="co">## 1     1  37   11  black       1        1    0    0  9930.0460</span></span>
-<span><span class="co">## 2     1  22    9 hispan       0        1    0    0  3595.8940</span></span>
-<span><span class="co">## 3     1  30   12  black       0        0    0    0 24909.4500</span></span>
-<span><span class="co">## 4     1  27   11  black       0        1    0    0  7506.1460</span></span>
-<span><span class="co">## 5     1  33    8  black       0        1    0    0   289.7899</span></span>
-<span><span class="co">## 6     1  22    9  black       0        1    0    0  4056.4940</span></span></code></pre>
+<pre><code><span><span class="co">##   treat age educ race_hispan race_white married nodegree re74 re75       re78</span></span>
+<span><span class="co">## 1     1  37   11           0          0       1        1    0    0  9930.0460</span></span>
+<span><span class="co">## 2     1  22    9           1          0       0        1    0    0  3595.8940</span></span>
+<span><span class="co">## 3     1  30   12           0          0       0        0    0    0 24909.4500</span></span>
+<span><span class="co">## 4     1  27   11           0          0       0        1    0    0  7506.1460</span></span>
+<span><span class="co">## 5     1  33    8           0          0       0        1    0    0   289.7899</span></span>
+<span><span class="co">## 6     1  22    9           0          0       0        1    0    0  4056.4940</span></span></code></pre>
 <p>It is possible to undo the action of <code><a href="../reference/splitfactor.html">splitfactor()</a></code> with
 <code><a href="../reference/splitfactor.html">unsplitfactor()</a></code>, which takes in a data set with dummy
 variables formed from <code><a href="../reference/splitfactor.html">splitfactor()</a></code> or otherwise and
@@ -143,11 +143,8 @@ recreates the original factor variable. If the reference category was
 dropped, its value needs to be supplied.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lalonde.unsplit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splitfactor.html">unsplitfactor</a></span><span class="op">(</span><span class="va">lalonde.split</span>, <span class="st">"race"</span>, </span>
-<span>                                 dropped.level <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: "race_" is not the stem of any variables in `data` and will be ignored.</span></span>
-<span><span class="co">## Ensure `var.name` and `sep` are correct.</span></span></code></pre>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lalonde.unsplit</span><span class="op">)</span></span></code></pre></div>
+<span>                                 dropped.level <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">lalonde.unsplit</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   treat age educ   race married nodegree re74 re75       re78</span></span>
 <span><span class="co">## 1     1  37   11  black       1        1    0    0  9930.0460</span></span>
 <span><span class="co">## 2     1  22    9 hispan       0        1    0    0  3595.8940</span></span>
@@ -193,7 +190,7 @@ scores and weights for use in propensity score weighting.
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> functions similarly to the functions
 <code><a href="https://rdrr.io/pkg/twang/man/bal.table.html" class="external-link">bal.table()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> when used with GBM
 in <code>twang</code>. Below is a simple example of its use:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#GBM PS weighting for the ATT</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">##If not yet loaded</span></span>
 <span><span class="va">covs0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -282,7 +279,7 @@ own strengths. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> fu
 <code>Matching</code>’s <code><a href="https://rdrr.io/pkg/Matching/man/MatchBalance.html" class="external-link">MatchBalance()</a></code> command, which
 yields a thorough presentation of balance. Below is a simple example of
 the use of <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>Matching</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#1:1 NN PS matching w/ replacement</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span><span class="va">covs0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -334,7 +331,7 @@ covariates and a vector of treatment status indicators, just as when
 using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> without a conditioning package. For
 example, the code below will yield the same results as the call to
 <code><a href="../reference/bal.tab.html">bal.tab()</a></code> above:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">match.out</span>, treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, covs <span class="op">=</span> <span class="va">covs0</span>,</span>
 <span>        distance <span class="op">=</span> <span class="op">~</span> <span class="va">p.score</span><span class="op">)</span></span></code></pre></div>
 <p>The other arguments to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> when using it with
@@ -372,7 +369,7 @@ example of how to use <code><a href="../reference/bal.tab.html">bal.tab()</a></c
 that some results will differ between <code>cobalt</code> and
 <code>RItools</code> because of differences in how balance is calculated
 in each.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Optimal full matching on the propensity score</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span><span class="va">covs0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -421,7 +418,7 @@ estimating propensity scores for binary, multi-category, and continuous
 treatments. <code><a href="../reference/bal.tab.html">bal.tab()</a></code> functions similarly to
 <code>CBPS</code>’s <code>balance()</code> command. Below is a simple
 example of its use with a binary treatment:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#CBPS weighting</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span><span class="va">covs0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span><span class="op">)</span><span class="op">)</span></span>
@@ -430,7 +427,7 @@ example of its use with a binary treatment:</p>
 <span><span class="co">#Generating covariate balancing propensity score weights for ATT</span></span>
 <span><span class="va">cbps.out</span> <span class="op">&lt;-</span> <span class="fu">CBPS</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/CBPS/man/CBPS.html" class="external-link">CBPS</a></span><span class="op">(</span><span class="va">f</span>, data <span class="op">=</span> <span class="va">lalonde</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "Finding ATT with T=1 as the treatment.  Set ATT=2 to find ATT with T=0 as the treatment"</span></span></code></pre>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">cbps.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                 Type Diff.Adj</span></span>
@@ -494,7 +491,7 @@ thus, <code>cobalt</code> is the only way to assess balance without
 programming, which the <code>ebal</code> documentation instructs. Below
 is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 <code>ebal</code>:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Entropy balancing</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span><span class="va">covs0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">lalonde</span>, select <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">treat</span>, <span class="va">re78</span>, <span class="va">race</span><span class="op">)</span><span class="op">)</span></span>
@@ -502,7 +499,7 @@ is a simple example of using <code><a href="../reference/bal.tab.html">bal.tab()
 <span><span class="co">#Generating entropy balancing weights</span></span>
 <span><span class="va">e.out</span> <span class="op">&lt;-</span> <span class="fu">ebal</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ebal/man/ebalance.html" class="external-link">ebalance</a></span><span class="op">(</span><span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, <span class="va">covs0</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Converged within tolerance</span></span></code></pre>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">e.out</span>, treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, covs <span class="op">=</span> <span class="va">covs0</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##             Type Diff.Adj</span></span>
@@ -541,7 +538,7 @@ balance constraints. <code><a href="../reference/bal.tab.html">bal.tab()</a></co
 <code>designmatch</code>’s <code><a href="https://rdrr.io/pkg/designmatch/man/meantab.html" class="external-link">meantab()</a></code> command but provides
 additional flexibility and convenience. Below is a simple example of
 using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>designmatch</code>:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Mixed integer programming matching</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"designmatch"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
@@ -562,7 +559,7 @@ using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>
 <span><span class="co">##   HiGHS optimizer is open... </span></span>
 <span><span class="co">##   Finding the optimal matches... </span></span>
 <span><span class="co">##   Optimal matches found</span></span></code></pre>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">dmout</span>, treat <span class="op">=</span> <span class="va">lalonde</span><span class="op">$</span><span class="va">treat</span>, covs <span class="op">=</span> <span class="va">covs0</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##             Type Diff.Adj</span></span>
@@ -593,7 +590,7 @@ minimal variance. <code><a href="../reference/bal.tab.html">bal.tab()</a></code>
 <code>sbw</code>’s <code><a href="https://rdrr.io/pkg/sbw/man/summarize.html" class="external-link">summarize()</a></code> function but provides
 additional flexibility and convenience. Below is a simple example of
 using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>sbw</code>:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Optimization-based weighting</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span><span class="va">lalonde_split</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/splitfactor.html">splitfactor</a></span><span class="op">(</span><span class="va">lalonde</span>, drop.first <span class="op">=</span> <span class="st">"if2"</span><span class="op">)</span></span>
@@ -610,7 +607,7 @@ using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>
 <span><span class="co">##   quadprog optimizer is open... </span></span>
 <span><span class="co">##   Finding the optimal weights... </span></span>
 <span><span class="co">##   Optimal weights found.</span></span></code></pre>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">sbw.out</span>, un <span class="op">=</span> <span class="cn">TRUE</span>, disp.means <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
 <span><span class="co">##                Type    M.0.Un    M.1.Un Diff.Un   M.0.Adj   M.1.Adj Diff.Adj</span></span>
@@ -652,7 +649,7 @@ aggregated across imputations. See <code>?bal.tab.imp</code> or
 <code><a href="../articles/segmented-data.html">vignette("segmented-data")</a></code> for more information about using
 <code>cobalt</code> with multiply imputed data. Below is a simple
 example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with <code>MatchThem</code>:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#PS weighting on multiply imputed data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde_mis"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
@@ -686,7 +683,7 @@ example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> 
 <span><span class="co">## All       429 185</span></span>
 <span><span class="co">## Matched   185 185</span></span>
 <span><span class="co">## Unmatched 244   0</span></span></code></pre>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Weighting for balance on covariates</span></span>
 <span><span class="va">wt.out</span> <span class="op">&lt;-</span> <span class="fu">MatchThem</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MatchThem/man/weightthem.html" class="external-link">weightthem</a></span><span class="op">(</span><span class="va">treat</span> <span class="op">~</span> <span class="va">age</span> <span class="op">+</span> <span class="va">educ</span> <span class="op">+</span> <span class="va">married</span> <span class="op">+</span></span>
 <span>                                    <span class="va">race</span> <span class="op">+</span> <span class="va">re74</span> <span class="op">+</span> <span class="va">re75</span>, </span>
@@ -723,7 +720,7 @@ binary and multi-category treatments. <code><a href="../reference/bal.tab.html">
 similarly to <code>cems</code>’s <code>imbalance()</code>. Below is a
 simple example of using <code><a href="../reference/bal.tab.html">bal.tab()</a></code> with
 <code>cem</code>:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Coarsened exact matching</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span> <span class="co">#If not yet loaded</span></span>
 <span></span>
@@ -748,7 +745,7 @@ to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or a <code>mid
 <code>cobalt</code> with multiply imputed data. Below is an example of
 using <code>cem</code> with multiply imputed data from
 <code>mice</code>:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Coarsened exact matching on multiply imputed data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde_mis"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
@@ -794,7 +791,7 @@ weighting using optimization, similar to <code>sbw</code>. No
 output in mind; rather, <code>optweight</code> was written to have
 output compatible with the <code>default</code> method of
 <code>bal.tab</code>.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Optimization-based weighting</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"lalonde"</span>, package <span class="op">=</span> <span class="st">"cobalt"</span><span class="op">)</span></span>
 <span></span>
@@ -806,7 +803,7 @@ output compatible with the <code>default</code> method of
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">ow.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##  [1] "weights"   "treat"     "covs"      "s.weights" "estimand"  "focal"    </span></span>
 <span><span class="co">##  [7] "call"      "tols"      "duals"     "info"</span></span></code></pre>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Use bal.tab() directly on the output</span></span>
 <span><span class="fu"><a href="../reference/bal.tab.html">bal.tab</a></span><span class="op">(</span><span class="va">ow.out</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="text-decoration: underline;">Balance Measures</span></span></span>
