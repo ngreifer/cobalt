@@ -96,9 +96,8 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     return(eval.parent(.call))
   }
   
-  x <- process_obj(x)
-  
-  X <- x2base(x, ..., cluster = cluster, imp = imp)
+  X <- process_obj(x) |>
+    x2base(..., cluster = cluster, imp = imp)
   
   if (is_null(X$covs.list)) {
     #Point treatment
@@ -724,9 +723,8 @@ bal.plot <- function(x, var.name, ..., which, which.sub = NULL, cluster = NULL, 
     
     #Color
     ntypes <- nlevels.treat <- nlevels(D$treat)
-    if (is_not_null(...get("colours"))) {
-      colors <- ...get("colours")
-    }
+    
+    colors <- ...get("colours", colors) #non-US spelling
     
     if (is_null(colors)) {
       colors <- gg_color_hue(ntypes)

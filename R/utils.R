@@ -1007,7 +1007,7 @@ clear_attr <- function(x, all = FALSE) {
   x
 }
 probably.a.bug <- function() {
-  fun <- paste(deparse1(sys.call(-1L)), collapse = "\n")
+  fun <- paste(deparse(sys.call(-1L)), collapse = "\n")
   .err(paste0("An error was produced and is likely a bug. Please let the maintainer know a bug was produced by the function\n",
               fun), tidy = FALSE)
 }

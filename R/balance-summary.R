@@ -703,17 +703,17 @@ col_w_dcorr <- function(mat, treat, weights = NULL, s.d.denom = "all",
 
 process_mat1 <- function(mat, ...) {
   needs.splitting <- FALSE
+  
   if (!is.matrix(mat)) {
     if (is.data.frame(mat)) {
-      if (any_apply(mat, is_, types = c("factor", "character"))) {
-        needs.splitting <- TRUE
+      if (!any_apply(mat, chk::vld_character_or_factor)) {
+        return(as.matrix(mat))
       }
-      else {
-        mat <- as.matrix(mat)
-      }
+      
+      needs.splitting <- TRUE
     }
     else if (is.numeric(mat)) {
-      mat <- matrix(mat, ncol = 1L)
+      return(matrix(mat, ncol = 1L))
     }
     else {
       .err("`mat` must be a data.frame or numeric matrix")
@@ -723,16 +723,16 @@ process_mat1 <- function(mat, ...) {
     .err("`mat` must be a data.frame or numeric matrix")
   }
   
-  if (needs.splitting) {
-    A <- ...mget(setdiff(names(formals(splitfactor)),
-                         c("data", "var.name", "drop.first", "drop.level", "split.with")))
-    A[["data"]] <- mat
-    A[["drop.first"]] <- "if2"
-    
-    mat <- as.matrix(do.call("splitfactor", A))
+  if (!needs.splitting) {
+    return(mat)
   }
   
-  mat
+  A <- ...mget(setdiff(names(formals(splitfactor)),
+                       c("data", "var.name", "drop.first", "drop.level", "split.with")))
+  A[["data"]] <- mat
+  A[["drop.first"]] <- "if2"
+  
+  as.matrix(do.call("splitfactor", A))
 }
 process_mat2 <- function(mat, ..., .bin.vars) {
   if ((!is.numeric(mat) && !is.data.frame(mat)) || length(dim(mat)) > 2L) {

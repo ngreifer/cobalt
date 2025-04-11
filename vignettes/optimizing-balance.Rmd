@@ -201,15 +201,15 @@ The mean, maximum, or root-mean-squared absolute Pearson correlation between the
 
 The mean, maximum, or root-mean-squared absolute Spearman correlation between the treatment and covariates, computed using `col_w_corr()`. Can only be used with continuous treatments.
 
-#### `distance.cov`
+#### `distance.cov`, `distance.cor`
 
-The distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. See @hulingIndependenceWeightsCausal2023a for details. Can only be used with continuous treatments.
+The distance covariance or distance correlation between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. See @hulingIndependenceWeightsCausal2023a for details. Can only be used with continuous treatments.
 
 ### Choosing a balance statistic
 
 Given all these options, how should one choose? There has been some research into which yields the best results [@franklinMetricsCovariateBalance2014; @griffinChasingBalanceOther2017; @stuartPrognosticScorebasedBalance2013; @belitserMeasuringBalanceModel2011; @parastOptimizingVariancebiasTradeoff2017], but the actual performance of each depends on the unique features of the data and system under study. For example, in the unlikely case that the true outcome model is linear in the covariates, using the `"smd"` or `"mahalanobis"` statistics will work well for binary and multi-category treatments. In more realistic cases, though, every measure has its advantages and disadvantages.
 
-For binary and multi-category treatments, only `"energy.dist"`, `"kernel.dist"`, and `"L1.med"` reflect balance on all features of the joint covariate distribution, whereas the others summarize across balance statistics computed for each covariate ignoring the others. Similarly, for continuous treatments, only `"distance.cov"` reflects balance on all features of the joint covariate distribution. Given these advantages, `"energy.dist"` and `"distance.cov"` are my preferences. That said, other measures are better studied, possibly more intuitive, and more familiar to a broad audience.
+For binary and multi-category treatments, only `"energy.dist"`, `"kernel.dist"`, and `"L1.med"` reflect balance on all features of the joint covariate distribution, whereas the others summarize across balance statistics computed for each covariate ignoring the others. Similarly, for continuous treatments, only `"distance.cor"` (or `"distance.cov"`) reflects balance on all features of the joint covariate distribution. Given these advantages, `"energy.dist"` and `"distance.cor"` are my preferences. That said, other measures are better studied, possibly more intuitive, and more familiar to a broad audience.
 
 ## Example
 
@@ -237,14 +237,14 @@ fit <- gbm::gbm(treat ~ age + educ + married + race +
                 n.trees = 4000, interaction.depth = 3,
                 shrinkage = .01, bag.fraction = 1)
 
-trees_to_test <- seq(1, 4000)
+trees_to_test <- 1:4000
 
 p.mat <- predict(fit, type = "response",
                  n.trees = trees_to_test)
 
-stats <- apply(p.mat, 2, function(p) {
+stats <- apply(p.mat, 2L, function(p) {
     # Compute ATT weights
-    w <- ifelse(lalonde$treat == 1, 1, p/(1-p))
+    w <- ifelse(lalonde$treat == 1, 1, p / (1 - p))
     
     bal.compute(ks.init, weights = w)
 })
@@ -269,8 +269,10 @@ library("WeightIt")
 w.out <- weightit(treat ~ age + educ + married + race +
                     nodegree + re74 + re75,
                 data = lalonde, estimand = "ATT",
-                method = "gbm", n.trees = 4000,
-                stop.method = "ks.max")
+                method = "gbm",
+                n.trees = 4000, interaction.depth = 3,
+                shrinkage = .01, bag.fraction = 1,
+                criterion = "ks.max")
 
 # Display the best tree:
 w.out$info$best.tree

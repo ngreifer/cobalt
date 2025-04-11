@@ -5,13 +5,19 @@
 
 * Added two new functions, `col_w_dcov()` and `col_w_dcorr()` for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates. 
 
-* Target OVL coefficients can be requested for continuous treatments by setting `stats = "ovl"`.
+* In `bal.compute()` and `bal.init()`, `"distance.cor"` can be requested as an argument to `stat` to compute the weighted distance correlation between the treatment and the full covariate distribution.
+
+* In `bal.compute()` and `bal.init()`, `"distance.cov"` now returns the distance covariance; previously it returned the squared distance covariance. This should not affect the relative ordering of any sets of weights evaluated on this measure.
+
+* Target OVL coefficients can be requested for continuous treatments by setting `stats = "ovl"` in `bal.tab()`.
 
 * Fixed a bug when printing balance tables with longitudinal treatments that are of different types.
 
 * The legend title of `love.plot()` can be now be changed more easily. See `?love.plot` for details. (#92)
 
 * Fixed a bug where supplying `var.names` to `love.plot()` with a modified `bal.tab` input would throw an error. (#89)
+
+* Added support for `ps` and `iptw` objects from `twang` when `version = "xgboost"` in the call to `ps()` or `iptw()`.
 
 * Code cleaning and refactoring to improve performance.
 

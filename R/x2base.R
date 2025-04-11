@@ -121,6 +121,9 @@ x2base.matchit <- function(x, ...) {
   }
   
   #Process subclass
+  if (is_not_null(...get("subclass"))) {
+    .err("subclasses are not allowed with matchit objects")
+  }
   subclass <- switch(method,
                      "subclassification" = as.factor(x[["subclass"]]),
                      NULL)
@@ -217,9 +220,8 @@ x2base.matchit <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  X
+  setNames(X[X.names], X.names)
 }
 
 #' @exportS3Method NULL
@@ -236,31 +238,29 @@ x2base.ps <- function(x, ...) {
   
   available.stop.methods <- names(x[["w"]])
   
-  if (is_not_null(stop.method)) {
-    if (is.character(stop.method)) {
-      rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
-                                             function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
-      if (is_null(rule1)) {
-        .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                     word_list(available.stop.methods, and.or = "or", quotes = 2L)))
-        rule1 <- available.stop.methods
-      }
-    }
-    else if (is.numeric(stop.method) && any(stop.method %in% seq_along(available.stop.methods))) {
-      if (!all(stop.method %in% seq_along(available.stop.methods))) {
-        .wrn(sprintf("there are %s stop methods available, but you requested %s",
-                     length(available.stop.methods), 
-                     word_list(setdiff(stop.method, seq_along(available.stop.methods)), and.or = "and")))
-      }
-      rule1 <- available.stop.methods[stop.method %in% seq_along(available.stop.methods)]
-    }
-    else {
-      .wrn("`stop.method` should be %s. Using all available stop methods instead",
-           word_list(available.stop.methods, and.or = "or", quotes = 2))
+  if (is_null(stop.method)) {
+    rule1 <- available.stop.methods
+  }
+  else if (is.character(stop.method)) {
+    rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
+                                           function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
+    if (is_null(rule1)) {
+      .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
+                   word_list(available.stop.methods, and.or = "or", quotes = 2L)))
       rule1 <- available.stop.methods
     }
   }
+  else if (is.numeric(stop.method) && any(stop.method %in% seq_along(available.stop.methods))) {
+    if (!all(stop.method %in% seq_along(available.stop.methods))) {
+      .wrn(sprintf("there are %s stop methods available, but you requested %s",
+                   length(available.stop.methods), 
+                   word_list(setdiff(stop.method, seq_along(available.stop.methods)), and.or = "and")))
+    }
+    rule1 <- available.stop.methods[stop.method %in% seq_along(available.stop.methods)]
+  }
   else {
+    .wrn("`stop.method` should be %s. Using all available stop methods instead",
+         word_list(available.stop.methods, and.or = "or", quotes = 2L))
     rule1 <- available.stop.methods
   }
   
@@ -287,8 +287,26 @@ x2base.ps <- function(x, ...) {
   treat <- process_treat(x[["treat"]], data, ps.data)
   
   #Process covs
-  f <- reformulate(x[["gbm.obj"]][["var.names"]])
-  covs <- get_covs_from_formula(f, data = ps.data)
+  if (is_not_null(x[["gbm.obj"]][["var.names"]])) {
+    covs <- reformulate(x[["gbm.obj"]][["var.names"]]) |>
+      get_covs_from_formula(data = ps.data)
+  }
+  else if (is_not_null(...get("formula")) || is_not_null(...get("covs"))) {
+    t.c <- .use_tc_fd(formula = ...get("formula"),
+                      data = if_null_then(data, ps.data),
+                      covs = ...get("covs"),
+                      needs.treat = FALSE)
+    
+    #Process covs
+    covs <- t.c[["covs"]]
+  }
+  else if (all(x[["gbm.obj"]][["feature_names"]] %in% names(ps.data))) {
+    covs <- reformulate(x[["gbm.obj"]][["feature_names"]]) |>
+      get_covs_from_formula(data = ps.data)
+  }
+  else {
+    .err('when `version = "xgboost"` in the call to `ps()` and any variables are categorical, `formula` or `covs` must be supplied')
+  }
   
   #Get estimand
   estimand <- x[["estimand"]]
@@ -302,7 +320,10 @@ x2base.ps <- function(x, ...) {
   #Process distance
   distance <- process_distance(...get("distance"), datalist = list(data, ps.data, covs),
                                obj.distance = x[["ps"]][s], 
-                               obj.distance.name = if (length(s) > 1L) paste.("prop.score", substr(s, 1L, nchar(s) - 4)) else "prop.score")
+                               obj.distance.name = {
+                                 if (length(s) > 1L) paste.("prop.score", substr(s, 1L, nchar(s) - 4L))
+                                 else "prop.score"
+                               })
   
   #Process focal
   focal <- ...get("focal")
@@ -419,9 +440,9 @@ x2base.ps <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "binary")
+  setNames(X[X.names], X.names) |>
+    set_class("binary")
 }
 
 #' @exportS3Method NULL
@@ -438,31 +459,29 @@ x2base.mnps <- function(x, ...) {
   
   available.stop.methods <- x[["stopMethods"]]
   
-  if (is_not_null(stop.method)) {
-    if (is.character(stop.method)) {
-      rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
-                                             function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
-      if (is_null(rule1)) {
-        .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                     word_list(available.stop.methods, and.or = "or", quotes = 2L)))
-        rule1 <- available.stop.methods
-      }
-    }
-    else if (is.numeric(stop.method) && any(stop.method %in% seq_along(available.stop.methods))) {
-      if (!all(stop.method %in% seq_along(available.stop.methods))) {
-        .wrn(sprintf("there are %s stop methods available, but you requested %s",
-                     length(available.stop.methods), 
-                     word_list(setdiff(stop.method, seq_along(available.stop.methods)), and.or = "and")))
-      }
-      rule1 <- available.stop.methods[stop.method %in% seq_along(available.stop.methods)]
-    }
-    else {
-      .wrn("`stop.method` should be %s. Using all available stop methods instead",
-           word_list(available.stop.methods, and.or = "or", quotes = 2))
+  if (is_null(stop.method)) {
+    rule1 <- available.stop.methods
+  }
+  else if (is.character(stop.method)) {
+    rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
+                                           function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
+    if (is_null(rule1)) {
+      .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
+                   word_list(available.stop.methods, and.or = "or", quotes = 2L)))
       rule1 <- available.stop.methods
     }
   }
+  else if (is.numeric(stop.method) && any(stop.method %in% seq_along(available.stop.methods))) {
+    if (!all(stop.method %in% seq_along(available.stop.methods))) {
+      .wrn(sprintf("there are %s stop methods available, but you requested %s",
+                   length(available.stop.methods), 
+                   word_list(setdiff(stop.method, seq_along(available.stop.methods)), and.or = "and")))
+    }
+    rule1 <- available.stop.methods[stop.method %in% seq_along(available.stop.methods)]
+  }
   else {
+    .wrn("`stop.method` should be %s. Using all available stop methods instead",
+         word_list(available.stop.methods, and.or = "or", quotes = 2))
     rule1 <- available.stop.methods
   }
   
@@ -489,8 +508,10 @@ x2base.mnps <- function(x, ...) {
   treat <- process_treat(x[["treatVar"]], data, mnps.data)
   
   #Process covs
-  f <- reformulate(x[["psList"]][[1L]][["gbm.obj"]][["var.names"]])
-  covs <- get_covs_from_formula(f, mnps.data)
+  .v <- if_null_then(x[["balanceVars"]],
+                     x[["psList"]][[1L]][["gbm.obj"]][["var.names"]])
+  
+  covs <- get_covs_from_formula(reformulate(.v), mnps.data)
   
   #Get estimand
   estimand <- x[["estimand"]]
@@ -602,9 +623,9 @@ x2base.mnps <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "multi")
+  setNames(X[X.names], X.names) |>
+    set_class("multi")
 }
 
 #' @exportS3Method NULL
@@ -630,8 +651,8 @@ x2base.ps.cont <- function(x, ...) {
   treat <- process_treat(x[["treat"]], data, ps.data)
   
   #Process covs
-  f <- reformulate(x[["gbm.obj"]][["var.names"]])
-  covs <- get_covs_from_formula(f, ps.data)
+  covs <- reformulate(x[["gbm.obj"]][["var.names"]]) |>
+    get_covs_from_formula(ps.data)
   
   #Get estimand
   
@@ -744,9 +765,9 @@ x2base.ps.cont <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "cont")
+  setNames(X[X.names], X.names) |>
+    set_class("cont")
 }
 
 #' @exportS3Method NULL
@@ -908,9 +929,9 @@ x2base.Match <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "binary")
+  setNames(X[X.names], X.names) |>
+    set_class("binary")
 }
 
 #' @exportS3Method NULL
@@ -1160,8 +1181,8 @@ x2base.data.frame <- function(x, ...) {
                                 datalist = list(data),
                                 name = "subclass", 
                                 which = "subclass membership",
-                                missing.okay = TRUE)
-    subclass <- factor(subclass)
+                                missing.okay = TRUE) |>
+      factor()
     weights <- NULL
   }
   
@@ -1210,7 +1231,9 @@ x2base.data.frame <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -1263,9 +1286,8 @@ x2base.data.frame <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  X
+  setNames(X[X.names], X.names)
 }
 
 #' @exportS3Method NULL
@@ -1290,8 +1312,8 @@ x2base.CBPS <- function(x, ...) {
   imp <- process_imp(imp, data, c.data)
   
   #Process treat
-  treat <- get_treat_from_formula(x[["formula"]], c.data)
-  treat <- process_treat(treat, data, c.data)
+  treat <- get_treat_from_formula(x[["formula"]], c.data) |>
+    process_treat(data, c.data)
   
   #Process covs
   covs <- get_covs_from_formula(x[["formula"]], c.data)
@@ -1376,7 +1398,9 @@ x2base.CBPS <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -1576,9 +1600,9 @@ x2base.ebalance <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "binary")
+  setNames(X[X.names], X.names) |>
+    set_class("binary")
 }
 
 #' @exportS3Method NULL
@@ -1673,7 +1697,7 @@ x2base.optmatch <- function(x, ...) {
   length_imp_process(vectors = c("treat", "subclass", "match.strata", "cluster", "s.weights", "subset", "discarded"),
                      data.frames = c("covs", "weights", "distance", "addl"),
                      imp = imp,
-                     original.call.to = paste0(deparse1(attr(x, "call")[[1L]]), "()"))
+                     original.call.to = sprintf("%s()", deparse1(attr(x, "call")[[1L]])))
   
   #Process stats and thresholds
   if (!check_if_call_from_fun(bal.plot)) {
@@ -1683,7 +1707,9 @@ x2base.optmatch <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -1699,6 +1725,7 @@ x2base.optmatch <- function(x, ...) {
       if (is_not_null(...get(STATS[[s]][["threshold"]]))) {
         thresholds[[s]] <- ...get(STATS[[s]][["threshold"]])
       }
+      
       if (is_not_null(thresholds[[s]])) {
         thresholds[[s]] <- STATS[[s]][["abs"]](thresholds[[s]])
         if (between(thresholds[[s]], STATS[[s]][["threshold_range"]])) {
@@ -1737,9 +1764,9 @@ x2base.optmatch <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "binary")
+  setNames(X[X.names], X.names) |>
+    set_class("binary")
 }
 
 #' @exportS3Method NULL
@@ -1848,7 +1875,9 @@ x2base.cem.match <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -1901,9 +1930,9 @@ x2base.cem.match <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "binary")
+  setNames(X[X.names], X.names) |>
+    set_class("binary")
 }
 
 #' @exportS3Method NULL
@@ -2002,7 +2031,9 @@ x2base.weightit <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -2164,7 +2195,9 @@ x2base.designmatch <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -2218,9 +2251,9 @@ x2base.designmatch <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "binary")
+  setNames(X[X.names], X.names) |>
+    set_class("binary")
 }
 
 #' @exportS3Method NULL
@@ -2338,7 +2371,9 @@ x2base.mimids <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -2392,9 +2427,9 @@ x2base.mimids <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "imp")
+  setNames(X[X.names], X.names) |>
+    set_class("imp")
 }
 
 #' @exportS3Method NULL
@@ -2500,7 +2535,9 @@ x2base.wimids <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -2554,9 +2591,9 @@ x2base.wimids <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "imp")
+  setNames(X[X.names], X.names) |>
+    set_class("imp")
 }
 
 #' @exportS3Method NULL
@@ -2584,8 +2621,8 @@ x2base.sbwcau <- function(x, ...) {
   treat <- process_treat(x[["ind"]], data, sbw.data)
   
   #Process covs
-  f <- reformulate(x[["bal"]][["bal_cov"]])
-  covs <- get_covs_from_formula(f, data = sbw.data)
+  covs <- reformulate(x[["bal"]][["bal_cov"]]) |>
+    get_covs_from_formula(data = sbw.data)
   
   #Get estimand
   estimand <- x[["par"]][["par_est"]]
@@ -2658,7 +2695,9 @@ x2base.sbwcau <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -2711,9 +2750,9 @@ x2base.sbwcau <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "binary")
+  setNames(X[X.names], X.names) |>
+    set_class("binary")
 }
 
 #MSMs wth multiple time points
@@ -2732,31 +2771,29 @@ x2base.iptw <- function(x, ...) {
   
   available.stop.methods <- names(x[["psList"]][[1L]][["ps"]])
   
-  if (is_not_null(stop.method)) {
-    if (is.character(stop.method)) {
-      rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
-                                             function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
-      if (is_null(rule1)) {
-        .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                     word_list(available.stop.methods, and.or = "or", quotes = 2L)))
-        rule1 <- available.stop.methods
-      }
-    }
-    else if (is.numeric(stop.method) && any(stop.method %in% seq_along(available.stop.methods))) {
-      if (!all(stop.method %in% seq_along(available.stop.methods))) {
-        .wrn(sprintf("there are %s stop methods available, but you requested %s",
-                     length(available.stop.methods), 
-                     word_list(setdiff(stop.method, seq_along(available.stop.methods)), and.or = "and")))
-      }
-      rule1 <- available.stop.methods[stop.method %in% seq_along(available.stop.methods)]
-    }
-    else {
-      .wrn("`stop.method` should be %s. Using all available stop methods instead",
-           word_list(available.stop.methods, and.or = "or", quotes = 2))
+  if (is_null(stop.method)) {
+    rule1 <- available.stop.methods
+  }
+  else if (is.character(stop.method)) {
+    rule1 <- available.stop.methods[vapply(tolower(available.stop.methods),
+                                           function(z) any(startsWith(z, tolower(stop.method))), logical(1L))]
+    if (is_null(rule1)) {
+      .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
+                   word_list(available.stop.methods, and.or = "or", quotes = 2L)))
       rule1 <- available.stop.methods
     }
   }
+  else if (is.numeric(stop.method) && any(stop.method %in% seq_along(available.stop.methods))) {
+    if (!all(stop.method %in% seq_along(available.stop.methods))) {
+      .wrn(sprintf("there are %s stop methods available, but you requested %s",
+                   length(available.stop.methods), 
+                   word_list(setdiff(stop.method, seq_along(available.stop.methods)), and.or = "and")))
+    }
+    rule1 <- available.stop.methods[stop.method %in% seq_along(available.stop.methods)]
+  }
   else {
+    .wrn("`stop.method` should be %s. Using all available stop methods instead",
+         word_list(available.stop.methods, and.or = "or", quotes = 2L))
     rule1 <- available.stop.methods
   }
   
@@ -2783,8 +2820,55 @@ x2base.iptw <- function(x, ...) {
   treat.list <- process_treat.list(grab(x[["psList"]], "treat"), data, ps.data)
   
   #Process covs.list
-  covs.list <- lapply(x[["psList"]], function(z) get_covs_from_formula(reformulate(z[["gbm.obj"]][["var.names"]]),
-                                                                       data = z[["data"]]))
+  if (all_apply(x[["psList"]], function(z) is_not_null(z[["gbm.obj"]][["var.names"]]))) {
+    covs.list <- lapply(x[["psList"]], function(z) {
+      reformulate(z[["gbm.obj"]][["var.names"]]) |>
+        get_covs_from_formula(data = z[["data"]])
+    })
+  }
+  else if (is_not_null(...get("formula.list")) || is_not_null(...get("covs.list"))) {
+    covs.list <- ...get("covs.list")
+    if (is_not_null(covs.list)) {
+      if (!is.list(covs.list) || is.data.frame(covs.list)) {
+        .err("`covs.list` must be a list of covariates for which balance is to be assessed at each time point")
+      }
+      
+      if (!all_apply(covs.list, is_mat_like)) {
+        .err("each item in `covs.list` must be a data frame")
+      }
+      
+      if (length(covs.list) != length(x[["psList"]])) {
+        .err("`covs.list` must have as many entries as time points in the call to `iptw()`")
+      }
+    }
+    
+    formula.list <- ...get("formula.list")
+    if (is_not_null(formula.list)) {
+      if (!is.list(formula.list) || !all_apply(formula.list, rlang::is_formula)) {
+        .err("`formula.list` must be a list of formulas identifying the covariates for which balance is to be assessed at each time point")
+      }
+      
+      if (length(formula.list) != length(x[["psList"]])) {
+        .err("`formula.list` must have as many entries as time points in the call to `iptw()`")
+      }
+    }
+    
+    covs.list <- lapply(seq_along(x[["psList"]]), function(i) {
+      .use_tc_fd(formula = formula.list[[i]],
+                 data = if_null_then(data, x[["psList"]][[i]][["data"]]),
+                 covs = covs.list[[i]],
+                 needs.treat = FALSE)[["covs"]]
+    })
+  }
+  else if (all_apply(x[["psList"]], function(z) all(z[["gbm.obj"]][["feature_names"]] %in% names(z[["data"]])))) {
+    covs.list <- lapply(x[["psList"]], function(z) {
+      reformulate(z[["gbm.obj"]][["feature_names"]]) |>
+        get_covs_from_formula(data = z[["data"]])
+    })
+  }
+  else {
+    .err('when `version = "xgboost"` in the call to `iptw()` and any variables are categorical, `formula.list` or `covs.list` must be supplied')
+  }
   
   #Get estimand
   estimand <- substr(toupper(s), nchar(s) - 2L, nchar(s))
@@ -2793,7 +2877,7 @@ x2base.iptw <- function(x, ...) {
   method <- rep.int("weighting", length(s))
   
   #Process addl.list 
-  addl.list <- process_addl.list(if_null_then(...get("addl.list"), ...get("addl")),
+  addl.list <- process_addl.list(...get("addl.list", ...get("addl")),
                                  datalist = list(data, ps.data),
                                  covs.list = covs.list)
   
@@ -2828,10 +2912,14 @@ x2base.iptw <- function(x, ...) {
   # }
   # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(z) get_covs_from_formula(~z))
   # 
-  distance.list <- process_distance.list(if_null_then(...get("distance.list"), ...get("distance")),
+  distance.list <- process_distance.list(...get("distance.list", ...get("distance")),
                                          datalist = list(data, ps.data),
-                                         covs.list = covs.list, obj.distance = lapply(x[["psList"]], function(z) z[["ps"]][,s,drop = FALSE]),
-                                         obj.distance.name = if (length(s) > 1) paste.("prop.score", substr(s, 1, nchar(s) - 4)) else "prop.score")
+                                         covs.list = covs.list,
+                                         obj.distance = lapply(x[["psList"]], function(z) z[["ps"]][, s, drop = FALSE]),
+                                         obj.distance.name = {
+                                           if (length(s) > 1L) paste.("prop.score", substr(s, 1L, nchar(s) - 4L))
+                                           else "prop.score"
+                                         })
   
   #Process focal
   focal <- ...get("focal")
@@ -2883,7 +2971,9 @@ x2base.iptw <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -3034,12 +3124,12 @@ x2base.data.frame.list <- function(x, ...) {
   }
   
   #Process addl.list 
-  addl.list <- process_addl.list(if_null_then(...get("addl.list"), ...get("addl")),
+  addl.list <- process_addl.list(...get("addl.list", ...get("addl")),
                                  datalist = list(data),
                                  covs.list = covs.list)
   
   #Process distance
-  distance.list <- process_distance.list(if_null_then(...get("distance.list"), ...get("distance")),
+  distance.list <- process_distance.list(...get("distance.list", ...get("distance")),
                                          datalist = list(data),
                                          covs.list = covs.list)
   
@@ -3093,7 +3183,9 @@ x2base.data.frame.list <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -3147,9 +3239,9 @@ x2base.data.frame.list <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "msm")
+  setNames(X[X.names], X.names) |>
+    set_class("msm")
 }
 
 #' @exportS3Method NULL
@@ -3227,12 +3319,12 @@ x2base.CBMSM <- function(x, ...) {
   method <- "weighting"
   
   #Process addl.list 
-  addl.list <- process_addl.list(if_null_then(...get("addl.list"), ...get("addl")),
+  addl.list <- process_addl.list(...get("addl.list", ...get("addl")),
                                  datalist = list(data, cbmsm.data),
                                  covs.list = covs.list)
   
   #Process distance
-  distance.list <- process_distance.list(if_null_then(...get("distance.list"), ...get("distance")),
+  distance.list <- process_distance.list(...get("distance.list", ...get("distance")),
                                          datalist = list(data, cbmsm.data),
                                          covs.list = covs.list, obj.distance = x[["fitted.values"]],
                                          obj.distance.name = "prop.score")
@@ -3287,7 +3379,9 @@ x2base.CBMSM <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -3386,7 +3480,7 @@ x2base.weightitMSM <- function(x, ...) {
   method <- "weighting"
   
   #Process addl.list 
-  addl.list <- process_addl.list(if_null_then(...get("addl.list"), ...get("addl")), 
+  addl.list <- process_addl.list(...get("addl.list", ...get("addl")), 
                                  datalist = list(data, weightitMSM.data,
                                                  weightitMSM.data2),
                                  covs.list = covs.list)
@@ -3403,7 +3497,7 @@ x2base.weightitMSM <- function(x, ...) {
   # else if (is_not_null(weightitMSM[["ps.list"]])) distance.list <- lapply(seq_along(weightitMSM[["ps.list"]]), function(z) data.frame(prop.score = weightitMSM[["ps.list"]][[z]]))
   # else distance.list <- NULL
   # if (is_not_null(distance.list)) distance.list <- lapply(distance.list, function(z) get_covs_from_formula(~z))
-  distance.list <- process_distance.list(if_null_then(...get("distance.list"), ...get("distance")),
+  distance.list <- process_distance.list(...get("distance.list", ...get("distance")),
                                          datalist = list(data, weightitMSM.data, weightitMSM.data2),
                                          covs.list = covs.list, obj.distance = x[["ps.list"]],
                                          obj.distance.name = "prop.score")
@@ -3457,7 +3551,9 @@ x2base.weightitMSM <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -3961,8 +4057,8 @@ x2base.default <- function(x, ...) {
                                 datalist = list(data, o.data),
                                 name = "subclass", 
                                 which = "subclass membership",
-                                missing.okay = TRUE)
-    subclass <- factor(subclass)
+                                missing.okay = TRUE) |>
+      factor()
     weights <- NULL
   }
   
@@ -4011,7 +4107,9 @@ x2base.default <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -4064,9 +4162,8 @@ x2base.default <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  X
+  setNames(X[X.names], X.names)
 }
 
 .x2base_default_msm <- function(obj, ...) {
@@ -4272,7 +4369,9 @@ x2base.default <- function(x, ...) {
     
     if (is_not_null(thresholds)) {
       thresholds <- process_thresholds(thresholds, c(stats, setdiff(all_STATS(type), stats)))
-      if (!all(names(thresholds) %in% stats)) stats <- unique(c(stats, names(thresholds)))
+      if (!all(names(thresholds) %in% stats)) {
+        stats <- unique(c(stats, names(thresholds)))
+      }
     }
     
     for (s in all_STATS(type)) {
@@ -4326,7 +4425,7 @@ x2base.default <- function(x, ...) {
   }
   
   X <- subset_X(X, subset)
-  X <- setNames(X[X.names], X.names)
   
-  set_class(X, "msm")
+  setNames(X[X.names], X.names) |>
+    set_class("msm")
 }

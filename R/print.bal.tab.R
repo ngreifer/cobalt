@@ -158,12 +158,12 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
   
   for (s in p.ops$compute) {
     if (is_not_null(baltal[[s]])) {
-      cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
+      cat(underline(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
       .print_data_frame(baltal[[s]])
       cat("\n")
     }
     if (is_not_null(maximbal[[s]])) {
-      cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+      cat(underline(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
       .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
       cat("\n")
     }
@@ -197,6 +197,7 @@ bal.tab_print.bal.tab <- function(x, p.ops) {
       cat(italic("* indicates effective sample size"))
     }
   }
+  
   invisible(x)
 }
 #' @exportS3Method NULL
@@ -224,8 +225,7 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
       print(c.balance[[i]])
       # bal.tab_print(c.balance[[i]], p.ops)
     }
-    cat(paste(strrep(" -", round(nchar(sprintf("\n - - - Cluster: %s - - - ", names(c.balance)[i])) / 2)), "\n"))
-    cat("\n")
+    cat(strrep(" -", round(nchar(sprintf("\n - - - Cluster: %s - - - ", names(c.balance)[i])) / 2)), "\n\n")
   }
   
   if (isTRUE(as.logical(p.ops$cluster.summary)) && is_not_null(c.balance.summary)) {
@@ -252,7 +252,9 @@ bal.tab_print.bal.tab.cluster <- function(x, p.ops) {
     
     if (p.ops$disp.bal.tab) {
       cat(underline("Balance summary across all clusters") %+% "\n")
-      .print_data_frame(round_df_char(c.balance.summary[, s.keep.col, drop = FALSE], p.ops$digits, na_vals = "."))
+      round_df_char(c.balance.summary[, s.keep.col, drop = FALSE],
+                    p.ops$digits, na_vals = ".") |>
+        .print_data_frame()
       cat("\n")
     }
     
@@ -324,8 +326,7 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
       print(i.balance[[i]])
       # bal.tab_print(i.balance[[i]], p.ops)
     }
-    cat(paste(strrep(" -", round(nchar(sprintf("\n - - - Imputation: %s - - - ", names(i.balance)[i])) / 2)), "\n"))
-    cat("\n")
+    cat(strrep(" -", round(nchar(sprintf("\n - - - Imputation: %s - - - ", names(i.balance)[i])) / 2)), "\n\n")
   }
   
   if (isTRUE(as.logical(p.ops$imp.summary)) && is_not_null(i.balance.summary)) {
@@ -395,7 +396,6 @@ bal.tab_print.bal.tab.imp <- function(x, p.ops) {
   }
   
   invisible(x)
-  
 }
 #' @exportS3Method NULL
 bal.tab_print.bal.tab.multi <- function(x, p.ops) {
@@ -470,12 +470,12 @@ bal.tab_print.bal.tab.multi <- function(x, p.ops) {
     
     for (s in p.ops$compute) {
       if (is_not_null(baltal[[s]])) {
-        cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
+        cat(underline(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
         .print_data_frame(baltal[[s]])
         cat("\n")
       }
       if (is_not_null(maximbal[[s]])) {
-        cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+        cat(underline(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
         .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
         cat("\n")
       }
@@ -538,8 +538,7 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
       cat("\n - - - " %+% italic("Time: " %+% as.character(i)) %+% " - - - \n")
       print(msm.balance[[i]])
     }
-    cat(paste0(strrep(" -", round(nchar(sprintf("\n - - - Time: %s - - - ", i)) / 2)), " \n"))
-    cat("\n")
+    cat(strrep(" -", round(nchar(sprintf("\n - - - Time: %s - - - ", i)) / 2)), "\n\n")
   }
   
   if (isTRUE(as.logical(p.ops$msm.summary)) && is_not_null(msm.balance.summary)) {
@@ -583,12 +582,12 @@ bal.tab_print.bal.tab.msm <- function(x, p.ops) {
     
     for (s in p.ops$compute) {
       if (is_not_null(baltal[[s]])) {
-        cat(underline(paste("Balance tally for", STATS[[s]]$balance_tally_for)) %+% "\n")
+        cat(underline(sprintf("Balance tally for %s", STATS[[s]]$balance_tally_for)) %+% "\n")
         .print_data_frame(baltal[[s]])
         cat("\n")
       }
       if (is_not_null(maximbal[[s]])) {
-        cat(underline(paste("Variable with the greatest", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
+        cat(underline(sprintf("Variable with the greatest %s", STATS[[s]]$variable_with_the_greatest)) %+% "\n")
         .print_data_frame(round_df_char(maximbal[[s]], p.ops$digits, na_vals = "."), row.names = FALSE)
         cat("\n")
       }
@@ -760,7 +759,7 @@ print_process.bal.tab.cluster <- function(x, which.cluster, cluster.summary, clu
   }
   
   if (!missing(which.cluster)) {
-    which.cluster_deparse <- paste(deparse1(substitute(which.cluster)), collapse = "")
+    which.cluster_deparse <- deparse1(substitute(which.cluster))
     
     if (which.cluster_deparse == ".none") which.cluster <- NA
     else if (which.cluster_deparse == ".all") which.cluster <- NULL
@@ -834,7 +833,7 @@ print_process.bal.tab.imp <- function(x, which.imp, imp.summary, imp.fun, ...) {
   }
   
   if (!missing(which.imp)) {
-    which.imp_deparse <- paste(deparse1(substitute(which.imp)), collapse = "")
+    which.imp_deparse <- deparse1(substitute(which.imp))
     
     if (which.imp_deparse == ".none") which.imp <- NA
     else if (which.imp_deparse == ".all") which.imp <- NULL
@@ -902,7 +901,7 @@ print_process.bal.tab.multi <- function(x, which.treat, multi.summary, ...) {
   }
   
   if (!missing(which.treat)) {
-    which.treat_deparse <- paste(deparse1(substitute(which.treat)), collapse = "")
+    which.treat_deparse <- deparse1(substitute(which.treat))
     
     if (which.treat_deparse == ".none") which.treat <- NA
     else if (which.treat_deparse == ".all") which.treat <- NULL
@@ -996,7 +995,7 @@ print_process.bal.tab.msm <- function(x, which.time, msm.summary, ...) {
   }
   
   if (!missing(which.time)) {
-    which.time_deparse <- paste(deparse1(substitute(which.time)), collapse = "")
+    which.time_deparse <- deparse1(substitute(which.time))
     
     if (which.time_deparse == ".none") which.time <- NA
     else if (which.time_deparse == ".all") which.time <- NULL

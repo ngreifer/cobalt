@@ -73,9 +73,9 @@ process_treat <- function(treat, ..., keep_values = FALSE) {
     
     treat <- .process_vector(treat, name = "treat", 
                              which = "treatment statuses", 
-                             datalist = list(...), missing.okay = FALSE)
+                             datalist = list(...), missing.okay = FALSE) |>
+      assign.treat.type()
     
-    treat <- assign.treat.type(treat)
     treat.type <- get.treat.type(treat)
     
     if (treat.type == "binary") {
@@ -136,9 +136,8 @@ process_treat.list <- function(treat.list, ...) {
     else as.character(ti)
   }, character(1L))
   
-  treat.list <- lapply(treat.list, process_treat, ...)
-  
-  setNames(treat.list, treat.list.names)
+  lapply(treat.list, process_treat, ...) |>
+    setNames(treat.list.names)
 }
 `treat_names<-` <- function(treat, value) {
   `attr<-`(treat, "treat_names", value)
@@ -156,49 +155,49 @@ subset_processed.treat <- function(x, index) {
   y <- x[index]
   treat_names(y) <- treat_names(x)[treat_vals(x) %in% unique(y)]
   treat_vals(y) <- treat_vals(x)[treat_vals(x) %in% unique(y)]
-  y <- assign.treat.type(y)
   
-  set_class(y, class(x))
+  assign.treat.type(y) |>
+    set_class(class(x))
 }
 
 initialize_X <- function() {
-  X.names <- c("covs",
-               "treat",
-               "weights",
-               "distance",
-               "addl",
-               "s.d.denom",
-               "estimand",
-               "call",
-               "cluster",
-               "imp",
-               "s.weights",
-               "focal",
-               "discarded",
-               "method",
-               "subclass",
-               "stats",
-               "thresholds")
-  make_list(X.names)
+  c("covs",
+    "treat",
+    "weights",
+    "distance",
+    "addl",
+    "s.d.denom",
+    "estimand",
+    "call",
+    "cluster",
+    "imp",
+    "s.weights",
+    "focal",
+    "discarded",
+    "method",
+    "subclass",
+    "stats",
+    "thresholds") |>
+    make_list()
 }
 initialize_X_msm <- function() {
-  X.names <- c("covs.list",
-               "treat.list",
-               "weights",
-               "distance.list",
-               "addl.list",
-               "s.d.denom",
-               "call",
-               "cluster",
-               "imp",
-               "s.weights",
-               "focal",
-               "discarded",
-               "method",
-               "subclass",
-               "stats",
-               "thresholds")
-  make_list(X.names)
+  c("covs.list",
+    "treat.list",
+    "weights",
+    "distance.list",
+    "addl.list",
+    "s.d.denom",
+    "call",
+    "cluster",
+    "imp",
+    "s.weights",
+    "focal",
+    "discarded",
+    "method",
+    "subclass",
+    "stats",
+    "thresholds") |>
+    make_list()
 }
 .weight_check <- function(w) {
   wname <- deparse1(substitute(w))
@@ -470,13 +469,14 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     }
   }
   
-  if (any(not.found)) {
-    .wrn(sprintf("the following variable(s) named in %s are not in any available data sets and will be ignored: %s",
-                 add_quotes(i, "`"), paste(val[not.found])))
-    val.df <- val.df[!not.found]
+  if (!any(not.found)) {
+    return(val.df)
   }
   
-  val.df
+  .wrn(sprintf("the following variable(s) named in %s are not in any available data sets and will be ignored: %s",
+               add_quotes(i, "`"), paste(val[not.found])))
+  
+  val.df[!not.found]
 }
 .process_data_frame <- function(i, df, treat = NULL, covs = NULL, addl.data = list(), ...) {
   if (is_null(df)) {
@@ -528,9 +528,8 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     names(val.list[[j]]) <- names(val.list)[j]
   }
   
-  setNames(do.call("cbind", val.list),
-           unlist(lapply(val.list, names)))
-  
+  do.call("cbind", val.list) |>
+    setNames(unlist(lapply(val.list, names)))
 }
 .process_list <- function(i, List, ntimes, call.phrase, treat.list = list(), covs.list = list(), addl.data = list(), ...) {
   if (is_null(List)) {
@@ -582,7 +581,8 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
     val.List[[ti]] <- val.df
   }
   
-  val.df.lengths <- vapply(clear_null(val.List), nrow, numeric(1L))
+  val.df.lengths <- val.List |> clear_null() |>
+    vapply(nrow, numeric(1L))
   
   if (!all_the_same(val.df.lengths)) {
     .err(sprintf("all columns in `%s` need to have the same number of rows", i))
@@ -1091,7 +1091,7 @@ subset_X <- function(X, subset = NULL) {
     out
   }
   
-  for (i in which(names(X) %in% subsettable())) {
+  for (i in intersect(names(X), subsettable())) {
     X[[i]] <- subset_X_internal(X[[i]], subset)
   }
   
@@ -1262,12 +1262,12 @@ process_imp <- function(imp = NULL, ...) {
     return(NULL)
   }
   
-  imp <- .process_vector(imp, 
-                         datalist = list(...),
-                         name = "imp", 
-                         which = "imputation identifiers",
-                         missing.okay = FALSE)
-  factor(imp)
+  .process_vector(imp, 
+                  datalist = list(...),
+                  name = "imp", 
+                  which = "imputation identifiers",
+                  missing.okay = FALSE) |>
+    factor()
 }
 process_stats <- function(stats = NULL, treat) {
   if (is.list(treat) && !is.data.frame(treat)) {
@@ -1366,12 +1366,12 @@ process_cluster <- function(cluster = NULL, ...) {
     return(NULL)
   }
   
-  cluster <- .process_vector(cluster, 
-                             datalist = list(...),
-                             name = "cluster", 
-                             which = "cluster membership",
-                             missing.okay = FALSE)
-  factor(cluster)
+  .process_vector(cluster, 
+                  datalist = list(...),
+                  name = "cluster", 
+                  which = "cluster membership",
+                  missing.okay = FALSE) |>
+    factor()
 }
 process_s.weights <- function(s.weights = NULL, ...) {
   if (is_null(s.weights)) {
@@ -1545,14 +1545,13 @@ process_addl.list <- function(addl.list = NULL, datalist = list(), covs.list = l
     if (length(addl.list) != length(covs.list)) {
       .err("`addl` must have an entry for each time point")
     }
-    addl.list.out <- lapply(addl.list, process_addl, datalist = datalist)
-  }
-  else {
-    addl <- process_addl(addl.list, datalist = datalist)
-    addl.list.out <- lapply(seq_along(covs.list), function(x) addl)
+    
+    return(lapply(addl.list, process_addl, datalist = datalist))
   }
   
-  addl.list.out
+  addl <- process_addl(addl.list, datalist = datalist)
+  
+  lapply(seq_along(covs.list), function(x) addl)
 }
 process_distance <- function(distance = NULL, datalist = list(), obj.distance = NULL,
                              obj.distance.name = "distance") {
@@ -1584,15 +1583,18 @@ process_distance <- function(distance = NULL, datalist = list(), obj.distance = 
     }
   }
   
-  distance <- distance_t.c[["covs"]]
-  
-  if (is_not_null(obj.distance) && !all(is.na(obj.distance))) {
-    obj.distance <- setNames(data.frame(obj.distance), obj.distance.name)
-    obj.distance <- get_covs_from_formula(data = obj.distance)
-    distance <- co.cbind(if_null_then(distance, NULL), obj.distance)
+  if (!(is_not_null(obj.distance) && !all(is.na(obj.distance)))) {
+    return(distance_t.c[["covs"]])
   }
   
-  distance
+  obj.distance <- setNames(data.frame(obj.distance), obj.distance.name)
+  obj.distance <- get_covs_from_formula(data = obj.distance)
+  
+  if (is_null(distance_t.c[["covs"]])) {
+    return(obj.distance)
+  }
+  
+  co.cbind(distance_t.c[["covs"]], obj.distance)
 }
 process_distance.list <- function(distance.list = NULL, datalist = list(),
                                   covs.list = list(), obj.distance = NULL, obj.distance.name = "distance") {
@@ -1970,8 +1972,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       data.specified <- TRUE
     }
     
-    new.form <- rebuild_f(ttfactors)
-    tt.covs <- terms(new.form, data = data)
+    tt.covs <- rebuild_f(ttfactors) |>
+      terms(data = data)
     
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- setNames(vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L], rownames(ttfactors))
@@ -2014,8 +2016,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   }
   
   if (!identical(original_ttvars, rownames(ttfactors))) {
-    new.form <- rebuild_f(ttfactors)
-    tt.covs <- terms(new.form, data = data)
+    tt.covs <- rebuild_f(ttfactors) |>
+      terms(data = data)
     
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
@@ -2061,10 +2063,11 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
       tmpcovs[[sprintf("%s:<NA>", i)]] <- as.numeric(is.na(tmpcovs[[i]]))
     }
     
-    new.form <- rebuild_f(ttfactors, tics = TRUE)
+    tt.covs <- rebuild_f(ttfactors, tics = TRUE) |>
+      terms(data = tmpcovs)
     
-    tt.covs <- terms(new.form, data = tmpcovs)
     ttfactors <- attr(tt.covs, "factors")
+    
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
     
     na_vars <- paste0(vars_with_NA, ":<NA>")
@@ -2111,8 +2114,8 @@ get_covs_from_formula <- function(f, data = NULL, factor_sep = "_", int_sep = " 
   }
   
   if (!identical(original_ttvars, rownames(ttfactors))) {
-    new.form <- rebuild_f(ttfactors)
-    tt.covs <- terms(new.form, data = data)
+    tt.covs <- rebuild_f(ttfactors) |>
+      terms(data = data)
     
     ttfactors <- attr(tt.covs, "factors")
     ttvars <- vapply(attr(tt.covs, "variables"), deparse1, character(1L))[-1L]
@@ -2650,7 +2653,7 @@ model.frame2 <- function(formula, data = NULL, na.action = "na.pass", ...) {
                               error = function(e) .err(conditionMessage(e)),
                               warning = function(w) .wrn(conditionMessage(w)))
   
-  mf  <- tryCatch({
+  tryCatch({
     stats::model.frame(formula, data = data, na.action = na.action, ...)
   },
   error = function(e) {
@@ -2663,8 +2666,6 @@ model.frame2 <- function(formula, data = NULL, na.action = "na.pass", ...) {
     
     .err(ee)
   })
-  
-  mf
 }
 
 #base.bal.tab

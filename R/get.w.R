@@ -151,7 +151,7 @@ get.w.mnps <- function(x, stop.method = NULL, s.weights = FALSE, ...) {
     rule1 <- names(x$w)[vapply(tolower(names(x$w)), function(x) any(startsWith(x, tolower(stop.method))), logical(1L))]
     if (is_null(rule1)) {
       .wrn(sprintf("`stop.method` should be %s. Using all available stop methods instead",
-                   word_list(x$stopMethods, and.or = "or", quotes = 2)))
+                   word_list(x$stopMethods, and.or = "or", quotes = 2L)))
       rule1 <- x$stopMethods
     }
   }
@@ -293,8 +293,8 @@ get.w.CBPS <- function(x, estimand, ...) {
   else estimand <- tolower(estimand)
   
   ps <- x$fitted.values
-  t <- x$y 
-  t1 <- t == 1
+  tr <- x$y 
+  t1 <- tr == 1
   
   if (is_null(estimand)) {
     estimand <- {
@@ -306,7 +306,7 @@ get.w.CBPS <- function(x, estimand, ...) {
   
   estimand <- match_arg(tolower(estimand), c("att", "atc", "ate"))
   
-  w <- rep.int(1, length(t))
+  w <- rep.int(1, length(tr))
   
   if (estimand == "att") {
     w[!t1] <- ps[!t1] / (1 - ps[!t1])
@@ -366,7 +366,8 @@ get.w.cem.match <- function(x, estimand, ...) {
   if (isTRUE(...get("use.match.strata"))) {
     if (inherits(x, "cem.match.list")) {
       return(unlist(lapply(x[vapply(x, inherits, logical(1L), "cem.match")],
-                           function(cm) strata2weights(cm[["mstrata"]], treat = cm[["groups"]], estimand = estimand)), use.names = FALSE))
+                           function(cm) strata2weights(cm[["mstrata"]], treat = cm[["groups"]], estimand = estimand)),
+                    use.names = FALSE))
     }
     
     return(strata2weights(x[["mstrata"]], treat = x[["groups"]], estimand = estimand))
@@ -401,10 +402,12 @@ get.w.designmatch <- function(x, treat, estimand, ...) {
   if (length(x[["group_id"]]) != length(x[["t_id"]]) + length(x[["c_id"]])) {
     .err("`designmatch` objects without 1:1 matching cannot be used")
   }
+  
   q <- merge(data.frame(id = seq_along(treat)), 
              data.frame(id = c(x[["t_id"]], x[["c_id"]]),
                         group = factor(x[["group_id"]])),
              all.x = TRUE, by = "id")
+  
   q <- q[order(q$id), , drop = FALSE]
   
   strata2weights(q$group, treat, estimand)

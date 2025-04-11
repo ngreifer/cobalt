@@ -87,7 +87,7 @@ bal.tab.formula.list <- function(x,
   
   X <- do.call("x2base.formula.list", c(list(x = x), args), quote = TRUE)
   
-  args[names(args) %in% names(X)] <- NULL
+  args[names(X)] <- NULL
   
   X <- .assign_X_class(X)
   
@@ -110,7 +110,7 @@ bal.tab.data.frame.list <- function(x, treat.list,
   
   X <- do.call("x2base.data.frame.list", c(list(x = x), args), quote = TRUE)
   
-  args[names(args) %in% names(X)] <- NULL
+  args[names(X)] <- NULL
   
   X <- .assign_X_class(X)
   

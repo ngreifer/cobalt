@@ -145,7 +145,7 @@ base.bal.tab.multi <- function(X,
   }
   else {
     if (any(treat_vals(X$treat) == "All")) {
-      .err("\"All\" cannot be the name of a treatment level. Please rename your treatments")
+      .err('"All" cannot be the name of a treatment level. Please rename your treatments')
     }
     balance.tables <- lapply(treat.combinations, function(t) {
       n <- length(X$treat)
@@ -153,12 +153,15 @@ base.bal.tab.multi <- function(X,
       X_t$call <- NULL
       X_t <- subset_X(X_t, c(seq_len(n), which(X$treat == treat_vals(X$treat)[t[1L]])))
       X_t$treat <- factor(rep(0:1, times = c(n, sum(X$treat == treat_vals(X$treat)[t[1L]]))),
-                          levels = c(0, 1), labels = c("All", t[1L]))
-      X_t$treat <- process_treat(X_t$treat)
+                          levels = c(0, 1), labels = c("All", t[1L])) |>
+        process_treat()
       
-      if (is_not_null(X_t$weights)) X_t$weights[X_t$treat == "All",] <- 1 #Uncomment to compare each group to unweighted dist.
+      if (is_not_null(X_t$weights)) {
+        X_t$weights[X_t$treat == "All",] <- 1 #Uncomment to compare each group to unweighted dist.
+      }
       
       X_t <- .assign_X_class(X_t)
+      
       do.call("base.bal.tab", c(list(X_t), A[setdiff(names(A), names(X_t))]), quote = TRUE)
     })
   }
@@ -173,12 +176,13 @@ base.bal.tab.multi <- function(X,
     out[["Balance.Across.Pairs"]] <- balance_summary(balance.tables, 
                                                      agg.funs = "max")
     
-    out <- c(out, threshold_summary(compute = attr(out[["Pair.Balance"]][[1L]][["Balance"]], "compute"),
-                                    thresholds = attr(out[["Pair.Balance"]][[1L]][["Balance"]], "thresholds"),
-                                    no.adj = !attr(out[["Pair.Balance"]][[1L]], "print.options")$disp.adj,
-                                    balance.table = out[["Balance.Across.Pairs"]],
-                                    weight.names = attr(out[["Pair.Balance"]][[1L]], "print.options")$weight.names,
-                                    agg.fun = "max"))
+    out <- c(out,
+             threshold_summary(compute = attr(out[["Pair.Balance"]][[1L]][["Balance"]], "compute"),
+                               thresholds = attr(out[["Pair.Balance"]][[1L]][["Balance"]], "thresholds"),
+                               no.adj = !attr(out[["Pair.Balance"]][[1L]], "print.options")$disp.adj,
+                               balance.table = out[["Balance.Across.Pairs"]],
+                               weight.names = attr(out[["Pair.Balance"]][[1L]], "print.options")$weight.names,
+                               agg.fun = "max"))
     
     out[["Observations"]] <- samplesize_multi(balance.tables, treat_names(X$treat), X$focal)
   }

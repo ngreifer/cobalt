@@ -44,7 +44,7 @@ bal.tab.optmatch <- function(x, formula = NULL, data = NULL, treat = NULL, covs 
   #Initializing variables
   X <- do.call("x2base", c(list(x), args), quote = TRUE) 
   
-  args[names(args) %in% names(X)] <- NULL
+  args[names(X)] <- NULL
   
   X <- .assign_X_class(X)
   

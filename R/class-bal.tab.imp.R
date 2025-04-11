@@ -111,7 +111,9 @@ base.bal.tab.imp <- function(X,
   #Get list of bal.tabs for each imputation
   
   out[["Imputation.Balance"]] <- lapply(levels(imp), function(i) {
-    X_i <- .assign_X_class(subset_X(X, imp == i)) 
+    X_i <- subset_X(X, imp == i) |>
+      .assign_X_class()
+    
     X_i$call <- NULL
     tryCatch({
       do.call("base.bal.tab", c(list(X_i), A[setdiff(names(A), names(X))]), quote = TRUE)
@@ -130,12 +132,13 @@ base.bal.tab.imp <- function(X,
                                                            agg.funs = agg.fun)
     
     if (length(agg.fun) == 1L) {
-      out <- c(out, threshold_summary(compute = attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "compute"),
-                                      thresholds = attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "thresholds"),
-                                      no.adj = !attr(out[["Imputation.Balance"]][[1L]], "print.options")$disp.adj,
-                                      balance.table = out[["Balance.Across.Imputations"]],
-                                      weight.names = attr(out[["Imputation.Balance"]][[1L]], "print.options")$weight.names,
-                                      agg.fun = agg.fun))
+      out <- c(out,
+               threshold_summary(compute = attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "compute"),
+                                 thresholds = attr(out[["Imputation.Balance"]][[1L]][["Balance"]], "thresholds"),
+                                 no.adj = !attr(out[["Imputation.Balance"]][[1L]], "print.options")$disp.adj,
+                                 balance.table = out[["Balance.Across.Imputations"]],
+                                 weight.names = attr(out[["Imputation.Balance"]][[1L]], "print.options")$weight.names,
+                                 agg.fun = agg.fun))
     }
     
     observations <- grab(out[["Imputation.Balance"]], "Observations")

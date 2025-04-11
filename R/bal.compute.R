@@ -46,8 +46,8 @@
 #'     \item{`s.mean`, `s.max`, `s.rms`}{
 #'         The mean, maximum, or root-mean-squared absolute Spearman correlation between the treatment and covariates, computed using [col_w_corr()]. Can only be used with continuous treatments.
 #'     }
-#'     \item{`distance.cov`}{
-#'         The squared distance covariance between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. Can only be used with continuous treatments.
+#'     \item{`distance.cov`, `distance.cor`}{
+#'         The distance covariance or distance correlation, respectively, between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. The distance correlation is scale-free and ranges from 0 (completely independent) to 1 (perfectly associated). Can only be used with continuous treatments.
 #'     }
 #' }
 #' 
@@ -116,7 +116,7 @@ bal.compute <- function(x, ...) {
 bal.compute.bal.init <- function(x,
                                  weights = NULL,
                                  ...) {
-  fun <- attr(x, "fun")
+  fun <- attr(x, "fun", TRUE)
   
   fun(init = x, weights = weights)
 }
@@ -129,9 +129,8 @@ bal.compute.default <- function(x,
                                 s.weights = NULL,
                                 weights = NULL,
                                 ...) {
-  init <- bal.init(x = x, treat = treat, stat = stat, s.weights = s.weights, ...)
-  
-  bal.compute.bal.init(init, weights = weights)
+  bal.init(x = x, treat = treat, stat = stat, s.weights = s.weights, ...) |>
+    bal.compute.bal.init(weights = weights)
 }
 
 #' @rdname bal.compute
@@ -215,7 +214,8 @@ available.stats <- function(treat.type = "binary") {
       "r2",
       "r2.2",
       "r2.3",
-      "distance.cov"
+      "distance.cov",
+      "distance.cor"
     )
   )
   
@@ -254,11 +254,13 @@ bal_stat.to.phrase <- function(stat) {
                    "s.max" = "maximum Spearman correlation",
                    "s.rms" = "root-mean-square Spearman correlation",
                    "distance.cov" = "distance covariance",
+                   "distance.cor" = "distance correlation",
                    NA_character_
   )
   
   if (anyNA(phrase)) {
-    .err(sprintf("%s is not an allowed statistic", add_quotes(stat, 2L)))
+    .err(sprintf("%s is not an allowed statistic",
+                 add_quotes(stat, 2L)))
   }
   
   phrase
@@ -873,7 +875,7 @@ init_r2 <- function(x, treat, s.weights = NULL, poly = 1, int = FALSE, ...) {
   
   set_class(out, "init_r2")
 }
-init_distance.cov <- function(x, treat, s.weights = NULL, ...) {
+init_distance.cov <- function(x, treat, s.weights = NULL, std = FALSE, ...) {
   x <- process_init_covs(x)
   bin.vars <- attr(x, "bin")
   
@@ -881,12 +883,17 @@ init_distance.cov <- function(x, treat, s.weights = NULL, ...) {
   .chk_atomic(treat)
   
   if (anyNA(x)) {
-    .err('"distance.cov" cannot be used when there are missing values in the covariates')
+    .err(sprintf("%s cannot be used when there are missing values in the covariates",
+                 add_quotes(if (std) "distance.cor" else "distance.cov", 2L)))
   }
   
   check_arg_lengths(x, treat, s.weights)
   
-  if (is_null(s.weights)) s.weights <- rep.int(1, NROW(x))
+  if (is_null(s.weights)) {
+    s.weights <- rep.int(1, NROW(x))
+  }
+  
+  s.weights <- s.weights / sum(s.weights)
   
   if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
   treat.type <- get.treat.type(treat)
@@ -905,15 +912,23 @@ init_distance.cov <- function(x, treat, s.weights = NULL, ...) {
   
   Xmeans <- colMeans(Xdist)
   Xgrand_mean <- mean(Xmeans)
-  XA <- Xdist + Xgrand_mean - outer(Xmeans, Xmeans, "+")
+  XX <- Xdist + Xgrand_mean - outer(Xmeans, Xmeans, "+")
   
   Ameans <- colMeans(Adist)
   Agrand_mean <- mean(Ameans)
   AA <- Adist + Agrand_mean - outer(Ameans, Ameans, "+")
+
+  if (std) {
+    Adenom <- sqrt(drop(t(s.weights) %*% (AA^2) %*% s.weights))
+    Xdenom <- sqrt(drop(t(s.weights) %*% (XX^2) %*% s.weights))
+    denom <- Adenom * Xdenom
+  }
+  else {
+    denom <- 1
+  }
   
-  P <- XA * AA / n^2
-  
-  out <- list(P = P,
+  out <- list(P = XX * AA,
+              denom = denom,
               s.weights = s.weights,
               treat = treat)
   
@@ -966,7 +981,7 @@ init_l1.med <- function(x, treat, s.weights = NULL, estimand = NULL, focal = NUL
         }
         x
       })
-      cutpoints[names(cutpoints) %in% names(grouping)] <- NULL
+      cutpoints[names(grouping)] <- NULL
     }
     
     #Create bins for numeric variables
@@ -1262,12 +1277,20 @@ r2.continuous <- function(init, weights = NULL) {
 distance.cov.continuous <- function(init, weights = NULL) {
   check_init(init, "init_distance.cov")
   
-  if (is_null(weights)) weights <- init[["s.weights"]]
-  else weights <- weights * init[["s.weights"]]
+  weights <- {
+    if (is_null(weights)) init[["s.weights"]]
+    else weights * init[["s.weights"]]
+  }
   
-  weights <- weights / mean_fast(weights)
+  weights <- weights / sum(weights)
   
-  drop(t(weights) %*% init[["P"]] %*% weights)
+  dcov <- drop(t(weights) %*% init[["P"]] %*% weights)
+  
+  if (dcov <= 0) {
+    return(0)
+  }
+  
+  sqrt(dcov / init[["denom"]])
 }
 
 bal_criterion <- function(treat.type, criterion) {
@@ -1629,6 +1652,15 @@ bal_criterion <- function(treat.type, criterion) {
                             distance.cov.continuous(init, weights)
                           },
                           init = init_distance.cov
+                        ),
+                        distance.cor = list(
+                          fun = function(covs, treat, weights, s.weights = NULL, init = NULL, ...) {
+                            if (is_null(init)) {
+                              init <- init_distance.cov(covs, treat, s.weights, std = TRUE)
+                            }
+                            distance.cov.continuous(init, weights)
+                          },
+                          init = function(...) init_distance.cov(..., std = TRUE)
                         )
     )
   )

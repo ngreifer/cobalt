@@ -163,7 +163,8 @@ get.cobalt.options <- function(...) {
     }
   }
   
-  setNames(lapply(paste0("cobalt_", opts), getOption), opts)
+ lapply(paste0("cobalt_", opts), getOption) |>
+   setNames(opts)
 }
 
 #set.cobalt.options

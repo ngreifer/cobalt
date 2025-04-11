@@ -180,13 +180,13 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
   #star_char
   
   p.ops <- c("which.cluster", "which.imp", "which.treat", "which.time", "disp.subclass")
-  for (i in p.ops) {
-    if (i %in% ...names()) attr(x, "print.options")[[i]] <- ...get(i)
+  for (i in intersect(...names(), p.ops)) {
+    attr(x, "print.options")[[i]] <- ...get(i)
   }
   
   #Using old argument names
-  if (is_not_null(...get("cluster.fun")) && is_null(agg.fun)) agg.fun <- ...get("cluster.fun")
-  if (is_not_null(...get("no.missing"))) drop.missing <- ...get("no.missing")
+  if (is_null(agg.fun)) agg.fun <- ...get("cluster.fun")
+  drop.missing <- ...get("no.missing", drop.missing)
   
   Agg.Fun <- NULL
   subtitle <- NULL
@@ -256,7 +256,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       #Process which. so that B_list can be shortened
       agg.over <- character()
       for (i in facet) {
-        which. <- attr(x, "print.options")[[paste0("which.", i)]]
+        which. <- attr(x, "print.options")[[paste.("which", i)]]
         
         if (is_null(which.)) {
           next
@@ -269,7 +269,10 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         
         if (i == "treat") {
           treat_levels <- attr(x, "print.options")$treat_vals_multi
-          if (is.numeric(which.)) which. <- treat_levels[which.]
+          
+          if (is.numeric(which.)) {
+            which. <- treat_levels[which.]
+          }
           
           if (!all(which. %in% treat_levels)) {
             .err("all values in `which.treat` must be names or indices of treatment levels")
@@ -318,8 +321,9 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       
       stat.cols <- expand_grid_string(vapply(stats, function(s) STATS[[s]]$bal.tab_column_prefix, character(1L)),
                                       c("Un", attr(x, "print.options")[["weight.names"]]),
-                                      collapse = ".")
-      stat.cols <- intersect(stat.cols, B_names)
+                                      collapse = ".") |>
+        intersect(B_names)
+      
       cols.to.keep <- c("variable.names", "Type", facet, stat.cols)
       
       for (b in seq_along(B_list)) {
@@ -393,7 +397,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
         }, character(1L)))
       }
       
-      B[names(B) %in% one.level.facet] <- NULL
+      B[one.level.facet] <- NULL
       
       if (sum(facet %nin% one.level.facet) > 1L) {
         .err(sprintf("at least one of %s must be `.none` or of length 1",
@@ -420,10 +424,11 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       
       stat.cols <- expand_grid_string(vapply(stats, function(s) STATS[[s]]$bal.tab_column_prefix, character(1L)),
                                       c("Un", attr(x, "print.options")[["weight.names"]]),
-                                      collapse = ".")
-      stat.cols <- intersect(stat.cols, B_names)
+                                      collapse = ".") |>
+        intersect(B_names)
       
       cols.to.keep <- c("variable.names", "Type", stat.cols)
+      
       B <- B[cols.to.keep]
       
       config <- "agg.none"
@@ -481,7 +486,7 @@ love.plot <- function(x, stats, abs, agg.fun = NULL,
       else if (is_null(names(var.names))) {
         .wrn("`var.names` is a list, but its values are unnamed")
       }
-      else{
+      else {
         new.labels <- unlist(var.names) #already a list
       }
     }
@@ -1515,16 +1520,14 @@ ggarrange_simple <- function(plots, nrow = NULL, ncol = NULL) {
   
   hw <- lapply(rep.int(1, n), grid::unit, "null")
   
-  fg <- lapply(seq_along(plots), function(i) gtable_frame(g = grobs[[i]], 
-                                                          width = hw[[i]], height = hw[[i]]))
+  rows <- lapply(seq_along(plots), function(i) {
+    gtable_frame(g = grobs[[i]], width = hw[[i]], height = hw[[i]])
+  }) |>
+    split(rep.int(1, n)) |>
+    lapply(function(r) do.call(gridExtra::gtable_cbind, r))
   
-  spl <- split(fg, rep.int(1, n))
-  
-  rows <- lapply(spl, function(r) do.call(gridExtra::gtable_cbind, r))
-  
-  gt <- do.call(gridExtra::gtable_rbind, rows)
-  
-  invisible(gt)
+  do.call(gridExtra::gtable_rbind, rows) |>
+    invisible()
 }
 
 bal.tab_class_sequence <- function(b) {
@@ -1542,17 +1545,14 @@ unpack_bal.tab <- function(b) {
       return(b[["Balance"]])
     }
     
-    b_ <- b[[which(endsWith(names(b), ".Balance"))]]
-    
-    b_list <- lapply(b_, function(i) {
-      if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) {
-        return(i[["Balance"]])
-      }
-      
-      unpack_bal.tab_internal(i)
-    })
-    
-    b_list
+    b[[which(endsWith(names(b), ".Balance"))]] |>
+      lapply(function(i) {
+        if (inherits(b, "bal.tab.bin") || inherits(b, "bal.tab.cont")) {
+          return(i[["Balance"]])
+        }
+        
+        unpack_bal.tab_internal(i)
+      })
   }
   LinearizeNestedList <- function(NList, NameSep) {
     # LinearizeNestedList:
@@ -1605,8 +1605,8 @@ unpack_bal.tab <- function(b) {
   
   namesep <- paste(c("|", sample(LETTERS, 20L, replace = TRUE), "|"), collapse = "")
   
-  out_ <- unpack_bal.tab_internal(b)
-  out <- LinearizeNestedList(out_, NameSep = namesep)
+  out <- unpack_bal.tab_internal(b) |>
+    LinearizeNestedList(NameSep = namesep)
   
   attr(out, "namesep") <- namesep
   attr(out, "class_sequence") <- bal.tab_class_sequence(b)

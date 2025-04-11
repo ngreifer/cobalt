@@ -14,7 +14,7 @@ Description: Generate balance tables and plots for covariates of groups preproce
              the above packages. Also included are methods for assessing balance in clustered or 
              multiply imputed data sets or data sets with multi-category, continuous, or longitudinal treatments.
 Depends:
-    R (>= 4.0)
+    R (>= 4.1.0)
 Imports:
     stats, utils, grid, grDevices,
     ggplot2 (>= 3.5.0),
@@ -22,8 +22,7 @@ Imports:
     gridExtra (>= 2.3),
     chk (>= 0.10.0),
     rlang (>= 1.1.5),
-    crayon (>= 1.5.3),
-    backports (>= 1.5.0)
+    crayon (>= 1.5.3)
 Suggests:
     MatchIt (>= 4.0.0),
     WeightIt (>= 1.0.0),

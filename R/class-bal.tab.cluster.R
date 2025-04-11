@@ -107,7 +107,9 @@ base.bal.tab.cluster <- function(X,
   
   #Get list of bal.tabs for each imputation
   out[["Cluster.Balance"]] <- lapply(levels(X$cluster), function(cl) {
-    X_cl <- .assign_X_class(subset_X(X, X$cluster == cl)) 
+    X_cl <- subset_X(X, X$cluster == cl) |>
+      .assign_X_class()
+    
     X_cl$call <- NULL
     
     tryCatch({
@@ -127,17 +129,17 @@ base.bal.tab.cluster <- function(X,
                                                         agg.funs = if_null_then(agg.fun, c("min", "mean", "max")))
     
     if (length(agg.fun) == 1L) {
-      out <- c(out, threshold_summary(compute = attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "compute"),
-                                      thresholds = attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "thresholds"),
-                                      no.adj = !attr(out[["Cluster.Balance"]][[1L]], "print.options")$disp.adj,
-                                      balance.table = out[["Balance.Across.Clusters"]],
-                                      weight.names = attr(out[["Cluster.Balance"]][[1L]], "print.options")$weight.names,
-                                      agg.fun = agg.fun))
+      out <- c(out,
+               threshold_summary(compute = attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "compute"),
+                                 thresholds = attr(out[["Cluster.Balance"]][[1L]][["Balance"]], "thresholds"),
+                                 no.adj = !attr(out[["Cluster.Balance"]][[1L]], "print.options")$disp.adj,
+                                 balance.table = out[["Balance.Across.Clusters"]],
+                                 weight.names = attr(out[["Cluster.Balance"]][[1L]], "print.options")$weight.names,
+                                 agg.fun = agg.fun))
     }
-    
-    observations <- grab(out[["Cluster.Balance"]], "Observations")
-    
-    out[["Observations"]] <- samplesize_across_clusters(observations)
+
+    out[["Observations"]] <- grab(out[["Cluster.Balance"]], "Observations") |>
+      samplesize_across_clusters()
   }
   
   

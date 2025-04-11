@@ -46,7 +46,7 @@ bal.tab.cem.match <-  function(x, data,
   #Initializing variables
   X <- do.call("x2base.cem.match", c(list(x), args), quote = TRUE)
   
-  args[names(args) %in% names(X)] <- NULL
+  args[names(X)] <- NULL
   
   X <- .assign_X_class(X)
   

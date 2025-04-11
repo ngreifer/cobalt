@@ -71,8 +71,12 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
     type <- tolower(type)
     type <- match_arg(type, c("df", "vec"))
   }
-  else if (is_not_null(file)) type <- "df"
-  else type <- "vec"
+  else if (is_not_null(file)) {
+    type <- "df"
+  }
+  else {
+    type <- "vec"
+  }
   
   out <- switch(type,
                 "df" = data.frame(old = vars, new = vars),
@@ -87,6 +91,6 @@ var.names <- function(b, type, file = NULL, minimal = FALSE) {
     return(invisible(out))
   }
   
-  .wrn("only `type = \"df\"` is compatible with a file name")
+  .wrn('only `type = "df"` is compatible with a file name')
   out
 }

@@ -98,15 +98,17 @@ base.bal.tab.base <- function(X,
     X$s.d.denom <- NULL
   }
   
-  out[["Balance"]] <- do.call("balance_table", c(list(C, type = type, weights = X$weights, treat = X$treat, 
-                                                      s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
-                                                      continuous = continuous, binary = binary, 
-                                                      thresholds = X$thresholds,
-                                                      un = un, disp = disp, 
-                                                      stats = X$stats, abs = abs, 
-                                                      no.adj = no.adj, quick = quick, 
-                                                      var_types = var_types,
-                                                      s.d.denom.list = X$s.d.denom.list), A),
+  out[["Balance"]] <- do.call("balance_table",
+                              c(list(C, type = type, weights = X$weights, treat = X$treat, 
+                                     s.d.denom = X$s.d.denom, s.weights = X$s.weights, 
+                                     continuous = continuous, binary = binary, 
+                                     thresholds = X$thresholds,
+                                     un = un, disp = disp, 
+                                     stats = X$stats, abs = abs, 
+                                     no.adj = no.adj, quick = quick, 
+                                     var_types = var_types,
+                                     s.d.denom.list = X$s.d.denom.list),
+                                A),
                               quote = TRUE)
   
   #Reassign disp... and ...threshold based on balance table output
@@ -114,11 +116,12 @@ base.bal.tab.base <- function(X,
   thresholds <- attr(out[["Balance"]], "thresholds")
   disp <- attr(out[["Balance"]], "disp")
   
-  out <- c(out, threshold_summary(compute = compute,
-                                  thresholds = thresholds,
-                                  no.adj = no.adj,
-                                  balance.table = out[["Balance"]],
-                                  weight.names = names(X$weights)))
+  out <- c(out,
+           threshold_summary(compute = compute,
+                             thresholds = thresholds,
+                             no.adj = no.adj,
+                             balance.table = out[["Balance"]],
+                             weight.names = names(X$weights)))
   
   out[["Observations"]] <- samplesize(treat = X$treat, type = type, weights = X$weights,
                                       s.weights = X$s.weights, method = X$method,

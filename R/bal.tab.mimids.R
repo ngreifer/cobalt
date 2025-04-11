@@ -62,7 +62,7 @@ bal.tab.mimids <- function(x, stats, int = FALSE, poly = 1, distance = NULL, add
   #Initializing variables
   X <- do.call("x2base", c(list(x), args), quote = TRUE)
   
-  args[names(args) %in% names(X)] <- NULL
+  args[names(X)] <- NULL
   
   X <- .assign_X_class(X)
   
