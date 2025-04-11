@@ -61,6 +61,10 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
   #var.name= the name of the variable to split when data is specified
   #data=data set to be changed
   
+  if (is.matrix(data) || length(dim(data)) == 2L) {
+    data <- as.data.frame(data)
+  }
+  
   if (is.data.frame(data)) {
     data <- as.data.frame(data)
     if (check) {
@@ -90,7 +94,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
                                 "name of a factor variable",
                                 "names of factor variables")))
         }
-        var.name <- setdiff(var.name, factor.names)
+        var.name <- intersect(var.name, factor.names)
       }
       
     }
@@ -112,7 +116,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
                               "names of variables")))
       }
       
-      var.name <- var.name[var.name %in% names(data)]
+      var.name <- intersect(var.name, names(data))
     }
     
     if (is_not_null(split.with)) {
@@ -138,7 +142,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       }
     }
   }
-  else if (is.atomic(data)) {
+  else if (is.atomic(data) && length(dim(data)) <= 1L) {
     dep <- deparse1(substitute(data))
     data <- data.frame(data)
     if (missing(var.name) || is_null(var.name)) {
@@ -193,31 +197,32 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
   
   for (v in var.name) {
     x <- factor(data[v][[1L]])
-    na.level <- if (anyNA(x)) nlevels(x) + 1L else 0L
-    new.levels <- c(levels(x), if (na.level) NA_character_)
+    anyNAx <- anyNA(x)
+    na.level <- if (anyNAx) nlevels(x) + 1L else 0L
+    new.levels <- c(levels(x), if (anyNAx) NA_character_)
     
-    if (length(new.levels) > 1L) {
-      k <- make_df(paste(v, new.levels, sep = sep), nrow(data),
-                   types = "integer")
-      
+    if (length(new.levels) == 1L && drop.singleton) {
+      data[[v]] <- NULL
+      next
+    }
+    
+    k <- make_df(paste(v, new.levels, sep = sep), nrow(data),
+                 types = "integer")
+    
+    if (anyNAx) {
       for (i in seq_col(k)) {
-        if (i != na.level) k[!is.na(x) & x == new.levels[i], i] <- 1L
-        else k[is.na(x), i] <- 1L
+        if (i == na.level) k[[i]][is.na(x)] <- 1L
+        else k[[i]][!is.na(x) & x == new.levels[i]] <- 1L
       }
-      
-      if (na.level == 0L) drop.na[v] <- FALSE
-      else if (drop.na[v]) is.na(k)[is.na(x), -na.level] <- TRUE
-      
     }
     else {
-      .chk_flag(drop.singleton)
-      if (drop.singleton) {
-        data[[v]] <- NULL
-        next
+      for (i in seq_col(k)) {
+        k[[i]][x == new.levels[i]] <- 1L
       }
-      
-      k <- make_df(paste(v, new.levels[1L], sep = sep), length(x), types = "integer")
     }
+    
+    if (!anyNAx) drop.na[v] <- FALSE
+    else if (drop.na[v]) is.na(k)[is.na(x), -na.level] <- TRUE
     
     dropl <- rlang::rep_named(new.levels, FALSE)
     if (is_not_null(drop.level)) {
@@ -227,15 +232,14 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
       }
       dropl[drop.level] <- TRUE
     }
-    else {
-      if (!identical(drop.first, "if2") && !chk::vld_flag(drop.first)) {
-        .err("`drop.first` must be `TRUE`, `FALSE`, or \"if2\"")
-      }
-      
+    else if (identical(drop.first, "if2") || chk::vld_flag(drop.first)) {
       if ((ncol(k) == 2L && (isTRUE(drop.first) || drop.first == "if2")) ||
           (ncol(k) > 2L && isTRUE(drop.first))) {
         dropl[1L] <- TRUE
       }
+    }
+    else {
+      .err('`drop.first` must be `TRUE`, `FALSE`, or "if2"')
     }
     
     if (drop.na[v]) {
@@ -244,7 +248,7 @@ splitfactor <- function(data, var.name, drop.level = NULL, drop.first = TRUE,
     
     for (i in seq_col(k)) {
       attr(k[[i]], "split.var") <- v
-      attr(k[[i]], "level") <- if (i == na.level) NA_character_ else new.levels[i]
+      attr(k[[i]], "level") <- new.levels[i]
     }
     
     k[dropl] <- NULL
@@ -322,7 +326,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
   
   if (missing(var.name)) {
     split.dummies <- vapply(data, function(x) {
-      is_not_null(attr(x, "split.var")) && is_not_null(attr(x, "level")) &&
+      is_not_null(attr(x, "split.var", TRUE)) && is_not_null(attr(x, "level", TRUE)) &&
         all(x %in% c(0L, 1L, NA_integer_))
     }, logical(1L))
     
@@ -330,7 +334,7 @@ unsplitfactor <- function(data, var.name, dropped.level = NULL, dropped.na = TRU
       .err("`var.name` must be a string containing the name of the variables to unsplit")
     }
     
-    var.name <- unique(vapply(data[split.dummies], attr, character(1L), "split.var"))
+    var.name <- unique(vapply(data[split.dummies], attr, character(1L), "split.var", TRUE))
   }
   else if (!is.character(var.name)) {
     .err("`var.name` must be a string containing the name of the variables to unsplit")
