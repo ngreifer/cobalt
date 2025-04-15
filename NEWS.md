@@ -1,7 +1,7 @@
 `cobalt` News and Updates
 ======
 
-# cobalt (development version)
+# cobalt 4.6.0
 
 * Added two new functions, `col_w_dcov()` and `col_w_dcorr()` for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates. 
 
