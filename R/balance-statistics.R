@@ -239,7 +239,7 @@ STATS[["ovl.coefficients"]] <- {list(
     c(lower = base::abs(threshold))
   },
   love.plot_axis_scale = ggplot2::scale_x_continuous,
-  fun = function(C, treat, weights, s.weights, bin.vars, integrate = FALSE, subset = NULL, ...) {
+  fun = function(C, treat, weights, s.weights, bin.vars, integrate = TRUE, subset = NULL, ...) {
     col_w_ovl(mat = C, treat = treat, weights = weights, s.weights = s.weights, bin.vars = bin.vars,
               subset = subset, integrate = integrate, ...)
   }
@@ -507,7 +507,7 @@ STATS[["ovl.coefficients.target"]] <- {list(
     c(lower = base::abs(threshold))
   },
   love.plot_axis_scale = ggplot2::scale_x_continuous,
-  fun = function(C, treat, weights, s.weights, bin.vars, integrate = FALSE, subset = NULL, ...) {
+  fun = function(C, treat, weights, s.weights, bin.vars, integrate = TRUE, subset = NULL, ...) {
     n <- nrow(C)
     C <- rbind(C, C)
     treat <- rep(c(0, 1), each = n)

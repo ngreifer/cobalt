@@ -34,7 +34,7 @@
 #' @param bin.vars a vector used to denote whether each variable is binary or not. Can be a `logical` vector with length equal to the number of columns of `mat` or a vector of numeric indices or character names of the binary variables. If missing (the default), the function will figure out which covariates are binary or not, which can increase computation time. If `NULL`, it will be assumed no variables are binary. All functions other than `col_w_mean()` treat binary variables different from continuous variables. If a factor or character variable is in `mat`, all the dummies created will automatically be marked as binary, but it should still receive an entry when `bin.vars` is supplied as `logical`.
 #' @param weighted.weights for `col_w_smd()`, `col_w_cov()`, `col_w_corr()`, `col_w_dcov()`, and `col_w_dcorr()`, when `std = TRUE` and `s.d.denom = "weighted"`, a vector of weights to be applied to the computation of the denominator standard deviation. If not specified, will use the argument to `weights`. When `s.d.denom` is not `"weighted"`, this is ignored. The main purpose of this is to allow `weights` to be `NULL` while weighting the denominator standard deviations for assessing balance in the unweighted sample but using the standard deviations of the weighted sample.
 #' @param type for `col_w_cov()` and `col_w_corr()`, the type of covariance/correlation to be computed. Allowable options include `"pearson"` and `"spearman"`. When `"spearman"` is requested, the covariates and treatment are first turned into ranks using [rank()] with `na.last = "keep"`.
-#' @param integrate `logical`; for `col_w_ovl()`, whether to use [integrate()] to calculate the area of overlap or the distance between the densities, respectively. If `FALSE`, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts), but the integral can fail sometimes and thus is less stable. The default (`FALSE`) is to use the Riemann sum.
+#' @param integrate `logical`; for `col_w_ovl()`, whether to use [integrate()] to calculate the area of overlap for continuous variables. If `FALSE`, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts). When `TRUE`, `integrate()` will be tried, and if it fails, the Riemann sum will be used as a fallback. The default (`TRUE`) is to use `integrate()` when possible.
 #' @param steps for `col_w_ovl()` when `integrate = FALSE`, the number of points to use to compute the Riemann sum to approximate the integral. Default is 1001 for 1000 partitions.
 #' @param ... for all functions, additional arguments supplied to [splitfactor()] when `mat` is a data.frame. `data`, `var.name`, `drop.first`, and `drop.level` are ignored; `drop.first` is automatically set to `"if2"`. For `col_w_ovl()`, other arguments passed to [density()] besides `x` and `weights`. Note that the default value for `bw` when unspecified is `"nrd"` rather than the default in `density()`, which is `"nrd0"`.
 #' @returns A vector of balance statistics, one for each variable in `mat`. If `mat` has column names, the output will be named as well.
@@ -377,7 +377,7 @@ col_w_ks <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, sub
 #' @rdname balance-summary
 #' @export 
 col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars, 
-                      subset = NULL, na.rm = TRUE, integrate = FALSE, steps = 1001L, ...) {
+                      subset = NULL, na.rm = TRUE, integrate = TRUE, steps = 1001L, ...) {
   
   .chk_not_missing(treat, "`treat`")
   .chk_atomic(treat)
@@ -437,7 +437,8 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
     
     bw <- ...get("bw", "nrd")
     
-    A <- ...mget(setdiff(names(formals(density_neg_w_safe)), c("x", "weights", "bw")))
+    A <- ...mget(setdiff(names(formals(density_neg_w_safe)),
+                         c("x", "weights", "bw")))
     
     bw_fun <- get0(paste.("bw", bw))
     if (!is.function(bw_fun)) {
@@ -503,14 +504,14 @@ col_w_ovl <- function(mat, treat, weights = NULL, s.weights = NULL, bin.vars,
         pmin(f1(z), f0(z))
       }
       
-      s <- {
-        if (integrate) try(integrate(fn, lower = min.c, upper = max.c)$value,
-                           silent = TRUE)
-        else intapprox(fn, min.c, max.c, steps = steps, method = "midpoint")
+      s <- NULL
+      if (integrate) {
+        s <- try(integrate(fn, lower = min.c, upper = max.c)$value,
+                 silent = TRUE)
       }
       
-      if (is_error(s)) {
-        return(NA_real_)
+      if (null_or_error(s)) {
+        s <- intapprox(fn, min.c, max.c, steps = steps, method = "midpoint")
       }
       
       min(max(1 - s, 0), 1) #Reverse: measure imbalance
