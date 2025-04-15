@@ -52,8 +52,8 @@ treated group, i.e.,
 $\bar{x}_{1w} = \frac{1}{\sum_{i:A_i = 1}{w_i}}\sum_{i:A_i=1}{w_ix_i}$,
 and similarly for the control group. Critically, the standardization
 factor $s^*$ is the same before and after weighting. I will repeat,
-**the standardization factor** $s^*$ is the same before and after
-weighting. I don't mean it has the same formula, it mean it is literally
+**the standardization factor** $s^*$ **is the same before and after
+weighting**. I don't mean it has the same formula, it mean it is literally
 the same value. I explain in more detail in a question below why this is
 the case.
 
@@ -186,14 +186,14 @@ difference standardize all variables, including binary variables.
 ### Why do you use the same standardization factor before and after adjustment?
 
 It is important to remember that bias is a function of the difference in
-means of a covariate and standardization is a tool to aid in balance
+means of a covariate, and standardization is a just tool to aid in balance
 assessment. As a tool, it should reflect imbalance accurately (i.e.,
 without incorporating extraneous information), but there is no
 statistical "truth" about the nature of the standardization factor. I
 use the same standardization factor before and after adjustment as
 recommended by @stuartDevelopingPracticalRecommendations2008. The
 rationale is that by isolating the SMD to reflect changes in the
-difference in means, why can more accurately assess improvement in
+difference in means, one can more accurately assess improvement in
 balance rather than combining information about the difference in means
 with information about the variability of the covariate, which may
 change in a variety of ways after adjustment. I describe a specific
