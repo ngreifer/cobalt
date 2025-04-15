@@ -842,7 +842,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
   
   s.d.denom
 }
-.compute_s.d.denom <- function(mat, treat, s.d.denom = "pooled", s.weights = NULL,
+.compute_s.d.denom <- function(mat, treat = NULL, s.d.denom = "pooled", s.weights = NULL,
                                bin.vars = NULL, subset = NULL, weighted.weights = NULL,
                                to.sd = rep.int(TRUE, ncol(mat)), na.rm = TRUE) {
   denoms <- setNames(rep.int(1, ncol(mat)), colnames(mat))
@@ -876,8 +876,13 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
       .err("`subset` must be a logical vector")
     }
     
-    if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
-    cont.treat <- get.treat.type(treat) == "continuous"
+    if (is_null(treat)) {
+      cont.treat <- TRUE
+    }
+    else {
+      if (!has.treat.type(treat)) treat <- assign.treat.type(treat)
+      cont.treat <- get.treat.type(treat) == "continuous"
+    }
     
     if (cont.treat) {
       unique.treats <- NULL
@@ -945,7 +950,7 @@ strata2weights <- function(strata, treat, estimand = NULL, focal = NULL) {
                                               bin.vars = bin.vars[to.sd][zero_sds], na.rm = na.rm))
     }
     
-    if (cont.treat) {
+    if (cont.treat && is_not_null(treat)) {
       treat.sd <- denom.fun(mat = treat, treat = NULL, s.weights = s.weights,
                             weighted.weights = weighted.weights, bin.vars = FALSE,
                             unique.treats = NULL, na.rm = na.rm)
