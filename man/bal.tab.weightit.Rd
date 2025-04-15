@@ -94,8 +94,8 @@ data("lalonde", package = "cobalt")
 w.out1 <- weightit(treat ~ age + educ + race + 
                        married + nodegree + re74 + re75, 
                    data = lalonde, method = "glm")
-bal.tab(w.out1, un = TRUE, m.threshold = .1, 
-        v.threshold = 2)
+bal.tab(w.out1, un = TRUE, 
+        thresholds = c(m = .1, v = 2))
 
 ## Weighting with a multi-category treatment
 w.out2 <- weightit(race ~ age + educ + married + 

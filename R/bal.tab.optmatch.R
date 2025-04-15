@@ -12,7 +12,7 @@
 #' 
 #' @inherit bal.tab.Match seealso
 #' 
-#' @examplesIf requireNamespace("ebal", quietly = TRUE)
+#' @examplesIf requireNamespace("optmatch", quietly = TRUE)
 #' data("lalonde", package = "cobalt")
 #' 
 #' lalonde$prop.score <- glm(treat ~ age + educ + race + 

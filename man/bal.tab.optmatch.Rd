@@ -92,7 +92,7 @@ Generates balance statistics for output objects from \pkg{optmatch}.
 \code{bal.tab()} generates a list of balance summaries for the object given. The input to \code{bal.tab.optmatch()} must include either both \code{formula} and \code{data} or just \code{covs} (\code{treat} is not necessary).
 }
 \examples{
-\dontshow{if (requireNamespace("ebal", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("optmatch", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 data("lalonde", package = "cobalt")
 
 lalonde$prop.score <- glm(treat ~ age + educ + race + 

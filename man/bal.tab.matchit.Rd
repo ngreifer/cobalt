@@ -86,15 +86,16 @@ Generates balance statistics for \code{matchit} objects from \pkg{MatchIt}.
 }
 \examples{
 \dontshow{if (requireNamespace("MatchIt", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-library(MatchIt); data("lalonde", package = "cobalt")
+library(MatchIt)
+data("lalonde", package = "cobalt")
 
 ## Nearest Neighbor matching
 m.out1 <- matchit(treat ~ age + educ + race + 
                       married + nodegree + re74 + re75, 
                   data = lalonde, method = "nearest")
 
-bal.tab(m.out1, un = TRUE, m.threshold = .1, 
-        v.threshold = 2)
+bal.tab(m.out1, un = TRUE, 
+        thresholds = c(m = .1, v = 2))
 
 ## Subclassification
 m.out2 <- matchit(treat ~ age + educ + race + 

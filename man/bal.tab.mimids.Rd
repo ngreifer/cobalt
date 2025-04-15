@@ -78,13 +78,13 @@ Generates balance statistics for \code{mimids} and \code{wimids} objects from \p
 }
 \examples{
 \dontshow{if (all(sapply(c("mice", "MatchThem", "MatchIt", "WeightIt"), requireNamespace, quietly = TRUE))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-library(mice)
 library(MatchThem)
 
 data("lalonde_mis", package = "cobalt")
 
 #Imputing the missing data
-imp <- mice(lalonde_mis, m = 5)
+imp <- mice::mice(lalonde_mis, m = 5,
+                  print = FALSE)
 
 #Matching using within-imputation propensity scores
 mt.out1 <- matchthem(treat ~ age + educ + race + 

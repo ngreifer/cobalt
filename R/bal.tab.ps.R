@@ -27,7 +27,8 @@
 #' * [`class-bal.tab.msm`] for more information on longitudinal treatments.
 #' 
 #' @examplesIf requireNamespace("twang", quietly = TRUE)
-#' \donttest{library(twang); data("lalonde", package = "cobalt")
+#' \donttest{library(twang)
+#' data("lalonde", package = "cobalt")
 #' 
 #' ## Using ps() for generalized boosted modeling
 #' ps.out <- ps(treat ~ age + educ + married + race +
@@ -36,7 +37,8 @@
 #'              estimand = "ATT", verbose = FALSE)
 #' 
 #' bal.tab(ps.out, stop.method = "ks.mean", un = TRUE, 
-#'         m.threshold = .1, disp.ks = TRUE)
+#'         stats = c("m", "ks"),
+#'         thresholds = c(m = .1))
 #' }
 
 #' @exportS3Method bal.tab ps

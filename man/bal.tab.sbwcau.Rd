@@ -81,7 +81,8 @@ Generates balance statistics for \code{sbwcau} objects from \pkg{sbw}.
 }
 \examples{
 \dontshow{if (requireNamespace("sbw", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-library(sbw); data("lalonde", package = "cobalt")
+library(sbw)
+data("lalonde", package = "cobalt")
 
 ## Stable balancing weights for the ATT
 sbw.out <- sbw(splitfactor(lalonde, drop.first = "if2"),

@@ -21,13 +21,13 @@
 #' * [bal.tab.matchit()] and [bal.tab.weightit()]
 #' 
 #' @examplesIf all(sapply(c("mice", "MatchThem", "MatchIt", "WeightIt"), requireNamespace, quietly = TRUE))
-#' library(mice)
 #' library(MatchThem)
 #' 
 #' data("lalonde_mis", package = "cobalt")
 #' 
 #' #Imputing the missing data
-#' imp <- mice(lalonde_mis, m = 5)
+#' imp <- mice::mice(lalonde_mis, m = 5,
+#'                   print = FALSE)
 #' 
 #' #Matching using within-imputation propensity scores
 #' mt.out1 <- matchthem(treat ~ age + educ + race + 

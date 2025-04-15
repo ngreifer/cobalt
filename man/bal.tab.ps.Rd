@@ -86,7 +86,8 @@ Generates balance statistics for \code{ps}, \code{mnps}, and \code{iptw} objects
 }
 \examples{
 \dontshow{if (requireNamespace("twang", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\donttest{library(twang); data("lalonde", package = "cobalt")
+\donttest{library(twang)
+data("lalonde", package = "cobalt")
 
 ## Using ps() for generalized boosted modeling
 ps.out <- ps(treat ~ age + educ + married + race +
@@ -95,7 +96,8 @@ ps.out <- ps(treat ~ age + educ + married + race +
              estimand = "ATT", verbose = FALSE)
 
 bal.tab(ps.out, stop.method = "ks.mean", un = TRUE, 
-        m.threshold = .1, disp.ks = TRUE)
+        stats = c("m", "ks"),
+        thresholds = c(m = .1))
 }
 \dontshow{\}) # examplesIf}
 }

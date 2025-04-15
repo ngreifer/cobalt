@@ -19,7 +19,8 @@
 #' * [bal.tab()] for details of calculations.
 #' 
 #' @examplesIf requireNamespace("sbw", quietly = TRUE)
-#' library(sbw); data("lalonde", package = "cobalt")
+#' library(sbw)
+#' data("lalonde", package = "cobalt")
 #' 
 #' ## Stable balancing weights for the ATT
 #' sbw.out <- sbw(splitfactor(lalonde, drop.first = "if2"),
