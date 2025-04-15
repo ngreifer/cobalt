@@ -109,10 +109,9 @@ factor
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>s</mi><mo>*</mo></msup><annotation encoding="application/x-tex">s^*</annotation></semantics></math>
 is the same before and after weighting. I will repeat, <strong>the
 standardization factor</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>s</mi><mo>*</mo></msup><annotation encoding="application/x-tex">s^*</annotation></semantics></math>
-is the same before and after weighting. I don’t mean it has the same
-formula, it mean it is literally the same value. I explain in more
-detail in a question below why this is the case.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>s</mi><mo>*</mo></msup><annotation encoding="application/x-tex">s^*</annotation></semantics></math><strong>is the same before and after weighting</strong>. I don’t mean it
+has the same formula, it mean it is literally the same value. I explain
+in more detail in a question below why this is the case.</p>
 <p>How is the standardization factor computed? This depends on the
 argument to <code>s.d.denom</code> supplied to <code><a href="../reference/bal.tab.html">bal.tab()</a></code> or
 <code><a href="../reference/love.plot.html">love.plot()</a></code>. When <code>s.d.denom</code> is not supplied,
@@ -292,14 +291,14 @@ standardize all variables, including binary variables.</p>
 adjustment?<a class="anchor" aria-label="anchor" href="#why-do-you-use-the-same-standardization-factor-before-and-after-adjustment"></a>
 </h3>
 <p>It is important to remember that bias is a function of the difference
-in means of a covariate and standardization is a tool to aid in balance
-assessment. As a tool, it should reflect imbalance accurately (i.e.,
-without incorporating extraneous information), but there is no
+in means of a covariate, and standardization is a just tool to aid in
+balance assessment. As a tool, it should reflect imbalance accurately
+(i.e., without incorporating extraneous information), but there is no
 statistical “truth” about the nature of the standardization factor. I
 use the same standardization factor before and after adjustment as
 recommended by <span class="citation">Stuart (<a href="#ref-stuartDevelopingPracticalRecommendations2008">2008</a>)</span>.
 The rationale is that by isolating the SMD to reflect changes in the
-difference in means, why can more accurately assess improvement in
+difference in means, one can more accurately assess improvement in
 balance rather than combining information about the difference in means
 with information about the variability of the covariate, which may
 change in a variety of ways after adjustment. I describe a specific
