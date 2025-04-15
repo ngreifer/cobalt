@@ -159,27 +159,29 @@ If balance is acceptable, you would move forward with these weights in estimatin
 
 Several balance statistics can be computed by `bal.compute()` and `bal.init()`, and the ones available depend on whether the treatment is binary, multi-category, or continuous. These are explained below and on the help page `?bal.compute`. A complete list for a given treatment type can be requested using `available.stats()`. Some balance statistics are appended with `".mean"`, `".max"`, or `".rms"`, which correspond to the mean (or L1-norm), maximum (or L-infinity norm), and root mean square (or L2-norm) of the absolute univariate balance statistic computed for each covariate.
 
+In addition, balance statistics can be compute between a sample and the same sample but weighted; this is known as "target balance" and is important when assessing the quality of weights for continuous treatments or for selecting a representative subset. To assess target balance, the treatment variable should be omitted from `bal.compute()` and `bal.init()`.
+
 #### `smd.mean`, `smd.max`, `smd.rms`
 
-The mean, maximum, and root mean square of the absolute standardized mean differences computed for the covariates using `col_w_smd()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+The mean, maximum, and root mean square of the absolute standardized mean differences computed for the covariates using `col_w_smd()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments and for target balance (where the standardization factor is computed using the full original sample).
 
 #### `ks.mean`, `ks.max`, `ks.rms`
 
-The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using `col_w_ks()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using `col_w_ks()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments and for target balance.
 
 #### `ovl.mean`, `ovl.max`, `ovl.rms`
 
-The mean, maximum, or root-mean-squared overlapping coefficient compliment, computed using `col_w_ovl()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments.
+The mean, maximum, or root-mean-squared overlapping coefficient compliment, computed using `col_w_ovl()`. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `pairwise` to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by `estimand` (default `TRUE`). Can be used with binary and multi-category treatments and for target balance.
 
 #### `mahalanobis`
 
 The Mahalanobis distance between the treatment group means, which is computed as $$
 \sqrt{(\mathbf{\bar{x}}_1 - \mathbf{\bar{x}}_0) \Sigma^{-1} (\mathbf{\bar{x}}_1 - \mathbf{\bar{x}}_0)}
-$$ where $\mathbf{\bar{x}}_1$ and $\mathbf{\bar{x}}_0$ are the vectors of covariate means in the two treatment groups, $\Sigma^-1$ is the (generalized) inverse of the covariance matrix of the covariates [@franklinMetricsCovariateBalance2014]. This is similar to `"smd.rms"` but the covariates are standardized to remove correlations between and de-emphasize redundant covariates. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, which determines how the covariance matrix is calculated, and `focal` to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.
+$$ where $\mathbf{\bar{x}}_1$ and $\mathbf{\bar{x}}_0$ are the vectors of covariate means in the two treatment groups, $\Sigma^-1$ is the (generalized) inverse of the covariance matrix of the covariates [@franklinMetricsCovariateBalance2014]. This is similar to `"smd.rms"` but the covariates are standardized to remove correlations between and de-emphasize redundant covariates. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, which determines how the covariance matrix is calculated, and `focal` to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments and for target balance.
 
 #### `energy.dist`
 
-The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. See @hulingEnergyBalancingCovariate2024 for details. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `improved` to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default `TRUE`). Can be used with binary and multi-category treatments.
+The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. See @hulingEnergyBalancingCovariate2024 for details. The other allowable arguments include `estimand` (ATE, ATC, or ATT) to select the estimand, `focal` to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and `improved` to select whether the "improved" energy distance should be used, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default `TRUE`). Can be used with binary and multi-category treatments and for target balance.
 
 #### `kernel.dist`
 
@@ -203,7 +205,7 @@ The mean, maximum, or root-mean-squared absolute Spearman correlation between th
 
 #### `distance.cov`, `distance.cor`
 
-The distance covariance or distance correlation between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. See @hulingIndependenceWeightsCausal2023a for details. Can only be used with continuous treatments.
+The distance covariance or distance correlation between the scaled covariates and treatment, which is a scalar measure of the independence of two possibly multivariate distributions. See @hulingIndependenceWeightsCausal2023a for details. Can only be used with continuous treatments. The distance correlation is a scaled version of the distance covariance to range from 0 to 1.
 
 ### Choosing a balance statistic
 
@@ -216,8 +218,7 @@ For binary and multi-category treatments, only `"energy.dist"`, `"kernel.dist"`,
 In this section, I will provide an example that demonstrates how these functions could be used to replicate the functionality of existing packages or develop new methods for optimizing balance. We will use these functions to replicate the functionality of `WeightIt` and `twang` for estimating propensity score weights for a binary treatment using generalized boosted modeling (GBM). See `help("bal.compute")` for another example that optimizes balance to find the number of subclasses in propensity score subclassification.
 
 ### Tuning GBM for balance
-
-GBM has many tuning parameters that can be optimized, but the key parameter is the number of trees to use to calculate the predictions. `WeightIt` and `twang` both implement the methods described in @mccaffreyPropensityScoreEstimation2004 for selecting the number of trees using a balance criterion. Here, we will do so manually both to understand the internals of these functions and illustrate the uses of `bal.compute()` and `bal.init()`.
+GBM has many tuning parameters that can be optimized, but the key parameter is the number of trees to use to calculate the predictions. `WeightIt` and `twang` both implement the methods described in @mccaffreyPropensityScoreEstimation2004 for selecting the number of trees using a balance criterion. Here, we will do so manually both to understand the internals of these functions and illustrate the uses of `bal.compute()` and `bal.init()` to select the ideal number of trees for propensity score weighting with a binary treatment.
 
 ```{r, eval = gbm.ok}
 data("lalonde")
@@ -252,7 +253,7 @@ stats <- apply(p.mat, 2L, function(p) {
 stats[which.min(stats)]
 ```
 
-From these results, we see that using `r which.min(stats)` trees gives us the lowest maximum KS statistic of `r round(stats[which.min(stats)], 4)`. Out of interest, we can plot the relationship between the number of trees and our balance statistic to see what it looks like:
+From these results, we see that using `r if (gbm.ok) which.min(stats) else 1408` trees gives us the lowest maximum KS statistic of `r if (gbm.ok) round(stats[which.min(stats)], 4) else .0956`. Out of interest, we can plot the relationship between the number of trees and our balance statistic to see what it looks like:
 
 ```{r, fig.width=7, fig.height=3, eval = gbm.ok}
 library("ggplot2")
@@ -281,6 +282,6 @@ w.out$info$best.tree
 bal.compute(ks.init, weights = get.w(w.out))
 ```
 
-We can see that `weightit()` also selects `r w.out$info$best.tree` trees as the optimum and the resulting maximum KS statistic computed using the returned weights is equal to the one we computed manually. Using `twang` also produces the same results.
+We can see that `weightit()` also selects `r if (weightit.ok && gbm.ok) w.out$info$best.tree else 1408` trees as the optimum and the resulting maximum KS statistic computed using the returned weights is equal to the one we computed manually. Using `twang::ps()` also produces the same results.
 
 ## References

@@ -27,3 +27,33 @@ test_that("bal.compute() and bal.init() work", {
 
     
 })
+
+test_that("bal.compute() returns 0 for unweighted target balance statistics", {
+  set.seed(1004)
+  data("lalonde")
+  cov_names <- c("age", "educ", "race", "married", "nodegree", "re74", 
+                 "re75")
+  sw <- runif(nrow(lalonde))
+  
+  expect_equal(bal.compute(lalonde[cov_names], stat = "smd.rms"),
+               0)
+  expect_equal(bal.compute(lalonde[cov_names], stat = "ks.max"),
+               0)
+  # expect_equal(bal.compute(lalonde[cov_names], stat = "ovl.max"),
+  #              0)
+  expect_equal(bal.compute(lalonde[cov_names], stat = "energy.dist"),
+               0)
+  expect_equal(bal.compute(lalonde[cov_names], stat = "mahalanobis"),
+               0)
+  
+  expect_equal(bal.compute(lalonde[cov_names], stat = "smd.rms", s.weights = sw),
+               0)
+  expect_equal(bal.compute(lalonde[cov_names], stat = "ks.max", s.weights = sw),
+               0)
+  # expect_equal(bal.compute(lalonde[cov_names], stat = "ovl.max", s.weights = sw),
+  #              0)
+  expect_equal(bal.compute(lalonde[cov_names], stat = "energy.dist", s.weights = sw),
+               0)
+  expect_equal(bal.compute(lalonde[cov_names], stat = "mahalanobis", s.weights = sw),
+               0)
+})

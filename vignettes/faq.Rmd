@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(cobalt)
+matchit_ok <- all(sapply("MatchIt", requireNamespace, quietly = TRUE))
 ```
 
 ### How are standardized mean differences computed in `cobalt`?
@@ -243,7 +244,7 @@ One must always remember that the standardized mean difference uses the
 standardization factor computed in the original sample, i.e., prior to
 subclassification. Let's take a look below using `MatchIt`:
 
-```{r}
+```{r, eval = matchit_ok}
 # PS Subclassification
 msub <- MatchIt::matchit(treat ~ age + educ + race + married + re74,
                          data = lalonde, method = "subclass",
@@ -258,7 +259,7 @@ difference for `age`). We compute the mean of `age` in each treatment
 group in subclass 1, and then divide it by the pooled standard deviation
 of age (because we requested the ATE) in *the original sample*.
 
-```{r}
+```{r, eval = matchit_ok}
 m0 <- mean(lalonde$age[lalonde$treat == 0 & msub$subclass == 1])
 m1 <- mean(lalonde$age[lalonde$treat == 1 & msub$subclass == 1])
 
@@ -288,7 +289,7 @@ corresponding to the number of units in the subclass in the target group
 (e.g., the treated units for the ATT, all units for the ATE, etc.).
 Below I'll demonstrate how to do that manually for the `age` covariate:
 
-```{r}
+```{r, eval = matchit_ok}
 # SMDs across subclasses for age
 smds <- sapply(1:6, function(s) {
     m0 <- mean(lalonde$age[lalonde$treat == 0 & msub$subclass == s])
@@ -317,7 +318,7 @@ proportion of treated units in each sample, and then using the formulas
 to compute propensity score weights from propensity scores. Here's how I
 do that manually for `age`:
 
-```{r}
+```{r, eval = matchit_ok}
 # Compute proportion of treated units in each subclass
 prop1 <- sapply(1:6, function(s) mean(lalonde$treat[msub$subclass == s]))
 

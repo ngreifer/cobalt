@@ -1,13 +1,21 @@
 `cobalt` News and Updates
 ======
 
-# cobalt 4.5.6
+# cobalt (development version)
 
 * Added two new functions, `col_w_dcov()` and `col_w_dcorr()` for computing univariate (weighted) distance covariances and distance correlations between a treatment and covariates. 
 
-* In `bal.compute()` and `bal.init()`, `"distance.cor"` can be requested as an argument to `stat` to compute the weighted distance correlation between the treatment and the full covariate distribution.
+* Changes to `bal.compute()` and `bal.init()`:
 
-* In `bal.compute()` and `bal.init()`, `"distance.cov"` now returns the distance covariance; previously it returned the squared distance covariance. This should not affect the relative ordering of any sets of weights evaluated on this measure.
+  * `"distance.cor"` can be requested as an argument to `stat` to compute the weighted distance correlation between the treatment and the full covariate distribution.
+
+  * `"distance.cov"` now returns the distance covariance; previously it returned the squared distance covariance. This should not affect the relative ordering of any sets of weights evaluated on this measure.
+
+  * `bal.compute()` and `bal.init()` can now compute target balance statistics representing the similarity between a weighted sample and the same sample but unweighted, e.g., to ensure representativeness. This can be requested by omitting the `treat` argument to `bal.compute()` and `bal.init()`. Allowable target balance statistics include those based on the standardized mean difference, KS statistic, overlapping coefficient, Mahalanobis distance, and energy distance. See `?bal.compute` or `vignette("optimizing-balance")` for details. `available.stats()` now accepts `"target"` as an argument to `treat.type` to display the abvailable statistics for assessing target balance.
+  
+  * Fixed some bugs in computing the energy distance. Now, the complete energy distance is computed, including the constant term that does not depend on the weights. Previously, the constant term was omitted.
+
+* In `col_w_ovl()`, `integrate` is now `TRUE` by default to use `integrate()` to compute the overlapping coefficient. When `integrate()` fails, a midpoint Riemann sum will be used as a fallback.
 
 * Target OVL coefficients can be requested for continuous treatments by setting `stats = "ovl"` in `bal.tab()`.
 
@@ -241,11 +249,11 @@
 
 * Improved processing of inappropriately given S4 objects.
 
-* Removed `bal.tab` methods for atomic vectors (which were undocumented). The errors they would provide when inappropriately supplied were unhelpful.
+* Removed `bal.tab()` methods for atomic vectors (which were undocumented). The errors they would provide when inappropriately supplied were unhelpful.
 
 * Fixed a bug with `backports` 1.1.7 not running correctly.
 
-* Fixed a bug with `str2expression` for R versions below 3.6.0. Thanks to @kthohr and @jimmyg909.
+* Fixed a bug with `str2expression()` for R versions below 3.6.0. Thanks to @kthohr and @jimmyg909.
 
 * When data is segmented (i.e., with a multi-category or longitudinal treatment or when clusters or multiple imputations are specified), the balance summary across segments will not be computed or displayed when individual segment balance is requested. See `?display_options` to see the defaults for the different segment types, some of which have changed. 
 
@@ -277,7 +285,7 @@
 
 * Fixed bug when requesting means or standard deviations with segmented data.
 
-* Fixed bug where the x-axis in `love.plot` was always "Standardized Mean Differences" even when it wasn't supposed to be for `stats = "mean.diffs"`.
+* Fixed bug where the x-axis in `love.plot()` was always "Standardized Mean Differences" even when it wasn't supposed to be for `stats = "mean.diffs"`.
 
 * `rlang` is now in IMPORTS. 
 
@@ -285,15 +293,15 @@
 
 # cobalt 4.1.0
 
-* Added support for `sbwcau` objects from `sbw`. See Appendix 1 or `?bal.tab.sbw` for an example.
+* Added support for `sbwcau` objects from `sbw`. See `vignette("other-packages")` or `?bal.tab.sbw` for an example.
 
-* Added support for `cem.match` objects from `cem`. See Appendix 1 or `?bal.tab.cem.match` for an example.
+* Added support for `cem.match` objects from `cem`. See `vignette("other-packages")` or `?bal.tab.cem.match` for an example.
 
 * Added `stats` argument to `bal.tab()` and `print()` to replace `disp.v.ratio` and `disp.ks`. This argument functions similarly to how it does in `love.plot()`; for example, to request mean differences and variance ratios, one can enter `stats = c("m", "v")`. One consequence of this is that it is possible to request statistics that don't include mean differences. See `?display_options` for more details. The old arguments still work (and probably always will) but you should use `stats` instead. The goal here was to unify syntax across `bal.tab()`, `print()`, and `love.plot()`. A new help page specifically for the `stats` argument can be viewed at `?balance.stats`.
 
 * Added `thresholds` argument to `bal.tab()` to replace `m.threshold`, `v.threshold`, etc. This argument functions similarly to how it does in `love.plot()`; for example, to request thresholds for mean differences and variance ratios, one can enter `thresholds = c(m = .1, v = 2)`. The old arguments still work (and probably always will) but you should use `thresholds` instead. The goal here was to unify syntax across `bal.tab()`, `print()`, and `love.plot()`.
 
-* Added `disp.means` option to `bal.plot` to display the mean of the covariate as a line on density plots and histograms.
+* Added `disp.means` option to `bal.plot()` to display the mean of the covariate as a line on density plots and histograms.
 
 * Added `"hedges"` as an option to `s.d.denom`. This will compute the standardized mean difference using the formula for the small sample-corrected Hedge's G as described in the What Works Clearinghouse Procedures Handbook.
 
@@ -309,15 +317,15 @@
 
 * `ggplot2` version 3.3.0 is required, which removes some warnings and makes it so `ggstance` doesn't need to be imported.
 
-* When there are more than 900 variables to compute balance statistics on in `bal.tab` (which can happen quickly when `int = TRUE` and categorical variables have many categories), to avoid major slowdowns, checks for redundancy of variables are forgone. This will dramatically increase the speed of `bal.tab` in these scenarios. This option can be changed with the `cobalt` option `"remove_perfect_col"` which can be set to `TRUE` or or `FALSE`. Set to `FALSE` to improve speed at the expense of possibly having redundant variables appear.
+* When there are more than 900 variables to compute balance statistics on in `bal.tab()` (which can happen quickly when `int = TRUE` and categorical variables have many categories), to avoid major slowdowns, checks for redundancy of variables are forgone. This will dramatically increase the speed of `bal.tab()` in these scenarios. This option can be changed with the `cobalt` option `"remove_perfect_col"` which can be set to `TRUE` or or `FALSE`. Set to `FALSE` to improve speed at the expense of possibly having redundant variables appear.
 
-* Fixed a bug when using the default `bal.tab` method with objects containing longitudinal treatments.
+* Fixed a bug when using the default `bal.tab()` method with objects containing longitudinal treatments.
 
-* Fixed a bug when using `bal.tab` with continuous treatments and clusters.
+* Fixed a bug when using `bal.tab()` with continuous treatments and clusters.
 
 * Fixed a bug in `love.plot()` when using subclassification.
 
-* Fixed a bug when using `bal.tab` with longitudinal treatments and multiple sets of weights.
+* Fixed a bug when using `bal.tab()` with longitudinal treatments and multiple sets of weights.
 
 * Fixed a bug when using `col_w_ovl()`. OVL values are now more accurate.
 
@@ -347,13 +355,13 @@
 
 ***`bal.plot`***
 
-* Added `sample.names` argument in `bal.plot` in response to [this post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
+* Added `sample.names` argument in `bal.plot()` in response to [this post](https://stackoverflow.com/questions/57970679/change-name-of-groups-in-bal-plot) on Cross Validated.
 
-* Added functionality to the `which` argument in `bal.plot`, allowing more specificity when multiple sets of weights are used.
+* Added functionality to the `which` argument in `bal.plot()`, allowing more specificity when multiple sets of weights are used.
 
-* Added `type = "ecdf"` option to `bal.plot` for categorical treatments with continuous covariates to display empirical cumulative density plots as an alternative to density plots.
+* Added `type = "ecdf"` option to `bal.plot()` for categorical treatments with continuous covariates to display empirical cumulative density plots as an alternative to density plots.
 
-* When using `bal.plot` with continuous treatments and continuous covariates, the points are shaded based on their weights; this behavior is controlled by the new `alpha.weight` argument, which replaces the functionality of `size.weight` (which was kind of ugly and not very informative) and is `TRUE` by default. Now it's more apparent which points are influential in the weighted sample. In addition, a line illustrating the unweighted covariate mean is present.
+* When using `bal.plot()` with continuous treatments and continuous covariates, the points are shaded based on their weights; this behavior is controlled by the new `alpha.weight` argument, which replaces the functionality of `size.weight` (which was kind of ugly and not very informative) and is `TRUE` by default. Now it's more apparent which points are influential in the weighted sample. In addition, a line illustrating the unweighted covariate mean is present.
 
 * The default of the `grid` argument is now `FALSE` in `bal.plot()` and `love.plot()`. Previously it was `TRUE`. This make the plots cleaner at the outset.
 
@@ -395,9 +403,9 @@
 
 * Fixed bugs that would occur when using `love.plot()` with various combinations of `var.order`, multiple `stats`, and `agg.fun = "range"`.
 
-* Fixed bugs that would occur when using `bal.tab()` with objects from the `Matching` package. Calculated statistics are now the same as those generated using `Matching::MatchBalance`. Changes based on updates to `get.w.Match()`.
+* Fixed bugs that would occur when using `bal.tab()` with objects from the `Matching` package. Calculated statistics are now the same as those generated using `Matching::MatchBalance()`. Changes based on updates to `get.w.Match()`.
 
-* Added balance summary functions `col_w_mean`, `col_w_sd`, `col_w_smd`, `col_w_vr`, `col_w_ks`, `col_w_ovl`, and `col_w_corr`. These make it easier to get quick, simple summaries of balance without calling `bal.tab`, for example, for use in programming other functions. Some of these are now used inside `bal.tab` to increase speed and simplify internal syntax.
+* Added balance summary functions `col_w_mean()`, `col_w_sd()`, `col_w_smd()`, `col_w_vr()`, `col_w_ks()`, `col_w_ovl()`, and `col_w_corr()`. These make it easier to get quick, simple summaries of balance without calling `bal.tab()`, for example, for use in programming other functions. Some of these are now used inside `bal.tab()` to increase speed and simplify internal syntax.
 
 * Other small bug fixes.
 
@@ -407,13 +415,13 @@
 
 * Bug fixes that make `bal.tab()` and `love.plot()` more usable within other functions and especially when called with `do.call()`.
 
-* Made it easier to get proper `bal.tab` output when using `matchit()` with an argument to `distance` (in the call to `matchit()`). Include the original dataset in the `data` argument of `bal.tab()` to get the variables to display correctly.
+* Made it easier to get proper `bal.tab()` output when using `matchit()` with an argument to `distance` (in the call to `matchit()`). Include the original dataset in the `data` argument of `bal.tab()` to get the variables to display correctly.
 
 * Changed the default shape in `love.plot()` to `"circle"`, which is a solid circle. I found this a prettier alternative to the open circle, especially on Windows. To get back open circles you set `shapes = "circle filled"` (yes, that is a bit confusing).
 
 * Added ability to hide the gridlines easily in `love.plot()`.
 
-* Changed the calculation of standard deviations (and standardized differences in proportion) for binary variables to be more in line with recommendations, as noted by @mbloechl05. Note this will make these values different from those in `MatchIt::summary` by a small amount.
+* Changed the calculation of standard deviations (and standardized differences in proportion) for binary variables to be more in line with recommendations, as noted by @mbloechl05. Note this will make these values different from those in `MatchIt::summary()` by a small amount.
 
 * The KS statistic is now computed for binary variables. It is simply the difference in proportion.
 
@@ -423,11 +431,11 @@
 
 # cobalt 3.7.0
 
-* Changes to some `bal.tab` defaults: `quick` is now set to `TRUE` by default. Adjusted and unadjusted means, standard deviations, and mean differences will always be computed, regardless of `quick`. Variance ratios and KS statistics will only be computed if `quick = FALSE` or `disp.v.ratio` or `disp.ks`, respectively, are `TRUE`.
+* Changes to some `bal.tab()` defaults: `quick` is now set to `TRUE` by default. Adjusted and unadjusted means, standard deviations, and mean differences will always be computed, regardless of `quick`. Variance ratios and KS statistics will only be computed if `quick = FALSE` or `disp.v.ratio` or `disp.ks`, respectively, are `TRUE`.
 
-* Variance ratios now respond to `abs`. When `abs = FALSE`, the default in `bal.tab`, the variance is ratio is the variance of the treated (1) divided by the variance of the control (0). When `abs = TRUE`, the numerator of the variance ratio is the larger variance and the denominator is the smaller variance, which was the old behavior. `v.threshold` still responds as if `abs` was set to `TRUE`, just like with mean differences. Any time variance ratios are aggregated (e.g., across imputations or clusters), the "mean" variance ratio is the geometric mean to account for the asymmetry in the ratios.
+* Variance ratios now respond to `abs`. When `abs = FALSE`, the default in `bal.tab()`, the variance is ratio is the variance of the treated (1) divided by the variance of the control (0). When `abs = TRUE`, the numerator of the variance ratio is the larger variance and the denominator is the smaller variance, which was the old behavior. `v.threshold` still responds as if `abs` was set to `TRUE`, just like with mean differences. Any time variance ratios are aggregated (e.g., across imputations or clusters), the "mean" variance ratio is the geometric mean to account for the asymmetry in the ratios.
 
-* `love.plot` has several changes that make it much more user-friendly. First, rather than supplying a `bal.tab` object to `love.plot`, you can simply supply the arguments that would have gone into the `bal.tab()` call straight into `love.plot()`. Second, if `quick = TRUE` (the new default) and the first argument to `love.plot()` is a call to `bal.tab()` (or arguments provided to `bal.tab()`) and `stat` is set to `"variance.ratios"` or `"ks.statistics"`, `bal.tab()` will be re-called with the corresponding `disp` argument set to `TRUE` so that `love.plot()` will display those statistics regardless of `quick`. This will not work if the argument supplied to `love.plot()` is a `bal.tab` object. Third, because unadjusted mean differences are computed regardless of `quick`, there will never be a circumstance in which only adjusted values will be displayed. If `quick = TRUE`, `un = FALSE`, and `stat` is `"variance.ratios"` or `"ks.statistics"`, `un` will automatically be set to `TRUE` in the `bal.tab()` re-call.
+* `love.plot()` has several changes that make it much more user-friendly. First, rather than supplying a `bal.tab` object to `love.plot()`, you can simply supply the arguments that would have gone into the `bal.tab()` call straight into `love.plot()`. Second, if `quick = TRUE` (the new default) and the first argument to `love.plot()` is a call to `bal.tab()` (or arguments provided to `bal.tab()`) and `stat` is set to `"variance.ratios"` or `"ks.statistics"`, `bal.tab()` will be re-called with the corresponding `disp` argument set to `TRUE` so that `love.plot()` will display those statistics regardless of `quick`. This will not work if the argument supplied to `love.plot()` is a `bal.tab` object. Third, because unadjusted mean differences are computed regardless of `quick`, there will never be a circumstance in which only adjusted values will be displayed. If `quick = TRUE`, `un = FALSE`, and `stat` is `"variance.ratios"` or `"ks.statistics"`, `un` will automatically be set to `TRUE` in the `bal.tab()` re-call.
 
 * When using `which.` arguments (e.g., `which.cluster`, `which.imp`, etc.), instead of supplying `NULL` and `NA`, you can supply `.all` and `.none` (not in quotes). This should make them easier to use. Note that these new inputs are not variables; they are keywords and are evaluated using nonstandard evaluation. If you actually have objects with those names, they will be ignored.
 
@@ -437,7 +445,7 @@
 
 * Fixed bug occurring when using balance thresholds with subclassification.
 
-* Fixed bug occurring when printing `bal.tab` output for continuous treatments with clusters.
+* Fixed bug occurring when printing `bal.tab()` output for continuous treatments with clusters.
 
 * Fixed bug occurring when using `bal.tab()` on `mnps` objects with multiple stop methods.
 
@@ -453,13 +461,13 @@
 
 * Fixed a bug when using multiply imputed data with binary treatments that were factors or characters.
 
-* Updated the `bal.tab` documentation to make it easier to navigate to the right page.
+* Updated the `bal.tab()` documentation to make it easier to navigate to the right page.
 
 * Small documentation and syntax updates.
 
-* Added the hidden and undocumented argument `center` to `bal.tab`, which, when set to `TRUE`, centers the covariates at the mean of the entire unadjusted sample prior to computing interactions and polynomials.
+* Added the hidden and undocumented argument `center` to `bal.tab()`, which, when set to `TRUE`, centers the covariates at the mean of the entire unadjusted sample prior to computing interactions and polynomials.
 
-* Added `set.cobalt.options` function to more easily set the global options that can be used as defaults to some arguments. For example, `set.global.options(binary = "std")` makes it so that standardized mean difference are always displayed for binary covariates (in the present R session). The options can be retrieved with `get.cobalt.options`.
+* Added `set.cobalt.options()` function to more easily set the global options that can be used as defaults to some arguments. For example, `set.global.options(binary = "std")` makes it so that standardized mean difference are always displayed for binary covariates (in the present R session). The options can be retrieved with `get.cobalt.options()`.
 
 # cobalt 3.5.0
 
@@ -467,7 +475,7 @@
 
 * Added `disp.sds` option to display standard deviations for each group in `bal.tab()`. This works in all the same places `disp.means` does.
 
-* Added `cluster.fun` and `imp.fun` options to request that only certain functions (e.g., mean or maximum) of the balance statistics are displayed in the summary across clusters/imputations. Previously this option was only available by call `print()`. These parameters are part of the display options described above, so they are documented in `?options-display` and not in the `bal.tab` help files.
+* Added `cluster.fun` and `imp.fun` options to request that only certain functions (e.g., mean or maximum) of the balance statistics are displayed in the summary across clusters/imputations. Previously this option was only available by call `print()`. These parameters are part of the display options described above, so they are documented in `?options-display` and not in the `bal.tab()` help files.
 
 * Added `factor_sep` and `int_sep` options to change the separators between variable names when factor variables and interactions are displayed. This functionality had been available since version 3.4.0 but was not documented. It is now documented in the new `display_options` help page.
 
@@ -499,23 +507,23 @@
 
 * Fixed a bug where treatment levels that had different numbers of characters would yield an error.
 
-* Added `disp.means` option to `bal.tab` with continuous treatments.
+* Added `disp.means` option to `bal.tab()` with continuous treatments.
 
 # cobalt 3.4.0
 
-* Added `default` method for `bal.tab` so it can be used with specially formatted output from other packages (e.g., from `optweight`). `bal.plot` should work with these outputs too. This, of course, will never be completely bug-free because infinite inputs are possible and cannot all be processed perfectly. Don't try to break this function :)
+* Added `default` method for `bal.tab()` so it can be used with specially formatted output from other packages (e.g., from `optweight`). `bal.plot()` should work with these outputs too. This, of course, will never be completely bug-free because infinite inputs are possible and cannot all be processed perfectly. Don't try to break this function :)
 
 * Fixed some bugs occurring when standardized mean differences are not finite, thanks to Noémie Kiefer.
 
-* Speed improvements in `bal.plot`, especially with multiple facets, and in `bal.tab`.
+* Speed improvements in `bal.plot()`, especially with multiple facets, and in `bal.tab()`.
 
-* Added new options to `bal.plot`, including the ability to display histograms rather than densities and mirrored rather than overlapping plots. This makes it possible to make the popular mirrored histogram plot for propensity scores. In addition, it's now easier to change the colors of the components of the plots.
+* Added new options to `bal.plot()`, including the ability to display histograms rather than densities and mirrored rather than overlapping plots. This makes it possible to make the popular mirrored histogram plot for propensity scores. In addition, it's now easier to change the colors of the components of the plots.
 
 * Made behavior around binary variables with interactions more like documentation, where interactions with both levels of the variable are present (thanks to @victorn1). Also, replaced `_` with ` * ` as the delimiter between variable names in interactions. For the old behavior, use `int_sep = "_"` in `bal.tab`.
 
-* Expanded the flexibility of `var.names` in `love.plot` so that replacing the name of a variable will replace it everywhere it appears, including interactions. Thanks to @victorn1 for the suggestion.
+* Expanded the flexibility of `var.names` in `love.plot()` so that replacing the name of a variable will replace it everywhere it appears, including interactions. Thanks to @victorn1 for the suggestion.
 
-* Added `var.names` function to extract and save variable names from `bal.tab` objects. This makes it a lot easier to create replacement names for use in `love.plot`. Thanks to @victorn1 for the suggestion.
+* Added `var.names` function to extract and save variable names from `bal.tab` objects. This makes it a lot easier to create replacement names for use in `love.plot()`. Thanks to @victorn1 for the suggestion.
 
 * When weighted correlations are computed for continuous treatments, the denominator of the correlation now uses the unweighted standard deviations. See `?bal.tab` for the rationale.
 

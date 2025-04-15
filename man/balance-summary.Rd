@@ -79,7 +79,7 @@ col_w_ovl(
   bin.vars,
   subset = NULL,
   na.rm = TRUE,
-  integrate = FALSE,
+  integrate = TRUE,
   steps = 1001L,
   ...
 )
@@ -175,7 +175,7 @@ For \code{col_w_cov()}, \code{col_w_corr()}, \code{col_w_dcov()}, and \code{col_
 
 \item{weighted.weights}{for \code{col_w_smd()}, \code{col_w_cov()}, \code{col_w_corr()}, \code{col_w_dcov()}, and \code{col_w_dcorr()}, when \code{std = TRUE} and \code{s.d.denom = "weighted"}, a vector of weights to be applied to the computation of the denominator standard deviation. If not specified, will use the argument to \code{weights}. When \code{s.d.denom} is not \code{"weighted"}, this is ignored. The main purpose of this is to allow \code{weights} to be \code{NULL} while weighting the denominator standard deviations for assessing balance in the unweighted sample but using the standard deviations of the weighted sample.}
 
-\item{integrate}{\code{logical}; for \code{col_w_ovl()}, whether to use \code{\link[=integrate]{integrate()}} to calculate the area of overlap or the distance between the densities, respectively. If \code{FALSE}, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts), but the integral can fail sometimes and thus is less stable. The default (\code{FALSE}) is to use the Riemann sum.}
+\item{integrate}{\code{logical}; for \code{col_w_ovl()}, whether to use \code{\link[=integrate]{integrate()}} to calculate the area of overlap for continuous variables. If \code{FALSE}, a midpoint Riemann sum will be used instead. The Riemann sum is a little slower and very slightly imprecise (unnoticibly in most contexts). When \code{TRUE}, \code{integrate()} will be tried, and if it fails, the Riemann sum will be used as a fallback. The default (\code{TRUE}) is to use \code{integrate()} when possible.}
 
 \item{steps}{for \code{col_w_ovl()} when \code{integrate = FALSE}, the number of points to use to compute the Riemann sum to approximate the integral. Default is 1001 for 1000 partitions.}
 

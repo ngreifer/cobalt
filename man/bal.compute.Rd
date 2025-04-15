@@ -12,9 +12,9 @@ bal.compute(x, ...)
 
 \method{bal.compute}{bal.init}(x, weights = NULL, ...)
 
-\method{bal.compute}{default}(x, treat, stat, s.weights = NULL, weights = NULL, ...)
+\method{bal.compute}{default}(x, treat = NULL, stat, s.weights = NULL, weights = NULL, ...)
 
-bal.init(x, treat, stat, s.weights = NULL, ...)
+bal.init(x, treat = NULL, stat, s.weights = NULL, ...)
 
 available.stats(treat.type = "binary")
 }
@@ -25,13 +25,13 @@ available.stats(treat.type = "binary")
 
 \item{weights}{a vector of balancing weights to compute the weighted statistics.}
 
-\item{treat}{a vector containing the treatment variable.}
+\item{treat}{a vector containing the treatment variable. Can be \code{NULL} to compute target balance statistics.}
 
 \item{stat}{string; the name of the statistic to compute. See Details.}
 
 \item{s.weights}{optional; a vector of sampling weights.}
 
-\item{treat.type}{string; the treatment type, either \code{"binary"}, \code{"multinomial"}, or \code{"continuous"}. Abbreviations allowed.}
+\item{treat.type}{string; the treatment type, either \code{"binary"}, \code{"multinomial"}, \code{"continuous"}, or \code{"target"}. Abbreviations allowed.}
 }
 \value{
 For \code{bal.compute()}, a single numeric value. For \code{bal.init()}, a \code{bal.init} object containing the components created in the initialization and the function used to compute the balance statistic. For \code{available.stats()}, a character vector of available statistics.
@@ -40,22 +40,22 @@ For \code{bal.compute()}, a single numeric value. For \code{bal.init()}, a \code
 These are functions primarily designed for programmers who want to be able to quickly compute one of several scalar (single number) sample balance statistics, e.g., for use in selecting a tuning parameter when estimating balancing weights. \code{bal.compute()} computes a scalar balance statistics from the supplied inputs. \code{bal.init()} initializes the input so that when \code{bal.compute()} is used on the output along with a set of weights, the computation of the balance statistic is fast. \code{vignette("optimizing-balance")} provides an overview and more examples of how to use these functions. \code{available.stats()} returns the balance statistics available for the given treatment type.
 }
 \details{
-The following list contains the allowable balance statistics that can be supplied to \code{bal.init()} or the default method of \code{bal.compute()}, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance.
+The following list contains the allowable balance statistics that can be supplied to \code{bal.init()} or the default method of \code{bal.compute()}, the additional arguments that can be used with each one, and the treatment types allowed with each one. For all balance statistics, lower values indicate better balance. Target balance refers to the similarity between a sample and the same sample but weighted.
 \describe{
 \item{\code{smd.mean}, \code{smd.max}, \code{smd.rms}}{
-The mean, maximum, or root-mean-squared absolute standardized mean difference, computed using \code{\link[=col_w_smd]{col_w_smd()}}. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, or \code{"ATC"}) to select the estimand (default is \code{"ATE"}), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{pairwise} to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
+The mean, maximum, or root-mean-squared absolute standardized mean difference, computed using \code{\link[=col_w_smd]{col_w_smd()}}. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, or \code{"ATC"}) to select the estimand (default is \code{"ATE"}), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{pairwise} to select whether mean differences should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments and for target balance.
 }
 \item{\code{ks.mean}, \code{ks.max}, \code{ks.rms}}{
-The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using \code{\link[=col_w_ks]{col_w_ks()}}. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, or \code{"ATC"}) to select the estimand (default is \code{"ATE"}), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
+The mean, maximum, or root-mean-squared Kolmogorov-Smirnov statistic, computed using \code{\link[=col_w_ks]{col_w_ks()}}. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, or \code{"ATC"}) to select the estimand (default is \code{"ATE"}), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments and for target balance.
 }
 \item{\code{ovl.mean}, \code{ovl.max}, \code{ovl.rms}}{
-The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using \code{\link[=col_w_ovl]{col_w_ovl()}}. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, or \code{"ATC"}) to select the estimand (default is \code{"ATE"}), \code{integrate} to select whether integration is done using using \code{\link[=integrate]{integrate()}} (\code{TRUE}) or a Riemann sum (\code{FALSE}, the default), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments.
+The mean, maximum, or root-mean-squared overlapping coefficient complement, computed using \code{\link[=col_w_ovl]{col_w_ovl()}}. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, or \code{"ATC"}) to select the estimand (default is \code{"ATE"}), \code{integrate} to select whether integration is done using using \code{\link[=integrate]{integrate()}} (\code{TRUE}) or a Riemann sum (\code{FALSE}, the default), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, \code{pairwise} to select whether statistics should be computed between each pair of treatment groups or between each treatment group and the target group identified by \code{estimand} (default \code{TRUE}). Can be used with binary and multi-category treatments and for target balance.
 }
 \item{\code{mahalanobis}}{
-The Mahalanobis distance between the treatment group means. This is similar to \code{smd.rms} but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, or \code{"ATC"}) to select the estimand (default is \code{"ATE"}) and \code{focal} to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments.
+The Mahalanobis distance between the treatment group means. This is similar to \code{smd.rms} but the covariates are standardized to remove correlations between them and de-emphasize redundant covariates. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, or \code{"ATC"}) to select the estimand (default is \code{"ATE"}) and \code{focal} to identify the focal treatment group when the ATT is the estimand. Can only be used with binary treatments and for target balance.
 }
 \item{\code{energy.dist}}{
-The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, \code{"ATC"}, or \code{NULL}) to select the estimand (default is \code{NULL}), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{improved} to select whether the "improved" energy distance should be used when \code{estimand = "ATE"}, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default \code{TRUE}). When \code{estimand = NULL}, only the energy distance between the treatment groups will be computed (i.e., as opposed to the energy distance between each treatment groups and the target sample). Can be used with binary and multi-category treatments.
+The total energy distance between each treatment group and the target sample, which is a scalar measure of the similarity between two multivariate distributions. The other allowable arguments include \code{estimand} (\code{"ATE"}, \code{"ATT"}, \code{"ATC"}, or \code{NULL}) to select the estimand (default is \code{NULL}), \code{focal} to identify the focal treatment group when the ATT is the estimand and the treatment has more than two categories, and \code{improved} to select whether the "improved" energy distance should be used when \code{estimand = "ATE"}, which emphasizes difference between treatment groups in addition to difference between each treatment group and the target sample (default \code{TRUE}). When \code{estimand = NULL}, only the energy distance between the treatment groups will be computed (i.e., as opposed to the energy distance between each treatment groups and the target sample). Can be used with binary and multi-category treatments and for target balance.
 }
 \item{\code{kernel.dist}}{
 The kernel distance between the treatment groups, which is a scalar measure of the similarity between two multivariate distributions. Can only be used with binary treatments.
@@ -100,11 +100,12 @@ subclass_ATE <- function(treat, p, nsub) {
                           method = "subclass",
                           estimand = "ATE",
                           subclass = nsub)
-    return(m$weights)
+    m$weights
 }
 
 # Initialize balance statistic; largest KS statistic
-init <- bal.init(lalonde[covs], treat = lalonde$treat, 
+init <- bal.init(lalonde[covs],
+                 treat = lalonde$treat, 
                  stat = "ks.max",
                  estimand = "ATE")
 
@@ -127,6 +128,8 @@ stats[which.min(stats)]
 # See which statistics are available
 available.stats("binary")
 available.stats("multinomial")
+available.stats("continuous")
+available.stats("target")
 \dontshow{\}) # examplesIf}
 }
 \seealso{

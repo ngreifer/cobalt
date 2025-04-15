@@ -207,5 +207,4 @@ test_that("splictfactor() and unsplitfactor() work", {
                    c("V1_0", "V1_1", "V2_0", "V2_1", "V3_0", "V3_1", "V4_0", "V4_1", 
                      "V5_0", "V5_1"))
   
-  
 })
